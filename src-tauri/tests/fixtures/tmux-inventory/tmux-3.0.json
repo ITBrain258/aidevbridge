@@ -1,0 +1,723 @@
+{
+  "source": "docs/messungen/fixtures/m1-tmux-inventory/2026-09-12-tmux-3.0.jsonl",
+  "source_sha256": "a10274f419769fdf858db1db6e9093b46ad98f38d0bbfbf984ba7c05cd2fdcbb",
+  "version_output": "tmux 3.0\n",
+  "socket": "/tmp/ab-m1-inventory-057af230f290469f8a07f7a6f13ede85/tmux.sock",
+  "query_argv": [
+    "env",
+    "LC_ALL=C",
+    "tmux",
+    "-u",
+    "-S",
+    "/tmp/ab-m1-inventory-057af230f290469f8a07f7a6f13ede85/tmux.sock",
+    "if-shell",
+    "-F",
+    "1",
+    "list-commands -F '#{?#{==:#{command_list_name},display-message},B|#{pid}|#{start_time},}'",
+    ";",
+    "list-sessions",
+    "-F",
+    "Q|#{session_id}|#{session_windows}",
+    ";",
+    "if-shell",
+    "-F",
+    "#{session_id}",
+    "list-panes -a -F 'P|#{session_id}|#{window_id}|#{pane_id}|#{pane_pid}|#{window_active}|#{pane_active}|#{pane_dead}|#{alternate_on}|#{session_attached}|#{window_activity}|#{window_bell_flag}|#{window_panes}'",
+    ";",
+    "if-shell",
+    "-F",
+    "1",
+    "list-commands -F '#{?#{==:#{command_list_name},display-message},E|#{pid}|#{start_time},}'"
+  ],
+  "cases": [
+    {
+      "name": "absent_poll_1",
+      "code": 1,
+      "stdout": "",
+      "stderr": "error connecting to /tmp/ab-m1-inventory-057af230f290469f8a07f7a6f13ede85/tmux.sock (No such file or directory)\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "absent_poll_2",
+      "code": 1,
+      "stdout": "",
+      "stderr": "error connecting to /tmp/ab-m1-inventory-057af230f290469f8a07f7a6f13ede85/tmux.sock (No such file or directory)\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "absent_poll_3",
+      "code": 1,
+      "stdout": "",
+      "stderr": "error connecting to /tmp/ab-m1-inventory-057af230f290469f8a07f7a6f13ede85/tmux.sock (No such file or directory)\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "plain_empty_panes",
+      "code": 1,
+      "stdout": "",
+      "stderr": "no current target\n",
+      "expected": {
+        "class": "TmuxError"
+      }
+    },
+    {
+      "name": "guarded_empty_1",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {},
+        "panes": []
+      }
+    },
+    {
+      "name": "guarded_empty_2",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {},
+        "panes": []
+      }
+    },
+    {
+      "name": "guarded_empty_3",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {},
+        "panes": []
+      }
+    },
+    {
+      "name": "first_named",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$0|1\nP|$0|@0|%0|2314042|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "2314042",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "same_name_replaced_1",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$1|1\nP|$1|@1|%1|2314046|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$1": 1
+        },
+        "panes": [
+          [
+            "$1",
+            "@1",
+            "%1",
+            "2314046",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "same_name_replaced_2",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$2|1\nP|$2|@2|%2|2314050|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$2": 1
+        },
+        "panes": [
+          [
+            "$2",
+            "@2",
+            "%2",
+            "2314050",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "same_name_replaced_3",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314054|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314054",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "respawn_snapshot_1",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314057|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314057",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "respawn_snapshot_2",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314060|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314060",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "respawn_snapshot_3",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314063|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314063",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "metadata_excluded_separator",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314063|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314063",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "metadata_excluded_controls",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314063|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314063",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "option_excluded",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314063|1|1|0|0|0|1789201087|0|1\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314063",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "two_panes",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314063|1|1|0|0|0|1789201087|0|2\nP|$3|@3|%4|2314075|1|0|0|0|0|1789201087|0|2\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314063",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "2"
+          ],
+          [
+            "$3",
+            "@3",
+            "%4",
+            "2314075",
+            "1",
+            "0",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "partial_failure",
+      "code": 1,
+      "stdout": "B|2314035|1789201087\n",
+      "stderr": "can't find pane: %999999999\n",
+      "expected": {
+        "class": "TmuxError"
+      }
+    },
+    {
+      "name": "before_restart_1",
+      "code": 0,
+      "stdout": "B|2314035|1789201087\nQ|$3|1\nP|$3|@3|%3|2314063|1|1|0|0|0|1789201087|0|2\nP|$3|@3|%4|2314075|1|0|0|0|0|1789201087|0|2\nE|2314035|1789201087\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314035,
+          1789201087
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "2314063",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "2"
+          ],
+          [
+            "$3",
+            "@3",
+            "%4",
+            "2314075",
+            "1",
+            "0",
+            "0",
+            "0",
+            "0",
+            "1789201087",
+            "0",
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "inert_poll_1",
+      "code": 1,
+      "stdout": "",
+      "stderr": "no server running on /tmp/ab-m1-inventory-057af230f290469f8a07f7a6f13ede85/tmux.sock\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "after_restart_1",
+      "code": 0,
+      "stdout": "B|2314085|1789201088\nQ|$0|1\nP|$0|@0|%0|2314086|1|1|0|0|0|1789201088|0|1\nE|2314085|1789201088\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314085,
+          1789201088
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "2314086",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201088",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "before_restart_2",
+      "code": 0,
+      "stdout": "B|2314085|1789201088\nQ|$0|1\nP|$0|@0|%0|2314086|1|1|0|0|0|1789201088|0|1\nE|2314085|1789201088\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314085,
+          1789201088
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "2314086",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201088",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "inert_poll_2",
+      "code": 1,
+      "stdout": "",
+      "stderr": "no server running on /tmp/ab-m1-inventory-057af230f290469f8a07f7a6f13ede85/tmux.sock\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "after_restart_2",
+      "code": 0,
+      "stdout": "B|2314132|1789201089\nQ|$0|1\nP|$0|@0|%0|2314133|1|1|0|0|0|1789201089|0|1\nE|2314132|1789201089\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314132,
+          1789201089
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "2314133",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201089",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "before_restart_3",
+      "code": 0,
+      "stdout": "B|2314132|1789201089\nQ|$0|1\nP|$0|@0|%0|2314133|1|1|0|0|0|1789201089|0|1\nE|2314132|1789201089\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314132,
+          1789201089
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "2314133",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201089",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "inert_poll_3",
+      "code": 1,
+      "stdout": "",
+      "stderr": "no server running on /tmp/ab-m1-inventory-057af230f290469f8a07f7a6f13ede85/tmux.sock\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "after_restart_3",
+      "code": 0,
+      "stdout": "B|2314143|1789201090\nQ|$0|1\nP|$0|@0|%0|2314144|1|1|0|0|0|1789201090|0|1\nE|2314143|1789201090\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          2314143,
+          1789201090
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "2314144",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1789201090",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    }
+  ]
+}

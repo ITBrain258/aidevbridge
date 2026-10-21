@@ -1,0 +1,56 @@
+fenster zoomed=True iconic=False fg=False sitzung-aktiv=True gesperrt=False ok=True
+12:29:50 Start: 10:29:50.241 state {"order":"1:f1 2:f2 3:f3 4:f4","shown":4,"focused":"4:f4","opening":"","quiet":"","lock":"","maximized":"","banner":null,"gl":8,"inner":"1536x794"}
+{"t":1792578602465,"label":"N4-L1-vor","beforeMB":10.5,"afterMB":9.7,"totalAfterMB":11}
+{"t":1792578603412,"label":"N4-L1-before","rtt":16,"offset":1272}
+12:30:03 N4-L1 idle
+12:31:04 N4-L1 flood
+12:34:04 N4-L1 rest
+12:35:04 N4-L1 end
+{"t":1792578905907,"label":"N4-L1-after","rtt":18,"offset":1277}
+{"t":1792578909041,"label":"N4-L1-nach","beforeMB":442.1,"afterMB":9.9,"totalAfterMB":12.6}
+12:35:09 N4-L1 fertig: 10:35:09.199 state {"order":"1:f1 2:f2 3:f3 4:f4","shown":4,"focused":"4:f4","opening":"","quiet":"","lock":"","maximized":"","banner":null,"gl":8,"inner":"1536x794"}
+10:35:09.372 open acht-a/f5
+10:35:11.598 open acht-a/f6
+{"t":1792578925851,"label":"N6-L1-vor","beforeMB":16.6,"afterMB":13.3,"totalAfterMB":14.9}
+{"t":1792578926777,"label":"N6-L1-before","rtt":19,"offset":1277}
+12:35:27 N6-L1 idle
+12:36:27 N6-L1 flood
+12:39:27 N6-L1 rest
+12:40:27 N6-L1 end
+{"t":1792579229319,"label":"N6-L1-after","rtt":18,"offset":1280}
+{"t":1792579232456,"label":"N6-L1-nach","beforeMB":379.5,"afterMB":13.5,"totalAfterMB":16.4}
+12:40:32 N6-L1 fertig: 10:40:32.605 state {"order":"1:f1 2:f2 3:f3 4:f4 5:f5 6:f6","shown":6,"focused":"6:f6","opening":"","quiet":"","lock":"","maximized":"","banner":null,"gl":12,"inner":"1536x794"}
+10:40:32.788 open acht-a/f7
+10:40:35.029 open acht-a/f8
+{"t":1792579249264,"label":"N8-L1-vor","beforeMB":21.2,"afterMB":15.6,"totalAfterMB":17.2}
+{"t":1792579250210,"label":"N8-L1-before","rtt":19,"offset":2054}
+12:40:50 N8-L1 idle
+12:41:50 N8-L1 flood
+12:44:51 N8-L1 rest
+12:45:51 N8-L1 end
+{"t":1792579552762,"label":"N8-L1-after","rtt":20,"offset":1285}
+{"t":1792579555928,"label":"N8-L1-nach","beforeMB":387.9,"afterMB":15.6,"totalAfterMB":18.3}
+12:45:55 N8-L1 fertig: 10:45:56.091 state {"order":"1:f1 2:f2 3:f3 4:f4 5:f5 6:f6 7:f7 8:f8","shown":8,"focused":"8:f8","opening":"","quiet":"","lock":"","maximized":"","banner":null,"gl":16,"inner":"1536x794"}
+{"t":1792579568296,"label":"N8-L2-vor","beforeMB":15.9,"afterMB":15.6,"totalAfterMB":17}
+{"t":1792579569212,"label":"N8-L2-before","rtt":19,"offset":1287}
+12:46:09 N8-L2 idle
+12:47:09 N8-L2 flood
+12:49:10 N8-L2 rest
+12:50:10 N8-L2 end
+{"t":1792579811789,"label":"N8-L2-after","rtt":17,"offset":1290}
+{"t":1792579815458,"label":"N8-L2-nach","beforeMB":64.6,"afterMB":16.6,"totalAfterMB":22.5}
+12:50:15 N8-L2 fertig: 10:50:15.603 state {"order":"1:f1 2:f2 3:f3 4:f4 5:f5 6:f6 7:f7 8:f8","shown":8,"focused":"8:f8","opening":"","quiet":"","lock":"","maximized":"","banner":null,"gl":16,"inner":"1536x794"}
+10:50:15.887 close 8
+10:50:16.835 close 7
+10:50:17.765 close 6
+10:50:18.676 close 5
+{"t":1792579831613,"label":"N4-L2-vor","beforeMB":11,"afterMB":10.3,"totalAfterMB":11.5}
+{"t":1792579832506,"label":"N4-L2-before","rtt":17,"offset":1289}
+12:50:32 N4-L2 idle
+12:51:33 N4-L2 flood
+12:53:33 N4-L2 rest
+12:54:33 N4-L2 end
+{"t":1792580075140,"label":"N4-L2-after","rtt":17,"offset":1293}
+{"t":1792580078172,"label":"N4-L2-nach","beforeMB":42.9,"afterMB":10.4,"totalAfterMB":11.7}
+12:54:38 N4-L2 fertig: 10:54:38.324 state {"order":"1:f1 2:f2 3:f3 4:f4","shown":4,"focused":"4:f4","opening":"","quiet":"","lock":"","maximized":"","banner":null,"gl":8,"inner":"1536x794"}
+12:54:38 Reihe fertig

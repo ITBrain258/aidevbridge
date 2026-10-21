@@ -1,0 +1,10 @@
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.46s
+   Compiling toml v0.8.2
+   Compiling async-trait v0.1.91
+    Finished `dev` profile [optimized + debuginfo] target(s) in 10m 03s
+Asset index-B5N02RpS.css im Binary: True
+Asset index-CIocNCIF.js im Binary: True
+Commit 3afa8653b930667676a3a6dca292f2ddd22a765d, exe sha256 486332AAD66F220F61973527A5C1357F8EB36A2AE3868410BB0590F521323EB1

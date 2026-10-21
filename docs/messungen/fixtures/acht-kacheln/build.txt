@@ -1,0 +1,10 @@
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.72s
+   Compiling agentbridge v0.1.2 (<Scratchpad>\acht-instanz\src\src-tauri)
+   Compiling russh v0.63.2 (<Scratchpad>\acht-instanz\src\vendor\russh)
+    Finished `dev` profile [optimized + debuginfo] target(s) in 2m 27s
+Asset index-B5N02RpS.css im Binary: True
+Asset index-CIocNCIF.js im Binary: True
+Commit e45d60201eac5f52133b4d7cf1cb955ef996ecb4, exe sha256 B335AAD86ADFD87BB7CF1698CA6F33B12A7EA8F689055660E10275A3CC936643

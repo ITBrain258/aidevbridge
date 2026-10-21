@@ -1,0 +1,29 @@
+Microsoft components used by the Windows version of aidevbridge
+
+aidevbridge contains Microsoft Visual C++ startup and exception-runtime code
+from the MSVC 14.44 toolset, linked into the executable. These Microsoft
+components remain subject to their applicable Microsoft terms. aidevbridge's
+own open-source license terms do not relicense Microsoft's proprietary
+runtime code.
+
+The Windows version uses Microsoft Edge WebView2 Runtime. WebView2 is a
+separately installed Microsoft component, shared with other applications and
+serviced by Microsoft. The aidevbridge installers may download Microsoft's
+Evergreen Bootstrapper and install the Runtime when it is missing. The ZIP
+version requires the Runtime to be installed separately.
+
+WebView2 may collect usage information and send it to Microsoft, as described
+in Microsoft's Privacy Statement:
+https://aka.ms/privacy
+
+The Evergreen Runtime may check for, download, and install updates
+automatically. Its Microsoft terms are supplied in
+microsoft-webview2-evergreen-2026-09-12-LICENSE.txt.
+
+The WebView2 SDK loader has its own separate license and notice files:
+microsoft-web-webview2-1.0.3650.58-LICENSE.txt
+microsoft-web-webview2-1.0.3650.58-NOTICE.txt
+
+This file is an aidevbridge attribution and privacy notice. It is not a grant
+of Microsoft redistribution rights or evidence that a user has accepted any
+Microsoft terms.

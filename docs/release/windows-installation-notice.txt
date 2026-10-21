@@ -1,0 +1,22 @@
+aidevbridge and Microsoft Edge WebView2 Runtime
+
+aidevbridge is offered under MIT OR Apache-2.0. Its third-party components
+retain their own licenses. This installer notice does not restrict those
+open-source rights or relicense any Microsoft software.
+
+aidevbridge uses Microsoft Edge WebView2 to display its interface. If the
+Evergreen Runtime is missing, this installer downloads Microsoft's
+bootstrapper from Microsoft and runs the Runtime installation silently.
+The Runtime has its own Microsoft terms, data practices and updates. It is
+a shared Windows component; aidevbridge does not uninstall it when removed.
+
+The complete Microsoft Evergreen Runtime terms follow. The license page
+provides these terms in the interactive installer. A silent or passive run
+does not itself document that a person has read or agreed to them.
+
+After installation, licenses/index.html beside the application opens the
+included license texts and notices offline. These include the original
+Microsoft Runtime terms and the separate SDK and runtime notices.
+
+Microsoft Edge WebView2 Runtime terms
+===================================

@@ -1,0 +1,1669 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-09-12T09:48:38.826Z",
+  "git_head": "b670eef56e28c16537d29c05fcfb56948c4226ff",
+  "scope": "Five UNIC crates 0.9.0; code MIT choice plus separate observed Unicode 10.0.0 data-license mapping. Preparation only, no final binary or legal attestation.",
+  "inputs": [
+    {
+      "path": "Cargo.lock",
+      "bytes": 153532,
+      "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f"
+    },
+    {
+      "path": "Cargo.toml",
+      "bytes": 256,
+      "sha256": "38b006f1e3936f256a5c475a2cf0ca3b7654bed93f75572a0a033522a4bd404b"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "bytes": 5008,
+      "sha256": "337de8247088d03fe34826d772bbf3e002360c8df05faefad5d2c8de0e99dde2"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "bytes": 1295,
+      "sha256": "38050385b160e40c38ce20387154b6a7e896bb1dafef56f5c61798532a33a2b7"
+    },
+    {
+      "path": "docs/release/license-inventory-2026-09-12-rust.json",
+      "bytes": 1708392,
+      "sha256": "9e9637f332eaa701a88475cbd677885e65ca6ce9fd67f981643973836d31d021"
+    }
+  ],
+  "configuration_from_historical_inventory": {
+    "target": "x86_64-pc-windows-msvc",
+    "features_argument": "tauri/custom-protocol",
+    "default_features_enabled": true,
+    "dev_dependencies_in_release_tree": false,
+    "workspace_resolver": "2"
+  },
+  "methodology": {
+    "archive": "Read cached .crate gzip/tar in memory, require regular contained entries, hash against current Cargo.lock, compare every entry with installed source. No extraction.",
+    "upstream": "Fetch exact VCS commit raw URLs, compare original manifests and selected runtime source/table files byte-for-byte.",
+    "membership": "Parse complete DerivedCoreProperties 10.0.0 ranges and four local generated range tables; compare 0x110000-byte membership vectors including absent codepoints.",
+    "license_choice": "MIT selected for UNIC code according to original source headers and COPYRIGHT at both pins. Apache text not exported; no cumulative MIT-and-Apache choice.",
+    "network": "HTTPS only; redirect:error, per-request AbortSignal 20 seconds and 2 MiB body cap. Downloads remain in memory until validated text exports."
+  },
+  "packages": [
+    {
+      "name": "unic-char-property",
+      "version": "0.9.0",
+      "selected_code_license": "MIT",
+      "declared_license": "MIT/Apache-2.0",
+      "repository": "https://github.com/open-i18n/rust-unic/",
+      "repo_path": "unic/char/property",
+      "repo_path_provenance": "explicit pinned upstream path with byte-equal original manifest; .cargo_vcs_info.json itself has no path_in_vcs",
+      "vcs_info": {
+        "git": {
+          "sha1": "5878605364af97a3358368a6eaef02104af2e016"
+        }
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-char-property-0.9.0/.cargo_vcs_info.json",
+        "bytes": 74,
+        "sha256": "72a0e361aab8e7af18af799a6046b290a930d94b76c551bf0667e0726f9d42d1"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/unic-char-property-0.9.0.crate",
+        "bytes": 6809,
+        "sha256": "a8c57a407d9b6fa02b4795eb81c5b6652060a15a7903ea981f3d723e6c0be221",
+        "matches_current_lock_checksum": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-char-property-0.9.0/",
+      "files": [
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 921,
+          "sha256": "132a2ace33bbc5f54a2c4a4b522f96b7260c9e0fdb7756a753b4017e101e86d0",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1381,
+          "sha256": "1c21185c9bd84959d197f681719106c1a5f4dface3db421b6660bb9801787929",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 1679,
+          "sha256": "200af9360e201caaa404fea0c8ec5387fa3ead07f8c056adf56d869768b0201b",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/macros.rs",
+          "bytes": 9062,
+          "sha256": "969bde9782647b7b8acd8fea1721372eb41e747a6a11de0b7dd8ac9b286759f2",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "bytes": 714,
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/property.rs",
+          "bytes": 1587,
+          "sha256": "f0e34e995306fef0d2a11bac0f7c385d936f6c7d68aed2ec3e33fc7f5eea57ee",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/range_types.rs",
+          "bytes": 3187,
+          "sha256": "269d781d752c90c0d8d24a299c4d6318ce5d47d843120f019a53df036030def9",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/tables.rs",
+          "bytes": 3758,
+          "sha256": "1f2a0213d78fc55a6421df8c74b490b9fd60f37a0b882aacccc6838af14b5279",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/bool_property_macro.rs",
+          "bytes": 2102,
+          "sha256": "ce18763a5f7eb86925b0fbad1129dd770c9ddefbab76c1ea27d0a437acb20514",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/enum_property_macro.rs",
+          "bytes": 2489,
+          "sha256": "3d19cbdfc9f174dbbba696f791f10659af0d1bc5676969e7f84f269faed174f8",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/tables/property_table.rsv",
+          "bytes": 56,
+          "sha256": "efa2f4a8b3a564a35c9412d095920d5aebad515e11a4a1a415f5ef9d1259974c",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/tables_tests.rs",
+          "bytes": 1396,
+          "sha256": "94c4e5f1fcf6b7914deb9295c7e7b3840a5310718e5ea875ae3bc01c7349e0da",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 74,
+          "sha256": "72a0e361aab8e7af18af799a6046b290a930d94b76c551bf0667e0726f9d42d1",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "technical_role": "normal-runtime-candidate",
+      "release_tree_features": [],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "pinned_upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-char-property-0.9.0/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/char/property/Cargo.toml",
+          "bytes": 921,
+          "sha256": "132a2ace33bbc5f54a2c4a4b522f96b7260c9e0fdb7756a753b4017e101e86d0",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-char-property-0.9.0/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/char/property/src/lib.rs",
+          "bytes": 1679,
+          "sha256": "200af9360e201caaa404fea0c8ec5387fa3ead07f8c056adf56d869768b0201b",
+          "byte_equal": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/lib.rs",
+          "sha256": "200af9360e201caaa404fea0c8ec5387fa3ead07f8c056adf56d869768b0201b",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/macros.rs",
+          "sha256": "969bde9782647b7b8acd8fea1721372eb41e747a6a11de0b7dd8ac9b286759f2",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/property.rs",
+          "sha256": "f0e34e995306fef0d2a11bac0f7c385d936f6c7d68aed2ec3e33fc7f5eea57ee",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/range_types.rs",
+          "sha256": "269d781d752c90c0d8d24a299c4d6318ce5d47d843120f019a53df036030def9",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/tables.rs",
+          "sha256": "1f2a0213d78fc55a6421df8c74b490b9fd60f37a0b882aacccc6838af14b5279",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unic-char-range",
+      "version": "0.9.0",
+      "selected_code_license": "MIT",
+      "declared_license": "MIT/Apache-2.0",
+      "repository": "https://github.com/open-i18n/rust-unic/",
+      "repo_path": "unic/char/range",
+      "repo_path_provenance": "explicit pinned upstream path with byte-equal original manifest; .cargo_vcs_info.json itself has no path_in_vcs",
+      "vcs_info": {
+        "git": {
+          "sha1": "5878605364af97a3358368a6eaef02104af2e016"
+        }
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-char-range-0.9.0/.cargo_vcs_info.json",
+        "bytes": 74,
+        "sha256": "72a0e361aab8e7af18af799a6046b290a930d94b76c551bf0667e0726f9d42d1"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/unic-char-range-0.9.0.crate",
+        "bytes": 7020,
+        "sha256": "0398022d5f700414f6b899e10b8348231abf9173fa93144cbc1a43b9793c1fbc",
+        "matches_current_lock_checksum": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-char-range-0.9.0/",
+      "files": [
+        {
+          "path": "benches/benchmarks.rs",
+          "bytes": 1092,
+          "sha256": "43c24a525f93c2417e09e4a3914523faf5802e8d4e33697070ddb429ef16fbe0",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 1037,
+          "sha256": "d176bfd5d70a75b4b8b27ee24e9a8bdd3138aaa3bf0903a7f58497b4e4490f59",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1495,
+          "sha256": "36d694fec9b997f5cd86861a5d062d0e69794e051b07d8ebf1b79ab9482c3462",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "examples/macro_use_std_tests.rs",
+          "bytes": 600,
+          "sha256": "f96109f197e7750ed5ab10041542a5b59a0f3a791e52cc88ebfe5e098b05711e",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/iter.rs",
+          "bytes": 3850,
+          "sha256": "aeb949486a521f8c273d7875536d030643f74603112ef6688bafdd639bd8f487",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/iter_fused.rs",
+          "bytes": 515,
+          "sha256": "2ab4a76b8e9610163deda5c602881c2b8e9696f607580a04bb4e17754e4f8f9b",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/iter_trusted_len.rs",
+          "bytes": 541,
+          "sha256": "b89e6d7dbbc2f46a1b66015b1b5d2bc12d91309880847d4f980f7b39ff4a8945",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 2126,
+          "sha256": "955ee0b9069740fd1ee724943562f9189b7eb29b49d79c8c352a6f193c12c3ec",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/macros.rs",
+          "bytes": 1520,
+          "sha256": "7f0a7eedfdd31a0d5f10b16f342524663b4f2c82a0c97728f8677d0d29490241",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/par_iter.rs",
+          "bytes": 2871,
+          "sha256": "d6a213e83fc3bd0b0d248c0a7e42fe1b8e24eeca1424195c4638c7328795d018",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "bytes": 714,
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/range.rs",
+          "bytes": 7210,
+          "sha256": "5ce555d9cf8513c76f3b45002a3eed4a07cfe8a51e769f9888270091d319cb05",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/step.rs",
+          "bytes": 1310,
+          "sha256": "66cbc3e291f1014f994c88b61a741e4cd84e9ef62debef5e160b4ae4f5211bd7",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/iter_tests.rs",
+          "bytes": 2120,
+          "sha256": "5af9a84509e992e83d1ee90e86ec1e88352edf7926013b4c7cbdfe1f90c61b7a",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 74,
+          "sha256": "72a0e361aab8e7af18af799a6046b290a930d94b76c551bf0667e0726f9d42d1",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "technical_role": "normal-runtime-candidate",
+      "release_tree_features": [
+        "default"
+      ],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "pinned_upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-char-range-0.9.0/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/char/range/Cargo.toml",
+          "bytes": 1037,
+          "sha256": "d176bfd5d70a75b4b8b27ee24e9a8bdd3138aaa3bf0903a7f58497b4e4490f59",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-char-range-0.9.0/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/char/range/src/lib.rs",
+          "bytes": 2126,
+          "sha256": "955ee0b9069740fd1ee724943562f9189b7eb29b49d79c8c352a6f193c12c3ec",
+          "byte_equal": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/iter.rs",
+          "sha256": "aeb949486a521f8c273d7875536d030643f74603112ef6688bafdd639bd8f487",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/iter_fused.rs",
+          "sha256": "2ab4a76b8e9610163deda5c602881c2b8e9696f607580a04bb4e17754e4f8f9b",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/iter_trusted_len.rs",
+          "sha256": "b89e6d7dbbc2f46a1b66015b1b5d2bc12d91309880847d4f980f7b39ff4a8945",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "955ee0b9069740fd1ee724943562f9189b7eb29b49d79c8c352a6f193c12c3ec",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/macros.rs",
+          "sha256": "7f0a7eedfdd31a0d5f10b16f342524663b4f2c82a0c97728f8677d0d29490241",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/par_iter.rs",
+          "sha256": "d6a213e83fc3bd0b0d248c0a7e42fe1b8e24eeca1424195c4638c7328795d018",
+          "header": "// Copyright 2018 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2018 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/range.rs",
+          "sha256": "5ce555d9cf8513c76f3b45002a3eed4a07cfe8a51e769f9888270091d319cb05",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/step.rs",
+          "sha256": "66cbc3e291f1014f994c88b61a741e4cd84e9ef62debef5e160b4ae4f5211bd7",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unic-common",
+      "version": "0.9.0",
+      "selected_code_license": "MIT",
+      "declared_license": "MIT/Apache-2.0",
+      "repository": "https://github.com/open-i18n/rust-unic/",
+      "repo_path": "unic/common",
+      "repo_path_provenance": "explicit pinned upstream path with byte-equal original manifest; .cargo_vcs_info.json itself has no path_in_vcs",
+      "vcs_info": {
+        "git": {
+          "sha1": "5878605364af97a3358368a6eaef02104af2e016"
+        }
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-common-0.9.0/.cargo_vcs_info.json",
+        "bytes": 74,
+        "sha256": "72a0e361aab8e7af18af799a6046b290a930d94b76c551bf0667e0726f9d42d1"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/unic-common-0.9.0.crate",
+        "bytes": 2558,
+        "sha256": "80d7ff825a6a654ee85a63e80f92f054f904f21e7d12da4e22f9834a4aaa35bc",
+        "matches_current_lock_checksum": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-common-0.9.0/",
+      "files": [
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 805,
+          "sha256": "5c74ebf8b8eede95170fbef14b6050735ce8993ce265978f41562386cb0c2bb9",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1267,
+          "sha256": "719fc6cbaa72559247169192a041fc1c4dfcec442987b204a7237e22836bbb14",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 321,
+          "sha256": "54c3f5551f27720e50315ba3ed76b2bf47db4692de1e6bdc12434022971b5ee3",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 972,
+          "sha256": "726d922245ebdf3bc474d48edf032b9af7fe24fc79ee17d87e2d295103e39ea0",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "bytes": 714,
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/version.rs",
+          "bytes": 2150,
+          "sha256": "ee5f50444acc2df5f9cd4ec97bd81444c6425b55fd37327c254ccd1736270898",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 74,
+          "sha256": "72a0e361aab8e7af18af799a6046b290a930d94b76c551bf0667e0726f9d42d1",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "technical_role": "normal-runtime-candidate",
+      "release_tree_features": [
+        "default"
+      ],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "pinned_upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-common-0.9.0/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/common/Cargo.toml",
+          "bytes": 805,
+          "sha256": "5c74ebf8b8eede95170fbef14b6050735ce8993ce265978f41562386cb0c2bb9",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-common-0.9.0/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/common/src/lib.rs",
+          "bytes": 972,
+          "sha256": "726d922245ebdf3bc474d48edf032b9af7fe24fc79ee17d87e2d295103e39ea0",
+          "byte_equal": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/lib.rs",
+          "sha256": "726d922245ebdf3bc474d48edf032b9af7fe24fc79ee17d87e2d295103e39ea0",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/version.rs",
+          "sha256": "ee5f50444acc2df5f9cd4ec97bd81444c6425b55fd37327c254ccd1736270898",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unic-ucd-version",
+      "version": "0.9.0",
+      "selected_code_license": "MIT",
+      "declared_license": "MIT/Apache-2.0",
+      "repository": "https://github.com/open-i18n/rust-unic/",
+      "repo_path": "unic/ucd/version",
+      "repo_path_provenance": "explicit pinned upstream path with byte-equal original manifest; .cargo_vcs_info.json itself has no path_in_vcs",
+      "vcs_info": {
+        "git": {
+          "sha1": "5878605364af97a3358368a6eaef02104af2e016"
+        }
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-version-0.9.0/.cargo_vcs_info.json",
+        "bytes": 74,
+        "sha256": "72a0e361aab8e7af18af799a6046b290a930d94b76c551bf0667e0726f9d42d1"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/unic-ucd-version-0.9.0.crate",
+        "bytes": 2246,
+        "sha256": "96bd2f2237fe450fcd0a1d2f5f4e91711124f7857ba2e964247776ebeeb7b0c4",
+        "matches_current_lock_checksum": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-version-0.9.0/",
+      "files": [
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 876,
+          "sha256": "6411d1d10e5bf720a19366db6ab5f4c84cf1156c7033fafbd941f64729bd027c",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1332,
+          "sha256": "75628c37e215f72578113d96f746acba57b8a2f3448675a2f2a807f0930d4ce7",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 966,
+          "sha256": "51d52da8220e430f32523aa5972708e698fca29fea8b64a4cbdc67d3d1830f37",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "bytes": 714,
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/unicode_version.rs",
+          "bytes": 1065,
+          "sha256": "bc2fe0341c2a60909f1ef7e56593b836344ca4b4ae8f73e7f7aa07259963dd03",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tables/unicode_version.rsv",
+          "bytes": 135,
+          "sha256": "a2efcb89606ee821ff9ac5595e5126a65f2b00b70ca1054c1884f741827ab230",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/basic_tests.rs",
+          "bytes": 720,
+          "sha256": "8d3597a7c3365b5516a2e6200386b5e8dac836aa6f90b8a329ff120f0c54f207",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 74,
+          "sha256": "72a0e361aab8e7af18af799a6046b290a930d94b76c551bf0667e0726f9d42d1",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "technical_role": "normal-runtime-candidate",
+      "release_tree_features": [],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "pinned_upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-version-0.9.0/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/ucd/version/Cargo.toml",
+          "bytes": 876,
+          "sha256": "6411d1d10e5bf720a19366db6ab5f4c84cf1156c7033fafbd941f64729bd027c",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-version-0.9.0/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/ucd/version/src/lib.rs",
+          "bytes": 966,
+          "sha256": "51d52da8220e430f32523aa5972708e698fca29fea8b64a4cbdc67d3d1830f37",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-version-0.9.0/src/unicode_version.rs",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/ucd/version/src/unicode_version.rs",
+          "bytes": 1065,
+          "sha256": "bc2fe0341c2a60909f1ef7e56593b836344ca4b4ae8f73e7f7aa07259963dd03",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-version-0.9.0/tables/unicode_version.rsv",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/ucd/version/tables/unicode_version.rsv",
+          "bytes": 135,
+          "sha256": "a2efcb89606ee821ff9ac5595e5126a65f2b00b70ca1054c1884f741827ab230",
+          "byte_equal": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/lib.rs",
+          "sha256": "51d52da8220e430f32523aa5972708e698fca29fea8b64a4cbdc67d3d1830f37",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/unicode_version.rs",
+          "sha256": "bc2fe0341c2a60909f1ef7e56593b836344ca4b4ae8f73e7f7aa07259963dd03",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unic-ucd-ident",
+      "version": "0.9.0",
+      "selected_code_license": "MIT",
+      "declared_license": "MIT/Apache-2.0",
+      "repository": "https://github.com/open-i18n/rust-unic/",
+      "repo_path": "unic/ucd/ident",
+      "repo_path_provenance": "explicit pinned upstream path with byte-equal original manifest; .cargo_vcs_info.json itself has no path_in_vcs",
+      "vcs_info": {
+        "git": {
+          "sha1": "8a6ce83063d90b91ae2ce59eddb803edd393fca9"
+        }
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/.cargo_vcs_info.json",
+        "bytes": 74,
+        "sha256": "64e154b113a16828624a2baedc6e70e8e6ea8f5c8cf8455d2c255762c0f43a8a"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0.crate",
+        "bytes": 16128,
+        "sha256": "e230a37c0381caa9219d67cf063aa3a375ffed5bf541a452db16e744bdab6987",
+        "matches_current_lock_checksum": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/",
+      "files": [
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 1175,
+          "sha256": "9c1c7cfc028e70f52a6a5bdc126c9348837783e5e3e059429c05fadb9af8ec8d",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1654,
+          "sha256": "990a4fc63119a8cbf5118d6dc98b279ea96cf3b7fb90eede1be27107716decfc",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/id.rs",
+          "bytes": 8911,
+          "sha256": "4272423b2b2a15c62bdfa515e7a3bd99cede8bd96f04d270026ec643f8c66b00",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 2117,
+          "sha256": "b855a13e55e654ea7e19c5d4ac0cf2fe17653ad6cae8d3559d35d041619c1fea",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/pattern.rs",
+          "bytes": 10029,
+          "sha256": "2804e1e3bde17edfcdafe467b0a5f20b9d4ce5c7501f76fc11138db4cb4f296f",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "bytes": 714,
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/xid.rs",
+          "bytes": 9123,
+          "sha256": "c844753b9166b7d4a9a784e0e5025b6e0831bd9ba0d66086b1eb117257d452c3",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tables/id_continue.rsv",
+          "bytes": 29805,
+          "sha256": "9d9ece7d9bf899756b3556861e5cd66ebd6ca3afb128f7cec235d4c4067c6917",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tables/id_start.rsv",
+          "bytes": 25335,
+          "sha256": "6970896f4c4f7145e918435c07756585ead65f67007016ebdb7169a3dd4da5d3",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tables/pattern_syntax.rsv",
+          "bytes": 1257,
+          "sha256": "381a11d21247cab907401b49d1f2326e34d090cea9e438d8c36462485aa96ee6",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tables/pattern_white_space.rsv",
+          "bytes": 314,
+          "sha256": "46ea34ac91437824629ef28ff96e933e55063ac1f577a21b3894da29b4faeb4a",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tables/unicode_version.rsv",
+          "bytes": 135,
+          "sha256": "a2efcb89606ee821ff9ac5595e5126a65f2b00b70ca1054c1884f741827ab230",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tables/xid_continue.rsv",
+          "bytes": 30106,
+          "sha256": "c32d3408d51272db0a78d70e328d8805ef1593e8e2479526aec6a11b61ad8c97",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tables/xid_start.rsv",
+          "bytes": 25636,
+          "sha256": "4b8bc5ef14ee67842dfaeda5bad56527f61789881aa59611599e31b2df5f55b4",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/lexical_class_tests.rs",
+          "bytes": 3396,
+          "sha256": "080030f251c4eeb4fe546ee4e3782de3f7625452b60f75f6ad11446834d1dc75",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/unicode_version_tests.rs",
+          "bytes": 628,
+          "sha256": "7d47a648cb707facf02088e79adcc1b283fab414128d8bb71529aa41b22cfa25",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 74,
+          "sha256": "64e154b113a16828624a2baedc6e70e8e6ea8f5c8cf8455d2c255762c0f43a8a",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "technical_role": "normal-runtime-candidate",
+      "release_tree_features": [
+        "default",
+        "id",
+        "xid"
+      ],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "pinned_upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/Cargo.toml",
+          "bytes": 1175,
+          "sha256": "9c1c7cfc028e70f52a6a5bdc126c9348837783e5e3e059429c05fadb9af8ec8d",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/src/lib.rs",
+          "bytes": 2117,
+          "sha256": "b855a13e55e654ea7e19c5d4ac0cf2fe17653ad6cae8d3559d35d041619c1fea",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/src/id.rs",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/src/id.rs",
+          "bytes": 8911,
+          "sha256": "4272423b2b2a15c62bdfa515e7a3bd99cede8bd96f04d270026ec643f8c66b00",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/src/xid.rs",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/src/xid.rs",
+          "bytes": 9123,
+          "sha256": "c844753b9166b7d4a9a784e0e5025b6e0831bd9ba0d66086b1eb117257d452c3",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/id_start.rsv",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/id_start.rsv",
+          "bytes": 25335,
+          "sha256": "6970896f4c4f7145e918435c07756585ead65f67007016ebdb7169a3dd4da5d3",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/id_continue.rsv",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/id_continue.rsv",
+          "bytes": 29805,
+          "sha256": "9d9ece7d9bf899756b3556861e5cd66ebd6ca3afb128f7cec235d4c4067c6917",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/xid_start.rsv",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/xid_start.rsv",
+          "bytes": 25636,
+          "sha256": "4b8bc5ef14ee67842dfaeda5bad56527f61789881aa59611599e31b2df5f55b4",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/xid_continue.rsv",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/xid_continue.rsv",
+          "bytes": 30106,
+          "sha256": "c32d3408d51272db0a78d70e328d8805ef1593e8e2479526aec6a11b61ad8c97",
+          "byte_equal": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/unicode_version.rsv",
+          "upstream_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/unicode_version.rsv",
+          "bytes": 135,
+          "sha256": "a2efcb89606ee821ff9ac5595e5126a65f2b00b70ca1054c1884f741827ab230",
+          "byte_equal": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/id.rs",
+          "sha256": "4272423b2b2a15c62bdfa515e7a3bd99cede8bd96f04d270026ec643f8c66b00",
+          "header": "// Copyright 2017-2019 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017-2019 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "b855a13e55e654ea7e19c5d4ac0cf2fe17653ad6cae8d3559d35d041619c1fea",
+          "header": "// Copyright 2017-2019 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017-2019 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/pattern.rs",
+          "sha256": "2804e1e3bde17edfcdafe467b0a5f20b9d4ce5c7501f76fc11138db4cb4f296f",
+          "header": "// Copyright 2017-2019 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017-2019 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/pkg_info.rs",
+          "sha256": "37cbe4efd0b0205d251e1ef7714b23e3be27052c8a0de6b1ae3cbf3aefae1fe5",
+          "header": "// Copyright 2017 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017 The UNIC Project Developers."
+          ]
+        },
+        {
+          "path": "src/xid.rs",
+          "sha256": "c844753b9166b7d4a9a784e0e5025b6e0831bd9ba0d66086b1eb117257d452c3",
+          "header": "// Copyright 2017-2019 The UNIC Project Developers.\n//\n// See the COPYRIGHT file at the top-level directory of this distribution.\n//\n// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or\n// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your\n// option. This file may not be copied, modified, or distributed\n// except according to those terms.",
+          "copyright_lines": [
+            "// Copyright 2017-2019 The UNIC Project Developers."
+          ]
+        }
+      ]
+    }
+  ],
+  "license_exports": [
+    {
+      "path": "docs/release/licenses/unic-0.9.0-LICENSE-MIT.txt",
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "original_bytes": true,
+      "sources": [
+        "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-MIT",
+        "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/LICENSE-MIT"
+      ]
+    },
+    {
+      "path": "docs/release/licenses/unic-0.9.0-COPYRIGHT.md",
+      "bytes": 608,
+      "sha256": "f5c342c49f3ac804f3e8e7bb62a8040a44c50d47bb36902b1abd13f66a1adf8b",
+      "original_bytes": true,
+      "sources": [
+        "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/COPYRIGHT.md",
+        "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/COPYRIGHT.md"
+      ]
+    },
+    {
+      "path": "docs/release/licenses/unicode-data-LICENSE-V3-2026-09-12.txt",
+      "bytes": 1995,
+      "sha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96",
+      "original_bytes": true,
+      "sources": [
+        "https://www.unicode.org/license.txt"
+      ]
+    },
+    {
+      "path": "docs/release/licenses/unic-0.9.0-SOURCE-NOTICES.txt",
+      "bytes": 4916,
+      "sha256": "cb02092fe3463f16bcd1537f89312df885f5ba384ac906243546fa263a5c4742",
+      "original_bytes": false,
+      "source": "source headers and Unicode 10.0.0 data header excerpts mapped in JSON"
+    }
+  ],
+  "unicode_data": {
+    "version": "10.0.0",
+    "submodule_pin": "2a2044479b3c4915ef4213adf1dfd6236dba24c8",
+    "submodule_repo": "https://github.com/open-i18n/data-unicode-ucd",
+    "submodule_status": "Upstream UNIC data mirror; README explicitly calls it unofficial. Equality checked against official Unicode downloads.",
+    "gitlink_evidence": [
+      {
+        "unic_pin": "5878605364af97a3358368a6eaef02104af2e016",
+        "root_tree_url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/5878605364af97a3358368a6eaef02104af2e016",
+        "external_tree": {
+          "path": "external",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "ccbe6d6c718313899623d5f819b26a9dababcacc",
+          "url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/ccbe6d6c718313899623d5f819b26a9dababcacc"
+        },
+        "external_tree_url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/ccbe6d6c718313899623d5f819b26a9dababcacc",
+        "unicode_tree": {
+          "path": "unicode",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "749ed88389f880779f148ce2bf4968dab169a44c",
+          "url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/749ed88389f880779f148ce2bf4968dab169a44c"
+        },
+        "unicode_tree_url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/749ed88389f880779f148ce2bf4968dab169a44c",
+        "ucd_gitlink": {
+          "path": "ucd",
+          "mode": "160000",
+          "type": "commit",
+          "sha": "2a2044479b3c4915ef4213adf1dfd6236dba24c8"
+        },
+        "gitmodules_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/.gitmodules",
+        "gitmodules_text": "[submodule \"external/unicode/idna\"]\n\tpath = external/unicode/idna\n\turl = https://github.com/open-i18n/data-unicode-idna.git\n[submodule \"external/unicode/emoji\"]\n\tpath = external/unicode/emoji\n\turl = https://github.com/open-i18n/data-unicode-emoji.git\n[submodule \"external/unicode/ucd\"]\n\tpath = external/unicode/ucd\n\turl = https://github.com/open-i18n/data-unicode-ucd.git\n"
+      },
+      {
+        "unic_pin": "8a6ce83063d90b91ae2ce59eddb803edd393fca9",
+        "root_tree_url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/8a6ce83063d90b91ae2ce59eddb803edd393fca9",
+        "external_tree": {
+          "path": "external",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "ccbe6d6c718313899623d5f819b26a9dababcacc",
+          "url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/ccbe6d6c718313899623d5f819b26a9dababcacc"
+        },
+        "external_tree_url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/ccbe6d6c718313899623d5f819b26a9dababcacc",
+        "unicode_tree": {
+          "path": "unicode",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "749ed88389f880779f148ce2bf4968dab169a44c",
+          "url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/749ed88389f880779f148ce2bf4968dab169a44c"
+        },
+        "unicode_tree_url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/749ed88389f880779f148ce2bf4968dab169a44c",
+        "ucd_gitlink": {
+          "path": "ucd",
+          "mode": "160000",
+          "type": "commit",
+          "sha": "2a2044479b3c4915ef4213adf1dfd6236dba24c8"
+        },
+        "gitmodules_url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/.gitmodules",
+        "gitmodules_text": "[submodule \"external/unicode/idna\"]\n\tpath = external/unicode/idna\n\turl = https://github.com/open-i18n/data-unicode-idna.git\n[submodule \"external/unicode/emoji\"]\n\tpath = external/unicode/emoji\n\turl = https://github.com/open-i18n/data-unicode-emoji.git\n[submodule \"external/unicode/ucd\"]\n\tpath = external/unicode/ucd\n\turl = https://github.com/open-i18n/data-unicode-ucd.git\n"
+      }
+    ],
+    "generator_evidence": [
+      {
+        "path": "gen/src/writer/ucd/ident.rs",
+        "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/gen/src/writer/ucd/ident.rs",
+        "bytes": 1963,
+        "sha256": "c7349c6eb8974b0bc916b2288858bd7663d93c8b08f802696f4b0e7c8530fe38",
+        "relevant_lines": [
+          {
+            "line": 13,
+            "text": "use crate::source::ucd::derived_core_properties::DERIVED_CORE_PROPERTIES;"
+          },
+          {
+            "line": 15,
+            "text": "use crate::source::ucd::readme::UNICODE_VERSION;"
+          },
+          {
+            "line": 17,
+            "text": "use crate::writer::common::emit_unicode_version;"
+          },
+          {
+            "line": 22,
+            "text": "    emit_unicode_version(dir, &UNICODE_VERSION);"
+          },
+          {
+            "line": 23,
+            "text": "    emit_id_start(dir);"
+          },
+          {
+            "line": 24,
+            "text": "    emit_id_continue(dir);"
+          },
+          {
+            "line": 25,
+            "text": "    emit_xid_start(dir);"
+          },
+          {
+            "line": 26,
+            "text": "    emit_xid_continue(dir);"
+          },
+          {
+            "line": 31,
+            "text": "fn emit_id_start(dir: &Path) {"
+          },
+          {
+            "line": 34,
+            "text": "        \"id_start.rsv\","
+          },
+          {
+            "line": 35,
+            "text": "        &DERIVED_CORE_PROPERTIES.id_start.to_range_char_set(),"
+          },
+          {
+            "line": 39,
+            "text": "fn emit_id_continue(dir: &Path) {"
+          },
+          {
+            "line": 42,
+            "text": "        \"id_continue.rsv\","
+          },
+          {
+            "line": 43,
+            "text": "        &DERIVED_CORE_PROPERTIES.id_continue.to_range_char_set(),"
+          },
+          {
+            "line": 47,
+            "text": "fn emit_xid_start(dir: &Path) {"
+          },
+          {
+            "line": 50,
+            "text": "        \"xid_start.rsv\","
+          },
+          {
+            "line": 51,
+            "text": "        &DERIVED_CORE_PROPERTIES.xid_start.to_range_char_set(),"
+          },
+          {
+            "line": 55,
+            "text": "fn emit_xid_continue(dir: &Path) {"
+          },
+          {
+            "line": 58,
+            "text": "        \"xid_continue.rsv\","
+          },
+          {
+            "line": 59,
+            "text": "        &DERIVED_CORE_PROPERTIES.xid_continue.to_range_char_set(),"
+          }
+        ]
+      },
+      {
+        "path": "gen/src/source/ucd/derived_core_properties.rs",
+        "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/gen/src/source/ucd/derived_core_properties.rs",
+        "bytes": 10294,
+        "sha256": "d4bc2bc8185612a19eaf5cfc4d97a5110429ae822d008ff83c47109613039323",
+        "relevant_lines": [
+          {
+            "line": 20,
+            "text": "    pub static ref DERIVED_CORE_PROPERTIES: DerivedCoreProperties = {"
+          },
+          {
+            "line": 21,
+            "text": "        read(\"external/unicode/ucd/data/DerivedCoreProperties.txt\")"
+          },
+          {
+            "line": 28,
+            "text": "pub struct DerivedCoreProperties {"
+          },
+          {
+            "line": 168,
+            "text": "    pub id_start: BTreeSet<char>,"
+          },
+          {
+            "line": 174,
+            "text": "    pub id_continue: BTreeSet<char>,"
+          },
+          {
+            "line": 180,
+            "text": "    pub xid_start: BTreeSet<char>,"
+          },
+          {
+            "line": 186,
+            "text": "    pub xid_continue: BTreeSet<char>,"
+          },
+          {
+            "line": 189,
+            "text": "impl FromStr for DerivedCoreProperties {"
+          },
+          {
+            "line": 193,
+            "text": "        let mut props = DerivedCoreProperties::default();"
+          },
+          {
+            "line": 220,
+            "text": "                \"ID_Start\" => props.id_start.extend(range),"
+          },
+          {
+            "line": 221,
+            "text": "                \"ID_Continue\" => props.id_continue.extend(range),"
+          },
+          {
+            "line": 222,
+            "text": "                \"XID_Start\" => props.xid_start.extend(range),"
+          },
+          {
+            "line": 223,
+            "text": "                \"XID_Continue\" => props.xid_continue.extend(range),"
+          },
+          {
+            "line": 224,
+            "text": "                prop => panic!(\"Unsupported DerivedCoreProperty `{}`\", prop),"
+          }
+        ]
+      },
+      {
+        "path": "gen/src/source/ucd/readme.rs",
+        "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/gen/src/source/ucd/readme.rs",
+        "bytes": 697,
+        "sha256": "be89390b4863a2c78134593dee4e50337d1e20bd0490f5b75422706ad110624c",
+        "relevant_lines": [
+          {
+            "line": 15,
+            "text": "    pub static ref UNICODE_VERSION: UnicodeVersion = {"
+          },
+          {
+            "line": 16,
+            "text": "        read(\"external/unicode/ucd/data/ReadMe.txt\")"
+          }
+        ]
+      }
+    ],
+    "ucd_root_tree": {
+      "url": "https://api.github.com/repos/open-i18n/data-unicode-ucd/git/trees/2a2044479b3c4915ef4213adf1dfd6236dba24c8",
+      "entries": [
+        {
+          "path": "README.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "322df66e1cdb7eacad8076345f9a58058fe237bb",
+          "size": 469,
+          "url": "https://api.github.com/repos/open-i18n/data-unicode-ucd/git/blobs/322df66e1cdb7eacad8076345f9a58058fe237bb"
+        },
+        {
+          "path": "data",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "54719b829b9e503285ab3c2bcf30f86cfd20da18",
+          "url": "https://api.github.com/repos/open-i18n/data-unicode-ucd/git/trees/54719b829b9e503285ab3c2bcf30f86cfd20da18"
+        }
+      ]
+    },
+    "ucd_data_tree": {
+      "url": "https://api.github.com/repos/open-i18n/data-unicode-ucd/git/trees/54719b829b9e503285ab3c2bcf30f86cfd20da18",
+      "relevant_entries": [
+        {
+          "path": "DerivedCoreProperties.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "16cd9b88bf53336d66f6d3ee078c79757f27bd75",
+          "size": 960758,
+          "url": "https://api.github.com/repos/open-i18n/data-unicode-ucd/git/blobs/16cd9b88bf53336d66f6d3ee078c79757f27bd75"
+        },
+        {
+          "path": "ReadMe.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1ba7a9d9da2fc8f14652468a1a249a24c8bcda7e",
+          "size": 507,
+          "url": "https://api.github.com/repos/open-i18n/data-unicode-ucd/git/blobs/1ba7a9d9da2fc8f14652468a1a249a24c8bcda7e"
+        }
+      ],
+      "no_named_license_at_root_or_data_level": true
+    },
+    "official_data_comparisons": [
+      {
+        "file": "ReadMe.txt",
+        "submodule_url": "https://raw.githubusercontent.com/open-i18n/data-unicode-ucd/2a2044479b3c4915ef4213adf1dfd6236dba24c8/data/ReadMe.txt",
+        "official_url": "https://www.unicode.org/Public/10.0.0/ucd/ReadMe.txt",
+        "bytes": 507,
+        "sha256": "7e9ff2ef4828f9119eea17ada0b35697106ed2885521bfa854b126cea910802e",
+        "byte_equal": true,
+        "header": "# Unicode Character Database\n# Date: 2017-06-18, 23:32:00 GMT [KW]\n# © 2017 Unicode®, Inc.\n# For terms of use, see http://www.unicode.org/terms_of_use.html\n#\n# For documentation, see the following:\n# NamesList.html\n# UAX #38, \"Unicode Han Database (Unihan)\"\n# UAX #44, \"Unicode Character Database.\"\n#\n# The UAXes can be accessed at http://www.unicode.org/versions/Unicode10.0.0/\n\nThis directory contains the final data files\nfor the Unicode Character Database, for Version 10.0.0 of the Unicode Standard.\n",
+        "git_blob": "1ba7a9d9da2fc8f14652468a1a249a24c8bcda7e"
+      },
+      {
+        "file": "DerivedCoreProperties.txt",
+        "submodule_url": "https://raw.githubusercontent.com/open-i18n/data-unicode-ucd/2a2044479b3c4915ef4213adf1dfd6236dba24c8/data/DerivedCoreProperties.txt",
+        "official_url": "https://www.unicode.org/Public/10.0.0/ucd/DerivedCoreProperties.txt",
+        "bytes": 960758,
+        "sha256": "e6ca152259189ec4bc2297e93c6c88f86e162cc52814198263497f3c9b46cbe9",
+        "byte_equal": true,
+        "header": "# DerivedCoreProperties-10.0.0.txt\n# Date: 2017-03-19, 00:05:15 GMT\n# © 2017 Unicode®, Inc.\n# Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.\n# For terms of use, see http://www.unicode.org/terms_of_use.html\n#\n# Unicode Character Database\n#   For documentation, see http://www.unicode.org/reports/tr44/",
+        "git_blob": "16cd9b88bf53336d66f6d3ee078c79757f27bd75"
+      }
+    ],
+    "table_comparisons": [
+      {
+        "property": "ID_Start",
+        "local_table": {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/id_start.rsv",
+          "bytes": 25335,
+          "sha256": "6970896f4c4f7145e918435c07756585ead65f67007016ebdb7169a3dd4da5d3"
+        },
+        "unicode_source_url": "https://www.unicode.org/Public/10.0.0/ucd/DerivedCoreProperties.txt",
+        "ucd_input_ranges": 657,
+        "generated_ranges": 585,
+        "codepoints": 125334,
+        "coverage": "all codepoints U+0000 through U+10FFFF represented by 1 byte each; matching complete membership vectors",
+        "membership_sha256": "a92b2440f7cb90febb41d7d6c1eaeadc9a9ba0b8edb0c831ac7fe3f6a2a885d8",
+        "membership_byte_equal": true
+      },
+      {
+        "property": "ID_Continue",
+        "local_table": {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/id_continue.rsv",
+          "bytes": 29805,
+          "sha256": "9d9ece7d9bf899756b3556861e5cd66ebd6ca3afb128f7cec235d4c4067c6917"
+        },
+        "unicode_source_url": "https://www.unicode.org/Public/10.0.0/ucd/DerivedCoreProperties.txt",
+        "ucd_input_ranges": 1182,
+        "generated_ranges": 689,
+        "codepoints": 128108,
+        "coverage": "all codepoints U+0000 through U+10FFFF represented by 1 byte each; matching complete membership vectors",
+        "membership_sha256": "c2975a02ead82c072c65d3577535e9c013f253468857c505e66be324c5c6b117",
+        "membership_byte_equal": true
+      },
+      {
+        "property": "XID_Start",
+        "local_table": {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/xid_start.rsv",
+          "bytes": 25636,
+          "sha256": "4b8bc5ef14ee67842dfaeda5bad56527f61789881aa59611599e31b2df5f55b4"
+        },
+        "unicode_source_url": "https://www.unicode.org/Public/10.0.0/ucd/DerivedCoreProperties.txt",
+        "ucd_input_ranges": 660,
+        "generated_ranges": 592,
+        "codepoints": 125311,
+        "coverage": "all codepoints U+0000 through U+10FFFF represented by 1 byte each; matching complete membership vectors",
+        "membership_sha256": "621f53a13905e8c3af3f158ef93897a3784168c56674c3f760a53fc9c0f8af81",
+        "membership_byte_equal": true
+      },
+      {
+        "property": "XID_Continue",
+        "local_table": {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unic-ucd-ident-0.9.0/tables/xid_continue.rsv",
+          "bytes": 30106,
+          "sha256": "c32d3408d51272db0a78d70e328d8805ef1593e8e2479526aec6a11b61ad8c97"
+        },
+        "unicode_source_url": "https://www.unicode.org/Public/10.0.0/ucd/DerivedCoreProperties.txt",
+        "ucd_input_ranges": 1186,
+        "generated_ranges": 696,
+        "codepoints": 128089,
+        "coverage": "all codepoints U+0000 through U+10FFFF represented by 1 byte each; matching complete membership vectors",
+        "membership_sha256": "a451c9d936013b2e9cce80179de4bdc59d39ca1ce3795aff4bb5e7ccb43e77d6",
+        "membership_byte_equal": true
+      }
+    ],
+    "unicode_version_files": [
+      {
+        "package": "unic-ucd-version",
+        "path": "tables/unicode_version.rsv",
+        "bytes": 135,
+        "sha256": "a2efcb89606ee821ff9ac5595e5126a65f2b00b70ca1054c1884f741827ab230",
+        "installed_bytes_equal_archive": true,
+        "text": "// WARNING: Auto-generated by the `unic-gen` crate.\n// WARNING: DO NOT EDIT MANUALLY!\nUnicodeVersion { major: 10, minor: 0, micro: 0 }\n"
+      },
+      {
+        "package": "unic-ucd-ident",
+        "path": "tables/unicode_version.rsv",
+        "bytes": 135,
+        "sha256": "a2efcb89606ee821ff9ac5595e5126a65f2b00b70ca1054c1884f741827ab230",
+        "installed_bytes_equal_archive": true,
+        "text": "// WARNING: Auto-generated by the `unic-gen` crate.\n// WARNING: DO NOT EDIT MANUALLY!\nUnicodeVersion { major: 10, minor: 0, micro: 0 }\n"
+      }
+    ],
+    "inactive_tables": [
+      "unic-ucd-ident/tables/pattern_syntax.rsv",
+      "unic-ucd-ident/tables/pattern_white_space.rsv"
+    ],
+    "other_crates": "unic-char-property, unic-char-range and unic-common contain no runtime tables/ directory; generic src/tables.rs and dev fixtures are not treated as independent Unicode database tables.",
+    "mirror_readme": {
+      "url": "https://raw.githubusercontent.com/open-i18n/data-unicode-ucd/2a2044479b3c4915ef4213adf1dfd6236dba24c8/README.md",
+      "sha256": "02a29955f90435686b51be9d604c583c823930cd50e0905186c7eb9b183ffd86",
+      "text": "# Unicode Character Database (UCD) Data\n\nData mirror of Unicode® Character Database (UCD) data-set\n(<https://unicode.org/Public/>).\n\nSee <https://github.com/open-i18n/data-unicode> for more details.\n\n# License\n\nPlease see Unicode® Terms of Use (<https://www.unicode.org/copyright.html>) for\nLicense Agreement of these data files.\n\nThis is an unofficial repository and is not affiliated with the Unicode\nConsortium. Unicode® is a trademark of the Unicode Consortium.\n"
+    },
+    "current_terms": {
+      "url": "https://www.unicode.org/copyright.html",
+      "sha256": "9f83fb0a046180c87d22c2678e79300475125611ac8dfc2da303db6c6b347251",
+      "bytes": 17115,
+      "relevant_text": "All Unicode Data Files and Unicode Software are subject to the terms and conditions of the free and open-source Unicode License v3",
+      "observed_mapping": "Current official terms cover computer data files under Unicode Public and assign Unicode License v3 unless specific restrictions/permissions/licenses are identified. The inspected 10.0.0 ReadMe and DerivedCoreProperties headers refer to Unicode terms and contain no different named license.",
+      "section_references": [
+        "2.b: definition of Data Files, including https://www.unicode.org/Public/",
+        "3.c: Unicode License v3 assignment subject to more specific terms at release or in the data/documentation"
+      ]
+    },
+    "selected_data_license": "UNICODE LICENSE V3, current official text retrieved 2026-09-12; separate from UNIC MIT code",
+    "historical_limit": "This does not establish which full Unicode license text was served in 2017/2019. The exported v3 text is a current mapping and is not represented as a file packaged with UNIC 0.9.0 or its pinned UCD mirror.",
+    "release_work_remaining": "Include original MIT plus COPYRIGHT and source notices, and current Unicode v3 data notice in the actual release notice bundle; verify final selected build inputs/features and actual distribution."
+  },
+  "http_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/char/property/Cargo.toml",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:31.001Z",
+      "bytes": 921,
+      "sha256": "132a2ace33bbc5f54a2c4a4b522f96b7260c9e0fdb7756a753b4017e101e86d0"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/char/property/src/lib.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:31.166Z",
+      "bytes": 1679,
+      "sha256": "200af9360e201caaa404fea0c8ec5387fa3ead07f8c056adf56d869768b0201b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/char/range/Cargo.toml",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:31.365Z",
+      "bytes": 1037,
+      "sha256": "d176bfd5d70a75b4b8b27ee24e9a8bdd3138aaa3bf0903a7f58497b4e4490f59"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/char/range/src/lib.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:31.514Z",
+      "bytes": 2126,
+      "sha256": "955ee0b9069740fd1ee724943562f9189b7eb29b49d79c8c352a6f193c12c3ec"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/common/Cargo.toml",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:31.714Z",
+      "bytes": 805,
+      "sha256": "5c74ebf8b8eede95170fbef14b6050735ce8993ce265978f41562386cb0c2bb9"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/common/src/lib.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:31.875Z",
+      "bytes": 972,
+      "sha256": "726d922245ebdf3bc474d48edf032b9af7fe24fc79ee17d87e2d295103e39ea0"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/ucd/version/Cargo.toml",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:32.059Z",
+      "bytes": 876,
+      "sha256": "6411d1d10e5bf720a19366db6ab5f4c84cf1156c7033fafbd941f64729bd027c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/ucd/version/src/lib.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:32.230Z",
+      "bytes": 966,
+      "sha256": "51d52da8220e430f32523aa5972708e698fca29fea8b64a4cbdc67d3d1830f37"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/ucd/version/src/unicode_version.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:32.432Z",
+      "bytes": 1065,
+      "sha256": "bc2fe0341c2a60909f1ef7e56593b836344ca4b4ae8f73e7f7aa07259963dd03"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/unic/ucd/version/tables/unicode_version.rsv",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:32.629Z",
+      "bytes": 135,
+      "sha256": "a2efcb89606ee821ff9ac5595e5126a65f2b00b70ca1054c1884f741827ab230"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/Cargo.toml",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:32.832Z",
+      "bytes": 1175,
+      "sha256": "9c1c7cfc028e70f52a6a5bdc126c9348837783e5e3e059429c05fadb9af8ec8d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/src/lib.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:32.998Z",
+      "bytes": 2117,
+      "sha256": "b855a13e55e654ea7e19c5d4ac0cf2fe17653ad6cae8d3559d35d041619c1fea"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/src/id.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:33.183Z",
+      "bytes": 8911,
+      "sha256": "4272423b2b2a15c62bdfa515e7a3bd99cede8bd96f04d270026ec643f8c66b00"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/src/xid.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:33.411Z",
+      "bytes": 9123,
+      "sha256": "c844753b9166b7d4a9a784e0e5025b6e0831bd9ba0d66086b1eb117257d452c3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/id_start.rsv",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:33.607Z",
+      "bytes": 25335,
+      "sha256": "6970896f4c4f7145e918435c07756585ead65f67007016ebdb7169a3dd4da5d3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/id_continue.rsv",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:33.813Z",
+      "bytes": 29805,
+      "sha256": "9d9ece7d9bf899756b3556861e5cd66ebd6ca3afb128f7cec235d4c4067c6917"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/xid_start.rsv",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:34.676Z",
+      "bytes": 25636,
+      "sha256": "4b8bc5ef14ee67842dfaeda5bad56527f61789881aa59611599e31b2df5f55b4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/xid_continue.rsv",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:34.885Z",
+      "bytes": 30106,
+      "sha256": "c32d3408d51272db0a78d70e328d8805ef1593e8e2479526aec6a11b61ad8c97"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/unic/ucd/ident/tables/unicode_version.rsv",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:35.098Z",
+      "bytes": 135,
+      "sha256": "a2efcb89606ee821ff9ac5595e5126a65f2b00b70ca1054c1884f741827ab230"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/LICENSE-MIT",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:35.279Z",
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-MIT",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:35.291Z",
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/COPYRIGHT.md",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:35.445Z",
+      "bytes": 608,
+      "sha256": "f5c342c49f3ac804f3e8e7bb62a8040a44c50d47bb36902b1abd13f66a1adf8b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/COPYRIGHT.md",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:35.447Z",
+      "bytes": 608,
+      "sha256": "f5c342c49f3ac804f3e8e7bb62a8040a44c50d47bb36902b1abd13f66a1adf8b"
+    },
+    {
+      "url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/5878605364af97a3358368a6eaef02104af2e016",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:35.696Z",
+      "bytes": 5165,
+      "sha256": "61285135b4b19eb259dc6c5e107512ad182bd43211c34872eb574e869ccd219e"
+    },
+    {
+      "url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/ccbe6d6c718313899623d5f819b26a9dababcacc",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:35.867Z",
+      "bytes": 601,
+      "sha256": "3e8c75cdc5ed067ffdc9d236aa8eacc855572ae707d712d043eceb79d0f0e597"
+    },
+    {
+      "url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/749ed88389f880779f148ce2bf4968dab169a44c",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.053Z",
+      "bytes": 679,
+      "sha256": "53ce952ad2f95197ed0d6d50fcff68a4ed291d849ad5c3eee08dba0e4a8fe66d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/.gitmodules",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.256Z",
+      "bytes": 372,
+      "sha256": "eb4d6d22955793a2c9c306730f44dfeb1d6072a3c32a607bdc2c192a7e43655b"
+    },
+    {
+      "url": "https://api.github.com/repos/open-i18n/rust-unic/git/trees/8a6ce83063d90b91ae2ce59eddb803edd393fca9",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.455Z",
+      "bytes": 5165,
+      "sha256": "cbfd9698f4176acca9caef5fd6ad9c3e87143956d737d26e7bc15167ed70561b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/.gitmodules",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.476Z",
+      "bytes": 372,
+      "sha256": "eb4d6d22955793a2c9c306730f44dfeb1d6072a3c32a607bdc2c192a7e43655b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/gen/src/writer/ucd/ident.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.493Z",
+      "bytes": 1963,
+      "sha256": "c7349c6eb8974b0bc916b2288858bd7663d93c8b08f802696f4b0e7c8530fe38"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/gen/src/source/ucd/derived_core_properties.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.512Z",
+      "bytes": 10294,
+      "sha256": "d4bc2bc8185612a19eaf5cfc4d97a5110429ae822d008ff83c47109613039323"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/gen/src/source/ucd/readme.rs",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.530Z",
+      "bytes": 697,
+      "sha256": "be89390b4863a2c78134593dee4e50337d1e20bd0490f5b75422706ad110624c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/data-unicode-ucd/2a2044479b3c4915ef4213adf1dfd6236dba24c8/data/ReadMe.txt",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.545Z",
+      "bytes": 507,
+      "sha256": "7e9ff2ef4828f9119eea17ada0b35697106ed2885521bfa854b126cea910802e"
+    },
+    {
+      "url": "https://www.unicode.org/Public/10.0.0/ucd/ReadMe.txt",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:36.841Z",
+      "bytes": 507,
+      "sha256": "7e9ff2ef4828f9119eea17ada0b35697106ed2885521bfa854b126cea910802e"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/data-unicode-ucd/2a2044479b3c4915ef4213adf1dfd6236dba24c8/data/DerivedCoreProperties.txt",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:37.136Z",
+      "bytes": 960758,
+      "sha256": "e6ca152259189ec4bc2297e93c6c88f86e162cc52814198263497f3c9b46cbe9"
+    },
+    {
+      "url": "https://www.unicode.org/Public/10.0.0/ucd/DerivedCoreProperties.txt",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:37.770Z",
+      "bytes": 960758,
+      "sha256": "e6ca152259189ec4bc2297e93c6c88f86e162cc52814198263497f3c9b46cbe9"
+    },
+    {
+      "url": "https://api.github.com/repos/open-i18n/data-unicode-ucd/git/trees/2a2044479b3c4915ef4213adf1dfd6236dba24c8",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:37.959Z",
+      "bytes": 628,
+      "sha256": "e50f59f5a0e466aefa014b57340abb52df00098ec6bdead54342a8cdc4dcf908"
+    },
+    {
+      "url": "https://api.github.com/repos/open-i18n/data-unicode-ucd/git/trees/54719b829b9e503285ab3c2bcf30f86cfd20da18",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:38.139Z",
+      "bytes": 10551,
+      "sha256": "bed1dd7783e5c02e4c55850112fe5c0348bb2021059d9d2105c5f30d69838fd9"
+    },
+    {
+      "url": "https://www.unicode.org/license.txt",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:38.546Z",
+      "bytes": 1995,
+      "sha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96"
+    },
+    {
+      "url": "https://www.unicode.org/copyright.html",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:38.799Z",
+      "bytes": 17115,
+      "sha256": "9f83fb0a046180c87d22c2678e79300475125611ac8dfc2da303db6c6b347251"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/open-i18n/data-unicode-ucd/2a2044479b3c4915ef4213adf1dfd6236dba24c8/README.md",
+      "status": 200,
+      "observed_utc": "2026-09-12T09:48:38.813Z",
+      "bytes": 469,
+      "sha256": "02a29955f90435686b51be9d604c583c823930cd50e0905186c7eb9b183ffd86"
+    }
+  ],
+  "limits": [
+    "Historical Windows feature inventory reused without regeneration; input hashes recorded. No new build or EXE contents attestation.",
+    "No complete dependency, legal or release compliance conclusion.",
+    "Optional pattern tables and dev/test Unicode data were not compared to UCD property data; their archive bytes are merely recorded.",
+    "Original source copyright notices were retained including optional 2018 par_iter provenance; no invented combined copyright year.",
+    "No temp files, global installation, binary execution, source/lock/config edits or commits."
+  ]
+}

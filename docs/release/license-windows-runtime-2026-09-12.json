@@ -1,0 +1,1488 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-09-12T12:28:11.937Z",
+  "input_head": "b5d87910736ebb0fdc2515fd6548bf055ef1f4a3",
+  "status": "technical_mapping_and_notice_selection_complete_delivery_and_terms_flow_open",
+  "scope": {
+    "target": "x86_64-pc-windows-msvc",
+    "native_commit": "6a45c12",
+    "new_native_build": false,
+    "installation": false,
+    "license_acceptance": false,
+    "public_release": false,
+    "not_a_legal_clearance": true
+  },
+  "inputs": [
+    {
+      "path": "Cargo.toml",
+      "bytes": 256,
+      "sha256": "38b006f1e3936f256a5c475a2cf0ca3b7654bed93f75572a0a033522a4bd404b"
+    },
+    {
+      "path": "Cargo.lock",
+      "bytes": 153532,
+      "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "bytes": 5008,
+      "sha256": "337de8247088d03fe34826d772bbf3e002360c8df05faefad5d2c8de0e99dde2"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "bytes": 1295,
+      "sha256": "38050385b160e40c38ce20387154b6a7e896bb1dafef56f5c61798532a33a2b7"
+    },
+    {
+      "path": "src-tauri/build.rs",
+      "bytes": 3462,
+      "sha256": "545bc3b54b7d0396786257c786b518c8096b0be1d4a4695dedad8a6044d6475a"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "bytes": 66,
+      "sha256": "e7155b5437585c3c3acc3053b08c6936020e9e93cc343e47e7e25f0033418e84"
+    },
+    {
+      "path": "package.json",
+      "bytes": 952,
+      "sha256": "ac3ccd4deb2afb5613e41a88adfbd0948fbc61013b30ff8d848f61c483c16efe"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 78635,
+      "sha256": "5ff896af7ad859c503a4e72354f3235a3e037055034496254db06908f58e6e23"
+    },
+    {
+      "path": "node_modules/@tauri-apps/cli/package.json",
+      "bytes": 2455,
+      "sha256": "2211ba5e468d2ac8c70d9d5f0b2f017a98e9d2b2932ad47fc3588fc14e103a33"
+    },
+    {
+      "path": "node_modules/@tauri-apps/cli/config.schema.json",
+      "bytes": 154933,
+      "sha256": "923a41898c978c93616b9c1b6ae4d346f5586987459cfa877bacea21e7c85f1a"
+    },
+    {
+      "path": "node_modules/@tauri-apps/cli-win32-x64-msvc/cli.win32-x64-msvc.node",
+      "bytes": 15235584,
+      "sha256": "37c4d79256120893f2c12c1385bce5f7510b5063afdeb09b40a9effec28d0208"
+    },
+    {
+      "path": "docs/release/license-rust-stdlib-2026-09-12.json",
+      "bytes": 112683,
+      "sha256": "ec7bb211cde6dc8b876efb4372c54dd71d02d79d0a87c606ed06426f5b737b40"
+    },
+    {
+      "path": "docs/release/license-webview2-sdk-2026-09-12.json",
+      "bytes": 32233,
+      "sha256": "7b77925cd34c32974a4be7c1512a65f804ceedb8559d6bf99a7267504d9ad66a"
+    },
+    {
+      "path": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/dumpbin.exe",
+      "bytes": 23416,
+      "sha256": "12a1cd87238bd66dfdb788b4fcdcb91ce4b3f81236aab12a7a29e5ae1d85af50"
+    },
+    {
+      "path": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/link.exe",
+      "bytes": 3252576,
+      "sha256": "ca11e6c45debd34bf652dfe984c5360a531a005ed78bf72852330c9c2590cf0d"
+    },
+    {
+      "path": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Licenses/1033/Redist.txt",
+      "bytes": 187,
+      "sha256": "da53b097e02b08e0fc69706102a60bc384fe756426ae4dc4a855e96f95cb2b9c"
+    },
+    {
+      "path": "C:/Program Files (x86)/Windows Kits/10/Licenses/10.0.26100.0/sdk_license.rtf",
+      "bytes": 248573,
+      "sha256": "0f4a26ac9dc50066f8a1bfeaaf3f092d1b9e4791df5487b9f3c31e7c3dc4d7f5"
+    },
+    {
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/lib.rs",
+      "bytes": 98205,
+      "sha256": "b62771e8fd3a0cb4afc681a4c0812a2d883946995fc46570712375b22fe96972"
+    },
+    {
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/webview2/mod.rs",
+      "bytes": 56449,
+      "sha256": "f8abc032e2f0acdb04d865e5e88d0ec11e2841944e24dc7089cd4b55f140af20"
+    },
+    {
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/.cargo_vcs_info.json",
+      "bytes": 113,
+      "sha256": "a46e084159afd6d8839b00057b687674250d5b5bcde929d9713a90f18eebac48"
+    },
+    {
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-2.11.4/src/lib.rs",
+      "bytes": 167311,
+      "sha256": "7e713976f21bfbf138a0bbc59a8ef7ae72f29d09564474ca3d1640a4714afdbc"
+    },
+    {
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-2.11.4/.cargo_vcs_info.json",
+      "bytes": 118,
+      "sha256": "d6ba5acc518ef06a7c14361f4ffe865a83dbc830b3307735810e91d80d5cc202"
+    },
+    {
+      "path": "src-tauri/src/lib.rs",
+      "bytes": 6603,
+      "sha256": "b38c64cfeaf5e4ef3cd8f18970e0ad6a52e4889cac28f14a9466b7810966ca1c"
+    }
+  ],
+  "existing_artifact": {
+    "exe": {
+      "bytes": 16016896,
+      "sha256": "8aa177e304e0b8c067159ac7912d7894b770bc05021a47bd9b0de593cd8255e9",
+      "machine": "8664",
+      "linker_version": "14.44",
+      "imports": [
+        "kernel32.dll",
+        "user32.dll",
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "bcryptprimitives.dll",
+        "advapi32.dll",
+        "combase.dll",
+        "oleaut32.dll",
+        "ntdll.dll",
+        "gdi32.dll",
+        "dwmapi.dll",
+        "ole32.dll",
+        "comctl32.dll",
+        "shlwapi.dll",
+        "shell32.dll",
+        "ws2_32.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll"
+      ],
+      "delay_import_rva": 0,
+      "delay_import_size": 0,
+      "debug": [
+        {
+          "guid_bytes": "9f9643b8d47a284ebd910f348e046951",
+          "age": 1,
+          "pdb_path": "agentbridge.pdb"
+        }
+      ]
+    },
+    "pdb": {
+      "bytes": 8916992,
+      "sha256": "8f6451daf43b1f32c8bf9e8d661060656db211a185df61eda6ac92e13768c48c",
+      "guid_bytes": "9f9643b8d47a284ebd910f348e046951",
+      "age": 1,
+      "guid_age_matches_exe": true,
+      "dbi_module_count": 755,
+      "native_module_count": 98,
+      "native_modules": [
+        {
+          "name": "obj/edge_embedded_browser/client/win/WebView2LoaderLib/loader_impl.obj",
+          "object": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libwebview2_com_sys-10572099c8cf33e8.rlib",
+          "stream": 56,
+          "symbol_bytes": 20300
+        },
+        {
+          "name": "obj/edge_embedded_browser/client/win/WebView2LoaderLib/simple_string.obj",
+          "object": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libwebview2_com_sys-10572099c8cf33e8.rlib",
+          "stream": 58,
+          "symbol_bytes": 5172
+        },
+        {
+          "name": "obj/edge_embedded_browser/client/win/WebView2LoaderLib/make_co_mem_string_helper.obj",
+          "object": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libwebview2_com_sys-10572099c8cf33e8.rlib",
+          "stream": 55,
+          "symbol_bytes": 1496
+        },
+        {
+          "name": "obj/edge_embedded_browser/client/win/WebView2LoaderLib/loader_override.obj",
+          "object": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libwebview2_com_sys-10572099c8cf33e8.rlib",
+          "stream": 59,
+          "symbol_bytes": 6620
+        },
+        {
+          "name": "obj/edge_embedded_browser/client/win/WebView2LoaderLib/instance_shared.obj",
+          "object": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libwebview2_com_sys-10572099c8cf33e8.rlib",
+          "stream": 60,
+          "symbol_bytes": 1592
+        },
+        {
+          "name": "obj/edge_embedded_browser/client/win/WebView2LoaderLib/environment_helper.obj",
+          "object": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libwebview2_com_sys-10572099c8cf33e8.rlib",
+          "stream": 57,
+          "symbol_bytes": 564
+        },
+        {
+          "name": "userenv.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 93,
+          "symbol_bytes": 132
+        },
+        {
+          "name": "aclui.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 98,
+          "symbol_bytes": 68
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\exe_main.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 119,
+          "symbol_bytes": 2112
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\chkstk.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 142,
+          "symbol_bytes": 480
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\fltused.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 106,
+          "symbol_bytes": 192
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\std_type_info_static.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 111,
+          "symbol_bytes": 400
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\tlssup.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 122,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\gshandler.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 141,
+          "symbol_bytes": 1172
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\amdsecgs.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 136,
+          "symbol_bytes": 520
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\gs_cookie.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 125,
+          "symbol_bytes": 184
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\guard_support.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 132,
+          "symbol_bytes": 408
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\thread_safe_statics.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 123,
+          "symbol_bytes": 904
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\std_nothrow.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 121,
+          "symbol_bytes": 196
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\new_scalar_nothrow.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 120,
+          "symbol_bytes": 688
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\delete_scalar_size.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 112,
+          "symbol_bytes": 424
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\delete_array.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 113,
+          "symbol_bytes": 356
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\new_array.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 117,
+          "symbol_bytes": 348
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\utility.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 124,
+          "symbol_bytes": 2668
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\gs_support.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 126,
+          "symbol_bytes": 600
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\matherr.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 105,
+          "symbol_bytes": 344
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\argv_mode.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 102,
+          "symbol_bytes": 292
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\commit_mode.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 100,
+          "symbol_bytes": 296
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\file_mode.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 107,
+          "symbol_bytes": 292
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\new_mode.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 108,
+          "symbol_bytes": 292
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\thread_locale.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 109,
+          "symbol_bytes": 304
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\tncleanup.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 116,
+          "symbol_bytes": 312
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\env_mode.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 103,
+          "symbol_bytes": 300
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\invalid_parameter_handler.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 101,
+          "symbol_bytes": 324
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\denormal_control.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 104,
+          "symbol_bytes": 304
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\default_local_stdio_options.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 110,
+          "symbol_bytes": 624
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\matherr_detection.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 134,
+          "symbol_bytes": 300
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\dyn_tls_init.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 137,
+          "symbol_bytes": 348
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\dyn_tls_dtor.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 133,
+          "symbol_bytes": 348
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\utility_desktop.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 145,
+          "symbol_bytes": 2116
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\initsect.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 139,
+          "symbol_bytes": 464
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\initializers.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 128,
+          "symbol_bytes": 196
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\gs_report.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 127,
+          "symbol_bytes": 1340
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\guard_dispatch.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 146,
+          "symbol_bytes": 484
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\guard_xfg_dispatch.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 144,
+          "symbol_bytes": 496
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\new_scalar.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 115,
+          "symbol_bytes": 448
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\delete_scalar.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 114,
+          "symbol_bytes": 352
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\cpu_disp.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 138,
+          "symbol_bytes": 816
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\ucrt_detection.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 135,
+          "symbol_bytes": 292
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\throw_bad_alloc.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 118,
+          "symbol_bytes": 3132
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\risctrnsctrl.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 155,
+          "symbol_bytes": 17864
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\memcpy.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 163,
+          "symbol_bytes": 2144
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\memcmp.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 175,
+          "symbol_bytes": 780
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\memset.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 168,
+          "symbol_bytes": 1956
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\wcsrchr.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 9,
+          "symbol_bytes": 672
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\purevirt.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 10,
+          "symbol_bytes": 612
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\throw.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 169,
+          "symbol_bytes": 1104
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\riscchandler.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 167,
+          "symbol_bytes": 1296
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\initialization.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 140,
+          "symbol_bytes": 532
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\std_type_info.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 151,
+          "symbol_bytes": 412
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\ehhelpers.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 149,
+          "symbol_bytes": 2632
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\std_exception.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 148,
+          "symbol_bytes": 1016
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\per_thread_data.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 147,
+          "symbol_bytes": 1648
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\ehstate.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 161,
+          "symbol_bytes": 4196
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\frame.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 152,
+          "symbol_bytes": 43596
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\purevirt_data.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 8,
+          "symbol_bytes": 208
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\notify.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 156,
+          "symbol_bytes": 584
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\jbcxrval.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 153,
+          "symbol_bytes": 728
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\locks.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 174,
+          "symbol_bytes": 580
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\undname.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 154,
+          "symbol_bytes": 748
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\winapi_downlevel.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 150,
+          "symbol_bytes": 3484
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\handlers.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 162,
+          "symbol_bytes": 720
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 179,
+          "symbol_bytes": 180
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 172,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "api-ms-win-crt-convert-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 160,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 166,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 178,
+          "symbol_bytes": 180
+        },
+        {
+          "name": "api-ms-win-crt-locale-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 171,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 159,
+          "symbol_bytes": 180
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\pesect.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 131,
+          "symbol_bytes": 1332
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\gshandlerseh.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 143,
+          "symbol_bytes": 788
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\ucrt_stubs.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 129,
+          "symbol_bytes": 480
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcstartup\\build\\mt\\libcmt_mt_kernel32.vcxproj\\objr\\amd64\\loadcfg.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "stream": 130,
+          "symbol_bytes": 236
+        },
+        {
+          "name": "D:\\a\\_work\\1\\s\\Intermediate\\crt\\vcruntime\\build\\base\\mt\\libvcruntime_mt_kernel32.vcxproj\\objr\\amd64\\softmemtag.obj",
+          "object": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "stream": 11,
+          "symbol_bytes": 204
+        },
+        {
+          "name": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\build\\agentbridge-e08752f5b1d6f2eb\\out\\resource.lib",
+          "object": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\build\\agentbridge-e08752f5b1d6f2eb\\out\\resource.lib",
+          "stream": 15,
+          "symbol_bytes": 308
+        },
+        {
+          "name": "Import:ws2_32.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 95,
+          "symbol_bytes": 412
+        },
+        {
+          "name": "Import:userenv.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 96,
+          "symbol_bytes": 72
+        },
+        {
+          "name": "Import:ntdll.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 92,
+          "symbol_bytes": 208
+        },
+        {
+          "name": "Import:kernel32.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 97,
+          "symbol_bytes": 6196
+        },
+        {
+          "name": "Import:advapi32.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 94,
+          "symbol_bytes": 292
+        },
+        {
+          "name": "Import:ntdll.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\um\\x64\\ntdll.lib",
+          "stream": 99,
+          "symbol_bytes": 72
+        },
+        {
+          "name": "Import:api-ms-win-crt-string-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 158,
+          "symbol_bytes": 1004
+        },
+        {
+          "name": "Import:api-ms-win-crt-stdio-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 165,
+          "symbol_bytes": 440
+        },
+        {
+          "name": "Import:api-ms-win-crt-runtime-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 177,
+          "symbol_bytes": 2912
+        },
+        {
+          "name": "Import:api-ms-win-crt-math-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 170,
+          "symbol_bytes": 1484
+        },
+        {
+          "name": "Import:api-ms-win-crt-locale-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 157,
+          "symbol_bytes": 148
+        },
+        {
+          "name": "Import:api-ms-win-crt-heap-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 164,
+          "symbol_bytes": 636
+        },
+        {
+          "name": "Import:api-ms-win-crt-convert-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 176,
+          "symbol_bytes": 484
+        }
+      ],
+      "archive_groups": [
+        {
+          "path": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libwebview2_com_sys-10572099c8cf33e8.rlib",
+          "module_count": 6,
+          "bytes": 18194428,
+          "sha256": "c0386f535edb4e7f26690145d46b641ecdcc29bf4edd5a939da5d7f0b1face38"
+        },
+        {
+          "path": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "module_count": 7,
+          "bytes": 5221340,
+          "sha256": "34b8a86432177dc82c1fe0d34a941502e27a3b3f36bd7e54d6b96a70530bb285"
+        },
+        {
+          "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libcmt.lib",
+          "module_count": 46,
+          "bytes": 6534094,
+          "sha256": "8fe40dd342b90b35d62b8f5d55b4e92df7785c122976618365cfe3b014cc857a"
+        },
+        {
+          "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x64\\libvcruntime.lib",
+          "module_count": 23,
+          "bytes": 2087406,
+          "sha256": "e4f8daf356d63592ff6d6f7ad90c8c9da4c1230273ad113a9a2b56afd6bfcb04"
+        },
+        {
+          "path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "module_count": 14,
+          "bytes": 285588,
+          "sha256": "7ef4eac926bf597d2f243f16cdfed7e0db22cb3ca34a1d7e088a84c994a03d66"
+        },
+        {
+          "path": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\build\\agentbridge-e08752f5b1d6f2eb\\out\\resource.lib",
+          "module_count": 1,
+          "bytes": 8772,
+          "sha256": "7d14f7d0e874d05b7a3d77ae7f01d029a7f38fdf435478c4b6186d20a001746c"
+        },
+        {
+          "path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\um\\x64\\ntdll.lib",
+          "module_count": 1,
+          "bytes": 517236,
+          "sha256": "a373f724ef6d8ea11a8b03de653ac1b4f111522f59a1f4b787ec9d93f31fe7c1"
+        }
+      ],
+      "import_modules_are_not_final_import_table": [
+        {
+          "name": "userenv.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 93,
+          "symbol_bytes": 132
+        },
+        {
+          "name": "aclui.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 98,
+          "symbol_bytes": 68
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 179,
+          "symbol_bytes": 180
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 172,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "api-ms-win-crt-convert-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 160,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 166,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 178,
+          "symbol_bytes": 180
+        },
+        {
+          "name": "api-ms-win-crt-locale-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 171,
+          "symbol_bytes": 188
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 159,
+          "symbol_bytes": 180
+        },
+        {
+          "name": "Import:ws2_32.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 95,
+          "symbol_bytes": 412
+        },
+        {
+          "name": "Import:userenv.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 96,
+          "symbol_bytes": 72
+        },
+        {
+          "name": "Import:ntdll.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 92,
+          "symbol_bytes": 208
+        },
+        {
+          "name": "Import:kernel32.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 97,
+          "symbol_bytes": 6196
+        },
+        {
+          "name": "Import:advapi32.dll",
+          "object": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\windows_x86_64_msvc-0.53.1\\lib\\windows.0.53.0.lib",
+          "stream": 94,
+          "symbol_bytes": 292
+        },
+        {
+          "name": "Import:ntdll.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\um\\x64\\ntdll.lib",
+          "stream": 99,
+          "symbol_bytes": 72
+        },
+        {
+          "name": "Import:api-ms-win-crt-string-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 158,
+          "symbol_bytes": 1004
+        },
+        {
+          "name": "Import:api-ms-win-crt-stdio-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 165,
+          "symbol_bytes": 440
+        },
+        {
+          "name": "Import:api-ms-win-crt-runtime-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 177,
+          "symbol_bytes": 2912
+        },
+        {
+          "name": "Import:api-ms-win-crt-math-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 170,
+          "symbol_bytes": 1484
+        },
+        {
+          "name": "Import:api-ms-win-crt-locale-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 157,
+          "symbol_bytes": 148
+        },
+        {
+          "name": "Import:api-ms-win-crt-heap-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 164,
+          "symbol_bytes": 636
+        },
+        {
+          "name": "Import:api-ms-win-crt-convert-l1-1-0.dll",
+          "object": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64\\ucrt.lib",
+          "stream": 176,
+          "symbol_bytes": 484
+        }
+      ]
+    },
+    "boundaries": [
+      "PDB DBI modules identify contributing object/library families; counts do not prove every machine-code byte survives linker elimination.",
+      "Current local library hashes are not retrospective hashes of each historical link input.",
+      "The 22 normal imports and empty delay table do not enumerate runtime LoadLibrary operations or WebView2 child-process dependencies.",
+      "Fresh frontend dist bfa8de5 is not part of a new EXE.",
+      "Other Cargo cdylib/staticlib outputs in target/release are build products, not selected release payload."
+    ]
+  },
+  "local_commands": [
+    {
+      "command": [
+        "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/dumpbin.exe",
+        "/nologo",
+        "/dependents",
+        "target/release/agentbridge.exe"
+      ],
+      "exit_code": 0,
+      "stdout": "\r\nDump of file target\\release\\agentbridge.exe\r\n\r\nFile Type: EXECUTABLE IMAGE\r\n\r\n  Image has the following dependencies:\r\n\r\n    kernel32.dll\r\n    user32.dll\r\n    api-ms-win-core-synch-l1-2-0.dll\r\n    bcryptprimitives.dll\r\n    advapi32.dll\r\n    combase.dll\r\n    oleaut32.dll\r\n    ntdll.dll\r\n    gdi32.dll\r\n    dwmapi.dll\r\n    ole32.dll\r\n    comctl32.dll\r\n    shlwapi.dll\r\n    shell32.dll\r\n    ws2_32.dll\r\n    api-ms-win-crt-math-l1-1-0.dll\r\n    api-ms-win-crt-string-l1-1-0.dll\r\n    api-ms-win-crt-convert-l1-1-0.dll\r\n    api-ms-win-crt-runtime-l1-1-0.dll\r\n    api-ms-win-crt-stdio-l1-1-0.dll\r\n    api-ms-win-crt-locale-l1-1-0.dll\r\n    api-ms-win-crt-heap-l1-1-0.dll\r\n\r\n  Summary\r\n\r\n       34000 .data\r\n       93000 .pdata\r\n      38F000 .rdata\r\n        7000 .reloc\r\n        3000 .rsrc\r\n      AEB000 .text\r\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/dumpbin.exe",
+        "/nologo",
+        "/headers",
+        "target/release/agentbridge.exe"
+      ],
+      "exit_code": 0,
+      "stdout": "\r\nDump of file target\\release\\agentbridge.exe\r\n\r\nPE signature found\r\n\r\nFile Type: EXECUTABLE IMAGE\r\n\r\nFILE HEADER VALUES\r\n            8664 machine (x64)\r\n               6 number of sections\r\n        6AA4FCAF time date stamp Sat Sep 12 09:18:07 2026\r\n               0 file pointer to symbol table\r\n               0 number of symbols\r\n              F0 size of optional header\r\n              22 characteristics\r\n                   Executable\r\n                   Application can handle large (>2GB) addresses\r\n\r\nOPTIONAL HEADER VALUES\r\n             20B magic # (PE32+)\r\n           14.44 linker version\r\n          AEAE00 size of code\r\n          45E000 size of initialized data\r\n               0 size of uninitialized data\r\n          ABEDC0 entry point (0000000140ABEDC0) mainCRTStartup\r\n            1000 base of code\r\n       140000000 image base (0000000140000000 to 0000000140F4BFFF)\r\n            1000 section alignment\r\n             200 file alignment\r\n            6.00 operating system version\r\n            0.00 image version\r\n            6.00 subsystem version\r\n               0 Win32 version\r\n          F4C000 size of image\r\n             400 size of headers\r\n               0 checksum\r\n               2 subsystem (Windows GUI)\r\n            8160 DLL characteristics\r\n                   High Entropy Virtual Addresses\r\n                   Dynamic base\r\n                   NX compatible\r\n                   Terminal Server Aware\r\n          100000 size of stack reserve\r\n            1000 size of stack commit\r\n          100000 size of heap reserve\r\n            1000 size of heap commit\r\n               0 loader flags\r\n              10 number of directories\r\n               0 [       0] RVA [size] of Export Directory\r\n          E784FC [     1CC] RVA [size] of Import Directory\r\n          F42000 [    2330] RVA [size] of Resource Directory\r\n          EAF000 [   927A8] RVA [size] of Exception Directory\r\n               0 [       0] RVA [size] of Certificates Directory\r\n          F45000 [    64AC] RVA [size] of Base Relocation Directory\r\n          C38AA0 [      54] RVA [size] of Debug Directory\r\n               0 [       0] RVA [size] of Architecture Directory\r\n               0 [       0] RVA [size] of Global Pointer Directory\r\n          C38C80 [      28] RVA [size] of Thread Storage Directory\r\n          C38960 [     140] RVA [size] of Load Configuration Directory\r\n               0 [       0] RVA [size] of Bound Import Directory\r\n          AEC000 [     C10] RVA [size] of Import Address Table Directory\r\n               0 [       0] RVA [size] of Delay Import Directory\r\n               0 [       0] RVA [size] of COM Descriptor Directory\r\n               0 [       0] RVA [size] of Reserved Directory\r\n\r\n\r\nSECTION HEADER #1\r\n   .text name\r\n  AEADC0 virtual size\r\n    1000 virtual address (0000000140001000 to 0000000140AEBDBF)\r\n  AEAE00 size of raw data\r\n     400 file pointer to raw data (00000400 to 00AEB1FF)\r\n       0 file pointer to relocation table\r\n       0 file pointer to line numbers\r\n       0 number of relocations\r\n       0 number of line numbers\r\n60000020 flags\r\n         Code\r\n         Execute Read\r\n\r\nSECTION HEADER #2\r\n  .rdata name\r\n  38EFE0 virtual size\r\n  AEC000 virtual address (0000000140AEC000 to 0000000140E7AFDF)\r\n  38F000 size of raw data\r\n  AEB200 file pointer to raw data (00AEB200 to 00E7A1FF)\r\n       0 file pointer to relocation table\r\n       0 file pointer to line numbers\r\n       0 number of relocations\r\n       0 number of line numbers\r\n40000040 flags\r\n         Initialized Data\r\n         Read Only\r\n\r\n  Debug Directories\r\n\r\n        Time Type        Size      RVA  Pointer\r\n    -------- ------- -------- -------- --------\r\n    6AA4FCAF cv            28 00C390F4   C382F4    Format: RSDS, {B843969F-7AD4-4E28-BD91-0F348E046951}, 1, agentbridge.pdb\r\n    6AA4FCAF feat          14 00C3911C   C3831C    Counts: Pre-VC++ 11.00=583, C/C++=72, /GS=72, /sdl=0, guardN=60\r\n    6AA4FCAF coffgrp      418 00C39130   C38330\r\n\r\nSECTION HEADER #3\r\n   .data name\r\n   33C38 virtual size\r\n  E7B000 virtual address (0000000140E7B000 to 0000000140EAEC37)\r\n   31200 size of raw data\r\n  E7A200 file pointer to raw data (00E7A200 to 00EAB3FF)\r\n       0 file pointer to relocation table\r\n       0 file pointer to line numbers\r\n       0 number of relocations\r\n       0 number of line numbers\r\nC0000040 flags\r\n         Initialized Data\r\n         Read Write\r\n\r\nSECTION HEADER #4\r\n  .pdata name\r\n   927A8 virtual size\r\n  EAF000 virtual address (0000000140EAF000 to 0000000140F417A7)\r\n   92800 size of raw data\r\n  EAB400 file pointer to raw data (00EAB400 to 00F3DBFF)\r\n       0 file pointer to relocation table\r\n       0 file pointer to line numbers\r\n       0 number of relocations\r\n       0 number of line numbers\r\n40000040 flags\r\n         Initialized Data\r\n         Read Only\r\n\r\nSECTION HEADER #5\r\n   .rsrc name\r\n    2330 virtual size\r\n  F42000 virtual address (0000000140F42000 to 0000000140F4432F)\r\n    2400 size of raw data\r\n  F3DC00 file pointer to raw data (00F3DC00 to 00F3FFFF)\r\n       0 file pointer to relocation table\r\n       0 file pointer to line numbers\r\n       0 number of relocations\r\n       0 number of line numbers\r\n40000040 flags\r\n         Initialized Data\r\n         Read Only\r\n\r\nSECTION HEADER #6\r\n  .reloc name\r\n    64AC virtual size\r\n  F45000 virtual address (0000000140F45000 to 0000000140F4B4AB)\r\n    6600 size of raw data\r\n  F40000 file pointer to raw data (00F40000 to 00F465FF)\r\n       0 file pointer to relocation table\r\n       0 file pointer to line numbers\r\n       0 number of relocations\r\n       0 number of line numbers\r\n42000040 flags\r\n         Initialized Data\r\n         Discardable\r\n         Read Only\r\n\r\n  Summary\r\n\r\n       34000 .data\r\n       93000 .pdata\r\n      38F000 .rdata\r\n        7000 .reloc\r\n        3000 .rsrc\r\n      AEB000 .text\r\n",
+      "stderr": ""
+    }
+  ],
+  "tauri_contract": {
+    "cli_version": "2.11.4",
+    "upstream_commit": "8909f221d1515955fc843808032bdc5d62209c96",
+    "current_config_override": false,
+    "schema_default": {
+      "silent": true,
+      "type": "downloadBootstrapper"
+    },
+    "selected_for_nsis_and_msi": {
+      "type": "downloadBootstrapper",
+      "silent": true
+    },
+    "bootstrapper_url": "https://go.microsoft.com/fwlink/p/?LinkId=2124703",
+    "downloads_binary_during_this_probe": false,
+    "zip": "EXE and licenses only; installed Evergreen WebView2 Runtime required",
+    "runtime_and_bootstrapper_in_distributed_payload": false,
+    "explanation": "Tauri source branch downloads at installation when Runtime is missing. Actual installers were not built or unpacked."
+  },
+  "primary_sources": [
+    {
+      "id": "webview-page",
+      "url": "https://developer.microsoft.com/en-us/microsoft-edge/webview2/",
+      "final_url": "https://developer.microsoft.com/en-us/microsoft-edge/webview2/?form=MA13LH&cs=1500870445",
+      "status": 200,
+      "bytes": 60007,
+      "sha256": "f389825c73bbfbcbba6f6caeee972e2adfa0fb81e1ffbdc31a9373103c6b3cd5",
+      "retrieved_utc": "2026-09-12T12:15:24.844Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview-page.raw"
+    },
+    {
+      "id": "crt-terms-page",
+      "url": "https://visualstudio.microsoft.com/license-terms/vs2022-cruntime/",
+      "final_url": "https://visualstudio.microsoft.com/license-terms/vs2022-cruntime/",
+      "status": 200,
+      "bytes": 236157,
+      "sha256": "4e315865c9a14c50176a8502388fae4f6f486d9957140a8b9a3fba0da353b46b",
+      "retrieved_utc": "2026-09-12T12:15:24.971Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/crt-terms-page.raw"
+    },
+    {
+      "id": "buildtools-terms-page",
+      "url": "https://visualstudio.microsoft.com/license-terms/vs2022-ga-diagnosticbuildtools/",
+      "final_url": "https://visualstudio.microsoft.com/license-terms/vs2022-ga-diagnosticbuildtools/",
+      "status": 200,
+      "bytes": 238426,
+      "sha256": "a3f20d3b19d48cdb4f1fe3829f685339735dcd53bcd6ec89a11dc0b0af735f07",
+      "retrieved_utc": "2026-09-12T12:15:25.010Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/buildtools-terms-page.raw"
+    },
+    {
+      "id": "redist2022",
+      "url": "https://learn.microsoft.com/en-us/visualstudio/releases/2022/redistribution",
+      "final_url": "https://learn.microsoft.com/en-us/visualstudio/releases/2022/redistribution",
+      "status": 200,
+      "bytes": 62969,
+      "sha256": "4710277c062f4733c6d8b42913191ce2ffa1c4fbab25c2a529ce92b3c6577e23",
+      "retrieved_utc": "2026-09-12T12:15:25.255Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/redist2022.raw"
+    },
+    {
+      "id": "webview-app",
+      "url": "https://edgecdn-embza6g8cacagcbn.z01.azurefd.net/shared/edgeweb/_nuxt/DkAVIFgg.js",
+      "final_url": "https://edgecdn-embza6g8cacagcbn.z01.azurefd.net/shared/edgeweb/_nuxt/DkAVIFgg.js",
+      "status": 200,
+      "bytes": 534788,
+      "sha256": "57bf4b26c87b5a2c1045e79463714a5a038e63dab6810fbc2f2a4eee73bee20a",
+      "retrieved_utc": "2026-09-12T12:16:32.987Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview-app.raw"
+    },
+    {
+      "id": "crt-docx",
+      "url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/09/Visual-C-Runtime-2015-2022-License-1.docx",
+      "final_url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/09/Visual-C-Runtime-2015-2022-License-1.docx",
+      "status": 200,
+      "bytes": 39644,
+      "sha256": "f1e3d56ceb2ad68aae0711b910375009e651ac5530fa0760f0dea6e81e54fae1",
+      "retrieved_utc": "2026-09-12T12:16:33.336Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/crt-docx.raw"
+    },
+    {
+      "id": "buildtools-docx",
+      "url": "https://visualstudio.microsoft.com/wp-content/uploads/2024/03/Visual-Studio-2022-Diagnostic-Build-Tools-Agent-License_Update-March-2024_EN.docx",
+      "final_url": "https://visualstudio.microsoft.com/wp-content/uploads/2024/03/Visual-Studio-2022-Diagnostic-Build-Tools-Agent-License_Update-March-2024_EN.docx",
+      "status": 200,
+      "bytes": 34395,
+      "sha256": "2f66b86a00e8d9833789897ce23d05a4a2dbea370cf39c8c1098dbc17d0e7bdc",
+      "retrieved_utc": "2026-09-12T12:16:33.533Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/buildtools-docx.raw"
+    },
+    {
+      "id": "tauri-tag",
+      "url": "https://api.github.com/repos/tauri-apps/tauri/git/matching-refs/tags/tauri-cli-v2.11",
+      "final_url": "https://api.github.com/repos/tauri-apps/tauri/git/matching-refs/tags/tauri-cli-v2.11",
+      "status": 200,
+      "bytes": 1901,
+      "sha256": "a6d20e5c25cf8df902b9126bf3717d0f6401ba37e57eeccb70a51c408d781428",
+      "retrieved_utc": "2026-09-12T12:16:33.782Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/tauri-tag.raw"
+    },
+    {
+      "id": "webview-block",
+      "url": "https://edgecdn-embza6g8cacagcbn.z01.azurefd.net/shared/edgeweb/_nuxt/CLddbZSB.js",
+      "final_url": "https://edgecdn-embza6g8cacagcbn.z01.azurefd.net/shared/edgeweb/_nuxt/CLddbZSB.js",
+      "status": 200,
+      "bytes": 6017,
+      "sha256": "31973c45f658d30ff4d23d9841322d59c048b18507d935404199be0cc224eb84",
+      "retrieved_utc": "2026-09-12T12:17:19.384Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview-block.raw"
+    },
+    {
+      "id": "webview-consumer",
+      "url": "https://edgecdn-embza6g8cacagcbn.z01.azurefd.net/shared/edgeweb/_nuxt/BKjbJNwQ.js",
+      "final_url": "https://edgecdn-embza6g8cacagcbn.z01.azurefd.net/shared/edgeweb/_nuxt/BKjbJNwQ.js",
+      "status": 200,
+      "bytes": 1289,
+      "sha256": "341413dbb14787c5b0c050c5bd90880cf1d67fc0538d28c3f863de67f43844bc",
+      "retrieved_utc": "2026-09-12T12:17:19.403Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview-consumer.raw"
+    },
+    {
+      "id": "tauri-tree",
+      "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/8909f221d1515955fc843808032bdc5d62209c96?recursive=1",
+      "final_url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/8909f221d1515955fc843808032bdc5d62209c96?recursive=1",
+      "status": 200,
+      "bytes": 360405,
+      "sha256": "058bd5229549d6f4274b4df7ddafafdf88685bab032eb1a7c5550c29248a8b62",
+      "retrieved_utc": "2026-09-12T12:17:19.707Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/tauri-tree.raw"
+    },
+    {
+      "id": "community-page",
+      "url": "https://visualstudio.microsoft.com/license-terms/vs2022-ga-community/",
+      "final_url": "https://visualstudio.microsoft.com/license-terms/vs2022-ga-community/",
+      "status": 200,
+      "bytes": 236476,
+      "sha256": "d17efb482f087da590d8d4fe218a9dbc3cebdc7ac8811e7567260c225cffab18",
+      "retrieved_utc": "2026-09-12T12:17:19.807Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/community-page.raw"
+    },
+    {
+      "id": "webview-eula",
+      "url": "https://developer.microsoft.com/microsoft-edge/api/eula/webview2",
+      "final_url": "https://developer.microsoft.com/microsoft-edge/api/eula/webview2",
+      "status": 200,
+      "bytes": 24429,
+      "sha256": "e15b53f476b66f8335c18436998256dc9862b210242a8e4c7f7e14d2de53591d",
+      "retrieved_utc": "2026-09-12T12:17:43.472Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview-eula.raw"
+    },
+    {
+      "id": "webview-consumer-eula",
+      "url": "https://developer.microsoft.com/microsoft-edge/api/eula/webview2?consumer=true",
+      "final_url": "https://developer.microsoft.com/microsoft-edge/api/eula/webview2?consumer=true",
+      "status": 200,
+      "bytes": 19689,
+      "sha256": "afbdf3f7281f675fde202b5e58f2883889fdf9bd586c54eaa5aa5e0deff4819a",
+      "retrieved_utc": "2026-09-12T12:17:43.523Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview-consumer-eula.raw"
+    },
+    {
+      "id": "community-docx",
+      "url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/11/Visual-Studio-2022-Community-License-EN.docx",
+      "final_url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/11/Visual-Studio-2022-Community-License-EN.docx",
+      "status": 200,
+      "bytes": 62859,
+      "sha256": "41a207b10c8ab91d0d2f10a854715f73dca54509581692d2fe179aa3ffcb8540",
+      "retrieved_utc": "2026-09-12T12:17:43.632Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/community-docx.raw"
+    },
+    {
+      "id": "tauri-nsis-source",
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows/nsis/installer.nsi",
+      "final_url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows/nsis/installer.nsi",
+      "status": 200,
+      "bytes": 32007,
+      "sha256": "20f4ecc730defb71f1342eaeaec4021df13be3d843abba0effe88ea5835fa079",
+      "retrieved_utc": "2026-09-12T12:17:43.869Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/tauri-nsis-source.raw"
+    },
+    {
+      "id": "tauri-msi-source",
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows/msi/main.wxs",
+      "final_url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows/msi/main.wxs",
+      "status": 200,
+      "bytes": 18783,
+      "sha256": "e371a01628a06730828f9bd24111feacb8bec53c250ccec4b46df756fe0a0198",
+      "retrieved_utc": "2026-09-12T12:17:44.078Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/tauri-msi-source.raw"
+    },
+    {
+      "id": "tauri-nsis-rust",
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows/nsis/mod.rs",
+      "final_url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows/nsis/mod.rs",
+      "status": 200,
+      "bytes": 30821,
+      "sha256": "b1c6db4e8a9bcc55ed6a739fe73a64a18801600bbefc76083f7449db4fb87a0f",
+      "retrieved_utc": "2026-09-12T12:17:44.258Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/tauri-nsis-rust.raw"
+    },
+    {
+      "id": "tauri-msi-rust",
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows/msi/mod.rs",
+      "final_url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows/msi/mod.rs",
+      "status": 200,
+      "bytes": 35422,
+      "sha256": "c402e04e42eb5242cd319b55d9a6b96d1ab764c740e61875e2d3cd8769d2bb1d",
+      "retrieved_utc": "2026-09-12T12:17:44.455Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/tauri-msi-rust.raw"
+    },
+    {
+      "id": "tauri-settings",
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/settings.rs",
+      "final_url": "https://raw.githubusercontent.com/tauri-apps/tauri/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/settings.rs",
+      "status": 200,
+      "bytes": 46492,
+      "sha256": "8ef6714690dc4a3e3b65103007572b802b1d52eb716e1df638f1f3f4f861a2c8",
+      "retrieved_utc": "2026-09-12T12:17:44.629Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/tauri-settings.raw"
+    },
+    {
+      "id": "webview907comments",
+      "url": "https://api.github.com/repos/MicrosoftEdge/WebView2Feedback/issues/907/comments?per_page=100",
+      "final_url": "https://api.github.com/repos/MicrosoftEdge/WebView2Feedback/issues/907/comments?per_page=100",
+      "status": 200,
+      "bytes": 73272,
+      "sha256": "808f6a8d00b0213a7e1e3d706558588874a1db6346caf273596e9a662dd64e19",
+      "retrieved_utc": "2026-09-12T12:19:48.682Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview907comments.raw"
+    },
+    {
+      "id": "msvc-guidance",
+      "url": "https://www.microsoft.com/licensing/guidance/Visual-Studio",
+      "final_url": "https://www.microsoft.com/licensing/guidance/Visual-Studio",
+      "status": 200,
+      "bytes": 359791,
+      "sha256": "72c7cb0d2c869be8d59ff0fce4b1af10176a3cf5c38a06977765ca40ce81b885",
+      "retrieved_utc": "2026-09-12T12:19:49.798Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/msvc-guidance.raw"
+    },
+    {
+      "id": "msvc-redistribute-doc",
+      "url": "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170",
+      "final_url": "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170",
+      "status": 200,
+      "bytes": 60489,
+      "sha256": "516eddc1510e34a293c9551d439d3dd25fc6fc34866547c682032c68e21a9bcd",
+      "retrieved_utc": "2026-09-12T12:19:49.920Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/msvc-redistribute-doc.raw"
+    },
+    {
+      "id": "ucrt-doc",
+      "url": "https://learn.microsoft.com/en-us/cpp/windows/universal-crt-deployment?view=msvc-170",
+      "final_url": "https://learn.microsoft.com/en-us/cpp/windows/universal-crt-deployment?view=msvc-170",
+      "status": 200,
+      "bytes": 54092,
+      "sha256": "7ef76c7a29c3ec8d5efbb910964d00668742ea6b2506862c1496ff3a4bb03135",
+      "retrieved_utc": "2026-09-12T12:19:50.082Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/ucrt-doc.raw"
+    },
+    {
+      "id": "webview-distribution-doc",
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution",
+      "final_url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution",
+      "status": 200,
+      "bytes": 87506,
+      "sha256": "fcbc03b843515e3324db35c2fb6cb2dea45c1276835e8f2cf225b1de6c26c1a9",
+      "retrieved_utc": "2026-09-12T12:19:50.247Z",
+      "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview-distribution-doc.raw"
+    }
+  ],
+  "source_terms": {
+    "visual_studio": {
+      "crt-docx": {
+        "original": {
+          "id": "crt-docx",
+          "url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/09/Visual-C-Runtime-2015-2022-License-1.docx",
+          "final_url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/09/Visual-C-Runtime-2015-2022-License-1.docx",
+          "status": 200,
+          "bytes": 39644,
+          "sha256": "f1e3d56ceb2ad68aae0711b910375009e651ac5530fa0760f0dea6e81e54fae1",
+          "retrieved_utc": "2026-09-12T12:16:33.336Z",
+          "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/crt-docx.raw"
+        },
+        "paragraph_text_utf8": "MICROSOFT SOFTWARE LICENSE TERMS\nMICROSOFT VISUAL C++ 2015 - 2022 RUNTIME \nThese license terms are an agreement between Microsoft Corporation (or based on where you live, one of its affiliates) and you. They apply to the software named above. The terms also apply to any Microsoft services or updates for the software, except to the extent those have different terms.\nIF YOU COMPLY WITH THESE LICENSE TERMS, YOU HAVE THE RIGHTS BELOW.\nINSTALLATION AND USE RIGHTS. \nYou may install and use any number of copies of the software.\nTERMS FOR SPECIFIC COMPONENTS.\nMicrosoft Platforms. The software may include components from Microsoft Windows; Microsoft Windows Server; Microsoft SQL Server; Microsoft Exchange; Microsoft Office; and Microsoft SharePoint. These components are governed by separate agreements and their own product support policies, as described in the Microsoft “Licenses” folder accompanying the software, except that, if license terms for those components are also included in the associated installation directory, those license terms control.\nThird Party Components. The software may include third party components with separate legal notices or governed by other agreements, as may be described in the notices file(s) accompanying the software. \nSCOPE OF LICENSE. The software is licensed, not sold. This agreement only gives you some rights to use the software. Microsoft reserves all other rights. Unless applicable law gives you more rights despite this limitation, you may use the software only as expressly permitted in this agreement. In doing so, you must comply with any technical limitations in the software that only allow you to use it in certain ways. You may not\nwork around any technical limitations in the software;\nreverse engineer, decompile or disassemble the software, or otherwise attempt to derive the source code for the software except, and only to the extent required by third party licensing terms governing the use of certain open source components that may be included in the software;\nremove, minimize, block or modify any notices of Microsoft or its suppliers in the software; \nuse the software in any way that is against the law; \nshare, publish, rent or lease the software; or \nprovide the software as a stand-alone offering or combined with any of your applications for others to use, or transfer the software or this agreement to any third party.\nEXPORT RESTRICTIONS. You must comply with all domestic and international export laws and regulations that apply to the software, which include restrictions on destinations, end users, and end use. For further information on export restrictions, visit www.microsoft.com/exporting. \nSUPPORT SERVICES. Because this software is “as is,” we may not provide support services for it.\nENTIRE AGREEMENT. This agreement, and the terms for supplements, updates, Internet-based services and support services that you use, are the entire agreement for the software and support services.\nAPPLICABLE LAW. If you acquired the software in the United States, Washington law applies to interpretation of and claims for breach of this agreement, and the laws of the state where you live apply to all other claims. If you acquired the software in any other country, its laws apply.\nCONSUMER RIGHTS; REGIONAL VARIATIONS. This agreement describes certain legal rights. You may have other rights, including consumer rights, under the laws of your state or country. Separate and apart from your relationship with Microsoft, you may also have rights with respect to the party from which you acquired the software. This agreement does not change those other rights if the laws of your state or country do not permit it to do so. For example, if you acquired the software in one of the below regions, or mandatory country law applies, then the following provisions apply to you:\nAustralia. You have statutory guarantees under the Australian Consumer Law and nothing in this agreement is intended to affect those rights.\nCanada. If you acquired this software in Canada, you may stop receiving updates by turning off the automatic update feature, disconnecting your device from the Internet (if and when you re-connect to the Internet, however, the software will resume checking for and installing updates), or uninstalling the software. The product documentation, if any, may also specify how to turn off updates for your specific device or software.\nGermany and Austria.\n(i)Warranty. The properly licensed software will perform substantially as described in any Microsoft materials that accompany the software. However, Microsoft gives no contractual guarantee in relation to the licensed software.\n(ii)Limitation of Liability. In case of intentional conduct, gross negligence, claims based on the Product Liability Act, as well as, in case of death or personal or physical injury, Microsoft is liable according to the statutory law.\nSubject to the foregoing clause (ii), Microsoft will only be liable for slight negligence if Microsoft is in breach of such material contractual obligations, the fulfillment of which facilitate the due performance of this agreement, the breach of which would endanger the purpose of this agreement and the compliance with which a party may constantly trust in (so-called \"cardinal obligations\"). In other cases of slight negligence, Microsoft will not be liable for slight negligence.\nDISCLAIMER OF WARRANTY. THE SOFTWARE IS LICENSED “AS-IS.” YOU BEAR THE RISK OF USING IT. MICROSOFT GIVES NO EXPRESS WARRANTIES, GUARANTEES OR CONDITIONS. TO THE EXTENT PERMITTED UNDER YOUR LOCAL LAWS, MICROSOFT EXCLUDES THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.\nLIMITATION ON AND EXCLUSION OF DAMAGES. YOU CAN RECOVER FROM MICROSOFT AND ITS SUPPLIERS ONLY DIRECT DAMAGES UP TO U.S. $5.00. YOU CANNOT RECOVER ANY OTHER DAMAGES, INCLUDING CONSEQUENTIAL, LOST PROFITS, SPECIAL, INDIRECT OR INCIDENTAL DAMAGES.\nThis limitation applies to (a) anything related to the software, services, content (including code) on third party Internet sites, or third party applications; and (b) claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, or other tort to the extent permitted by applicable law.\nIt also applies even if Microsoft knew or should have known about the possibility of the damages. The above limitation or exclusion may not apply to you because your country may not allow the exclusion or limitation of incidental, consequential or other damages.\n\nEULA ID: Cpp_2015-2022_ENU.1033\n",
+        "paragraph_text_sha256": "7e96c27c67ef3e7cabc55e1dee05727e67d261f3944155a816a07dbf9b78fb1d",
+        "extraction": "ZIP word/document.xml; direct body w:p descendants w:t concatenated; no auto-number labels reconstructed; read-only source analysis, not a deliverable license transcription"
+      },
+      "buildtools-docx": {
+        "original": {
+          "id": "buildtools-docx",
+          "url": "https://visualstudio.microsoft.com/wp-content/uploads/2024/03/Visual-Studio-2022-Diagnostic-Build-Tools-Agent-License_Update-March-2024_EN.docx",
+          "final_url": "https://visualstudio.microsoft.com/wp-content/uploads/2024/03/Visual-Studio-2022-Diagnostic-Build-Tools-Agent-License_Update-March-2024_EN.docx",
+          "status": 200,
+          "bytes": 34395,
+          "sha256": "2f66b86a00e8d9833789897ce23d05a4a2dbea370cf39c8c1098dbc17d0e7bdc",
+          "retrieved_utc": "2026-09-12T12:16:33.533Z",
+          "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/buildtools-docx.raw"
+        },
+        "paragraph_text_utf8": "MICROSOFT SOFTWARE LICENSE TERMS\nMICROSOFT VISUAL STUDIO 2022 REMOTE DEBUGGER, INTELLITRACE COLLECTOR, other DEBUGGERS, AGENTS and BUILD TOOLS \nThese license terms are an agreement between you and Microsoft Corporation (or based on where you live, one of its affiliates). They apply to the software named above. The terms also apply to any Microsoft services or updates for the software, except to the extent those have different terms.\nIF YOU COMPLY WITH THESE LICENSE TERMS, YOU HAVE THE RIGHTS BELOW.\nINSTALLATION AND USE RIGHTS. \nThis software is licensed as a supplement to Visual Studio Community, Visual Studio Professional, and Visual Studio Enterprise (collectively, “Visual Studio Products”). Use of the software requires a valid license to one of the Visual Studio Products.\nYou may install and use any number of copies of the software to develop, build, and test your applications created with Visual Studio Products.\nWith a valid license to Visual Studio Products you may also install and use the software to develop, build, and test applications with Visual Studio Code.\nSeparately, if you don’t have a valid license to any of the Visual Studio Products you may still install and use copies of the software to compile and build C++ components that (i) have been released by a third party under an open-source software license approved by the Open Source Initiative; and (ii) are also reasonably required to build your applications (“Open Source Dependencies”).\nYou may not use the software pursuant to subsection (d) to develop and test Open Source Dependencies, except, and only to the extent, minor modifications are necessary so that the Open Source Dependencies can be compiled and built with the software.  For purposes of this agreement “minor modifications” are defined as modifications that do not significantly change the functionality of the Open Source Dependency.  These modifications do not affect the overall structure of the Open Source Dependency.  Examples of “minor modifications” include fixing typos, changing variable names, or changing options in a build script.\nTERMS FOR SPECIFIC COMPONENTS.\nUtilities. The software contains items on the Utilities List at https://aka.ms/vs/17/utilities. You may copy and install those items onto your devices to debug and deploy your applications and databases you developed with Visual Studio Products. The Utilities are designed for temporary use. Microsoft may not be able to patch or update Utilities separately from the rest of the software. Some Utilities by their nature may make it possible for others to access the devices on which the Utilities are installed. You should delete all Utilities you have installed after you finish debugging or deploying your applications and databases. Microsoft is not responsible for any third party use or access of devices, or of the applications or databases on devices, on which Utilities have been installed.\nBuild Devices and Visual Studio Build Tools. You may copy and install files from the software onto your build devices, including physical devices and virtual machines or containers on those machines, whether on-premises or remote machines that are owned by you, hosted on Microsoft Azure for you, or dedicated solely to your use (collectively, “Build Devices”). You and others in your organization may use these files on your Build Devices solely to (a) compile, build, and verify (i) applications developed by using Visual Studio Products, (ii) applications developed by using Visual Studio Code if you also have a valid license to a Visual Studio Product, and (iii) Open Source Dependencies, and (b) run quality or performance tests of those applications and Open Source Dependencies as part of the build process. \nMicrosoft Platforms. The software may include components from Microsoft Windows; Microsoft Windows Server; Microsoft SQL Server; Microsoft Exchange; Microsoft Office; and Microsoft SharePoint, or other Microsoft software. These components are governed by separate agreements and their own product support policies, as described in the Microsoft “Licenses” folder accompanying the software, except that, if license terms for those components are also included in the associated installation directory, those license terms control.\nThird Party Components. The software may include third party components with separate legal notices or governed by other agreements, as may be described in the notices file(s) accompanying the software. \nDATA. \nData Collection. The software may collect information about you and your use of the software, and send that to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may opt-out of many of these scenarios, but not all, as described in the software documentation. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement. Our privacy statement is located at https://aka.ms/privacy. You can learn more about data collection and its use from the software documentation and our privacy statement. Your use of the software operates as your consent to these practices.\nProcessing of Personal Data. To the extent Microsoft is a processor or subprocessor of personal data in connection with the software, Microsoft makes the commitments in the European Union General Data Protection Regulation Terms of the Microsoft Products and Services Data Protection Addendum to all customers effective May 25, 2018, at https://docs.microsoft.com/legal/gdpr. \nSCOPE OF LICENSE. The software is licensed, not sold. These license terms only give you some rights to use the software. Microsoft reserves all other rights. Unless applicable law gives you more rights despite this limitation, you may use the software only as expressly permitted in these license terms. In doing so, you must comply with any technical limitations in the software that only allow you to use it in certain ways. In addition, you may not:\nwork around any technical limitations in the software;\nreverse engineer, decompile or disassemble the software, or otherwise attempt to derive the source code for the software, except and only to the extent required by third party licensing terms governing use of certain open source components that may be included with the software;\nremove, minimize, block or modify any notices of Microsoft or its suppliers in the software; \nuse the software in any way that is against the law; \nshare, publish, rent, or lease the software; or \nprovide the software as a stand-alone offering or combine it with any of your applications for others to use, or transfer the software or this agreement to any third party.\nFEEDBACK. If you give feedback about the software to Microsoft, you give to Microsoft, without charge, the right to use, share, and commercialize your feedback in any way and for any purpose. You will not give feedback that is subject to a license that requires Microsoft to license its software or documentation to third parties because we include your feedback in them. These rights survive this agreement.\nSUPPORT SERVICES. Because this software is “as is”, we may not provide support services for it.\nENTIRE AGREEMENT. This agreement, and the terms for supplements, updates, Internet-based services and support services, are the entire agreement for the software and support services.\nEXPORT RESTRICTIONS. You must comply with all domestic and international export laws and regulations that apply to the software, which include restrictions on destinations, end users, and end use. For further information on export restrictions, visit https://www.microsoft.com/exporting.\nAPPLICABLE LAW. If you acquired the software in the United States, Washington state law applies to interpretation of, and claims for breach of this agreement, and the laws of the state where you live apply to all other claims. If you acquired the software in any other country, its laws apply.\nCONSUMER RIGHTS; REGIONAL VARIATIONS. These license terms describe certain legal rights. You may have other rights, including consumer rights, under the laws of your state or country. You may also have rights with respect to the party from which you acquired the software. This agreement does not change those other rights if the laws of your state or country do not permit it to do so. For example, if you acquired the software in one of the below regions, or mandatory country law applies, then the following provisions apply to you:\nAustralia. You have statutory guarantees under the Australian Consumer Law and nothing in this agreement is intended to affect those rights.\nCanada. You may stop receiving updates on your device by turning off Internet access. If and when you re-connect to the Internet, the software will resume checking for and installing updates.\nGermany and Austria.\n(i)Warranty. The properly licensed software will perform substantially as described in any Microsoft materials that accompany the software. However, Microsoft gives no contractual guarantee in relation to the licensed software.\n(ii)Limitation of Liability. In case of intentional conduct, gross negligence, claims based on the Product Liability Act, as well as, in the case of death or personal or physical injury, Microsoft is liable according to the statutory law.\nSubject to the preceding sentence (ii), Microsoft will only be liable for slight negligence if Microsoft is in breach of such material contractual obligations, the fulfillment of which facilitate the due performance of this agreement, the breach of which would endanger the purpose of this agreement and the compliance with which a party may constantly trust in (so-called \"cardinal obligations\"). In other cases of slight negligence, Microsoft will not be liable for slight negligence.\nDISCLAIMER OF WARRANTY. THE SOFTWARE IS LICENSED “AS-IS”. YOU BEAR THE RISK OF USING IT. MICROSOFT GIVES NO EXPRESS WARRANTIES, GUARANTEES OR CONDITIONS. TO THE EXTENT PERMITTED UNDER YOUR LOCAL LAWS, MICROSOFT EXCLUDES THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.\nLIMITATION ON AND EXCLUSION OF DAMAGES. YOU CAN RECOVER FROM MICROSOFT AND ITS SUPPLIERS ONLY DIRECT DAMAGES UP TO U.S. $5.00. YOU CANNOT RECOVER ANY OTHER DAMAGES, INCLUDING CONSEQUENTIAL, LOST PROFITS, SPECIAL, INDIRECT OR INCIDENTAL DAMAGES.\nThis limitation applies to (a) anything related to the software, services, content (including code) on third party Internet sites, or third party applications; and (b) claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, or other tort to the extent permitted by applicable law.\nIt also applies even if Microsoft knew or should have known about the possibility of the damages. The above limitation or exclusion may not apply to you because your country may not allow the exclusion or limitation of incidental, consequential or other damages.\n\nEULAID: VS_2022_Tools_2024Mar_ENU.1033",
+        "paragraph_text_sha256": "c8f5ebea5d05e71865d67ec699db544327c7b78e239f282f54e4c92d9c5a3e43",
+        "extraction": "ZIP word/document.xml; direct body w:p descendants w:t concatenated; no auto-number labels reconstructed; read-only source analysis, not a deliverable license transcription"
+      },
+      "community-docx": {
+        "original": {
+          "id": "community-docx",
+          "url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/11/Visual-Studio-2022-Community-License-EN.docx",
+          "final_url": "https://visualstudio.microsoft.com/wp-content/uploads/2021/11/Visual-Studio-2022-Community-License-EN.docx",
+          "status": 200,
+          "bytes": 62859,
+          "sha256": "41a207b10c8ab91d0d2f10a854715f73dca54509581692d2fe179aa3ffcb8540",
+          "retrieved_utc": "2026-09-12T12:17:43.632Z",
+          "local_original": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/community-docx.raw"
+        },
+        "paragraph_text_utf8": "MICROSOFT SOFTWARE LICENSE TERMS\nMICROSOFT VISUAL STUDIO COMMUNITY 2022 \n\nThese license terms are an agreement between you and Microsoft Corporation (or based on where you live, one of its affiliates). They apply to the software named above. The terms also apply to any Microsoft services or updates for the software, except to the extent those have different terms.\n\nIF YOU COMPLY WITH THESE LICENSE TERMS, YOU HAVE THE RIGHTS BELOW.\nINSTALLATION AND USE RIGHTS.\nIndividual License. If you are an individual working on your own applications, either to sell or for any other purpose, you may use the software to develop and test those applications.\nOrganizational License. If you are an organization, your users may use the software as follows:\nAny number of your users may use the software to develop and test applications released under Open Source Initiative (OSI) approved open source software licenses.\nAny number of your users may use the software to develop and test extensions to Visual Studio. \nAny number of your users may use the software to develop and test device drivers for the Windows operating system.\nAny number of your users may use the software only for Microsoft SQL Server development when using the SQL Server Data Tools or the extensions “Microsoft Analysis Services Projects”, “Microsoft Reporting Services Projects”, or “SQL Server Integration Services Projects” to develop Microsoft SQL Server database projects or Analysis Services, Reporting Services, Power BI Report Server, or Integration Services projects.\nAny number of your users may use the software to develop and test your applications as part of online or in person classroom training and education, or for performing academic research.\nIf none of the above apply, and you are also not an enterprise (defined below), then up to 5 of your individual users can use the software concurrently to develop and test your applications.\nIf you are an enterprise, your employees and contractors may not use the software to develop or test your applications, except for: (i) open source; (ii) Visual Studio extensions; (iii) device drivers for the Windows operating system; (iv) SQL Server development; and, (v) education purposes as permitted above. \nAn “enterprise” is any organization and its affiliates who collectively have either (a) more than 250 PCs or users or (b) one million U.S. dollars (or the equivalent in other currencies) in annual revenues, and “affiliates” means those entities that control (via majority ownership), are controlled by, or are under common control with an organization.\nWorkloads. These license terms apply to your use of the workloads made available to you within the software, except to the extent a workload, or a workload component comes with different license terms and support policies.\nBackup Copy. You may make one backup copy of the software, for reinstalling the software.\nOnline Services in the Software. Some features of the software make use of online services to provide you information about updates to the software or extensions, or to enable you to retrieve content, collaborate with others, or otherwise supplement your development experience. As used throughout this agreement, the term “software” includes these online service features, and by using them, you consent to the transmission of information as described in Section 6, DATA.\nDemo Use. The uses permitted above include use of the software in demonstrating your applications.\nPreviews. You may use any number of copies of software, components, or features (“preview channel software”) Microsoft may make available to you through the Preview Channel only for internal evaluation purposes. Microsoft may also make available to you preview features or components (“preview features”) through the Current Channel. Preview features may be used consistent with your use rights to Visual Studio Community. Preview Channel software and preview features (collectively, “previews”), the Preview Channel, and Current Channel are further described at https://aka.ms/vs/17/channels-overview. Previews are experimental and may be substantially different from the commercially released version. They may not operate correctly or work the way a final version will. Microsoft may change previews for the final, commercial version, if any. Microsoft is not obligated to provide maintenance, technical support or updates to you for previews. \nVISUAL STUDIO INTELLICODE SERVICE.\nAI-assisted IntelliSense Service. This service provides a base model trained on publicly available open source code that enables you to receive AI-assisted IntelliSense suggestions. The base model will enable you to receive AI-assisted IntelliSense suggestions for common types and components. You may use the base model, in whole or in part, only with the software. The service also provides the facility to train any number of team completion models on your own applications. These team completion models are for your use and use by those with whom you wish to share. (See 2.c. below for the definition of a team completion model.)\nYour Data. AI-assisted IntelliSense analyzes your application locally to generate a summary file with metadata on the types and their usage across your application which illustrate your patterns of usage. The summary file contains information about the names of classes, methods, and how often they are used in your application (“Your Data”). You retain ownership of all aspects of Your Data, including, but not limited to, all right, title and interest in and to the underlying application code.\nTeam Completion Model.\nYou may submit Your Data to Microsoft through the AI-assisted IntelliSense service for the sole purpose of enabling Microsoft to create a team completion model. The team completion model is an AI-assisted IntelliSense set of recommendations based on Your Data. By submitting Your Data to Microsoft, you give Microsoft the right and license to copy, modify, create derivative works of, and transform Your Data to create a team completion model. Microsoft will not use Your Data or the resulting trained machine learning of the team completion model for any other purpose. \nYou may use the team completion model, in whole or in part, only with the software.\nTERMS FOR SPECIFIC COMPONENTS.\nUtilities. The software contains items on the Utilities List at https://aka.ms/vs/17/utilities. You may copy and install those items onto your devices to debug and deploy your applications and databases you developed with the software. The Utilities are designed for temporary use. Microsoft may not be able to patch or update Utilities separately from the rest of the software. Some Utilities by their nature may make it possible for others to access the devices on which the Utilities are installed. You should delete all Utilities you have installed after you finish debugging or deploying your applications and databases. Microsoft is not responsible for any third party use or access of devices, or of the applications or databases on devices, on which Utilities have been installed.\nBuild Devices and Visual Studio Build Tools. You may copy and install files from the software or from Visual Studio Build Tools onto your build devices, including physical devices and virtual machines or containers on those machines, whether on-premises or remote machines that are owned by you, hosted on Microsoft Azure for you, or dedicated solely to your use (collectively, “Build Devices”). You and others in your organization may us these files on your Build Devices solely to compile, build, and verify applications developed by using the software, or run quality or performance tests of those applications as part of the build process. \nCode Inspection. This software includes functionality that enables you to inspect binary code and reproduce source code from original binary code. Use of these features of the software is entirely optional. By using this functionality, you acknowledge that the binary code and source code may be protected by copyright and trademark laws. You also agree not to violate any applicable copyright and trademark laws or license agreements and represent that you will have obtained permission or otherwise be permitted to inspect binary code and reproduce source code if you use this functionality. Microsoft is not responsible for any uses by you in violation of applicable laws or license agreements.\nFonts. While the software is running, you may use its fonts to display and print content. You may only (i) embed fonts in content as permitted by the embedding restrictions in the fonts; and (ii) temporarily download them to a printer or other output device to print content.\nLicenses for Other Components. \nMicrosoft Platforms. The software may include components from Microsoft Windows; Microsoft Windows Server; Microsoft SQL Server; Microsoft Exchange; Microsoft Office; and Microsoft SharePoint, or other Microsoft software. These components are governed by separate agreements and their own product support policies, as described in the Microsoft “Licenses” folder accompanying the software, except that, if license terms for those components are also included in the associated installation directory, those license terms control. \nThird party Components. The software may include third party components with separate legal notices or governed by other agreements, as may be described in the notices file(s) accompanying the software. \nPackage Managers. The software includes package managers, like NuGet, that give you the option to download other Microsoft and third party software packages to use with your applications. Those packages are under their own licenses, and not these license terms. Microsoft does not distribute, license or provide any warranties for any of the third party packages.\nDISTRIBUTABLE CODE. The software contains code that you may distribute in applications you develop as described in this Section. For purposes of this Section 4, the term “distribution” also means deployment of your applications for third parties to access over the Internet.\nRight to Use and Distribute. The code and text files listed below are “Distributable Code”.\nDistributable List. You may copy and distribute the object code form of code listed on the Distributable List located at https://aka.ms/vs/17/redistribution. \nSample Code, Templates and Styles. You may copy, modify and distribute the source and object code form of code marked as “sample”, “template”, “simple styles” and “sketch styles”.\nThird Party Distribution. You may permit distributors of your applications to copy and distribute the Distributable Code as part of those applications.\nDistribution Requirements. For any Distributable Code you distribute, you must:\nadd significant primary functionality to it in your applications; and\nrequire distributors and external end users to agree to terms that protect the Distributable Code at least as much as this agreement.\nDistribution Restrictions. You may not:\ndistribute components or runtimes that are marked “Preview”, “Pre-release” or “Beta”;\nuse Microsoft’s trademarks in your applications’ names or in a way that suggests your applications come from or are endorsed by Microsoft; or\nmodify or distribute the source code of any Distributable Code so that any part of it becomes subject to an Excluded License. An “Excluded License” is one that requires, as a condition of use, modification or distribution of code, that (i) it be disclosed or distributed in source code form; or (ii) others have the right to modify it.\nDEVELOPING EXTENSIONS.\nLimits on Extensions. You may not develop or enable others to develop extensions for the software (or any other component of the Visual Studio family of products) which circumvent the technical limitations implemented in the software. If Microsoft technically limits or disables extensibility for the software, you may not extend the software by, among other things, loading or injecting into the software any non-Microsoft add-ins, macros, or packages; modifying the software registry settings; or adding features or functionality equivalent to that found in the Visual Studio family of products.\nNo Degrading the Software. If you develop an extension for the software (or any other component of the Visual Studio family of products), you must test the installation, uninstallation, and operation of your extension to ensure that such processes do not disable any features or adversely affect the functionality of the software (or such component) or of any previous version or edition thereof.\nDATA. \nData Collection. The software may collect information about you and your use of the software, and send that to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may opt-out of many of these scenarios, but not all, as described in the software documentation. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement. Our privacy statement is located at https://aka.ms/privacy. You can learn more about data collection and its use from the software documentation and our privacy statement. Your use of the software operates as your consent to these practices.\nProcessing of Personal Data. To the extent Microsoft is a processor or subprocessor of personal data in connection with the software, Microsoft makes the commitments in the European Union General Data Protection Regulation Terms of the Microsoft Products and Services Data Protection Addendum to all customers effective May 25, 2018, at https://docs.microsoft.com/legal/gdpr.\nSCOPE OF LICENSE. The software is licensed, not sold. These license terms only give you some rights to use the software. Microsoft reserves all other rights. Unless applicable law gives you more rights despite this limitation, you may use the software only as expressly permitted in these license terms. In doing so, you must comply with any technical limitations in the software that only allow you to use it in certain ways. In addition, you may not:\nwork around any technical limitations in the software;\nreverse engineer, decompile or disassemble the software, or otherwise attempt to derive the source code for the software, except and only to the extent required by third party licensing terms governing use of certain open source components that may be included with the software;\nremove, minimize, block or modify any notices of Microsoft or its suppliers in the software;\nuse the software in any way that is against the law; \nshare, publish, rent or lease the software; or \nprovide the software as a stand-alone offering or combine it with any of your applications for others to use, or transfer the software or this agreement to any third party.\nSUPPORT. Because the software is “as is”, we may not provide support services for it.\nENTIRE AGREEMENT. This agreement, and the terms for supplements, updates, Internet-based services and support services, are the entire agreement for the software and support services.\nEXPORT RESTRICTIONS. You must comply with all domestic and international export laws and regulations that apply to the software, which include restrictions on destinations, end users and end use. For further information on export restrictions, visit www.microsoft.com/exporting.\nAPPLICABLE LAW. If you acquired the software in the United States, Washington state law applies to interpretation of, and claims for breach of this agreement, and the laws of the state where you live apply to all other claims. If you acquired the software in any other country, its laws apply.\nCONSUMER RIGHTS; REGIONAL VARIATIONS. These license terms describe certain legal rights. You may have other rights, including consumer rights, under the laws of your state or country. You may also have rights with respect to the party from which you acquired the software. This agreement does not change those other rights if the laws of your state or country do not permit it to do so. For example, if you acquired the software in one of the below regions, or mandatory country law applies, then the following provisions apply to you:\nAustralia. You have statutory guarantees under the Australian Consumer Law and nothing in these license terms is intended to affect those rights.\nCanada. You may stop receiving updates on your device by turning off Internet access. If and when you re-connect to the Internet, the software will resume checking for and installing updates.\nGermany and Austria.\n(i) Warranty. The properly licensed software will perform substantially as described in any Microsoft materials that accompany it. However, Microsoft gives no contractual guarantee in relation to the software.\n(ii) Limitation of Liability. In case of intentional conduct, gross negligence, claims based on the Product Liability Act, as well as in case of death or personal or physical injury, Microsoft is liable according to the statutory law.\nSubject to the preceding sentence (ii), Microsoft will only be liable for slight negligence if Microsoft is in breach of such material contractual obligations, the fulfillment of which facilitate the due performance of this agreement, the breach of which would endanger the purpose of this agreement and the compliance with which a party may constantly trust in (so-called “cardinal obligations”). In other cases of slight negligence, Microsoft will not be liable for slight negligence.\nDISCLAIMER OF WARRANTY. The software is licensed “as-is”. You bear the risk of using it. Microsoft gives no express warranties, guarantees or conditions. To the extent permitted under your local laws, Microsoft excludes the implied warranties of merchantability, fitness for a particular purpose and non-infringement.\nLIMITATION ON DAMAGES. You can recover from Microsoft and its suppliers only direct damages up to U.S. $5.00. You cannot recover any other damages, including consequential, lost profits, special, indirect or incidental damages.\nThis limitation applies to (a) anything related to the software, services, content (including code) on third party Internet sites, or third party applications; and (b) claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, or other tort to the extent permitted by applicable law.\nIt also applies even if Microsoft knew or should have known about the possibility of the damages. The above limitation or exclusion may not apply to you because your state or country may not allow the exclusion or limitation of incidental, consequential or other damages.\n\nEULAID: VS_Comm_2022_ENU.1033",
+        "paragraph_text_sha256": "0ff50aa7e32670b49af349ede7b464bed38cee0eb496767bd01c5f21223375a4",
+        "extraction": "ZIP word/document.xml; direct body w:p descendants w:t concatenated; no auto-number labels reconstructed; read-only source analysis, not a deliverable license transcription"
+      }
+    },
+    "webview_evergreen": {
+      "endpoint": "https://developer.microsoft.com/microsoft-edge/api/eula/webview2",
+      "locale": "en-us",
+      "version": "No document revision/version supplied; captured 2026-09-12. Not tied to SDK 1.0.3650.58 or a future Evergreen binary version.",
+      "original_json": {
+        "path": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/webview-eula.raw",
+        "bytes": 24429,
+        "sha256": "e15b53f476b66f8335c18436998256dc9862b210242a8e4c7f7e14d2de53591d"
+      },
+      "original_html_utf8": "<div class=\"webview__terms-container\">\n\t<div>\n\t\t<div class=\"webview__terms\">\n\t\t\t<p>MICROSOFT SOFTWARE LICENSE TERMS</p>\n\n\t\t\t<p>MICROSOFT EDGE WEBVIEW2 RUNTIME</p>\n\n\t\t\t<div>\n\t\t\t\t<hr />\n\t\t\t</div>\n\n\t\t\t<p>IF YOU LIVE IN (OR ARE A BUSINESS WITH A PRINCIPAL PLACE OF BUSINESS IN) THE UNITED STATES,\n\t\t\t\tPLEASE READ THE “BINDING ARBITRATION AND CLASS ACTION WAIVER” SECTION BELOW. IT AFFECTS HOW\n\t\t\t\tDISPUTES ARE RESOLVED.</p>\n\n\t\t\t<div>\n\t\t\t\t<hr />\n\t\t\t</div>\n\n\t\t\t<p>\n\t\t\t\tThese license terms are an agreement between you and Microsoft Corporation (or one of its\n\t\t\t\taffiliates).\n\t\t\t\tThey apply to the software named above and any Microsoft services or software updates\n\t\t\t\t(except to the\n\t\t\t\textent such services or updates are accompanied by new or additional terms, in which case\n\t\t\t\tthose\n\t\t\t\tdifferent terms apply prospectively and do not alter your or Microsoft’s rights relating to\n\t\t\t\tpre-updated\n\t\t\t\tsoftware or services). IF YOU COMPLY WITH THESE LICENSE TERMS, YOU HAVE THE RIGHTS BELOW. BY\n\t\t\t\tUSING THE\n\t\t\t\tSOFTWARE, YOU ACCEPT THESE TERMS.&nbsp;\n\t\t\t</p>\n\n\t\t\t<h3><b>1.&nbsp;&nbsp;&nbsp; </b><b>INSTALLATION AND USE RIGHTS.</b></h3>\n\n\t\t\t<p>\n\t\t\t\t<b>a)&nbsp;&nbsp; General.</b> You may install and use any number of copies of the software\n\t\t\t\tto develop and test your applications.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>b)&nbsp;&nbsp; Included Microsoft Applications. </b> The software may include other\n\t\t\t\tMicrosoft applications. These license terms apply to those included applications, if any,\n\t\t\t\tunless other license terms are provided with the other Microsoft applications.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>c)&nbsp;&nbsp; Third Party Components.</b> The software may include third party\n\t\t\t\tcomponents with separate legal notices or governed by other agreements, as may be described\n\t\t\t\tin the ThirdPartyNotices file(s) accompanying the software.\n\t\t\t</p>\n\n\t\t\t<h3><b>2.&nbsp;&nbsp;&nbsp; </b><b>DISTRIBUTABLE CODE.</b></h3>\n\n\t\t\t<p>\n\t\t\t\t<b>a)&nbsp;&nbsp; Distribution Rights.</b>\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>i.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\tYou may copy and distribute the object code of the software; and\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>ii.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\tYou may permit distributors of your applications to copy and distribute any of this\n\t\t\t\tdistributable code you elect to distribute with your applications.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>b)&nbsp;&nbsp; Distribution Requirements.</b> For any code you distribute, you must:\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>i.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\tadd significant primary functionality to it in your applications;\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>ii.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\trequire distributors and external end users to agree to terms that protect it and Microsoft\n\t\t\t\tat least as much as this agreement, including providing notice to end users as required in\n\t\t\t\tSection 9 below\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>iii.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\tYou must acquire all code, including any code obtained from a Microsoft URL, directly from\n\t\t\t\tMicrosoft, including a Microsoft download site; and\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>iv.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\tindemnify, defend, and hold harmless Microsoft from any claims, including attorneys’ fees,\n\t\t\t\trelated to the distribution or use of your applications, except to the extent that any claim\n\t\t\t\tis based solely on the unmodified distributable code.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>c)&nbsp;&nbsp; Distribution Restrictions.</b> You may not:\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>i.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\tuse Microsoft’s trademarks or trade dress in your application in any way that suggests your\n\t\t\t\tapplication comes from or is endorsed by Microsoft; or\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>ii.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\tmodify or distribute the source code of any distributable code so that any part of it\n\t\t\t\tbecomes subject to any license that requires that the distributable code, any other part of\n\t\t\t\tthe software, or any of Microsoft’s other intellectual property be disclosed or distributed\n\t\t\t\tin source code form, or that others have the right to modify it; or\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>iii.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>\n\t\t\t\tprovide any Microsoft download sites or shortcuts that provides access to this software to a\n\t\t\t\tthird party.\n\t\t\t</p>\n\n\t\t\t<h3>\n\t\t\t\t<b>3.&nbsp;&nbsp;&nbsp; </b><b>DATA.</b>\n\t\t\t</h3>\n\n\t\t\t<p>\n\t\t\t\t<b>a)&nbsp;&nbsp; Data Collection.</b> The software may collect information about you and\n\t\t\t\tyour end users’ use of the software, and send that to Microsoft. Microsoft may use this\n\t\t\t\tinformation to provide services and improve our products and services. There are also some features in the software that may\n\t\t\t\tenable you to collect data from users of your applications. If you use these features to\n\t\t\t\tenable data collection in your applications, you must comply with applicable law, including\n\t\t\t\tproviding appropriate notices to users of your applications. You can learn more about data\n\t\t\t\tcollection and use in the help documentation and the privacy statement at <a\n\t\t\t\t\thref=\"https://aka.ms/privacy\" target=\"_blank\" rel=\"noopener noreferrer\">https://aka.ms/privacy</a>.\n\t\t\t\tYour use of the software operates\n\t\t\t\tas your consent to these practices.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>b)&nbsp;&nbsp; Microsoft Defender SmartScreen. </b> Microsoft Defender SmartScreen\n\t\t\t\t(“SmartScreen”) is enabled by default. You can learn more about SmartScreen in the Microsoft\n\t\t\t\tEdge Privacy Whitepaper at <a\n\t\t\t\t\thref=\"https://learn.microsoft.com/en-us/microsoft-edge/privacy-whitepaper#smartscreen\"\n\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\trel=\"noopener noreferrer\">https://learn.microsoft.com/en-us/microsoft-edge/privacy-whitepaper#smartscreen</a>.\n\t\t\t\tIf you do not disable SmartScreen, you must provide notice to your end users as required by\n\t\t\t\tSection 9 below.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>c)&nbsp;&nbsp; Processing of Personal Data.</b> To the extent Microsoft is a processor or\n\t\t\t\tsubprocessor of personal data in connection with the software, Microsoft makes the\n\t\t\t\tcommitments in the European Union General Data Protection Regulation Terms of the Online\n\t\t\t\tServices Terms to all customers effective May 25, 2018, at <a\n\t\t\t\t\thref=\"https://learn.microsoft.com/en-us/legal/gdpr\" target=\"_blank\"\n\t\t\t\t\trel=\"noopener noreferrer\">https://learn.microsoft.com/en-us/legal/gdpr</a>.\n\t\t\t</p>\n\n\n\n\t\t\t<h3>\n\t\t\t\t<b>4.&nbsp;&nbsp;&nbsp; </b><b>SCOPE OF LICENSE. </b> The software is licensed, not sold.\n\t\t\t\tMicrosoft reserves all other rights. Unless applicable law gives you more rights despite\n\t\t\t\tthis limitation, you will not (and have no right to):\n\t\t\t</h3>\n\n\t\t\t<p>\n\t\t\t\t<b>a)&nbsp;&nbsp;</b> work around any technical limitations in the software that only allow\n\t\t\t\tyou to use it in certain ways;\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>b)&nbsp;&nbsp; </b> reverse engineer, decompile or disassemble the software, or otherwise\n\t\t\t\tattempt to derive the source code for the software, except and to the extent required by\n\t\t\t\tthird party licensing terms governing use of certain open source components that may be\n\t\t\t\tincluded in the software;\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>c)&nbsp;&nbsp; </b> remove, minimize, block, or modify any notices of Microsoft or its\n\t\t\t\tsuppliers in the software;\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>d)&nbsp;&nbsp; </b> use the software in any way that is against the law or to create or\n\t\t\t\tpropagate malware; or\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>e)&nbsp;&nbsp; </b> share, publish, distribute, or lease the software, provide the\n\t\t\t\tsoftware as a stand-alone offering for others to use, or transfer the software or this\n\t\t\t\tagreement to any third party.\n\t\t\t</p>\n\n\t\t\t<h3>\n\t\t\t\t<b>5.&nbsp;&nbsp;&nbsp; </b><b>H.264/AVC VIDEO STANDARD.</b>. This product includes H.264/AVC \n\t\t\t\tcodec technology.  MPEG LA LLC requires this notice:\n\t\t\t</h3>\t\t\t\t\n\t\t\t\n\t\t\t<p>\t\t\t\n\t\t\t\tTHIS PRODUCT IS LICENSED UNDER THE AVC PATENT PORTFOLIO LICENSE FOR THE PERSONAL AND NON-COMMERCIAL\n\t\t\t\tUSE OF A CONSUMER TO (i) ENCODE VIDEO IN COMPLIANCE WITH THE AVC STANDARD (“AVC VIDEO”) AND/OR (ii) \n\t\t\t\tDECODE AVC VIDEO THAT WAS ENCODED BY A CONSUMER ENGAGED IN A PERSONAL AND NON-COMMERCIAL ACTIVITY \n\t\t\t\tAND/OR WAS OBTAINED FROM A VIDEO PROVIDER LICENSED TO PROVIDE AVC VIDEO.  NO LICENSE IS GRANTED OR \n\t\t\t\tSHALL BE IMPLIED FOR ANY OTHER USE.  ADDITIONAL INFORMATION MAY BE OBTAINED FROM MPEG LA LLC.  SEE \n\t\t\t\t<a href=\"HTTPS://WWW.MPEGLA.COM\" target=\"_blank\" rel=\"noopener noreferrer\">HTTPS://WWW.MPEGLA.COM</a>.\n\t\t\t</p>\n\t\t\t\n\t\t\t<p>\n\t\t\tFor clarification purposes, this notice does not limit or inhibit the use of the product for normal \n\t\t\tbusiness uses that are personal to that business which do not include (i) redistribution of the product \n\t\t\tto third parties, or (ii) creation of content with AVC Standard compliant technologies for distribution \n\t\t\tto third parties.\n\t\t\t</p>\n\t\t\t\n\t\t\t<h3>\n\t\t\t\t<b>6.&nbsp;&nbsp;&nbsp; </b><b>EXPORT RESTRICTIONS. </b> You must comply with all domestic\n\t\t\t\tand international export laws and regulations that apply to the software, which include\n\t\t\t\trestrictions on destinations, end users, and end use. For further information on export\n\t\t\t\trestrictions, visit\n\t\t\t\t<a href=\"https://aka.ms/exporting\" target=\"_blank\"\n\t\t\t\t\trel=\"noopener noreferrer\">https://aka.ms/exporting</a>.\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>7.&nbsp;&nbsp;&nbsp; </b><b>SUPPORT SERVICES. </b> Microsoft is not obligated under this agreement to\n\t\t\t\tprovide any support services for the software. Any support provided is “as is”, “with all faults”, and\n\t\t\t\twithout warranty of any kind.\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>8.&nbsp;&nbsp;&nbsp; </b><b>UPDATES. </b> The software may periodically check for updates, and\n\t\t\t\tdownload and install them for you or your end users. You may obtain updates only from Microsoft or\n\t\t\t\tauthorized sources. Microsoft may need to update your or your end users’ systems to provide you or your\n\t\t\t\tend users with updates. You agree to receive these automatic updates without any additional notice and\n\t\t\t\tyou agree to provide notice to your end users on Windows 7 or 8 devices as required under Section 9\n\t\t\t\tbelow. Updates may not include or support all existing software features, services, or peripheral\n\t\t\t\tdevices.\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>9.&nbsp;&nbsp;&nbsp; </b><b>REQUIRED NOTICES TO END USERS. </b>\n\t\t\t</h3>\n\n\t\t\t<p>\n\t\t\t\t<b>a)&nbsp;&nbsp; Required SmartScreen notice. </b> If you do not disable SmartScreen as described in\n\t\t\t\tSection 3(b) above, you must provide notice to all users that your software includes Microsoft Defender\n\t\t\t\tSmartScreen and collects and sends the end user’s information to Microsoft as disclosed in Microsoft’s\n\t\t\t\tPrivacy Statement at <a href=\"https://aka.ms/privacy\" target=\"_blank\"\n\t\t\t\t\trel=\"noopener noreferrer\">https://aka.ms/privacy</a> and the Microsoft Edge Privacy Whitepaper at <a\n\t\t\t\t\thref=\"https://learn.microsoft.com/en-us/microsoft-edge/privacy-whitepaper#smartscreen\"\n\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\trel=\"noopener noreferrer\">https://learn.microsoft.com/en-us/microsoft-edge/privacy-whitepaper#smartscreen</a>.\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>b)&nbsp;&nbsp; Required Update Disclosure to Windows 7 and 8.1 end users. </b> Per Section 8 above,\n\t\t\t\tyou must provide notice to your end users on Windows 7 and 8.1 devices that the software may\n\t\t\t\tperiodically check for updates, and download and install them on your end users’ devices without any\n\t\t\t\tadditional notice.\n\t\t\t</p>\n\n\t\t\t<h3>\n\t\t\t\t<b>10.&nbsp;&nbsp;&nbsp; </b><b>BINDING ARBITRATION AND CLASS ACTION WAIVER.</b><b>This Section applies\n\t\t\t\t\tif you live in (or, if a business, your principal place of business is in) the United States.</b> If\n\t\t\t\tyou and Microsoft have a dispute, you and Microsoft agree to try for 60 days to resolve it informally.\n\t\t\t\tIf you and Microsoft can’t, you and Microsoft <b>agree to binding individual arbitration before the\n\t\t\t\t\tAmerican Arbitration Association under the Federal Arbitration Act (“FAA”), and not to sue in court\n\t\t\t\t\tin front of a judge or jury.</b> Instead, a neutral arbitrator will decide. <b>Class action\n\t\t\t\t\tlawsuits, class-wide arbitrations, private attorney-general actions, and any other proceeding where\n\t\t\t\t\tsomeone acts in a representative capacity are not allowed; nor is combining individual proceedings\n\t\t\t\t\twithout the consent of all parties.</b> The complete Arbitration Agreement contains more terms and\n\t\t\t\tis at <a href=\"https://aka.ms/arb-agreement-4\" target=\"_blank\"\n\t\t\t\t\trel=\"noopener noreferrer\">https://aka.ms/arb-agreement-4</a>. You and Microsoft agree to these\n\t\t\t\tterms.\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>11.&nbsp;&nbsp;&nbsp; </b><b>ENTIRE AGREEMENT.</b> This agreement, and any other terms Microsoft may\n\t\t\t\tprovide for supplements, updates, or third-party applications, is the entire agreement for the software.\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>12.&nbsp;&nbsp;&nbsp; </b><b>APPLICABLE LAW AND PLACE TO RESOLVE DISPUTES. </b> If you acquired the\n\t\t\t\tsoftware in the United States or Canada, the laws of the state or province where you live (or, if a\n\t\t\t\tbusiness, where your principal place of business is located) govern the interpretation of this\n\t\t\t\tagreement, claims for its breach, and all other claims (including consumer protection, unfair\n\t\t\t\tcompetition, and tort claims), regardless of conflict of laws principles, except that the FAA governs\n\t\t\t\teverything related to arbitration. If you acquired the software in any other country, its laws apply,\n\t\t\t\texcept that the FAA governs everything related to arbitration. If U.S. federal jurisdiction exists, you\n\t\t\t\tand Microsoft consent to exclusive jurisdiction and venue in the federal court in King County,\n\t\t\t\tWashington for all disputes heard in court (excluding arbitration). If not, you and Microsoft consent to\n\t\t\t\texclusive jurisdiction and venue in the Superior Court of King County, Washington for all disputes heard\n\t\t\t\tin court (excluding arbitration).\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>13.&nbsp;&nbsp;&nbsp; </b><b>CONSUMER RIGHTS; REGIONAL VARIATIONS. </b> This agreement describes\n\t\t\t\tcertain legal rights. You may have other rights, including consumer rights, under the laws of your\n\t\t\t\tstate, province, or country. Separate and apart from your relationship with Microsoft, you may also have\n\t\t\t\trights with respect to the party from which you acquired the software. This agreement does not change\n\t\t\t\tthose other rights if the laws of your state, province, or country do not permit it to do so. For\n\t\t\t\texample, if you acquired the software in one of the below regions, or mandatory country law applies,\n\t\t\t\tthen the following provisions apply to you:\n\t\t\t</h3>\n\n\t\t\t<p>\n\t\t\t\t<b>a)&nbsp;&nbsp; Australia.</b> You have statutory guarantees under the Australian Consumer Law and\n\t\t\t\tnothing in this agreement is intended to affect those rights.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>b)&nbsp;&nbsp; Canada.</b> If you acquired this software in Canada, you may stop receiving updates by\n\t\t\t\tturning off the automatic update feature, disconnecting your device from the Internet (if and when you\n\t\t\t\tre-connect to the Internet, however, the software will resume checking for and installing updates), or\n\t\t\t\tuninstalling the software. The product documentation, if any, may also specify how to turn off updates\n\t\t\t\tfor your specific device or software.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>c)&nbsp;&nbsp; Germany and Austria.</b>\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>\n\t\t\t\t\ti.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n\t\t\t\t\tWarranty.\n\t\t\t\t</b>\n\t\t\t\tThe properly licensed software will perform substantially as described in any Microsoft materials that\n\t\t\t\taccompany the software. However, Microsoft gives no contractual guarantee in relation to the licensed\n\t\t\t\tsoftware.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\t<b>\n\t\t\t\t\tii.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n\t\t\t\t\tLimitation of Liability.\n\t\t\t\t</b>\n\t\t\t\tIn case of intentional conduct, gross negligence, claims based on the Product Liability Act, as well as,\n\t\t\t\tin case of death or personal or physical injury, Microsoft is liable according to the statutory law.\n\t\t\t</p>\n\n\t\t\t<p>\n\t\t\t\tSubject to the foregoing clause ii., Microsoft will only be liable for slight negligence if Microsoft is\n\t\t\t\tin breach of such material contractual obligations, the fulfillment of which facilitate the due\n\t\t\t\tperformance of this agreement, the breach of which would endanger the purpose of this agreement and the\n\t\t\t\tcompliance with which a party may constantly trust in (so-called \"cardinal obligations\"). In other cases\n\t\t\t\tof slight negligence, Microsoft will not be liable for slight negligence.\n\t\t\t</p>\n\n\t\t\t<h3>\n\t\t\t\t<b>14.&nbsp;&nbsp;&nbsp; </b><b>DISCLAIMER OF WARRANTY. THE SOFTWARE IS LICENSED “AS IS.” YOU BEAR THE\n\t\t\t\t\tRISK OF USING IT. MICROSOFT GIVES NO EXPRESS WARRANTIES, GUARANTEES, OR CONDITIONS. TO THE EXTENT\n\t\t\t\t\tPERMITTED UNDER APPLICABLE LAWS, MICROSOFT EXCLUDES ALL IMPLIED WARRANTIES, INCLUDING\n\t\t\t\t\tMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</b>\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>15.&nbsp;&nbsp;&nbsp; </b><b>LIMITATION ON AND EXCLUSION OF DAMAGES. IF YOU HAVE ANY BASIS FOR\n\t\t\t\t\tRECOVERING DAMAGES DESPITE THE PRECEDING DISCLAIMER OF WARRANTY, YOU CAN RECOVER FROM MICROSOFT AND\n\t\t\t\t\tITS SUPPLIERS ONLY DIRECT DAMAGES UP TO U.S. $5.00. YOU CANNOT RECOVER ANY OTHER DAMAGES, INCLUDING\n\t\t\t\t\tCONSEQUENTIAL, LOST PROFITS, SPECIAL, INDIRECT OR INCIDENTAL DAMAGES.</b>\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>This limitation applies to (a) anything related to the software, services, content (including code)\n\t\t\t\t\ton third party Internet sites, or third party applications; and (b) claims for breach of contract,\n\t\t\t\t\twarranty, guarantee, or condition; strict liability, negligence, or other tort; or any other claim;\n\t\t\t\t\tin each case to the extent permitted by applicable law.</b>\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>It also applies even if Microsoft knew or should have known about the possibility of the damages. The\n\t\t\t\t\tabove limitation or exclusion may not apply to you because your state, province, or country may not\n\t\t\t\t\tallow the exclusion or limitation of incidental, consequential, or other damages.</b>\n\t\t\t</h3>\n\t\t\t<p>\n\t\t\t\tThis software incorporates material from third parties. Microsoft makes certain open source code\n\t\t\t\tavailable at <a href=\"https://thirdpartysource.microsoft.com\" target=\"_blank\"\n\t\t\t\t\trel=\"noopener noreferrer\">https://thirdpartysource.microsoft.com</a>, or you may send a check or\n\t\t\t\tmoney order for US $5.00, including the product name, the open source component, and version number, to:\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\tSource Code Compliance Team<br>\n\t\t\t\tMicrosoft Corporation<br>\n\t\t\t\tOne Microsoft Way<br>\n\t\t\t\tRedmond, WA 98052<br>\n\t\t\t\tUSA\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\tNotwithstanding any other terms, you may reverse engineer this software to the extent required to debug\n\t\t\t\tchanges to any libraries licensed under the GNU Lesser General Public License.\n\t\t\t</p>\n\t\t\t<h3>\n\t\t\t\t<b>\n\t\t\t\t\tPlease note: As this software is distributed in Canada, some of the clauses in this agreement are\n\t\t\t\t\tprovided below in French.\n\t\t\t\t</b>\n\t\t\t</h3>\n\t\t\t<h3>\n\t\t\t\t<b>\n\t\t\t\t\tRemarque: Ce logiciel étant distribué au Canada, certaines des clauses dans ce contrat sont fournies\n\t\t\t\t\tci-dessous en français.\n\t\t\t\t</b>\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>\n\t\t\t\t\tEXONÉRATION DE GARANTIE. Le logiciel visé par une licence est offert « tel quel ». Toute utilisation\n\t\t\t\t\tde ce logiciel est à votre seule risque et péril. Microsoft n’accorde aucune autre garantie\n\t\t\t\t\texpresse. Vous pouvez bénéficier de droits additionnels en vertu du droit local sur la protection\n\t\t\t\t\tdes consommateurs, que ce contrat ne peut modifier. La ou elles sont permises par le droit locale,\n\t\t\t\t\tles garanties implicites de qualité marchande, d’adéquation à un usage particulier et d’absence de\n\t\t\t\t\tcontrefaçon sont exclues.\n\t\t\t\t</b>\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>\n\t\t\t\t\tLIMITATION DES DOMMAGES-INTÉRÊTS ET EXCLUSION DE RESPONSABILITÉ POUR LES DOMMAGES. Vous pouvez\n\t\t\t\t\tobtenir de Microsoft et de ses fournisseurs une indemnisation en cas de dommages directs uniquement\n\t\t\t\t\tà hauteur de 5,00 $ US. Vous ne pouvez prétendre à aucune indemnisation pour les autres dommages, y\n\t\t\t\t\tcompris les dommages spéciaux, indirects ou accessoires et pertes de bénéfices.\n\t\t\t\t</b>\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>\n\t\t\t\t\tCette limitation concerne:\n\t\t\t\t\t<ul>\n\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\ttout ce qui est relié au logiciel, aux services ou au contenu (y compris le code) figurant\n\t\t\t\t\t\t\tsur des sites Internet tiers ou dans des programmes tiers; et\n\t\t\t\t\t\t</li>\n\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\tles réclamations au titre de violation de contrat ou de garantie, ou au titre de\n\t\t\t\t\t\t\tresponsabilité stricte, de négligence ou d’une autre faute dans la limite autorisée par la\n\t\t\t\t\t\t\tloi en vigueur.\n\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t\t</b>\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>\n\t\t\t\t\tElle s’applique également, même si Microsoft connaissait ou devrait connaître l’éventualité d’un tel\n\t\t\t\t\tdommage. Si votre pays n’autorise pas l’exclusion ou la limitation de responsabilité pour les\n\t\t\t\t\tdommages indirects, accessoires ou de quelque nature que ce soit, il se peut que la limitation ou\n\t\t\t\t\tl’exclusion ci-dessus ne s’appliquera pas à votre égard.\n\t\t\t\t</b>\n\t\t\t</h3>\n\n\t\t\t<h3>\n\t\t\t\t<b>\n\t\t\t\t\tEFFET JURIDIQUE. Le présent contrat décrit certains droits juridiques. Vous pourriez avoir d’autres\n\t\t\t\t\tdroits prévus par les lois de votre pays. Le présent contrat ne modifie pas les droits que vous\n\t\t\t\t\tconfèrent les lois de votre pays si celles-ci ne le permettent pas.\n\t\t\t\t</b>\n\t\t\t</h3>\n\t\t</div>\n\t</div>\n</div>",
+      "original_html_sha256": "ce6fa83e57c338256e5cabe9e1eea83076c271b0fdb253408213eeb08859d7b6",
+      "plain_text_transformation": "HTML tags removed, &nbsp; decoded, formatting whitespace collapsed within paragraphs; paragraph text and numbering retained; all non-whitespace decoded text equal.",
+      "terms_output": "docs/release/licenses/microsoft-webview2-evergreen-2026-09-12-LICENSE.txt"
+    }
+  },
+  "selection": [
+    {
+      "component": "MSVC libcmt/libvcruntime 14.44.35207",
+      "kind": "linked proprietary startup and exception-runtime objects",
+      "action": "keep linked code; no separate VC redistributable, DLL, LIB, or 7 MB toolchain notice bundle",
+      "notice": "docs/release/licenses/microsoft-windows-runtime-NOTICE.txt",
+      "license_basis": "Existing authorized toolchain use; applicable Visual Studio/Build Tools terms and Microsoft guidance for linked LIB output; no invented purchase-receipt or license-acceptance gate."
+    },
+    {
+      "component": "Windows system DLLs and Windows 10+ UCRT",
+      "kind": "OS prerequisite and import stubs",
+      "action": "do not copy system DLLs or SDK UCRT redistributables into payload; validate minimum supported Windows and clean-machine launch"
+    },
+    {
+      "component": "WebView2 SDK static loader",
+      "kind": "six PDB loader modules from existing Crate RLIB",
+      "action": "keep existing independently selected SDK license and notice; no separate WebView2Loader.dll"
+    },
+    {
+      "component": "Evergreen Runtime and Bootstrapper",
+      "kind": "external Microsoft component downloaded during installation",
+      "action": "retain downloadBootstrapper, no bundled Runtime or Bootstrapper bytes; add full terms and general Runtime/updates/data notice",
+      "license_text": "docs/release/licenses/microsoft-webview2-evergreen-2026-09-12-LICENSE.txt",
+      "notice": "docs/release/licenses/microsoft-windows-runtime-NOTICE.txt",
+      "condition": "Final user-facing notice and any required terms-agreement delivery must be concretely implemented and checked."
+    }
+  ],
+  "decisions": {
+    "msvc_eligibility": "No affirmative evidence of unauthorized use; user authorized existing toolchain and open-source release. Installed Build Tools directory alone cannot establish or refute individual/organizational license status. No separate entitlement investigation is a release requirement in this package.",
+    "webview_link_wording": "Current developer download dialog assigns its Evergreen EULA both to Get the Link and bootstrapper download. Section 2(c)(iii) literally restricts providing Microsoft download sites or shortcuts to third parties; current official deployment documentation explicitly instructs apps to download from that same Get the Link URL. Technical choice retained; no claim that the contradiction has been legally resolved.",
+    "smallest_next_step": "Keep normal Tauri downloadBootstrapper mode and Wry browser arguments; supply Microsoft component/updates/data notice and terms access. Do not infer mandatory SmartScreen consent from the generic API default. Make any required protective terms agreement concrete at final packaging; no silent file-copy acceptance claim.",
+    "historical_issue907": "Microsoft comment 2021-03-13 removes an older commercial/non-profit production restriction, not current section 2(c)(iii). It is not evidence that the present download-link wording is removed."
+  },
+  "outputs": [
+    {
+      "path": "docs/release/licenses/microsoft-webview2-evergreen-2026-09-12-LICENSE.txt",
+      "bytes": 16720,
+      "sha256": "7d13f1952f688824aa83d198dddaa45ed8a3721709d5a774a347853afbb893c0",
+      "kind": "complete text transcription of official HTML; not byte-identical HTML"
+    },
+    {
+      "path": "docs/release/licenses/microsoft-windows-runtime-NOTICE.txt",
+      "bytes": 1379,
+      "sha256": "8dd7e7f047a16d3ae1c68ac67e212d59b407d8a36773026d031df3a78a4d0b02",
+      "kind": "AgentBridge-authored attribution/privacy notice, not a Microsoft original"
+    }
+  ],
+  "remaining": [
+    "Implement and inspect the actual NSIS/MSI/ZIP payloads and notices.",
+    "Make end-user notice and any required Microsoft protective terms agreement concrete; file presence alone is not acceptance.",
+    "Review the narrow Evergreen Get the Link wording contradiction in the final distribution decision; technical docs and EULA conflict remains recorded, not declared a product defect or a blanket legal blocker.",
+    "Recheck imports and library/source families for the final freshly built EXE; validate supported Windows clean-machine launch including Runtime-missing path.",
+    "When final installer tooling adds distributable stubs/plugins, inventory those actual NSIS/WiX payload components separately."
+  ],
+  "reproduction": {
+    "pdb_program": "import fs from 'node:fs';\nimport crypto from 'node:crypto';\nimport assert from 'node:assert/strict';\nconst sha=b=>crypto.createHash('sha256').update(b).digest('hex');\nconst pdb=fs.readFileSync('target/release/agentbridge.pdb');\nconst bs=pdb.readUInt32LE(32),nb=pdb.readUInt32LE(40),db=pdb.readUInt32LE(44),bm=pdb.readUInt32LE(52);\nassert.equal(bs*nb,pdb.length);\nfunction blocks(map,start,count){return Buffer.concat(Array.from({length:count},(_,i)=>{const n=map.readUInt32LE(start+4*i);assert(n<nb);return pdb.subarray(n*bs,(n+1)*bs)}))}\nconst dir=blocks(pdb,bm*bs,Math.ceil(db/bs)).subarray(0,db),ns=dir.readUInt32LE(0);let cursor=4+4*ns;const streams=[];\nfor(let i=0;i<ns;i++){const size=dir.readUInt32LE(4+4*i);if(size===0xffffffff){streams.push(null);continue}const n=Math.ceil(size/bs);streams.push(blocks(dir,cursor,n).subarray(0,size));cursor+=4*n}\nassert.equal(cursor,db);const info=streams[1],dbi=streams[3];\nassert.equal(dbi.readInt32LE(0),-1);const size=dbi.readUInt32LE(24),modules=[];\nfor(let p=64;p<64+size;){const a=dbi.indexOf(0,p+64),b=dbi.indexOf(0,a+1);assert(a>=p+64&&b>a);modules.push({name:dbi.toString('utf8',p+64,a),object:dbi.toString('utf8',a+1,b),stream:dbi.readUInt16LE(p+34),symbol_bytes:dbi.readUInt32LE(p+36)});p=(b+1+3)&~3;assert(p<=64+size)}\nconst native=modules.filter(m=>/\\.lib$|\\.obj$/i.test(m.object)||/\\.lib$|\\.obj$/i.test(m.name));\nconst exe=fs.readFileSync('target/release/agentbridge.exe');\nconst out={generated_utc:new Date().toISOString(),exe:{bytes:exe.length,sha256:sha(exe)},pdb:{bytes:pdb.length,sha256:sha(pdb),guid_bytes:info.subarray(12,28).toString('hex'),age:info.readUInt32LE(8),module_count:modules.length,native_modules:native,modules}};\nfs.writeFileSync(new URL('./native.json',import.meta.url),JSON.stringify(out,null,2)+'\\n',{flag:'wx'});\nconsole.log(JSON.stringify({pdb:out.pdb.sha256,modules:modules.length,native},null,2));\n",
+    "capture_and_text_program": "import fs from 'node:fs';import crypto from 'node:crypto';import cp from 'node:child_process';import assert from 'node:assert/strict';\nconst base='C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/';\nconst sha=b=>crypto.createHash('sha256').update(b).digest('hex');\nconst file=path=>{const b=fs.readFileSync(path);return{path,bytes:b.length,sha256:sha(b)}};\nconst nat=JSON.parse(fs.readFileSync(base+'native.json'));\nassert.equal(nat.exe.sha256,'8aa177e304e0b8c067159ac7912d7894b770bc05021a47bd9b0de593cd8255e9');\nconst vc='C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207';\nconst commands=[];for(const args of [['/nologo','/dependents','target/release/agentbridge.exe'],['/nologo','/headers','target/release/agentbridge.exe']]){const r=cp.spawnSync(vc+'/bin/Hostx64/x64/dumpbin.exe',args,{encoding:'utf8',windowsHide:true});assert.equal(r.status,0);commands.push({command:[vc+'/bin/Hostx64/x64/dumpbin.exe',...args],exit_code:r.status,stdout:r.stdout,stderr:r.stderr});}\nconst head=cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim();\nconst exe=fs.readFileSync('target/release/agentbridge.exe');const pe=exe.readUInt32LE(0x3c),opt=pe+24,sec=[];assert.equal(exe.readUInt16LE(opt),0x20b);\nfor(let i=0;i<exe.readUInt16LE(pe+6);i++){const p=opt+exe.readUInt16LE(pe+20)+i*40;sec.push({rva:exe.readUInt32LE(p+12),size:exe.readUInt32LE(p+16),off:exe.readUInt32LE(p+20)})}\nconst off=r=>{const s=sec.find(x=>r>=x.rva&&r<x.rva+x.size);assert(s);return s.off+r-s.rva};\nconst z=p=>exe.toString('utf8',p,exe.indexOf(0,p));const imports=[];for(let p=off(exe.readUInt32LE(opt+120));exe.readUInt32LE(p+12);p+=20)imports.push(z(off(exe.readUInt32LE(p+12))));\nconst dbg=off(exe.readUInt32LE(opt+160)),debug=[];for(let p=dbg;p<dbg+exe.readUInt32LE(opt+164);p+=28){if(exe.readUInt32LE(p+12)!==2)continue;const o=exe.readUInt32LE(p+24);assert.equal(exe.toString('ascii',o,o+4),'RSDS');debug.push({guid_bytes:exe.subarray(o+4,o+20).toString('hex'),age:exe.readUInt32LE(o+20),pdb_path:z(o+24)})}\nassert.equal(debug.length,1);assert.equal(debug[0].guid_bytes,nat.pdb.guid_bytes);assert.equal(debug[0].age,nat.pdb.age);\nconst importedOnly=nat.pdb.native_modules.filter(m=>!/\\.obj$/i.test(m.name)&&!m.name.endsWith('resource.lib'));\nconst groups=[...new Set(nat.pdb.native_modules.map(m=>m.object))].map(path=>({path,module_count:nat.pdb.native_modules.filter(m=>m.object===path).length,...file(path)}));\nconst raw=JSON.parse(fs.readFileSync(base+'webview-eula.raw'));assert.equal(raw.locale,'en-us');\nconst text=raw.evergreenHtml.replace(/<\\/(p|li|h[1-6])>/gi,'\\n\\n').replace(/<br\\s*\\/?\\s*>/gi,'\\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').split(/\\n\\s*\\n/).map(s=>s.replace(/\\s+/g,' ').trim()).filter(Boolean).join('\\n\\n')+'\\n';\nassert.equal(text.replace(/\\s/g,''),raw.evergreenHtml.replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/\\s/g,''));assert(!/&[a-z#]/i.test(text));\nconst output='docs/release/licenses/microsoft-webview2-evergreen-2026-09-12-LICENSE.txt';fs.writeFileSync(output,text,{flag:'wx'});\nconst notice='docs/release/licenses/microsoft-windows-runtime-NOTICE.txt';\nfs.writeFileSync(notice,`Microsoft components used by the Windows version of AgentBridge\\n\\nAgentBridge contains Microsoft Visual C++ startup and exception-runtime code\\nfrom the MSVC 14.44 toolset, linked into the executable. These Microsoft\\ncomponents remain subject to their applicable Microsoft terms. AgentBridge's\\nMIT license does not relicense Microsoft's proprietary runtime code.\\n\\nThe Windows version uses Microsoft Edge WebView2 Runtime. WebView2 is a\\nseparately installed Microsoft component, shared with other applications and\\nserviced by Microsoft. The AgentBridge installers may download Microsoft's\\nEvergreen Bootstrapper and install the Runtime when it is missing. The ZIP\\nversion requires the Runtime to be installed separately.\\n\\nAgentBridge uses WebView2's Microsoft Defender SmartScreen functionality.\\nSmartScreen collects and sends end-user information to Microsoft as described\\nin Microsoft's Privacy Statement and Microsoft Edge Privacy Whitepaper:\\nhttps://aka.ms/privacy\\nhttps://learn.microsoft.com/en-us/microsoft-edge/privacy-whitepaper#smartscreen\\nWindows settings and policies can affect whether SmartScreen is enabled.\\n\\nWebView2 may collect usage information and send it to Microsoft. The Evergreen\\nRuntime may check for, download, and install updates automatically. Its\\nMicrosoft terms are supplied in\\nmicrosoft-webview2-evergreen-2026-09-12-LICENSE.txt.\\n\\nThe WebView2 SDK loader has its own separate license and notice files:\\nmicrosoft-web-webview2-1.0.3650.58-LICENSE.txt\\nmicrosoft-web-webview2-1.0.3650.58-NOTICE.txt\\n\\nThis file is an AgentBridge attribution and privacy notice. It is not a grant\\nof Microsoft redistribution rights or evidence that a user has accepted any\\nMicrosoft terms.\\n`,{flag:'wx'});\nconst schema=JSON.parse(fs.readFileSync('node_modules/@tauri-apps/cli/config.schema.json'));\nconst sources=JSON.parse(fs.readFileSync(base+'sources5.json'));\nconst primary_sources=sources.filter(s=>s.status===200).map(s=>({...s,local_original:base+s.id+'.raw'}));\nconst terms=Object.fromEntries(['crt-docx','buildtools-docx','community-docx'].map(id=>[id,{original:primary_sources.find(x=>x.id===id),paragraph_text_utf8:fs.readFileSync(base+id+'.txt','utf8'),paragraph_text_sha256:sha(fs.readFileSync(base+id+'.txt')),extraction:'ZIP word/document.xml; direct body w:p descendants w:t concatenated; no auto-number labels reconstructed; read-only source analysis, not a deliverable license transcription'}]));\nconst inputs=['Cargo.toml','Cargo.lock','src-tauri/Cargo.toml','src-tauri/tauri.conf.json','src-tauri/build.rs','rust-toolchain.toml','package.json','package-lock.json','node_modules/@tauri-apps/cli/package.json','node_modules/@tauri-apps/cli/config.schema.json','node_modules/@tauri-apps/cli-win32-x64-msvc/cli.win32-x64-msvc.node','docs/release/license-rust-stdlib-2026-09-12.json','docs/release/license-webview2-sdk-2026-09-12.json',vc+'/bin/Hostx64/x64/dumpbin.exe',vc+'/bin/Hostx64/x64/link.exe','C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Licenses/1033/Redist.txt','C:/Program Files (x86)/Windows Kits/10/Licenses/10.0.26100.0/sdk_license.rtf'].map(file);\nconst result={schema_version:1,generated_utc:new Date().toISOString(),input_head:head,status:'technical_mapping_and_notice_selection_complete_delivery_and_terms_flow_open',scope:{target:'x86_64-pc-windows-msvc',native_commit:'6a45c12',new_native_build:false,installation:false,license_acceptance:false,public_release:false,not_a_legal_clearance:true},inputs,existing_artifact:{exe:{...nat.exe,machine:exe.readUInt16LE(pe+4).toString(16),linker_version:exe.readUInt8(opt+2)+'.'+exe.readUInt8(opt+3),imports,delay_import_rva:exe.readUInt32LE(opt+112+13*8),delay_import_size:exe.readUInt32LE(opt+112+13*8+4),debug},pdb:{bytes:nat.pdb.bytes,sha256:nat.pdb.sha256,guid_bytes:nat.pdb.guid_bytes,age:nat.pdb.age,guid_age_matches_exe:true,dbi_module_count:nat.pdb.module_count,native_module_count:nat.pdb.native_modules.length,native_modules:nat.pdb.native_modules,archive_groups:groups,import_modules_are_not_final_import_table:importedOnly},boundaries:['PDB DBI modules identify contributing object/library families; counts do not prove every machine-code byte survives linker elimination.','Current local library hashes are not retrospective hashes of each historical link input.','The 22 normal imports and empty delay table do not enumerate runtime LoadLibrary operations or WebView2 child-process dependencies.','Fresh frontend dist bfa8de5 is not part of a new EXE.','Other Cargo cdylib/staticlib outputs in target/release are build products, not selected release payload.']},local_commands:commands,tauri_contract:{cli_version:'2.11.4',upstream_commit:'8909f221d1515955fc843808032bdc5d62209c96',current_config_override:false,schema_default:schema.definitions.WindowsConfig.properties.webviewInstallMode.default,selected_for_nsis_and_msi:{type:'downloadBootstrapper',silent:true},bootstrapper_url:'https://go.microsoft.com/fwlink/p/?LinkId=2124703',downloads_binary_during_this_probe:false,zip:'EXE and licenses only; installed Evergreen WebView2 Runtime required',runtime_and_bootstrapper_in_distributed_payload:false,explanation:'Tauri source branch downloads at installation when Runtime is missing. Actual installers were not built or unpacked.'},primary_sources,source_terms:{visual_studio:terms,webview_evergreen:{endpoint:'https://developer.microsoft.com/microsoft-edge/api/eula/webview2',locale:raw.locale,version:'No document revision/version supplied; captured 2026-09-12. Not tied to SDK 1.0.3650.58 or a future Evergreen binary version.',original_json:file(base+'webview-eula.raw'),original_html_utf8:raw.evergreenHtml,original_html_sha256:sha(Buffer.from(raw.evergreenHtml)),plain_text_transformation:'HTML tags removed, &nbsp; decoded, formatting whitespace collapsed within paragraphs; paragraph text and numbering retained; all non-whitespace decoded text equal.',terms_output:output}},selection:[{component:'MSVC libcmt/libvcruntime 14.44.35207',kind:'linked proprietary startup and exception-runtime objects',action:'keep linked code; no separate VC redistributable, DLL, LIB, or 7 MB toolchain notice bundle',notice,license_basis:'Existing authorized toolchain use; applicable Visual Studio/Build Tools terms and Microsoft guidance for linked LIB output; no invented purchase-receipt or license-acceptance gate.'},{component:'Windows system DLLs and Windows 10+ UCRT',kind:'OS prerequisite and import stubs',action:'do not copy system DLLs or SDK UCRT redistributables into payload; validate minimum supported Windows and clean-machine launch'},{component:'WebView2 SDK static loader',kind:'six PDB loader modules from existing Crate RLIB',action:'keep existing independently selected SDK license and notice; no separate WebView2Loader.dll'},{component:'Evergreen Runtime and Bootstrapper',kind:'external Microsoft component downloaded during installation',action:'retain downloadBootstrapper, no bundled Runtime or Bootstrapper bytes; add full terms and runtime/SmartScreen notice',license_text:output,notice,condition:'Final user-facing notice and any required terms-agreement delivery must be concretely implemented and checked.'}],decisions:{msvc_eligibility:'No affirmative evidence of unauthorized use; user authorized existing toolchain and open-source release. Installed Build Tools directory alone cannot establish or refute individual/organizational license status. No separate entitlement investigation is a release requirement in this package.',webview_link_wording:'Current developer download dialog assigns its Evergreen EULA both to Get the Link and bootstrapper download. Section 2(c)(iii) literally restricts providing Microsoft download sites or shortcuts to third parties; current official deployment documentation explicitly instructs apps to download from that same Get the Link URL. Technical choice retained; no claim that the contradiction has been legally resolved.',smallest_next_step:'Use the normal Tauri mode plus clear Microsoft component/SmartScreen notice and terms access; verify the final installer terms presentation before asserting license delivery. Do not replace Evergreen with Fixed/Offline or disable SmartScreen just to avoid paperwork.',historical_issue907:'Microsoft comment 2021-03-13 removes an older commercial/non-profit production restriction, not current section 2(c)(iii). It is not evidence that the present download-link wording is removed.'},outputs:[{...file(output),kind:'complete text transcription of official HTML; not byte-identical HTML'},{...file(notice),kind:'AgentBridge-authored attribution/privacy notice, not a Microsoft original'}],remaining:['Implement and inspect the actual NSIS/MSI/ZIP payloads and notices.','Make end-user notice and any required Microsoft protective terms agreement concrete; file presence alone is not acceptance.','Review the narrow Evergreen Get the Link wording contradiction in the final distribution decision; technical docs and EULA conflict remains recorded, not declared a product defect or a blanket legal blocker.','Recheck imports and library/source families for the final freshly built EXE; validate supported Windows clean-machine launch including Runtime-missing path.','When final installer tooling adds distributable stubs/plugins, inventory those actual NSIS/WiX payload components separately.'],reproduction:{pdb_program:fs.readFileSync(base+'inspect.mjs','utf8'),capture_and_text_program:fs.readFileSync(import.meta.filename,'utf8'),programs_local_directory:base,failed_fetches:sources.filter(s=>s.status!==200),no_runtime_processes_started:true}};\nfs.writeFileSync('docs/release/license-windows-runtime-2026-09-12.json',JSON.stringify(result,null,2)+'\\n',{flag:'wx'});\nconsole.log(JSON.stringify({output:file('docs/release/license-windows-runtime-2026-09-12.json'),native_groups:groups.map(x=>({path:x.path,count:x.module_count,sha256:x.sha256})),imports:imports.length,outputs:result.outputs}));\n",
+    "programs_local_directory": "C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/",
+    "failed_fetches": [
+      {
+        "id": "tauri-nsis",
+        "url": "https://raw.githubusercontent.com/tauri-apps/tauri/tauri-cli-v2.11.4/crates/tauri-bundler/src/bundle/windows/templates/installer.nsi",
+        "final_url": "https://raw.githubusercontent.com/tauri-apps/tauri/tauri-cli-v2.11.4/crates/tauri-bundler/src/bundle/windows/templates/installer.nsi",
+        "status": 404,
+        "bytes": 14,
+        "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+        "retrieved_utc": "2026-09-12T12:15:25.475Z"
+      },
+      {
+        "id": "tauri-msi",
+        "url": "https://raw.githubusercontent.com/tauri-apps/tauri/tauri-cli-v2.11.4/crates/tauri-bundler/src/bundle/windows/templates/main.wxs",
+        "final_url": "https://raw.githubusercontent.com/tauri-apps/tauri/tauri-cli-v2.11.4/crates/tauri-bundler/src/bundle/windows/templates/main.wxs",
+        "status": 404,
+        "bytes": 14,
+        "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+        "retrieved_utc": "2026-09-12T12:15:25.638Z"
+      }
+    ],
+    "no_runtime_processes_started": true,
+    "initial_draft_correction": "Initial prepare.mjs inferred SmartScreen from general API docs. amend.mjs corrects this against actual Wry, Tauri forwarding, app override absence, and existing EXE; amended JSON and outputs are authoritative.",
+    "wry_archive_program": "import fs from 'node:fs';import crypto from 'node:crypto';import zlib from 'node:zlib';import assert from 'node:assert/strict';\nconst base='C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/',reg='C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/';\nconst url='https://static.crates.io/crates/wry/wry-0.55.1.crate',r=await fetch(url),b=Buffer.from(await r.arrayBuffer()),hash=crypto.createHash('sha256').update(b).digest('hex');assert.equal(r.status,200);const lock=fs.readFileSync('Cargo.lock','utf8'),chunk=lock.split('[[package]]').find(s=>/\\nname = \"wry\"\\nversion = \"0.55.1\"\\n/.test(s));assert.equal(chunk.match(/checksum = \"([a-f0-9]+)\"/)[1],hash);const tar=zlib.gunzipSync(b);let files=[];for(let p=0;p<tar.length&&tar[p];){const name=tar.toString('utf8',p,p+100).replace(/\\0.*$/s,''),size=parseInt(tar.toString('ascii',p+124,p+136).replace(/\\0.*$/s,'').trim(),8);if(['wry-0.55.1/src/lib.rs','wry-0.55.1/src/webview2/mod.rs'].includes(name)){const data=tar.subarray(p+512,p+512+size),local=fs.readFileSync(reg+name);assert(data.equals(local));files.push({name,bytes:size,sha256:crypto.createHash('sha256').update(data).digest('hex'),local_byte_equal:true})}p+=512+Math.ceil(size/512)*512;}assert.equal(files.length,2);fs.writeFileSync(base+'wry.crate',b,{flag:'wx'});fs.writeFileSync(base+'wry-source-proof.json',JSON.stringify({url,status:r.status,bytes:b.length,sha256:hash,retrieved_utc:new Date().toISOString(),cargo_lock_checksum_match:true,files},null,2)+'\\n',{flag:'wx'});console.log({bytes:b.length,sha256:hash,files});\r\n",
+    "amendment_program": "import fs from 'node:fs';import crypto from 'node:crypto';import cp from 'node:child_process';import assert from 'node:assert/strict';\nconst base='C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/',path='docs/release/license-windows-runtime-2026-09-12.json';\nconst hash=b=>crypto.createHash('sha256').update(b).digest('hex'),file=p=>{const b=fs.readFileSync(p);return{path:p,bytes:b.length,sha256:hash(b)}};\nfs.copyFileSync(path,base+'initial-draft.json',fs.constants.COPYFILE_EXCL);const j=JSON.parse(fs.readFileSync(path));const reg='C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/';\nconst inputs=[reg+'wry-0.55.1/src/lib.rs',reg+'wry-0.55.1/src/webview2/mod.rs',reg+'wry-0.55.1/.cargo_vcs_info.json',reg+'tauri-runtime-wry-2.11.4/src/lib.rs',reg+'tauri-runtime-wry-2.11.4/.cargo_vcs_info.json','src-tauri/src/lib.rs'];j.inputs.push(...inputs.map(file));\nconst r=cp.spawnSync('git',['grep','-n','-i','-e','additional_browser_args','-e','additionalBrowserArgs','-e','ReputationChecking','-e','SmartScreen','-e','disable-features','--','src-tauri/src','src-tauri/tauri.conf.json'],{encoding:'utf8',windowsHide:true});assert.equal(r.status,1);assert.equal(r.stdout,'');assert.equal(r.stderr,'');\nconst needle='--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection',exe=fs.readFileSync('target/release/agentbridge.exe');assert.equal(exe.indexOf(needle),11743832);\nconst v=cp.spawnSync('C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe',['-all','-format','json'],{encoding:'utf8',windowsHide:true});assert.equal(v.status,0);\nconst wry=fs.readFileSync(inputs[1],'utf8').split('\\n'),tr=fs.readFileSync(inputs[3],'utf8').split('\\n');\nj.smart_screen={initial_generic_api_inference_corrected:true,wry_crate:JSON.parse(fs.readFileSync(base+'wry-source-proof.json')),wry_default_argument:needle,wry_source_fragment:{path:inputs[1],start_line:292,end_line:301,text:wry.slice(291,301).join('\\n')},tauri_forwarding_fragment:{path:inputs[3],start_line:5053,end_line:5057,text:tr.slice(5052,5057).join('\\n')},app_override_scan:{command:['git','grep','-n','-i','-e','additional_browser_args','-e','additionalBrowserArgs','-e','ReputationChecking','-e','SmartScreen','-e','disable-features','--','src-tauri/src','src-tauri/tauri.conf.json'],exit_code:r.status,stdout:r.stdout,stderr:r.stderr},exe_literal_offset:11743832,conclusion:'Existing Wry default disables msSmartScreenProtection; no App override found. No new mandatory SmartScreen notice/consent or setting change selected. This proves the configured source path and EXE literal, not live effectiveness under every external policy/future Runtime. Other telemetry is not claimed disabled.'};\nj.installed_vs={edition_directory:'C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools',msvc_directory_version:'14.44.35207',link_exe_file_version_observed:'14.44.35228.0',vswhere:{command:['C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe','-all','-format','json'],exit_code:v.status,stdout:v.stdout,stderr:v.stderr},note:'Empty installation registration does not establish or refute license eligibility.'};\nj.selection[3].action='retain downloadBootstrapper, no bundled Runtime or Bootstrapper bytes; add full terms and general Runtime/updates/data notice';\nj.decisions.smallest_next_step='Keep normal Tauri downloadBootstrapper mode and Wry browser arguments; supply Microsoft component/updates/data notice and terms access. Do not infer mandatory SmartScreen consent from the generic API default. Make any required protective terms agreement concrete at final packaging; no silent file-copy acceptance claim.';\nj.reproduction.initial_draft_correction='Initial prepare.mjs inferred SmartScreen from general API docs. amend.mjs corrects this against actual Wry, Tauri forwarding, app override absence, and existing EXE; amended JSON and outputs are authoritative.';\nj.reproduction.wry_archive_program=fs.readFileSync(base+'wry-check.mjs','utf8');j.reproduction.amendment_program=fs.readFileSync(import.meta.filename,'utf8');\nj.outputs=j.outputs.map(x=>({...x,...file(x.path)}));j.generated_utc=new Date().toISOString();\nfs.writeFileSync(path,JSON.stringify(j,null,2)+'\\n');console.log(JSON.stringify({json:file(path),outputs:j.outputs,inputs:j.inputs.length}));\r\n",
+    "final_text_correction": "Root narrow review: generalized own project license wording to own open-source license terms; no selection of only MIT from project's MIT OR Apache-2.0 expression.",
+    "validation_program": "import fs from 'node:fs';import crypto from 'node:crypto';import assert from 'node:assert/strict';\nconst root='C:/Users/U/AppData/Local/Temp/agentbridge-windows-runtime-20260912-r85be79426f10/',p='docs/release/license-windows-runtime-2026-09-12.json',j=JSON.parse(fs.readFileSync(p)),sha=b=>crypto.createHash('sha256').update(b).digest('hex');let n=0;\nfor(const f of [...j.inputs,...j.outputs,...j.existing_artifact.pdb.archive_groups]){const b=fs.readFileSync(f.path);assert.equal(b.length,f.bytes);assert.equal(sha(b),f.sha256);n++;}\nfor(const s of j.primary_sources){const b=fs.readFileSync(s.local_original);assert.equal(b.length,s.bytes);assert.equal(sha(b),s.sha256);n++;}\nassert.equal(sha(Buffer.from(j.source_terms.webview_evergreen.original_html_utf8)),j.source_terms.webview_evergreen.original_html_sha256);\nconst full=fs.readFileSync(j.outputs[0].path,'utf8'),decoded=j.source_terms.webview_evergreen.original_html_utf8.replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ');assert.equal(full.replace(/\\s/g,''),decoded.replace(/\\s/g,''));\nfor(const f of [p,'docs/release/license-windows-runtime-2026-09-12.md',...j.outputs.map(x=>x.path)]){const s=fs.readFileSync(f,'utf8');assert(s.endsWith('\\n'));assert(!s.includes('\\r'));assert(!s.split('\\n').some(x=>/[ \\t]$/.test(x)));assert(!s.includes('UPDATE_AFTER_FINAL_HASH'));}\nassert.equal(j.existing_artifact.exe.imports.length,22);assert.equal(j.existing_artifact.pdb.native_module_count,98);assert.equal(j.existing_artifact.pdb.archive_groups.reduce((x,y)=>x+y.module_count,0),98);\nconst result={checked_utc:new Date().toISOString(),hash_checked_files:n,fulltext_decoded_character_match:true,owned_four_files_lf_and_whitespace_clean:true,pe_pdb_module_counts_consistent:true};\nfs.writeFileSync(root+'validation.json',JSON.stringify(result,null,2)+'\\n',{flag:'wx'});console.log(result);\r\n",
+    "final_text_program": "import fs from 'node:fs';import c from 'node:crypto';\nconst p='docs/release/licenses/microsoft-windows-runtime-NOTICE.txt',b=fs.readFileSync(p),h=c.createHash('sha256').update(b).digest('hex');\nconst path='docs/release/license-windows-runtime-2026-09-12.json',j=JSON.parse(fs.readFileSync(path));j.outputs[1].bytes=b.length;j.outputs[1].sha256=h;j.reproduction.final_text_correction=\"Root narrow review: generalized own project license wording to own open-source license terms; no selection of only MIT from project's MIT OR Apache-2.0 expression.\";\nfs.writeFileSync(path,JSON.stringify(j,null,2)+'\\n');const md='docs/release/license-windows-runtime-2026-09-12.md';fs.writeFileSync(md,fs.readFileSync(md,'utf8').replace('1.389 | `UPDATE_AFTER_FINAL_HASH`',b.length.toLocaleString('de-DE')+' | `'+h+'`'));\nconsole.log({notice_bytes:b.length,notice_sha256:h,json_sha256:c.createHash('sha256').update(fs.readFileSync(path)).digest('hex')});\r\n"
+  },
+  "smart_screen": {
+    "initial_generic_api_inference_corrected": true,
+    "wry_crate": {
+      "url": "https://static.crates.io/crates/wry/wry-0.55.1.crate",
+      "status": 200,
+      "bytes": 205128,
+      "sha256": "186f9871daa55fd9c016578b810d149de58367113db7fb72b462d2323ce19514",
+      "retrieved_utc": "2026-09-12T12:27:20.926Z",
+      "cargo_lock_checksum_match": true,
+      "files": [
+        {
+          "name": "wry-0.55.1/src/lib.rs",
+          "bytes": 98205,
+          "sha256": "b62771e8fd3a0cb4afc681a4c0812a2d883946995fc46570712375b22fe96972",
+          "local_byte_equal": true
+        },
+        {
+          "name": "wry-0.55.1/src/webview2/mod.rs",
+          "bytes": 56449,
+          "sha256": "f8abc032e2f0acdb04d865e5e88d0ec11e2841944e24dc7089cd4b55f140af20",
+          "local_byte_equal": true
+        }
+      ]
+    },
+    "wry_default_argument": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection",
+    "wry_source_fragment": {
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/webview2/mod.rs",
+      "start_line": 292,
+      "end_line": 301,
+      "text": "\n    // additional browser args\n    let additional_browser_args = pl_attrs.additional_browser_args.unwrap_or_else(|| {\n      // remove \"mini menu\" - See https://github.com/tauri-apps/wry/issues/535\n      // and \"smart screen\" - See https://github.com/tauri-apps/tauri/issues/1345\n      let default_args = \"--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection\";\n      let mut arguments = String::from(default_args);\n\n      if attributes.autoplay {\n        arguments.push_str(\" --autoplay-policy=no-user-gesture-required\");"
+    },
+    "tauri_forwarding_fragment": {
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-2.11.4/src/lib.rs",
+      "start_line": 5053,
+      "end_line": 5057,
+      "text": "  #[cfg(windows)]\n  {\n    if let Some(additional_browser_args) = webview_attributes.additional_browser_args {\n      webview_builder = webview_builder.with_additional_browser_args(&additional_browser_args);\n    }"
+    },
+    "app_override_scan": {
+      "command": [
+        "git",
+        "grep",
+        "-n",
+        "-i",
+        "-e",
+        "additional_browser_args",
+        "-e",
+        "additionalBrowserArgs",
+        "-e",
+        "ReputationChecking",
+        "-e",
+        "SmartScreen",
+        "-e",
+        "disable-features",
+        "--",
+        "src-tauri/src",
+        "src-tauri/tauri.conf.json"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "exe_literal_offset": 11743832,
+    "conclusion": "Existing Wry default disables msSmartScreenProtection; no App override found. No new mandatory SmartScreen notice/consent or setting change selected. This proves the configured source path and EXE literal, not live effectiveness under every external policy/future Runtime. Other telemetry is not claimed disabled."
+  },
+  "installed_vs": {
+    "edition_directory": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools",
+    "msvc_directory_version": "14.44.35207",
+    "link_exe_file_version_observed": "14.44.35228.0",
+    "vswhere": {
+      "command": [
+        "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe",
+        "-all",
+        "-format",
+        "json"
+      ],
+      "exit_code": 0,
+      "stdout": "[]\r\n",
+      "stderr": ""
+    },
+    "note": "Empty installation registration does not establish or refute license eligibility."
+  },
+  "validation": {
+    "checked_utc": "2026-09-12T12:29:31.606Z",
+    "hash_checked_files": 57,
+    "fulltext_decoded_character_match": true,
+    "owned_four_files_lf_and_whitespace_clean": true,
+    "pe_pdb_module_counts_consistent": true
+  }
+}

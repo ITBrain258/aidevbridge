@@ -1,0 +1,17 @@
+{
+  "arguments": [
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ConnectTimeout=8",
+    "u@192.0.2.20",
+    "python3 - --parser-selftest"
+  ],
+  "source_sha256": "e7701fc8c14757557cbd619f5077fea82642838aeb080eddfde065ffcca44454",
+  "stage": "parser-selftest",
+  "executable": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
+  "source": "C:\\Users\\U\\AppData\\Local\\Temp\\agentbridge-session-binding-20260912-r99ebc7f8cd25\\m1-tmux-inventory.py",
+  "started_utc": "2026-09-12T14:20:05.7376458Z"
+}

@@ -1,0 +1,1 @@
+{"kind": "independent_path_check", "checked_unix_ms": 1789198592114, "roots": [{"path": "/tmp/ab-m1-inventory-63da7fe7c5cf4fe2a0c1d1acb59597ac", "absent": true, "socket_absent": true}, {"path": "/tmp/ab-m1-inventory-a6ec9a30daae4a50a9a39413542a0096", "absent": true, "socket_absent": true}], "tmux_3_0_path_candidates": {"tmux3.0": null, "tmux-3.0": null}}

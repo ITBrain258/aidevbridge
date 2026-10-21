@@ -1,0 +1,738 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-09-12T09:37:22.309Z",
+  "git_head": "e7e7c17cd8ba45d89b2cba659dfc373479958896",
+  "scope": "Exact russh-cryptovec 0.62.0 and russh-util 0.52.0 Apache text/source/NOTICE provenance; no other crates or final redistribution verdict.",
+  "root_lock": {
+    "path": "Cargo.lock",
+    "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f"
+  },
+  "packages": [
+    {
+      "name": "russh-cryptovec",
+      "version": "0.62.0",
+      "declared_spdx": "Apache-2.0",
+      "source_directory": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/russh-cryptovec-0.62.0",
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/russh-cryptovec-0.62.0.crate",
+        "bytes": 13520,
+        "sha256": "3aec6cb630dbe85d72ffd7bcd95f07e1bd69f9f270ee8adfa1afe443a6331438",
+        "matches_root_lock_checksum": true,
+        "all_entries_match_installed_files": true,
+        "entries": [
+          {
+            "relative_path": ".cargo_vcs_info.json",
+            "bytes": 103,
+            "sha256": "82d38c488803ec0bcf277dfce8d7771c902f6931247d3f8d4040efb33d1c5350"
+          },
+          {
+            "relative_path": "Cargo.lock",
+            "bytes": 12640,
+            "sha256": "bc649eaa82cbc4db1b9a58551a204629d963bfbda8fde82d6b1b3baec65472c3"
+          },
+          {
+            "relative_path": "Cargo.toml",
+            "bytes": 1554,
+            "sha256": "d1494f8a80059f8eb844f83560faede748e98c0d6db7ca67fe8c99917e84e35f"
+          },
+          {
+            "relative_path": "Cargo.toml.orig",
+            "bytes": 863,
+            "sha256": "cc529134ed3240dadfac0b5ace682fcbdf654ced9417880f7e3c5af675540e84"
+          },
+          {
+            "relative_path": "src/cryptovec.rs",
+            "bytes": 19279,
+            "sha256": "c59f2b0edf679296d50e2293417cf213cae605e5de4c287fe1ed23bda632e18b"
+          },
+          {
+            "relative_path": "src/lib.rs",
+            "bytes": 892,
+            "sha256": "f5f3152a1eee746c6108f8b5482ced753c046f0144f49e1c6bd468d1b88c8abe"
+          },
+          {
+            "relative_path": "src/platform/mod.rs",
+            "bytes": 1631,
+            "sha256": "83ac875f272fff48afbb33b1aba36d66499e8369543f2c94935ec9957cc7c3ca"
+          },
+          {
+            "relative_path": "src/platform/unix.rs",
+            "bytes": 1081,
+            "sha256": "a7136a3cbcadd856bd7a4822dc9a5ff865c566ac263c07b8a0efd08d97e27796"
+          },
+          {
+            "relative_path": "src/platform/wasm.rs",
+            "bytes": 267,
+            "sha256": "d40f38ba4860b4064b188e5f595afb9e15b64a81895d43bfad4c1de364779518"
+          },
+          {
+            "relative_path": "src/platform/windows.rs",
+            "bytes": 12206,
+            "sha256": "26e1a24a58fff02af2ed550a856fcf815efeef7dcb887de81c51961af24b8011"
+          },
+          {
+            "relative_path": "src/ssh.rs",
+            "bytes": 193,
+            "sha256": "24c334e58f0ac76e8361ec892cdcdfbbf4c075133af48cec584b0f964279269b"
+          }
+        ]
+      },
+      "vcs": {
+        "git": {
+          "sha1": "907c732562c5732aad6c140dba958eafddc41ba0"
+        },
+        "path_in_vcs": "cryptovec"
+      },
+      "upstream_root": {
+        "url": "https://api.github.com/repositories/456693383/git/trees/907c732562c5732aad6c140dba958eafddc41ba0",
+        "sha256": "14b44f3bde8157cbfd711ad685385dedcc8ab184c031967236417672144b07dd",
+        "git_tree_sha1": "907c732562c5732aad6c140dba958eafddc41ba0",
+        "truncated": false,
+        "entries": [
+          {
+            "path": ".all-contributorsrc",
+            "type": "blob",
+            "sha": "5aa1b6972e5ba222208d2c24b4888db70dbbaf90"
+          },
+          {
+            "path": ".github",
+            "type": "tree",
+            "sha": "2bba35f25bb5816aae56d867a339b70226bba5a5"
+          },
+          {
+            "path": ".gitignore",
+            "type": "blob",
+            "sha": "7cea3a2d0188a7ae38a813c2c02caa18d5e314bb"
+          },
+          {
+            "path": ".well-known",
+            "type": "tree",
+            "sha": "c010760a7972a909875e02a04be617ead435355d"
+          },
+          {
+            "path": "Cargo.toml",
+            "type": "blob",
+            "sha": "8b8b8cc8fdacdc3abc88d146e006ae0ba2ed89f8"
+          },
+          {
+            "path": "LICENSE.txt",
+            "type": "blob",
+            "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7"
+          },
+          {
+            "path": "README.md",
+            "type": "blob",
+            "sha": "cfc61a86019550ac0827131081af206b8962e036"
+          },
+          {
+            "path": "SECURITY.md",
+            "type": "blob",
+            "sha": "f2d775ae9a89dfd61e9fcb7047b2260f0acd2850"
+          },
+          {
+            "path": "bench.sh",
+            "type": "blob",
+            "sha": "713b7e0f40f4d96bcbe4344fece13aa3861b69a1"
+          },
+          {
+            "path": "cryptovec",
+            "type": "tree",
+            "sha": "e93c4c9ac6523de2491daa93ce538b891dc12aa3"
+          },
+          {
+            "path": "files",
+            "type": "tree",
+            "sha": "c49c83f8b5a93665b7f4f0a0309fec6fd484cad3"
+          },
+          {
+            "path": "pageant",
+            "type": "tree",
+            "sha": "13c9ef284c98073f2fe3dc500c4c2125875b6c8d"
+          },
+          {
+            "path": "russh-config",
+            "type": "tree",
+            "sha": "f704d9f4fc7fc720781d2da6edc062dace271ba6"
+          },
+          {
+            "path": "russh-util",
+            "type": "tree",
+            "sha": "8f2d1d63dad37e9e0af91afd0e783e9889952e48"
+          },
+          {
+            "path": "russh",
+            "type": "tree",
+            "sha": "96bd34a42ed2a9344abfba29a8fa012547e532f4"
+          },
+          {
+            "path": "rust-toolchain.toml",
+            "type": "blob",
+            "sha": "e88baf106b9e6550446ae1cd13dbba561193e062"
+          },
+          {
+            "path": "rustfmt.toml",
+            "type": "blob",
+            "sha": "3a3f3f1dd31ccb134d39796a081221540e45bc3f"
+          }
+        ]
+      },
+      "upstream_crate_tree": {
+        "url": "https://api.github.com/repositories/456693383/git/trees/e93c4c9ac6523de2491daa93ce538b891dc12aa3?recursive=1",
+        "sha256": "ccf13ca4cea7473fdc0102378d83e662f2202df85ea5eda07c3fd12b0217203a",
+        "git_tree_sha1": "e93c4c9ac6523de2491daa93ce538b891dc12aa3",
+        "truncated": false,
+        "entries": [
+          {
+            "path": "Cargo.toml",
+            "type": "blob",
+            "sha": "a93b3ecac4303cb43a3baf8b105bc338a0581951"
+          },
+          {
+            "path": "src",
+            "type": "tree",
+            "sha": "ee3ca63f6d4fed6b15e2868843086c521d2d7f5b"
+          },
+          {
+            "path": "src/cryptovec.rs",
+            "type": "blob",
+            "sha": "53f961699f8b2ef3a865f4439f318a4caebac173"
+          },
+          {
+            "path": "src/lib.rs",
+            "type": "blob",
+            "sha": "c1f4f778401e56291f53e50c17a2d5bd8b6746d9"
+          },
+          {
+            "path": "src/platform",
+            "type": "tree",
+            "sha": "8261b5da0d514059afee5c1f6860c25b6b5d08c9"
+          },
+          {
+            "path": "src/platform/mod.rs",
+            "type": "blob",
+            "sha": "8b3a644fa41b362615d3826abbec86e420aa2809"
+          },
+          {
+            "path": "src/platform/unix.rs",
+            "type": "blob",
+            "sha": "972819e3fada5ca89c53a74951ec384ee58eeb2c"
+          },
+          {
+            "path": "src/platform/wasm.rs",
+            "type": "blob",
+            "sha": "67e58db3a2cd9e99ddd08440bcdf0490bb2d2a4a"
+          },
+          {
+            "path": "src/platform/windows.rs",
+            "type": "blob",
+            "sha": "bae5a658e357ef27687305bdd8bc2252151c0b9b"
+          },
+          {
+            "path": "src/ssh.rs",
+            "type": "blob",
+            "sha": "0b43ece79e323cf4d3a75580f4d0599057d0a1e2"
+          }
+        ]
+      },
+      "license_url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/LICENSE.txt",
+      "license_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "source_comparisons": [
+        {
+          "local_relative_path": "Cargo.toml.orig",
+          "upstream_path": "cryptovec/Cargo.toml",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/Cargo.toml",
+          "local_sha256": "cc529134ed3240dadfac0b5ace682fcbdf654ced9417880f7e3c5af675540e84",
+          "upstream_sha256": "cc529134ed3240dadfac0b5ace682fcbdf654ced9417880f7e3c5af675540e84",
+          "upstream_git_blob_sha1": "a93b3ecac4303cb43a3baf8b105bc338a0581951",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/cryptovec.rs",
+          "upstream_path": "cryptovec/src/cryptovec.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/cryptovec.rs",
+          "local_sha256": "c59f2b0edf679296d50e2293417cf213cae605e5de4c287fe1ed23bda632e18b",
+          "upstream_sha256": "c59f2b0edf679296d50e2293417cf213cae605e5de4c287fe1ed23bda632e18b",
+          "upstream_git_blob_sha1": "53f961699f8b2ef3a865f4439f318a4caebac173",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/lib.rs",
+          "upstream_path": "cryptovec/src/lib.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/lib.rs",
+          "local_sha256": "f5f3152a1eee746c6108f8b5482ced753c046f0144f49e1c6bd468d1b88c8abe",
+          "upstream_sha256": "f5f3152a1eee746c6108f8b5482ced753c046f0144f49e1c6bd468d1b88c8abe",
+          "upstream_git_blob_sha1": "c1f4f778401e56291f53e50c17a2d5bd8b6746d9",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/platform/mod.rs",
+          "upstream_path": "cryptovec/src/platform/mod.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/platform/mod.rs",
+          "local_sha256": "83ac875f272fff48afbb33b1aba36d66499e8369543f2c94935ec9957cc7c3ca",
+          "upstream_sha256": "83ac875f272fff48afbb33b1aba36d66499e8369543f2c94935ec9957cc7c3ca",
+          "upstream_git_blob_sha1": "8b3a644fa41b362615d3826abbec86e420aa2809",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/platform/unix.rs",
+          "upstream_path": "cryptovec/src/platform/unix.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/platform/unix.rs",
+          "local_sha256": "a7136a3cbcadd856bd7a4822dc9a5ff865c566ac263c07b8a0efd08d97e27796",
+          "upstream_sha256": "a7136a3cbcadd856bd7a4822dc9a5ff865c566ac263c07b8a0efd08d97e27796",
+          "upstream_git_blob_sha1": "972819e3fada5ca89c53a74951ec384ee58eeb2c",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/platform/wasm.rs",
+          "upstream_path": "cryptovec/src/platform/wasm.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/platform/wasm.rs",
+          "local_sha256": "d40f38ba4860b4064b188e5f595afb9e15b64a81895d43bfad4c1de364779518",
+          "upstream_sha256": "d40f38ba4860b4064b188e5f595afb9e15b64a81895d43bfad4c1de364779518",
+          "upstream_git_blob_sha1": "67e58db3a2cd9e99ddd08440bcdf0490bb2d2a4a",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/platform/windows.rs",
+          "upstream_path": "cryptovec/src/platform/windows.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/platform/windows.rs",
+          "local_sha256": "26e1a24a58fff02af2ed550a856fcf815efeef7dcb887de81c51961af24b8011",
+          "upstream_sha256": "26e1a24a58fff02af2ed550a856fcf815efeef7dcb887de81c51961af24b8011",
+          "upstream_git_blob_sha1": "bae5a658e357ef27687305bdd8bc2252151c0b9b",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/ssh.rs",
+          "upstream_path": "cryptovec/src/ssh.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/ssh.rs",
+          "local_sha256": "24c334e58f0ac76e8361ec892cdcdfbbf4c075133af48cec584b0f964279269b",
+          "upstream_sha256": "24c334e58f0ac76e8361ec892cdcdfbbf4c075133af48cec584b0f964279269b",
+          "upstream_git_blob_sha1": "0b43ece79e323cf4d3a75580f4d0599057d0a1e2",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        }
+      ],
+      "named_license_notice_candidates": {
+        "published_package": [],
+        "upstream_repo_root": [
+          "LICENSE.txt"
+        ],
+        "upstream_crate_subtree": []
+      },
+      "source_copyright_and_license_lines": [
+        {
+          "path": "src/lib.rs",
+          "line": 8,
+          "text": "// Copyright 2016 Pierre-Étienne Meunier"
+        },
+        {
+          "path": "src/lib.rs",
+          "line": 10,
+          "text": "// Licensed under the Apache License, Version 2.0 (the \"License\");"
+        }
+      ],
+      "dirty_scope_note": null
+    },
+    {
+      "name": "russh-util",
+      "version": "0.52.0",
+      "declared_spdx": "Apache-2.0",
+      "source_directory": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/russh-util-0.52.0",
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/russh-util-0.52.0.crate",
+        "bytes": 1849,
+        "sha256": "668424a5dde0bcb45b55ba7de8476b93831b4aa2fa6947e145f3b053e22c60b6",
+        "matches_root_lock_checksum": true,
+        "all_entries_match_installed_files": true,
+        "entries": [
+          {
+            "relative_path": ".cargo_vcs_info.json",
+            "bytes": 123,
+            "sha256": "9bbeb373423fbca22bfa4967ae8c327bc0567a5934ffcf2e4c07716d85ecc17f"
+          },
+          {
+            "relative_path": "Cargo.toml",
+            "bytes": 1412,
+            "sha256": "6db855f526024b4a7384bbdc3d35515dbc4e6597c3f47189657683e26a777c54"
+          },
+          {
+            "relative_path": "Cargo.toml.orig",
+            "bytes": 647,
+            "sha256": "4bb59fc5468939da7a73e8c7356da3632b7686d08b08d43eb5d0a3c63447849f"
+          },
+          {
+            "relative_path": "src/lib.rs",
+            "bytes": 31,
+            "sha256": "8d05218bce51a6f9c4b2e7fd591cd08f98e2f00b4cca6e072021d99d46590f5f"
+          },
+          {
+            "relative_path": "src/runtime.rs",
+            "bytes": 1400,
+            "sha256": "3a2c2b9fb87991ca9c373f295c67380b945bb3f6c6043e127f035b70b572130c"
+          },
+          {
+            "relative_path": "src/time.rs",
+            "bytes": 627,
+            "sha256": "7d88b9dbaf789b1e85dac9e96a1a8177584aa816d82a24424f475701b9404ae0"
+          }
+        ]
+      },
+      "vcs": {
+        "git": {
+          "sha1": "3d09c20c52a542ffa327723d3a44cb1edd9b0ca4",
+          "dirty": true
+        },
+        "path_in_vcs": "russh-util"
+      },
+      "upstream_root": {
+        "url": "https://api.github.com/repositories/456693383/git/trees/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4",
+        "sha256": "12bc80539726e65a66ebf832ede24d98fbec5d73e551bb820267977033a290c0",
+        "git_tree_sha1": "3d09c20c52a542ffa327723d3a44cb1edd9b0ca4",
+        "truncated": false,
+        "entries": [
+          {
+            "path": ".all-contributorsrc",
+            "type": "blob",
+            "sha": "c7c35faf291291b436761f2f9fd97fa1c6d35503"
+          },
+          {
+            "path": ".github",
+            "type": "tree",
+            "sha": "bbc6275c373d6d010341499ee6c45cc70ed82fab"
+          },
+          {
+            "path": ".gitignore",
+            "type": "blob",
+            "sha": "c2d07934aac680884787e73639d616504f7d7566"
+          },
+          {
+            "path": ".vscode",
+            "type": "tree",
+            "sha": "6db1a20da412d7632a3f323568a8971ddf7ca33c"
+          },
+          {
+            "path": ".well-known",
+            "type": "tree",
+            "sha": "c010760a7972a909875e02a04be617ead435355d"
+          },
+          {
+            "path": "Cargo.toml",
+            "type": "blob",
+            "sha": "5162dd95fc6589ebb80d8039f5ca959d38408920"
+          },
+          {
+            "path": "LICENSE-2.0.txt",
+            "type": "blob",
+            "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7"
+          },
+          {
+            "path": "README.md",
+            "type": "blob",
+            "sha": "99b41dbbfe99590923a50eb99c4a910d7cc7f057"
+          },
+          {
+            "path": "SECURITY.md",
+            "type": "blob",
+            "sha": "f2d775ae9a89dfd61e9fcb7047b2260f0acd2850"
+          },
+          {
+            "path": "cryptovec",
+            "type": "tree",
+            "sha": "4b9d6e6f6e275757a8ac829688eefbe164bb1ce8"
+          },
+          {
+            "path": "files",
+            "type": "tree",
+            "sha": "c49c83f8b5a93665b7f4f0a0309fec6fd484cad3"
+          },
+          {
+            "path": "pageant",
+            "type": "tree",
+            "sha": "fa5e3959fa5975c60d627572980f25ff44439159"
+          },
+          {
+            "path": "russh-config",
+            "type": "tree",
+            "sha": "d493218381163fdf64c08b526192df7eed749187"
+          },
+          {
+            "path": "russh-util",
+            "type": "tree",
+            "sha": "194d250e640f514dbdce429aa1007ecdae50ac6b"
+          },
+          {
+            "path": "russh",
+            "type": "tree",
+            "sha": "de086f06306c95e85ce13e811473dac2c5b50c8e"
+          },
+          {
+            "path": "rust-toolchain.toml",
+            "type": "blob",
+            "sha": "1de01fa45c493440ef149fc39abc4f3a82d3e432"
+          },
+          {
+            "path": "rustfmt.toml",
+            "type": "blob",
+            "sha": "3a3f3f1dd31ccb134d39796a081221540e45bc3f"
+          }
+        ]
+      },
+      "upstream_crate_tree": {
+        "url": "https://api.github.com/repositories/456693383/git/trees/194d250e640f514dbdce429aa1007ecdae50ac6b?recursive=1",
+        "sha256": "a458eb3c8285f501e47feb111f341686af10efb94845b519f37a1f1b5a97bca7",
+        "git_tree_sha1": "194d250e640f514dbdce429aa1007ecdae50ac6b",
+        "truncated": false,
+        "entries": [
+          {
+            "path": "Cargo.toml",
+            "type": "blob",
+            "sha": "f0326a9c0838dacfd67dcb63a22c06132dda3092"
+          },
+          {
+            "path": "src",
+            "type": "tree",
+            "sha": "9c64b0b02cc068b8dec59e28b8267c92f86a5364"
+          },
+          {
+            "path": "src/lib.rs",
+            "type": "blob",
+            "sha": "ba4302eb21452c4bac876a263cc9e17380d224de"
+          },
+          {
+            "path": "src/runtime.rs",
+            "type": "blob",
+            "sha": "ad6d280a3414d43f9cd8327b8c10fbe66fed76ba"
+          },
+          {
+            "path": "src/time.rs",
+            "type": "blob",
+            "sha": "a5e1adc28a0fd8e2e6cee6d78d55bc9514e1ce71"
+          }
+        ]
+      },
+      "license_url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/LICENSE-2.0.txt",
+      "license_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "source_comparisons": [
+        {
+          "local_relative_path": "Cargo.toml.orig",
+          "upstream_path": "russh-util/Cargo.toml",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/russh-util/Cargo.toml",
+          "local_sha256": "4bb59fc5468939da7a73e8c7356da3632b7686d08b08d43eb5d0a3c63447849f",
+          "upstream_sha256": "c8c92d6019967339af30c3d048baa79ab97568c332fba43e644efe4c99dc8c19",
+          "upstream_git_blob_sha1": "f0326a9c0838dacfd67dcb63a22c06132dda3092",
+          "byte_match": false,
+          "only_published_version_change_0_51_to_0_52": true
+        },
+        {
+          "local_relative_path": "src/lib.rs",
+          "upstream_path": "russh-util/src/lib.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/russh-util/src/lib.rs",
+          "local_sha256": "8d05218bce51a6f9c4b2e7fd591cd08f98e2f00b4cca6e072021d99d46590f5f",
+          "upstream_sha256": "8d05218bce51a6f9c4b2e7fd591cd08f98e2f00b4cca6e072021d99d46590f5f",
+          "upstream_git_blob_sha1": "ba4302eb21452c4bac876a263cc9e17380d224de",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/runtime.rs",
+          "upstream_path": "russh-util/src/runtime.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/russh-util/src/runtime.rs",
+          "local_sha256": "3a2c2b9fb87991ca9c373f295c67380b945bb3f6c6043e127f035b70b572130c",
+          "upstream_sha256": "3a2c2b9fb87991ca9c373f295c67380b945bb3f6c6043e127f035b70b572130c",
+          "upstream_git_blob_sha1": "ad6d280a3414d43f9cd8327b8c10fbe66fed76ba",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        },
+        {
+          "local_relative_path": "src/time.rs",
+          "upstream_path": "russh-util/src/time.rs",
+          "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/russh-util/src/time.rs",
+          "local_sha256": "7d88b9dbaf789b1e85dac9e96a1a8177584aa816d82a24424f475701b9404ae0",
+          "upstream_sha256": "7d88b9dbaf789b1e85dac9e96a1a8177584aa816d82a24424f475701b9404ae0",
+          "upstream_git_blob_sha1": "a5e1adc28a0fd8e2e6cee6d78d55bc9514e1ce71",
+          "byte_match": true,
+          "only_published_version_change_0_51_to_0_52": false
+        }
+      ],
+      "named_license_notice_candidates": {
+        "published_package": [],
+        "upstream_repo_root": [
+          "LICENSE-2.0.txt"
+        ],
+        "upstream_crate_subtree": []
+      },
+      "source_copyright_and_license_lines": [],
+      "dirty_scope_note": "Published VCS metadata says dirty:true. All three published source files match the base commit; Cargo.toml.orig differs only in package version 0.51.0 -> 0.52.0. Unrelated dirty workspace changes are not reconstructed."
+    }
+  ],
+  "api_alias_redirects": [
+    {
+      "url": "https://api.github.com/repos/warp-tech/russh/git/trees/907c732562c5732aad6c140dba958eafddc41ba0",
+      "status": 301,
+      "location": "https://api.github.com/repositories/456693383/git/trees/907c732562c5732aad6c140dba958eafddc41ba0"
+    },
+    {
+      "url": "https://api.github.com/repos/warp-tech/russh/git/trees/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4",
+      "status": 301,
+      "location": "https://api.github.com/repositories/456693383/git/trees/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4"
+    }
+  ],
+  "downloads": [
+    {
+      "url": "https://api.github.com/repositories/456693383/git/trees/907c732562c5732aad6c140dba958eafddc41ba0",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:19.724Z",
+      "bytes": 3718,
+      "sha256": "14b44f3bde8157cbfd711ad685385dedcc8ab184c031967236417672144b07dd"
+    },
+    {
+      "url": "https://api.github.com/repositories/456693383/git/trees/e93c4c9ac6523de2491daa93ce538b891dc12aa3?recursive=1",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:19.945Z",
+      "bytes": 2335,
+      "sha256": "ccf13ca4cea7473fdc0102378d83e662f2202df85ea5eda07c3fd12b0217203a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/LICENSE.txt",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:20.015Z",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/Cargo.toml",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:20.027Z",
+      "bytes": 863,
+      "sha256": "cc529134ed3240dadfac0b5ace682fcbdf654ced9417880f7e3c5af675540e84"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/cryptovec.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:20.238Z",
+      "bytes": 19279,
+      "sha256": "c59f2b0edf679296d50e2293417cf213cae605e5de4c287fe1ed23bda632e18b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/lib.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:20.436Z",
+      "bytes": 892,
+      "sha256": "f5f3152a1eee746c6108f8b5482ced753c046f0144f49e1c6bd468d1b88c8abe"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/platform/mod.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:20.636Z",
+      "bytes": 1631,
+      "sha256": "83ac875f272fff48afbb33b1aba36d66499e8369543f2c94935ec9957cc7c3ca"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/platform/unix.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:20.983Z",
+      "bytes": 1081,
+      "sha256": "a7136a3cbcadd856bd7a4822dc9a5ff865c566ac263c07b8a0efd08d97e27796"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/platform/wasm.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:21.177Z",
+      "bytes": 267,
+      "sha256": "d40f38ba4860b4064b188e5f595afb9e15b64a81895d43bfad4c1de364779518"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/platform/windows.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:21.465Z",
+      "bytes": 12206,
+      "sha256": "26e1a24a58fff02af2ed550a856fcf815efeef7dcb887de81c51961af24b8011"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/907c732562c5732aad6c140dba958eafddc41ba0/cryptovec/src/ssh.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:21.650Z",
+      "bytes": 193,
+      "sha256": "24c334e58f0ac76e8361ec892cdcdfbbf4c075133af48cec584b0f964279269b"
+    },
+    {
+      "url": "https://api.github.com/repositories/456693383/git/trees/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:22.014Z",
+      "bytes": 3711,
+      "sha256": "12bc80539726e65a66ebf832ede24d98fbec5d73e551bb820267977033a290c0"
+    },
+    {
+      "url": "https://api.github.com/repositories/456693383/git/trees/194d250e640f514dbdce429aa1007ecdae50ac6b?recursive=1",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:22.221Z",
+      "bytes": 1230,
+      "sha256": "a458eb3c8285f501e47feb111f341686af10efb94845b519f37a1f1b5a97bca7"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/LICENSE-2.0.txt",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:22.244Z",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/russh-util/Cargo.toml",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:22.257Z",
+      "bytes": 647,
+      "sha256": "c8c92d6019967339af30c3d048baa79ab97568c332fba43e644efe4c99dc8c19"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/russh-util/src/lib.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:22.276Z",
+      "bytes": 31,
+      "sha256": "8d05218bce51a6f9c4b2e7fd591cd08f98e2f00b4cca6e072021d99d46590f5f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/russh-util/src/runtime.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:22.291Z",
+      "bytes": 1400,
+      "sha256": "3a2c2b9fb87991ca9c373f295c67380b945bb3f6c6043e127f035b70b572130c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/3d09c20c52a542ffa327723d3a44cb1edd9b0ca4/russh-util/src/time.rs",
+      "http_status": 200,
+      "received_utc": "2026-09-12T09:37:22.306Z",
+      "bytes": 627,
+      "sha256": "7d88b9dbaf789b1e85dac9e96a1a8177584aa816d82a24424f475701b9404ae0"
+    }
+  ],
+  "export": {
+    "path": "docs/release/licenses/russh-cryptovec-0.62.0-util-0.52.0-LICENSE-APACHE.txt",
+    "bytes": 11358,
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "both_pinned_upstream_texts_byte_identical": true,
+    "crlf": 0,
+    "has_final_lf": true,
+    "trailing_whitespace_lines": []
+  },
+  "existing_vendor_license_comparison": {
+    "path": "vendor/russh/LICENSE-APACHE",
+    "bytes": 10849,
+    "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
+    "byte_match": false,
+    "whitespace_normalized_text_match": true,
+    "decision": "Preserve one exact upstream original separately; do not claim byte identity to the existing vendor copy."
+  },
+  "limits": [
+    "NOTICE search covers the two complete published archives, their pinned repository root entries and the complete corresponding crate subtrees; no global repository audit.",
+    "A missing NOTICE in this checked scope does not erase source copyright attribution.",
+    "Published russh-util dirty metadata remains explicit; the observed package delta is the version only.",
+    "Remaining license families and actual installer/portable notice delivery are separate work."
+  ],
+  "temporary_files_created": false
+}

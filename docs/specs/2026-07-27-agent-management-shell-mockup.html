@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>AgentBridge — Entwurf in voller Größe</title>
+<style>
+:root {
+  color-scheme: dark;
+
+  --ab-bg-canvas:   #0B0D10;
+  --ab-bg-chrome:   #131619;
+  --ab-bg-raised:   #191D22;
+  --ab-bg-hover:    #1F242A;
+  --ab-bg-active:   #262C34;
+  --ab-bg-overlay:  #1B1F25;
+  --ab-bg-scrim:    rgba(4, 6, 8, .66);
+
+  --ab-border-subtle:  #21262D;
+  --ab-border-default: #2C333B;
+  --ab-border-strong:  #3A424C;
+
+  --ab-text-primary:   #E3E8EE;
+  --ab-text-secondary: #A8B2BD;
+  --ab-text-muted:     #7B8794;
+  --ab-text-disabled:  #4A545F;
+
+  --ab-accent:       #4C9AFF;
+  --ab-accent-hover: #69ACFF;
+  --ab-accent-quiet: #1B3255;
+  --ab-focus-ring:   #A9D2FF;
+
+  --ab-ok:            #56D364;
+  --ab-warn:          #E3B341;
+  --ab-warn-bg:       #2A2314;
+  --ab-warn-border:   #5C4A1F;
+  --ab-danger:        #FF7B72;
+  --ab-danger-bg:     #2A1517;
+  --ab-danger-border: #5C2B2B;
+  --ab-neutral-off:   #7B8794;
+
+  --ab-font-ui:   "Segoe UI Variable Text", "Segoe UI", system-ui, "Noto Sans", sans-serif;
+  --ab-font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "Segoe UI Mono", ui-monospace, monospace;
+
+  --ab-fs-xs: 11px;  --ab-lh-xs: 14px;
+  --ab-fs-sm: 12px;  --ab-lh-sm: 16px;
+  --ab-fs-md: 13px;  --ab-lh-md: 18px;
+  --ab-fs-lg: 15px;  --ab-lh-lg: 20px;
+  --ab-fs-xl: 20px;  --ab-lh-xl: 26px;
+
+  --ab-sidebar-w:    240px;
+  --ab-toolbar-h:     40px;
+  --ab-tile-head-h:   28px;
+  --ab-row-h-host:    30px;
+  --ab-row-h-session: 26px;
+  --ab-control-h:     30px;
+  --ab-button-h:      32px;
+
+  --ab-radius-sm: 3px;
+  --ab-radius-md: 5px;
+  --ab-radius-lg: 8px;
+
+  --ab-shadow-modal: 0 16px 48px rgba(0,0,0,.55);
+  --ab-motion-fast: 100ms;
+  --ab-motion-ease: cubic-bezier(.2, 0, .38, .9);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--ab-font-ui);
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  color: var(--ab-text-primary);
+  background: var(--ab-bg-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+
+:where(button, select, input, [tabindex], .ab-row):focus-visible {
+  outline: 2px solid var(--ab-focus-ring);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+.app { display: grid; grid-template-columns: var(--ab-sidebar-w) 1fr; height: 100vh; }
+
+/* ============ Seitenleiste ============ */
+.sidebar {
+  background: var(--ab-bg-chrome);
+  border-right: 1px solid var(--ab-border-subtle);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sb-head {
+  height: var(--ab-toolbar-h); flex: none;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 8px 0 12px;
+  border-bottom: 1px solid var(--ab-border-subtle);
+}
+.sb-head h1 {
+  font-size: var(--ab-fs-sm); line-height: var(--ab-lh-sm);
+  font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--ab-text-muted); margin-right: auto;
+}
+.sb-list { flex: 1; overflow-y: auto; padding: 4px 0 8px; }
+.sb-foot {
+  flex: none; border-top: 1px solid var(--ab-border-subtle);
+  padding: 8px; display: flex; flex-direction: column; gap: 4px;
+}
+
+.ab-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px; cursor: default; position: relative;
+  border-radius: var(--ab-radius-sm);
+  margin: 0 4px; width: calc(100% - 8px);
+  font-size: var(--ab-fs-md); text-align: left;
+  background: none; border: 0; color: inherit; font-family: inherit;
+}
+.ab-row:hover { background: var(--ab-bg-hover); }
+
+.row-host { height: var(--ab-row-h-host); color: var(--ab-text-primary); font-weight: 600; margin-top: 6px; }
+.row-host .chev { color: var(--ab-text-muted); font-size: 9px; width: 8px; flex: none; }
+.row-session { height: var(--ab-row-h-session); color: var(--ab-text-secondary); padding-left: 32px; }
+.row-session.sel { background: var(--ab-accent-quiet); color: var(--ab-text-primary); }
+.row-session.sel::before {
+  content: ""; position: absolute; left: 0; top: 3px; bottom: 3px;
+  width: 3px; background: var(--ab-accent); border-radius: 0 2px 2px 0;
+}
+.row-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-meta {
+  margin-left: auto; flex: none;
+  font-size: var(--ab-fs-xs); line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted); display: flex; align-items: center; gap: 5px;
+}
+
+/* Zustandsformen: Geometrie + Fuellung + Text, nie Farbe allein */
+.ind { width: 8px; height: 8px; border-radius: var(--ab-radius-sm); flex: none; display: inline-block; }
+.ind-on    { background: var(--ab-ok); }
+.ind-off   { border: 1.5px solid var(--ab-neutral-off); }
+.ind-sm    { width: 6px; height: 6px; }
+.ind-fail  {
+  width: 0; height: 0; border-radius: 0; background: none;
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--ab-danger);
+}
+.ind-warn  {
+  width: 0; height: 0; border-radius: 0; background: none;
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--ab-warn);
+}
+
+.sb-btn {
+  height: var(--ab-button-h); width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--ab-bg-raised); border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md); color: var(--ab-text-secondary);
+  font-family: inherit; font-size: var(--ab-fs-sm); cursor: pointer;
+  transition: background var(--ab-motion-fast) var(--ab-motion-ease);
+}
+.sb-btn:hover { background: var(--ab-bg-hover); color: var(--ab-text-primary); }
+
+/* Hinweisleiste je Host */
+.host-notice {
+  margin: 4px 8px 2px; padding: 7px 9px;
+  background: var(--ab-danger-bg); border: 1px solid var(--ab-danger-border);
+  border-radius: var(--ab-radius-md);
+  font-size: var(--ab-fs-xs); line-height: 15px; color: var(--ab-text-secondary);
+}
+.host-notice strong { color: var(--ab-danger); font-weight: 600; display: block; margin-bottom: 2px; }
+.host-notice .acts { display: flex; gap: 10px; margin-top: 5px; }
+.host-notice a { color: var(--ab-accent); text-decoration: none; cursor: pointer; }
+.host-notice a:hover { text-decoration: underline; }
+
+/* ============ Hauptbereich ============ */
+.main { display: flex; flex-direction: column; overflow: hidden; background: var(--ab-bg-canvas); }
+.toolbar {
+  height: var(--ab-toolbar-h); flex: none;
+  display: flex; align-items: center; gap: 10px; padding: 0 10px 0 14px;
+  background: var(--ab-bg-chrome); border-bottom: 1px solid var(--ab-border-subtle);
+}
+.tb-title { font-size: var(--ab-fs-md); color: var(--ab-text-secondary); }
+.tb-title b { color: var(--ab-text-primary); font-weight: 600; }
+.tb-sep { color: var(--ab-text-disabled); }
+.tb-spacer { margin-left: auto; }
+
+.seg {
+  display: flex; border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md); overflow: hidden; height: var(--ab-control-h);
+}
+.seg button {
+  min-width: 34px; padding: 0 9px; background: none; border: 0;
+  border-right: 1px solid var(--ab-border-default);
+  color: var(--ab-text-muted); font-family: inherit; font-size: var(--ab-fs-sm);
+  cursor: pointer; transition: background var(--ab-motion-fast) var(--ab-motion-ease);
+}
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--ab-bg-hover); color: var(--ab-text-secondary); }
+.seg button.on { background: var(--ab-accent); color: var(--ab-bg-canvas); font-weight: 600; }
+
+.tb-hint {
+  font-size: var(--ab-fs-xs); color: var(--ab-text-muted);
+  font-family: var(--ab-font-mono);
+}
+
+/* ============ Raster ============ */
+.grid { flex: 1; display: grid; gap: 0; overflow: hidden; }
+.grid[data-layout="1"] { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.grid[data-layout="2"] { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.grid[data-layout="4"] { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.grid[data-layout="1"] .tile:nth-child(n+2),
+.grid[data-layout="2"] .tile:nth-child(n+3) { display: none; }
+
+.tile {
+  display: flex; flex-direction: column; overflow: hidden; min-width: 0;
+  border-left: 3px solid var(--ab-border-subtle);
+  border-right: 1px solid var(--ab-border-subtle);
+  border-bottom: 1px solid var(--ab-border-subtle);
+  background: var(--ab-bg-canvas);
+  transition: border-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+.tile.focused { border-left-color: var(--ab-accent); }
+
+.tile-head {
+  height: var(--ab-tile-head-h); flex: none;
+  display: flex; align-items: center; gap: 8px; padding: 0 8px 0 7px;
+  background: var(--ab-bg-chrome);
+  border-bottom: 1px solid var(--ab-border-subtle);
+  font-size: var(--ab-fs-sm); color: var(--ab-text-muted); font-weight: 400;
+  cursor: pointer; user-select: none;
+}
+.tile.focused .tile-head { background: var(--ab-bg-active); color: var(--ab-text-primary); font-weight: 600; }
+
+.badge {
+  width: 16px; height: 16px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--ab-border-strong); border-radius: var(--ab-radius-sm);
+  font-size: var(--ab-fs-xs); font-weight: 600; color: var(--ab-text-muted);
+  background: none; font-family: var(--ab-font-ui);
+}
+.tile.focused .badge { background: var(--ab-accent); border-color: var(--ab-accent); color: var(--ab-bg-canvas); }
+
+.tile-host { color: var(--ab-text-disabled); font-weight: 400; }
+.tile-acts { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.tile-btn {
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  background: none; border: 0; border-radius: var(--ab-radius-sm);
+  color: var(--ab-text-muted); cursor: pointer; font-size: 11px; font-family: inherit;
+}
+.tile-btn:hover { background: var(--ab-bg-hover); color: var(--ab-text-primary); }
+
+/* Sperrleiste bei abgerissener Verbindung */
+.tile-lock {
+  flex: none; display: flex; align-items: center; gap: 7px;
+  padding: 5px 9px;
+  background: var(--ab-warn-bg); border-bottom: 1px solid var(--ab-warn-border);
+  font-size: var(--ab-fs-xs); line-height: 15px; color: var(--ab-text-secondary);
+}
+.tile-lock b { color: var(--ab-warn); font-weight: 600; }
+
+.term {
+  flex: 1; overflow: hidden; padding: 5px 8px;
+  background: #0B0D10; color: #C9D1D9;
+  font-family: var(--ab-font-mono); font-size: 13px; line-height: 1.15;
+  white-space: pre-wrap; word-break: break-word;
+}
+.term.dim { color: #6B7683; }
+.c-grn { color: #56D364; } .c-blu { color: #6CB0FF; } .c-yel { color: #E3B341; }
+.c-mag { color: #D2A8FF; } .c-cyn { color: #39C5CF; } .c-red { color: #FF7B72; }
+.c-dim { color: #6B7683; } .c-wht { color: #F0F3F6; }
+.cur { background: #4C9AFF; color: #0B0D10; }
+.cur-hollow { outline: 1px solid #6B7683; outline-offset: -1px; }
+
+/* ============ Erststart ============ */
+.empty { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; overflow-y: auto; }
+.empty-inner { width: 100%; max-width: 560px; }
+.empty h2 { font-size: var(--ab-fs-xl); line-height: var(--ab-lh-xl); font-weight: 600; margin-bottom: 6px; }
+.empty .lede { color: var(--ab-text-secondary); margin-bottom: 26px; }
+.card {
+  background: var(--ab-bg-raised); border: 1px solid var(--ab-border-subtle);
+  border-radius: var(--ab-radius-lg); padding: 18px 20px; margin-bottom: 16px;
+}
+.card h3 {
+  font-size: var(--ab-fs-xs); text-transform: uppercase; letter-spacing: .05em;
+  color: var(--ab-text-muted); font-weight: 600; margin-bottom: 12px;
+}
+.sug { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--ab-radius-md); }
+.sug:hover { background: var(--ab-bg-hover); }
+.sug .nm { font-weight: 600; }
+.sug .ad { color: var(--ab-text-muted); font-size: var(--ab-fs-sm); }
+.sug button {
+  margin-left: auto; height: 26px; padding: 0 12px;
+  background: var(--ab-bg-active); border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md); color: var(--ab-text-primary);
+  font-family: inherit; font-size: var(--ab-fs-sm); cursor: pointer;
+}
+.sug button:hover { background: var(--ab-bg-hover); }
+
+.field { margin-bottom: 13px; }
+.field label {
+  display: block; font-size: var(--ab-fs-sm); color: var(--ab-text-secondary); margin-bottom: 5px;
+}
+.field input, .field select {
+  width: 100%; height: var(--ab-control-h); padding: 0 9px;
+  background: var(--ab-bg-canvas); border: 1px solid var(--ab-border-default);
+  border-radius: var(--ab-radius-md); color: var(--ab-text-primary);
+  font-family: inherit; font-size: var(--ab-fs-md);
+}
+.field select { cursor: pointer; }
+.field input:focus, .field select:focus { border-color: var(--ab-accent); }
+.field .hint { font-size: var(--ab-fs-xs); color: var(--ab-text-muted); margin-top: 4px; }
+.row2 { display: grid; grid-template-columns: 1fr 90px; gap: 10px; }
+.primary {
+  height: var(--ab-button-h); padding: 0 18px;
+  background: var(--ab-accent); border: 0; border-radius: var(--ab-radius-md);
+  color: var(--ab-bg-canvas); font-family: inherit; font-size: var(--ab-fs-md);
+  font-weight: 600; cursor: pointer;
+}
+.primary:hover { background: var(--ab-accent-hover); }
+
+/* ============ Vorschau-Umschalter (nicht Teil der App) ============ */
+.pv {
+  position: fixed; right: 14px; bottom: 14px; z-index: 50;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--ab-bg-overlay); border: 1px solid var(--ab-border-strong);
+  border-radius: 999px; padding: 6px 8px 6px 14px;
+  box-shadow: var(--ab-shadow-modal); font-size: var(--ab-fs-xs);
+  color: var(--ab-text-muted);
+}
+.pv button {
+  height: 24px; padding: 0 11px; border-radius: 999px;
+  background: var(--ab-bg-raised); border: 1px solid var(--ab-border-default);
+  color: var(--ab-text-secondary); font-family: inherit; font-size: var(--ab-fs-xs); cursor: pointer;
+}
+.pv button.on { background: var(--ab-accent); border-color: var(--ab-accent); color: var(--ab-bg-canvas); font-weight: 600; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= Seitenleiste ================= -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <h1>Hosts</h1>
+      <button class="tile-btn" title="Add host">+</button>
+    </div>
+
+    <div class="sb-list">
+      <button class="ab-row row-host"><span class="chev">▾</span><span class="row-label">vm-build-01</span>
+        <span class="row-meta"><span class="ind ind-on"></span>Connected</span></button>
+      <button class="ab-row row-session sel"><span class="row-label">refactor-transport</span>
+        <span class="row-meta"><span class="ind ind-sm ind-on"></span>Open</span></button>
+      <button class="ab-row row-session"><span class="row-label">docs-sweep</span>
+        <span class="row-meta"><span class="ind ind-sm ind-on"></span>Open</span></button>
+      <button class="ab-row row-session"><span class="row-label">flaky-hunt</span>
+        <span class="row-meta"><span class="ind ind-sm ind-off"></span>Closed</span></button>
+
+      <button class="ab-row row-host"><span class="chev">▾</span><span class="row-label">vm-agents-02</span>
+        <span class="row-meta"><span class="ind ind-on"></span>Connected</span></button>
+      <button class="ab-row row-session"><span class="row-label">acl-runtime</span>
+        <span class="row-meta"><span class="ind ind-sm ind-on"></span>Open</span></button>
+      <button class="ab-row row-session"><span class="row-label">plan2-spike</span>
+        <span class="row-meta"><span class="ind ind-sm ind-on"></span>Open</span></button>
+      <button class="ab-row row-session"><span class="row-label">nightly-bench</span>
+        <span class="row-meta"><span class="ind ind-sm ind-off"></span>Closed</span></button>
+
+      <button class="ab-row row-host"><span class="chev">▸</span><span class="row-label">vm-legacy-03</span>
+        <span class="row-meta"><span class="ind ind-fail"></span>Failed</span></button>
+      <div class="host-notice">
+        <strong>Connection failed</strong>
+        ssh-agent is reachable but has no keys loaded. Add one with: <code>ssh-add</code>
+        <div class="acts"><a>Retry</a><a>Copy diagnostics</a></div>
+      </div>
+
+      <button class="ab-row row-host"><span class="chev">▸</span><span class="row-label">vm-spare-04</span>
+        <span class="row-meta"><span class="ind ind-off"></span>Disconnected</span></button>
+    </div>
+
+    <div class="sb-foot">
+      <button class="sb-btn">+ &nbsp;Add host</button>
+    </div>
+  </aside>
+
+  <!-- ================= Hauptbereich ================= -->
+  <main class="main">
+
+    <!-- ---- Arbeitsansicht ---- -->
+    <div id="view-work" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="toolbar">
+        <span class="tb-title"><b>refactor-transport</b> <span class="tb-sep">·</span> u@vm-build-01</span>
+        <span class="tb-spacer"></span>
+        <span class="tb-hint" id="hint">Ctrl+Shift+M maximieren</span>
+        <div class="seg" id="seg">
+          <button data-n="1">1</button>
+          <button data-n="2">2</button>
+          <button data-n="4" class="on">4</button>
+        </div>
+      </div>
+
+      <div class="grid" data-layout="4" id="grid">
+
+        <div class="tile focused" data-i="1">
+          <div class="tile-head">
+            <span class="badge">1</span>
+            <span>refactor-transport</span>
+            <span class="tile-host">vm-build-01</span>
+            <span class="tile-acts"><button class="tile-btn" title="Maximize">⛶</button><button class="tile-btn" title="Close">✕</button></span>
+          </div>
+          <div class="term"><span class="c-mag">›</span> Ich habe <span class="c-blu">src-tauri/src/transport/russh_transport.rs</span> gelesen.
+  Der Kanalabbau ruft <span class="c-yel">close()</span>, wartet aber nicht auf das
+  Fenster-Adjust. Das ist die Ursache des Hängers.
+
+<span class="c-grn">✓</span> <span class="c-dim">Edit</span> russh_transport.rs <span class="c-grn">+14 −3</span>
+<span class="c-grn">✓</span> <span class="c-dim">Bash</span> cargo test --lib transport
+
+   <span class="c-grn">Running</span> 7 tests
+   test transport::tests::close_awaits_eof ... <span class="c-grn">ok</span>
+   test transport::tests::drain_after_close ... <span class="c-grn">ok</span>
+
+<span class="c-mag">›</span> Soll ich die Änderung so committen?<span class="cur"> </span></div>
+        </div>
+
+        <div class="tile" data-i="2">
+          <div class="tile-head">
+            <span class="badge">2</span>
+            <span>docs-sweep</span>
+            <span class="tile-host">vm-build-01</span>
+            <span class="tile-acts"><button class="tile-btn" title="Maximize">⛶</button><button class="tile-btn" title="Close">✕</button></span>
+          </div>
+          <div class="term"><span class="c-dim">u@vm-build-01</span>:<span class="c-blu">~/repo</span>$ cargo build --release
+   <span class="c-grn">Compiling</span> agentbridge v0.1.0
+   <span class="c-grn">Compiling</span> russh v0.62.4
+    <span class="c-grn">Building</span> [========>          ] 214/508
+
+<span class="c-dim">u@vm-build-01</span>:<span class="c-blu">~/repo</span>$ <span class="cur-hollow"> </span></div>
+        </div>
+
+        <div class="tile" data-i="4">
+          <div class="tile-head">
+            <span class="badge">4</span>
+            <span>acl-runtime</span>
+            <span class="tile-host">vm-agents-02</span>
+            <span class="tile-acts"><button class="tile-btn" title="Maximize">⛶</button><button class="tile-btn" title="Close">✕</button></span>
+          </div>
+          <div class="term"><span class="c-mag">›</span> Prüfe die vierzehn Commands gegen den
+  echten Auflöser.
+
+<span class="c-grn">✓</span> <span class="c-dim">Bash</span> cargo test --test acl_runtime
+
+   test every_registered_command_passes … <span class="c-grn">ok</span>
+   test a_command_without_an_allow_entry … <span class="c-grn">ok</span>
+
+   <span class="c-grn">test result: ok.</span> 2 passed; 0 failed
+
+<span class="c-mag">›</span> Beide grün. Die Gegenprobe hält.<span class="cur-hollow"> </span></div>
+        </div>
+
+        <div class="tile" data-i="5">
+          <div class="tile-head">
+            <span class="badge">5</span>
+            <span>plan2-spike</span>
+            <span class="tile-host">vm-agents-02</span>
+            <span class="tile-acts"><button class="tile-btn" title="Maximize">⛶</button><button class="tile-btn" title="Close">✕</button></span>
+          </div>
+          <div class="tile-lock">
+            <span class="ind ind-warn"></span>
+            <span><b>Input locked</b> — connection to vm-agents-02 was lost. The session keeps running on the host.</span>
+          </div>
+          <div class="term dim">$ tmux -L agentbridge ls
+ab-7f3c9e: 1 windows (created Sun Jul 26 21:14)
+ab-91ad42: 1 windows (created Sun Jul 26 21:31)
+
+$ python3 bench/throughput.py --rounds 25
+  round 12/25 … 4.1 MB/s</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ---- Erststart ---- -->
+    <div id="view-empty" class="empty hidden">
+      <div class="empty-inner">
+        <h2>Connect to a host</h2>
+        <p class="lede">No hosts configured yet. Pick one found in your SSH config, or enter the details manually.</p>
+
+        <div class="card">
+          <h3>Suggested — from ~/.ssh/config</h3>
+          <div class="sug"><span class="nm">vm-build-01</span><span class="ad">u@192.0.2.10</span><button>Connect</button></div>
+          <div class="sug"><span class="nm">vm-agents-02</span><span class="ad">u@192.0.2.20</span><button>Connect</button></div>
+          <div class="sug"><span class="nm">nas</span><span class="ad">admin@192.0.2.101:2222</span><button>Connect</button></div>
+        </div>
+
+        <div class="card">
+          <h3>Or enter connection details</h3>
+          <div class="field"><label for="h">Hostname or IP</label><input id="h" value="192.0.2.30"></div>
+          <div class="row2">
+            <div class="field"><label for="u">User</label><input id="u" value="u"></div>
+            <div class="field"><label for="p">Port</label><input id="p" value="22"></div>
+          </div>
+          <div class="field">
+            <label for="a">Authentication</label>
+            <select id="a">
+              <option>id_ed25519 — ed25519 · u@test-pc</option>
+              <option>id_rsa — rsa</option>
+              <option>work_key — ed25519 · arbeit</option>
+              <option disabled>──────────</option>
+              <option>ssh-agent</option>
+              <option>Password</option>
+              <option>Choose file…</option>
+            </select>
+            <p class="hint">Found in %USERPROFILE%\.ssh — only the .pub files are read to build this list.</p>
+          </div>
+          <div class="field"><label for="pp">Key passphrase</label><input id="pp" type="password" placeholder="Leave empty if the key has none"></div>
+          <button class="primary">Connect</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="pv">
+  <span>Vorschau</span>
+  <button id="b-work" class="on">Arbeit</button>
+  <button id="b-max">Maximiert</button>
+  <button id="b-empty">Erststart</button>
+</div>
+
+<script>
+const grid = document.getElementById('grid');
+const seg  = document.getElementById('seg');
+const hint = document.getElementById('hint');
+let maximized = false;
+
+seg.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  restore();
+  seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  grid.dataset.layout = b.dataset.n;
+});
+
+// Fokus folgt dem Klick auf eine Kachel
+grid.addEventListener('click', e => {
+  const t = e.target.closest('.tile'); if (!t) return;
+  grid.querySelectorAll('.tile').forEach(x => x.classList.toggle('focused', x === t));
+});
+
+// Doppelklick maximiert
+grid.addEventListener('dblclick', e => {
+  const t = e.target.closest('.tile'); if (!t) return;
+  maximized ? restore() : maximize(t);
+});
+
+function maximize(t) {
+  grid.querySelectorAll('.tile').forEach(x => { if (x !== t) x.style.display = 'none'; });
+  t.style.display = 'flex';
+  grid.dataset.layout = '1';
+  grid.querySelectorAll('.tile').forEach(x => x.classList.toggle('focused', x === t));
+  hint.textContent = 'Esc zurück zum Raster';
+  maximized = true;
+  document.getElementById('b-max').classList.add('on');
+}
+function restore() {
+  grid.querySelectorAll('.tile').forEach(x => x.style.display = '');
+  grid.dataset.layout = seg.querySelector('button.on').dataset.n;
+  hint.textContent = 'Ctrl+Shift+M maximieren';
+  maximized = false;
+  document.getElementById('b-max').classList.remove('on');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && maximized) restore(); });
+
+// Vorschau-Umschalter
+const work = document.getElementById('view-work'), empty = document.getElementById('view-empty');
+document.getElementById('b-work').onclick = () => {
+  work.classList.remove('hidden'); work.style.display = 'flex'; empty.classList.add('hidden');
+  restore(); setPv('b-work');
+};
+document.getElementById('b-max').onclick = () => {
+  work.classList.remove('hidden'); work.style.display = 'flex'; empty.classList.add('hidden');
+  maximize(grid.querySelector('.tile[data-i="1"]')); setPv('b-max');
+};
+document.getElementById('b-empty').onclick = () => {
+  work.style.display = 'none'; empty.classList.remove('hidden'); setPv('b-empty');
+};
+function setPv(id) {
+  ['b-work','b-max','b-empty'].forEach(x => document.getElementById(x).classList.toggle('on', x === id));
+}
+</script>
+</body>
+</html>

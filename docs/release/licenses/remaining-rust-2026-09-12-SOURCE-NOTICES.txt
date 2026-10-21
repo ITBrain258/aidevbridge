@@ -1,0 +1,54 @@
+Remaining Rust crate source notices, 2026-09-12
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+
+tauri-plugin 2.6.3: original header shared by the four installed Rust files:
+
+// Copyright 2019-2024 Tauri Programme within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
+Files:
+src/build/mobile.rs
+src/build/mod.rs
+src/lib.rs
+src/runtime.rs
+
+The historical Windows release feature set enables build, not runtime.
+All installed headers are retained as provenance; this list is not an EXE map.
+
+Additional pinned repository SPDX metadata (not the MIT license text):
+PackageCopyrightText: 2019-2025, The Tauri Programme in the Commons Conservancy
+Scope: repository PackageName tauri; the source-file year range above is kept separately.
+
+selectors 0.36.1: original header shared by the 16 installed Rust files:
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+Files:
+attr.rs
+bloom.rs
+build.rs
+builder.rs
+context.rs
+kleene_value.rs
+lib.rs
+matching.rs
+nth_index_cache.rs
+parser.rs
+relative_selector/cache.rs
+relative_selector/filter.rs
+relative_selector/mod.rs
+sink.rs
+tree.rs
+visitor.rs
+
+The official MPL 2.0 full text is supplied separately. Its generic Exhibit B text
+does not by itself mark these source files Incompatible With Secondary Licenses.
+
+No additional copyright/license header was found in the checked Rust files for
+alloc-stdlib 0.2.4, pageant 0.2.1 or delegate 0.13.5. Their full upstream license
+texts remain authoritative; no author metadata has been turned into a copyright line.

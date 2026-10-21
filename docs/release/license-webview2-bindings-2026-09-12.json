@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-09-12T09:28:43.788Z",
+  "git_head": "f6477eff6cf13f8c2672b35fba9262543a88468b",
+  "scope": "Three pinned Rust-binding crate licenses only; Microsoft SDK/loader and final release delivery remain separate.",
+  "root_lock": {
+    "path": "Cargo.lock",
+    "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f"
+  },
+  "packages": [
+    {
+      "name": "webview2-com",
+      "version": "0.38.2",
+      "technical_role": "normal-runtime-candidate",
+      "declared_spdx": "MIT",
+      "local_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-0.38.2/Cargo.toml",
+        "sha256": "d6ab33de10d1a1f45dcb44cd7105456be6d01d6bf10e54c360603f60315c5036"
+      },
+      "original_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-0.38.2/Cargo.toml.orig",
+        "bytes": 993,
+        "sha256": "104bce84b453f732f4bd571e7c604d271380b02890d70f1c753af9d58063c7a4"
+      },
+      "local_vcs_info": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-0.38.2/.cargo_vcs_info.json",
+        "sha256": "cd98f3865caa97f47155b4238ea574245680de51fc689ab117b29ccac7566221",
+        "contents": {
+          "git": {
+            "sha1": "b74dc5e2b394044bea5191052868ce7a106c202c"
+          },
+          "path_in_vcs": "crates/webview2-com"
+        }
+      },
+      "lock_checksum": "7130243a7a5b33c54a444e54842e6a9e133de08b5ad7b5861cd8ed9a6a5bc96a",
+      "upstream_manifest_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/webview2-com/Cargo.toml",
+      "upstream_manifest_byte_matches_local_orig": true,
+      "workspace_manifest_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/Cargo.toml",
+      "workspace_license": "MIT",
+      "version_source": "workspace.package.version",
+      "resolved_upstream_version": "0.38.2",
+      "license_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/LICENSE",
+      "license_sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73"
+    },
+    {
+      "name": "webview2-com-sys",
+      "version": "0.38.2",
+      "technical_role": "normal-runtime-candidate",
+      "declared_spdx": "MIT",
+      "local_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-sys-0.38.2/Cargo.toml",
+        "sha256": "a6d5d71806b135cc7c101a2599b97e7fda28be0223f27577433eb1577addef7c"
+      },
+      "original_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-sys-0.38.2/Cargo.toml.orig",
+        "bytes": 627,
+        "sha256": "00229c125c597e4f0ddb9e598738ee5b38a9086fd59eea6d2577cdda5f8e5875"
+      },
+      "local_vcs_info": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-sys-0.38.2/.cargo_vcs_info.json",
+        "sha256": "8af502bd8832383dc1dd8bbd7fb00eb76a72b111688bc492e110bbac44cb005f",
+        "contents": {
+          "git": {
+            "sha1": "b74dc5e2b394044bea5191052868ce7a106c202c"
+          },
+          "path_in_vcs": "crates/bindings"
+        }
+      },
+      "lock_checksum": "381336cfffd772377d291702245447a5251a2ffa5bad679c99e61bc48bacbf9c",
+      "upstream_manifest_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/bindings/Cargo.toml",
+      "upstream_manifest_byte_matches_local_orig": true,
+      "workspace_manifest_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/Cargo.toml",
+      "workspace_license": "MIT",
+      "version_source": "workspace.package.version",
+      "resolved_upstream_version": "0.38.2",
+      "license_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/LICENSE",
+      "license_sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73"
+    },
+    {
+      "name": "webview2-com-macros",
+      "version": "0.8.1",
+      "technical_role": "build-or-proc-macro-only-in-this-tree",
+      "declared_spdx": "MIT",
+      "local_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-macros-0.8.1/Cargo.toml",
+        "sha256": "b006cef88171ef3675df724a900cb31eb1f74158f77a20680915f1dbe95d457e"
+      },
+      "original_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-macros-0.8.1/Cargo.toml.orig",
+        "bytes": 419,
+        "sha256": "a615e325d5acebc64f6553724028cd5e3639397e534cef107f172540cb78d0fd"
+      },
+      "local_vcs_info": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-macros-0.8.1/.cargo_vcs_info.json",
+        "sha256": "c24c2646f52e6cb4c1f382afc69fa99c0dc78d6d8e4316ade7e51707b4f9af8e",
+        "contents": {
+          "git": {
+            "sha1": "dffa41a8a46d3f5565eefbff2de57d38d399f158"
+          },
+          "path_in_vcs": "crates/callback-macros"
+        }
+      },
+      "lock_checksum": "67a921c1b6914c367b2b823cd4cde6f96beec77d30a939c8199bb377cf9b9b54",
+      "upstream_manifest_url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/crates/callback-macros/Cargo.toml",
+      "upstream_manifest_byte_matches_local_orig": true,
+      "workspace_manifest_url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/Cargo.toml",
+      "workspace_license": "MIT",
+      "version_source": "crate package.version",
+      "resolved_upstream_version": "0.8.1",
+      "license_url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/LICENSE",
+      "license_sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73"
+    }
+  ],
+  "downloads": [
+    {
+      "url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/webview2-com/Cargo.toml",
+      "http_status": 200,
+      "final_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/webview2-com/Cargo.toml",
+      "received_utc": "2026-09-12T09:28:42.936Z",
+      "bytes": 993,
+      "sha256": "104bce84b453f732f4bd571e7c604d271380b02890d70f1c753af9d58063c7a4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/Cargo.toml",
+      "http_status": 200,
+      "final_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/Cargo.toml",
+      "received_utc": "2026-09-12T09:28:43.169Z",
+      "bytes": 977,
+      "sha256": "59514a465aa57f375ed32a077e9d5e47bc7d28df53e117ba12614541b3b15fe9"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/LICENSE",
+      "http_status": 200,
+      "final_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/LICENSE",
+      "received_utc": "2026-09-12T09:28:43.188Z",
+      "bytes": 1067,
+      "sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/bindings/Cargo.toml",
+      "http_status": 200,
+      "final_url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/bindings/Cargo.toml",
+      "received_utc": "2026-09-12T09:28:43.352Z",
+      "bytes": 627,
+      "sha256": "00229c125c597e4f0ddb9e598738ee5b38a9086fd59eea6d2577cdda5f8e5875"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/crates/callback-macros/Cargo.toml",
+      "http_status": 200,
+      "final_url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/crates/callback-macros/Cargo.toml",
+      "received_utc": "2026-09-12T09:28:43.563Z",
+      "bytes": 419,
+      "sha256": "a615e325d5acebc64f6553724028cd5e3639397e534cef107f172540cb78d0fd"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/Cargo.toml",
+      "http_status": 200,
+      "final_url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/Cargo.toml",
+      "received_utc": "2026-09-12T09:28:43.766Z",
+      "bytes": 977,
+      "sha256": "5d0444d55131aa8a4290fc3cd54bd8598e9528577ddf5c3368ee48a02e297f6d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/LICENSE",
+      "http_status": 200,
+      "final_url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/LICENSE",
+      "received_utc": "2026-09-12T09:28:43.780Z",
+      "bytes": 1067,
+      "sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73"
+    }
+  ],
+  "export": {
+    "path": "docs/release/licenses/webview2-rs-0.38.2-macros-0.8.1-LICENSE-MIT.txt",
+    "bytes": 1067,
+    "sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73",
+    "deduplicated_from_distinct_upstream_pins": 2,
+    "full_bytes_identical": true,
+    "copyright": "Copyright (c) 2021 Bill Avery",
+    "crlf": 0,
+    "has_final_lf": true,
+    "trailing_whitespace_lines": []
+  },
+  "limits": [
+    "The full MIT text is assigned through exact local manifest/VCS and pinned upstream workspace inheritance, not only a package name.",
+    "The source/crate license does not substitute for the separately inventoried Microsoft SDK license and NOTICE.",
+    "The proc-macro role does not by itself decide which generated code or notices ship.",
+    "No package archive was downloaded or rehashed here; lock checksums identify the existing inventory version.",
+    "No historical inventory was regenerated; final packaging and the remaining missing licenses are outside this step."
+  ],
+  "temporary_files_created": false
+}

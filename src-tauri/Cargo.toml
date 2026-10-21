@@ -1,0 +1,101 @@
+[package]
+name = "aidevbridge"
+version = "0.2.0"
+description = "aidevbridge desktop client for remote coding agents"
+authors = ["Lukas Hellbach"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ITBrain258/aidevbridge"
+homepage = "https://github.com/ITBrain258/aidevbridge"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "aidevbridge_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+# default-features = false + "ring" statt des russh-Defaults "aws-lc-rs":
+# aws-lc-sys braucht auf Windows/MSVC einen NASM-Assembler; fehlt er, bricht
+# der Bau mit "NASM command not found or failed to execute" ab. Das
+# "ring"-Backend kommt fuer per-crates.io bezogene Builds ohne NASM aus (ring
+# liefert dafuer vormontierte Assembly-Objekte im Krate mit; nasm wird nur
+# beim Bauen aus einem Git-Checkout von ring selbst aufgerufen). Funktional
+# aequivalent als Krypto-Backend fuer russh -- siehe russh/src/lib.rs: beide
+# Features sind gleichwertig zulaessig ("requires enabling either the `ring`
+# or `aws-lc-rs` feature").
+# The workspace supplies reviewed local patches: Close acknowledgement, the
+# ChannelEndObserver API and a manual receive window for terminal channels
+# (scope: vendor/russh/AGENTBRIDGE-PATCH.md). Keep the exact version until a
+# tested upstream release includes all three; a broader range could silently
+# select an unpatched release during update.
+russh = { version = "=0.63.2", default-features = false, features = ["ring", "flate2", "rsa"] }
+# Use the already locked RSA implementation directly for blinded SSH signatures.
+# Its SHA-2 reexport uses digest 0.11; the fingerprint dependency below is 0.10.
+rsa = { version = "=0.10.0-rc.18", default-features = false, features = ["sha2"] }
+# Preserve the explicitly negotiated legacy ssh-rsa/SHA-1 authentication case.
+sha1 = { version = "0.11", default-features = false, features = ["oid"] }
+# Gehashte known_hosts-Eintraege (`|1|salt|hash`) sind HMAC-SHA1, siehe
+# `ssh::known_hosts::host_field_matches`. "0.13" liegt ueber russh schon im
+# Lockfile und nutzt dasselbe digest 0.11 wie `sha1` oben.
+hmac = "0.13"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "io-util", "net"] }
+async-trait = "0.1"
+anyhow = "1"
+# "serde": M-B (Abschlussreview) -- `HostSpecDto`s `password`/
+# `passphrase`-Felder deserialisieren direkt in `Zeroizing<String>`, damit
+# das Geheimnis AB DER DESERIALISIERUNG in keinem gewoehnlichen, nicht
+# ueberschreibenden `String` mehr liegt (Spec §8.5). Nicht davor: Tauri
+# reicht Befehlsargumente aus einem bereits materialisierten
+# `serde_json::Value` herein -- die vollstaendige Begruendung, warum das so
+# bleibt, steht am `HostSpecDto` selbst. Ohne dieses Feature bietet
+# `zeroize` keine `Deserialize`-Implementierung fuer `Zeroizing<T>` an
+# (siehe zeroize-1.x/src/lib.rs, `#[cfg(feature = "serde")]`).
+zeroize = { version = "1", features = ["serde"] }
+thiserror = "2"
+# rand "0.10" statt "0.9": russh zieht bereits rand 0.10.2
+# transitiv (siehe Cargo.lock, u.a. ueber ed25519-dalek/curve25519-dalek).
+# "0.9" haette als eigene Major-Version NEBEN 0.10 in den Baum gedoppelt --
+# zwei rand-Implementierungen mit eigenem RNG-Zustand im selben Binary,
+# ohne Nutzen. `random_range`/`StdRng`/`SeedableRng` sind zwischen 0.9 und
+# 0.10 identisch (gegen den lokalen Registry-Cache geprueft), daher "0.10":
+# dedupliziert mit der ohnehin vorhandenen Version, keine Verhaltensaenderung.
+rand = "0.10"
+# War bisher nur [dev-dependencies] (Task 6, dort ausschliesslich fuer
+# ~/.ssh/id_ed25519 in Testhelfern gebraucht). Task 10 braucht denselben
+# Home-Verzeichnis-Lookup jetzt auch im Produktivpfad (~/.ssh/known_hosts
+# fuer `connect_host`, Vorgabe-Schluesselpfad) -- deshalb nach
+# [dependencies] verschoben statt dupliziert. Gleiche Version, kein
+# zusaetzlicher Cargo.lock-Churn.
+dirs = "5"
+# Task 13 (TOFU-Nachtrag): Fingerabdruck-Anzeige braucht SHA-256 ueber die
+# rohen Schluesselbytes (siehe `ssh::known_hosts::fingerprint`). "0.10":
+# bereits transitiv im Baum (u.a. ueber ed25519-dalek/curve25519-dalek, siehe
+# Cargo.lock) -- dedupliziert mit der ohnehin vorhandenen Version, kein
+# zweiter sha2-Zweig.
+sha2 = "0.10"
+# Task 13: `settings.toml` (Hosts/Voreinstellungen, siehe `settings.rs`).
+# Kein Zusammenhang mit tauri-internem TOML-Gebrauch (Build-/CLI-Tooling,
+# nicht Teil des Laufzeit-Abhaengigkeitsbaums dieser Bibliothek).
+toml = "0.8"
+tauri-plugin-dialog = "2.7.2"
+tauri-plugin-window-state = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "test-util"] }
+# Nur fuer `tests/acl_runtime.rs`: `tauri::test` (MockRuntime,
+# `get_ipc_response`) liegt hinter dem Feature "test". Als DEV-Abhaengigkeit,
+# damit `cargo build --release` unveraendert bleibt -- dev-dependencies
+# gehen nicht in den Binaerbau ein.
+tauri = { version = "2", features = ["test"] }

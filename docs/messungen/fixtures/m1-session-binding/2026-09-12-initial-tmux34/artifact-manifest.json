@@ -1,0 +1,102 @@
+[
+  {
+    "name": "binding-selftest.jsonl",
+    "bytes": 2601,
+    "sha256": "f6a22321c4cd64c9c03068aa33d857cc7ab99e8cf8b2db6c59ceeceb9078319d"
+  },
+  {
+    "name": "binding-selftest.jsonl.exit",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "name": "binding-selftest.jsonl.invocation.json",
+    "bytes": 553,
+    "sha256": "eeaaef40f1603ab88ad6e6c15ea9b55e54f6e499179c2fc6f10126a5a8961cf4"
+  },
+  {
+    "name": "binding-selftest.jsonl.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "binding-tmux34-absence.jsonl",
+    "bytes": 474,
+    "sha256": "a3dd4bfcc92fba3ed1876b8429db844b80a68fa80b8d2576c75be15d33b06643"
+  },
+  {
+    "name": "binding-tmux34-absence.jsonl.exit",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "name": "binding-tmux34-absence.jsonl.invocation.json",
+    "bytes": 544,
+    "sha256": "3598e1e7e34710c477c8658d01d285e8d3eb60ecfa64b6487ae42254980214bc"
+  },
+  {
+    "name": "binding-tmux34-absence.jsonl.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "binding-tmux34.jsonl",
+    "bytes": 33926,
+    "sha256": "1ce2660eb55515ff6eff7051b1268549c330503fa7735db324714e94f708823d"
+  },
+  {
+    "name": "binding-tmux34.jsonl.exit",
+    "bytes": 2,
+    "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  },
+  {
+    "name": "binding-tmux34.jsonl.invocation.json",
+    "bytes": 550,
+    "sha256": "548def5442d7239d00853649303c26ad716982f34bc5cfa077b03df276fda889"
+  },
+  {
+    "name": "binding-tmux34.jsonl.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "execution-summary.json",
+    "bytes": 2173,
+    "sha256": "9eeb35ef90f1918c99bf9f0c96eeeae9228441039bf137c12c74e803e3121d03"
+  },
+  {
+    "name": "invoke-stage.ps1",
+    "bytes": 3136,
+    "sha256": "a1d9eadd84d93eebdb94f851897cc8a3fa50898fd426e457374fbdcfa3148b85"
+  },
+  {
+    "name": "m1-tmux-inventory.py",
+    "bytes": 46551,
+    "sha256": "e7701fc8c14757557cbd619f5077fea82642838aeb080eddfde065ffcca44454"
+  },
+  {
+    "name": "parser-selftest.jsonl",
+    "bytes": 1888,
+    "sha256": "0cb8233c31d20d65e785321f1323c89ab7f823abbab7ab0955346d2615bf0932"
+  },
+  {
+    "name": "parser-selftest.jsonl.exit",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "name": "parser-selftest.jsonl.invocation.json",
+    "bytes": 551,
+    "sha256": "f08fc75efe73cbd1599862b1de8646b064b91c40a57932c6a745c91b3ceccb97"
+  },
+  {
+    "name": "parser-selftest.jsonl.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "verify-tmux34-absence.py",
+    "bytes": 563,
+    "sha256": "f8b9fbfecd0e57c304d6998ec474e5cba44683df0ba39098ffb4093a6d1d2fa3"
+  }
+]

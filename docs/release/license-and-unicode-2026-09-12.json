@@ -1,0 +1,2264 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-09-12T10:35:14.147Z",
+  "status": "bounded-text-selection-prepared-not-delivered-or-release-approved",
+  "scope": {
+    "target": "x86_64-pc-windows-msvc",
+    "features_argument": "tauri/custom-protocol",
+    "default_features": true,
+    "packages": [
+      "ring",
+      "brotli",
+      "dpi",
+      "unicode-ident",
+      "icu_collections",
+      "icu_locale_core",
+      "icu_normalizer",
+      "icu_normalizer_data",
+      "icu_properties",
+      "icu_properties_data",
+      "icu_provider"
+    ],
+    "no_build_performed": true,
+    "no_existing_inventory_changes": true
+  },
+  "inputs": [
+    {
+      "path": "Cargo.lock",
+      "bytes": 153532,
+      "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f"
+    },
+    {
+      "path": "Cargo.toml",
+      "bytes": 256,
+      "sha256": "38b006f1e3936f256a5c475a2cf0ca3b7654bed93f75572a0a033522a4bd404b"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "bytes": 5008,
+      "sha256": "337de8247088d03fe34826d772bbf3e002360c8df05faefad5d2c8de0e99dde2"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "bytes": 1295,
+      "sha256": "38050385b160e40c38ce20387154b6a7e896bb1dafef56f5c61798532a33a2b7"
+    },
+    {
+      "path": "docs/release/license-inventory-2026-09-12-rust.json",
+      "bytes": 1708392,
+      "sha256": "9e9637f332eaa701a88475cbd677885e65ca6ce9fd67f981643973836d31d021"
+    }
+  ],
+  "git_head": "b42b78453ec87ee63901f2a6b5013dd6209be71e",
+  "method": [
+    "All eleven cached archive SHA-256 values match current Cargo.lock. Recorded local files match archived member bytes without extraction.",
+    "Fresh locked offline Cargo trees confirm only the selected versions/features and runtime versus build/proc-macro roles.",
+    "Exact primary VCS license/context comparisons are recorded individually. ring dirty=true is retained, not generalized into source-wide pin equality.",
+    "Full-text exports preserve original bytes. Source excerpts retain exact line bytes. Existing identical text reuse carries only the specific new package provenance."
+  ],
+  "commands": [
+    {
+      "program": "cargo",
+      "args": [
+        "tree",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--features",
+        "tauri/custom-protocol",
+        "--edges",
+        "normal,build",
+        "--prefix",
+        "none",
+        "--format",
+        "{p}|{l}|{f}",
+        "--charset",
+        "ascii"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "1b4eaa32c1b59984857360d3bd3b266b0c477515b3b67a43980d4fb12be2ccfe",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "selected_lines": [
+        "brotli v8.0.4|BSD-3-Clause AND MIT|alloc-stdlib,std",
+        "dpi v0.1.2|Apache-2.0 AND MIT|default,serde,std",
+        "icu_collections v2.2.0|Unicode-3.0|",
+        "icu_locale_core v2.2.0|Unicode-3.0|zerovec",
+        "icu_normalizer v2.2.0|Unicode-3.0|compiled_data",
+        "icu_normalizer_data v2.2.0|Unicode-3.0|",
+        "icu_properties v2.2.0|Unicode-3.0|compiled_data",
+        "icu_properties_data v2.2.0|Unicode-3.0|",
+        "icu_provider v2.2.0|Unicode-3.0|baked",
+        "ring v0.17.14|Apache-2.0 AND ISC|alloc,default,dev_urandom_fallback",
+        "unicode-ident v1.0.24|(MIT OR Apache-2.0) AND Unicode-3.0|"
+      ]
+    },
+    {
+      "program": "cargo",
+      "args": [
+        "tree",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--features",
+        "tauri/custom-protocol",
+        "--edges",
+        "normal,no-proc-macro",
+        "--prefix",
+        "none",
+        "--format",
+        "{p}|{l}|{f}",
+        "--charset",
+        "ascii"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "3d04a759403660031d4d8453bb4d10149accd8e506ee01f02e195e43dae6e7b9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "selected_lines": [
+        "brotli v8.0.4|BSD-3-Clause AND MIT|alloc-stdlib,std",
+        "dpi v0.1.2|Apache-2.0 AND MIT|default,serde,std",
+        "icu_collections v2.2.0|Unicode-3.0|",
+        "icu_locale_core v2.2.0|Unicode-3.0|zerovec",
+        "icu_normalizer v2.2.0|Unicode-3.0|compiled_data",
+        "icu_normalizer_data v2.2.0|Unicode-3.0|",
+        "icu_properties v2.2.0|Unicode-3.0|compiled_data",
+        "icu_properties_data v2.2.0|Unicode-3.0|",
+        "icu_provider v2.2.0|Unicode-3.0|baked",
+        "ring v0.17.14|Apache-2.0 AND ISC|alloc,default,dev_urandom_fallback"
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "name": "ring",
+      "version": "0.17.14",
+      "declared_spdx": "Apache-2.0 AND ISC",
+      "vcs_info": {
+        "git": {
+          "sha1": "2723abbca9e83347d82b056d5b239c6604f786df",
+          "dirty": true
+        },
+        "path_in_vcs": ""
+      },
+      "repository": "https://github.com/briansmith/ring",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ring-0.17.14",
+      "role": "normal-runtime-candidate",
+      "features": [
+        "alloc",
+        "default",
+        "dev_urandom_fallback"
+      ],
+      "checksum": "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 113,
+          "sha256": "814e1ce7f5a67f2e37d5f9a9e566defa89961b32cce17d1b4da028673929b5b8",
+          "archive_equal": true
+        },
+        {
+          "path": "build.rs",
+          "bytes": 33341,
+          "sha256": "9d1928ffb1d8e15766c1c1b9ead73e4b81a21703dd25f7c27b87842a2e6e9cee",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/build.rs"
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 8680,
+          "sha256": "b81a19b27cc744410b056eb1d1195ecd41e25a163acadfca3c6457e96b797d3f",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 8047,
+          "sha256": "4c58550e0f323c33bff699c2c00ee7320f2e078b68e9eafc9b269f65784873de",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/chacha/asm/chacha-x86_64.pl",
+          "bytes": 46692,
+          "sha256": "24e536daad8464a6daea17de527b02f9c3ebe1f09356dd5e48cfdfa04abb955a",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/cipher/asm/chacha20_poly1305_x86_64.pl",
+          "bytes": 79830,
+          "sha256": "48f2a06a297d3575a760d01e219b0b8d8f8733c1e7b6d2aa6e7949cc12c1a9ae",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/cpu_intel.c",
+          "bytes": 7761,
+          "sha256": "7d2d2cd105344fa6e2142111597c733866c6cbb5718680947a13f53cb437ae61",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/crypto.c",
+          "bytes": 1323,
+          "sha256": "59df0a94f3edcb1655f1eb4d9f6dc99129efb252eb521edc4e5b1d862ebe63f4",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/curve25519/curve25519_64_adx.c",
+          "bytes": 861,
+          "sha256": "1447697854e4e9863d4a76e1bf57b15965eda8b357af44b13cd11e53e33ee34d",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/curve25519/curve25519.c",
+          "bytes": 51099,
+          "sha256": "92f82432d2a75e3b82f3d9b697be12af42e737809126b81635a64307d6f08a63",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/crypto/curve25519/curve25519.c"
+        },
+        {
+          "path": "crypto/fipsmodule/aes/aes_nohw.c",
+          "bytes": 35237,
+          "sha256": "a78fb13eaf6704c6ab4109efc77dc14cabcefd7c8c78cd983e4daad97bbce42b",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/aes/asm/aes-gcm-avx2-x86_64.pl",
+          "bytes": 42267,
+          "sha256": "981415091853018d18144f6b3f3459e5ecf5cddd962d2706f1c7391a48fa6722",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/aes/asm/aesni-gcm-x86_64.pl",
+          "bytes": 32033,
+          "sha256": "e85c2ddf728eb6253562f24d2db6fb305ed7808110f18949cdcd597e6c52c532",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/aes/asm/aesni-x86_64.pl",
+          "bytes": 44616,
+          "sha256": "74e331f10e9e97ae998a1929cacd7f6653b4826158a9269a82d5780ccfad72c8",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/aes/asm/ghash-x86_64.pl",
+          "bytes": 29711,
+          "sha256": "889157ff342fae29cec2e84f5d767e8c2e39910626a113ede4ffb526cd757f04",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/aes/asm/vpaes-x86_64.pl",
+          "bytes": 27318,
+          "sha256": "b54f198a0faac2cc144f98a6c14019fe6d58d897124c7d69aebb2535a0102de9",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/bn/asm/x86_64-mont.pl",
+          "bytes": 32733,
+          "sha256": "14cd1cb9fa1dd08473afa943e90ce98a43fbb4a9323d3101871f6724fb6b27ac",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/bn/asm/x86_64-mont5.pl",
+          "bytes": 76649,
+          "sha256": "c0529d1a7faefd26c065601d5cfdc081c314c04294fd2c69589696681edf867c",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/bn/internal.h",
+          "bytes": 6077,
+          "sha256": "224b9025f19fa747e91a70e4118a3669cb995d72838a34bceef3050dd7c8137d",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/bn/montgomery_inv.c",
+          "bytes": 4443,
+          "sha256": "d70a47e5db6c01d1df334dcf2bada013c93836e10d922ca0f0611c638b55d359",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/bn/montgomery.c",
+          "bytes": 2505,
+          "sha256": "dabd7d93bb368b9841bccb8ceae2bf9a358e31a183a610afdffbeff360e44f94",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl",
+          "bytes": 92109,
+          "sha256": "454c278064dbae0f718bb2e415efee97e31a38958776623574632961b24e34ca",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/ecp_nistz.c",
+          "bytes": 2165,
+          "sha256": "d5d2359807cea970cdbd059935322890a5535c39b8abf633d4324656392d527d",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/ecp_nistz.h",
+          "bytes": 12164,
+          "sha256": "ba6982c928bbbc3c71e9ef2a7bd0e1f4ca3436bf3d178e0c5727fbcd49dfea61",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/ecp_nistz384.inl",
+          "bytes": 9415,
+          "sha256": "0229835ebc9bdfe9268c53cf3e5d346831a9b2f66377a320d92407f2293b5412",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/gfp_p256.c",
+          "bytes": 1839,
+          "sha256": "d7bbcc9c22d1885a465b41c6fbb4b4f7e5f22eed9566da6c8a52dfe2bfce1bf5",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/gfp_p384.c",
+          "bytes": 8388,
+          "sha256": "9a134536f0ac03d8f1e0bed849501a7a1b77754bb9cb2361d20e1acb26c5b757",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/p256-nistz-table.h",
+          "bytes": 643353,
+          "sha256": "eae4169efa9021ca93cf265be4de56bf1cb77e19c2957573e363c99a166953aa",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/p256-nistz.c",
+          "bytes": 14216,
+          "sha256": "033e609fc9709c20f4b46c54760a1386a439b95585759bbd7ebaa3024a051133",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/ec/p256.c",
+          "bytes": 19098,
+          "sha256": "359181086054d3ac46ab1ef7f736f3716c5dce2f6f2170ec9861cbf8f83c9ae3",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/crypto/fipsmodule/ec/p256.c"
+        },
+        {
+          "path": "crypto/fipsmodule/ec/util.h",
+          "bytes": 11348,
+          "sha256": "4e46df71bfa9759447e8833accdf924e0c005770e419239c7227d4c89ce64e10",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/fipsmodule/sha/asm/sha512-x86_64.pl",
+          "bytes": 43633,
+          "sha256": "ab4c2e2cd6425b26d7df080bf363e938242016bfc929e523aa3318c6d352a098",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/limbs/limbs.c",
+          "bytes": 6261,
+          "sha256": "f99051c9960ee135cc2ff9ef6c5798d97874b98d388ecef7df79c1067dd68cd6",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/mem.c",
+          "bytes": 919,
+          "sha256": "5a4c1090e7e7309815c1d7f73e7ca8412761b1b8bb556cf471ce7c7e26a18503",
+          "archive_equal": true
+        },
+        {
+          "path": "crypto/poly1305/poly1305.c",
+          "bytes": 7530,
+          "sha256": "ef9031a370c97e16e7784eb70a982bf718734058ed960fd4c76f08385f03f2f7",
+          "archive_equal": true
+        },
+        {
+          "path": "include/ring-core/aes.h",
+          "bytes": 1051,
+          "sha256": "73c97c5517e11606ff8d4e9569fcce33e528665e27bbc1a04049879dc0f0092f",
+          "archive_equal": true
+        },
+        {
+          "path": "include/ring-core/base.h",
+          "bytes": 2239,
+          "sha256": "c333f88dc2d0963a09e73ed7f9afe958ef88e3e6c6d19162fabc4f25a153eb78",
+          "archive_equal": true
+        },
+        {
+          "path": "include/ring-core/check.h",
+          "bytes": 2203,
+          "sha256": "22d393968de36256b2df48f9c8e5e2573e03cc362501c9060099d1d3338ad4f6",
+          "archive_equal": true
+        },
+        {
+          "path": "include/ring-core/type_check.h",
+          "bytes": 1357,
+          "sha256": "00bc2c11882f30d975a23b2a9a94ceba72b3bcd1453fd6a9698b2575fe1dd0df",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 499,
+          "sha256": "b3d734001a94efff3579978d953391aa7115f877657d25eb54037a43875d078a",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE"
+        },
+        {
+          "path": "LICENSE-BoringSSL",
+          "bytes": 14870,
+          "sha256": "005fc765ddc5115da796cca915baa9557abae13ff35e0a47c47affc56f6c414d",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE-BoringSSL"
+        },
+        {
+          "path": "LICENSE-other-bits",
+          "bytes": 731,
+          "sha256": "f025ccfb7dfb6bdfedc75ca0f67acc69e6fb4998143d834f7c2f38a29989680f",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE-other-bits"
+        },
+        {
+          "path": "src/aead.rs",
+          "bytes": 5248,
+          "sha256": "3ab890b8f5b1cfb0ac103af11294cbfd0937b8da3984067f5510b96807447f34",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/aes_gcm.rs",
+          "bytes": 17131,
+          "sha256": "c2465f43aec314e1058acde919ffe19243701c8faf5577c54642921c31238753",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/aes.rs",
+          "bytes": 8773,
+          "sha256": "e5bf1a294dd56a76c35e8abc04e2247120faba621a069f75481265c87e23e659",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/algorithm.rs",
+          "bytes": 7517,
+          "sha256": "13c846f8a3ef11282e459fa4753d1dbdf5d4956ee7d152b71dfb8b3997c47284",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/chacha.rs",
+          "bytes": 11936,
+          "sha256": "bbb8f137622eda811404cd97fb6358c570c583ec21dc4b5406b2d56a23bd7aca",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/chacha/fallback.rs",
+          "bytes": 3980,
+          "sha256": "79c47ffa53a1450ef79cc311998998fb2d1785658ded656e85ef58a3621fc68a",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/chacha/ffi.rs",
+          "bytes": 2696,
+          "sha256": "c54cbbe8ec3844354c5e72098d469936b35976afcd20a30c91c34c2851f32810",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/gcm/fallback.rs",
+          "bytes": 8708,
+          "sha256": "610754d15ee05925f4f606aba5c7bca88408e7fb2fce3ec9cfb27f7191be5870",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/gcm/ffi.rs",
+          "bytes": 4644,
+          "sha256": "a7cae8a54fc481cd56aee9bff6152e4173514c71aeea21aac2d8c9913a9ece56",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/gcm/vclmulavx2.rs",
+          "bytes": 1543,
+          "sha256": "f8c79a602e597f4e81f248144d8598a37d1fbdb7ed460451ac3a47f9837dd8bc",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/overlapping/array.rs",
+          "bytes": 2042,
+          "sha256": "84f60b35b871fbb9a9276ad2485e935176404ef0cb5af03a641bad6613e8e8f9",
+          "archive_equal": true
+        },
+        {
+          "path": "src/aead/poly1305/ffi_fallback.rs",
+          "bytes": 2958,
+          "sha256": "85d27d274e05e48fd9136f0435b9b72957514f1dd724b3640176b8f4464fd155",
+          "archive_equal": true
+        },
+        {
+          "path": "src/agreement.rs",
+          "bytes": 9878,
+          "sha256": "722149657fb2a751eae72e0db7365ce2a106625a19a696e8db016ae319eafa30",
+          "archive_equal": true
+        },
+        {
+          "path": "src/arithmetic.rs",
+          "bytes": 1570,
+          "sha256": "a7b23bf9fdf3b5694801881e820355f0228c18f73ade007fe3f2b7464882e1cc",
+          "archive_equal": true
+        },
+        {
+          "path": "src/arithmetic/bigint.rs",
+          "bytes": 36545,
+          "sha256": "93be01c470baee8d0406df36e1bb7ce70b859c9054516a55386f803c72fee316",
+          "archive_equal": true
+        },
+        {
+          "path": "src/arithmetic/ffi.rs",
+          "bytes": 3675,
+          "sha256": "0e77868394524318d11b59e28e9390aae9c95e5a24f09367b98839bb832376d5",
+          "archive_equal": true
+        },
+        {
+          "path": "src/arithmetic/inout.rs",
+          "bytes": 6694,
+          "sha256": "c471a61a77e8b207c2a7f3ff1477327690a1cbcc978eccf9b009e39dc0c28d4c",
+          "archive_equal": true
+        },
+        {
+          "path": "src/arithmetic/montgomery.rs",
+          "bytes": 12780,
+          "sha256": "4b3b356e5dd6f516e4d0eac4f209ad8abc4bea9933e1fe26048f0212f2610fd9",
+          "archive_equal": true
+        },
+        {
+          "path": "src/arithmetic/n0.rs",
+          "bytes": 1273,
+          "sha256": "209b3cb860fcf5ee59ce3bd9796e0c1efd05b46fda5dab4930ccf892d5234472",
+          "archive_equal": true
+        },
+        {
+          "path": "src/bssl.rs",
+          "bytes": 1962,
+          "sha256": "b7f0532a4c26e4c212bc59e892f83477999308cca2148231170d4d20411d0a10",
+          "archive_equal": true
+        },
+        {
+          "path": "src/c.rs",
+          "bytes": 1459,
+          "sha256": "53e0fbbab6aeb49aeb848ca5a7bdae438aa2b5c3417011ae7df8afb0d6c90285",
+          "archive_equal": true
+        },
+        {
+          "path": "src/cpu/intel.rs",
+          "bytes": 15420,
+          "sha256": "ac4d6e8e73888780f491b012d986e9f092d502b758b6ba737145d9bc326e176f",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/cpu/intel.rs"
+        },
+        {
+          "path": "src/debug.rs",
+          "bytes": 2888,
+          "sha256": "9d0b5cdf0fbf2f18fa5a42c8916e30f93cf9881e5a1a0b8eb1b676e35dbafbe0",
+          "archive_equal": true
+        },
+        {
+          "path": "src/digest.rs",
+          "bytes": 21546,
+          "sha256": "61c7d3e3c96acb835a95f502b025b6e338df959b59953ceb6c4e4ffe0d665ed4",
+          "archive_equal": true
+        },
+        {
+          "path": "src/digest/sha1.rs",
+          "bytes": 3652,
+          "sha256": "9b5218444ee1268be006b853bc5994d8221c52243a3a2ffedbd37c60f6540290",
+          "archive_equal": true
+        },
+        {
+          "path": "src/digest/sha2/fallback.rs",
+          "bytes": 10671,
+          "sha256": "08a591d4d9cf1f8d39f92d5e5b180877dae8a7f023c8852f60c04c3c925526b7",
+          "archive_equal": true
+        },
+        {
+          "path": "src/digest/sha2/mod.rs",
+          "bytes": 1221,
+          "sha256": "a00f81158f7fcb1c5e46503512eaecc32f9c67b6a6f60235c0a906756d1d0fd8",
+          "archive_equal": true
+        },
+        {
+          "path": "src/ec/curve25519/ed25519.rs",
+          "bytes": 1217,
+          "sha256": "7283a6f5f6a7a69f3a3e3e862ab81b9da49a9a03c3607a167500f3f9ab698a14",
+          "archive_equal": true
+        },
+        {
+          "path": "src/ec/suite_b/ops/elem.rs",
+          "bytes": 4799,
+          "sha256": "2c3eabcb0e757365ed8a6f10609999f593d71511e2e45cb3fbaa158d210deea8",
+          "archive_equal": true
+        },
+        {
+          "path": "src/ec/suite_b/ops/p256.rs",
+          "bytes": 11459,
+          "sha256": "6d330c184991e37620befe4e1026e079dfa5adf1124fd3860a37c2b9c724bd3c",
+          "archive_equal": true
+        },
+        {
+          "path": "src/error/mod.rs",
+          "bytes": 2082,
+          "sha256": "98a500cd5cdd70ee02a226e94b42ba25ead9d87adbd80d1104bedb2c58eb1ccd",
+          "archive_equal": true
+        },
+        {
+          "path": "src/limb.rs",
+          "bytes": 22949,
+          "sha256": "a7542a645f31c0887f46b99a31b71da5c82e448b5671cfb19fe8264a955b08b8",
+          "archive_equal": true
+        },
+        {
+          "path": "src/polyfill.rs",
+          "bytes": 2886,
+          "sha256": "5b997cc66f4cf98fe1e9b5cc20209cfc93bb17ac76b206e021287ee94dd7e726",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill.rs"
+        },
+        {
+          "path": "src/polyfill/array_split_map.rs",
+          "bytes": 2532,
+          "sha256": "2c2fd0d1a5cac384c58a1ed06c6f33032decbeb5da5da1428e2853522b4e2da0",
+          "archive_equal": true
+        },
+        {
+          "path": "src/polyfill/once_cell/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/LICENSE-APACHE"
+        },
+        {
+          "path": "src/polyfill/once_cell/LICENSE-MIT",
+          "bytes": 1022,
+          "sha256": "6ee2ed6c77710de911761acd5fc1ad1da00f476beb1a7ef27e78c2d1858deafc",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/LICENSE-MIT"
+        },
+        {
+          "path": "src/polyfill/once_cell/race.rs",
+          "bytes": 2600,
+          "sha256": "486c98b50b9db775178faaf6a80748ea06805f93987aabd79c6a453c775fbc10",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/race.rs"
+        },
+        {
+          "path": "src/polyfill/slice.rs",
+          "bytes": 2116,
+          "sha256": "491810bd2e2e3e933db93d24bc8ae78b381a3d6931ecb783173cfb34edc14edd",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/slice.rs"
+        },
+        {
+          "path": "src/polyfill/unwrap_const.rs",
+          "bytes": 1181,
+          "sha256": "658081fd2d7cf6f6d3b6a75c61fd56b0d61508d1b26ce403f7b10e1ac68cdcbe",
+          "archive_equal": true
+        },
+        {
+          "path": "third_party/fiat/curve25519_64_msvc.h",
+          "bytes": 36554,
+          "sha256": "d65f92642124d6f0e45950845aed6194fb299e0c69a95109744c5a5d29d133dc",
+          "archive_equal": true
+        },
+        {
+          "path": "third_party/fiat/LICENSE",
+          "bytes": 638,
+          "sha256": "9eacbcb81be660840c714a560a9d65ba07913db98dd4baf969f78dd499fdd60f",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/third_party/fiat/LICENSE"
+        },
+        {
+          "path": "third_party/fiat/p256_64_msvc.h",
+          "bytes": 64842,
+          "sha256": "5a36a2b959c2b68ac7f197f472bee55d58f7ec58dda6c226f565d6bd721dbeda",
+          "archive_equal": true
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/ring-0.17.14.crate",
+        "bytes": 1502610,
+        "sha256": "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7",
+        "matches_current_lock": true
+      },
+      "delivery": [
+        "docs/release/licenses/ring-0.17.14-LICENSE.txt",
+        "docs/release/licenses/ring-0.17.14-LICENSE-BoringSSL.txt",
+        "docs/release/licenses/ring-0.17.14-LICENSE-other-bits.txt",
+        "docs/release/licenses/ring-0.17.14-once_cell-LICENSE-MIT.txt",
+        "docs/release/licenses/ring-0.17.14-fiat-LICENSE.txt",
+        "docs/release/licenses/ring-0.17.14-slice-MIT-header.txt",
+        "docs/release/licenses/ring-0.17.14-fiat-AUTHORS.txt",
+        "docs/release/licenses/ring-0.17.14-source-copyright-NOTICES.txt",
+        "docs/release/licenses/ring-0.17.14-source-attribution-NOTICES.txt"
+      ],
+      "selection": {
+        "main": "Apache-2.0 AND ISC",
+        "embedded_once_cell": "MIT",
+        "embedded_slice": "MIT",
+        "fiat": "Apache-2.0: short fiat LICENSE plus AUTHORS and full Apache terms in LICENSE-BoringSSL",
+        "once_cell_choice": {
+          "grant": "MIT OR Apache-2.0",
+          "ring_origin": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/README.txt",
+          "upstream_manifest": "https://raw.githubusercontent.com/matklad/once_cell/d119eeade59cd7e47b7abf979488b0be1d5b2d79/Cargo.toml",
+          "original_mit_sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+          "actual_vendored_mit_sha256": "6ee2ed6c77710de911761acd5fc1ad1da00f476beb1a7ef27e78c2d1858deafc",
+          "delta": "Actual ring text uses AUTHOR OR COPYRIGHT instead of AUTHORS OR COPYRIGHT; actual ring bytes preserved."
+        },
+        "source_pin_dirty": true
+      },
+      "native_context": {
+        "selected_c_and_perlasm": [
+          "crypto/curve25519/curve25519.c",
+          "crypto/fipsmodule/aes/aes_nohw.c",
+          "crypto/fipsmodule/bn/montgomery.c",
+          "crypto/fipsmodule/bn/montgomery_inv.c",
+          "crypto/fipsmodule/ec/ecp_nistz.c",
+          "crypto/fipsmodule/ec/gfp_p256.c",
+          "crypto/fipsmodule/ec/gfp_p384.c",
+          "crypto/fipsmodule/ec/p256.c",
+          "crypto/limbs/limbs.c",
+          "crypto/mem.c",
+          "crypto/poly1305/poly1305.c",
+          "crypto/crypto.c",
+          "crypto/cpu_intel.c",
+          "crypto/chacha/asm/chacha-x86_64.pl",
+          "crypto/curve25519/curve25519_64_adx.c",
+          "crypto/fipsmodule/aes/asm/aes-gcm-avx2-x86_64.pl",
+          "crypto/fipsmodule/aes/asm/aesni-gcm-x86_64.pl",
+          "crypto/fipsmodule/aes/asm/aesni-x86_64.pl",
+          "crypto/fipsmodule/aes/asm/ghash-x86_64.pl",
+          "crypto/fipsmodule/aes/asm/vpaes-x86_64.pl",
+          "crypto/fipsmodule/bn/asm/x86_64-mont.pl",
+          "crypto/fipsmodule/bn/asm/x86_64-mont5.pl",
+          "crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl",
+          "crypto/fipsmodule/sha/asm/sha512-x86_64.pl",
+          "crypto/cipher/asm/chacha20_poly1305_x86_64.pl",
+          "crypto/fipsmodule/ec/p256-nistz.c"
+        ],
+        "excluded_windows_s": [
+          "third_party/fiat/asm/fiat_curve25519_adx_mul.S",
+          "third_party/fiat/asm/fiat_curve25519_adx_square.S"
+        ],
+        "asm_basis": "Packaged ring uses pregenerated x64 NASM objects; build.rs filters .S on Windows. C code includes Fiat-generated MSVC headers; no new build was run.",
+        "notice_scope": "Rust and common-header source corpus plus selected x64 C/perlasm: a conservative notice superset, not a list of all linked code."
+      },
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "brotli",
+      "version": "8.0.4",
+      "declared_spdx": "BSD-3-Clause AND MIT",
+      "vcs_info": {
+        "git": {
+          "sha1": "9651aa3ebfd23be83ca14d914fba2d7c12b32d2f"
+        },
+        "path_in_vcs": ""
+      },
+      "repository": "https://github.com/dropbox/rust-brotli",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/brotli-8.0.4",
+      "role": "normal-runtime-candidate",
+      "features": [
+        "alloc-stdlib",
+        "std"
+      ],
+      "checksum": "5cc91aac060a7a1e25823bdccbfb6af1875b88f17c6daac97894eed8207166b3",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 94,
+          "sha256": "6ab43e885a0dbce60c4e352f74f413b5b681c6e466062df94cd4d7a0498d9860",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 2831,
+          "sha256": "938915a0cd4efd797b382b86a7ad2e61bd64c45233afc718d98e9554187feccd",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 2205,
+          "sha256": "fea15d7c42d51cd81a65f574354c4517ea2ff04aa14bb731257698ac9c1ae62e",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE.BSD-3-Clause",
+          "bytes": 1483,
+          "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/LICENSE.BSD-3-Clause"
+        },
+        {
+          "path": "LICENSE.MIT",
+          "bytes": 1084,
+          "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/LICENSE.MIT"
+        },
+        {
+          "path": "src/enc/entropy_encode.rs",
+          "bytes": 18627,
+          "sha256": "1427f28f081792415f7ab352ece9d0820d7ab07e2318c0d4d190cd96131e32ab",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/src/enc/entropy_encode.rs"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/brotli-8.0.4.crate",
+        "bytes": 751794,
+        "sha256": "5cc91aac060a7a1e25823bdccbfb6af1875b88f17c6daac97894eed8207166b3",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "BSD-3-Clause AND MIT",
+        "reason": "Preserve both Dropbox BSD and Brotli Authors MIT terms plus Google 2010 source notice."
+      },
+      "delivery": [
+        "docs/release/licenses/alloc-stdlib-0.2.4-LICENSE-BSD-3-Clause.txt",
+        "docs/release/licenses/brotli-8.0.4-LICENSE-MIT.txt",
+        "docs/release/licenses/brotli-8.0.4-Google-NOTICE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "dpi",
+      "version": "0.1.2",
+      "declared_spdx": "Apache-2.0 AND MIT",
+      "vcs_info": {
+        "git": {
+          "sha1": "587ade844dfb0eada3696ba1cb263c66eea80581"
+        },
+        "path_in_vcs": "dpi"
+      },
+      "repository": "https://github.com/rust-windowing/winit",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dpi-0.1.2",
+      "role": "normal-runtime-candidate",
+      "features": [
+        "default",
+        "serde",
+        "std"
+      ],
+      "checksum": "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 97,
+          "sha256": "825c237a9db0d2d32689ea6c86404fef17f207041614b6f69fbc62ad0033b3f6",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1529,
+          "sha256": "18024fe0bac2c56cc85f3ffff1776a57abfe54d6dfd4aea28f4e6607fac1827e",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 1069,
+          "sha256": "5d1fe40925939b5be9ca812428ec70dec57528dbf2bc2ae2ee47880ec2a07110",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 11323,
+          "sha256": "6dc0e068dcf3a5bc8e054205b85b7720e1d49265bbc64bf515d2cf79197df69a",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/LICENSE"
+        },
+        {
+          "path": "LICENSE-LIBM-MIT",
+          "bytes": 2444,
+          "sha256": "9eff396a99bafd208e7126602420d6864f6066c08b84485a5b032320a9c01997",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/LICENSE-LIBM-MIT"
+        },
+        {
+          "path": "README.md",
+          "bytes": 1064,
+          "sha256": "0b83337b6da62eb54dc956d3deb4071b07b16365dba27fe795f9d22efaa05698",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/README.md"
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 41440,
+          "sha256": "5e77cba0f5f3286af0987e36a19452bd16cbfa5469c4ded3c4242d431c794dfc",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/src/lib.rs"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/dpi-0.1.2.crate",
+        "bytes": 14812,
+        "sha256": "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "Apache-2.0",
+        "reason": "README explicitly excludes libm and its license terms when std is enabled; fresh target tree has std, and src/lib.rs gates the module/call with not(feature = std).",
+        "license_symlink": {
+          "url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/LICENSE",
+          "contents": "../LICENSE",
+          "resolved_url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/LICENSE"
+        },
+        "excluded": {
+          "license": "MIT",
+          "path": "LICENSE-LIBM-MIT",
+          "condition": "Only applicable when std is disabled; not selected here."
+        }
+      },
+      "delivery": [
+        "docs/release/licenses/dpi-0.1.2-LICENSE-APACHE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.24",
+      "declared_spdx": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "vcs_info": {
+        "git": {
+          "sha1": "5b54a632702b5744a1c40ea01c127c0ac0498172"
+        },
+        "path_in_vcs": ""
+      },
+      "repository": "https://github.com/dtolnay/unicode-ident",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-ident-1.0.24",
+      "role": "build-or-proc-macro-only-in-this-tree",
+      "features": [],
+      "checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 94,
+          "sha256": "9900659dcf16d47a600102bbfd47cf554a0d4db40790983e570f9ecac9822c68",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 2072,
+          "sha256": "0bb9c0e006a21355cb85c7df72e78dd8ba6fffbb7dc3f1e7a4c19af53cd354da",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 1331,
+          "sha256": "8d0abaf7ce10cb78f26edcd613dfe5a47faa4381e6e251c7d1c123608d2e037a",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/LICENSE-MIT"
+        },
+        {
+          "path": "LICENSE-UNICODE",
+          "bytes": 1995,
+          "sha256": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/LICENSE-UNICODE"
+        },
+        {
+          "path": "README.md",
+          "bytes": 12338,
+          "sha256": "2fd3a0c6c9abd2c042fb319221f9ef2c95728a6e3725b0f067e4d315c5dbfe5a",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/README.md"
+        },
+        {
+          "path": "src/tables.rs",
+          "bytes": 63369,
+          "sha256": "369c476ba91a39fce55563b692a3f598daf7f026cfe0a3796cfed1102fb3b190",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/src/tables.rs"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/unicode-ident-1.0.24.crate",
+        "bytes": 49298,
+        "sha256": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "MIT AND Unicode-3.0",
+        "reason": "README explicitly offers MIT OR Apache for intellectual property; generated tables additionally retain Unicode terms. MIT chosen.",
+        "delivery_scope": "Disclosed build/proc-macro component included in notice package; no normal Windows linkage claim.",
+        "unicode_version": "17.0.0",
+        "copyright_limit": "Actual MIT text has no copyright line; identical UNIC MIT permission text reused without transferring UNIC COPYRIGHT.md."
+      },
+      "delivery": [
+        "docs/release/licenses/unic-0.9.0-LICENSE-MIT.txt",
+        "docs/release/licenses/unicode-ident-1.0.24-LICENSE-UNICODE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "icu_collections",
+      "version": "2.2.0",
+      "declared_spdx": "Unicode-3.0",
+      "vcs_info": {
+        "git": {
+          "sha1": "c9fac4e625ccb2c6a7aa35079fff9709db4385ac"
+        },
+        "path_in_vcs": "components/collections"
+      },
+      "repository": "https://github.com/unicode-org/icu4x",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_collections-2.2.0",
+      "role": "normal-runtime-candidate",
+      "features": [],
+      "checksum": "2984d1cd16c883d7935b9e07e44071dca8d917fd52ecc02c04d5fa0b5a3f191c",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 116,
+          "sha256": "b6dcd9ee0e1868e306196973535b970d2e041729c807d8409e8e112a12773103",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 4461,
+          "sha256": "5d9b5823c57b369a560661513d2399e8e1bf0d240bc3f44b689b14a66c2c4aef",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 2070,
+          "sha256": "21825506167fd1a9b2f1bc83bbbe3b73849250a6508567e7fc6c301cd0586621",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 2195,
+          "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/icu_collections-2.2.0.crate",
+        "bytes": 88011,
+        "sha256": "2984d1cd16c883d7935b9e07e44071dca8d917fd52ecc02c04d5fa0b5a3f191c",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "Unicode-3.0",
+        "reason": "Same full original license in all seven locked crates, including IBM tail."
+      },
+      "delivery": [
+        "docs/release/licenses/icu4x-2.2.0-LICENSE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "icu_locale_core",
+      "version": "2.2.0",
+      "declared_spdx": "Unicode-3.0",
+      "vcs_info": {
+        "git": {
+          "sha1": "c9fac4e625ccb2c6a7aa35079fff9709db4385ac"
+        },
+        "path_in_vcs": "components/locale_core"
+      },
+      "repository": "https://github.com/unicode-org/icu4x",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_locale_core-2.2.0",
+      "role": "normal-runtime-candidate",
+      "features": [
+        "zerovec"
+      ],
+      "checksum": "92219b62b3e2b4d88ac5119f8904c10f8f61bf7e95b640d25ba3075e6cac2c29",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 116,
+          "sha256": "32c7efd13f2b31e214c93291b30597d81cba5c7ec2b009a88358b6f1fbc3bb60",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 4490,
+          "sha256": "c53044fbad7932db685457e57fde142f28e0d72f3509d3a459ac75e7b210492a",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 1988,
+          "sha256": "26e8571da909343ce9381774ec6372929a137772e643f158a8fbcdd56cb44cab",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 2195,
+          "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/icu_locale_core-2.2.0.crate",
+        "bytes": 78639,
+        "sha256": "92219b62b3e2b4d88ac5119f8904c10f8f61bf7e95b640d25ba3075e6cac2c29",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "Unicode-3.0",
+        "reason": "Same full original license in all seven locked crates, including IBM tail."
+      },
+      "delivery": [
+        "docs/release/licenses/icu4x-2.2.0-LICENSE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "icu_normalizer",
+      "version": "2.2.0",
+      "declared_spdx": "Unicode-3.0",
+      "vcs_info": {
+        "git": {
+          "sha1": "c9fac4e625ccb2c6a7aa35079fff9709db4385ac"
+        },
+        "path_in_vcs": "components/normalizer"
+      },
+      "repository": "https://github.com/unicode-org/icu4x",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_normalizer-2.2.0",
+      "role": "normal-runtime-candidate",
+      "features": [
+        "compiled_data"
+      ],
+      "checksum": "c56e5ee99d6e3d33bd91c5d85458b6005a22140021cc324cea84dd0e72cff3b4",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 115,
+          "sha256": "ba7e4fe5bb7b38d8e0b6c75956be01d0c8123cbda9dcd17ea864ead5a286081b",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 5721,
+          "sha256": "0b2859370d4c2ea8026fde77d76c79c08038a1b9934a541868e2900a21c20959",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 2801,
+          "sha256": "ac8d76d4b2fe90006ccad144f6740ca58d2d40c390df86145427ba31185f2f32",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 2195,
+          "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/icu_normalizer-2.2.0.crate",
+        "bytes": 78154,
+        "sha256": "c56e5ee99d6e3d33bd91c5d85458b6005a22140021cc324cea84dd0e72cff3b4",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "Unicode-3.0",
+        "reason": "Same full original license in all seven locked crates, including IBM tail."
+      },
+      "delivery": [
+        "docs/release/licenses/icu4x-2.2.0-LICENSE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "icu_normalizer_data",
+      "version": "2.2.0",
+      "declared_spdx": "Unicode-3.0",
+      "vcs_info": {
+        "git": {
+          "sha1": "c9fac4e625ccb2c6a7aa35079fff9709db4385ac"
+        },
+        "path_in_vcs": "provider/data/normalizer"
+      },
+      "repository": "https://github.com/unicode-org/icu4x",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_normalizer_data-2.2.0",
+      "role": "normal-runtime-candidate",
+      "features": [],
+      "checksum": "da3be0ae77ea334f4da67c12f149704f19f81d1adf7c51cf482943e84a2bad38",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 118,
+          "sha256": "ca0dd513bafd929b7d5ab165b36ee858b8f2844ca7f10ada2d7b0dc891aeffaa",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1557,
+          "sha256": "0c9f8f56b470681a8608cbf3a8e5be3b573c834594a91efce0f47be00b825eb3",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 802,
+          "sha256": "eb550fb1dd49cc6e18eee2955872d1a360c0517be879c47bbb8738d3759a4b22",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 2195,
+          "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/icu_normalizer_data-2.2.0.crate",
+        "bytes": 67134,
+        "sha256": "da3be0ae77ea334f4da67c12f149704f19f81d1adf7c51cf482943e84a2bad38",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "Unicode-3.0",
+        "reason": "Same full original license in all seven locked crates, including IBM tail."
+      },
+      "delivery": [
+        "docs/release/licenses/icu4x-2.2.0-LICENSE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "icu_properties",
+      "version": "2.2.0",
+      "declared_spdx": "Unicode-3.0",
+      "vcs_info": {
+        "git": {
+          "sha1": "c9fac4e625ccb2c6a7aa35079fff9709db4385ac"
+        },
+        "path_in_vcs": "components/properties"
+      },
+      "repository": "https://github.com/unicode-org/icu4x",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_properties-2.2.0",
+      "role": "normal-runtime-candidate",
+      "features": [
+        "compiled_data"
+      ],
+      "checksum": "bee3b67d0ea5c2cca5003417989af8996f8604e34fb9ddf96208a033901e70de",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 115,
+          "sha256": "459e6fce5943a7b81c000a99b0485b954b83090ac9b9cbf327f2f7331ce1cfcb",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 4361,
+          "sha256": "34478d473cded8d8ee6a23a12fe2b3ab9d92fb5b0e88d299b5f339e4f6bdd0cb",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 1985,
+          "sha256": "adc333efe520039f63c05f69f94ad8b15faf7e283e7887c7f5ae64d1b30d7208",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 2195,
+          "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/icu_properties-2.2.0.crate",
+        "bytes": 63950,
+        "sha256": "bee3b67d0ea5c2cca5003417989af8996f8604e34fb9ddf96208a033901e70de",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "Unicode-3.0",
+        "reason": "Same full original license in all seven locked crates, including IBM tail."
+      },
+      "delivery": [
+        "docs/release/licenses/icu4x-2.2.0-LICENSE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "icu_properties_data",
+      "version": "2.2.0",
+      "declared_spdx": "Unicode-3.0",
+      "vcs_info": {
+        "git": {
+          "sha1": "c9fac4e625ccb2c6a7aa35079fff9709db4385ac"
+        },
+        "path_in_vcs": "provider/data/properties"
+      },
+      "repository": "https://github.com/unicode-org/icu4x",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_properties_data-2.2.0",
+      "role": "normal-runtime-candidate",
+      "features": [],
+      "checksum": "8e2bbb201e0c04f7b4b3e14382af113e17ba4f63e2c9d2ee626b720cbce54a14",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 118,
+          "sha256": "34d55779cb0489016cb1afdf600c3d47635b497453b755b97659242e47e1fabe",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1557,
+          "sha256": "40734ae7bdd99a9271e77406adc25203089e95d6e046ff33c0f3ff30c65ccd8b",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 802,
+          "sha256": "bb00b675248b94c787fc30aa56bbd7195a4feeed287ca31a24999ab650dfb4df",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 2195,
+          "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/icu_properties_data-2.2.0.crate",
+        "bytes": 168901,
+        "sha256": "8e2bbb201e0c04f7b4b3e14382af113e17ba4f63e2c9d2ee626b720cbce54a14",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "Unicode-3.0",
+        "reason": "Same full original license in all seven locked crates, including IBM tail."
+      },
+      "delivery": [
+        "docs/release/licenses/icu4x-2.2.0-LICENSE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    },
+    {
+      "name": "icu_provider",
+      "version": "2.2.0",
+      "declared_spdx": "Unicode-3.0",
+      "vcs_info": {
+        "git": {
+          "sha1": "c9fac4e625ccb2c6a7aa35079fff9709db4385ac"
+        },
+        "path_in_vcs": "provider/core"
+      },
+      "repository": "https://github.com/unicode-org/icu4x",
+      "local_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_provider-2.2.0",
+      "role": "normal-runtime-candidate",
+      "features": [
+        "baked"
+      ],
+      "checksum": "139c4cf31c8b5f33d7e199446eff9c1e02decfc2f0eec2c8d71f65befa45b421",
+      "checked_files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 107,
+          "sha256": "2ccf8c19e629f1c86cac8c8a6992f2a56522166e88ae2e8d01ef318c11081163",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 4908,
+          "sha256": "7eb8e22e09b90f38286e669869154d4549a481e64ef670639cc21390205d1245",
+          "archive_equal": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 2933,
+          "sha256": "517edb103c2da1b48aec1b9409005ca4218fbdedffe4ee38de3321da49ca193d",
+          "archive_equal": true
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 2195,
+          "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+          "archive_equal": true,
+          "pinned_url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE"
+        }
+      ],
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/icu_provider-2.2.0.crate",
+        "bytes": 51620,
+        "sha256": "139c4cf31c8b5f33d7e199446eff9c1e02decfc2f0eec2c8d71f65befa45b421",
+        "matches_current_lock": true
+      },
+      "selection": {
+        "license": "Unicode-3.0",
+        "reason": "Same full original license in all seven locked crates, including IBM tail."
+      },
+      "delivery": [
+        "docs/release/licenses/icu4x-2.2.0-LICENSE.txt"
+      ],
+      "fresh_target_tree_confirmed": true
+    }
+  ],
+  "primary_requests": [
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE",
+      "status": 200,
+      "bytes": 499,
+      "sha256": "b3d734001a94efff3579978d953391aa7115f877657d25eb54037a43875d078a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE-BoringSSL",
+      "status": 200,
+      "bytes": 14870,
+      "sha256": "005fc765ddc5115da796cca915baa9557abae13ff35e0a47c47affc56f6c414d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE-other-bits",
+      "status": 200,
+      "bytes": 731,
+      "sha256": "f025ccfb7dfb6bdfedc75ca0f67acc69e6fb4998143d834f7c2f38a29989680f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/LICENSE-MIT",
+      "status": 200,
+      "bytes": 1022,
+      "sha256": "6ee2ed6c77710de911761acd5fc1ad1da00f476beb1a7ef27e78c2d1858deafc"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/third_party/fiat/LICENSE",
+      "status": 200,
+      "bytes": 638,
+      "sha256": "9eacbcb81be660840c714a560a9d65ba07913db98dd4baf969f78dd499fdd60f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/LICENSE-APACHE",
+      "status": 200,
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/build.rs",
+      "status": 200,
+      "bytes": 33341,
+      "sha256": "9d1928ffb1d8e15766c1c1b9ead73e4b81a21703dd25f7c27b87842a2e6e9cee"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill.rs",
+      "status": 200,
+      "bytes": 2886,
+      "sha256": "5b997cc66f4cf98fe1e9b5cc20209cfc93bb17ac76b206e021287ee94dd7e726"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/cpu/intel.rs",
+      "status": 200,
+      "bytes": 15420,
+      "sha256": "ac4d6e8e73888780f491b012d986e9f092d502b758b6ba737145d9bc326e176f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/race.rs",
+      "status": 200,
+      "bytes": 2600,
+      "sha256": "486c98b50b9db775178faaf6a80748ea06805f93987aabd79c6a453c775fbc10"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/crypto/curve25519/curve25519.c",
+      "status": 200,
+      "bytes": 51099,
+      "sha256": "92f82432d2a75e3b82f3d9b697be12af42e737809126b81635a64307d6f08a63"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/crypto/fipsmodule/ec/p256.c",
+      "status": 200,
+      "bytes": 19098,
+      "sha256": "359181086054d3ac46ab1ef7f736f3716c5dce2f6f2170ec9861cbf8f83c9ae3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/slice.rs",
+      "status": 200,
+      "bytes": 2116,
+      "sha256": "491810bd2e2e3e933db93d24bc8ae78b381a3d6931ecb783173cfb34edc14edd"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/README.txt",
+      "status": 200,
+      "bytes": 153,
+      "sha256": "030dc56cee1ed637e764e74a0ffebba0f6f5db487a6d29685f546540032cfea1"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/matklad/once_cell/d119eeade59cd7e47b7abf979488b0be1d5b2d79/Cargo.toml",
+      "status": 200,
+      "bytes": 2420,
+      "sha256": "1706f78d16ab273717a29b94f978d3ccc864198251a96446f18235bb1164607a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/matklad/once_cell/d119eeade59cd7e47b7abf979488b0be1d5b2d79/LICENSE-MIT",
+      "status": 200,
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/third_party/fiat/AUTHORS",
+      "status": 200,
+      "bytes": 648,
+      "sha256": "ad74c036a6afaedc418fed65f171c877c2f74a4c70938a03930aa11c98a20508"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/third_party/fiat/README.md",
+      "status": 200,
+      "bytes": 1202,
+      "sha256": "42ab5b17135b6d2a3c4d62408866efdb7113c19c897491e7a4909616652fd80c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/LICENSE.BSD-3-Clause",
+      "status": 200,
+      "bytes": 1483,
+      "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/LICENSE.MIT",
+      "status": 200,
+      "bytes": 1084,
+      "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/src/enc/entropy_encode.rs",
+      "status": 200,
+      "bytes": 18627,
+      "sha256": "1427f28f081792415f7ab352ece9d0820d7ab07e2318c0d4d190cd96131e32ab"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/LICENSE",
+      "status": 200,
+      "bytes": 10,
+      "sha256": "1e881ecf2862d01e6e5bc2b861e46886d2a6fb01499c0c508a209a7271b13cf2"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/LICENSE",
+      "status": 200,
+      "bytes": 11323,
+      "sha256": "6dc0e068dcf3a5bc8e054205b85b7720e1d49265bbc64bf515d2cf79197df69a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/README.md",
+      "status": 200,
+      "bytes": 1064,
+      "sha256": "0b83337b6da62eb54dc956d3deb4071b07b16365dba27fe795f9d22efaa05698"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/src/lib.rs",
+      "status": 200,
+      "bytes": 41440,
+      "sha256": "5e77cba0f5f3286af0987e36a19452bd16cbfa5469c4ded3c4242d431c794dfc"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/LICENSE-LIBM-MIT",
+      "status": 200,
+      "bytes": 2444,
+      "sha256": "9eff396a99bafd208e7126602420d6864f6066c08b84485a5b032320a9c01997"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/LICENSE-MIT",
+      "status": 200,
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/LICENSE-UNICODE",
+      "status": 200,
+      "bytes": 1995,
+      "sha256": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/README.md",
+      "status": 200,
+      "bytes": 12338,
+      "sha256": "2fd3a0c6c9abd2c042fb319221f9ef2c95728a6e3725b0f067e4d315c5dbfe5a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/src/tables.rs",
+      "status": 200,
+      "bytes": 63369,
+      "sha256": "369c476ba91a39fce55563b692a3f598daf7f026cfe0a3796cfed1102fb3b190"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE",
+      "status": 200,
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "docs/release/licenses/ring-0.17.14-LICENSE.txt",
+      "bytes": 499,
+      "sha256": "b3d734001a94efff3579978d953391aa7115f877657d25eb54037a43875d078a",
+      "kind": "original-license-map",
+      "source": {
+        "package": "ring@0.17.14",
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE"
+      }
+    },
+    {
+      "path": "docs/release/licenses/ring-0.17.14-LICENSE-BoringSSL.txt",
+      "bytes": 14870,
+      "sha256": "005fc765ddc5115da796cca915baa9557abae13ff35e0a47c47affc56f6c414d",
+      "kind": "original-full-file",
+      "source": {
+        "package": "ring@0.17.14",
+        "path": "LICENSE-BoringSSL",
+        "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE-BoringSSL"
+      }
+    },
+    {
+      "path": "docs/release/licenses/ring-0.17.14-LICENSE-other-bits.txt",
+      "bytes": 731,
+      "sha256": "f025ccfb7dfb6bdfedc75ca0f67acc69e6fb4998143d834f7c2f38a29989680f",
+      "kind": "original-full-file",
+      "source": {
+        "package": "ring@0.17.14",
+        "path": "LICENSE-other-bits",
+        "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/LICENSE-other-bits"
+      }
+    },
+    {
+      "path": "docs/release/licenses/ring-0.17.14-once_cell-LICENSE-MIT.txt",
+      "bytes": 1022,
+      "sha256": "6ee2ed6c77710de911761acd5fc1ad1da00f476beb1a7ef27e78c2d1858deafc",
+      "kind": "original-full-file",
+      "source": {
+        "package": "ring@0.17.14",
+        "path": "src/polyfill/once_cell/LICENSE-MIT",
+        "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/once_cell/LICENSE-MIT"
+      }
+    },
+    {
+      "path": "docs/release/licenses/ring-0.17.14-fiat-LICENSE.txt",
+      "bytes": 638,
+      "sha256": "9eacbcb81be660840c714a560a9d65ba07913db98dd4baf969f78dd499fdd60f",
+      "kind": "original-apache-notice-not-full-license",
+      "source": {
+        "package": "ring@0.17.14",
+        "path": "third_party/fiat/LICENSE",
+        "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/third_party/fiat/LICENSE"
+      }
+    },
+    {
+      "path": "docs/release/licenses/ring-0.17.14-slice-MIT-header.txt",
+      "bytes": 1089,
+      "sha256": "a8040aa6ad623505276a81cf93128024eb4f8e5411b78b15c68a43ba3290295d",
+      "kind": "verbatim-source-license-prefix",
+      "source": {
+        "package": "ring@0.17.14",
+        "path": "src/polyfill/slice.rs",
+        "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/src/polyfill/slice.rs",
+        "lines": [
+          1,
+          23
+        ]
+      }
+    },
+    {
+      "path": "docs/release/licenses/ring-0.17.14-fiat-AUTHORS.txt",
+      "bytes": 648,
+      "sha256": "ad74c036a6afaedc418fed65f171c877c2f74a4c70938a03930aa11c98a20508",
+      "kind": "original-full-file",
+      "source": {
+        "url": "https://raw.githubusercontent.com/briansmith/ring/2723abbca9e83347d82b056d5b239c6604f786df/third_party/fiat/AUTHORS",
+        "basis": "Referenced by archived third_party/fiat/LICENSE; absent in crate archive, present at exact VCS pin."
+      }
+    },
+    {
+      "path": "docs/release/licenses/ring-0.17.14-source-copyright-NOTICES.txt",
+      "bytes": 5368,
+      "sha256": "79073144cc26351c8df0ddf90ad5038f721aecc3c2e60d153b68563158cdbf9b",
+      "kind": "compiled-verbatim-source-notices",
+      "source": {
+        "package": "ring@0.17.14",
+        "excerpts": [
+          {
+            "path": "crypto/chacha/asm/chacha-x86_64.pl",
+            "line": 2,
+            "bytes": 67,
+            "sha256": "f10863fc166a1c9830fee4c2125b05dd6b894a43aa6bcf3f3ec685253f481c63"
+          },
+          {
+            "path": "crypto/cipher/asm/chacha20_poly1305_x86_64.pl",
+            "line": 3,
+            "bytes": 38,
+            "sha256": "f7338cadb700adea8f0947591b91c4fe0061d2971450ae4262c067c9dbf9b834"
+          },
+          {
+            "path": "crypto/cpu_intel.c",
+            "line": 1,
+            "bytes": 73,
+            "sha256": "27046d7b3a6cf602c0bd17853e4e67115c8b1097013a16a4fc2e82c9b309f7a0"
+          },
+          {
+            "path": "crypto/crypto.c",
+            "line": 1,
+            "bytes": 40,
+            "sha256": "bcc2089835246f3391076c5d9e07a6d5e1054eba55c47f3ed5c4c6083ecf8611"
+          },
+          {
+            "path": "crypto/curve25519/curve25519.c",
+            "line": 1,
+            "bytes": 40,
+            "sha256": "9919052d6d2e1f2fdc074fdb376ff5832e7fa7f4107428eca6534a7982420693"
+          },
+          {
+            "path": "crypto/curve25519/curve25519_64_adx.c",
+            "line": 1,
+            "bytes": 40,
+            "sha256": "d0fae9374307edb61d67c7c8401865c6935ce9ea94026cf7469bdd1e656f4e17"
+          },
+          {
+            "path": "crypto/fipsmodule/aes/aes_nohw.c",
+            "line": 1,
+            "bytes": 35,
+            "sha256": "365885244f7f09533b09d42199ff636a9fc67dacec0183ce7629db1687a548cf"
+          },
+          {
+            "path": "crypto/fipsmodule/aes/asm/aes-gcm-avx2-x86_64.pl",
+            "line": 2,
+            "bytes": 39,
+            "sha256": "9d6b1367cfe5a8f593bd2b43dd1379586065aa8d5f24ba4437957571eb9af20f"
+          },
+          {
+            "path": "crypto/fipsmodule/aes/asm/aesni-gcm-x86_64.pl",
+            "line": 2,
+            "bytes": 72,
+            "sha256": "b76961893a048f1620df18af65b5e412db977f0eeaed3aa769846afd4b556e85"
+          },
+          {
+            "path": "crypto/fipsmodule/aes/asm/aesni-x86_64.pl",
+            "line": 2,
+            "bytes": 72,
+            "sha256": "c54a52c00953508e888d0a7539a332148d70bd7d398d7c2d362c779160f99763"
+          },
+          {
+            "path": "crypto/fipsmodule/aes/asm/ghash-x86_64.pl",
+            "line": 2,
+            "bytes": 72,
+            "sha256": "0df0eb286f953b3bd50a57ab38f44502f31efaad0c4582b6166c198bfc1a1805"
+          },
+          {
+            "path": "crypto/fipsmodule/aes/asm/vpaes-x86_64.pl",
+            "line": 2,
+            "bytes": 72,
+            "sha256": "e1b7c990717ef17049133c5f30d029573e18e7136d2a213812639aa38b364b90"
+          },
+          {
+            "path": "crypto/fipsmodule/bn/asm/x86_64-mont.pl",
+            "line": 2,
+            "bytes": 72,
+            "sha256": "33225c9a2ad4f84f45dd963a8380a256b0ab63a1851fd36a4e2cd064ce94496a"
+          },
+          {
+            "path": "crypto/fipsmodule/bn/internal.h",
+            "line": 2,
+            "bytes": 74,
+            "sha256": "d867ae86179648ae8d5bf2dee097e166a1d3645891770a49df59ae437a5c42a9"
+          },
+          {
+            "path": "crypto/fipsmodule/bn/montgomery_inv.c",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "c00758de90fa563d264c694ffc0982f374c13462f495d9dce4555285f76dec42"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl",
+            "line": 2,
+            "bytes": 72,
+            "sha256": "a9ee563d3eef817bb95a79e0dd1fe5ed19299f25054c2a9afbd7519317959529"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl",
+            "line": 3,
+            "bytes": 62,
+            "sha256": "003e391002d729a40263a21cce224f1ffa2bff0abd37f4f4e731275edc9d440f"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl",
+            "line": 4,
+            "bytes": 38,
+            "sha256": "828c297990858467eaa8208247b9a3bdfaac671464694e2c4f0b5a0a743e13bd"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/ecp_nistz.c",
+            "line": 1,
+            "bytes": 42,
+            "sha256": "e3f5f0ec8d8394fcf206fa885583090c9d8ab23b0307d0fed027ba09de0b53ce"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/ecp_nistz.h",
+            "line": 1,
+            "bytes": 35,
+            "sha256": "355faca0869ab7b2cfe1b725ef23ad5e0bfc2618fa93a2beaa4db1d9d1b9d417"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/p256-nistz-table.h",
+            "line": 1,
+            "bytes": 73,
+            "sha256": "8f3302830513d128ef7667dad961d6d9d02d0e3a2cb6461ea1b98e63cc1580e9"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/p256-nistz-table.h",
+            "line": 2,
+            "bytes": 34,
+            "sha256": "c47abefa83b4d7000623a073443ad79e2ef7aaf7787e04d0801a191493d6d7c0"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/p256-nistz.c",
+            "line": 2,
+            "bytes": 63,
+            "sha256": "773061d74d692954787883a579897ea5338a7076a17523fad495d343bf72a24f"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/util.h",
+            "line": 1,
+            "bytes": 40,
+            "sha256": "aea829dab2f677cf4f784bb0865c636b650880b274bab7249b097e49d9d7dbeb"
+          },
+          {
+            "path": "crypto/limbs/limbs.c",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "009ce6b0e748e9a6b4d58543f2c63d53014e9cc8f10b6faa69f12a24b16ac0e6"
+          },
+          {
+            "path": "crypto/poly1305/poly1305.c",
+            "line": 1,
+            "bytes": 35,
+            "sha256": "1367db9169e85d94c3f2d522d9ff3e33c84fbfdff751e6c6c8e9696a21dd11c4"
+          },
+          {
+            "path": "include/ring-core/aes.h",
+            "line": 1,
+            "bytes": 73,
+            "sha256": "d928c21aa3f3401e5c7b6fac4a29c2e0b1a853564fbea5e5986963bef79af2b4"
+          },
+          {
+            "path": "include/ring-core/base.h",
+            "line": 1,
+            "bytes": 73,
+            "sha256": "3551bc6ed398760f51e437d63e786ec5934601e9f630731c212825b3c531aeaf"
+          },
+          {
+            "path": "include/ring-core/check.h",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "09f91a7dab0ffa38c76261909ad84b6f1dd200fbcde642f2ad78044f539f2c3c"
+          },
+          {
+            "path": "include/ring-core/type_check.h",
+            "line": 1,
+            "bytes": 73,
+            "sha256": "585b18612d5796d6eabc82adbb6f00f56e45259aacaaa5ddf4bc96ea3c27b00d"
+          },
+          {
+            "path": "src/aead.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "cf1e985334d76258581796b5d9f8e1d4e8d1c668edf8afcbe04f4186ed69b66b"
+          },
+          {
+            "path": "src/aead/aes.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "334e57f869dc8063669dc7ecdcf462c6329f2bb8ed292c4e98aed4ae0bec6a0a"
+          },
+          {
+            "path": "src/aead/aes_gcm.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "1ced4f24b9e4998b15105e9a7ea692d094e39ef6710f9bcaf75b798aa47ea3dc"
+          },
+          {
+            "path": "src/aead/algorithm.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "ef36ae1399250ca0e2854f45f919b0fa946f874adaba222147ad891c35299bc8"
+          },
+          {
+            "path": "src/aead/chacha.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "010b46e81ea670614d06b7f89f0dd1983311e9631ecb6753d02e7e7db82b0b7d"
+          },
+          {
+            "path": "src/aead/chacha.rs",
+            "line": 2,
+            "bytes": 44,
+            "sha256": "4f761d9fc8fbf2efdca88bbf831ba3376f2106f551aff675e26e36cb0458c007"
+          },
+          {
+            "path": "src/aead/chacha/fallback.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "69828596205f1144b6453b1875ba478b9cba3ae2a39ba5c07ce4a4719a0059a5"
+          },
+          {
+            "path": "src/aead/chacha/fallback.rs",
+            "line": 2,
+            "bytes": 44,
+            "sha256": "794d3b08bbf0ecef1900dfb7aba7f38a2ef1248642122b19794ab0a10f6d0b6b"
+          },
+          {
+            "path": "src/aead/chacha/ffi.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "ae51b8792632de2cbb2e7c08ecc87a550c30d24872e53690053794a4b8076067"
+          },
+          {
+            "path": "src/aead/gcm/fallback.rs",
+            "line": 1,
+            "bytes": 35,
+            "sha256": "af13190287d00362a70b71a932304d9f7a0b7e2f9486c436eb75d9e8a67be931"
+          },
+          {
+            "path": "src/aead/gcm/fallback.rs",
+            "line": 2,
+            "bytes": 45,
+            "sha256": "e5e31d35d2b8714f65c79b12f064d95c08d040364ac52a0fc0631ee7f314414b"
+          },
+          {
+            "path": "src/aead/gcm/ffi.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "610d8c6b847ef5070a49211468f1c58e6ff4715e41000ff24efce9c6a5b19a92"
+          },
+          {
+            "path": "src/aead/gcm/vclmulavx2.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "22bc1942f1e9dc3de0682df1a2aeac45bb0bfc501616c1c443bbb9f84ede33fe"
+          },
+          {
+            "path": "src/aead/overlapping/array.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "88636a8a54cac61d83b37b031547dcc1878684cb604d1ed54f9f9472985380fb"
+          },
+          {
+            "path": "src/aead/poly1305/ffi_fallback.rs",
+            "line": 2,
+            "bytes": 50,
+            "sha256": "dcc13cd2da4014b84f9aaaabce90f3c5ec8c85dd9c55a2a9d8dd1c430995863e"
+          },
+          {
+            "path": "src/agreement.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "54ac10d4a7474b4f2b9a91b8ce1852ce9942f9fc7302bba5cb1ba12cbfdfa9ba"
+          },
+          {
+            "path": "src/arithmetic.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "888e7297a6701a07765f55633442134bada2b1393905f27b45800d7489264585"
+          },
+          {
+            "path": "src/arithmetic/bigint.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "5e9574debe878f668078420a8b3b793516129ef34529349e37760e34aed048a8"
+          },
+          {
+            "path": "src/arithmetic/ffi.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "f026d2688f07a1813f59a4ee60ef8fe7aec69af6002da0a535ebbb86fb9696c8"
+          },
+          {
+            "path": "src/arithmetic/inout.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "c51eb1cf21adf2743baa9a86617a43bc0f1d4c47095e15d513edba637432060f"
+          },
+          {
+            "path": "src/arithmetic/montgomery.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "4c5d7904e639307c3ce451f4cc4c4dbf3f95c3a171cc9963c750f4d77420dbd7"
+          },
+          {
+            "path": "src/arithmetic/n0.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "3d9547fe653ed20e8da187dde6d1b953b60587aec6b59eee4a9ae447f2984a03"
+          },
+          {
+            "path": "src/bssl.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "8ce17fa9e75da7f47ba292cd2573233f46c470ca2cfba32f3e2becd6c39ac5c8"
+          },
+          {
+            "path": "src/c.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "df00cb21f94d0748499832941147d102f98e426e6f7302d2cfce3e661552d4a7"
+          },
+          {
+            "path": "src/error/mod.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "a0f620c6e0ef9ffabc5aacd389d6cc86caf6a77891c26eb92960d65a129910bc"
+          },
+          {
+            "path": "src/cpu/intel.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "bf3b03e38f0ca0ae5a460d4f4ad6680ff24c98dc9ac251f2078e27cb4f7b9424"
+          },
+          {
+            "path": "src/debug.rs",
+            "line": 1,
+            "bytes": 32,
+            "sha256": "ad411b8c83580aa1b5d6c3d9af584b05d3b0abd639d652dbb075650d9a9f4093"
+          },
+          {
+            "path": "src/digest.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "6c3e30e0cd1fc498b2bdda118277e94dc656f3be848dcf4de6c44ae3170af467"
+          },
+          {
+            "path": "src/digest/sha1.rs",
+            "line": 2,
+            "bytes": 31,
+            "sha256": "e57f7bf2b8dcde89a6e123002fb5320ca758041aa2c2cab18ed29977a6e200d9"
+          },
+          {
+            "path": "src/digest/sha2/fallback.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "5c3bb41d1479d3e278a7bc8a70226f21000affc7b158123c376326eceef5158b"
+          },
+          {
+            "path": "src/digest/sha2/mod.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "332d729744cd448c24679302e1126b125691e60775a4657d80fff57f748a885c"
+          },
+          {
+            "path": "src/ec/curve25519/ed25519.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "69b1546585edbd19b6643620e8a19ee21777a812c907636fed4ee6f125c09304"
+          },
+          {
+            "path": "src/ec/suite_b/ops/elem.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "da6392e686ca096c67006cb322388149f827408eda3f78b2e7c05daec16b2b81"
+          },
+          {
+            "path": "src/ec/suite_b/ops/p256.rs",
+            "line": 1,
+            "bytes": 36,
+            "sha256": "8a27346ca9cb55dcd60f91b49ee2ff577c82104da583a685abd5ad736c935c36"
+          },
+          {
+            "path": "src/limb.rs",
+            "line": 1,
+            "bytes": 30,
+            "sha256": "5f59a6d4d9da1793ca7b51cb9b2b5df693f82552d26e0c2a34019c5a29aafd57"
+          },
+          {
+            "path": "src/polyfill/array_split_map.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "eb5d329c7d87be4390f7d13864a4e1a719bf54a6aa6088f5ce771183040370ee"
+          },
+          {
+            "path": "src/polyfill/unwrap_const.rs",
+            "line": 1,
+            "bytes": 31,
+            "sha256": "85dea5ce8263da8012be4a8d9744c2e97770824e7fd31eadfbdf918ebaa684f6"
+          }
+        ]
+      }
+    },
+    {
+      "path": "docs/release/licenses/ring-0.17.14-source-attribution-NOTICES.txt",
+      "bytes": 2159,
+      "sha256": "a59c2ba129323dae4619df84a34576e94d4878004f9fabf994338a0073dd5fa5",
+      "kind": "compiled-verbatim-source-notices",
+      "source": {
+        "package": "ring@0.17.14",
+        "excerpts": [
+          {
+            "path": "crypto/curve25519/curve25519.c",
+            "lines": [
+              15,
+              18
+            ],
+            "sha256": "3ae415677c87f68da675a2dff8cc80f64dbf5d25d0c8860bff615368a6c9a72b"
+          },
+          {
+            "path": "crypto/fipsmodule/aes/asm/vpaes-x86_64.pl",
+            "lines": [
+              18,
+              25
+            ],
+            "sha256": "6fa3af6c3c8c7b3c744839a9d1f9154015906661cd6bf3b207712a6914b40987"
+          },
+          {
+            "path": "crypto/poly1305/poly1305.c",
+            "lines": [
+              15,
+              17
+            ],
+            "sha256": "14ed6b3c06fba0bc083b6af9869171167e18f363626b9dafad89050fa698b456"
+          },
+          {
+            "path": "src/aead/chacha/fallback.rs",
+            "lines": [
+              15,
+              16
+            ],
+            "sha256": "c05edb5229992f087bbba7a65250253396840a658127abb6c080a6b1f9cffde4"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl",
+            "lines": [
+              18,
+              25
+            ],
+            "sha256": "1d76c77f7a8c9a187c06ae504ed370feaff17e3825d6248df880d33d372d1d56"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/p256-nistz.c",
+            "lines": [
+              16,
+              22
+            ],
+            "sha256": "b42ce78986e90a1be57162ef48c2e85cfb4ca9d51805429f6eb33981b01f1b49"
+          },
+          {
+            "path": "crypto/fipsmodule/ec/ecp_nistz384.inl",
+            "lines": [
+              15,
+              22
+            ],
+            "sha256": "f06469b472a26d50f060c4eef45a84ac17cda38c0d76f478a42739419367f150"
+          }
+        ]
+      }
+    },
+    {
+      "path": "docs/release/licenses/alloc-stdlib-0.2.4-LICENSE-BSD-3-Clause.txt",
+      "bytes": 1483,
+      "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+      "kind": "existing-byte-identical-text-reused",
+      "source": {
+        "package": "brotli@8.0.4",
+        "path": "LICENSE.BSD-3-Clause",
+        "url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/LICENSE.BSD-3-Clause"
+      }
+    },
+    {
+      "path": "docs/release/licenses/brotli-8.0.4-LICENSE-MIT.txt",
+      "bytes": 1084,
+      "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+      "kind": "original-full-file",
+      "source": {
+        "package": "brotli@8.0.4",
+        "path": "LICENSE.MIT",
+        "url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/LICENSE.MIT"
+      }
+    },
+    {
+      "path": "docs/release/licenses/brotli-8.0.4-Google-NOTICE.txt",
+      "bytes": 167,
+      "sha256": "fcbc7aca6beaf0999620b88f7a75bad1faa9e88a78c0a1295be38991e30d4d3e",
+      "kind": "verbatim-source-license-prefix",
+      "source": {
+        "package": "brotli@8.0.4",
+        "path": "src/enc/entropy_encode.rs",
+        "url": "https://raw.githubusercontent.com/dropbox/rust-brotli/9651aa3ebfd23be83ca14d914fba2d7c12b32d2f/src/enc/entropy_encode.rs",
+        "lines": [
+          1,
+          5
+        ]
+      }
+    },
+    {
+      "path": "docs/release/licenses/dpi-0.1.2-LICENSE-APACHE.txt",
+      "bytes": 11323,
+      "sha256": "6dc0e068dcf3a5bc8e054205b85b7720e1d49265bbc64bf515d2cf79197df69a",
+      "kind": "original-full-file",
+      "source": {
+        "package": "dpi@0.1.2",
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/LICENSE",
+        "symlink_url": "https://raw.githubusercontent.com/rust-windowing/winit/587ade844dfb0eada3696ba1cb263c66eea80581/dpi/LICENSE"
+      }
+    },
+    {
+      "path": "docs/release/licenses/unic-0.9.0-LICENSE-MIT.txt",
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "kind": "existing-byte-identical-text-reused",
+      "source": {
+        "package": "unicode-ident@1.0.24",
+        "path": "LICENSE-MIT",
+        "url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/LICENSE-MIT"
+      }
+    },
+    {
+      "path": "docs/release/licenses/unicode-ident-1.0.24-LICENSE-UNICODE.txt",
+      "bytes": 1995,
+      "sha256": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+      "kind": "original-full-file",
+      "source": {
+        "package": "unicode-ident@1.0.24",
+        "path": "LICENSE-UNICODE",
+        "url": "https://raw.githubusercontent.com/dtolnay/unicode-ident/5b54a632702b5744a1c40ea01c127c0ac0498172/LICENSE-UNICODE"
+      }
+    },
+    {
+      "path": "docs/release/licenses/icu4x-2.2.0-LICENSE.txt",
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+      "kind": "original-full-file",
+      "source": {
+        "url": "https://raw.githubusercontent.com/unicode-org/icu4x/c9fac4e625ccb2c6a7aa35079fff9709db4385ac/LICENSE",
+        "packages": [
+          "icu_collections@2.2.0",
+          "icu_locale_core@2.2.0",
+          "icu_normalizer@2.2.0",
+          "icu_normalizer_data@2.2.0",
+          "icu_properties@2.2.0",
+          "icu_properties_data@2.2.0",
+          "icu_provider@2.2.0"
+        ],
+        "scope": "Whole original Unicode V3 license including trailing ICU/IBM attribution."
+      }
+    }
+  ],
+  "limits": [
+    "No new EXE/NSIS/MSI/portable build or payload check; final delivery and remaining native/runtime cases are separate.",
+    "Feature/target/input changes require reassessment; dpi std exclusion is conditional.",
+    "ring notice collection is a conservative source superset, not proof every listed file is linked.",
+    "ICU generation metadata alone does not establish separate LSTM runtime inclusion; this is actual seven-crate license selection, not a data regeneration audit.",
+    "once_cell MIT chosen through explicit pinned OR grant; optional Apache text is not selected. Actual vendored MIT spelling retained."
+  ],
+  "encountered_resolution": {
+    "dpi_license_raw_pin_initially_differs": "Raw dpi/LICENSE is the 10-byte ../LICENSE symlink blob; resolved repository LICENSE is byte-identical to the archived 11323-byte file."
+  },
+  "archive_verification": {
+    "total_local_files_compared": 260,
+    "ring_local_files_compared": 212,
+    "recording_scope": "Only manifests, selected license/context files and source references needed to reproduce the exported notices are listed individually; unrelated per-file hashes from the bounded ring notice scan are not duplicated.",
+    "ring_notice_scan": "All .rs under src, .h under include, .h/.inl under crypto, plus the 26 listed x64 C/perlasm inputs; unique copyright lines in first 80 lines retained. Two duplicates use a target-neutral representative instead of an ARM file. Notice collection is a conservative source superset.",
+    "individually_recorded_files": 132
+  },
+  "final_local_verification": {
+    "checked_source_files": 132,
+    "checked_output_files": 16,
+    "checked_verbatim_excerpts": 76,
+    "input_hashes_unchanged": true,
+    "all_checks_passed": true
+  }
+}

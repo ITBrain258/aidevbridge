@@ -1,0 +1,721 @@
+{
+  "source": "docs/messungen/fixtures/m1-tmux-inventory/2026-10-11-tmux-3.6.jsonl",
+  "source_sha256": "a3d0359d8c9ec4ce57b3e37d492e042f887104334bb4ef3f7458c7270b961f05",
+  "version_output": "tmux 3.6\n",
+  "socket": "/tmp/tmux-1000/abtest_ux36_5",
+  "query_argv": [
+    "env",
+    "LC_ALL=C",
+    "tmux",
+    "-u",
+    "-S",
+    "/tmp/tmux-1000/abtest_ux36_5",
+    "display-message",
+    "-p",
+    "B|#{pid}|#{start_time}",
+    ";",
+    "list-sessions",
+    "-F",
+    "Q|#{session_id}|#{session_windows}",
+    ";",
+    "if-shell",
+    "-F",
+    "#{session_id}",
+    "list-panes -a -F 'P|#{session_id}|#{window_id}|#{pane_id}|#{pane_pid}|#{window_active}|#{pane_active}|#{pane_dead}|#{alternate_on}|#{session_attached}|#{window_activity}|#{window_bell_flag}|#{window_panes}'",
+    ";",
+    "display-message",
+    "-p",
+    "E|#{pid}|#{start_time}"
+  ],
+  "cases": [
+    {
+      "name": "absent_poll_1",
+      "code": 1,
+      "stdout": "",
+      "stderr": "error connecting to /tmp/tmux-1000/abtest_ux36_5 (No such file or directory)\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "absent_poll_2",
+      "code": 1,
+      "stdout": "",
+      "stderr": "error connecting to /tmp/tmux-1000/abtest_ux36_5 (No such file or directory)\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "absent_poll_3",
+      "code": 1,
+      "stdout": "",
+      "stderr": "error connecting to /tmp/tmux-1000/abtest_ux36_5 (No such file or directory)\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "plain_empty_panes",
+      "code": 1,
+      "stdout": "",
+      "stderr": "no current target\n",
+      "expected": {
+        "class": "TmuxError"
+      }
+    },
+    {
+      "name": "guarded_empty_1",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {},
+        "panes": []
+      }
+    },
+    {
+      "name": "guarded_empty_2",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {},
+        "panes": []
+      }
+    },
+    {
+      "name": "guarded_empty_3",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {},
+        "panes": []
+      }
+    },
+    {
+      "name": "first_named",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$0|1\nP|$0|@0|%0|684709|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "684709",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "same_name_replaced_1",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$1|1\nP|$1|@1|%1|684713|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$1": 1
+        },
+        "panes": [
+          [
+            "$1",
+            "@1",
+            "%1",
+            "684713",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "same_name_replaced_2",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$2|1\nP|$2|@2|%2|684718|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$2": 1
+        },
+        "panes": [
+          [
+            "$2",
+            "@2",
+            "%2",
+            "684718",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "same_name_replaced_3",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684722|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684722",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "respawn_snapshot_1",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684725|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684725",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "respawn_snapshot_2",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684728|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684728",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "respawn_snapshot_3",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684731|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684731",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "metadata_excluded_separator",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684731|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684731",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "metadata_excluded_controls",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684731|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684731",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "option_excluded",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684731|1|1|0|0|0|1791713377|0|1\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684731",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "two_panes",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684731|1|1|0|0|0|1791713377|0|2\nP|$3|@3|%4|684745|1|0|0|0|0|1791713377|0|2\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684731",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "2"
+          ],
+          [
+            "$3",
+            "@3",
+            "%4",
+            "684745",
+            "1",
+            "0",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "partial_failure",
+      "code": 1,
+      "stdout": "B|684702|1791713377\n",
+      "stderr": "can't find pane: %999999999\n",
+      "expected": {
+        "class": "TmuxError"
+      }
+    },
+    {
+      "name": "before_restart_1",
+      "code": 0,
+      "stdout": "B|684702|1791713377\nQ|$3|1\nP|$3|@3|%3|684731|1|1|0|0|0|1791713377|0|2\nP|$3|@3|%4|684745|1|0|0|0|0|1791713377|0|2\nE|684702|1791713377\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684702,
+          1791713377
+        ],
+        "sessions": {
+          "$3": 1
+        },
+        "panes": [
+          [
+            "$3",
+            "@3",
+            "%3",
+            "684731",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "2"
+          ],
+          [
+            "$3",
+            "@3",
+            "%4",
+            "684745",
+            "1",
+            "0",
+            "0",
+            "0",
+            "0",
+            "1791713377",
+            "0",
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "inert_poll_1",
+      "code": 1,
+      "stdout": "",
+      "stderr": "no server running on /tmp/tmux-1000/abtest_ux36_5\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "after_restart_1",
+      "code": 0,
+      "stdout": "B|684753|1791713378\nQ|$0|1\nP|$0|@0|%0|684754|1|1|0|0|0|1791713378|0|1\nE|684753|1791713378\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684753,
+          1791713378
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "684754",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713378",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "before_restart_2",
+      "code": 0,
+      "stdout": "B|684753|1791713378\nQ|$0|1\nP|$0|@0|%0|684754|1|1|0|0|0|1791713378|0|1\nE|684753|1791713378\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684753,
+          1791713378
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "684754",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713378",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "inert_poll_2",
+      "code": 1,
+      "stdout": "",
+      "stderr": "no server running on /tmp/tmux-1000/abtest_ux36_5\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "after_restart_2",
+      "code": 0,
+      "stdout": "B|684777|1791713379\nQ|$0|1\nP|$0|@0|%0|684778|1|1|0|0|0|1791713379|0|1\nE|684777|1791713379\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684777,
+          1791713379
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "684778",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713379",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "before_restart_3",
+      "code": 0,
+      "stdout": "B|684777|1791713379\nQ|$0|1\nP|$0|@0|%0|684778|1|1|0|0|0|1791713379|0|1\nE|684777|1791713379\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684777,
+          1791713379
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "684778",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713379",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "inert_poll_3",
+      "code": 1,
+      "stdout": "",
+      "stderr": "no server running on /tmp/tmux-1000/abtest_ux36_5\n",
+      "expected": {
+        "class": "NoServer"
+      }
+    },
+    {
+      "name": "after_restart_3",
+      "code": 0,
+      "stdout": "B|684819|1791713380\nQ|$0|1\nP|$0|@0|%0|684820|1|1|0|0|0|1791713380|0|1\nE|684819|1791713380\n",
+      "stderr": "",
+      "expected": {
+        "class": "Snapshot",
+        "server": [
+          684819,
+          1791713380
+        ],
+        "sessions": {
+          "$0": 1
+        },
+        "panes": [
+          [
+            "$0",
+            "@0",
+            "%0",
+            "684820",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "1791713380",
+            "0",
+            "1"
+          ]
+        ]
+      }
+    }
+  ]
+}

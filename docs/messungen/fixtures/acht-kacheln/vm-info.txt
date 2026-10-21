@@ -1,0 +1,7 @@
+tmux 3.6
+nproc 24, Kernel 7.0.0-38-generic, Ubuntu 26.04.1 LTS
+0.02 0.11 0.11 1/1458 630792
+MaxSessions nicht gesetzt (Vorgabe 10)
+SSH-Verbindungen auf Port 22: 1
+2.1.305 (Claude Code)
+claude agents --json: 211 ms

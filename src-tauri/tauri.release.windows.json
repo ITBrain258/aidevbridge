@@ -1,0 +1,20 @@
+{
+  "build": {
+    "beforeBuildCommand": "node scripts/release-windows-artifacts.mjs before-build",
+    "beforeBundleCommand": "node scripts/release-windows-artifacts.mjs before-bundle"
+  },
+  "bundle": {
+    "targets": ["msi", "nsis"],
+    "useLocalToolsDir": true,
+    "resources": {
+      "../out/release-notices/": "licenses/"
+    },
+    "licenseFile": "../out/release-installer-notice/.rtf",
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      }
+    }
+  }
+}

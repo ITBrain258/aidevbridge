@@ -1,0 +1,395 @@
+//! Die Command-Liste existiert fuenfmal, und die ersten drei sind
+//! unvermeidbar: `generate_handler!` braucht Identifier, `build.rs` braucht
+//! Strings, `capabilities/default.json` braucht kebab-case-Permission-Namen.
+//! Die vierte ist das Fenster-Label in `tauri.conf.json`, die fuenfte die
+//! `COMMANDS`-Liste in `acl_runtime.rs`. Dieser Test haelt sie zusammen.
+//!
+//! Er ist die maschinelle Fassung genau der "Checkliste, die nicht veralten
+//! darf", die das Abschlussreview verlangt hat -- dort noch als Kommentar
+//! geloest, was bereits einmal lautlos veraltet ist (eine dort notierte
+//! feste Zahl stimmte laengst nicht mehr).
+//!
+//! Braucht KEINE VM und keine Umgebungsvariable.
+
+use std::collections::BTreeSet;
+
+const LIB_RS: &str = include_str!("../src/lib.rs");
+const BUILD_RS: &str = include_str!("../build.rs");
+const CAPABILITY_JSON: &str = include_str!("../capabilities/default.json");
+/// FUENFTE Liste: `acl_runtime.rs` fuehrt die Commands ein weiteres Mal, um
+/// jeden einzeln durch den echten IPC-Pfad zu schicken.
+///
+/// Warum sie hier hereingezogen wird, statt sich auf ihren eigenen Test zu
+/// verlassen: der dort iteriert ueber genau diese Liste. Ein Command, den
+/// man dort VERGISST, wird also nie geprueft -- und der Test bleibt gruen.
+/// Die Luecke ist unsichtbar, weil sie aus einer Abwesenheit besteht. Erst
+/// dieser Gleichheitsvergleich macht das Vergessen rot.
+const ACL_RUNTIME_RS: &str = include_str!("acl_runtime.rs");
+/// Vierte Liste, die zur ACL gehoert, ohne dass man ihr das ansieht: das
+/// Fenster-Label. Siehe `every_configured_window_is_covered_by_the_capability`.
+const TAURI_CONF_JSON: &str = include_str!("../tauri.conf.json");
+
+/// Als Zahl im Test, nicht abgeleitet: ein neuer Command macht diesen Test
+/// bewusst rot. Das ist der Zweck -- er soll jemanden zwingen, alle fuenf
+/// Listen anzufassen, nicht sich stillschweigend anpassen.
+const EXPECTED_COMMAND_COUNT: usize = 26;
+
+/// Extrahiert die Commands aus `generate_handler![...]`.
+///
+/// Auf den Block BEGRENZT, nicht ueber die ganze Datei: `lib.rs` enthaelt
+/// `commands::AppState::from_env()` in der `.manage(..)`-Zeile. Ein naiver
+/// `commands::(\w+)`-Scan wuerde `AppState` als Command extrahieren und
+/// `allow-app-state` fordern -- ein gruener, blinder Test waere die Folge
+/// (siehe `extraction_is_limited_to_the_handler_block` unten).
+fn handler_commands() -> BTreeSet<String> {
+    let start = LIB_RS
+        .find("generate_handler![")
+        .expect("generate_handler! nicht in lib.rs gefunden -- Extraktion kaputt");
+    let block = &LIB_RS[start..];
+    let end = block
+        .find("])")
+        .expect("Ende des generate_handler!-Blocks nicht gefunden");
+    block[..end]
+        .lines()
+        // Kommentarzeilen ausfiltern: der Block enthaelt einen Task-13-
+        // Kommentar, der selbst "capabilities/default.json" und "allow-"
+        // erwaehnt.
+        .filter(|line| !line.trim_start().starts_with("//"))
+        .filter_map(|line| line.trim().strip_prefix("commands::"))
+        .map(|rest| rest.trim_end_matches(',').trim().to_string())
+        .filter(|name| !name.is_empty())
+        .collect()
+}
+
+/// Extrahiert die Strings aus `.commands(&[ ... ])` in `build.rs`.
+fn build_rs_commands() -> BTreeSet<String> {
+    let start = BUILD_RS
+        .find(".commands(&[")
+        .expect(".commands(&[ nicht in build.rs gefunden -- Extraktion kaputt");
+    let block = &BUILD_RS[start..];
+    let end = block
+        .find("])")
+        .expect("Ende der .commands-Liste nicht gefunden");
+    block[..end]
+        .lines()
+        .filter(|line| !line.trim_start().starts_with("//"))
+        .flat_map(|line| {
+            line.split('"')
+                .enumerate()
+                .filter(|(index, _)| index % 2 == 1)
+                .map(|(_, value)| value.to_string())
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+/// Extrahiert die `allow-`Permissions aus `default.json` und macht sie
+/// wieder zu snake_case-Command-Namen.
+///
+/// `strip_prefix` statt `contains`: `core:event:allow-listen` ENTHAELT
+/// "allow-", beginnt aber nicht damit -- ein `contains` wuerde diesen
+/// Core-Eintrag faelschlich als eigenen Command lesen.
+fn capability_allowed_commands() -> BTreeSet<String> {
+    let value: serde_json::Value =
+        serde_json::from_str(CAPABILITY_JSON).expect("default.json ist kein gueltiges JSON");
+    value["permissions"]
+        .as_array()
+        .expect("permissions-Array fehlt in default.json")
+        .iter()
+        .filter_map(|entry| entry.as_str())
+        .filter_map(|entry| entry.strip_prefix("allow-"))
+        .map(|kebab| kebab.replace('-', "_"))
+        .collect()
+}
+
+/// Die `permissions`-Eintraege aus `default.json` ROH, ohne Filter und ohne
+/// Umschreibung.
+///
+/// Bewusst neben `capability_allowed_commands()` statt darin: jene Funktion
+/// beantwortet "welche Commands sind erlaubt?" und muss dafuer alles
+/// wegwerfen, was kein `allow-<command>` ist. Genau dieses Wegwerfen macht
+/// sie fuer die beiden Zusicherungen unten blind (ein `deny-`Eintrag, ein
+/// fehlender Core-Eintrag), deshalb lesen die die Liste selbst.
+fn capability_permission_entries() -> Vec<String> {
+    let value: serde_json::Value =
+        serde_json::from_str(CAPABILITY_JSON).expect("default.json ist kein gueltiges JSON");
+    value["permissions"]
+        .as_array()
+        .expect("permissions-Array fehlt in default.json")
+        .iter()
+        .filter_map(|entry| entry.as_str())
+        .map(|entry| entry.to_string())
+        .collect()
+}
+
+/// Ob `entry` eine Sperre ist -- `deny-connect-host` ebenso wie
+/// `core:event:deny-listen`. Der Praefix steht jeweils am LETZTEN
+/// `:`-Segment, ein blosses `starts_with("deny-")` uebersaehe die
+/// Core-Variante.
+fn is_deny_entry(entry: &str) -> bool {
+    entry
+        .rsplit(':')
+        .next()
+        .is_some_and(|last| last.starts_with("deny-"))
+}
+
+/// Extrahiert die Strings aus `const COMMANDS: &[&str] = &[ ... ]` in
+/// `acl_runtime.rs` -- der fuenften Liste.
+fn acl_runtime_commands() -> BTreeSet<String> {
+    let start = ACL_RUNTIME_RS
+        .find("const COMMANDS: &[&str] = &[")
+        .expect("COMMANDS-Liste nicht in acl_runtime.rs gefunden -- Extraktion kaputt");
+    let block = &ACL_RUNTIME_RS[start..];
+    let end = block
+        .find("];")
+        .expect("Ende der COMMANDS-Liste nicht gefunden");
+    block[..end]
+        .lines()
+        .filter(|line| !line.trim_start().starts_with("//"))
+        .flat_map(|line| {
+            line.split('"')
+                .enumerate()
+                .filter(|(index, _)| index % 2 == 1)
+                .map(|(_, value)| value.to_string())
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+#[test]
+fn all_five_command_lists_agree() {
+    let handler = handler_commands();
+    let build = build_rs_commands();
+    let capability = capability_allowed_commands();
+    let acl_runtime = acl_runtime_commands();
+
+    // Leere Mengen sind gleich -- ohne diese drei Zusicherungen waere der
+    // Test gruen, sobald eine Extraktion nichts mehr findet (umbenannte
+    // Tauri-API, geaenderte Formatierung).
+    assert!(
+        !handler.is_empty(),
+        "Extraktion aus lib.rs lieferte nichts -- Blockgrenze oder Praefix kaputt"
+    );
+    assert!(
+        !build.is_empty(),
+        "Extraktion aus build.rs lieferte nichts -- Blockgrenze kaputt"
+    );
+    assert!(
+        !capability.is_empty(),
+        "Extraktion aus default.json lieferte nichts -- fehlen die allow-Eintraege?"
+    );
+    assert!(
+        !acl_runtime.is_empty(),
+        "Extraktion aus acl_runtime.rs lieferte nichts -- COMMANDS-Liste umbenannt?"
+    );
+
+    assert_eq!(
+        handler.len(),
+        EXPECTED_COMMAND_COUNT,
+        "generate_handler! listet {} Commands, erwartet {EXPECTED_COMMAND_COUNT}. Kommt ein \
+         Command hinzu, sind ALLE FUENF Listen zu ergaenzen -- und diese Zahl.",
+        handler.len()
+    );
+    assert_eq!(
+        handler, build,
+        "generate_handler! (lib.rs) und .commands(&[..]) (build.rs) laufen auseinander. \
+         build.rs bestimmt, was ins ACL-Manifest kommt -- eine Abweichung hier heisst, dass \
+         ein registrierter Command zur Laufzeit abgelehnt wird."
+    );
+    assert_eq!(
+        handler, capability,
+        "generate_handler! (lib.rs) und die allow-Eintraege (default.json) laufen auseinander. \
+         Ein fehlender Eintrag ist die EINE Richtung, die der Build nicht selbst faengt."
+    );
+    assert_eq!(
+        handler, acl_runtime,
+        "generate_handler! (lib.rs) und die COMMANDS-Liste in acl_runtime.rs laufen \
+         auseinander. Das ist die stillste der fuenf Abweichungen: acl_runtime.rs iteriert \
+         ueber SEINE Liste -- ein dort vergessener Command wird nie durch den echten \
+         IPC-Pfad geschickt, und sein Test bleibt trotzdem gruen. Die Luecke besteht aus \
+         einer Abwesenheit; nur dieser Vergleich macht sie sichtbar."
+    );
+}
+
+/// Kein `deny-`Eintrag in `default.json`.
+///
+/// `all_three_command_lists_agree` kann das NICHT sehen: es liest die
+/// Berechtigungen ueber `strip_prefix("allow-")`, ein `deny-connect-host`
+/// faellt dort durchs Raster. Alle fuenf Listen blieben deckungsgleich, der
+/// Build bliebe gruen -- und `connect_host` waere zur Laufzeit gesperrt.
+/// Genau die stille Laufzeit-Ablehnung, gegen die diese Datei existiert,
+/// reproduziert innerhalb ihres eigenen Netzes.
+///
+/// `deny-<command>` ist dabei kein Tippfehler, sondern ein GUELTIGER
+/// Bezeichner: `autogenerate_command_permissions` erzeugt zu jedem Command
+/// beide Haelften. Nachgesehen in `gen/schemas/acl-manifests.json`, Knoten
+/// `__app-acl__.permissions` -- dort steht neben `allow-connect-host` auch
+/// `deny-connect-host` mit `commands.deny = ["connect_host"]`.
+/// `validate_capabilities` nimmt ihn folglich an -- in der Gegenprobe zu
+/// diesem Test nachgestellt: mit `deny-connect-host` in `default.json` lief
+/// der Build durch und NUR dieser Test wurde rot.
+///
+/// Eigener Test statt einer weiteren Zusicherung in
+/// `all_three_command_lists_agree`: "ein Eintrag SPERRT einen Command" ist
+/// eine andere Diagnose als "die fuenf Listen laufen auseinander" -- unter
+/// jenem Namen gemeldet wuerde der Befund in die falsche Richtung schicken.
+#[test]
+fn no_deny_entry_shadows_a_command() {
+    let entries = capability_permission_entries();
+    // Ohne diese Zusicherung waere der Test gruen, sobald die Extraktion
+    // nichts mehr liefert (umbenanntes Feld, kaputtes JSON-Layout) -- die
+    // Suche unten liefe dann ueber eine leere Liste.
+    assert!(
+        !entries.is_empty(),
+        "Extraktion der permissions aus default.json lieferte nichts -- Feldname geaendert?"
+    );
+    let denies: Vec<&String> = entries
+        .iter()
+        .filter(|entry| is_deny_entry(entry))
+        .collect();
+    assert!(
+        denies.is_empty(),
+        "deny-Eintraege in capabilities/default.json: {denies:?}. Ein deny sperrt den Command \
+         zur Laufzeit, ohne dass eine der fuenf Listen abweicht -- der Build bleibt gruen, der \
+         WebView bekommt nur eine abgelehnte Promise."
+    );
+}
+
+/// Die beiden Core-Eintraege, an denen der WebView haengt, sind da.
+///
+/// Auch das sieht `all_three_command_lists_agree` nicht: sein
+/// `strip_prefix("allow-")` wirft `core:default` und
+/// `core:event:allow-listen` weg, beide Listen blieben nach ihrem
+/// Verschwinden deckungsgleich.
+///
+/// GENAU GELESEN, damit diese Zusicherung nicht mehr behauptet, als sie
+/// deckt: `core:default` enthaelt ueber `core:event:default` bereits
+/// `allow-listen` (nachgesehen in `gen/schemas/acl-manifests.json`:
+/// `core.default_permission` -> `core:event:default` ->
+/// `["allow-listen", "allow-unlisten", "allow-emit", "allow-emit-to"]`).
+/// Der ausdrueckliche `core:event:allow-listen`-Eintrag ist deshalb HEUTE
+/// redundant, und das Streichen EINES der beiden bliebe zur Laufzeit
+/// folgenlos. Gefordert werden trotzdem beide: Zusammen sind sie die
+/// doppelte Absicherung fuer `listen()`, und `listen()` ist der einzige Weg,
+/// auf dem `terminal://output` und `terminal://connection-lost` ueberhaupt
+/// im Frontend ankommen (`src/terminal.ts`). Faellt der Rest weg, rendert
+/// das Terminal nichts mehr -- ohne Build- und ohne Testfehler. Diese
+/// Zusicherung ist damit strenger als die Laufzeit, bewusst: sie macht das
+/// Entfernen zu einer sichtbaren Entscheidung statt zu einem Nebeneffekt.
+#[test]
+fn the_core_permissions_the_webview_needs_are_present() {
+    let entries = capability_permission_entries();
+    assert!(
+        !entries.is_empty(),
+        "Extraktion der permissions aus default.json lieferte nichts -- Feldname geaendert?"
+    );
+    for required in [
+        "core:default",
+        "core:event:allow-listen",
+        "core:window:allow-set-title",
+        "core:window:allow-request-user-attention",
+    ] {
+        assert!(
+            entries.iter().any(|entry| entry == required),
+            "{required} fehlt in capabilities/default.json."
+        );
+    }
+}
+
+/// Die Fenster-Labels aus `tauri.conf.json`, mit Tauris Vorgabe fuer den
+/// fehlenden Schluessel.
+///
+/// `"main"` ist nicht geraten: `WindowConfig::label` traegt
+/// `#[serde(default = "default_window_label")]`, und `default_window_label()`
+/// liefert `"main"` (tauri-utils-2.9.3/src/config.rs:1919 bzw. 2362-2364).
+/// Ein Fenster ohne `label`-Schluessel heisst zur Laufzeit also `main`.
+fn configured_window_labels() -> Vec<String> {
+    let value: serde_json::Value =
+        serde_json::from_str(TAURI_CONF_JSON).expect("tauri.conf.json ist kein gueltiges JSON");
+    value["app"]["windows"]
+        .as_array()
+        .expect("app.windows fehlt in tauri.conf.json")
+        .iter()
+        .map(|window| window["label"].as_str().unwrap_or("main").to_string())
+        .collect()
+}
+
+/// Jedes konfigurierte Fenster steht im `windows`-Feld der Capability.
+///
+/// Das Label ist die VIERTE Liste, die zur ACL gehoert, und die einzige, die
+/// nicht nach einer Liste aussieht. Heute passt sie: `tauri.conf.json` hat
+/// ein Fenster ohne `label`-Schluessel (also `main`), die Capability nennt
+/// `["main"]`.
+///
+/// Solange die ACL nicht scharf war, kostete eine Abweichung nichts. Jetzt
+/// ist sie tragend: Die Capability gilt nur fuer Fenster, deren Label eines
+/// ihrer Muster trifft (`tauri-2.11.5/src/ipc/authority.rs:460`) -- bekommt
+/// das Fenster ein ausdrueckliches, abweichendes `label`, sind ALLE neunzehn
+/// Commands dort abgelehnt, sichtbar nur als unerklaerte Promise-Rejections
+/// im WebView. Ein ausdrueckliches Label schreibt man genau dann hin, wenn
+/// ein ZWEITES Fenster dazukommt -- also bei Seitenleiste und mehreren
+/// gleichzeitigen Sessions, dem naechsten Plan.
+///
+/// Verglichen wird woertlich, obwohl die Capability Glob-Muster erlaubt
+/// (`windows: Vec<String>`, "Can be a glob pattern",
+/// tauri-utils-2.9.3/src/acl/capability.rs:150-163). Ein bewusst gesetztes
+/// `"main-*"` macht diesen Test also rot, obwohl es zur Laufzeit passen
+/// wuerde. Das ist gewollt: dann ist hier eine Entscheidung zu treffen
+/// (Muster ausdruecklich zulassen), statt dass die Deckung stillschweigend
+/// unschaerfer wird.
+#[test]
+fn every_configured_window_is_covered_by_the_capability() {
+    let labels = configured_window_labels();
+    let capability: serde_json::Value =
+        serde_json::from_str(CAPABILITY_JSON).expect("default.json ist kein gueltiges JSON");
+    let covered: Vec<String> = capability["windows"]
+        .as_array()
+        .expect("windows-Array fehlt in default.json -- ohne es gilt die Capability fuer KEIN Fenster mit Label-Filter")
+        .iter()
+        .filter_map(|entry| entry.as_str())
+        .map(|entry| entry.to_string())
+        .collect();
+
+    // Beide Listen ausdruecklich nicht leer: "jedes Fenster ist gedeckt"
+    // waere sonst wahr, sobald eine der beiden Extraktionen nichts findet.
+    assert!(
+        !labels.is_empty(),
+        "keine Fenster in tauri.conf.json gefunden -- app.windows leer oder Layout geaendert"
+    );
+    assert!(
+        !covered.is_empty(),
+        "windows-Liste der Capability ist leer -- dann deckt sie kein Fenster ausdruecklich ab"
+    );
+
+    for label in &labels {
+        assert!(
+            covered.contains(label),
+            "Fenster {label:?} aus tauri.conf.json fehlt in der windows-Liste von \
+             capabilities/default.json ({covered:?}). Dort sind alle registrierten Commands \
+             abgelehnt -- im WebView nur als abgelehnte Promise sichtbar, ohne Build- und \
+             ohne Testfehler."
+        );
+    }
+}
+
+/// Gegenprobe zur Extraktionsfalle, als Test statt als Kommentar: die
+/// `.manage(commands::AppState::from_env())`-Zeile darf nicht als Command
+/// gelesen werden. (Bis zur UX-Ueberarbeitung stand dort
+/// `AppState::default()`; `from_env` liest im Debug-Bau den Testsocket,
+/// Spec §9.3. Die Falle ist dieselbe.)
+#[test]
+fn extraction_is_limited_to_the_handler_block() {
+    assert!(
+        LIB_RS.contains("commands::AppState::from_env()"),
+        "Voraussetzung dieses Tests ist entfallen -- lib.rs enthaelt die manage-Zeile nicht \
+         mehr. Dann ist die Blockbegrenzung in handler_commands() ggf. nicht mehr noetig, \
+         aber pruefe das bewusst, statt diesen Test zu loeschen."
+    );
+    assert!(
+        !handler_commands()
+            .iter()
+            .any(|name| name.contains("AppState")),
+        "AppState ist kein Command -- die Extraktion greift ausserhalb des \
+         generate_handler!-Blocks"
+    );
+}

@@ -1,0 +1,208 @@
+ring 0.17.14 source copyright notices
+
+Compiled notice collection, not an upstream NOTICE file. Each quoted line below
+is copied verbatim from the specified archived source. The source set is a
+conservative notice superset, not a list of code proven present in the EXE.
+Use together with LICENSE-other-bits, LICENSE-BoringSSL and the separately
+retained embedded MIT and Fiat notices.
+
+crypto/chacha/asm/chacha-x86_64.pl:2
+# Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/cipher/asm/chacha20_poly1305_x86_64.pl:3
+# Copyright (c) 2015, CloudFlare Ltd.
+
+crypto/cpu_intel.c:1
+// Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/crypto.c:1
+// Copyright 2014 The BoringSSL Authors
+
+crypto/curve25519/curve25519.c:1
+// Copyright 2020 The BoringSSL Authors
+
+crypto/curve25519/curve25519_64_adx.c:1
+// Copyright 2023 The BoringSSL Authors
+
+crypto/fipsmodule/aes/aes_nohw.c:1
+/* Copyright (c) 2019, Google Inc.
+
+crypto/fipsmodule/aes/asm/aes-gcm-avx2-x86_64.pl:2
+# Copyright 2024 The BoringSSL Authors
+
+crypto/fipsmodule/aes/asm/aesni-gcm-x86_64.pl:2
+# Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/fipsmodule/aes/asm/aesni-x86_64.pl:2
+# Copyright 2009-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/fipsmodule/aes/asm/ghash-x86_64.pl:2
+# Copyright 2010-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/fipsmodule/aes/asm/vpaes-x86_64.pl:2
+# Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/fipsmodule/bn/asm/x86_64-mont.pl:2
+# Copyright 2005-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/fipsmodule/bn/internal.h:2
+// Copyright (c) 2002, Oracle and/or its affiliates. All rights reserved.
+
+crypto/fipsmodule/bn/montgomery_inv.c:1
+/* Copyright 2016 Brian Smith.
+
+crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl:2
+# Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl:3
+# Copyright (c) 2014, Intel Corporation. All Rights Reserved.
+
+crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl:4
+# Copyright (c) 2015 CloudFlare, Inc.
+
+crypto/fipsmodule/ec/ecp_nistz.c:1
+/* Copyright (c) 2014, Intel Corporation.
+
+crypto/fipsmodule/ec/ecp_nistz.h:1
+/* Copyright (c) 2015, Google Inc.
+
+crypto/fipsmodule/ec/p256-nistz-table.h:1
+// Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+crypto/fipsmodule/ec/p256-nistz-table.h:2
+// Copyright (c) 2015, Intel Inc.
+
+crypto/fipsmodule/ec/p256-nistz.c:2
+// Copyright (c) 2014, Intel Corporation. All Rights Reserved.
+
+crypto/fipsmodule/ec/util.h:1
+// Copyright 2015 The BoringSSL Authors
+
+crypto/limbs/limbs.c:1
+/* Copyright 2016-2017 Brian Smith.
+
+crypto/poly1305/poly1305.c:1
+/* Copyright (c) 2014, Google Inc.
+
+include/ring-core/aes.h:1
+// Copyright 2002-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+include/ring-core/base.h:1
+// Copyright 2001-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+include/ring-core/check.h:1
+// Copyright 2020 Brian Smith.
+
+include/ring-core/type_check.h:1
+// Copyright 1999-2016 The OpenSSL Project Authors. All Rights Reserved.
+
+src/aead.rs:1
+// Copyright 2015-2024 Brian Smith.
+
+src/aead/aes.rs:1
+// Copyright 2018-2024 Brian Smith.
+
+src/aead/aes_gcm.rs:1
+// Copyright 2015-2025 Brian Smith.
+
+src/aead/algorithm.rs:1
+// Copyright 2015-2021 Brian Smith.
+
+src/aead/chacha.rs:1
+// Copyright 2016 Brian Smith.
+
+src/aead/chacha.rs:2
+// Portions Copyright (c) 2016, Google Inc.
+
+src/aead/chacha/fallback.rs:1
+// Copyright 2021 Brian Smith.
+
+src/aead/chacha/fallback.rs:2
+// Portions Copyright (c) 2014, Google Inc.
+
+src/aead/chacha/ffi.rs:1
+// Copyright 2016-2025 Brian Smith.
+
+src/aead/gcm/fallback.rs:1
+// Copyright (c) 2019, Google Inc.
+
+src/aead/gcm/fallback.rs:2
+// Portions Copyright 2020-2024 Brian Smith.
+
+src/aead/gcm/ffi.rs:1
+// Copyright 2018 Brian Smith.
+
+src/aead/gcm/vclmulavx2.rs:1
+// Copyright 2018-2025 Brian Smith.
+
+src/aead/overlapping/array.rs:1
+// Copyright 2024 Brian Smith.
+
+src/aead/poly1305/ffi_fallback.rs:2
+// Portions Copyright (c) 2014, 2015, Google Inc.
+
+src/agreement.rs:1
+// Copyright 2015-2017 Brian Smith.
+
+src/arithmetic.rs:1
+// Copyright 2017-2023 Brian Smith.
+
+src/arithmetic/bigint.rs:1
+// Copyright 2015-2023 Brian Smith.
+
+src/arithmetic/ffi.rs:1
+// Copyright 2024-2025 Brian Smith.
+
+src/arithmetic/inout.rs:1
+// Copyright 2025 Brian Smith.
+
+src/arithmetic/montgomery.rs:1
+// Copyright 2017-2025 Brian Smith.
+
+src/arithmetic/n0.rs:1
+// Copyright 2015-2022 Brian Smith.
+
+src/bssl.rs:1
+// Copyright 2015 Brian Smith.
+
+src/c.rs:1
+// Copyright 2016-2019 Brian Smith.
+
+src/error/mod.rs:1
+// Copyright 2016-2024 Brian Smith.
+
+src/cpu/intel.rs:1
+// Copyright 2016-2021 Brian Smith.
+
+src/debug.rs:1
+// Copyright 2018 Trent Clarke.
+
+src/digest.rs:1
+// Copyright 2015-2019 Brian Smith.
+
+src/digest/sha1.rs:2
+// Copyright 2016 Simon Sapin.
+
+src/digest/sha2/fallback.rs:1
+// Copyright 2019-2025 Brian Smith.
+
+src/digest/sha2/mod.rs:1
+// Copyright 2019-2024 Brian Smith.
+
+src/ec/curve25519/ed25519.rs:1
+// Copyright 2015-2016 Brian Smith.
+
+src/ec/suite_b/ops/elem.rs:1
+// Copyright 2017 Brian Smith.
+
+src/ec/suite_b/ops/p256.rs:1
+// Copyright 2016-2023 Brian Smith.
+
+src/limb.rs:1
+// Copyright 2016 David Judd.
+
+src/polyfill/array_split_map.rs:1
+// Copyright 2023 Brian Smith.
+
+src/polyfill/unwrap_const.rs:1
+// Copyright 2022 Brian Smith.

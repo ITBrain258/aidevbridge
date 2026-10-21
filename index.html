@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <!-- Shell-Task 11 (Spec §4.2/§11.2): zwei staendige Bereiche, keine
+         statischen Kind-Elemente -- `sidebar.ts`/`grid.ts` bauen ihr DOM
+         jeweils selbst auf (dasselbe Muster wie schon `first-run.ts`/
+         `terminal.ts`s Such-Overlay), main.ts entscheidet nur noch, WANN
+         `#grid` das Raster (`mountGrid`) oder -- bei null gespeicherten
+         Hosts -- den Erststart (`mountFirstRun`) traegt. `#sidebar` bleibt
+         dabei in JEDEM Fall sichtbar (Spec §11.2: "nicht in einer eigenen
+         Vollbildansicht ... damit die Seitenleiste sichtbar bleibt"). -->
+    <div id="app">
+      <div id="sidebar"></div>
+      <div id="grid"></div>
+    </div>
+
+    <!-- TOFU-Rueckfrage (Task 13, Nachtrag): global gemountet, ausserhalb
+         von #app, weil sie unabhaengig davon erscheinen kann, welche
+         Ansicht gerade sichtbar ist -- ein `connect_host`-Aufruf kann aus
+         dem Erststart, der "Add host"-Ueberlagerung oder der Seitenleiste
+         selbst ausgehen (siehe `src/views/host-key-prompt.ts`). -->
+    <div id="host-key-prompt-root"></div>
+
+    <!-- Generische Ueberlagerung (Shell-Task 11) fuer "Add host", "Edit
+         host" und "Neue Session" -- alle drei duerfen ein bereits
+         gemountetes Raster samt laufender Terminals NICHT verdraengen
+         (anders als der Erststart bei null Hosts, der in `#grid` selbst
+         mountet, siehe main.ts). Ebenfalls ausserhalb von `#app`, aus
+         demselben Grund wie `#host-key-prompt-root`. -->
+    <div id="dialog-root"></div>
+  </body>
+</html>

@@ -1,0 +1,3439 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-09-12T10:00:40.328Z",
+  "git_head": "9524eb56180fafdffd74568723b9ab9c5cb501ee",
+  "scope": "Only the final five crates of the historical 15-item missing-full-text list. License text preparation and technical provenance; not final legal compliance or release attestation.",
+  "inputs": [
+    {
+      "path": "Cargo.lock",
+      "bytes": 153532,
+      "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f"
+    },
+    {
+      "path": "Cargo.toml",
+      "bytes": 256,
+      "sha256": "38b006f1e3936f256a5c475a2cf0ca3b7654bed93f75572a0a033522a4bd404b"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "bytes": 5008,
+      "sha256": "337de8247088d03fe34826d772bbf3e002360c8df05faefad5d2c8de0e99dde2"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "bytes": 1295,
+      "sha256": "38050385b160e40c38ce20387154b6a7e896bb1dafef56f5c61798532a33a2b7"
+    },
+    {
+      "path": "docs/release/license-inventory-2026-09-12-rust.json",
+      "bytes": 1708392,
+      "sha256": "9e9637f332eaa701a88475cbd677885e65ca6ce9fd67f981643973836d31d021"
+    },
+    {
+      "path": "docs/release/license-webview2-bindings-2026-09-12.json",
+      "bytes": 10368,
+      "sha256": "fde5462c44b85eef9e539194a3319ff9031204d4d91715cad8fed483f526c552"
+    },
+    {
+      "path": "docs/release/license-russh-support-2026-09-12.json",
+      "bytes": 30746,
+      "sha256": "517c0d19502b66eb19c57ac18444697ccc81ebc704030f837ab9fd9dac73365e"
+    },
+    {
+      "path": "docs/release/license-unic-2026-09-12.json",
+      "bytes": 84805,
+      "sha256": "ed3c41bbf6c864ab705ee819218302a3e180c1450ec131106adc56953d0c1345"
+    }
+  ],
+  "configuration_from_historical_inventory": {
+    "target": "x86_64-pc-windows-msvc",
+    "features_argument": "tauri/custom-protocol",
+    "default_features_enabled": true,
+    "dev_dependencies_in_release_tree": false,
+    "workspace_resolver": "2"
+  },
+  "methodology": {
+    "archive": "Read cached .crate gzip/tar in memory, allow only regular entries within expected package prefix, compare SHA256 with current root Cargo.lock and every entry with installed files. No extraction.",
+    "upstream": "Fetch exact crate VCS pins, compare selected manifests/source/readme bytes and applicable git tree blobs; independent selectors review distinctly identified.",
+    "choice": "MIT selected only for delegate and tauri-plugin after explicit OR evidence. BSD-3-Clause, Apache-2.0 and MPL-2.0 retained for other respective packages.",
+    "network": "HTTPS, 20-second request AbortSignal and 2 MiB response cap, downloads in memory. Only the pre-observed exact russh GitHub API relocation to repository 456693383 is followed."
+  },
+  "packages": [
+    {
+      "name": "alloc-stdlib",
+      "version": "0.2.4",
+      "repository": "https://github.com/dropbox/rust-alloc-no-stdlib",
+      "pin": "ae42d22078b98549e987d2f03d12df7b984fde47",
+      "path_in_vcs": "alloc-stdlib",
+      "vcs_info": {
+        "git": {
+          "sha1": "ae42d22078b98549e987d2f03d12df7b984fde47"
+        },
+        "path_in_vcs": "alloc-stdlib"
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/.cargo_vcs_info.json",
+        "bytes": 106,
+        "sha256": "5d07554db80324e6f09a3074928e6ae0e7cea58248f4c1db3f32d9ce0ec85efb"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4.crate",
+        "bytes": 6730,
+        "sha256": "0e76a019e91224d279006ff972f1e984179a6e9feb050adba6ce8274aef23195",
+        "matches_current_root_lock": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/",
+      "files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 106,
+          "sha256": "5d07554db80324e6f09a3074928e6ae0e7cea58248f4c1db3f32d9ce0ec85efb",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.lock",
+          "bytes": 394,
+          "sha256": "34c9db991124baae98c39ac89ecedaa33d971fb5341b06313e94c766b61fc3f9",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1170,
+          "sha256": "9b65004149aeacdda9e2aa7cc08c36912d26cd51e8d91914fd63ad5bc1893a01",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 697,
+          "sha256": "77cff698112ee833c7c2e2b42c2b51677502ee04ca4a0c213155e3494a80fec3",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 6776,
+          "sha256": "4857caaabcb6eb367687e6671d70fef3b8dcbab1276999612b71f9f4cd6190b0",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/bin/example.rs",
+          "bytes": 4054,
+          "sha256": "1f8901b4b4194ae678ed87ecca8a8dedc042c5a4b9ea0463bf50b9efdc379714",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/bin/tests.rs",
+          "bytes": 1825,
+          "sha256": "94d4173261e0d323b2d7648b4a4d24966935cdaab6d1d673f16cfaae77ecb4e1",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/heap_alloc.rs",
+          "bytes": 3554,
+          "sha256": "d9bd3c9ea07195729cf79cae67e568f48c4c9a4ed8b806854c99f49ff35a8e57",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 437,
+          "sha256": "3b1358fd99790a1063f0f2b4358d3771a75fcc3ee8e4560984326f86a8c56b0a",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/std_alloc.rs",
+          "bytes": 381,
+          "sha256": "77c7daf777daf053be9c4bddd027c6ba4a3d389d45a90047a8b47c446b44ea67",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/test.rs",
+          "bytes": 2624,
+          "sha256": "179b4972d2a9d521fbba851997880abcc07b8485b7f942dd5c47858cbc35b108",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tests/lib.rs",
+          "bytes": 13084,
+          "sha256": "fd109e481944e25b5313e1f2a4ee47f8800430a50d55c9a0503a1f7b74f62747",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "original_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/Cargo.toml.orig",
+        "bytes": 697,
+        "sha256": "77cff698112ee833c7c2e2b42c2b51677502ee04ca4a0c213155e3494a80fec3"
+      },
+      "normalized_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/Cargo.toml",
+        "bytes": 1170,
+        "sha256": "9b65004149aeacdda9e2aa7cc08c36912d26cd51e8d91914fd63ad5bc1893a01"
+      },
+      "declared_spdx": "BSD-3-Clause",
+      "selected_license": "BSD-3-Clause",
+      "technical_role": "normal-runtime-candidate",
+      "proc_macro": false,
+      "release_tree_features": [],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "root_tree": {
+        "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/ae42d22078b98549e987d2f03d12df7b984fde47",
+        "entries": [
+          {
+            "path": ".gitignore",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "fa8d85ac52f19959d6fc9942c265708b4b3c2b04",
+            "size": 18,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/fa8d85ac52f19959d6fc9942c265708b4b3c2b04"
+          },
+          {
+            "path": ".travis.yml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3465ead506a699b0312de3cf8a2447ab1d4366fa",
+            "size": 375,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/3465ead506a699b0312de3cf8a2447ab1d4366fa"
+          },
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "ace22f0b5d1531f4bafb19bf7037531ae1751f79",
+            "size": 857,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/ace22f0b5d1531f4bafb19bf7037531ae1751f79"
+          },
+          {
+            "path": "LICENSE",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "cd496ba72eb37e83a44958358d1f89a8a28cbc15",
+            "size": 1483,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/cd496ba72eb37e83a44958358d1f89a8a28cbc15"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "1ae018a6584cb4cd3f7f1f7ee4ba5fa8aa0147f9",
+            "size": 7249,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/1ae018a6584cb4cd3f7f1f7ee4ba5fa8aa0147f9"
+          },
+          {
+            "path": "alloc-stdlib",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "62d55e6725d70981fd5570b6491026a7a6262227",
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/62d55e6725d70981fd5570b6491026a7a6262227"
+          },
+          {
+            "path": "src",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "726519f437dac43a19a61e9edb4590dfc0038450",
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/726519f437dac43a19a61e9edb4590dfc0038450"
+          },
+          {
+            "path": "tests",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "56141638b2095e6df98b38a4adc2aa93034612e3",
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/56141638b2095e6df98b38a4adc2aa93034612e3"
+          }
+        ]
+      },
+      "package_tree": {
+        "ancestry": [
+          {
+            "part": "alloc-stdlib",
+            "git_tree": "62d55e6725d70981fd5570b6491026a7a6262227",
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/62d55e6725d70981fd5570b6491026a7a6262227"
+          },
+          {
+            "part": "recursive package contents",
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/62d55e6725d70981fd5570b6491026a7a6262227?recursive=1"
+          }
+        ],
+        "entries": [
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "b4d83ae7b6473ea017a91800f995d5b095463cd0",
+            "size": 697,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/b4d83ae7b6473ea017a91800f995d5b095463cd0"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "f40bd29bf272aa689e765b2657ec14a7e6e941b6",
+            "size": 6776,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/f40bd29bf272aa689e765b2657ec14a7e6e941b6"
+          },
+          {
+            "path": "src",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "552248a193094dd71d0e37eff3ceee03bb74ffed",
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/552248a193094dd71d0e37eff3ceee03bb74ffed"
+          },
+          {
+            "path": "src/bin",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "f2f47f5c2dd281c0f3c96bc09f37759902451d7d",
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/f2f47f5c2dd281c0f3c96bc09f37759902451d7d"
+          },
+          {
+            "path": "src/bin/example.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "27dbc75bdafdb93a1b928b1b86ae07b83b3a68a6",
+            "size": 4054,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/27dbc75bdafdb93a1b928b1b86ae07b83b3a68a6"
+          },
+          {
+            "path": "src/bin/tests.rs",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "f83c85747f244d62eb07c35d1077adbf2e0c4c84",
+            "size": 1825,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/f83c85747f244d62eb07c35d1077adbf2e0c4c84"
+          },
+          {
+            "path": "src/heap_alloc.rs",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "cfdee45bc9f8f9e8c2a3e9717e40fa82bbf9647e",
+            "size": 3554,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/cfdee45bc9f8f9e8c2a3e9717e40fa82bbf9647e"
+          },
+          {
+            "path": "src/lib.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "c2def1bf4826ec8864a7a0b64785700c4bce1bbd",
+            "size": 437,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/c2def1bf4826ec8864a7a0b64785700c4bce1bbd"
+          },
+          {
+            "path": "src/std_alloc.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "ceaff9d5b7147e64016acb0ecb7a0b4504cd2e66",
+            "size": 381,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/ceaff9d5b7147e64016acb0ecb7a0b4504cd2e66"
+          },
+          {
+            "path": "src/test.rs",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "9660a9d970214c6a2f9ffd3f97464965078c3c91",
+            "size": 2624,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/9660a9d970214c6a2f9ffd3f97464965078c3c91"
+          },
+          {
+            "path": "tests",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "b7c396fab5f7e4364c4f9a348cf96f685ad85187",
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/b7c396fab5f7e4364c4f9a348cf96f685ad85187"
+          },
+          {
+            "path": "tests/lib.rs",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "aa375e34be0fd1e0addd111a8ff53a977e1c5441",
+            "size": 13084,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/aa375e34be0fd1e0addd111a8ff53a977e1c5441"
+          }
+        ],
+        "truncated": false
+      },
+      "named_license_notice_paths": {
+        "root": [
+          {
+            "path": "LICENSE",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "cd496ba72eb37e83a44958358d1f89a8a28cbc15",
+            "size": 1483,
+            "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/blobs/cd496ba72eb37e83a44958358d1f89a8a28cbc15"
+          }
+        ],
+        "package": [],
+        "absence_scope": "only checked root entry names and complete package subtree; not unrelated repository components"
+      },
+      "upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/Cargo.toml",
+          "bytes": 697,
+          "sha256": "77cff698112ee833c7c2e2b42c2b51677502ee04ca4a0c213155e3494a80fec3",
+          "git_blob": "b4d83ae7b6473ea017a91800f995d5b095463cd0",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/README.md",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/README.md",
+          "bytes": 6776,
+          "sha256": "4857caaabcb6eb367687e6671d70fef3b8dcbab1276999612b71f9f4cd6190b0",
+          "git_blob": "f40bd29bf272aa689e765b2657ec14a7e6e941b6",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/src/bin/example.rs",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/bin/example.rs",
+          "bytes": 4054,
+          "sha256": "1f8901b4b4194ae678ed87ecca8a8dedc042c5a4b9ea0463bf50b9efdc379714",
+          "git_blob": "27dbc75bdafdb93a1b928b1b86ae07b83b3a68a6",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/src/bin/tests.rs",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/bin/tests.rs",
+          "bytes": 1825,
+          "sha256": "94d4173261e0d323b2d7648b4a4d24966935cdaab6d1d673f16cfaae77ecb4e1",
+          "git_blob": "f83c85747f244d62eb07c35d1077adbf2e0c4c84",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/src/heap_alloc.rs",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/heap_alloc.rs",
+          "bytes": 3554,
+          "sha256": "d9bd3c9ea07195729cf79cae67e568f48c4c9a4ed8b806854c99f49ff35a8e57",
+          "git_blob": "cfdee45bc9f8f9e8c2a3e9717e40fa82bbf9647e",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/lib.rs",
+          "bytes": 437,
+          "sha256": "3b1358fd99790a1063f0f2b4358d3771a75fcc3ee8e4560984326f86a8c56b0a",
+          "git_blob": "c2def1bf4826ec8864a7a0b64785700c4bce1bbd",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/src/std_alloc.rs",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/std_alloc.rs",
+          "bytes": 381,
+          "sha256": "77c7daf777daf053be9c4bddd027c6ba4a3d389d45a90047a8b47c446b44ea67",
+          "git_blob": "ceaff9d5b7147e64016acb0ecb7a0b4504cd2e66",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/src/test.rs",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/test.rs",
+          "bytes": 2624,
+          "sha256": "179b4972d2a9d521fbba851997880abcc07b8485b7f942dd5c47858cbc35b108",
+          "git_blob": "9660a9d970214c6a2f9ffd3f97464965078c3c91",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/alloc-stdlib-0.2.4/tests/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/tests/lib.rs",
+          "bytes": 13084,
+          "sha256": "fd109e481944e25b5313e1f2a4ee47f8800430a50d55c9a0503a1f7b74f62747",
+          "git_blob": "aa375e34be0fd1e0addd111a8ff53a977e1c5441",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/bin/example.rs",
+          "sha256": "1f8901b4b4194ae678ed87ecca8a8dedc042c5a4b9ea0463bf50b9efdc379714",
+          "header": "//#![feature(trace_macros)]\nextern crate alloc_stdlib;\n#[macro_use]\nextern crate alloc_no_stdlib;",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/bin/tests.rs",
+          "sha256": "94d4173261e0d323b2d7648b4a4d24966935cdaab6d1d673f16cfaae77ecb4e1",
+          "header": "#![allow(unused_imports)]\n#[cfg(test)]\nextern crate core;\nuse alloc_no_stdlib::{Allocator, SliceWrapper, SliceWrapperMut};\nuse super::{HeapAlloc, StandardAlloc};\n#[test]\nfn heap_test() {\n  let mut halloc : HeapAlloc<u8> = HeapAlloc::<u8>{default_value: 0};\n  for _i in 1..10 { // heap test\n      let mut x = halloc.alloc_cell(100000);\n      x.slice_mut()[0] = 4;\n      let mut y = halloc.alloc_cell(110000);\n      y.slice_mut()[0] = 5;\n      let mut z = halloc.alloc_cell(120000);\n      z.slice_mut()[0] = 6;\n      assert_eq!(y.slice()[0], 5);\n      halloc.free_cell(y);\n      assert_eq!(x.slice()[0], 4);\n      assert_eq!(x.slice()[9], 0);\n      assert_eq!(z.slice()[0], 6);\n  }",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/heap_alloc.rs",
+          "sha256": "d9bd3c9ea07195729cf79cae67e568f48c4c9a4ed8b806854c99f49ff35a8e57",
+          "header": "use std;",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "3b1358fd99790a1063f0f2b4358d3771a75fcc3ee8e4560984326f86a8c56b0a",
+          "header": "#![cfg_attr(not(feature=\"unsafe\"), forbid(unsafe_code))]\n#[macro_use]\nextern crate alloc_no_stdlib;\npub mod heap_alloc;\npub mod std_alloc;\npub use self::heap_alloc::{HeapAlloc, HeapPrealloc};\npub use self::std_alloc::{StandardAlloc};\npub use alloc_no_stdlib::{Allocator, SliceWrapper, SliceWrapperMut};\npub use alloc_no_stdlib::{StackAllocator, AllocatedStackMemory};\n#[cfg(feature=\"unsafe\")]\npub use heap_alloc::HeapAllocUninitialized;\n",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/std_alloc.rs",
+          "sha256": "77c7daf777daf053be9c4bddd027c6ba4a3d389d45a90047a8b47c446b44ea67",
+          "header": "use super::heap_alloc::WrapBox;\nuse super::{Allocator};\n#[derive(Default, Clone, Copy, Debug)]\npub struct StandardAlloc{}",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/test.rs",
+          "sha256": "179b4972d2a9d521fbba851997880abcc07b8485b7f942dd5c47858cbc35b108",
+          "header": "#![cfg(test)]",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "tests/lib.rs",
+          "sha256": "fd109e481944e25b5313e1f2a4ee47f8800430a50d55c9a0503a1f7b74f62747",
+          "header": "#![allow(unused_imports)]\n#![allow(dead_code)]\n//#![feature(trace_macros)]",
+          "license_or_copyright_lines": []
+        }
+      ],
+      "license": {
+        "package": "alloc-stdlib",
+        "version": "0.2.4",
+        "selected_license": "BSD-3-Clause",
+        "source_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/LICENSE",
+        "source_kind": "original repository-root file at exact crate VCS pin",
+        "bytes": 1483,
+        "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+        "git_blob": "cd496ba72eb37e83a44958358d1f89a8a28cbc15",
+        "export_path": "docs/release/licenses/alloc-stdlib-0.2.4-LICENSE-BSD-3-Clause.txt",
+        "reused_existing_export": false,
+        "original_bytes": true
+      },
+      "extra": {}
+    },
+    {
+      "name": "pageant",
+      "version": "0.2.1",
+      "repository": "https://github.com/warp-tech/russh",
+      "pin": "1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7",
+      "path_in_vcs": "pageant",
+      "vcs_info": {
+        "git": {
+          "sha1": "1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7"
+        },
+        "path_in_vcs": "pageant"
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/.cargo_vcs_info.json",
+        "bytes": 101,
+        "sha256": "2e8d8d9b3f335f92230df4f8cf66ae1ac45f9175dbdf6448deb7077249bc3b9c"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1.crate",
+        "bytes": 11858,
+        "sha256": "4f3a5ae18f65a85c67a77d18d42d3606c07948e3c17c1e5f74852b26589e88a5",
+        "matches_current_root_lock": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/",
+      "files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 101,
+          "sha256": "2e8d8d9b3f335f92230df4f8cf66ae1ac45f9175dbdf6448deb7077249bc3b9c",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.lock",
+          "bytes": 20276,
+          "sha256": "b94c368bedb719f6bbca94b583f3c62777a755897fc76781e7c483a15b74584d",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 2262,
+          "sha256": "292c56377ba361e2586b80d8f8b088be32aab075b468feff19174c4e4cc74ad2",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 1300,
+          "sha256": "6929d550f88eb6892d91978baad857e1fa632036a5e3fb0bcf2c49664fa15dde",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/error.rs",
+          "bytes": 751,
+          "sha256": "4774285044b07100b037b1cb461f1df2872805ecc0819e1148bbb89738a56f89",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/interface.rs",
+          "bytes": 3834,
+          "sha256": "114ead1a29dc361a19670a5bbef63d4f89e64fada8fb95fe6cb730f1f5c0e478",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 643,
+          "sha256": "4e9e5d49d30aab6dbfcad66b862f1b62f770bb2612c3523e7fbb6f442fb28d3d",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/namedpipes.rs",
+          "bytes": 5188,
+          "sha256": "74c77cf12daebd573a1f72c9c460006ea9f8666ced45cc1cfb721e86d1b47097",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/wmmessage.rs",
+          "bytes": 8435,
+          "sha256": "83dd8176c8fb32ba9eff8925ae967d584f6b13c10b9e0bbcbd342d6ec23012f6",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "original_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/Cargo.toml.orig",
+        "bytes": 1300,
+        "sha256": "6929d550f88eb6892d91978baad857e1fa632036a5e3fb0bcf2c49664fa15dde"
+      },
+      "normalized_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/Cargo.toml",
+        "bytes": 2262,
+        "sha256": "292c56377ba361e2586b80d8f8b088be32aab075b468feff19174c4e4cc74ad2"
+      },
+      "declared_spdx": "Apache-2.0",
+      "selected_license": "Apache-2.0",
+      "technical_role": "normal-runtime-candidate",
+      "proc_macro": false,
+      "release_tree_features": [
+        "default",
+        "namedpipes",
+        "wmmessage"
+      ],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "root_tree": {
+        "url": "https://api.github.com/repos/warp-tech/russh/git/trees/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7",
+        "entries": [
+          {
+            "path": ".all-contributorsrc",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "0a9283f171d74345f77af0abce6737bb656443b0",
+            "size": 19930,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/0a9283f171d74345f77af0abce6737bb656443b0"
+          },
+          {
+            "path": ".github",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "2bba35f25bb5816aae56d867a339b70226bba5a5",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/2bba35f25bb5816aae56d867a339b70226bba5a5"
+          },
+          {
+            "path": ".gitignore",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "7cea3a2d0188a7ae38a813c2c02caa18d5e314bb",
+            "size": 68,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/7cea3a2d0188a7ae38a813c2c02caa18d5e314bb"
+          },
+          {
+            "path": ".well-known",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "c010760a7972a909875e02a04be617ead435355d",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/c010760a7972a909875e02a04be617ead435355d"
+          },
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "80f0394bf510e0781b333ff9e91e68171fbd72ca",
+            "size": 821,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/80f0394bf510e0781b333ff9e91e68171fbd72ca"
+          },
+          {
+            "path": "LICENSE.txt",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+            "size": 11358,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/d645695673349e3947e8e5ae42332d0ac3164cd7"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "d80d3b8217a9ae52e29e80395eb4a2a6e27a1582",
+            "size": 34322,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/d80d3b8217a9ae52e29e80395eb4a2a6e27a1582"
+          },
+          {
+            "path": "SECURITY.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "f2d775ae9a89dfd61e9fcb7047b2260f0acd2850",
+            "size": 177,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/f2d775ae9a89dfd61e9fcb7047b2260f0acd2850"
+          },
+          {
+            "path": "bench.sh",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "713b7e0f40f4d96bcbe4344fece13aa3861b69a1",
+            "size": 64,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/713b7e0f40f4d96bcbe4344fece13aa3861b69a1"
+          },
+          {
+            "path": "cryptovec",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "44a43b46b83ce0120e00730b903678a840984ca1",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/44a43b46b83ce0120e00730b903678a840984ca1"
+          },
+          {
+            "path": "files",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "c49c83f8b5a93665b7f4f0a0309fec6fd484cad3",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/c49c83f8b5a93665b7f4f0a0309fec6fd484cad3"
+          },
+          {
+            "path": "pageant",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "13c9ef284c98073f2fe3dc500c4c2125875b6c8d",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/13c9ef284c98073f2fe3dc500c4c2125875b6c8d"
+          },
+          {
+            "path": "russh-config",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "f704d9f4fc7fc720781d2da6edc062dace271ba6",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/f704d9f4fc7fc720781d2da6edc062dace271ba6"
+          },
+          {
+            "path": "russh-util",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "8f2d1d63dad37e9e0af91afd0e783e9889952e48",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/8f2d1d63dad37e9e0af91afd0e783e9889952e48"
+          },
+          {
+            "path": "russh",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "3f896a880704fd34ea3df1eaccff9de52d14b241",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/3f896a880704fd34ea3df1eaccff9de52d14b241"
+          },
+          {
+            "path": "rust-toolchain.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "e88baf106b9e6550446ae1cd13dbba561193e062",
+            "size": 31,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/e88baf106b9e6550446ae1cd13dbba561193e062"
+          },
+          {
+            "path": "rustfmt.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3a3f3f1dd31ccb134d39796a081221540e45bc3f",
+            "size": 66,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/3a3f3f1dd31ccb134d39796a081221540e45bc3f"
+          }
+        ]
+      },
+      "package_tree": {
+        "ancestry": [
+          {
+            "part": "pageant",
+            "git_tree": "13c9ef284c98073f2fe3dc500c4c2125875b6c8d",
+            "url": "https://api.github.com/repositories/456693383/git/trees/13c9ef284c98073f2fe3dc500c4c2125875b6c8d"
+          },
+          {
+            "part": "recursive package contents",
+            "url": "https://api.github.com/repositories/456693383/git/trees/13c9ef284c98073f2fe3dc500c4c2125875b6c8d?recursive=1"
+          }
+        ],
+        "entries": [
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "1e1c6a542842c895ceeda73c8aaa238388a92eee",
+            "size": 1300,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/1e1c6a542842c895ceeda73c8aaa238388a92eee"
+          },
+          {
+            "path": "src",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "89c720c4cdc4b9e96dc4f6fa8c9d887c9310c61b",
+            "url": "https://api.github.com/repos/Eugeny/russh/git/trees/89c720c4cdc4b9e96dc4f6fa8c9d887c9310c61b"
+          },
+          {
+            "path": "src/error.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "9381fbb46db67dc9ce3d34630fd6f9ed241cc780",
+            "size": 751,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/9381fbb46db67dc9ce3d34630fd6f9ed241cc780"
+          },
+          {
+            "path": "src/interface.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "ebb62c2acb2b4948bc5300ca8b209c38c12953df",
+            "size": 3834,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/ebb62c2acb2b4948bc5300ca8b209c38c12953df"
+          },
+          {
+            "path": "src/lib.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "ed19685e89b6579c91056905068facd791f9182e",
+            "size": 643,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/ed19685e89b6579c91056905068facd791f9182e"
+          },
+          {
+            "path": "src/namedpipes.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "20584c26e17282e050dc0592de403b8aebde6e4c",
+            "size": 5188,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/20584c26e17282e050dc0592de403b8aebde6e4c"
+          },
+          {
+            "path": "src/wmmessage.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "951a51738c427bbd411aacaa08c6f9be2391f17a",
+            "size": 8435,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/951a51738c427bbd411aacaa08c6f9be2391f17a"
+          }
+        ],
+        "truncated": false
+      },
+      "named_license_notice_paths": {
+        "root": [
+          {
+            "path": "LICENSE.txt",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+            "size": 11358,
+            "url": "https://api.github.com/repos/Eugeny/russh/git/blobs/d645695673349e3947e8e5ae42332d0ac3164cd7"
+          }
+        ],
+        "package": [],
+        "absence_scope": "only checked root entry names and complete package subtree; not unrelated repository components"
+      },
+      "upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/Cargo.toml",
+          "bytes": 1300,
+          "sha256": "6929d550f88eb6892d91978baad857e1fa632036a5e3fb0bcf2c49664fa15dde",
+          "git_blob": "1e1c6a542842c895ceeda73c8aaa238388a92eee",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/src/error.rs",
+          "upstream_url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/error.rs",
+          "bytes": 751,
+          "sha256": "4774285044b07100b037b1cb461f1df2872805ecc0819e1148bbb89738a56f89",
+          "git_blob": "9381fbb46db67dc9ce3d34630fd6f9ed241cc780",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/src/interface.rs",
+          "upstream_url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/interface.rs",
+          "bytes": 3834,
+          "sha256": "114ead1a29dc361a19670a5bbef63d4f89e64fada8fb95fe6cb730f1f5c0e478",
+          "git_blob": "ebb62c2acb2b4948bc5300ca8b209c38c12953df",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/lib.rs",
+          "bytes": 643,
+          "sha256": "4e9e5d49d30aab6dbfcad66b862f1b62f770bb2612c3523e7fbb6f442fb28d3d",
+          "git_blob": "ed19685e89b6579c91056905068facd791f9182e",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/src/namedpipes.rs",
+          "upstream_url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/namedpipes.rs",
+          "bytes": 5188,
+          "sha256": "74c77cf12daebd573a1f72c9c460006ea9f8666ced45cc1cfb721e86d1b47097",
+          "git_blob": "20584c26e17282e050dc0592de403b8aebde6e4c",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pageant-0.2.1/src/wmmessage.rs",
+          "upstream_url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/wmmessage.rs",
+          "bytes": 8435,
+          "sha256": "83dd8176c8fb32ba9eff8925ae967d584f6b13c10b9e0bbcbd342d6ec23012f6",
+          "git_blob": "951a51738c427bbd411aacaa08c6f9be2391f17a",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/error.rs",
+          "sha256": "4774285044b07100b037b1cb461f1df2872805ecc0819e1148bbb89738a56f89",
+          "header": "use thiserror::Error;",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/interface.rs",
+          "sha256": "114ead1a29dc361a19670a5bbef63d4f89e64fada8fb95fe6cb730f1f5c0e478",
+          "header": "use std::pin::Pin;",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "4e9e5d49d30aab6dbfcad66b862f1b62f770bb2612c3523e7fbb6f442fb28d3d",
+          "header": "//! # Pageant SSH agent transport protocol implementation\n//!\n//! This crate provides a [PageantStream] type that implements [AsyncRead] and [AsyncWrite] traits and can be used to talk to a running Pageant instance.\n//!\n//! This crate only implements the transport, not the actual SSH agent protocol.",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/namedpipes.rs",
+          "sha256": "74c77cf12daebd573a1f72c9c460006ea9f8666ced45cc1cfb721e86d1b47097",
+          "header": "use std::io::IoSlice;\nuse std::pin::Pin;\nuse std::task::{Context, Poll};\nuse std::time::Duration;",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/wmmessage.rs",
+          "sha256": "83dd8176c8fb32ba9eff8925ae967d584f6b13c10b9e0bbcbd342d6ec23012f6",
+          "header": "use std::ffi::CString;\nuse std::io::IoSlice;\nuse std::pin::Pin;\nuse std::task::{Context, Poll};",
+          "license_or_copyright_lines": []
+        }
+      ],
+      "license": {
+        "package": "pageant",
+        "version": "0.2.1",
+        "selected_license": "Apache-2.0",
+        "source_url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/LICENSE.txt",
+        "source_kind": "original repository-root file at exact crate VCS pin",
+        "bytes": 11358,
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "git_blob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "export_path": "docs/release/licenses/russh-cryptovec-0.62.0-util-0.52.0-LICENSE-APACHE.txt",
+        "reused_existing_export": true,
+        "original_bytes": true
+      },
+      "extra": {
+        "scope": "Rust transport implementation for talking to an existing Pageant process. Checked crate archive consists of manifests/lock/VCS metadata and five Rust source files, no Pageant executable or native loader."
+      }
+    },
+    {
+      "name": "delegate",
+      "version": "0.13.5",
+      "repository": "https://github.com/kobzol/rust-delegate",
+      "pin": "b129d4cbf4cc499eff7743365dcb0fe5d8d2e820",
+      "path_in_vcs": "",
+      "vcs_info": {
+        "git": {
+          "sha1": "b129d4cbf4cc499eff7743365dcb0fe5d8d2e820"
+        },
+        "path_in_vcs": ""
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5/.cargo_vcs_info.json",
+        "bytes": 94,
+        "sha256": "b3600d1ea4f6b24905e1c720c2dcee3af059ed2af45ed1e2a836124bb0bd3db2"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5.crate",
+        "bytes": 20690,
+        "sha256": "780eb241654bf097afb00fc5f054a09b687dad862e485fdcf8399bb056565370",
+        "matches_current_root_lock": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5/",
+      "files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 94,
+          "sha256": "b3600d1ea4f6b24905e1c720c2dcee3af059ed2af45ed1e2a836124bb0bd3db2",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.lock",
+          "bytes": 9187,
+          "sha256": "1172c81c3a3a5488583feab8b6432fe43faf5d3871e97ff6812dd40d6421ccb1",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1396,
+          "sha256": "95caf890d66a74e0f26f1e7f04ae392c85065b03d0f702eb4fbe2de32e7f91f6",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 644,
+          "sha256": "42d8d439b03ca6b4340c03c86c96e21ca91c7eb64167dc5cfbeaffea10a4af46",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 12911,
+          "sha256": "d6ed995b649e247fc5e3deb556da4a1f254a3bf8e1bdfc37f3eda8ad4d8486eb",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/attributes.rs",
+          "bytes": 19176,
+          "sha256": "12253a2573811764e7853cd94a01fa21d93f93e867b3cca1c7f089608a3739ca",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 41107,
+          "sha256": "feb547fb387cb4af779e6b7d1633af5769b6e250d382ba4a34e4e53ea79e588c",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "original_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5/Cargo.toml.orig",
+        "bytes": 644,
+        "sha256": "42d8d439b03ca6b4340c03c86c96e21ca91c7eb64167dc5cfbeaffea10a4af46"
+      },
+      "normalized_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5/Cargo.toml",
+        "bytes": 1396,
+        "sha256": "95caf890d66a74e0f26f1e7f04ae392c85065b03d0f702eb4fbe2de32e7f91f6"
+      },
+      "declared_spdx": "MIT OR Apache-2.0",
+      "selected_license": "MIT",
+      "technical_role": "build-or-proc-macro-only-in-this-tree",
+      "proc_macro": true,
+      "release_tree_features": [],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "root_tree": {
+        "url": "https://api.github.com/repos/kobzol/rust-delegate/git/trees/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820",
+        "entries": [
+          {
+            "path": ".github",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "df0dacd10d10c985a8434754ff1664f6529b6b26",
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/trees/df0dacd10d10c985a8434754ff1664f6529b6b26"
+          },
+          {
+            "path": ".gitignore",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "693699042b1a8ccf697636d3cd34b200f3a8278b",
+            "size": 30,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/693699042b1a8ccf697636d3cd34b200f3a8278b"
+          },
+          {
+            "path": ".release-plz.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "0fc9f60a627cbc9290a2eb4f35fc5340ef8dbaaf",
+            "size": 110,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/0fc9f60a627cbc9290a2eb4f35fc5340ef8dbaaf"
+          },
+          {
+            "path": "CHANGELOG.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "98e874ac42d42d6690046262ffb41f19b2a9e15d",
+            "size": 6964,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/98e874ac42d42d6690046262ffb41f19b2a9e15d"
+          },
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "b963abba7bde921d7fb5e0ad9a6138404e0c0779",
+            "size": 644,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/b963abba7bde921d7fb5e0ad9a6138404e0c0779"
+          },
+          {
+            "path": "LICENSE-APACHE",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "8dada3edaf50dbc082c9a125058f25def75e625a",
+            "size": 11357,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/8dada3edaf50dbc082c9a125058f25def75e625a"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "688d43f92fad946c826ac49c4edf7ec280fdad66",
+            "size": 1078,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/688d43f92fad946c826ac49c4edf7ec280fdad66"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3d79b169269e39cec04fcf2cc96d73f1899233fa",
+            "size": 12911,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/3d79b169269e39cec04fcf2cc96d73f1899233fa"
+          },
+          {
+            "path": "src",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "5981d538b02596befe447f8220401487e1bf7844",
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/trees/5981d538b02596befe447f8220401487e1bf7844"
+          },
+          {
+            "path": "tests",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "e0312256555b34cb924c424348fc796b123c571b",
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/trees/e0312256555b34cb924c424348fc796b123c571b"
+          }
+        ]
+      },
+      "package_tree": {
+        "ancestry": [],
+        "entries": [
+          {
+            "path": ".github",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "df0dacd10d10c985a8434754ff1664f6529b6b26",
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/trees/df0dacd10d10c985a8434754ff1664f6529b6b26"
+          },
+          {
+            "path": ".gitignore",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "693699042b1a8ccf697636d3cd34b200f3a8278b",
+            "size": 30,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/693699042b1a8ccf697636d3cd34b200f3a8278b"
+          },
+          {
+            "path": ".release-plz.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "0fc9f60a627cbc9290a2eb4f35fc5340ef8dbaaf",
+            "size": 110,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/0fc9f60a627cbc9290a2eb4f35fc5340ef8dbaaf"
+          },
+          {
+            "path": "CHANGELOG.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "98e874ac42d42d6690046262ffb41f19b2a9e15d",
+            "size": 6964,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/98e874ac42d42d6690046262ffb41f19b2a9e15d"
+          },
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "b963abba7bde921d7fb5e0ad9a6138404e0c0779",
+            "size": 644,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/b963abba7bde921d7fb5e0ad9a6138404e0c0779"
+          },
+          {
+            "path": "LICENSE-APACHE",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "8dada3edaf50dbc082c9a125058f25def75e625a",
+            "size": 11357,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/8dada3edaf50dbc082c9a125058f25def75e625a"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "688d43f92fad946c826ac49c4edf7ec280fdad66",
+            "size": 1078,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/688d43f92fad946c826ac49c4edf7ec280fdad66"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3d79b169269e39cec04fcf2cc96d73f1899233fa",
+            "size": 12911,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/3d79b169269e39cec04fcf2cc96d73f1899233fa"
+          },
+          {
+            "path": "src",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "5981d538b02596befe447f8220401487e1bf7844",
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/trees/5981d538b02596befe447f8220401487e1bf7844"
+          },
+          {
+            "path": "tests",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "e0312256555b34cb924c424348fc796b123c571b",
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/trees/e0312256555b34cb924c424348fc796b123c571b"
+          }
+        ],
+        "truncated": false
+      },
+      "named_license_notice_paths": {
+        "root": [
+          {
+            "path": "LICENSE-APACHE",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "8dada3edaf50dbc082c9a125058f25def75e625a",
+            "size": 11357,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/8dada3edaf50dbc082c9a125058f25def75e625a"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "688d43f92fad946c826ac49c4edf7ec280fdad66",
+            "size": 1078,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/688d43f92fad946c826ac49c4edf7ec280fdad66"
+          }
+        ],
+        "package": [
+          {
+            "path": "LICENSE-APACHE",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "8dada3edaf50dbc082c9a125058f25def75e625a",
+            "size": 11357,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/8dada3edaf50dbc082c9a125058f25def75e625a"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "688d43f92fad946c826ac49c4edf7ec280fdad66",
+            "size": 1078,
+            "url": "https://api.github.com/repos/Kobzol/rust-delegate/git/blobs/688d43f92fad946c826ac49c4edf7ec280fdad66"
+          }
+        ],
+        "absence_scope": "only checked root entry names and complete package subtree; not unrelated repository components"
+      },
+      "upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/Cargo.toml",
+          "bytes": 644,
+          "sha256": "42d8d439b03ca6b4340c03c86c96e21ca91c7eb64167dc5cfbeaffea10a4af46",
+          "git_blob": "b963abba7bde921d7fb5e0ad9a6138404e0c0779",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": false
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5/README.md",
+          "upstream_url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/README.md",
+          "bytes": 12911,
+          "sha256": "d6ed995b649e247fc5e3deb556da4a1f254a3bf8e1bdfc37f3eda8ad4d8486eb",
+          "git_blob": "3d79b169269e39cec04fcf2cc96d73f1899233fa",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": false
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5/src/attributes.rs",
+          "upstream_url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/src/attributes.rs",
+          "bytes": 19176,
+          "sha256": "12253a2573811764e7853cd94a01fa21d93f93e867b3cca1c7f089608a3739ca",
+          "git_blob": "fa6e90d28574e9e0a09e3c6376c0f1b22df791b9",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": false
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/delegate-0.13.5/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/src/lib.rs",
+          "bytes": 41107,
+          "sha256": "feb547fb387cb4af779e6b7d1633af5769b6e250d382ba4a34e4e53ea79e588c",
+          "git_blob": "198ffcd3c02f7cef0a34e6ab2a669f3f3e69027d",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": false
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/attributes.rs",
+          "sha256": "12253a2573811764e7853cd94a01fa21d93f93e867b3cca1c7f089608a3739ca",
+          "header": "use proc_macro2::{Delimiter, TokenStream, TokenTree};\nuse quote::ToTokens;\nuse std::collections::VecDeque;\nuse std::ops::Not;\nuse syn::parse::ParseStream;\nuse syn::{Attribute, Error, Meta, Path, PathSegment, Token, TypePath};",
+          "license_or_copyright_lines": []
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "feb547fb387cb4af779e6b7d1633af5769b6e250d382ba4a34e4e53ea79e588c",
+          "header": "//! This crate removes some boilerplate for structs that simply delegate\n//! some of their methods to one or more of their fields.\n//!\n//! It gives you the `delegate!` macro, which delegates method calls to selected expressions (usually inner fields).\n//!\n//! ## Features:\n//! - Delegate to a method with a different name\n//! ```rust\n//! use delegate::delegate;\n//!\n//! struct Stack { inner: Vec<u32> }\n//! impl Stack {\n//!     delegate! {\n//!         to self.inner {\n//!             #[call(push)]\n//!             pub fn add(&mut self, value: u32);\n//!         }\n//!     }\n//! }\n//! ```\n//! - Use an arbitrary inner field expression\n//! ```rust\n//! use delegate::delegate;\n//!\n//! use std::rc::Rc;\n//! use std::cell::RefCell;\n//! use std::ops::Deref;\n//!\n//! struct Wrapper { inner: Rc<RefCell<Vec<u32>>> }\n//! impl Wrapper {\n//!     delegate! {\n//!         to self.inner.deref().borrow_mut() {\n//!             pub fn push(&mut self, val: u32);\n//!         }\n//!     }\n//! }\n//! ```\n//!\n//! - Delegate to enum variants\n//!\n//! ```rust\n//! use delegate::delegate;\n//!\n//! enum Enum {\n//!     A(A),\n//!     B(B),\n//!     C { v: C },\n//! }\n//!\n//! struct A {\n//!     val: usize,\n//! }\n//!\n//! impl A {\n//!     fn dbg_inner(&self) -> usize {\n//!         dbg!(self.val);\n//!         1\n//!     }\n//! }\n//! struct B {\n//!     val_a: String,\n//! }\n//!\n//! impl B {\n//!     fn dbg_inner(&self) -> usize {\n//!         dbg!(self.val_a.clone());\n//!         2\n//!     }\n//! }\n//!\n//! struct C {\n//!     val_c: f64,\n//! }\n//!\n//! impl C {\n//!     fn dbg_inner(&self) -> usize {\n//!         dbg!(self.val_c);\n//!         3\n//!     }\n//! }\n//!\n//! impl Enum {\n//!     delegate! {\n//!         // transformed to\n//!         //\n//!         // ```rust\n//!         // match self {\n//!         //     Enum::A(a) => a.dbg_inner(),\n//!         //     Enum::B(b) => { println!(\"i am b\"); b }.dbg_inner(),\n//!         //     Enum::C { v: c } => { c }.dbg_inner(),\n//!         // }\n//!         // ```\n//!         to match self {\n//!             Enum::A(a) => a,\n//!             Enum::B(b) => { println!(\"i am b\"); b },\n//!             Enum::C { v: c } => { c },\n//!         } {\n//!             fn dbg_inner(&self) -> usize;\n//!         }\n//!     }\n//! }\n//! ```\n//!\n//! - Use modifiers that alter the generated method body\n//! ```rust\n//! use delegate::delegate;\n//! struct Inner;\n//! impl Inner {\n//!     pub fn method(&self, num: u32) -> u32 { num }\n//!     pub fn method_res(&self, num: u32) -> Result<u32, ()> { Ok(num) }\n//! }\n//! struct Wrapper { inner: Inner }\n//! impl Wrapper {\n//!     delegate! {\n//!         to self.inner {\n//!             // calls method, converts result to u64 using `From`\n//!             #[into]\n//!             pub fn method(&self, num: u32) -> u64;\n//!\n//!             // calls method, returns ()\n//!             #[call(method)]\n//!             pub fn method_noreturn(&self, num: u32);\n//!\n//!             // calls method, converts result to i6 using `TryFrom`\n//!             #[try_into]\n//!             #[call(method)]\n//!             pub fn method2(&self, num: u32) -> Result<u16, std::num::TryFromIntError>;\n//!\n//!             // calls method_res, unwraps the result\n//!             #[unwrap]\n//!             pub fn method_res(&self, num: u32) -> u32;\n//!\n//!             // calls method_res, unwraps the result, then calls into\n//!             #[unwrap]\n//!             #[into]\n//!             #[call(method_res)]\n//!             pub fn method_res_into(&self, num: u32) -> u64;\n//!\n//!             // specify explicit type for into\n//!             #[into(u64)]\n//!             #[call(method)]\n//!             pub fn method_into_explicit(&self, num: u32) -> u64;\n//!         }\n//!     }\n//! }\n//! ```\n//!\n//! - Custom called expression\n//!\n//! The `#[expr()]` attribute can be used to modify the delegated call. You can use the `$` sigil as a placeholder for what delegate would normally expand to, and wrap that expression with custom code.\n//!\n//! _Note:_ the `$` placeholder isn't required and can be present multiple times if you want.\n//!\n//! ```rs\n//! struct A(Vec<u8>);\n//!\n//! impl A {\n//!     delegate! {\n//!         to self.0 {\n//!             #[expr(*$.unwrap())]\n//!             /// Here `$` == `self.0.get(idx)`\n//!             /// Will expand to `*self.0.get(idx).unwrap()`\n//!             fn get(&self, idx: usize) -> u8;\n//!\n//!             #[call(get)]\n//!             #[expr($?.checked_pow(2))]\n//!             /// Here `$` == `self.0.get(idx)`\n//!             /// Will expand to `self.0.get(idx)?.checked_pow(2)`\n//!             fn get_checked_pow_2(&self, idx: usize) -> Option<u8>;\n//!         }\n//!     }\n//! }\n//! ```\n//!\n//! - Call `await` on async functions\n//! ```rust\n//! use delegate::delegate;\n//!\n//! struct Inner;\n//! impl Inner {\n//!     pub async fn method(&self, num: u32) -> u32 { num }\n//! }\n//! struct Wrapper { inner: Inner }\n//! impl Wrapper {\n//!     delegate! {\n//!         to self.inner {\n//!             // calls method(num).await, returns impl Future<Output = u32>\n//!             pub async fn method(&self, num: u32) -> u32;\n//!\n//!             // calls method(num).await.into(), returns impl Future<Output = u64>\n//!             #[into]\n//!             #[call(method)]\n//!             pub async fn method_into(&self, num: u32) -> u64;\n//!         }\n//!     }\n//! }\n//! ```\n//! You can use the `#[await(true/false)]` attribute on delegated methods to specify if `.await` should\n//! be generated after the delegated expression. It will be generated by default if the delegated\n//! method is `async`.\n//! - Delegate to multiple fields\n//! ```rust\n//! use delegate::delegate;\n//!\n//! struct MultiStack {\n//!     left: Vec<u32>,\n//!     right: Vec<u32>,\n//! }\n//! impl MultiStack {\n//!     delegate! {\n//!         to self.left {\n//!             // Push an item to the top of the left stack\n//!             #[call(push)]\n//!             pub fn push_left(&mut self, value: u32);\n//!         }\n//!         to self.right {\n//!             // Push an item to the top of the right stack\n//!             #[call(push)]\n//!             pub fn push_right(&mut self, value: u32);\n//!         }\n//!     }\n//! }\n//! ```\n//! - Inserts `#[inline(always)]` automatically (unless you specify `#[inline]` manually on the method)\n//! - You can use an attribute on a whole segment to automatically apply it to all methods in that\n//!   segment:\n//! ```rust\n//! use delegate::delegate;\n//!\n//! struct Inner;\n//!\n//! impl Inner {\n//!   fn foo(&self) -> Result<u32, ()> { Ok(0) }\n//!   fn bar(&self) -> Result<u32, ()> { Ok(1) }\n//! }\n//!\n//! struct Wrapper { inner: Inner }\n//!\n//! impl Wrapper {\n//!   delegate! {\n//!     #[unwrap]\n//!     to self.inner {\n//!       fn foo(&self) -> u32; // calls self.inner.foo().unwrap()\n//!       fn bar(&self) -> u32; // calls self.inner.bar().unwrap()\n//!     }\n//!   }\n//! }\n//! ```\n//! - Specify expressions in the signature that will be used as delegated arguments\n//! ```rust\n//! use delegate::delegate;\n//! struct Inner;\n//! impl Inner {\n//!     pub fn polynomial(&self, a: i32, x: i32, b: i32, y: i32, c: i32) -> i32 {\n//!         a + x * x + b * y + c\n//!     }\n//! }\n//! struct Wrapper { inner: Inner, a: i32, b: i32, c: i32 }\n//! impl Wrapper {\n//!     delegate! {\n//!         to self.inner {\n//!             // Calls `polynomial` on `inner` with `self.a`, `self.b` and\n//!             // `self.c` passed as arguments `a`, `b`, and `c`, effectively\n//!             // calling `polynomial(self.a, x, self.b, y, self.c)`.\n//!             pub fn polynomial(&self, [ self.a ], x: i32, [ self.b ], y: i32, [ self.c ]) -> i32 ;\n//!             // Calls `polynomial` on `inner` with `0`s passed for arguments\n//!             // `a` and `x`, and `self.b` and `self.c` for `b` and `c`,\n//!             // effectively calling `polynomial(0, 0, self.b, y, self.c)`.\n//!             #[call(polynomial)]\n//!             pub fn linear(&self, [ 0 ], [ 0 ], [ self.b ], y: i32, [ self.c ]) -> i32 ;\n//!         }\n//!     }\n//! }\n//! ```\n//! - Modify how will an input parameter be passed to the delegated method with parameter attribute modifiers.\n//!   Currently, the following modifiers are supported:\n//!     - `#[into]`: Calls `.into()` on the parameter passed to the delegated method.\n//!     - `#[as_ref]`: Calls `.as_ref()` on the parameter passed to the delegated method.\n//!     - `#[newtype]`: Calls `.0` on the parameter passed to the delegated method.\n//! ```rust\n//! use delegate::delegate;\n//!\n//! struct InnerType {}\n//! impl InnerType {\n//!     fn foo(&self, other: Self) {}\n//! }\n//!\n//! impl From<Wrapper> for InnerType {\n//!     fn from(wrapper: Wrapper) -> Self {\n//!         wrapper.0\n//!     }\n//! }\n//!\n//! struct Wrapper(InnerType);\n//! impl Wrapper {\n//!     delegate! {\n//!         to self.0 {\n//!             // Calls `self.0.foo(other.into());`\n//!             pub fn foo(&self, #[into] other: Self);\n//!         }\n//!     }\n//! }\n//! ```\n//! - Specify a trait through which will the delegated method be called\n//!   (using [UFCS](https://doc.rust-lang.org/reference/expressions/call-expr.html#disambiguating-function-calls).\n//! ```rust\n//! use delegate::delegate;\n//!\n//! struct InnerType {}\n//! impl InnerType {\n//!     \n//! }\n//!\n//! trait MyTrait {\n//!   fn foo(&self);\n//! }\n//! impl MyTrait for InnerType {\n//!   fn foo(&self) {}\n//! }\n//!\n//! struct Wrapper(InnerType);\n//! impl Wrapper {\n//!     delegate! {\n//!         to &self.0 {\n//!             // Calls `MyTrait::foo(&self.0)`\n//!             #[through(MyTrait)]\n//!             pub fn foo(&self);\n//!         }\n//!     }\n//! }\n//! ```\n//!\n//! - Add additional arguments to method\n//!\n//!  ```rust\n//!  use delegate::delegate;\n//!  use std::cell::OnceCell;\n//!  struct Inner(u32);\n//!  impl Inner {\n//!      pub fn new(m: u32) -> Self {\n//!          // some \"very complex\" constructing work\n//!          Self(m)\n//!      }\n//!      pub fn method(&self, n: u32) -> u32 {\n//!          self.0 + n\n//!      }\n//!  }\n//!  \n//!  struct Wrapper {\n//!      inner: OnceCell<Inner>,\n//!  }\n//!  \n//!  impl Wrapper {\n//!      pub fn new() -> Self {\n//!          Self {\n//!              inner: OnceCell::new(),\n//!          }\n//!      }\n//!      fn content(&self, val: u32) -> &Inner {\n//!          self.inner.get_or_init(|| Inner(val))\n//!      }\n//!      delegate! {\n//!          to |k: u32| self.content(k) {\n//!              // `wrapper.method(k, num)` will call `self.content(k).method(num)`\n//!              pub fn method(&self, num: u32) -> u32;\n//!          }\n//!      }\n//!  }\n//!  ```\n//! - Delegate associated functions\n//!   ```rust\n//!   use delegate::delegate;\n//!\n//!   struct A {}\n//!   impl A {\n//!       fn foo(a: u32) -> u32 {\n//!           a + 1\n//!       }\n//!   }\n//!\n//!   struct B;\n//!\n//!   impl B {\n//!       delegate! {\n//!           to A {\n//!               fn foo(a: u32) -> u32;\n//!           }\n//!       }\n//!   }\n//!\n//!   assert_eq!(B::foo(1), 2);\n//!   ```\n//! - Delegate associated constants\n//!\n//! ```rust\n//! use delegate::delegate;\n//!\n//! trait WithConst {\n//!     const TOTO: u8;\n//! }\n//!\n//! struct A;\n//! impl WithConst for A {\n//!     const TOTO: u8 = 1;\n//! }\n//!\n//! struct B;\n//! impl WithConst for B {\n//!     const TOTO: u8 = 2;\n//! }\n//! struct C;\n//! impl WithConst for C {\n//!     const TOTO: u8 = 2;\n//! }\n//!\n//! enum Enum {\n//!     A(A),\n//!     B(B),\n//!     C(C),\n//! }\n//!\n//! impl Enum {\n//!     delegate! {\n//!         to match self {\n//!             Self::A(a) => a,\n//!             Self::B(b) => b,\n//!             Self::C(c) => { println!(\"hello from c\"); c },\n//!         } {\n//!             #[const(WithConst::TOTO)]\n//!             fn get_toto(&self) -> u8;\n//!         }\n//!     }\n//! }\n//!\n//! assert_eq!(Enum::A(A).get_toto(), <A as WithConst>::TOTO);\n//! ```\n//!\n//! - Delegate to fields\n//! ```rust\n//! use delegate::delegate;\n//!\n//! struct Datum {\n//!     value: u32,\n//!     error: u32,\n//! }\n//!\n//! struct DatumWrapper(Datum);\n//!\n//! impl DatumWrapper {\n//!     delegate! {\n//!         to self.0 {\n//!             /// Get the value of a nested field with the same name\n//!             #[field]\n//!             fn value(&self) -> u32;\n//!\n//!             /// Get the value of a nested field with a different name\n//!             #[field(value)]\n//!             fn renamed_value(&self) -> u32;\n//!\n//!             /// Get shared reference to a nested field\n//!             #[field(&value)]\n//!             fn value_ref(&self) -> &u32;\n//!\n//!             /// Get mutable reference to a nested field\n//!             #[field(&mut value)]\n//!             fn value_ref_mut(&mut self) -> &mut u32;\n//!\n//!             /// Get mutable reference to a nested field with the same name\n//!             #[field(&)]\n//!             fn error(&self) -> &u32;\n//!         }\n//!     }\n//! }\n//! ```",
+          "license_or_copyright_lines": []
+        }
+      ],
+      "license": {
+        "package": "delegate",
+        "version": "0.13.5",
+        "selected_license": "MIT",
+        "source_url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/LICENSE-MIT",
+        "source_kind": "original repository-root file at exact crate VCS pin",
+        "bytes": 1078,
+        "sha256": "be7ee8aa49dc586023669a0c600a0536fce6a9f61264a53a67cdd842564ed899",
+        "git_blob": "688d43f92fad946c826ac49c4edf7ec280fdad66",
+        "export_path": "docs/release/licenses/delegate-0.13.5-LICENSE-MIT.txt",
+        "reused_existing_export": false,
+        "original_bytes": true
+      },
+      "extra": {
+        "license_choice": "MIT selected from exact original manifest and README explicit either/or choice."
+      }
+    },
+    {
+      "name": "selectors",
+      "version": "0.36.1",
+      "repository": "https://github.com/servo/stylo",
+      "pin": "635e1a19d02960588a00e189bd4bd5bdb150ec3d",
+      "path_in_vcs": "selectors",
+      "vcs_info": {
+        "git": {
+          "sha1": "635e1a19d02960588a00e189bd4bd5bdb150ec3d"
+        },
+        "path_in_vcs": "selectors"
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/.cargo_vcs_info.json",
+        "bytes": 103,
+        "sha256": "b9b619f8e31f591cd1326578b87ccb14b4f3687af65b505674522513ed4d276d"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1.crate",
+        "bytes": 69832,
+        "sha256": "c5d9c0c92a92d33f08817311cf3f2c29a3538a8240e94a6a3c622ce652d7e00c",
+        "matches_current_root_lock": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/",
+      "files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 103,
+          "sha256": "b9b619f8e31f591cd1326578b87ccb14b4f3687af65b505674522513ed4d276d",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "CHANGES.md",
+          "bytes": 184,
+          "sha256": "582a5cbd17faa7ebecf4d43d360bc67f8ee4cc419d056336a0dc64a1c8a1ad02",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.lock",
+          "bytes": 13112,
+          "sha256": "c48b836125a191b7253c71941bc473821218da6eb3720e02a07c9761e2f36801",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1705,
+          "sha256": "c4d292da59a7b7787100f0839b7c18d9a2fa661ab7906d1617137469e1aca2da",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 868,
+          "sha256": "be6ed6441d04b710178c3b50052672755e15e5cf3780060ca9fdd2c8aba1d392",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 1170,
+          "sha256": "c0a9128170286f7c593f0c316f00d4a9c8671140bbd9d59f7e6c001d696b2810",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "attr.rs",
+          "bytes": 6686,
+          "sha256": "cfb9ba3ae47538a05b218ed63cc1360ebcf7ba448cb910f2af638f66244c1ae6",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "bloom.rs",
+          "bytes": 11810,
+          "sha256": "3ce89fe5366a0f3e493ad00cdca426be1d4cdd8fa9d3e995759cb794eb794f33",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "build.rs",
+          "bytes": 1446,
+          "sha256": "36ba09a8d2089d0cae8e310829ecf0e94bcbaa87e775a6578c7d2f0459a5b6ca",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "builder.rs",
+          "bytes": 16711,
+          "sha256": "be4ce2818710343d2f6841a78013a26c86ca72d8ca62e68f8b580435a92bfc19",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "context.rs",
+          "bytes": 18427,
+          "sha256": "3e90d65c9e5f6c54c799bae763c7f8edd91b0a3e2be7820cd601b7d30288d499",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "kleene_value.rs",
+          "bytes": 3577,
+          "sha256": "1932450194f7114d89151a09efa79130f34961e2556fb79b92d4c5e174adb823",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "lib.rs",
+          "bytes": 643,
+          "sha256": "d54c6e13e9e952dac17d209171df8657e3cae93beaddace4906150cdec8d02e9",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "matching.rs",
+          "bytes": 56962,
+          "sha256": "90fb23dfb0dc9b9fa51e711ec4feb2b5a61d8f6bb8b284069d69f80ba82500fa",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "nth_index_cache.rs",
+          "bytes": 3176,
+          "sha256": "2f4e94a1010c867ce4b96619e90f1574449769fc5f3f419a2b84e4613d4ab39c",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "parser.rs",
+          "bytes": 176481,
+          "sha256": "99081617e5c204bce5a7f430805ae86ca4c2eb340d59e6d2213ed1264419b9eb",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "relative_selector/cache.rs",
+          "bytes": 2743,
+          "sha256": "c6460f5db8c74421af0890c4c69119450397258f64be169c91d0320e2d8626f4",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "relative_selector/filter.rs",
+          "bytes": 6078,
+          "sha256": "7ea15f5d310fca2254ac36989bfeee06dd0e9897ccec0b886b75b550e0225177",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "relative_selector/mod.rs",
+          "bytes": 238,
+          "sha256": "29e305635f471d8467a6eca83ef83dcbda769ecc62976a708c98afa418ab76a6",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "sink.rs",
+          "bytes": 950,
+          "sha256": "34d4cd4127a6e4979eba11f8e6c41dbc527c0a996be78bd2e3167916c025a04b",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "tree.rs",
+          "bytes": 6347,
+          "sha256": "257a2b30dcdd07bcf0d2519301c4e0678b8ae1a0ba22ad122a7a9132027b62ee",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "visitor.rs",
+          "bytes": 4884,
+          "sha256": "3b39f678c2f89c720d2d4fe9bb9064e283609ed49c190cc5a657705522f91dfd",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "original_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/Cargo.toml.orig",
+        "bytes": 868,
+        "sha256": "be6ed6441d04b710178c3b50052672755e15e5cf3780060ca9fdd2c8aba1d392"
+      },
+      "normalized_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/Cargo.toml",
+        "bytes": 1705,
+        "sha256": "c4d292da59a7b7787100f0839b7c18d9a2fa661ab7906d1617137469e1aca2da"
+      },
+      "declared_spdx": "MPL-2.0",
+      "selected_license": "MPL-2.0",
+      "technical_role": "build-or-proc-macro-only-in-this-tree",
+      "proc_macro": false,
+      "release_tree_features": [],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "root_tree": {
+        "url": "https://api.github.com/repos/servo/stylo/git/trees/635e1a19d02960588a00e189bd4bd5bdb150ec3d",
+        "entries": [
+          {
+            "path": ".github",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "8e6f23da89c3364b280b0898add10aabdda5cc19",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/8e6f23da89c3364b280b0898add10aabdda5cc19"
+          },
+          {
+            "path": ".gitignore",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "fc3c2f9b3c0721c63537eb12aa108fe1a699b60b",
+            "size": 72,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/fc3c2f9b3c0721c63537eb12aa108fe1a699b60b"
+          },
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "5dbc3d8b2a18fe51e5909c0b8f29a0110bf98c27",
+            "size": 1371,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/5dbc3d8b2a18fe51e5909c0b8f29a0110bf98c27"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "bfc3eb5b287379f0b74affd71d945ba432b3b232",
+            "size": 7396,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/bfc3eb5b287379f0b74affd71d945ba432b3b232"
+          },
+          {
+            "path": "SYNCING.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "72a0a53d1d2e867d5c44ab0bd7321cb447513d20",
+            "size": 1850,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/72a0a53d1d2e867d5c44ab0bd7321cb447513d20"
+          },
+          {
+            "path": "commit-from-merge.sh",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "94aa606f02b894bec186ccbbcb60cf3d9de1a84e",
+            "size": 652,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/94aa606f02b894bec186ccbbcb60cf3d9de1a84e"
+          },
+          {
+            "path": "commit-from-squashed.sh",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "004e0f7840db9097fd990e5ce7dc4c819f9f043f",
+            "size": 608,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/004e0f7840db9097fd990e5ce7dc4c819f9f043f"
+          },
+          {
+            "path": "malloc_size_of",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "acf817f82286f2cf221858f6c6391262fc99fd24",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/acf817f82286f2cf221858f6c6391262fc99fd24"
+          },
+          {
+            "path": "rustfmt.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "ecd1b1465d0efef9beb027ff0fdd4524bcfb6fa7",
+            "size": 57,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/ecd1b1465d0efef9beb027ff0fdd4524bcfb6fa7"
+          },
+          {
+            "path": "selectors",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "0b3fc126c202ab74a0b2c6895732426bf96e4f1e",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/0b3fc126c202ab74a0b2c6895732426bf96e4f1e"
+          },
+          {
+            "path": "servo_arc",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "1882b2456d1e0e38f732b0455335d00659a12aa6",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/1882b2456d1e0e38f732b0455335d00659a12aa6"
+          },
+          {
+            "path": "shell.nix",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "2c96e200aa384bff692344eef84e0d95b51a76f5",
+            "size": 201,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/2c96e200aa384bff692344eef84e0d95b51a76f5"
+          },
+          {
+            "path": "start-rebase.sh",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "fe417f7f08113e83a62ce3d3b5b50f506d9468c7",
+            "size": 333,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/fe417f7f08113e83a62ce3d3b5b50f506d9468c7"
+          },
+          {
+            "path": "style.paths",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "d1d2d026383d51a649f47bf4a4e6b2af46c77b00",
+            "size": 312,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/d1d2d026383d51a649f47bf4a4e6b2af46c77b00"
+          },
+          {
+            "path": "style",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "d7f8072d9d1953fc548d8887a2ef6ff5517ffa02",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/d7f8072d9d1953fc548d8887a2ef6ff5517ffa02"
+          },
+          {
+            "path": "style_derive",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "e9c6f6a7c16bc9ead30b7e7759de46d78b9a84c8",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/e9c6f6a7c16bc9ead30b7e7759de46d78b9a84c8"
+          },
+          {
+            "path": "style_traits",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "16e0655fc0f4b35a80fddf71a95118bd2d8185a4",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/16e0655fc0f4b35a80fddf71a95118bd2d8185a4"
+          },
+          {
+            "path": "stylo_atoms",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "0c7d5484d741391011ee27e034feb8427d021c54",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/0c7d5484d741391011ee27e034feb8427d021c54"
+          },
+          {
+            "path": "stylo_dom",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "6e6a2e13352a2ea9fa806432ea2ace68089b4643",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/6e6a2e13352a2ea9fa806432ea2ace68089b4643"
+          },
+          {
+            "path": "stylo_static_prefs",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "9ca4fa3a03012163c8a48e93a20c254d38640bad",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/9ca4fa3a03012163c8a48e93a20c254d38640bad"
+          },
+          {
+            "path": "sync.sh",
+            "mode": "100755",
+            "type": "blob",
+            "sha": "68c8689c9cefcce948f245377355278a7816d931",
+            "size": 1114,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/68c8689c9cefcce948f245377355278a7816d931"
+          },
+          {
+            "path": "to_shmem",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "250a9368fd86d705f69f36108313dc04de1e9a33",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/250a9368fd86d705f69f36108313dc04de1e9a33"
+          },
+          {
+            "path": "to_shmem_derive",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "4dc6ca9f432095e837262abf0fc5046f7014f413",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/4dc6ca9f432095e837262abf0fc5046f7014f413"
+          }
+        ]
+      },
+      "package_tree": {
+        "ancestry": [
+          {
+            "part": "selectors",
+            "git_tree": "0b3fc126c202ab74a0b2c6895732426bf96e4f1e",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/0b3fc126c202ab74a0b2c6895732426bf96e4f1e"
+          },
+          {
+            "part": "recursive package contents",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/0b3fc126c202ab74a0b2c6895732426bf96e4f1e?recursive=1"
+          }
+        ],
+        "entries": [
+          {
+            "path": "CHANGES.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "b1e9511dca30bb598319b957d45f4ff29a10b33f",
+            "size": 184,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/b1e9511dca30bb598319b957d45f4ff29a10b33f"
+          },
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "f08bbaff2cb27e8aa87dd048dd97049cfdbf7d47",
+            "size": 868,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/f08bbaff2cb27e8aa87dd048dd97049cfdbf7d47"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3ce269fa3ccfb28d671a09adfefb7adf19ac499d",
+            "size": 1170,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/3ce269fa3ccfb28d671a09adfefb7adf19ac499d"
+          },
+          {
+            "path": "attr.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "7d4ff8f5c3d27a4e82f7b01282700e57c242f023",
+            "size": 6686,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/7d4ff8f5c3d27a4e82f7b01282700e57c242f023"
+          },
+          {
+            "path": "bloom.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "be02622e7b80b4f3204e8e11fac001152986652b",
+            "size": 11810,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/be02622e7b80b4f3204e8e11fac001152986652b"
+          },
+          {
+            "path": "build.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "c5c3803991effa9617057b7f551a44d9a505500a",
+            "size": 1446,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/c5c3803991effa9617057b7f551a44d9a505500a"
+          },
+          {
+            "path": "builder.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "f204ecfb1a23c3847877c0457af80bdc60bdc4d5",
+            "size": 16711,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/f204ecfb1a23c3847877c0457af80bdc60bdc4d5"
+          },
+          {
+            "path": "context.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "a328ff1ea4e6cc2be27d06c148661c357da874ae",
+            "size": 18427,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/a328ff1ea4e6cc2be27d06c148661c357da874ae"
+          },
+          {
+            "path": "kleene_value.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "e9cf2ee3191c9dd57d4abe6f163774c431bdf727",
+            "size": 3577,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/e9cf2ee3191c9dd57d4abe6f163774c431bdf727"
+          },
+          {
+            "path": "lib.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "e60fe5be257f03091569b56a149e7c95ab186bfb",
+            "size": 643,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/e60fe5be257f03091569b56a149e7c95ab186bfb"
+          },
+          {
+            "path": "matching.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "c0327d6c7744450a379b42837d1d3f1472595124",
+            "size": 56962,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/c0327d6c7744450a379b42837d1d3f1472595124"
+          },
+          {
+            "path": "nth_index_cache.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "bd593ac50b1f48729f3efdc693ac5b076498f2a4",
+            "size": 3176,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/bd593ac50b1f48729f3efdc693ac5b076498f2a4"
+          },
+          {
+            "path": "parser.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "49291ecd48f7b1e675bc884b862755e33c8422e0",
+            "size": 176481,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/49291ecd48f7b1e675bc884b862755e33c8422e0"
+          },
+          {
+            "path": "relative_selector",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "2c4b3b4b617681ec8a6f516c2f173c92bbd8186f",
+            "url": "https://api.github.com/repos/servo/stylo/git/trees/2c4b3b4b617681ec8a6f516c2f173c92bbd8186f"
+          },
+          {
+            "path": "relative_selector/cache.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "207ce888e4d2268cca5417af6a1461ad94c6f133",
+            "size": 2743,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/207ce888e4d2268cca5417af6a1461ad94c6f133"
+          },
+          {
+            "path": "relative_selector/filter.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "4940742ccc058086dd3afbd6a8c335cfca419925",
+            "size": 6078,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/4940742ccc058086dd3afbd6a8c335cfca419925"
+          },
+          {
+            "path": "relative_selector/mod.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "6dd39f7327e6b6e4a0b2eb6e9383bb9ee5d2ab95",
+            "size": 238,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/6dd39f7327e6b6e4a0b2eb6e9383bb9ee5d2ab95"
+          },
+          {
+            "path": "sink.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "dcdd7ff259dd5d6dc435a671a66ec97d11d09e1f",
+            "size": 950,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/dcdd7ff259dd5d6dc435a671a66ec97d11d09e1f"
+          },
+          {
+            "path": "tree.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "09e7ebdfc1b43d501392ddd2d3fb228f12d38176",
+            "size": 6347,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/09e7ebdfc1b43d501392ddd2d3fb228f12d38176"
+          },
+          {
+            "path": "visitor.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "e4286c55532cae89bc7bf8c0a9575e225106aa4a",
+            "size": 4884,
+            "url": "https://api.github.com/repos/servo/stylo/git/blobs/e4286c55532cae89bc7bf8c0a9575e225106aa4a"
+          }
+        ],
+        "truncated": false
+      },
+      "named_license_notice_paths": {
+        "root": [],
+        "package": [],
+        "absence_scope": "only checked root entry names and complete package subtree; not unrelated repository components"
+      },
+      "upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/Cargo.toml",
+          "bytes": 868,
+          "sha256": "be6ed6441d04b710178c3b50052672755e15e5cf3780060ca9fdd2c8aba1d392",
+          "git_blob": "f08bbaff2cb27e8aa87dd048dd97049cfdbf7d47",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/lib.rs",
+          "bytes": 643,
+          "sha256": "d54c6e13e9e952dac17d209171df8657e3cae93beaddace4906150cdec8d02e9",
+          "git_blob": "e60fe5be257f03091569b56a149e7c95ab186bfb",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "attr.rs",
+          "sha256": "cfb9ba3ae47538a05b218ed63cc1360ebcf7ba448cb910f2af638f66244c1ae6",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "bloom.rs",
+          "sha256": "3ce89fe5366a0f3e493ad00cdca426be1d4cdd8fa9d3e995759cb794eb794f33",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "build.rs",
+          "sha256": "36ba09a8d2089d0cae8e310829ecf0e94bcbaa87e775a6578c7d2f0459a5b6ca",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "builder.rs",
+          "sha256": "be4ce2818710343d2f6841a78013a26c86ca72d8ca62e68f8b580435a92bfc19",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "context.rs",
+          "sha256": "3e90d65c9e5f6c54c799bae763c7f8edd91b0a3e2be7820cd601b7d30288d499",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "kleene_value.rs",
+          "sha256": "1932450194f7114d89151a09efa79130f34961e2556fb79b92d4c5e174adb823",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "lib.rs",
+          "sha256": "d54c6e13e9e952dac17d209171df8657e3cae93beaddace4906150cdec8d02e9",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "matching.rs",
+          "sha256": "90fb23dfb0dc9b9fa51e711ec4feb2b5a61d8f6bb8b284069d69f80ba82500fa",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "nth_index_cache.rs",
+          "sha256": "2f4e94a1010c867ce4b96619e90f1574449769fc5f3f419a2b84e4613d4ab39c",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "parser.rs",
+          "sha256": "99081617e5c204bce5a7f430805ae86ca4c2eb340d59e6d2213ed1264419b9eb",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "relative_selector/cache.rs",
+          "sha256": "c6460f5db8c74421af0890c4c69119450397258f64be169c91d0320e2d8626f4",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "relative_selector/filter.rs",
+          "sha256": "7ea15f5d310fca2254ac36989bfeee06dd0e9897ccec0b886b75b550e0225177",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "relative_selector/mod.rs",
+          "sha256": "29e305635f471d8467a6eca83ef83dcbda769ecc62976a708c98afa418ab76a6",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "sink.rs",
+          "sha256": "34d4cd4127a6e4979eba11f8e6c41dbc527c0a996be78bd2e3167916c025a04b",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "tree.rs",
+          "sha256": "257a2b30dcdd07bcf0d2519301c4e0678b8ae1a0ba22ad122a7a9132027b62ee",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        },
+        {
+          "path": "visitor.rs",
+          "sha256": "3b39f678c2f89c720d2d4fe9bb9064e283609ed49c190cc5a657705522f91dfd",
+          "header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "/* This Source Code Form is subject to the terms of the Mozilla Public"
+            },
+            {
+              "line": 2,
+              "text": " * License, v. 2.0. If a copy of the MPL was not distributed with this"
+            },
+            {
+              "line": 3,
+              "text": " * file, You can obtain one at https://mozilla.org/MPL/2.0/. */"
+            }
+          ]
+        }
+      ],
+      "license": {
+        "package": "selectors",
+        "version": "0.36.1",
+        "selected_license": "MPL-2.0",
+        "source_url": "https://www.mozilla.org/media/MPL/2.0/index.txt",
+        "source_kind": "official Mozilla MPL 2.0 text referenced by the exact pinned source header; no license file exists in the checked repo root or package subtree",
+        "bytes": 16726,
+        "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+        "git_blob": null,
+        "export_path": "docs/release/licenses/selectors-0.36.1-LICENSE-MPL-2.0.txt",
+        "reused_existing_export": false,
+        "original_bytes": true
+      },
+      "extra": {
+        "source_header": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at https://mozilla.org/MPL/2.0/. */\n",
+        "source_header_sha256": "766674381e88a468d55e07de3596987391cf0e8beebe51baf4fddf11078785b3",
+        "independent_prereview": {
+          "agent": "/root/m1_tmux_inventory_probe/remaining_selectors_probe",
+          "scope": "Read-only pinned-source review; 19 local/upstream files byte-equal, comprising all 16 Rust source files plus original manifest, README and CHANGES. Main export run independently repeats only original manifest and lib.rs.",
+          "comparisons": [
+            {
+              "path": "CHANGES.md",
+              "bytes": 184,
+              "sha256": "582a5cbd17faa7ebecf4d43d360bc67f8ee4cc419d056336a0dc64a1c8a1ad02",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/CHANGES.md",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "Cargo.toml.orig",
+              "bytes": 868,
+              "sha256": "be6ed6441d04b710178c3b50052672755e15e5cf3780060ca9fdd2c8aba1d392",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/Cargo.toml",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "README.md",
+              "bytes": 1170,
+              "sha256": "c0a9128170286f7c593f0c316f00d4a9c8671140bbd9d59f7e6c001d696b2810",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/README.md",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "attr.rs",
+              "bytes": 6686,
+              "sha256": "cfb9ba3ae47538a05b218ed63cc1360ebcf7ba448cb910f2af638f66244c1ae6",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/attr.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "bloom.rs",
+              "bytes": 11810,
+              "sha256": "3ce89fe5366a0f3e493ad00cdca426be1d4cdd8fa9d3e995759cb794eb794f33",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/bloom.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "build.rs",
+              "bytes": 1446,
+              "sha256": "36ba09a8d2089d0cae8e310829ecf0e94bcbaa87e775a6578c7d2f0459a5b6ca",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/build.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "builder.rs",
+              "bytes": 16711,
+              "sha256": "be4ce2818710343d2f6841a78013a26c86ca72d8ca62e68f8b580435a92bfc19",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/builder.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "context.rs",
+              "bytes": 18427,
+              "sha256": "3e90d65c9e5f6c54c799bae763c7f8edd91b0a3e2be7820cd601b7d30288d499",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/context.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "kleene_value.rs",
+              "bytes": 3577,
+              "sha256": "1932450194f7114d89151a09efa79130f34961e2556fb79b92d4c5e174adb823",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/kleene_value.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "lib.rs",
+              "bytes": 643,
+              "sha256": "d54c6e13e9e952dac17d209171df8657e3cae93beaddace4906150cdec8d02e9",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/lib.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "matching.rs",
+              "bytes": 56962,
+              "sha256": "90fb23dfb0dc9b9fa51e711ec4feb2b5a61d8f6bb8b284069d69f80ba82500fa",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/matching.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "nth_index_cache.rs",
+              "bytes": 3176,
+              "sha256": "2f4e94a1010c867ce4b96619e90f1574449769fc5f3f419a2b84e4613d4ab39c",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/nth_index_cache.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "parser.rs",
+              "bytes": 176481,
+              "sha256": "99081617e5c204bce5a7f430805ae86ca4c2eb340d59e6d2213ed1264419b9eb",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/parser.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "relative_selector/cache.rs",
+              "bytes": 2743,
+              "sha256": "c6460f5db8c74421af0890c4c69119450397258f64be169c91d0320e2d8626f4",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/relative_selector/cache.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "relative_selector/filter.rs",
+              "bytes": 6078,
+              "sha256": "7ea15f5d310fca2254ac36989bfeee06dd0e9897ccec0b886b75b550e0225177",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/relative_selector/filter.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "relative_selector/mod.rs",
+              "bytes": 238,
+              "sha256": "29e305635f471d8467a6eca83ef83dcbda769ecc62976a708c98afa418ab76a6",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/relative_selector/mod.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "sink.rs",
+              "bytes": 950,
+              "sha256": "34d4cd4127a6e4979eba11f8e6c41dbc527c0a996be78bd2e3167916c025a04b",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/sink.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "tree.rs",
+              "bytes": 6347,
+              "sha256": "257a2b30dcdd07bcf0d2519301c4e0678b8ae1a0ba22ad122a7a9132027b62ee",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/tree.rs",
+              "byte_equal_reported_by_independent_agent": true
+            },
+            {
+              "path": "visitor.rs",
+              "bytes": 4884,
+              "sha256": "3b39f678c2f89c720d2d4fe9bb9064e283609ed49c190cc5a657705522f91dfd",
+              "upstream_url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/visitor.rs",
+              "byte_equal_reported_by_independent_agent": true
+            }
+          ],
+          "result": "All 16 source files have same Exhibit A notice; no further source copyright lines, license exceptions or appended Exhibit B incompatibility designation identified. Manifest authors remain author metadata, not an invented copyright notice.",
+          "scope_limit": "Historical Windows inventory places selectors exclusively in build/proc-macro dependency graph; this does not establish a covered selectors binary in shipped Windows application or an MPL violation. Source/executable distribution selection remains a separate release step."
+        }
+      }
+    },
+    {
+      "name": "tauri-plugin",
+      "version": "2.6.3",
+      "repository": "https://github.com/tauri-apps/tauri",
+      "pin": "6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a",
+      "path_in_vcs": "crates/tauri-plugin",
+      "vcs_info": {
+        "git": {
+          "sha1": "6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a"
+        },
+        "path_in_vcs": "crates/tauri-plugin"
+      },
+      "vcs_file": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/.cargo_vcs_info.json",
+        "bytes": 113,
+        "sha256": "080e80c84c44a6de683f2ddfa9a7173bd2d5a6732f5c4a3957f832824f578f48"
+      },
+      "archive": {
+        "path": "C:/Users/U/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3.crate",
+        "bytes": 20420,
+        "sha256": "74be5dd4bed9afbd145e5716b5fa2ec28cbc29c34ffa61c258c9273d896c8020",
+        "matches_current_root_lock": true
+      },
+      "installed_root": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/",
+      "files": [
+        {
+          "path": ".cargo_vcs_info.json",
+          "bytes": 113,
+          "sha256": "080e80c84c44a6de683f2ddfa9a7173bd2d5a6732f5c4a3957f832824f578f48",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "CHANGELOG.md",
+          "bytes": 10028,
+          "sha256": "0fbeaff5722505f9114251a4116fe9fa4df839e8aa10e04b80e22e1c18375c18",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.lock",
+          "bytes": 47497,
+          "sha256": "3c2d708257d765c223f9ec041c7ccc32e0cbe01828af74ad82ed57e5a1896ee6",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 1759,
+          "sha256": "4e3484456cd8ca73829c3fb45e64bf369e3184cfdaa33375c920c2fee666a569",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "Cargo.toml.orig",
+          "bytes": 1079,
+          "sha256": "cb733ae0ff8eae3102f43bbd4f2d7b0dba57de0e9df941685878f6c8f4173d34",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/build/mobile.rs",
+          "bytes": 5659,
+          "sha256": "9cd2465dbb95ac3aac28385b733b954dc890bdd543c3c15f1e4e2cf083f730b3",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/build/mod.rs",
+          "bytes": 5282,
+          "sha256": "22be5c241a3280b8e0514c44114dbd1c50a6fcaf642f9bba7d0ba57c2b10e2f5",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/lib.rs",
+          "bytes": 690,
+          "sha256": "cba8dfe5d46f90f27a7d1615d980d256247b26a1301ac14074997bfe6b9819a6",
+          "installed_bytes_equal_archive": true
+        },
+        {
+          "path": "src/runtime.rs",
+          "bytes": 141,
+          "sha256": "5ac83667211771c07b88c58fc6cdec8712974d74d2d8ee6e4cbc127f45d0f8e3",
+          "installed_bytes_equal_archive": true
+        }
+      ],
+      "original_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/Cargo.toml.orig",
+        "bytes": 1079,
+        "sha256": "cb733ae0ff8eae3102f43bbd4f2d7b0dba57de0e9df941685878f6c8f4173d34"
+      },
+      "normalized_manifest": {
+        "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/Cargo.toml",
+        "bytes": 1759,
+        "sha256": "4e3484456cd8ca73829c3fb45e64bf369e3184cfdaa33375c920c2fee666a569"
+      },
+      "declared_spdx": "Apache-2.0 OR MIT",
+      "selected_license": "MIT",
+      "technical_role": "build-or-proc-macro-only-in-this-tree",
+      "proc_macro": false,
+      "release_tree_features": [
+        "build"
+      ],
+      "feature_source": "docs/release/license-inventory-2026-09-12-rust.json",
+      "root_tree": {
+        "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a",
+        "entries": [
+          {
+            "path": ".cargo",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "9a9f92eee39eff921da0b442b006a6d3ad3cbe2c",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/9a9f92eee39eff921da0b442b006a6d3ad3cbe2c"
+          },
+          {
+            "path": ".changes",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "f2d83ea762059765232d5a0a4b262ee9f3f48ead",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/f2d83ea762059765232d5a0a4b262ee9f3f48ead"
+          },
+          {
+            "path": ".devcontainer",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "12ec33051d90693641628e0c971ffa41fa73dc14",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/12ec33051d90693641628e0c971ffa41fa73dc14"
+          },
+          {
+            "path": ".docker",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "f3c60ed969312f9cf4d59190790424beef8799a7",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/f3c60ed969312f9cf4d59190790424beef8799a7"
+          },
+          {
+            "path": ".editorconfig",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "9d08a1a828a3bd2d60de3952744df29f9add27fa",
+            "size": 147,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/9d08a1a828a3bd2d60de3952744df29f9add27fa"
+          },
+          {
+            "path": ".github",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "d630a25e047bcb09b35f4a51f5cba395d4a20120",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/d630a25e047bcb09b35f4a51f5cba395d4a20120"
+          },
+          {
+            "path": ".gitignore",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "dedc0b167581e3659b7b064cb7d972c2b660ce27",
+            "size": 765,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/dedc0b167581e3659b7b064cb7d972c2b660ce27"
+          },
+          {
+            "path": ".prettierignore",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3494710b79e30f9acf7fece5d89f77d17b5b583a",
+            "size": 777,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/3494710b79e30f9acf7fece5d89f77d17b5b583a"
+          },
+          {
+            "path": ".prettierrc",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "6ca6fdd25bc2a147d2ded0de0e9b3d41fbb50828",
+            "size": 113,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/6ca6fdd25bc2a147d2ded0de0e9b3d41fbb50828"
+          },
+          {
+            "path": ".scripts",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "a8d222a520bb83d3fa5b7c6bbe25dd188478cf54",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/a8d222a520bb83d3fa5b7c6bbe25dd188478cf54"
+          },
+          {
+            "path": ".vscode",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "ac4656962f2235260b1cefb48ac76b765c42168b",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/ac4656962f2235260b1cefb48ac76b765c42168b"
+          },
+          {
+            "path": "ARCHITECTURE.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "56630ea06c7645aab421decf33db8c4f74db1ce9",
+            "size": 11024,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/56630ea06c7645aab421decf33db8c4f74db1ce9"
+          },
+          {
+            "path": "Cargo.lock",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "7f3ffd111c5457a23415a5e4ce0d3d38719b031e",
+            "size": 277575,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/7f3ffd111c5457a23415a5e4ce0d3d38719b031e"
+          },
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "670a647672c2e11476d0ceb03e7d52fdb55e96cf",
+            "size": 1915,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/670a647672c2e11476d0ceb03e7d52fdb55e96cf"
+          },
+          {
+            "path": "LICENSE.spdx",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "4080281f12fc44a831babb7bb4f531aeb070078b",
+            "size": 889,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/4080281f12fc44a831babb7bb4f531aeb070078b"
+          },
+          {
+            "path": "LICENSE_APACHE-2.0",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b",
+            "size": 10174,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/f433b1a53f5b830a205fd2df78e2b34974656c7b"
+          },
+          {
+            "path": "LICENSE_MIT",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "b08530d59433b3060f4fad8751ac2610c0b0aff3",
+            "size": 1090,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/b08530d59433b3060f4fad8751ac2610c0b0aff3"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "66f8565b18e45acb56c6c3260e1f996447d24a23",
+            "size": 6055,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/66f8565b18e45acb56c6c3260e1f996447d24a23"
+          },
+          {
+            "path": "SECURITY.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "9c941968c38bdeacf665ab3c57279e71b12e8df7",
+            "size": 1630,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/9c941968c38bdeacf665ab3c57279e71b12e8df7"
+          },
+          {
+            "path": "audits",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "304f6b621b121c8f06c20f35d16ce81246c73540",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/304f6b621b121c8f06c20f35d16ce81246c73540"
+          },
+          {
+            "path": "bench",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "26bf389ede69428c98aec2803b348ffa367c96c1",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/26bf389ede69428c98aec2803b348ffa367c96c1"
+          },
+          {
+            "path": "crates",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "87e6a6aef8a1c68f8e9146b2fb79054214663365",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/87e6a6aef8a1c68f8e9146b2fb79054214663365"
+          },
+          {
+            "path": "dependabot.yml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "29c8dca9c34754cb2664aaa6e5cf4e6d8bcc10f5",
+            "size": 2606,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/29c8dca9c34754cb2664aaa6e5cf4e6d8bcc10f5"
+          },
+          {
+            "path": "examples",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "4314b0316e5e0e2a1655cf8fca331e13272fc57e",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/4314b0316e5e0e2a1655cf8fca331e13272fc57e"
+          },
+          {
+            "path": "package.json",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3dc1a3601a1df5fcaa8c646c1c2aa2ce5f7cbf64",
+            "size": 1103,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/3dc1a3601a1df5fcaa8c646c1c2aa2ce5f7cbf64"
+          },
+          {
+            "path": "packages",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "178988f96fe516c543b749f0908b1be86ef8db5e",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/178988f96fe516c543b749f0908b1be86ef8db5e"
+          },
+          {
+            "path": "pnpm-lock.yaml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "9f7d85715d8fa76734bf89eaf329aa7119b29e1d",
+            "size": 169857,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/9f7d85715d8fa76734bf89eaf329aa7119b29e1d"
+          },
+          {
+            "path": "pnpm-workspace.yaml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "5f07e0b4acca73c9ca7519bf4c6b30ffeac6bc18",
+            "size": 278,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/5f07e0b4acca73c9ca7519bf4c6b30ffeac6bc18"
+          },
+          {
+            "path": "renovate.json",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3f55df977d431a75cc64f70925862060160f7dd0",
+            "size": 1154,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/3f55df977d431a75cc64f70925862060160f7dd0"
+          },
+          {
+            "path": "rustfmt.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "9446a9df52b6e777648bb8256187d662ef6c1694",
+            "size": 353,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/9446a9df52b6e777648bb8256187d662ef6c1694"
+          },
+          {
+            "path": "supply-chain",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "62e5ace06e974f57eb047917ab77155d9302f316",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/62e5ace06e974f57eb047917ab77155d9302f316"
+          }
+        ]
+      },
+      "package_tree": {
+        "ancestry": [
+          {
+            "part": "crates",
+            "git_tree": "87e6a6aef8a1c68f8e9146b2fb79054214663365",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/87e6a6aef8a1c68f8e9146b2fb79054214663365"
+          },
+          {
+            "part": "tauri-plugin",
+            "git_tree": "d6d0749a340363413ca08a07be16e6f058d68b8a",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/d6d0749a340363413ca08a07be16e6f058d68b8a"
+          },
+          {
+            "part": "recursive package contents",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/d6d0749a340363413ca08a07be16e6f058d68b8a?recursive=1"
+          }
+        ],
+        "entries": [
+          {
+            "path": "CHANGELOG.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "1a289a3ff8810f87db5f81a145f3228efc3a13cd",
+            "size": 10028,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/1a289a3ff8810f87db5f81a145f3228efc3a13cd"
+          },
+          {
+            "path": "Cargo.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "9e048ce1eb24adad9a532e952db82b9d28fd48fa",
+            "size": 1079,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/9e048ce1eb24adad9a532e952db82b9d28fd48fa"
+          },
+          {
+            "path": "src",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "244dd7534cb9385b4ed71816e811651132c90119",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/244dd7534cb9385b4ed71816e811651132c90119"
+          },
+          {
+            "path": "src/build",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "5fb8a695df0c71506bbc30bb0b546c66324f74cb",
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/5fb8a695df0c71506bbc30bb0b546c66324f74cb"
+          },
+          {
+            "path": "src/build/mobile.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "edccc50cc7de189456a33ef2c0367f71dfb42516",
+            "size": 5659,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/edccc50cc7de189456a33ef2c0367f71dfb42516"
+          },
+          {
+            "path": "src/build/mod.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "921ebca18df7d2fe4feec4dd39d8941194bd9251",
+            "size": 5282,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/921ebca18df7d2fe4feec4dd39d8941194bd9251"
+          },
+          {
+            "path": "src/lib.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "4c21a6af46ba0b598d327a51ecd84012c5bd7f90",
+            "size": 690,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/4c21a6af46ba0b598d327a51ecd84012c5bd7f90"
+          },
+          {
+            "path": "src/runtime.rs",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "3d77814f58535c8849d1dd552ee29629dce97aad",
+            "size": 141,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/3d77814f58535c8849d1dd552ee29629dce97aad"
+          }
+        ],
+        "truncated": false
+      },
+      "named_license_notice_paths": {
+        "root": [
+          {
+            "path": "LICENSE.spdx",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "4080281f12fc44a831babb7bb4f531aeb070078b",
+            "size": 889,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/4080281f12fc44a831babb7bb4f531aeb070078b"
+          },
+          {
+            "path": "LICENSE_APACHE-2.0",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b",
+            "size": 10174,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/f433b1a53f5b830a205fd2df78e2b34974656c7b"
+          },
+          {
+            "path": "LICENSE_MIT",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "b08530d59433b3060f4fad8751ac2610c0b0aff3",
+            "size": 1090,
+            "url": "https://api.github.com/repos/tauri-apps/tauri/git/blobs/b08530d59433b3060f4fad8751ac2610c0b0aff3"
+          }
+        ],
+        "package": [],
+        "absence_scope": "only checked root entry names and complete package subtree; not unrelated repository components"
+      },
+      "upstream_comparisons": [
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/Cargo.toml.orig",
+          "upstream_url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/Cargo.toml",
+          "bytes": 1079,
+          "sha256": "cb733ae0ff8eae3102f43bbd4f2d7b0dba57de0e9df941685878f6c8f4173d34",
+          "git_blob": "9e048ce1eb24adad9a532e952db82b9d28fd48fa",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/src/build/mobile.rs",
+          "upstream_url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/src/build/mobile.rs",
+          "bytes": 5659,
+          "sha256": "9cd2465dbb95ac3aac28385b733b954dc890bdd543c3c15f1e4e2cf083f730b3",
+          "git_blob": "edccc50cc7de189456a33ef2c0367f71dfb42516",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/src/build/mod.rs",
+          "upstream_url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/src/build/mod.rs",
+          "bytes": 5282,
+          "sha256": "22be5c241a3280b8e0514c44114dbd1c50a6fcaf642f9bba7d0ba57c2b10e2f5",
+          "git_blob": "921ebca18df7d2fe4feec4dd39d8941194bd9251",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/src/lib.rs",
+          "upstream_url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/src/lib.rs",
+          "bytes": 690,
+          "sha256": "cba8dfe5d46f90f27a7d1615d980d256247b26a1301ac14074997bfe6b9819a6",
+          "git_blob": "4c21a6af46ba0b598d327a51ecd84012c5bd7f90",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        },
+        {
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-2.6.3/src/runtime.rs",
+          "upstream_url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/src/runtime.rs",
+          "bytes": 141,
+          "sha256": "5ac83667211771c07b88c58fc6cdec8712974d74d2d8ee6e4cbc127f45d0f8e3",
+          "git_blob": "3d77814f58535c8849d1dd552ee29629dce97aad",
+          "byte_equal": true,
+          "git_blob_checked_against_tree": true
+        }
+      ],
+      "source_notices": [
+        {
+          "path": "src/build/mobile.rs",
+          "sha256": "9cd2465dbb95ac3aac28385b733b954dc890bdd543c3c15f1e4e2cf083f730b3",
+          "header": "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy\n// SPDX-License-Identifier: Apache-2.0\n// SPDX-License-Identifier: MIT",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": "// SPDX-License-Identifier: MIT"
+            }
+          ]
+        },
+        {
+          "path": "src/build/mod.rs",
+          "sha256": "22be5c241a3280b8e0514c44114dbd1c50a6fcaf642f9bba7d0ba57c2b10e2f5",
+          "header": "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy\n// SPDX-License-Identifier: Apache-2.0\n// SPDX-License-Identifier: MIT",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": "// SPDX-License-Identifier: MIT"
+            }
+          ]
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "cba8dfe5d46f90f27a7d1615d980d256247b26a1301ac14074997bfe6b9819a6",
+          "header": "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy\n// SPDX-License-Identifier: Apache-2.0\n// SPDX-License-Identifier: MIT",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": "// SPDX-License-Identifier: MIT"
+            }
+          ]
+        },
+        {
+          "path": "src/runtime.rs",
+          "sha256": "5ac83667211771c07b88c58fc6cdec8712974d74d2d8ee6e4cbc127f45d0f8e3",
+          "header": "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy\n// SPDX-License-Identifier: Apache-2.0\n// SPDX-License-Identifier: MIT\n",
+          "license_or_copyright_lines": [
+            {
+              "line": 1,
+              "text": "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": "// SPDX-License-Identifier: MIT"
+            }
+          ]
+        }
+      ],
+      "license": {
+        "package": "tauri-plugin",
+        "version": "2.6.3",
+        "selected_license": "MIT",
+        "source_url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/LICENSE_MIT",
+        "source_kind": "original repository-root file at exact crate VCS pin",
+        "bytes": 1090,
+        "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
+        "git_blob": "b08530d59433b3060f4fad8751ac2610c0b0aff3",
+        "export_path": "docs/release/licenses/tauri-plugin-2.6.3-LICENSE-MIT.txt",
+        "reused_existing_export": false,
+        "original_bytes": true
+      },
+      "extra": {
+        "Cargo.toml": {
+          "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/Cargo.toml",
+          "bytes": 1915,
+          "sha256": "606bdd2b8da9b9597f3d2f84097a38644ea4e194633637fb5c1ff4c8d9913138",
+          "git_blob": "670a647672c2e11476d0ceb03e7d52fdb55e96cf",
+          "text": "[workspace]\nmembers = [\n  \"crates/tauri\",\n  \"crates/tauri-runtime\",\n  \"crates/tauri-runtime-wry\",\n  \"crates/tauri-macros\",\n  \"crates/tauri-utils\",\n  \"crates/tauri-build\",\n  \"crates/tauri-codegen\",\n  \"crates/tauri-plugin\",\n  \"crates/tauri-schema-generator\",\n  \"crates/tauri-schema-worker\",\n  \"crates/tauri-cli\",\n  \"crates/tauri-bundler\",\n  \"crates/tauri-macos-sign\",\n  \"crates/tauri-driver\",\n\n  # @tauri-apps/cli rust project\n  \"packages/cli\",\n\n  # integration tests\n  \"crates/tests/restart\",\n  \"crates/tests/acl\",\n\n  # bench\n  \"bench\",\n  \"bench/tests/cpu_intensive/src-tauri\",\n  \"bench/tests/files_transfer/src-tauri\",\n  \"bench/tests/helloworld/src-tauri\",\n\n  # examples\n  \"examples/file-associations/src-tauri\",\n  \"examples/resources/src-tauri\",\n  \"examples/api/src-tauri\",\n  \"examples/api/src-tauri/tauri-plugin-sample\",\n]\nresolver = \"2\"\n\n[workspace.package]\nauthors = [\"Tauri Programme within The Commons Conservancy\"]\nhomepage = \"https://tauri.app/\"\nrepository = \"https://github.com/tauri-apps/tauri\"\ncategories = [\"gui\", \"web-programming\"]\nlicense = \"Apache-2.0 OR MIT\"\nedition = \"2021\"\nrust-version = \"1.77.2\"\n\n# default to small, optimized workspace release binaries\n[profile.release]\npanic = \"abort\"\ncodegen-units = 1\nlto = true\nincremental = false\nopt-level = \"s\"\nstrip = true\n\n# profiles for tauri-cli\n[profile.dev.package.miniz_oxide]\nopt-level = 3\n\n[profile.release-size-optimized]\ninherits = \"release\"\ncodegen-units = 1\nlto = true\nincremental = false\nopt-level = \"s\"\n\n# Temporary patch to schemars to preserve newlines in docstrings for our reference docs schemas\n# See https://github.com/GREsau/schemars/issues/120 for reference\n[patch.crates-io]\nschemars_derive = { git = 'https://github.com/tauri-apps/schemars.git', branch = 'feat/preserve-description-newlines' }\ntauri = { path = \"./crates/tauri\" }\ntauri-plugin = { path = \"./crates/tauri-plugin\" }\ntauri-utils = { path = \"./crates/tauri-utils\" }\n"
+        },
+        "LICENSE.spdx": {
+          "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/LICENSE.spdx",
+          "bytes": 889,
+          "sha256": "5e834fe9788c524210deda859c46a550ffa5aa0cba9ea0572f0d81120e97c008",
+          "git_blob": "4080281f12fc44a831babb7bb4f531aeb070078b",
+          "text": "SPDXVersion: SPDX-2.1\nDataLicense: CC0-1.0\nPackageName: tauri\nDataFormat: SPDXRef-1\nPackageSupplier: Organization: The Tauri Programme in the Commons Conservancy\nPackageHomePage: https://tauri.app\nPackageLicenseDeclared: Apache-2.0\nPackageLicenseDeclared: MIT\nPackageCopyrightText: 2019-2025, The Tauri Programme in the Commons Conservancy\nPackageSummary: <text>Tauri is a rust project that enables developers to make secure\nand small desktop applications using a web frontend.\n                </text>\nPackageComment: <text>The package includes the following libraries; see\nRelationship information.\n                </text>\nCreated: 2019-05-20T09:00:00Z\nPackageDownloadLocation: git://github.com/tauri-apps/tauri\nPackageDownloadLocation: git+https://github.com/tauri-apps/tauri.git\nPackageDownloadLocation: git+ssh://github.com/tauri-apps/tauri.git\nCreator: Person: Daniel Thompson-Yvetot\n"
+        },
+        "license_choice": "MIT selected using package license.workspace=true and pinned workspace.package license Apache-2.0 OR MIT. Source SPDX lines alone are not used to infer the OR.",
+        "source_feature_scope": "Historical Windows tree enables build, not runtime. Full installed source headers include inactive runtime/mobile code as provenance."
+      }
+    }
+  ],
+  "license_assignments": [
+    {
+      "package": "alloc-stdlib",
+      "version": "0.2.4",
+      "selected_license": "BSD-3-Clause",
+      "source_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/LICENSE",
+      "source_kind": "original repository-root file at exact crate VCS pin",
+      "bytes": 1483,
+      "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+      "git_blob": "cd496ba72eb37e83a44958358d1f89a8a28cbc15",
+      "export_path": "docs/release/licenses/alloc-stdlib-0.2.4-LICENSE-BSD-3-Clause.txt",
+      "reused_existing_export": false,
+      "original_bytes": true
+    },
+    {
+      "package": "pageant",
+      "version": "0.2.1",
+      "selected_license": "Apache-2.0",
+      "source_url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/LICENSE.txt",
+      "source_kind": "original repository-root file at exact crate VCS pin",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "git_blob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "export_path": "docs/release/licenses/russh-cryptovec-0.62.0-util-0.52.0-LICENSE-APACHE.txt",
+      "reused_existing_export": true,
+      "original_bytes": true
+    },
+    {
+      "package": "delegate",
+      "version": "0.13.5",
+      "selected_license": "MIT",
+      "source_url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/LICENSE-MIT",
+      "source_kind": "original repository-root file at exact crate VCS pin",
+      "bytes": 1078,
+      "sha256": "be7ee8aa49dc586023669a0c600a0536fce6a9f61264a53a67cdd842564ed899",
+      "git_blob": "688d43f92fad946c826ac49c4edf7ec280fdad66",
+      "export_path": "docs/release/licenses/delegate-0.13.5-LICENSE-MIT.txt",
+      "reused_existing_export": false,
+      "original_bytes": true
+    },
+    {
+      "package": "selectors",
+      "version": "0.36.1",
+      "selected_license": "MPL-2.0",
+      "source_url": "https://www.mozilla.org/media/MPL/2.0/index.txt",
+      "source_kind": "official Mozilla MPL 2.0 text referenced by the exact pinned source header; no license file exists in the checked repo root or package subtree",
+      "bytes": 16726,
+      "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+      "git_blob": null,
+      "export_path": "docs/release/licenses/selectors-0.36.1-LICENSE-MPL-2.0.txt",
+      "reused_existing_export": false,
+      "original_bytes": true
+    },
+    {
+      "package": "tauri-plugin",
+      "version": "2.6.3",
+      "selected_license": "MIT",
+      "source_url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/LICENSE_MIT",
+      "source_kind": "original repository-root file at exact crate VCS pin",
+      "bytes": 1090,
+      "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
+      "git_blob": "b08530d59433b3060f4fad8751ac2610c0b0aff3",
+      "export_path": "docs/release/licenses/tauri-plugin-2.6.3-LICENSE-MIT.txt",
+      "reused_existing_export": false,
+      "original_bytes": true
+    }
+  ],
+  "additional_notice": {
+    "path": "docs/release/licenses/remaining-rust-2026-09-12-SOURCE-NOTICES.txt",
+    "bytes": 1812,
+    "sha256": "25b6e31287653f3729ee53c29fb2e7924863b36297417bd7af48760af3e05568",
+    "original_upstream_file": false,
+    "source": "Exact installed source headers plus pinned Tauri SPDX copyright metadata; all mapped in package records"
+  },
+  "original_fifteen_text_gap_resolution": [
+    {
+      "name": "alloc-stdlib",
+      "version": "0.2.4",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-remaining-rust-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "delegate",
+      "version": "0.13.5",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-remaining-rust-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "pageant",
+      "version": "0.2.1",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-remaining-rust-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "russh-cryptovec",
+      "version": "0.62.0",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-russh-support-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "russh-util",
+      "version": "0.52.0",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-russh-support-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "selectors",
+      "version": "0.36.1",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-remaining-rust-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "tauri-plugin",
+      "version": "2.6.3",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-remaining-rust-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "unic-char-property",
+      "version": "0.9.0",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-unic-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "unic-char-range",
+      "version": "0.9.0",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-unic-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "unic-common",
+      "version": "0.9.0",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-unic-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "unic-ucd-ident",
+      "version": "0.9.0",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-unic-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "unic-ucd-version",
+      "version": "0.9.0",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-unic-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "webview2-com",
+      "version": "0.38.2",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-webview2-bindings-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "webview2-com-macros",
+      "version": "0.8.1",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-webview2-bindings-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    },
+    {
+      "name": "webview2-com-sys",
+      "version": "0.38.2",
+      "historical_text_status": "no-named-license-file-found-in-installed-source",
+      "versioned_text_assignment_report": "docs/release/license-webview2-bindings-2026-09-12.json",
+      "resolution": "versioned original or source-referenced full license text preserved by the named report; actual release inclusion remains separate"
+    }
+  ],
+  "http_sources": [
+    {
+      "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/ae42d22078b98549e987d2f03d12df7b984fde47",
+      "status": 200,
+      "bytes": 1981,
+      "sha256": "8d80f7e29bc3026a1da617d5840bd6a1b015bfbe0dadbbb62d40de7dcb990344",
+      "observed_utc": "2026-09-12T10:00:32.288Z"
+    },
+    {
+      "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/62d55e6725d70981fd5570b6491026a7a6262227",
+      "status": 200,
+      "bytes": 1076,
+      "sha256": "716e4fd6fecb6d5d0508077cae41bcbcf0642130ebbf08693db004d797efb4e4",
+      "observed_utc": "2026-09-12T10:00:32.493Z"
+    },
+    {
+      "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/62d55e6725d70981fd5570b6491026a7a6262227?recursive=1",
+      "status": 200,
+      "bytes": 2930,
+      "sha256": "b4abaa7da3fb507f5e0c871e67f9c70a1c2ae0cc59a642c2f6077fb8c5910df4",
+      "observed_utc": "2026-09-12T10:00:32.699Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/Cargo.toml",
+      "status": 200,
+      "bytes": 697,
+      "sha256": "77cff698112ee833c7c2e2b42c2b51677502ee04ca4a0c213155e3494a80fec3",
+      "observed_utc": "2026-09-12T10:00:32.916Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/README.md",
+      "status": 200,
+      "bytes": 6776,
+      "sha256": "4857caaabcb6eb367687e6671d70fef3b8dcbab1276999612b71f9f4cd6190b0",
+      "observed_utc": "2026-09-12T10:00:33.100Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/bin/example.rs",
+      "status": 200,
+      "bytes": 4054,
+      "sha256": "1f8901b4b4194ae678ed87ecca8a8dedc042c5a4b9ea0463bf50b9efdc379714",
+      "observed_utc": "2026-09-12T10:00:33.300Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/bin/tests.rs",
+      "status": 200,
+      "bytes": 1825,
+      "sha256": "94d4173261e0d323b2d7648b4a4d24966935cdaab6d1d673f16cfaae77ecb4e1",
+      "observed_utc": "2026-09-12T10:00:33.512Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/heap_alloc.rs",
+      "status": 200,
+      "bytes": 3554,
+      "sha256": "d9bd3c9ea07195729cf79cae67e568f48c4c9a4ed8b806854c99f49ff35a8e57",
+      "observed_utc": "2026-09-12T10:00:33.712Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/lib.rs",
+      "status": 200,
+      "bytes": 437,
+      "sha256": "3b1358fd99790a1063f0f2b4358d3771a75fcc3ee8e4560984326f86a8c56b0a",
+      "observed_utc": "2026-09-12T10:00:33.735Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/std_alloc.rs",
+      "status": 200,
+      "bytes": 381,
+      "sha256": "77c7daf777daf053be9c4bddd027c6ba4a3d389d45a90047a8b47c446b44ea67",
+      "observed_utc": "2026-09-12T10:00:33.934Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/src/test.rs",
+      "status": 200,
+      "bytes": 2624,
+      "sha256": "179b4972d2a9d521fbba851997880abcc07b8485b7f942dd5c47858cbc35b108",
+      "observed_utc": "2026-09-12T10:00:34.145Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/alloc-stdlib/tests/lib.rs",
+      "status": 200,
+      "bytes": 13084,
+      "sha256": "fd109e481944e25b5313e1f2a4ee47f8800430a50d55c9a0503a1f7b74f62747",
+      "observed_utc": "2026-09-12T10:00:34.353Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/LICENSE",
+      "status": 200,
+      "bytes": 1483,
+      "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+      "observed_utc": "2026-09-12T10:00:34.380Z"
+    },
+    {
+      "url": "https://api.github.com/repos/warp-tech/russh/git/trees/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7",
+      "status": 301,
+      "location": "https://api.github.com/repositories/456693383/git/trees/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7",
+      "bytes": 249,
+      "sha256": "804c2e42a5f9bf13738e321d5f76c7534a90bacf5412caedb602c7c6f034bfe9",
+      "observed_utc": "2026-09-12T10:00:34.584Z"
+    },
+    {
+      "url": "https://api.github.com/repositories/456693383/git/trees/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7",
+      "status": 200,
+      "bytes": 3718,
+      "sha256": "b4661efb74fd28dd8a2aadaee827472a5e949640ea2daaf8153ee7ab7b522ca5",
+      "observed_utc": "2026-09-12T10:00:34.763Z"
+    },
+    {
+      "url": "https://api.github.com/repositories/456693383/git/trees/13c9ef284c98073f2fe3dc500c4c2125875b6c8d",
+      "status": 200,
+      "bytes": 587,
+      "sha256": "81fda10beb8f1dd6ad03125ef3ac07950af574fa3677d2155a43c9106499c6a6",
+      "observed_utc": "2026-09-12T10:00:34.966Z"
+    },
+    {
+      "url": "https://api.github.com/repositories/456693383/git/trees/13c9ef284c98073f2fe3dc500c4c2125875b6c8d?recursive=1",
+      "status": 200,
+      "bytes": 1676,
+      "sha256": "c81900bca60b52d2c27569104449fc0a4f6dcf5fef2ef7ea24366bce5b9de7ac",
+      "observed_utc": "2026-09-12T10:00:35.164Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/Cargo.toml",
+      "status": 200,
+      "bytes": 1300,
+      "sha256": "6929d550f88eb6892d91978baad857e1fa632036a5e3fb0bcf2c49664fa15dde",
+      "observed_utc": "2026-09-12T10:00:35.384Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/error.rs",
+      "status": 200,
+      "bytes": 751,
+      "sha256": "4774285044b07100b037b1cb461f1df2872805ecc0819e1148bbb89738a56f89",
+      "observed_utc": "2026-09-12T10:00:35.592Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/interface.rs",
+      "status": 200,
+      "bytes": 3834,
+      "sha256": "114ead1a29dc361a19670a5bbef63d4f89e64fada8fb95fe6cb730f1f5c0e478",
+      "observed_utc": "2026-09-12T10:00:35.786Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/lib.rs",
+      "status": 200,
+      "bytes": 643,
+      "sha256": "4e9e5d49d30aab6dbfcad66b862f1b62f770bb2612c3523e7fbb6f442fb28d3d",
+      "observed_utc": "2026-09-12T10:00:35.813Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/namedpipes.rs",
+      "status": 200,
+      "bytes": 5188,
+      "sha256": "74c77cf12daebd573a1f72c9c460006ea9f8666ced45cc1cfb721e86d1b47097",
+      "observed_utc": "2026-09-12T10:00:36.012Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/pageant/src/wmmessage.rs",
+      "status": 200,
+      "bytes": 8435,
+      "sha256": "83dd8176c8fb32ba9eff8925ae967d584f6b13c10b9e0bbcbd342d6ec23012f6",
+      "observed_utc": "2026-09-12T10:00:36.220Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/warp-tech/russh/1947d6b1bb3a9d79840b5adf7eb9b33df2c6e4a7/LICENSE.txt",
+      "status": 200,
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "observed_utc": "2026-09-12T10:00:36.242Z"
+    },
+    {
+      "url": "https://api.github.com/repos/kobzol/rust-delegate/git/trees/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820",
+      "status": 200,
+      "bytes": 2366,
+      "sha256": "3ef2701b4c2b07c016f45d9e10581364bc63e96b42935b562fed775100721751",
+      "observed_utc": "2026-09-12T10:00:36.451Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/Cargo.toml",
+      "status": 200,
+      "bytes": 644,
+      "sha256": "42d8d439b03ca6b4340c03c86c96e21ca91c7eb64167dc5cfbeaffea10a4af46",
+      "observed_utc": "2026-09-12T10:00:36.643Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/README.md",
+      "status": 200,
+      "bytes": 12911,
+      "sha256": "d6ed995b649e247fc5e3deb556da4a1f254a3bf8e1bdfc37f3eda8ad4d8486eb",
+      "observed_utc": "2026-09-12T10:00:36.833Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/src/attributes.rs",
+      "status": 200,
+      "bytes": 19176,
+      "sha256": "12253a2573811764e7853cd94a01fa21d93f93e867b3cca1c7f089608a3739ca",
+      "observed_utc": "2026-09-12T10:00:37.083Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/src/lib.rs",
+      "status": 200,
+      "bytes": 41107,
+      "sha256": "feb547fb387cb4af779e6b7d1633af5769b6e250d382ba4a34e4e53ea79e588c",
+      "observed_utc": "2026-09-12T10:00:37.295Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kobzol/rust-delegate/b129d4cbf4cc499eff7743365dcb0fe5d8d2e820/LICENSE-MIT",
+      "status": 200,
+      "bytes": 1078,
+      "sha256": "be7ee8aa49dc586023669a0c600a0536fce6a9f61264a53a67cdd842564ed899",
+      "observed_utc": "2026-09-12T10:00:37.318Z"
+    },
+    {
+      "url": "https://api.github.com/repos/servo/stylo/git/trees/635e1a19d02960588a00e189bd4bd5bdb150ec3d",
+      "status": 200,
+      "bytes": 4958,
+      "sha256": "ae1e0c1ca67c0308fd71ad319f8e6a4432d4d5cda9cf3b21b47c15bfeb487eb5",
+      "observed_utc": "2026-09-12T10:00:37.521Z"
+    },
+    {
+      "url": "https://api.github.com/repos/servo/stylo/git/trees/0b3fc126c202ab74a0b2c6895732426bf96e4f1e",
+      "status": 200,
+      "bytes": 3790,
+      "sha256": "822c6cb6beb45ba64b1835a4d96e3e8a8e61e6af2992468e2c253c2109b0fed3",
+      "observed_utc": "2026-09-12T10:00:37.719Z"
+    },
+    {
+      "url": "https://api.github.com/repos/servo/stylo/git/trees/0b3fc126c202ab74a0b2c6895732426bf96e4f1e?recursive=1",
+      "status": 200,
+      "bytes": 4475,
+      "sha256": "f264930969995474b5a802a169bec81459fd142ab5ba6730a6e386c825ea587c",
+      "observed_utc": "2026-09-12T10:00:37.922Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/Cargo.toml",
+      "status": 200,
+      "bytes": 868,
+      "sha256": "be6ed6441d04b710178c3b50052672755e15e5cf3780060ca9fdd2c8aba1d392",
+      "observed_utc": "2026-09-12T10:00:38.112Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/servo/stylo/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors/lib.rs",
+      "status": 200,
+      "bytes": 643,
+      "sha256": "d54c6e13e9e952dac17d209171df8657e3cae93beaddace4906150cdec8d02e9",
+      "observed_utc": "2026-09-12T10:00:38.135Z"
+    },
+    {
+      "url": "https://www.mozilla.org/media/MPL/2.0/index.txt",
+      "status": 200,
+      "bytes": 16726,
+      "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+      "observed_utc": "2026-09-12T10:00:38.227Z"
+    },
+    {
+      "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a",
+      "status": 200,
+      "bytes": 6803,
+      "sha256": "024873dab33ccceb09e9ef50d9755c40752cc384e45261467644e96ae9bf1937",
+      "observed_utc": "2026-09-12T10:00:38.430Z"
+    },
+    {
+      "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/87e6a6aef8a1c68f8e9146b2fb79054214663365",
+      "status": 200,
+      "bytes": 3312,
+      "sha256": "751f2d550a1f42dfadd4069f0853ca297750f3f22d0f96634336449069a3704f",
+      "observed_utc": "2026-09-12T10:00:38.622Z"
+    },
+    {
+      "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/d6d0749a340363413ca08a07be16e6f058d68b8a",
+      "status": 200,
+      "bytes": 820,
+      "sha256": "ec442ecfe25a34043dcebe0af8e00e9075785edb8254b620884d86c222e69da0",
+      "observed_utc": "2026-09-12T10:00:38.863Z"
+    },
+    {
+      "url": "https://api.github.com/repos/tauri-apps/tauri/git/trees/d6d0749a340363413ca08a07be16e6f058d68b8a?recursive=1",
+      "status": 200,
+      "bytes": 1914,
+      "sha256": "56d8e9675bb502cbb2a65518b405b7a473fb585cd968ec47d3f8ceea38188aed",
+      "observed_utc": "2026-09-12T10:00:39.061Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/Cargo.toml",
+      "status": 200,
+      "bytes": 1079,
+      "sha256": "cb733ae0ff8eae3102f43bbd4f2d7b0dba57de0e9df941685878f6c8f4173d34",
+      "observed_utc": "2026-09-12T10:00:39.269Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/src/build/mobile.rs",
+      "status": 200,
+      "bytes": 5659,
+      "sha256": "9cd2465dbb95ac3aac28385b733b954dc890bdd543c3c15f1e4e2cf083f730b3",
+      "observed_utc": "2026-09-12T10:00:39.676Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/src/build/mod.rs",
+      "status": 200,
+      "bytes": 5282,
+      "sha256": "22be5c241a3280b8e0514c44114dbd1c50a6fcaf642f9bba7d0ba57c2b10e2f5",
+      "observed_utc": "2026-09-12T10:00:39.872Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/src/lib.rs",
+      "status": 200,
+      "bytes": 690,
+      "sha256": "cba8dfe5d46f90f27a7d1615d980d256247b26a1301ac14074997bfe6b9819a6",
+      "observed_utc": "2026-09-12T10:00:40.064Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/crates/tauri-plugin/src/runtime.rs",
+      "status": 200,
+      "bytes": 141,
+      "sha256": "5ac83667211771c07b88c58fc6cdec8712974d74d2d8ee6e4cbc127f45d0f8e3",
+      "observed_utc": "2026-09-12T10:00:40.266Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/LICENSE_MIT",
+      "status": 200,
+      "bytes": 1090,
+      "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
+      "observed_utc": "2026-09-12T10:00:40.283Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/Cargo.toml",
+      "status": 200,
+      "bytes": 1915,
+      "sha256": "606bdd2b8da9b9597f3d2f84097a38644ea4e194633637fb5c1ff4c8d9913138",
+      "observed_utc": "2026-09-12T10:00:40.301Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/LICENSE.spdx",
+      "status": 200,
+      "bytes": 889,
+      "sha256": "5e834fe9788c524210deda859c46a550ffa5aa0cba9ea0572f0d81120e97c008",
+      "observed_utc": "2026-09-12T10:00:40.319Z"
+    }
+  ],
+  "limits": [
+    "Historical Windows features reused with input hash, without rebuilding or regenerating inventory.",
+    "build-or-proc-macro-only role is a graph observation, not proof that no generated material can reach the release. Final bundle selection remains open.",
+    "selectors official Mozilla text is version 2.0 as named in source headers, not a purported file from the pinned repository. Generic full-license Exhibit B is not an actual source incompatibility designation.",
+    "Only original missing full-text entries were resolved; native SDK/datasets and final distribution obligations remain in their own recorded scope.",
+    "No product, lock, configuration, vendor or historical inventory file changed; no build, VM action, installation, temporary file or commit."
+  ]
+}

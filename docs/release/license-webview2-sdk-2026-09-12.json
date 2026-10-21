@@ -1,0 +1,990 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-09-12T09:20:41.147Z",
+  "scope": "Exact Microsoft.Web.WebView2 SDK 1.0.3650.58 x64 loader and license/notice provenance; not final application compliance or installer delivery.",
+  "download": {
+    "requested_url": "https://api.nuget.org/v3-flatcontainer/microsoft.web.webview2/1.0.3650.58/microsoft.web.webview2.1.0.3650.58.nupkg",
+    "final_url": "https://api.nuget.org/v3-flatcontainer/microsoft.web.webview2/1.0.3650.58/microsoft.web.webview2.1.0.3650.58.nupkg",
+    "http_status": 200,
+    "received_utc": "2026-09-12T09:17:09.654Z",
+    "bytes": 8965153,
+    "sha256": "911a472128c82ac8baa0c486c23342cc9dd6e7dc50d754e676726642ca065c60",
+    "response_headers": {
+      "content-length": "8965153",
+      "content-type": "application/octet-stream",
+      "etag": "0x8DE3662F5268426",
+      "last-modified": "Mon, 08 Dec 2025 14:06:18 GMT"
+    }
+  },
+  "package_manifest": {
+    "archive_path": "Microsoft.Web.WebView2.nuspec",
+    "bytes": 1367,
+    "sha256": "7cef90215900c89711502ae3aae1fc31bca3c3c736be2264d2d3cfa8b537aaf2",
+    "raw_utf8": "﻿<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<package xmlns=\"http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd\">\r\n  <metadata>\r\n    <id>Microsoft.Web.WebView2</id>\r\n    <version>1.0.3650.58</version>\r\n    <authors>Microsoft</authors>\r\n    <requireLicenseAcceptance>false</requireLicenseAcceptance>\r\n    <license type=\"file\">LICENSE.txt</license>\r\n    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>\r\n    <projectUrl>https://aka.ms/webview</projectUrl>\r\n    <iconUrl>https://aka.ms/webviewlogo</iconUrl>\r\n    <description>The WebView2 control enables you to embed web technologies (HTML, CSS, and JavaScript) in your native applications powered by Microsoft Edge (Chromium).\r\nThis package is necessary for Win32 C/C++, WPF, and WinForms applications. To learn more about package versions checkout https://aka.ms/wv2-packageversion. To learn best practices checkout: https://aka.ms/wv2-bestpractices.</description>\r\n    <releaseNotes>Release notes are at https://aka.ms/webviewrelease</releaseNotes>\r\n    <copyright>© Microsoft Corporation. All rights reserved.</copyright>\r\n    <tags>Microsoft Web WebView Native native package Edge C++ Win32 WPF WinForms dotnet framework core Webview2</tags>\r\n    <dependencies>\r\n      <group targetFramework=\"native0.0\" />\r\n      <group targetFramework=\"UAP10.0\" />\r\n    </dependencies>\r\n  </metadata>\r\n</package>",
+    "id": "Microsoft.Web.WebView2",
+    "version": "1.0.3650.58",
+    "authors": "Microsoft",
+    "license_file": "LICENSE.txt",
+    "require_license_acceptance": false
+  },
+  "archive_validation": {
+    "entry_count": 135,
+    "total_uncompressed_bytes": 46165738,
+    "all_paths_checked": true,
+    "entries": [
+      {
+        "path": "build/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "build/Common.targets",
+        "bytes": 20448,
+        "compressed_bytes": 4895,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/Microsoft.Web.WebView2.targets",
+        "bytes": 764,
+        "compressed_bytes": 418,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "build/native/arm64/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "build/native/arm64/WebView2Loader.dll",
+        "bytes": 145984,
+        "compressed_bytes": 64733,
+        "external_attributes": 32
+      },
+      {
+        "path": "build/native/arm64/WebView2Loader.dll.lib",
+        "bytes": 2916,
+        "compressed_bytes": 602,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/arm64/WebView2LoaderStatic.lib",
+        "bytes": 10504842,
+        "compressed_bytes": 1774350,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/include/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "build/native/include/WebView2.h",
+        "bytes": 2723081,
+        "compressed_bytes": 194985,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/include/WebView2EnvironmentOptions.h",
+        "bytes": 19067,
+        "compressed_bytes": 3444,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/include-winrt/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "build/native/include-winrt/WebView2Interop.h",
+        "bytes": 21127,
+        "compressed_bytes": 2823,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/include-winrt/WebView2Interop.idl",
+        "bytes": 7514,
+        "compressed_bytes": 1807,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/include-winrt/WebView2Interop.tlb",
+        "bytes": 56920,
+        "compressed_bytes": 18236,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/Microsoft.Web.WebView2.targets",
+        "bytes": 769,
+        "compressed_bytes": 423,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/x64/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "build/native/x64/WebView2Loader.dll",
+        "bytes": 160320,
+        "compressed_bytes": 78274,
+        "external_attributes": 32
+      },
+      {
+        "path": "build/native/x64/WebView2Loader.dll.lib",
+        "bytes": 2916,
+        "compressed_bytes": 603,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/x64/WebView2LoaderStatic.lib",
+        "bytes": 10500016,
+        "compressed_bytes": 1785543,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/x86/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "build/native/x86/WebView2Loader.dll",
+        "bytes": 120904,
+        "compressed_bytes": 64626,
+        "external_attributes": 32
+      },
+      {
+        "path": "build/native/x86/WebView2Loader.dll.lib",
+        "bytes": 2998,
+        "compressed_bytes": 612,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/native/x86/WebView2LoaderStatic.lib",
+        "bytes": 10464618,
+        "compressed_bytes": 1772441,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/WebView2Rules.Project.xml",
+        "bytes": 6670,
+        "compressed_bytes": 1612,
+        "external_attributes": 128
+      },
+      {
+        "path": "build/wv2winrt.targets",
+        "bytes": 18854,
+        "compressed_bytes": 3361,
+        "external_attributes": 128
+      },
+      {
+        "path": "buildTransitive/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "buildTransitive/Microsoft.Web.WebView2.targets",
+        "bytes": 764,
+        "compressed_bytes": 418,
+        "external_attributes": 128
+      },
+      {
+        "path": "lib/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "lib/Microsoft.Web.WebView2.Core.winmd",
+        "bytes": 135240,
+        "compressed_bytes": 53383,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib/net462/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "lib/net462/Microsoft.Web.WebView2.Core.dll",
+        "bytes": 649800,
+        "compressed_bytes": 133265,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib/net462/Microsoft.Web.WebView2.Core.xml",
+        "bytes": 579713,
+        "compressed_bytes": 99276,
+        "external_attributes": 128
+      },
+      {
+        "path": "lib/net462/Microsoft.Web.WebView2.WinForms.dll",
+        "bytes": 38984,
+        "compressed_bytes": 19431,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib/net462/Microsoft.Web.WebView2.WinForms.xml",
+        "bytes": 41870,
+        "compressed_bytes": 6326,
+        "external_attributes": 128
+      },
+      {
+        "path": "lib/net462/Microsoft.Web.WebView2.Wpf.dll",
+        "bytes": 82536,
+        "compressed_bytes": 37684,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib/net462/Microsoft.Web.WebView2.Wpf.xml",
+        "bytes": 142442,
+        "compressed_bytes": 19274,
+        "external_attributes": 128
+      },
+      {
+        "path": "lib_manual/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "lib_manual/net5.0-windows10.0.17763.0/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "lib_manual/net5.0-windows10.0.17763.0/Microsoft.Web.WebView2.Wpf.dll",
+        "bytes": 83016,
+        "compressed_bytes": 38198,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib_manual/net5.0-windows10.0.17763.0/Microsoft.Web.WebView2.Wpf.xml",
+        "bytes": 142442,
+        "compressed_bytes": 19274,
+        "external_attributes": 128
+      },
+      {
+        "path": "lib_manual/net6.0-windows10.0.17763.0/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "lib_manual/net6.0-windows10.0.17763.0/Microsoft.Web.WebView2.Core.Projection.dll",
+        "bytes": 687688,
+        "compressed_bytes": 188798,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib_manual/net8.0-windows10.0.17763.0/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "lib_manual/net8.0-windows10.0.17763.0/Microsoft.Web.WebView2.Core.Projection.dll",
+        "bytes": 685120,
+        "compressed_bytes": 189286,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib_manual/netcoreapp3.0/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.dll",
+        "bytes": 649800,
+        "compressed_bytes": 133265,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml",
+        "bytes": 579713,
+        "compressed_bytes": 99276,
+        "external_attributes": 128
+      },
+      {
+        "path": "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.dll",
+        "bytes": 39536,
+        "compressed_bytes": 19493,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml",
+        "bytes": 41870,
+        "compressed_bytes": 6326,
+        "external_attributes": 128
+      },
+      {
+        "path": "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.dll",
+        "bytes": 83048,
+        "compressed_bytes": 37825,
+        "external_attributes": 32
+      },
+      {
+        "path": "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml",
+        "bytes": 142442,
+        "compressed_bytes": 19274,
+        "external_attributes": 128
+      },
+      {
+        "path": "LICENSE.txt",
+        "bytes": 1487,
+        "compressed_bytes": 767,
+        "external_attributes": 128
+      },
+      {
+        "path": "Microsoft.Web.WebView2.nuspec",
+        "bytes": 1367,
+        "compressed_bytes": 665,
+        "external_attributes": 128
+      },
+      {
+        "path": "NOTICE.txt",
+        "bytes": 3894,
+        "compressed_bytes": 1199,
+        "external_attributes": 128
+      },
+      {
+        "path": "package/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "package/services/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "package/services/metadata/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "package/services/metadata/core-properties/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "package/services/metadata/core-properties/44922c1b115d44278d91cc142f354c52.psmdcp",
+        "bytes": 1129,
+        "compressed_bytes": 618,
+        "external_attributes": 128
+      },
+      {
+        "path": "runtimes/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-arm64/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-arm64/native/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-arm64/native/WebView2Loader.dll",
+        "bytes": 145984,
+        "compressed_bytes": 64733,
+        "external_attributes": 32
+      },
+      {
+        "path": "runtimes/win-arm64/native_uap/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-arm64/native_uap/Microsoft.Web.WebView2.Core.dll",
+        "bytes": 1106504,
+        "compressed_bytes": 278934,
+        "external_attributes": 32
+      },
+      {
+        "path": "runtimes/win-x64/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-x64/native/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-x64/native/WebView2Loader.dll",
+        "bytes": 160320,
+        "compressed_bytes": 78274,
+        "external_attributes": 32
+      },
+      {
+        "path": "runtimes/win-x64/native_uap/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-x64/native_uap/Microsoft.Web.WebView2.Core.dll",
+        "bytes": 792648,
+        "compressed_bytes": 250028,
+        "external_attributes": 32
+      },
+      {
+        "path": "runtimes/win-x86/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-x86/native/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-x86/native/WebView2Loader.dll",
+        "bytes": 120904,
+        "compressed_bytes": 64626,
+        "external_attributes": 32
+      },
+      {
+        "path": "runtimes/win-x86/native_uap/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "runtimes/win-x86/native_uap/Microsoft.Web.WebView2.Core.dll",
+        "bytes": 947272,
+        "compressed_bytes": 253146,
+        "external_attributes": 32
+      },
+      {
+        "path": "tools/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/VisualStudioToolsManifest.xml",
+        "bytes": 466,
+        "compressed_bytes": 172,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/Antlr3.Runtime.dll",
+        "bytes": 112728,
+        "compressed_bytes": 49741,
+        "external_attributes": 32
+      },
+      {
+        "path": "tools/wv2winrt/Antlr4.StringTemplate.dll",
+        "bytes": 212056,
+        "compressed_bytes": 83660,
+        "external_attributes": 32
+      },
+      {
+        "path": "tools/wv2winrt/codegen_util.dll",
+        "bytes": 10240,
+        "compressed_bytes": 4588,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/concrt140_app.dll",
+        "bytes": 56192,
+        "compressed_bytes": 16213,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/cs/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/cs/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9240,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/de/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/de/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9241,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/es/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/es/System.CommandLine.resources.dll",
+        "bytes": 17792,
+        "compressed_bytes": 9246,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/fr/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/fr/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9250,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/it/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/it/System.CommandLine.resources.dll",
+        "bytes": 17792,
+        "compressed_bytes": 9241,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/ja/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/ja/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9242,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/ko/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/ko/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9247,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/msvcp140_1_app.dll",
+        "bytes": 18312,
+        "compressed_bytes": 9990,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/msvcp140_2_app.dll",
+        "bytes": 20872,
+        "compressed_bytes": 10562,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/msvcp140_app.dll",
+        "bytes": 253320,
+        "compressed_bytes": 35789,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/pl/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/pl/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9254,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/pt-BR/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/pt-BR/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9250,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/ru/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/ru/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9247,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/System.Buffers.dll",
+        "bytes": 20856,
+        "compressed_bytes": 11336,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/System.CommandLine.dll",
+        "bytes": 215424,
+        "compressed_bytes": 91677,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/System.CommandLine.DragonFruit.dll",
+        "bytes": 30088,
+        "compressed_bytes": 15880,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/System.CommandLine.Rendering.dll",
+        "bytes": 80776,
+        "compressed_bytes": 36522,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/System.Memory.dll",
+        "bytes": 141184,
+        "compressed_bytes": 57558,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/System.Numerics.Vectors.dll",
+        "bytes": 115856,
+        "compressed_bytes": 32290,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/System.Runtime.CompilerServices.Unsafe.dll",
+        "bytes": 18304,
+        "compressed_bytes": 9342,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/tr/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/tr/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9252,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/type_hierarchy.dll",
+        "bytes": 113664,
+        "compressed_bytes": 45539,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/vcamp140_app.dll",
+        "bytes": 45448,
+        "compressed_bytes": 14093,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/vccorlib140_app.dll",
+        "bytes": 49032,
+        "compressed_bytes": 15379,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/vcomp140_app.dll",
+        "bytes": 24456,
+        "compressed_bytes": 11474,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/vcruntime140_app.dll",
+        "bytes": 22400,
+        "compressed_bytes": 11288,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/winrt_winmd.dll",
+        "bytes": 492648,
+        "compressed_bytes": 107289,
+        "external_attributes": 32
+      },
+      {
+        "path": "tools/wv2winrt/winrt_winmd.winmd",
+        "bytes": 31336,
+        "compressed_bytes": 15387,
+        "external_attributes": 32
+      },
+      {
+        "path": "tools/wv2winrt/wv2winrt.exe",
+        "bytes": 209984,
+        "compressed_bytes": 44345,
+        "external_attributes": 32
+      },
+      {
+        "path": "tools/wv2winrt/wv2winrt.exe.config",
+        "bytes": 556,
+        "compressed_bytes": 321,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/wv2winrt.xml",
+        "bytes": 4280,
+        "compressed_bytes": 1331,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/zh-Hans/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/zh-Hans/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9247,
+        "external_attributes": 128
+      },
+      {
+        "path": "tools/wv2winrt/zh-Hant/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "tools/wv2winrt/zh-Hant/System.CommandLine.resources.dll",
+        "bytes": 17800,
+        "compressed_bytes": 9253,
+        "external_attributes": 128
+      },
+      {
+        "path": "WebView2.idl",
+        "bytes": 560726,
+        "compressed_bytes": 123998,
+        "external_attributes": 128
+      },
+      {
+        "path": "WebView2.tlb",
+        "bytes": 177540,
+        "compressed_bytes": 51687,
+        "external_attributes": 128
+      },
+      {
+        "path": "[Content_Types].xml",
+        "bytes": 1102,
+        "compressed_bytes": 251,
+        "external_attributes": 128
+      },
+      {
+        "path": "_rels/",
+        "bytes": 0,
+        "compressed_bytes": 0,
+        "external_attributes": 16
+      },
+      {
+        "path": "_rels/.rels",
+        "bytes": 516,
+        "compressed_bytes": 282,
+        "external_attributes": 128
+      },
+      {
+        "path": ".signature.p7s",
+        "bytes": 25731,
+        "compressed_bytes": 25731,
+        "external_attributes": 0
+      }
+    ],
+    "extraction_note": "After full entry validation, only LICENSE.txt, NOTICE.txt and the nuspec were extracted to flat own-temp filenames. Loader entries were streamed for hashing; none executed.",
+    "at_validation_no_entries_extracted": true
+  },
+  "loader_comparisons": [
+    {
+      "archive_path": "build/native/x64/WebView2LoaderStatic.lib",
+      "bytes": 10500016,
+      "nuget_sha256": "0659b741bde6348d4c4a6ec4ceb9af50e3d0048ed9cd3c8659bccbb61fde55ee",
+      "crate_path": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\webview2-com-sys-0.38.2\\x64\\WebView2LoaderStatic.lib",
+      "crate_sha256": "0659b741bde6348d4c4a6ec4ceb9af50e3d0048ed9cd3c8659bccbb61fde55ee",
+      "build_path": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\build\\webview2-com-sys-8cc9f05c85db159e\\out\\x64\\WebView2LoaderStatic.lib",
+      "build_sha256": "0659b741bde6348d4c4a6ec4ceb9af50e3d0048ed9cd3c8659bccbb61fde55ee",
+      "all_three_match": true
+    },
+    {
+      "archive_path": "build/native/x64/WebView2Loader.dll",
+      "bytes": 160320,
+      "nuget_sha256": "8427b1fc58ec707813e5c0a51eb5d69397bb333250a7b891be4d3b123f1e0f1c",
+      "crate_path": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\webview2-com-sys-0.38.2\\x64\\WebView2Loader.dll",
+      "crate_sha256": "8427b1fc58ec707813e5c0a51eb5d69397bb333250a7b891be4d3b123f1e0f1c",
+      "build_path": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\build\\webview2-com-sys-8cc9f05c85db159e\\out\\x64\\WebView2Loader.dll",
+      "build_sha256": "8427b1fc58ec707813e5c0a51eb5d69397bb333250a7b891be4d3b123f1e0f1c",
+      "all_three_match": true
+    },
+    {
+      "archive_path": "build/native/x64/WebView2Loader.dll.lib",
+      "bytes": 2916,
+      "nuget_sha256": "bfc8ccaaa056be95243a5b66a827e5849d2bb39676fca4dcc2053796d8e15c6d",
+      "crate_path": "C:\\Users\\U\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\webview2-com-sys-0.38.2\\x64\\WebView2Loader.dll.lib",
+      "crate_sha256": "bfc8ccaaa056be95243a5b66a827e5849d2bb39676fca4dcc2053796d8e15c6d",
+      "build_path": "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\build\\webview2-com-sys-8cc9f05c85db159e\\out\\x64\\WebView2Loader.dll.lib",
+      "build_sha256": "bfc8ccaaa056be95243a5b66a827e5849d2bb39676fca4dcc2053796d8e15c6d",
+      "all_three_match": true
+    }
+  ],
+  "upstream_comparison": {
+    "pin": "b74dc5e2b394044bea5191052868ce7a106c202c",
+    "installed_vcs_info": {
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webview2-com-sys-0.38.2/.cargo_vcs_info.json",
+      "sha256": "8af502bd8832383dc1dd8bbd7fb00eb76a72b111688bc492e110bbac44cb005f",
+      "contents": {
+        "git": {
+          "sha1": "b74dc5e2b394044bea5191052868ce7a106c202c"
+        },
+        "path_in_vcs": "crates/bindings"
+      }
+    },
+    "sdk_version_literal": "1.0.3650.58",
+    "initial_check": {
+      "exit_code": 1,
+      "reason": "Strict source byte comparison rejected src/lib.rs CRLF versus LF; no loader mismatch."
+    },
+    "records": [
+      {
+        "url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/update-bindings/src/main.rs",
+        "path_in_upstream": "crates/update-bindings/src/main.rs",
+        "bytes": 12116,
+        "sha256": "ac57a332152787eceee71905fdbf23df37857da2b8446e2336ce375eb59310fd",
+        "local_relative_path": null,
+        "local_bytes": null,
+        "local_sha256": null,
+        "byte_match": null,
+        "lf_normalized_match": null,
+        "upstream_crlf": 0,
+        "local_crlf": null
+      },
+      {
+        "url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/bindings/build.rs",
+        "path_in_upstream": "crates/bindings/build.rs",
+        "bytes": 2627,
+        "sha256": "ea73d2566f434a25e8172d0fb9eaad5fa29ee687a8f05b9c2be02b19e4366e16",
+        "local_relative_path": "build.rs",
+        "local_bytes": 2627,
+        "local_sha256": "ea73d2566f434a25e8172d0fb9eaad5fa29ee687a8f05b9c2be02b19e4366e16",
+        "byte_match": true,
+        "lf_normalized_match": true,
+        "upstream_crlf": 0,
+        "local_crlf": 0
+      },
+      {
+        "url": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/crates/bindings/src/lib.rs",
+        "path_in_upstream": "crates/bindings/src/lib.rs",
+        "bytes": 1812,
+        "sha256": "b0f575a4f8c711f35972254de4a3b1732d500f301a6af10f727131ece97a5786",
+        "local_relative_path": "src/lib.rs",
+        "local_bytes": 1878,
+        "local_sha256": "bd953534fa9b15d39ac69c9afa82762adaaa81621a0adb687ba385327ee6689a",
+        "byte_match": false,
+        "lf_normalized_match": true,
+        "upstream_crlf": 0,
+        "local_crlf": 66
+      }
+    ]
+  },
+  "exports": [
+    {
+      "archive_path": "LICENSE.txt",
+      "export_path": "docs/release/licenses/microsoft-web-webview2-1.0.3650.58-LICENSE.txt",
+      "bytes": 1487,
+      "sha256": "0af8f1b807512aae39c2ac1aa4d0cae65cabecb6fd554b8439a5162a0d6eca55",
+      "crlf": 0,
+      "has_final_lf": false,
+      "trailing_whitespace_lines": [
+        13
+      ]
+    },
+    {
+      "archive_path": "NOTICE.txt",
+      "export_path": "docs/release/licenses/microsoft-web-webview2-1.0.3650.58-NOTICE.txt",
+      "bytes": 3894,
+      "sha256": "106423785c5b7eba0a8e61d1837f2132e9c828e20ad530f565d981c1df60dd90",
+      "crlf": 0,
+      "has_final_lf": true,
+      "trailing_whitespace_lines": []
+    }
+  ],
+  "license_assignment": {
+    "declared_nuspec_license_type": "file",
+    "declared_nuspec_spdx": null,
+    "observed_license_family": "Microsoft three-clause BSD-style redistribution text; no SPDX expression supplied by nuspec.",
+    "binary_redistribution_note": "The license permits source and binary redistribution subject to its stated conditions and requires the copyright, conditions and disclaimer in accompanying materials for binary distribution.",
+    "notice_scope": "NOTICE.txt is preserved from the complete SDK package; its named Antlr3.Runtime/StringTemplate4 entries are not independently proven to be code in the x64 loader.",
+    "runtime_boundary": "This SDK license is not automatically assigned to a separately installed or redistributed WebView2 Runtime/bootstrapper."
+  },
+  "verification_limits": [
+    "Download through official HTTPS NuGet endpoint; NuGet package signature was not independently verified.",
+    "Loader comparison concerns NuGet/installed crate/build-output files, not a fresh EXE link-map or installer extraction.",
+    "Rust bindings use a separate license; no modification to the historical inventory, product manifests, locks or Tauri configuration."
+  ],
+  "temporary_workspace": {
+    "path": "C:/Users/U/AppData/Local/Temp/ab-m3-webview2-4343bdf13f704270856105f5a07a2576",
+    "created_utc": "2026-09-12T09:16:39.9400251Z",
+    "owner": "test-pc\\U",
+    "cleanup_status": "complete",
+    "cleanup": {
+      "initial_combined_command_rejected_before_execution": true,
+      "stated_rejection_reason": "blocked by policy",
+      "safer_execution": "Separate read-only resolved-path/owner/marker/12-file allowlist validation, followed by literal-path nonrecursive file deletions and removal of the verified empty directory.",
+      "removed_files": 12,
+      "recursive_delete_used": false,
+      "root_absent": true,
+      "completed_utc": "2026-09-12T09:22:27.3301460Z"
+    }
+  }
+}

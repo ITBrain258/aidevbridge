@@ -1,0 +1,2052 @@
+{
+  "schema": "agentbridge_frontend_output_license_selection_v1",
+  "generated_utc": "2026-09-12T11:17:13.648Z",
+  "status": "frontend_text_selection_completed_actual_release_delivery_pending",
+  "scope": "Fresh frontend-only npm production build; narrow Tauri-vendored-tslib and generated-helper selection. No native build, installer, VM, package installation, or general dependency re-audit.",
+  "frontend_source_commit": "bfa8de591854a111e3fb7396b1c9fdf32df2aa85",
+  "inputs_before": [
+    {
+      "path": "package.json",
+      "bytes": 952,
+      "sha256": "ac3ccd4deb2afb5613e41a88adfbd0948fbc61013b30ff8d848f61c483c16efe"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 78635,
+      "sha256": "5ff896af7ad859c503a4e72354f3235a3e037055034496254db06908f58e6e23"
+    },
+    {
+      "path": "vite.config.ts",
+      "bytes": 2728,
+      "sha256": "940c30a501cd2649330236087c9a24036a3164da7ebaeeca6fc0bcca9471e977"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 550,
+      "sha256": "fc49263c7f672929aa7fb08109c4dc989617d499d50373d73fcac7ae745d57b8"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1897,
+      "sha256": "a8ddd28adf0b2414073191d993aa15d748ed5609437959541c3a260ff1e860b9"
+    },
+    {
+      "path": "THIRD_PARTY_LICENSES.md",
+      "bytes": 10649,
+      "sha256": "02fa50dd753784c98252ff4af055692a21a3f72504c2d1f975526cb6ee8aa455"
+    },
+    {
+      "path": "src/globals.d.ts",
+      "bytes": 262,
+      "sha256": "bebecdefba2f66b841f824569c91b79fd1284e4705bedcdd9e094b1e8c7759b5"
+    },
+    {
+      "path": "src/i18n/en.json",
+      "bytes": 10851,
+      "sha256": "b89edf90106672251979d362e75548e0f43a5011f02a585cb0d50b9ad8c32ebb"
+    },
+    {
+      "path": "src/icons.ts",
+      "bytes": 3626,
+      "sha256": "dfc568be5d8dbda0c8adc47b366848da60328f60d6f460ff75b0255100d29ac6"
+    },
+    {
+      "path": "src/keymap.ts",
+      "bytes": 15299,
+      "sha256": "12d7e84913fe064d33ea1aee2b5263fb0f411020bb9d9f18f91adff69d7a6fa7"
+    },
+    {
+      "path": "src/main.ts",
+      "bytes": 94932,
+      "sha256": "926c212784b6595752ebcf89c78f118f74a7ad0139a4b181143a24cdfaef497b"
+    },
+    {
+      "path": "src/state/app-state.ts",
+      "bytes": 26857,
+      "sha256": "004936dac6d9ff886e047af80ab6d8594705f81b04a034db7cb19604b99c4db1"
+    },
+    {
+      "path": "src/state/dir-tree.ts",
+      "bytes": 9611,
+      "sha256": "059703dfe14e2923530004f904083f923f0c7186b075a615aa59de91fd2b8396"
+    },
+    {
+      "path": "src/state/tile-assignment.ts",
+      "bytes": 2162,
+      "sha256": "fd29bc0e032097e39d45d3249be43b90f30725c1d3d6230a6013483d539c029c"
+    },
+    {
+      "path": "src/styles.css",
+      "bytes": 97763,
+      "sha256": "2f7d622daa0425cc3bbe750799152818e6cb0c3a6252082b6f05856a8b61e5df"
+    },
+    {
+      "path": "src/terminal.ts",
+      "bytes": 33030,
+      "sha256": "256afcc5395ed404e15179ffe28d047da8b1a7be5930a8ff4d5ffebb116ea884"
+    },
+    {
+      "path": "src/theme.ts",
+      "bytes": 1949,
+      "sha256": "e283673eef0c612cc838d93fcba92e2dacfe7ed966b97f4b33136f9819c99687"
+    },
+    {
+      "path": "src/version.ts",
+      "bytes": 441,
+      "sha256": "367894c2ff2662b60b9e500c5f875c682aa4823aaadfd139afc993e7ca9c1580"
+    },
+    {
+      "path": "src/views/credential-field.ts",
+      "bytes": 1815,
+      "sha256": "286a3609114df98acbf3aa0c1af61af652525e4eae2e2b7442148772591881f7"
+    },
+    {
+      "path": "src/views/directory-tree.ts",
+      "bytes": 35042,
+      "sha256": "68a8d31030a26dab0b8f0572573c02b114bc6bb262585335349ac34131811243"
+    },
+    {
+      "path": "src/views/first-run.ts",
+      "bytes": 48334,
+      "sha256": "00e42a2ade0140cdb07c6eeddd26b1166ab842ca73bcc51d92ff5703ea180130"
+    },
+    {
+      "path": "src/views/grid.ts",
+      "bytes": 63343,
+      "sha256": "b128ebe5013c59b8bcbae665630c60fe055869ce543033bff692e3dcd6abcf31"
+    },
+    {
+      "path": "src/views/host-form.ts",
+      "bytes": 23420,
+      "sha256": "713736efbe363a4fbb615df327dceaa34a3d373fea528dec86edcb090b1a3a2f"
+    },
+    {
+      "path": "src/views/host-key-prompt.ts",
+      "bytes": 27495,
+      "sha256": "abbfcc10a766f279aa7d42e6b2c43c0a655584e3bef65502937dcd9ea6b4be94"
+    },
+    {
+      "path": "src/views/initials.ts",
+      "bytes": 1931,
+      "sha256": "aa67e10c6207a72a4b714456ee21cf566aa3d3a6ff31e9d477dfb70699726745"
+    },
+    {
+      "path": "src/views/menu-position.ts",
+      "bytes": 1317,
+      "sha256": "27c7269512761e117f65a99d557bf1ce216cfc7e2b6b4030e24ce4686d37f98b"
+    },
+    {
+      "path": "src/views/session-dialog.ts",
+      "bytes": 14643,
+      "sha256": "2c4c2c94be7c87c2b011460188255aa5422f9c427bd1636412af797f3bb20473"
+    },
+    {
+      "path": "src/views/settings-dialog.ts",
+      "bytes": 4082,
+      "sha256": "0975ddddce4b650c0cfdbf299b20c96aa4e6a2d33858d2961dcd693099c065ab"
+    },
+    {
+      "path": "src/views/sidebar.ts",
+      "bytes": 96766,
+      "sha256": "3f0dc7da841c385b14681793a29c21680bf7864b830a40d54afdfd117749b695"
+    },
+    {
+      "path": "src/views/types.ts",
+      "bytes": 2538,
+      "sha256": "756053ef91ea3b5e33a3b13db0bc164a5acf5c99552246b8846520d2e9a1938d"
+    }
+  ],
+  "inputs_after": [
+    {
+      "path": "package.json",
+      "bytes": 952,
+      "sha256": "ac3ccd4deb2afb5613e41a88adfbd0948fbc61013b30ff8d848f61c483c16efe",
+      "unchanged": true
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 78635,
+      "sha256": "5ff896af7ad859c503a4e72354f3235a3e037055034496254db06908f58e6e23",
+      "unchanged": true
+    },
+    {
+      "path": "vite.config.ts",
+      "bytes": 2728,
+      "sha256": "940c30a501cd2649330236087c9a24036a3164da7ebaeeca6fc0bcca9471e977",
+      "unchanged": true
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 550,
+      "sha256": "fc49263c7f672929aa7fb08109c4dc989617d499d50373d73fcac7ae745d57b8",
+      "unchanged": true
+    },
+    {
+      "path": "index.html",
+      "bytes": 1897,
+      "sha256": "a8ddd28adf0b2414073191d993aa15d748ed5609437959541c3a260ff1e860b9",
+      "unchanged": true
+    },
+    {
+      "path": "THIRD_PARTY_LICENSES.md",
+      "bytes": 10649,
+      "sha256": "02fa50dd753784c98252ff4af055692a21a3f72504c2d1f975526cb6ee8aa455",
+      "unchanged": true
+    },
+    {
+      "path": "src/globals.d.ts",
+      "bytes": 262,
+      "sha256": "bebecdefba2f66b841f824569c91b79fd1284e4705bedcdd9e094b1e8c7759b5",
+      "unchanged": true
+    },
+    {
+      "path": "src/i18n/en.json",
+      "bytes": 10851,
+      "sha256": "b89edf90106672251979d362e75548e0f43a5011f02a585cb0d50b9ad8c32ebb",
+      "unchanged": true
+    },
+    {
+      "path": "src/icons.ts",
+      "bytes": 3626,
+      "sha256": "dfc568be5d8dbda0c8adc47b366848da60328f60d6f460ff75b0255100d29ac6",
+      "unchanged": true
+    },
+    {
+      "path": "src/keymap.ts",
+      "bytes": 15299,
+      "sha256": "12d7e84913fe064d33ea1aee2b5263fb0f411020bb9d9f18f91adff69d7a6fa7",
+      "unchanged": true
+    },
+    {
+      "path": "src/main.ts",
+      "bytes": 94932,
+      "sha256": "926c212784b6595752ebcf89c78f118f74a7ad0139a4b181143a24cdfaef497b",
+      "unchanged": true
+    },
+    {
+      "path": "src/state/app-state.ts",
+      "bytes": 26857,
+      "sha256": "004936dac6d9ff886e047af80ab6d8594705f81b04a034db7cb19604b99c4db1",
+      "unchanged": true
+    },
+    {
+      "path": "src/state/dir-tree.ts",
+      "bytes": 9611,
+      "sha256": "059703dfe14e2923530004f904083f923f0c7186b075a615aa59de91fd2b8396",
+      "unchanged": true
+    },
+    {
+      "path": "src/state/tile-assignment.ts",
+      "bytes": 2162,
+      "sha256": "fd29bc0e032097e39d45d3249be43b90f30725c1d3d6230a6013483d539c029c",
+      "unchanged": true
+    },
+    {
+      "path": "src/styles.css",
+      "bytes": 97763,
+      "sha256": "2f7d622daa0425cc3bbe750799152818e6cb0c3a6252082b6f05856a8b61e5df",
+      "unchanged": true
+    },
+    {
+      "path": "src/terminal.ts",
+      "bytes": 33030,
+      "sha256": "256afcc5395ed404e15179ffe28d047da8b1a7be5930a8ff4d5ffebb116ea884",
+      "unchanged": true
+    },
+    {
+      "path": "src/theme.ts",
+      "bytes": 1949,
+      "sha256": "e283673eef0c612cc838d93fcba92e2dacfe7ed966b97f4b33136f9819c99687",
+      "unchanged": true
+    },
+    {
+      "path": "src/version.ts",
+      "bytes": 441,
+      "sha256": "367894c2ff2662b60b9e500c5f875c682aa4823aaadfd139afc993e7ca9c1580",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/credential-field.ts",
+      "bytes": 1815,
+      "sha256": "286a3609114df98acbf3aa0c1af61af652525e4eae2e2b7442148772591881f7",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/directory-tree.ts",
+      "bytes": 35042,
+      "sha256": "68a8d31030a26dab0b8f0572573c02b114bc6bb262585335349ac34131811243",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/first-run.ts",
+      "bytes": 48334,
+      "sha256": "00e42a2ade0140cdb07c6eeddd26b1166ab842ca73bcc51d92ff5703ea180130",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/grid.ts",
+      "bytes": 63343,
+      "sha256": "b128ebe5013c59b8bcbae665630c60fe055869ce543033bff692e3dcd6abcf31",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/host-form.ts",
+      "bytes": 23420,
+      "sha256": "713736efbe363a4fbb615df327dceaa34a3d373fea528dec86edcb090b1a3a2f",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/host-key-prompt.ts",
+      "bytes": 27495,
+      "sha256": "abbfcc10a766f279aa7d42e6b2c43c0a655584e3bef65502937dcd9ea6b4be94",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/initials.ts",
+      "bytes": 1931,
+      "sha256": "aa67e10c6207a72a4b714456ee21cf566aa3d3a6ff31e9d477dfb70699726745",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/menu-position.ts",
+      "bytes": 1317,
+      "sha256": "27c7269512761e117f65a99d557bf1ce216cfc7e2b6b4030e24ce4686d37f98b",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/session-dialog.ts",
+      "bytes": 14643,
+      "sha256": "2c4c2c94be7c87c2b011460188255aa5422f9c427bd1636412af797f3bb20473",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/settings-dialog.ts",
+      "bytes": 4082,
+      "sha256": "0975ddddce4b650c0cfdbf299b20c96aa4e6a2d33858d2961dcd693099c065ab",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/sidebar.ts",
+      "bytes": 96766,
+      "sha256": "3f0dc7da841c385b14681793a29c21680bf7864b830a40d54afdfd117749b695",
+      "unchanged": true
+    },
+    {
+      "path": "src/views/types.ts",
+      "bytes": 2538,
+      "sha256": "756053ef91ea3b5e33a3b13db0bc164a5acf5c99552246b8846520d2e9a1938d",
+      "unchanged": true
+    }
+  ],
+  "scoped_source_diff_after": "",
+  "tools": {
+    "node": "v26.7.0",
+    "npm": "11.17.0",
+    "packages": [
+      {
+        "name": "@tauri-apps/api",
+        "version": "2.11.1",
+        "lock_version": "2.11.1",
+        "matches_lock": true,
+        "license": "Apache-2.0 OR MIT",
+        "manifest": {
+          "path": "node_modules/@tauri-apps/api/package.json",
+          "bytes": 1784,
+          "sha256": "e418ff5cf898e23ee7c7fd4f8f994c6cf24e0cc5c3987440c56d180dda3638d6"
+        },
+        "lock_dev": false
+      },
+      {
+        "name": "@tauri-apps/plugin-dialog",
+        "version": "2.7.2",
+        "lock_version": "2.7.2",
+        "matches_lock": true,
+        "license": "MIT OR Apache-2.0",
+        "manifest": {
+          "path": "node_modules/@tauri-apps/plugin-dialog/package.json",
+          "bytes": 657,
+          "sha256": "d2ab4deac6ededb52a3833df5102ff008699db8c614efeda46bc3b9d30c4817d"
+        },
+        "lock_dev": false
+      },
+      {
+        "name": "@tauri-apps/plugin-opener",
+        "version": "2.5.4",
+        "lock_version": "2.5.4",
+        "matches_lock": true,
+        "license": "MIT OR Apache-2.0",
+        "manifest": {
+          "path": "node_modules/@tauri-apps/plugin-opener/package.json",
+          "bytes": 730,
+          "sha256": "5aa3668625e3b32ec2db27d969b6b7f25b97dd2ec14e2e7b1fce5646b71fcf0c"
+        },
+        "lock_dev": false
+      },
+      {
+        "name": "@xterm/xterm",
+        "version": "6.0.0",
+        "lock_version": "6.0.0",
+        "matches_lock": true,
+        "license": "MIT",
+        "manifest": {
+          "path": "node_modules/@xterm/xterm/package.json",
+          "bytes": 4348,
+          "sha256": "f5a0dde40a146d6c7a86b22daf6e5740517e5d708ec1d162197e0445431d8f4f"
+        },
+        "lock_dev": false
+      },
+      {
+        "name": "@xterm/addon-fit",
+        "version": "0.11.0",
+        "lock_version": "0.11.0",
+        "matches_lock": true,
+        "license": "MIT",
+        "manifest": {
+          "path": "node_modules/@xterm/addon-fit/package.json",
+          "bytes": 701,
+          "sha256": "2f1016c5683f76ac1250c466afc29164bc82da7c2ef224c7d5ab83397edf1637"
+        },
+        "lock_dev": false
+      },
+      {
+        "name": "@xterm/addon-search",
+        "version": "0.16.0",
+        "lock_version": "0.16.0",
+        "matches_lock": true,
+        "license": "MIT",
+        "manifest": {
+          "path": "node_modules/@xterm/addon-search/package.json",
+          "bytes": 686,
+          "sha256": "9724dbe0ba2a52235ed3959e3b88ae32819f163c15af34680160e2c15f43e7d9"
+        },
+        "lock_dev": false
+      },
+      {
+        "name": "@xterm/addon-unicode11",
+        "version": "0.9.0",
+        "lock_version": "0.9.0",
+        "matches_lock": true,
+        "license": "MIT",
+        "manifest": {
+          "path": "node_modules/@xterm/addon-unicode11/package.json",
+          "bytes": 730,
+          "sha256": "5efc7bd738527737369d355f5a584d40b0cf05d1e254ad1dde4d0d2495ddf275"
+        },
+        "lock_dev": false
+      },
+      {
+        "name": "@xterm/addon-webgl",
+        "version": "0.19.0",
+        "lock_version": "0.19.0",
+        "matches_lock": true,
+        "license": "MIT",
+        "manifest": {
+          "path": "node_modules/@xterm/addon-webgl/package.json",
+          "bytes": 724,
+          "sha256": "91c7a41c9aa89889030c407112a613230040c3be26adbc223aa1d5001b9b1dcf"
+        },
+        "lock_dev": false
+      },
+      {
+        "name": "lucide-static",
+        "version": "1.41.0",
+        "lock_version": "1.41.0",
+        "matches_lock": true,
+        "license": "ISC",
+        "manifest": {
+          "path": "node_modules/lucide-static/package.json",
+          "bytes": 1648,
+          "sha256": "9a79b2229fe36965763f44b8991850dd0dfe03fda51855eb026157d2d540d365"
+        },
+        "lock_dev": true
+      },
+      {
+        "name": "vite",
+        "version": "6.4.3",
+        "lock_version": "6.4.3",
+        "matches_lock": true,
+        "license": "MIT",
+        "manifest": {
+          "path": "node_modules/vite/package.json",
+          "bytes": 5251,
+          "sha256": "a1d0149fd986fd34b6d35503d2c0d8d9f743c4dbaaf94fbc11812bc84b05884d"
+        },
+        "lock_dev": true
+      },
+      {
+        "name": "esbuild",
+        "version": "0.25.12",
+        "lock_version": "0.25.12",
+        "matches_lock": true,
+        "license": "MIT",
+        "manifest": {
+          "path": "node_modules/esbuild/package.json",
+          "bytes": 1490,
+          "sha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935"
+        },
+        "lock_dev": true
+      },
+      {
+        "name": "rollup",
+        "version": "4.62.2",
+        "lock_version": "4.62.2",
+        "matches_lock": true,
+        "license": "MIT",
+        "manifest": {
+          "path": "node_modules/rollup/package.json",
+          "bytes": 12427,
+          "sha256": "f4c43bde641711b4e7cda761bf681dd6b694e58e10cb02bc8a4f691f39f2a8a4"
+        },
+        "lock_dev": true
+      },
+      {
+        "name": "typescript",
+        "version": "5.6.3",
+        "lock_version": "5.6.3",
+        "matches_lock": true,
+        "license": "Apache-2.0",
+        "manifest": {
+          "path": "node_modules/typescript/package.json",
+          "bytes": 3638,
+          "sha256": "16af7ea27880259b39ff8f123566aaec815cdca1c3ab8d28330c8b652055ccf0"
+        },
+        "lock_dev": true
+      }
+    ]
+  },
+  "normal_build": {
+    "command": "npm.cmd run build",
+    "scripts": "tsc && vite build",
+    "exit_code": 0,
+    "stdout_and_stderr": "\n> agentbridge@0.1.2 build\n> tsc && vite build\n\nvite v6.4.3 building for production...\ntransforming...\n✓ 34 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   1.94 kB │ gzip:   0.99 kB\ndist/assets/index-2E0XiuxQ.css   43.58 kB │ gzip:   8.28 kB\ndist/assets/index-BLNXrQCn.js   624.77 kB │ gzip: 165.81 kB\n\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 2.06s\n",
+    "observed_at_or_after_utc": "2026-09-12T11:05:56.327Z"
+  },
+  "final_observer": {
+    "generated_utc": "2026-09-12T11:08:59.335Z",
+    "head_before": "bfa8de591854a111e3fb7396b1c9fdf32df2aa85",
+    "observer": "Read-only generateBundle module metadata; FINAL outputs taken from awaited Vite result; write:false; original vite.config.ts; npm_package_version from package.json",
+    "modules": [
+      {
+        "id": "\u0000vite/modulepreload-polyfill.js",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [],
+        "importedIds": [],
+        "source": null,
+        "virtualCode": "__VITE_IS_MODERN__&&(function polyfill() {\n  const relList = document.createElement(\"link\").relList;\n  if (relList && relList.supports && relList.supports(\"modulepreload\")) {\n    return;\n  }\n  for (const link of document.querySelectorAll('link[rel=\"modulepreload\"]')) {\n    processPreload(link);\n  }\n  new MutationObserver((mutations) => {\n    for (const mutation of mutations) {\n      if (mutation.type !== \"childList\") {\n        continue;\n      }\n      for (const node of mutation.addedNodes) {\n        if (node.tagName === \"LINK\" && node.rel === \"modulepreload\")\n          processPreload(node);\n      }\n    }\n  }).observe(document, { childList: true, subtree: true });\n  function getFetchOpts(link) {\n    const fetchOpts = {};\n    if (link.integrity) fetchOpts.integrity = link.integrity;\n    if (link.referrerPolicy) fetchOpts.referrerPolicy = link.referrerPolicy;\n    if (link.crossOrigin === \"use-credentials\")\n      fetchOpts.credentials = \"include\";\n    else if (link.crossOrigin === \"anonymous\") fetchOpts.credentials = \"omit\";\n    else fetchOpts.credentials = \"same-origin\";\n    return fetchOpts;\n  }\n  function processPreload(link) {\n    if (link.ep)\n      return;\n    link.ep = true;\n    const fetchOpts = getFetchOpts(link);\n    fetch(link.href, fetchOpts);\n  }\n}());"
+      },
+      {
+        "id": "index.html",
+        "isIncluded": true,
+        "isEntry": true,
+        "exports": [],
+        "importedIds": [
+          "\u0000vite/modulepreload-polyfill.js",
+          "src/styles.css",
+          "src/main.ts"
+        ],
+        "source": {
+          "bytes": 1897,
+          "sha256": "a8ddd28adf0b2414073191d993aa15d748ed5609437959541c3a260ff1e860b9"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@tauri-apps/api/core.js",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "Channel",
+          "PluginListener",
+          "Resource",
+          "SERIALIZE_TO_IPC_FN",
+          "addPluginListener",
+          "checkPermissions",
+          "convertFileSrc",
+          "invoke",
+          "isTauri",
+          "requestPermissions",
+          "transformCallback"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/external/tslib/tslib.es6.js"
+        ],
+        "source": {
+          "bytes": 10709,
+          "sha256": "b2187a1c0c0a25806dc64f8823757ce553c09d3bbe3e409bd05cab32e245f1c9"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@tauri-apps/api/event.js",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "TauriEvent",
+          "emit",
+          "emitTo",
+          "listen",
+          "once"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/core.js"
+        ],
+        "source": {
+          "bytes": 5674,
+          "sha256": "f00d22c559ce7e58a85d860e35fd60d20826f13d7f534a5f3548a7ef94446e84"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@tauri-apps/api/external/tslib/tslib.es6.js",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "__classPrivateFieldGet",
+          "__classPrivateFieldSet"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 2168,
+          "sha256": "88571c39817ebe327cfb45cf2d5ff9e68c544523d526f09ac2cc99acfc8fcf1b"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@tauri-apps/plugin-dialog/dist-js/index.js",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "ask",
+          "confirm",
+          "message",
+          "open",
+          "save"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/core.js"
+        ],
+        "source": {
+          "bytes": 6807,
+          "sha256": "82c577fbdebac20c92d08f5eaba9bef9feb9c1a2ea943fa5a99a1c43039c683a"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@xterm/addon-fit/lib/addon-fit.mjs",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "FitAddon"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 1967,
+          "sha256": "2d87e1bddc73be9111de8beee5370c3bb7aac9c94e18e6f245f02ca741ef1769"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@xterm/addon-search/lib/addon-search.mjs",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "SearchAddon"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 39031,
+          "sha256": "3ea90162233f867b938cd29b8ad98f589643436bbb5445bd11b825dc99ff0c04"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@xterm/addon-unicode11/lib/addon-unicode11.mjs",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "Unicode11Addon"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 31220,
+          "sha256": "37bb2d573c615661c875398be2a3497e02bd21d7202a5d1159f6ab70a8cfc2f2"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@xterm/addon-webgl/lib/addon-webgl.mjs",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "WebglAddon"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 126558,
+          "sha256": "5ac2cbbb8a861ba99176eda0ee91f10c08de32d091e3488edf699ad111131ebb"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@xterm/xterm/css/xterm.css",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [],
+        "importedIds": [],
+        "source": {
+          "bytes": 7112,
+          "sha256": "854a7c0fb70e8b1a083c16797ab827299fb18744f5ad34f227b48337e33293c6"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "node_modules/@xterm/xterm/lib/xterm.mjs",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "Terminal"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 344970,
+          "sha256": "b336ec65a086c056d4804b3d4c2347da5663d3f23c3f25be866467bd8857ad59"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/i18n/en.json",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "default"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 10851,
+          "sha256": "b89edf90106672251979d362e75548e0f43a5011f02a585cb0d50b9ad8c32ebb"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/icons.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "ICON_NAMES",
+          "icon"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 3626,
+          "sha256": "dfc568be5d8dbda0c8adc47b366848da60328f60d6f460ff75b0255100d29ac6"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/keymap.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "DEFAULT_KEYMAP",
+          "isReservedForApp",
+          "validate",
+          "eventBinding",
+          "isAppChord",
+          "matchAction"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 15299,
+          "sha256": "12d7e84913fe064d33ea1aee2b5263fb0f411020bb9d9f18f91adff69d7a6fa7"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/main.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "focusableElements",
+          "main"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/core.js",
+          "node_modules/@tauri-apps/api/event.js",
+          "src/i18n/en.json",
+          "src/state/app-state.ts",
+          "src/keymap.ts",
+          "src/views/sidebar.ts",
+          "src/views/grid.ts",
+          "src/views/first-run.ts",
+          "src/views/host-form.ts",
+          "src/views/session-dialog.ts",
+          "src/views/host-key-prompt.ts",
+          "src/theme.ts",
+          "src/views/settings-dialog.ts",
+          "src/icons.ts"
+        ],
+        "source": {
+          "bytes": 94932,
+          "sha256": "926c212784b6595752ebcf89c78f118f74a7ad0139a4b181143a24cdfaef497b"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/state/app-state.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "sessionKey",
+          "sidebarSessionOrder",
+          "AppState"
+        ],
+        "importedIds": [
+          "src/state/tile-assignment.ts"
+        ],
+        "source": {
+          "bytes": 26857,
+          "sha256": "004936dac6d9ff886e047af80ab6d8594705f81b04a034db7cb19604b99c4db1"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/state/dir-tree.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "errorKind",
+          "joinPath",
+          "ancestry",
+          "DirTree"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 9611,
+          "sha256": "059703dfe14e2923530004f904083f923f0c7186b075a615aa59de91fd2b8396"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/state/tile-assignment.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "assignTile"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 2162,
+          "sha256": "fd29bc0e032097e39d45d3249be43b90f30725c1d3d6230a6013483d539c029c"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/styles.css",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [],
+        "importedIds": [],
+        "source": {
+          "bytes": 97763,
+          "sha256": "2f7d622daa0425cc3bbe750799152818e6cb0c3a6252082b6f05856a8b61e5df"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/terminal.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "TERMINAL_ANSI",
+          "terminalTheme",
+          "mountTerminal"
+        ],
+        "importedIds": [
+          "node_modules/@xterm/xterm/lib/xterm.mjs",
+          "node_modules/@xterm/addon-fit/lib/addon-fit.mjs",
+          "node_modules/@xterm/addon-webgl/lib/addon-webgl.mjs",
+          "node_modules/@xterm/addon-unicode11/lib/addon-unicode11.mjs",
+          "node_modules/@xterm/addon-search/lib/addon-search.mjs",
+          "node_modules/@tauri-apps/api/core.js",
+          "node_modules/@tauri-apps/api/event.js",
+          "src/keymap.ts",
+          "src/theme.ts",
+          "node_modules/@xterm/xterm/css/xterm.css"
+        ],
+        "source": {
+          "bytes": 33030,
+          "sha256": "256afcc5395ed404e15179ffe28d047da8b1a7be5930a8ff4d5ffebb116ea884"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/theme.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "THEMES",
+          "DEFAULT_THEME",
+          "THEME_STORAGE_KEY",
+          "isThemeId",
+          "normalizeTheme",
+          "currentTheme",
+          "onThemeApplied",
+          "applyTheme",
+          "readCachedTheme"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 1949,
+          "sha256": "e283673eef0c612cc838d93fcba92e2dacfe7ed966b97f4b33136f9819c99687"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/version.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "appVersionLine"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 441,
+          "sha256": "367894c2ff2662b60b9e500c5f875c682aa4823aaadfd139afc993e7ca9c1580"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/credential-field.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "buildCredentialField"
+        ],
+        "importedIds": [
+          "src/i18n/en.json"
+        ],
+        "source": {
+          "bytes": 1815,
+          "sha256": "286a3609114df98acbf3aa0c1af61af652525e4eae2e2b7442148772591881f7"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/directory-tree.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "mountDirectoryTree"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/core.js",
+          "src/state/dir-tree.ts",
+          "src/icons.ts",
+          "src/i18n/en.json"
+        ],
+        "source": {
+          "bytes": 35042,
+          "sha256": "68a8d31030a26dab0b8f0572573c02b114bc6bb262585335349ac34131811243"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/first-run.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "mountFirstRun"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/core.js",
+          "src/i18n/en.json",
+          "src/icons.ts",
+          "src/version.ts",
+          "src/views/credential-field.ts",
+          "src/views/host-form.ts",
+          "src/views/initials.ts"
+        ],
+        "source": {
+          "bytes": 48334,
+          "sha256": "00e42a2ade0140cdb07c6eeddd26b1166ab842ca73bcc51d92ff5703ea180130"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/grid.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "computeArrangement",
+          "mountGrid"
+        ],
+        "importedIds": [
+          "src/state/app-state.ts",
+          "src/terminal.ts",
+          "src/icons.ts",
+          "src/keymap.ts",
+          "src/i18n/en.json"
+        ],
+        "source": {
+          "bytes": 63343,
+          "sha256": "b128ebe5013c59b8bcbae665630c60fe055869ce543033bff692e3dcd6abcf31"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/host-form.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "matchesExistingHost",
+          "mountHostForm"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/core.js",
+          "node_modules/@tauri-apps/plugin-dialog/dist-js/index.js",
+          "src/i18n/en.json"
+        ],
+        "source": {
+          "bytes": 23420,
+          "sha256": "713736efbe363a4fbb615df327dceaa34a3d373fea528dec86edcb090b1a3a2f"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/host-key-prompt.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "mountHostKeyPrompt"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/core.js",
+          "node_modules/@tauri-apps/api/event.js",
+          "src/i18n/en.json"
+        ],
+        "source": {
+          "bytes": 27495,
+          "sha256": "abbfcc10a766f279aa7d42e6b2c43c0a655584e3bef65502937dcd9ea6b4be94"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/initials.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "hostInitials"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 1931,
+          "sha256": "aa67e10c6207a72a4b714456ee21cf566aa3d3a6ff31e9d477dfb70699726745"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/menu-position.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "computeMenuPosition"
+        ],
+        "importedIds": [],
+        "source": {
+          "bytes": 1317,
+          "sha256": "27c7269512761e117f65a99d557bf1ce216cfc7e2b6b4030e24ce4686d37f98b"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/session-dialog.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "mountSessionDialog",
+          "editHost"
+        ],
+        "importedIds": [
+          "node_modules/@tauri-apps/api/core.js",
+          "src/views/directory-tree.ts",
+          "src/i18n/en.json"
+        ],
+        "source": {
+          "bytes": 14643,
+          "sha256": "2c4c2c94be7c87c2b011460188255aa5422f9c427bd1636412af797f3bb20473"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/settings-dialog.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "mountSettingsDialog"
+        ],
+        "importedIds": [
+          "src/i18n/en.json",
+          "src/icons.ts",
+          "src/theme.ts"
+        ],
+        "source": {
+          "bytes": 4082,
+          "sha256": "0975ddddce4b650c0cfdbf299b20c96aa4e6a2d33858d2961dcd693099c065ab"
+        },
+        "virtualCode": null
+      },
+      {
+        "id": "src/views/sidebar.ts",
+        "isIncluded": true,
+        "isEntry": false,
+        "exports": [
+          "mountSidebar"
+        ],
+        "importedIds": [
+          "src/state/app-state.ts",
+          "src/views/menu-position.ts",
+          "src/views/credential-field.ts",
+          "src/views/host-form.ts",
+          "src/views/initials.ts",
+          "src/version.ts",
+          "src/icons.ts",
+          "src/i18n/en.json"
+        ],
+        "source": {
+          "bytes": 96766,
+          "sha256": "3f0dc7da841c385b14681793a29c21680bf7864b830a40d54afdfd117749b695"
+        },
+        "virtualCode": null
+      }
+    ],
+    "chunks": [
+      {
+        "file": "dist/assets/index-BLNXrQCn.js",
+        "modules": {
+          "\u0000vite/modulepreload-polyfill.js": {
+            "renderedLength": 1280,
+            "originalLength": 1280,
+            "renderedExports": [],
+            "removedExports": [],
+            "rollup_rendered_code": "__VITE_IS_MODERN__&&(function polyfill() {\n  const relList = document.createElement(\"link\").relList;\n  if (relList && relList.supports && relList.supports(\"modulepreload\")) {\n    return;\n  }\n  for (const link of document.querySelectorAll('link[rel=\"modulepreload\"]')) {\n    processPreload(link);\n  }\n  new MutationObserver((mutations) => {\n    for (const mutation of mutations) {\n      if (mutation.type !== \"childList\") {\n        continue;\n      }\n      for (const node of mutation.addedNodes) {\n        if (node.tagName === \"LINK\" && node.rel === \"modulepreload\")\n          processPreload(node);\n      }\n    }\n  }).observe(document, { childList: true, subtree: true });\n  function getFetchOpts(link) {\n    const fetchOpts = {};\n    if (link.integrity) fetchOpts.integrity = link.integrity;\n    if (link.referrerPolicy) fetchOpts.referrerPolicy = link.referrerPolicy;\n    if (link.crossOrigin === \"use-credentials\")\n      fetchOpts.credentials = \"include\";\n    else if (link.crossOrigin === \"anonymous\") fetchOpts.credentials = \"omit\";\n    else fetchOpts.credentials = \"same-origin\";\n    return fetchOpts;\n  }\n  function processPreload(link) {\n    if (link.ep)\n      return;\n    link.ep = true;\n    const fetchOpts = getFetchOpts(link);\n    fetch(link.href, fetchOpts);\n  }\n}());"
+          },
+          "src/styles.css": {
+            "renderedLength": 0,
+            "originalLength": 97708,
+            "renderedExports": [],
+            "removedExports": []
+          },
+          "node_modules/@tauri-apps/api/external/tslib/tslib.es6.js": {
+            "renderedLength": 1111,
+            "originalLength": 2168,
+            "renderedExports": [],
+            "removedExports": [
+              "__classPrivateFieldGet",
+              "__classPrivateFieldSet"
+            ],
+            "rollup_rendered_code": "/******************************************************************************\r\nCopyright (c) Microsoft Corporation.\r\n\r\nPermission to use, copy, modify, and/or distribute this software for any\r\npurpose with or without fee is hereby granted.\r\n\r\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\r\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY\r\nAND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\r\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM\r\nLOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR\r\nOTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR\r\nPERFORMANCE OF THIS SOFTWARE.\r\n***************************************************************************** */\r\n/* global Reflect, Promise, SuppressedError, Symbol, Iterator */\r\n\r\n\r\ntypeof SuppressedError === \"function\" ? SuppressedError : function (error, suppressed, message) {\r\n    var e = new Error(message);\r\n    return e.name = \"SuppressedError\", e.error = error, e.suppressed = suppressed, e;\r\n};"
+          },
+          "node_modules/@tauri-apps/api/core.js": {
+            "renderedLength": 984,
+            "originalLength": 10709,
+            "renderedExports": [
+              "invoke",
+              "transformCallback"
+            ],
+            "removedExports": [
+              "Channel",
+              "PluginListener",
+              "Resource",
+              "SERIALIZE_TO_IPC_FN",
+              "addPluginListener",
+              "checkPermissions",
+              "convertFileSrc",
+              "isTauri",
+              "requestPermissions"
+            ]
+          },
+          "node_modules/@tauri-apps/api/event.js": {
+            "renderedLength": 2985,
+            "originalLength": 5674,
+            "renderedExports": [
+              "TauriEvent",
+              "listen"
+            ],
+            "removedExports": [
+              "emit",
+              "emitTo",
+              "once"
+            ]
+          },
+          "src/i18n/en.json": {
+            "renderedLength": 10809,
+            "originalLength": 10816,
+            "renderedExports": [
+              "default"
+            ],
+            "removedExports": []
+          },
+          "src/state/tile-assignment.ts": {
+            "renderedLength": 582,
+            "originalLength": 2161,
+            "renderedExports": [
+              "assignTile"
+            ],
+            "removedExports": []
+          },
+          "src/state/app-state.ts": {
+            "renderedLength": 11681,
+            "originalLength": 26842,
+            "renderedExports": [
+              "sessionKey",
+              "sidebarSessionOrder",
+              "AppState"
+            ],
+            "removedExports": []
+          },
+          "src/keymap.ts": {
+            "renderedLength": 2860,
+            "originalLength": 15289,
+            "renderedExports": [
+              "DEFAULT_KEYMAP",
+              "eventBinding",
+              "isAppChord",
+              "matchAction"
+            ],
+            "removedExports": [
+              "isReservedForApp",
+              "validate"
+            ]
+          },
+          "src/views/menu-position.ts": {
+            "renderedLength": 262,
+            "originalLength": 1317,
+            "renderedExports": [
+              "computeMenuPosition"
+            ],
+            "removedExports": []
+          },
+          "src/views/credential-field.ts": {
+            "renderedLength": 716,
+            "originalLength": 1813,
+            "renderedExports": [
+              "buildCredentialField"
+            ],
+            "removedExports": []
+          },
+          "node_modules/@tauri-apps/plugin-dialog/dist-js/index.js": {
+            "renderedLength": 1732,
+            "originalLength": 6807,
+            "renderedExports": [
+              "open"
+            ],
+            "removedExports": [
+              "ask",
+              "confirm",
+              "message",
+              "save"
+            ]
+          },
+          "src/views/host-form.ts": {
+            "renderedLength": 10687,
+            "originalLength": 23384,
+            "renderedExports": [
+              "matchesExistingHost",
+              "mountHostForm"
+            ],
+            "removedExports": []
+          },
+          "src/views/initials.ts": {
+            "renderedLength": 797,
+            "originalLength": 1930,
+            "renderedExports": [
+              "hostInitials"
+            ],
+            "removedExports": []
+          },
+          "src/version.ts": {
+            "renderedLength": 79,
+            "originalLength": 441,
+            "renderedExports": [
+              "appVersionLine"
+            ],
+            "removedExports": []
+          },
+          "src/icons.ts": {
+            "renderedLength": 2680,
+            "originalLength": 3624,
+            "renderedExports": [
+              "icon"
+            ],
+            "removedExports": [
+              "ICON_NAMES"
+            ]
+          },
+          "src/views/sidebar.ts": {
+            "renderedLength": 43347,
+            "originalLength": 96686,
+            "renderedExports": [
+              "mountSidebar"
+            ],
+            "removedExports": []
+          },
+          "node_modules/@xterm/xterm/lib/xterm.mjs": {
+            "renderedLength": 336908,
+            "originalLength": 344970,
+            "renderedExports": [
+              "Terminal"
+            ],
+            "removedExports": []
+          },
+          "node_modules/@xterm/addon-fit/lib/addon-fit.mjs": {
+            "renderedLength": 1912,
+            "originalLength": 1967,
+            "renderedExports": [
+              "FitAddon"
+            ],
+            "removedExports": []
+          },
+          "node_modules/@xterm/addon-webgl/lib/addon-webgl.mjs": {
+            "renderedLength": 113841,
+            "originalLength": 126558,
+            "renderedExports": [
+              "WebglAddon"
+            ],
+            "removedExports": []
+          },
+          "node_modules/@xterm/addon-unicode11/lib/addon-unicode11.mjs": {
+            "renderedLength": 25457,
+            "originalLength": 31220,
+            "renderedExports": [
+              "Unicode11Addon"
+            ],
+            "removedExports": []
+          },
+          "node_modules/@xterm/addon-search/lib/addon-search.mjs": {
+            "renderedLength": 32388,
+            "originalLength": 39031,
+            "renderedExports": [
+              "SearchAddon"
+            ],
+            "removedExports": []
+          },
+          "src/theme.ts": {
+            "renderedLength": 1123,
+            "originalLength": 1947,
+            "renderedExports": [
+              "THEMES",
+              "DEFAULT_THEME",
+              "THEME_STORAGE_KEY",
+              "isThemeId",
+              "normalizeTheme",
+              "currentTheme",
+              "onThemeApplied",
+              "applyTheme",
+              "readCachedTheme"
+            ],
+            "removedExports": []
+          },
+          "node_modules/@xterm/xterm/css/xterm.css": {
+            "renderedLength": 0,
+            "originalLength": 7112,
+            "renderedExports": [],
+            "removedExports": []
+          },
+          "src/terminal.ts": {
+            "renderedLength": 9205,
+            "originalLength": 32999,
+            "renderedExports": [
+              "TERMINAL_ANSI",
+              "terminalTheme",
+              "mountTerminal"
+            ],
+            "removedExports": []
+          },
+          "src/views/grid.ts": {
+            "renderedLength": 21694,
+            "originalLength": 63300,
+            "renderedExports": [
+              "computeArrangement",
+              "mountGrid"
+            ],
+            "removedExports": []
+          },
+          "src/views/first-run.ts": {
+            "renderedLength": 23582,
+            "originalLength": 48314,
+            "renderedExports": [
+              "mountFirstRun"
+            ],
+            "removedExports": []
+          },
+          "src/state/dir-tree.ts": {
+            "renderedLength": 3839,
+            "originalLength": 9602,
+            "renderedExports": [
+              "errorKind",
+              "joinPath",
+              "ancestry",
+              "DirTree"
+            ],
+            "removedExports": []
+          },
+          "src/views/directory-tree.ts": {
+            "renderedLength": 10383,
+            "originalLength": 35019,
+            "renderedExports": [
+              "mountDirectoryTree"
+            ],
+            "removedExports": []
+          },
+          "src/views/session-dialog.ts": {
+            "renderedLength": 4990,
+            "originalLength": 14639,
+            "renderedExports": [
+              "mountSessionDialog",
+              "editHost"
+            ],
+            "removedExports": []
+          },
+          "src/views/host-key-prompt.ts": {
+            "renderedLength": 10100,
+            "originalLength": 27495,
+            "renderedExports": [
+              "mountHostKeyPrompt"
+            ],
+            "removedExports": []
+          },
+          "src/views/settings-dialog.ts": {
+            "renderedLength": 2737,
+            "originalLength": 4081,
+            "renderedExports": [
+              "mountSettingsDialog"
+            ],
+            "removedExports": []
+          },
+          "src/main.ts": {
+            "renderedLength": 43833,
+            "originalLength": 94902,
+            "renderedExports": [
+              "focusableElements",
+              "main"
+            ],
+            "removedExports": []
+          },
+          "index.html": {
+            "renderedLength": 0,
+            "originalLength": 1894,
+            "renderedExports": [],
+            "removedExports": []
+          }
+        }
+      }
+    ],
+    "resolved": {
+      "mode": "production",
+      "command": "build",
+      "base": "/",
+      "target": [
+        "es2020",
+        "edge88",
+        "firefox78",
+        "chrome87",
+        "safari14"
+      ],
+      "minify": "esbuild",
+      "sourcemap": false,
+      "lib": false,
+      "cssCodeSplit": true,
+      "rollupInput": null,
+      "plugins": [
+        "vite:build-metadata",
+        "vite:watch-package-data",
+        "alias",
+        "vite:modulepreload-polyfill",
+        "vite:resolve",
+        "vite:html-inline-proxy",
+        "vite:css",
+        "vite:esbuild",
+        "vite:json",
+        "vite:wasm-helper",
+        "vite:worker",
+        "vite:asset",
+        "agentbridge-license-observer",
+        "vite:wasm-fallback",
+        "vite:define",
+        "vite:css-post",
+        "vite:build-html",
+        "vite:worker-import-meta-url",
+        "vite:asset-import-meta-url",
+        "vite:force-systemjs-wrap-complete",
+        "commonjs",
+        "vite:data-uri",
+        "vite:rollup-options-plugins",
+        "vite:dynamic-import-vars",
+        "vite:import-glob",
+        "vite:build-import-analysis",
+        "vite:esbuild-transpile",
+        "vite:terser",
+        "vite:manifest",
+        "vite:ssr-manifest",
+        "vite:reporter",
+        "vite:load-fallback"
+      ]
+    },
+    "final_outputs": [
+      {
+        "file": "dist/assets/index-BLNXrQCn.js",
+        "type": "chunk",
+        "bytes": 624771,
+        "sha256": "cac0afb968097197c1fbbf033eddd922f1e8bca1f48efac66256e3fac3727134",
+        "same_as_normal_build": true,
+        "prefix": "var Ic=Object.defineProperty;var Jo=t=>{throw TypeError(t)};var $c=(t,e,i)=>e in t?Ic(t,e,{enumerable:!0,configurable:!0,writable:!0,value:i}):t[e]=i;var Ri=(t,e,i)=>$c(t,typeof e!=\"symbol\"?e+\"\":e,i),zr=(t,e,i)=>e.has(t)||Jo(\"Cannot \"+i);var At=(t,e,i)=>(zr(t,e,\"read from private field\"),i?i.call(t):e.get(t)),as=(t,e,i)=>e.has(t)?Jo(\"Cannot add the same private member more than once\"):e instanceof WeakSet?e.add(t):e.set(t,i),Fc=(t,e,i,s)=>(zr(t,e,\"write to private field\"),s?s.call(t,i):e.set(t,i),i),ht=(t,e,i)=>(zr(t,e,\"access private method\"),i);var Kr=(t,e,i,s)=>({set _(r){Fc(t,e,r,i)},get _(){return At(t,e,s)}});(function(){const e=document.createElement(\"link\").relList;if(e&&e.supports&&e.supports(\"modulepreload\"))return;for(const r of document.querySelectorAll('link[rel=\"modulepreload\"]'))s(r);new MutationObserver(r=>{for(const n of r)if(n.type===\"childList\")for(const o of n.addedNodes)o.tagName===\"LINK\"&&o.rel===\"modulepreload\"&&s(o)}).observe(document,{childList:!0,subtree:!0});function i(r){const n={};return r.integrity&&(n.integrity=r.integrity),r.referrerPolicy&&(n.referrerPolicy=r.referrerPolicy),r.crossOrigin===\"use-credentials\"?n.credentials=\"include\":r.crossOrigin===\"anonymous\"?n.credentials=\"omit\":n.credentials=\"same-origin\",n}function s(r){if(r.ep)return;r.ep=!0;const n=i(r);fetch(r.href,n)}})();function Wc(t,e=!1){return window.__TAURI_INTERNALS__.transformCallback(t,e)}async function xe(t,e={},i){return window.__TAURI_INTERNALS__.invoke(t,e,i)}var Zo;(function(t){t.WINDOW_RESIZED=\"tauri://resize\",t.WINDOW_MOVED=\"tauri://move\",t.WINDOW_CLOSE_REQUESTED=\"tauri://close-requested\",t.WINDOW_DESTROYED=\"tauri://destroyed\",t.WINDOW_FOCUS=\"tauri://focus\",t.WINDOW_BLUR=\"tauri://blur\",t.WINDOW_SCALE_FACTOR_CHANGED=\"tauri://scale-change\",t.WINDOW_THEME_CHANGED=\"tau",
+        "app_stamps": [
+          "agentbridge 0.1.2 (bfa8de5)"
+        ],
+        "tslib_markers": {
+          "__classPrivateFieldGet": false,
+          "__classPrivateFieldSet": false,
+          "Private accessor was defined without a getter": false,
+          "Cannot read private member from an object whose class did not declare it": false,
+          "Private method is not writable": false,
+          "SuppressedError": false
+        }
+      },
+      {
+        "file": "dist/assets/index-2E0XiuxQ.css",
+        "type": "asset",
+        "bytes": 43576,
+        "sha256": "21cbc3ef566614f53bc8e8acde2d64d7fbf2c33aeed19180fdfa026bca1a5b81",
+        "same_as_normal_build": true
+      },
+      {
+        "file": "dist/index.html",
+        "type": "asset",
+        "bytes": 1937,
+        "sha256": "3f518944cfa77bb54e91500233b731e596afc73794307d9f3e70e88b560e2e99",
+        "same_as_normal_build": true
+      }
+    ],
+    "tslib_residual_check": {
+      "esbuild_version": "0.25.12",
+      "input": "/******************************************************************************\r\nCopyright (c) Microsoft Corporation.\r\n\r\nPermission to use, copy, modify, and/or distribute this software for any\r\npurpose with or without fee is hereby granted.\r\n\r\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\r\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY\r\nAND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\r\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM\r\nLOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR\r\nOTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR\r\nPERFORMANCE OF THIS SOFTWARE.\r\n***************************************************************************** */\r\n/* global Reflect, Promise, SuppressedError, Symbol, Iterator */\r\n\r\n\r\ntypeof SuppressedError === \"function\" ? SuppressedError : function (error, suppressed, message) {\r\n    var e = new Error(message);\r\n    return e.name = \"SuppressedError\", e.error = error, e.suppressed = suppressed, e;\r\n};",
+      "input_sha256": "33b08bc9046b12ff41e04fae6e5c053fcd3670a7a283a0d1c58cb70cf2b43c09",
+      "options": {
+        "loader": "js",
+        "target": [
+          "es2020",
+          "edge88",
+          "firefox78",
+          "chrome87",
+          "safari14"
+        ],
+        "format": "esm",
+        "minify": true,
+        "treeShaking": true,
+        "supported": {
+          "dynamic-import": true,
+          "import-meta": true
+        }
+      },
+      "output": "",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "warnings": []
+    },
+    "head_after": "bfa8de591854a111e3fb7396b1c9fdf32df2aa85"
+  },
+  "intermediate_observation": {
+    "stage": "First generateBundle observer before all Vite asset-finalization hooks",
+    "javascript_matched_normal_build": true,
+    "css_pre_final_bytes": 43588,
+    "css_pre_final_sha256": "01ff080cbd0504af8ac1a5f596b3bff8f3ddcdb2f3f2e469a10272ae8c7ceb88",
+    "css_matched_normal_build": false,
+    "html_not_emitted_yet": true,
+    "qualification": "Not used as final artifact attestation. Corrected observer reads awaited Vite output; all three final files match the normal build."
+  },
+  "source_archives": [
+    {
+      "name": "@tauri-apps/api",
+      "version": "2.11.1",
+      "license": "Apache-2.0 OR MIT",
+      "lock_dev": false,
+      "url": "https://registry.npmjs.org/@tauri-apps/api/-/api-2.11.1.tgz",
+      "lock_integrity": "sha512-M2FPuYND2m+wh5hfW9ZpSdxMPdEJovPBWwoHJmwUpysTYNHaOkVFN419m/K0LIgjb/7KU2vBgsUepJWugQCvAA==",
+      "archive_bytes": 135672,
+      "archive_sha256": "70a6defdbffbe388b3c2715a717bbacbd885c6ceba8b4ac69051a9794a939e0a",
+      "integrity_matches": true,
+      "files": [
+        {
+          "path": "node_modules/@tauri-apps/api/package.json",
+          "bytes": 1784,
+          "sha256": "e418ff5cf898e23ee7c7fd4f8f994c6cf24e0cc5c3987440c56d180dda3638d6",
+          "archive_path": "package/package.json",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/@tauri-apps/api/core.js",
+          "bytes": 10709,
+          "sha256": "b2187a1c0c0a25806dc64f8823757ce553c09d3bbe3e409bd05cab32e245f1c9",
+          "archive_path": "package/core.js",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/@tauri-apps/api/event.js",
+          "bytes": 5674,
+          "sha256": "f00d22c559ce7e58a85d860e35fd60d20826f13d7f534a5f3548a7ef94446e84",
+          "archive_path": "package/event.js",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/@tauri-apps/api/external/tslib/tslib.es6.js",
+          "bytes": 2168,
+          "sha256": "88571c39817ebe327cfb45cf2d5ff9e68c544523d526f09ac2cc99acfc8fcf1b",
+          "archive_path": "package/external/tslib/tslib.es6.js",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/@tauri-apps/api/LICENSE_MIT",
+          "bytes": 1090,
+          "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
+          "archive_path": "package/LICENSE_MIT",
+          "archive_equal": true
+        }
+      ]
+    },
+    {
+      "name": "vite",
+      "version": "6.4.3",
+      "license": "MIT",
+      "lock_dev": true,
+      "url": "https://registry.npmjs.org/vite/-/vite-6.4.3.tgz",
+      "lock_integrity": "sha512-NTKlcQjlAK7MlQoyb6LgaqHc8sso/pVyUJYWMws3jg21uTJw/LddqIFPcPqP6PzpgbIcZyKI85sFE4HBrQDA8A==",
+      "archive_bytes": 632844,
+      "archive_sha256": "e498f166131407cd8ab819dfbc656c62d514b4e5e62f6f639efcef1614beb809",
+      "integrity_matches": true,
+      "files": [
+        {
+          "path": "node_modules/vite/package.json",
+          "bytes": 5251,
+          "sha256": "a1d0149fd986fd34b6d35503d2c0d8d9f743c4dbaaf94fbc11812bc84b05884d",
+          "archive_path": "package/package.json",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/vite/LICENSE.md",
+          "bytes": 115624,
+          "sha256": "008938a3441801ca3960f8e3ccb4c0738e7996442a53063141d57d3769a7344d",
+          "archive_path": "package/LICENSE.md",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js",
+          "bytes": 1504267,
+          "sha256": "88f9adf5652dc907fa20c9bf936a91fbe1c1328ca3624c39c649692eccb301e6",
+          "archive_path": "package/dist/node/chunks/dep-Dm0c1Wj2.js",
+          "archive_equal": true
+        }
+      ]
+    },
+    {
+      "name": "esbuild",
+      "version": "0.25.12",
+      "license": "MIT",
+      "lock_dev": true,
+      "url": "https://registry.npmjs.org/esbuild/-/esbuild-0.25.12.tgz",
+      "lock_integrity": "sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==",
+      "archive_bytes": 30947,
+      "archive_sha256": "227584145829e5c4782734b3fb7b91b49c6aa12876d6cf070e6a3d9d4de543f9",
+      "integrity_matches": true,
+      "files": [
+        {
+          "path": "node_modules/esbuild/package.json",
+          "bytes": 1490,
+          "sha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935",
+          "archive_path": "package/package.json",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/esbuild/LICENSE.md",
+          "bytes": 1069,
+          "sha256": "b40ec5baec7bb34fa5b1c09521fa3cd52d5fad7adafed74932a2010d3612a681",
+          "archive_path": "package/LICENSE.md",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/esbuild/lib/main.js",
+          "bytes": 88706,
+          "sha256": "0d1241812c443111d39475dfc66836003e9ef8b87e54d990dd67df29d20010e1",
+          "archive_path": "package/lib/main.js",
+          "archive_equal": true
+        }
+      ]
+    },
+    {
+      "name": "@esbuild/win32-x64",
+      "version": "0.25.12",
+      "license": "MIT",
+      "lock_dev": true,
+      "url": "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.25.12.tgz",
+      "lock_integrity": "sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA==",
+      "archive_bytes": 4484984,
+      "archive_sha256": "c77076b48f96323cae6257bd515e5ea96ecf38ab8f7fa34364d4fc4ae5905b74",
+      "integrity_matches": true,
+      "files": [
+        {
+          "path": "node_modules/@esbuild/win32-x64/package.json",
+          "bytes": 375,
+          "sha256": "5b41ac77d55bf2ae0de680d83a9095904e89523c6ef42460cffd0df5ef5a6947",
+          "archive_path": "package/package.json",
+          "archive_equal": true
+        },
+        {
+          "path": "node_modules/@esbuild/win32-x64/esbuild.exe",
+          "bytes": 10617344,
+          "sha256": "cae1bbc86f4df800b01d99e28aea0a154b02243de6797e98f48a9b88a64a7be0",
+          "archive_path": "package/esbuild.exe",
+          "archive_equal": true
+        }
+      ]
+    }
+  ],
+  "primary_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/evanw/esbuild/v0.25.12/internal/runtime/runtime.go",
+      "status": 200,
+      "bytes": 23994,
+      "sha256": "63a30c8dc21035d458787ecb77a216f01390f18bc88c035fce4b440a091943e2"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/evanw/esbuild/v0.25.12/LICENSE.md",
+      "status": 200,
+      "bytes": 1069,
+      "sha256": "b40ec5baec7bb34fa5b1c09521fa3cd52d5fad7adafed74932a2010d3612a681"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/vitejs/vite/v6.4.3/packages/vite/src/node/plugins/modulePreloadPolyfill.ts",
+      "status": 200,
+      "bytes": 3810,
+      "sha256": "b53010fd000f0294ca6a9a0a72201d7eff1b9c21d9a249d96514c730855ff9bb"
+    }
+  ],
+  "esbuild_helper_proof": {
+    "source_snippets": [
+      {
+        "name": "__defProp",
+        "lines": [
+          66,
+          66
+        ],
+        "text": "\t\tvar __defProp = Object.defineProperty"
+      },
+      {
+        "name": "__typeError",
+        "lines": [
+          79,
+          79
+        ],
+        "text": "\t\tvar __typeError = msg => { throw TypeError(msg) }"
+      },
+      {
+        "name": "__defNormalProp",
+        "lines": [
+          83,
+          85
+        ],
+        "text": "\t\tvar __defNormalProp = (obj, key, value) => key in obj\n\t\t\t? __defProp(obj, key, {enumerable: true, configurable: true, writable: true, value})\n\t\t\t: obj[key] = value"
+      },
+      {
+        "name": "__publicField",
+        "lines": [
+          316,
+          318
+        ],
+        "text": "\t\texport var __publicField = (obj, key, value) => (\n\t\t\t__defNormalProp(obj, typeof key !== 'symbol' ? key + '' : key, value)\n\t\t)"
+      },
+      {
+        "name": "__accessCheck",
+        "lines": [
+          319,
+          321
+        ],
+        "text": "\t\tvar __accessCheck = (obj, member, msg) => (\n\t\t\tmember.has(obj) || __typeError('Cannot ' + msg)\n\t\t)"
+      },
+      {
+        "name": "__privateGet",
+        "lines": [
+          326,
+          329
+        ],
+        "text": "\t\texport var __privateGet = (obj, member, getter) => (\n\t\t\t__accessCheck(obj, member, 'read from private field'),\n\t\t\tgetter ? getter.call(obj) : member.get(obj)\n\t\t)"
+      },
+      {
+        "name": "__privateAdd",
+        "lines": [
+          330,
+          333
+        ],
+        "text": "\t\texport var __privateAdd = (obj, member, value) => (\n\t\t\tmember.has(obj) ? __typeError('Cannot add the same private member more than once') :\n\t\t\tmember instanceof WeakSet ? member.add(obj) : member.set(obj, value)\n\t\t)"
+      },
+      {
+        "name": "__privateSet",
+        "lines": [
+          334,
+          338
+        ],
+        "text": "\t\texport var __privateSet = (obj, member, value, setter) => (\n\t\t\t__accessCheck(obj, member, 'write to private field'),\n\t\t\tsetter ? setter.call(obj, value) : member.set(obj, value),\n\t\t\tvalue\n\t\t)"
+      },
+      {
+        "name": "__privateMethod",
+        "lines": [
+          339,
+          342
+        ],
+        "text": "\t\texport var __privateMethod = (obj, member, method) => (\n\t\t\t__accessCheck(obj, member, 'access private method'),\n\t\t\tmethod\n\t\t)"
+      },
+      {
+        "name": "__privateWrapper",
+        "lines": [
+          350,
+          353
+        ],
+        "text": "\t\t\texport var __privateWrapper = (obj, member, setter, getter) => ({\n\t\t\t\tset _(value) { __privateSet(obj, member, value, setter) },\n\t\t\t\tget _() { return __privateGet(obj, member, getter) },\n\t\t\t})"
+      }
+    ],
+    "source": "\t\tvar __defProp = Object.defineProperty\n\t\tvar __typeError = msg => { throw TypeError(msg) }\n\t\tvar __defNormalProp = (obj, key, value) => key in obj\n\t\t\t? __defProp(obj, key, {enumerable: true, configurable: true, writable: true, value})\n\t\t\t: obj[key] = value\n\t\tvar __publicField = (obj, key, value) => (\n\t\t\t__defNormalProp(obj, typeof key !== 'symbol' ? key + '' : key, value)\n\t\t)\n\t\tvar __accessCheck = (obj, member, msg) => (\n\t\t\tmember.has(obj) || __typeError('Cannot ' + msg)\n\t\t)\n\t\tvar __privateGet = (obj, member, getter) => (\n\t\t\t__accessCheck(obj, member, 'read from private field'),\n\t\t\tgetter ? getter.call(obj) : member.get(obj)\n\t\t)\n\t\tvar __privateAdd = (obj, member, value) => (\n\t\t\tmember.has(obj) ? __typeError('Cannot add the same private member more than once') :\n\t\t\tmember instanceof WeakSet ? member.add(obj) : member.set(obj, value)\n\t\t)\n\t\tvar __privateSet = (obj, member, value, setter) => (\n\t\t\t__accessCheck(obj, member, 'write to private field'),\n\t\t\tsetter ? setter.call(obj, value) : member.set(obj, value),\n\t\t\tvalue\n\t\t)\n\t\tvar __privateMethod = (obj, member, method) => (\n\t\t\t__accessCheck(obj, member, 'access private method'),\n\t\t\tmethod\n\t\t)\n\t\t\tvar __privateWrapper = (obj, member, setter, getter) => ({\n\t\t\t\tset _(value) { __privateSet(obj, member, value, setter) },\n\t\t\t\tget _() { return __privateGet(obj, member, getter) },\n\t\t\t})",
+    "actual_prefix": "var Ic=Object.defineProperty;var Jo=t=>{throw TypeError(t)};var $c=(t,e,i)=>e in t?Ic(t,e,{enumerable:!0,configurable:!0,writable:!0,value:i}):t[e]=i;var Ri=(t,e,i)=>$c(t,typeof e!=\"symbol\"?e+\"\":e,i),zr=(t,e,i)=>e.has(t)||Jo(\"Cannot \"+i);var At=(t,e,i)=>(zr(t,e,\"read from private field\"),i?i.call(t):e.get(t)),as=(t,e,i)=>e.has(t)?Jo(\"Cannot add the same private member more than once\"):e instanceof WeakSet?e.add(t):e.set(t,i),Fc=(t,e,i,s)=>(zr(t,e,\"write to private field\"),s?s.call(t,i):e.set(t,i),i),ht=(t,e,i)=>(zr(t,e,\"access private method\"),i);var Kr=(t,e,i,s)=>({set _(r){Fc(t,e,r,i)},get _(){return At(t,e,s)}});",
+    "name_mapping": {
+      "__defProp": "Ic",
+      "__typeError": "Jo",
+      "__defNormalProp": "$c",
+      "__publicField": "Ri",
+      "__accessCheck": "zr",
+      "__privateGet": "At",
+      "__privateAdd": "as",
+      "__privateSet": "Fc",
+      "__privateMethod": "ht",
+      "__privateWrapper": "Kr"
+    },
+    "options": {
+      "loader": "js",
+      "format": "esm",
+      "minify": true,
+      "treeShaking": true,
+      "target": [
+        "es2020",
+        "edge88",
+        "firefox78",
+        "chrome87",
+        "safari14"
+      ]
+    },
+    "canonical_source": "var p=Object.defineProperty,i=r=>{throw TypeError(r)},v=(r,a,t)=>a in r?p(r,a,{enumerable:!0,configurable:!0,writable:!0,value:t}):r[a]=t,l=(r,a,t)=>v(r,typeof a!=\"symbol\"?a+\"\":a,t),_=(r,a,t)=>a.has(r)||i(\"Cannot \"+t),d=(r,a,t)=>(_(r,a,\"read from private field\"),t?t.call(r):a.get(r)),s=(r,a,t)=>a.has(r)?i(\"Cannot add the same private member more than once\"):a instanceof WeakSet?a.add(r):a.set(r,t),n=(r,a,t,e)=>(_(r,a,\"write to private field\"),e?e.call(r,t):a.set(r,t),t),o=(r,a,t)=>(_(r,a,\"access private method\"),t),f=(r,a,t,e)=>({set _(c){n(r,a,c,t)},get _(){return d(r,a,e)}});globalThis.__AB_LICENSE_PROOF=[p,i,v,l,_,d,s,n,o,f];\n",
+    "canonical_actual": "var n=Object.defineProperty,l=a=>{throw TypeError(a)},c=(a,r,e)=>r in a?n(a,r,{enumerable:!0,configurable:!0,writable:!0,value:e}):a[r]=e,d=(a,r,e)=>c(a,typeof r!=\"symbol\"?r+\"\":r,e),o=(a,r,e)=>r.has(a)||l(\"Cannot \"+e),s=(a,r,e)=>(o(a,r,\"read from private field\"),e?e.call(a):r.get(a)),h=(a,r,e)=>r.has(a)?l(\"Cannot add the same private member more than once\"):r instanceof WeakSet?r.add(a):r.set(a,e),v=(a,r,e,t)=>(o(a,r,\"write to private field\"),t?t.call(a,e):r.set(a,e),e),m=(a,r,e)=>(o(a,r,\"access private method\"),e),b=(a,r,e,t)=>({set _(i){v(a,r,i,e)},get _(){return s(a,r,t)}});globalThis.__AB_LICENSE_PROOF=[n,l,c,d,o,s,h,v,m,b];\n",
+    "exact_canonical_match": false,
+    "source_sha256": "03a93783cfc15caca9e4da62d9c1e5ff86e5c5854e73a6674cd5622b8082fd71",
+    "actual_prefix_sha256": "4287fb1f41d5a71d101af127c2ff28a0a5a69c62e145e16638d10b5e9ad9a2c9",
+    "canonical_sha256": "b370d5047e00166eae612a507caaf047af9d1bc7e59a0816676d803ada3ec7f1",
+    "alpha_comparison": {
+      "method": "TypeScript AST after esbuild syntax minification; alpha-renames variable bindings and per-function parameters only; preserves literal values and property names",
+      "alpha_equivalent": true,
+      "source_fingerprint_sha256": "728202c96fcda153bd93655887e6837a53f24365f04b88ca0ad8b2cfcc9601f6",
+      "actual_fingerprint_sha256": "728202c96fcda153bd93655887e6837a53f24365f04b88ca0ad8b2cfcc9601f6"
+    },
+    "interpretation": "Ten emitted helper bindings correspond to exact version-tagged runtime snippets. Syntax minification alone still selects different names; binding-aware AST comparison establishes alpha equivalence and retains property names and literal values.",
+    "preliminary_attempt": "Initial raw-source slicing used web-view line offsets and was rejected by esbuild with an unterminated string error. Final slices use actual raw-source declaration lines, shown above; no product source was changed."
+  },
+  "notices": {
+    "existing_central": {
+      "path": "THIRD_PARTY_LICENSES.md",
+      "bytes": 10649,
+      "sha256": "02fa50dd753784c98252ff4af055692a21a3f72504c2d1f975526cb6ee8aa455"
+    },
+    "central_text_checks": [
+      {
+        "source": {
+          "path": "node_modules/@tauri-apps/api/LICENSE_MIT",
+          "bytes": 1090,
+          "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d"
+        },
+        "central_contains_full_text_after_whitespace_normalization": true
+      },
+      {
+        "source": {
+          "path": "node_modules/lucide-static/LICENSE",
+          "bytes": 3208,
+          "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+        },
+        "central_contains_full_text_after_whitespace_normalization": true
+      },
+      {
+        "source": {
+          "path": "node_modules/@xterm/xterm/LICENSE",
+          "bytes": 1261,
+          "sha256": "b569f629d00f2626a8100df2a1798210535621e42164dfd426a6fe5aac7b0ccd"
+        },
+        "central_contains_full_text_after_whitespace_normalization": true
+      }
+    ],
+    "vite_core": {
+      "bytes": 1100,
+      "sha256": "e824161e0aab3814aca1883bd7058e67034d25fce254e6629495e78d3f8a53c3",
+      "central_contains": true,
+      "source": "node_modules/vite/LICENSE.md",
+      "extraction": "from first MIT License through before bundled-dependency heading; trailing whitespace excluded for comparison only"
+    },
+    "retained_runtime_source_headers": [
+      {
+        "path": "node_modules/@tauri-apps/api/core.js",
+        "current_sha256": "b2187a1c0c0a25806dc64f8823757ce553c09d3bbe3e409bd05cab32e245f1c9",
+        "same_as_prior_record": true
+      },
+      {
+        "path": "node_modules/@tauri-apps/api/event.js",
+        "current_sha256": "f00d22c559ce7e58a85d860e35fd60d20826f13d7f534a5f3548a7ef94446e84",
+        "same_as_prior_record": true
+      },
+      {
+        "path": "node_modules/@tauri-apps/plugin-dialog/dist-js/index.js",
+        "current_sha256": "82c577fbdebac20c92d08f5eaba9bef9feb9c1a2ea943fa5a99a1c43039c683a",
+        "same_as_prior_record": true
+      },
+      {
+        "path": "node_modules/@xterm/xterm/lib/xterm.mjs",
+        "current_sha256": "b336ec65a086c056d4804b3d4c2347da5663d3f23c3f25be866467bd8857ad59",
+        "same_as_prior_record": true
+      },
+      {
+        "path": "node_modules/@xterm/addon-fit/lib/addon-fit.mjs",
+        "current_sha256": "2d87e1bddc73be9111de8beee5370c3bb7aac9c94e18e6f245f02ca741ef1769",
+        "same_as_prior_record": true
+      },
+      {
+        "path": "node_modules/@xterm/addon-search/lib/addon-search.mjs",
+        "current_sha256": "3ea90162233f867b938cd29b8ad98f589643436bbb5445bd11b825dc99ff0c04",
+        "same_as_prior_record": true
+      },
+      {
+        "path": "node_modules/@xterm/addon-unicode11/lib/addon-unicode11.mjs",
+        "current_sha256": "37bb2d573c615661c875398be2a3497e02bd21d7202a5d1159f6ab70a8cfc2f2",
+        "same_as_prior_record": true
+      },
+      {
+        "path": "node_modules/@xterm/addon-webgl/lib/addon-webgl.mjs",
+        "current_sha256": "5ac2cbbb8a861ba99176eda0ee91f10c08de32d091e3488edf699ad111131ebb",
+        "same_as_prior_record": true
+      }
+    ],
+    "copied_icon_source_unchanged": true,
+    "new_license": {
+      "path": "docs/release/licenses/esbuild-0.25.12-LICENSE-MIT.txt",
+      "bytes": 1069,
+      "sha256": "b40ec5baec7bb34fa5b1c09521fa3cd52d5fad7adafed74932a2010d3612a681",
+      "source": "node_modules/esbuild/LICENSE.md",
+      "byte_equal": true
+    }
+  },
+  "decisions": [
+    {
+      "component": "@tauri-apps/api 2.11.1 and @tauri-apps/plugin-dialog 2.7.2",
+      "selection": "MIT",
+      "included": true,
+      "texts": [
+        "THIRD_PARTY_LICENSES.md"
+      ],
+      "basis": "Fresh module graph and rendered exports include core invoke/transformCallback, event listen and plugin-dialog open; existing Tauri full text and source/package copyright notices retained."
+    },
+    {
+      "component": "Tauri-vendored external/tslib/tslib.es6.js",
+      "selection": "No separate runtime notice selected for this exact output",
+      "included_in_final_javascript": false,
+      "exact_upstream_tslib_version": null,
+      "parent_package": "@tauri-apps/api 2.11.1",
+      "parent_declared_development_range": "^2.8.1",
+      "source_sha256": "88571c39817ebe327cfb45cf2d5ff9e68c544523d526f09ac2cc99acfc8fcf1b",
+      "basis": "Both private-field exports removed by Rollup; remaining full rendered source is the recorded unused SuppressedError expression plus comments. Applying matching target/minify/tree-shaking settings yields zero bytes; final byte-matching production JS lacks those helpers and expression. isIncluded/renderedLength alone are explicitly insufficient.",
+      "recheck": "Required when parent bytes, imported exports, target or minifier configuration change."
+    },
+    {
+      "component": "Vite 6.4.3 modulepreload polyfill",
+      "selection": "MIT core text",
+      "included": true,
+      "texts": [
+        "THIRD_PARTY_LICENSES.md"
+      ],
+      "basis": "Observed virtual module and its 1280-character rendered implementation correspond to version-tagged modulePreloadPolyfill.ts; final JS contains the IIFE. No wholesale inclusion of Vite build dependencies is inferred."
+    },
+    {
+      "component": "esbuild 0.25.12 generated runtime helpers",
+      "selection": "MIT",
+      "included": true,
+      "texts": [
+        "docs/release/licenses/esbuild-0.25.12-LICENSE-MIT.txt"
+      ],
+      "basis": "Ten output-prefix bindings matched to versioned internal/runtime/runtime.go, with source snippets, final prefix and binding-aware comparison recorded. Complete original license copied byte-for-byte."
+    },
+    {
+      "component": "Five imported xterm packages",
+      "selection": "MIT plus existing source notices including Microsoft",
+      "included": true,
+      "texts": [
+        "THIRD_PARTY_LICENSES.md"
+      ],
+      "basis": "All five actual modules contribute rendered output; eight relevant Tauri/xterm entry source hashes remain equal to the previously inspected files. Existing full text and additional source notices retained."
+    },
+    {
+      "component": "lucide-static 1.41.0 copied icon geometry",
+      "selection": "ISC and Feather MIT",
+      "included": true,
+      "texts": [
+        "THIRD_PARTY_LICENSES.md"
+      ],
+      "basis": "src/icons.ts remains byte-identical to prior geometry review and contributes 2680 rendered characters. Existing full package license retained; no new general icon provenance analysis."
+    },
+    {
+      "component": "@tauri-apps/plugin-opener 2.5.4 frontend",
+      "included": false,
+      "selection": "No actual module contribution; existing central conservative notice remains unchanged",
+      "basis": "Absent from actual transformed/imported module graph. Native Rust plugin selection is separate."
+    },
+    {
+      "component": "TypeScript 5.6.3 and Rollup 4.62.2 build tools",
+      "selection": "No separate frontend runtime text selected for the tool programs themselves",
+      "basis": "tsc uses noEmit; inspected fresh graph contains no tool runtime-library import. Concrete injected code identified here is the Vite polyfill and esbuild runtime. This does not treat all development dependencies as automatically absent."
+    }
+  ],
+  "native_exe": {
+    "current": {
+      "path": "target/release/agentbridge.exe",
+      "bytes": 16016896,
+      "sha256": "8aa177e304e0b8c067159ac7912d7894b770bc05021a47bd9b0de593cd8255e9"
+    },
+    "historical": {
+      "path": "target/release/agentbridge.exe",
+      "bytes": 16016896,
+      "sha256": "8aa177e304e0b8c067159ac7912d7894b770bc05021a47bd9b0de593cd8255e9",
+      "mtime_utc": "2026-09-12T07:18:07.616Z",
+      "contents_inspected": false
+    },
+    "byte_identical_to_historical_inventory": true,
+    "historical_build_commit": "6a45c12",
+    "rebuilt": false,
+    "contents_inspected": false,
+    "interpretation": "Same native EXE bytes as the separately recorded old build. Newly generated dist must not be attributed to this EXE."
+  },
+  "reproduction": {
+    "working_directory": "Repository root with the recorded package-lock and installed versions",
+    "normal_command": "npm.cmd run build",
+    "observer_command": "Pass final_observer_stdin_module to node --input-type=module on stdin after the normal build; it uses write:false.",
+    "final_observer_stdin_module": "import fs from 'node:fs';\nimport path from 'node:path';\nimport crypto from 'node:crypto';\nimport {execFileSync} from 'node:child_process';\nimport {build} from 'vite';\nimport {transform,version as esbuildVersion} from 'esbuild';\nconst root=process.cwd(),hash=b=>crypto.createHash('sha256').update(b).digest('hex');\nconst slash=s=>s.replaceAll('\\\\','/'),relative=p=>slash(path.relative(root,p));\nprocess.env.npm_package_version=JSON.parse(fs.readFileSync('package.json')).version;\nconst beforeHead=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim();\nlet report={generated_utc:new Date().toISOString(),head_before:beforeHead,observer:'Read-only generateBundle module metadata; FINAL outputs taken from awaited Vite result; write:false; original vite.config.ts; npm_package_version from package.json',modules:[],chunks:[],resolved:{}};\nconst built=await build({logLevel:'silent',build:{write:false},plugins:[{name:'agentbridge-license-observer',configResolved(c){report.resolved={mode:c.mode,command:c.command,base:c.base,target:c.build.target,minify:c.build.minify,sourcemap:c.build.sourcemap,lib:c.build.lib,cssCodeSplit:c.build.cssCodeSplit,rollupInput:c.build.rollupOptions.input??null,plugins:c.plugins.map(p=>p.name)}},generateBundle(_options,bundle){\nreport.modules=[...this.getModuleIds()].sort().map(id=>{const i=this.getModuleInfo(id);const f=fs.existsSync(id)&&fs.statSync(id).isFile()?fs.readFileSync(id):null;return {id:id.includes('\\0')?id:relative(id),isIncluded:i.isIncluded,isEntry:i.isEntry,exports:i.exports,importedIds:i.importedIds.map(p=>p.includes('\\0')?p:relative(p)),source:f?{bytes:f.length,sha256:hash(f)}:null,virtualCode:id.startsWith('\\0')?i.code:null}});\nreport.chunks=Object.values(bundle).filter(c=>c.type==='chunk').map(c=>({file:'dist/'+c.fileName,modules:Object.fromEntries(Object.entries(c.modules).map(([id,m])=>[id.includes('\\0')?id:relative(id),{renderedLength:m.renderedLength,originalLength:m.originalLength,renderedExports:m.renderedExports,removedExports:m.removedExports,...(id.includes('tslib')||id.includes('modulepreload')?{rollup_rendered_code:m.code}:{} )}]))}));\n}}]});\nreport.final_outputs=built.output.map(c=>{const bytes=Buffer.from(c.type==='chunk'?c.code:c.source),disk='dist/'+c.fileName;return {file:disk,type:c.type,bytes:bytes.length,sha256:hash(bytes),same_as_normal_build:fs.existsSync(disk)&&fs.readFileSync(disk).equals(bytes),...(c.type==='chunk'?{prefix:c.code.slice(0,1800),app_stamps:[...new Set(c.code.match(/agentbridge \\d+\\.\\d+\\.\\d+ \\([a-z0-9]+\\)/g)||[])],tslib_markers:Object.fromEntries(['__classPrivateFieldGet','__classPrivateFieldSet','Private accessor was defined without a getter','Cannot read private member from an object whose class did not declare it','Private method is not writable','SuppressedError'].map(s=>[s,c.code.includes(s)]))}:{})}});\nconst residual=report.chunks[0].modules['node_modules/@tauri-apps/api/external/tslib/tslib.es6.js'].rollup_rendered_code;\nconst options={loader:'js',target:report.resolved.target,format:'esm',minify:true,treeShaking:true,supported:{'dynamic-import':true,'import-meta':true}};\nconst trimmed=await transform(residual,options);\nreport.tslib_residual_check={esbuild_version:esbuildVersion,input:residual,input_sha256:hash(residual),options,output:trimmed.code,output_sha256:hash(trimmed.code),warnings:trimmed.warnings};\nreport.head_after=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim();\nconsole.log(JSON.stringify(report,null,2));",
+    "source_helper_comparison_stdin_module": "import fs from 'node:fs';import crypto from 'node:crypto';import{transform}from'esbuild';\nconst snippets=[{\"name\":\"__defProp\",\"lines\":[66,66],\"text\":\"\\t\\tvar __defProp = Object.defineProperty\"},{\"name\":\"__typeError\",\"lines\":[79,79],\"text\":\"\\t\\tvar __typeError = msg => { throw TypeError(msg) }\"},{\"name\":\"__defNormalProp\",\"lines\":[83,85],\"text\":\"\\t\\tvar __defNormalProp = (obj, key, value) => key in obj\\n\\t\\t\\t? __defProp(obj, key, {enumerable: true, configurable: true, writable: true, value})\\n\\t\\t\\t: obj[key] = value\"},{\"name\":\"__publicField\",\"lines\":[316,318],\"text\":\"\\t\\texport var __publicField = (obj, key, value) => (\\n\\t\\t\\t__defNormalProp(obj, typeof key !== 'symbol' ? key + '' : key, value)\\n\\t\\t)\"},{\"name\":\"__accessCheck\",\"lines\":[319,321],\"text\":\"\\t\\tvar __accessCheck = (obj, member, msg) => (\\n\\t\\t\\tmember.has(obj) || __typeError('Cannot ' + msg)\\n\\t\\t)\"},{\"name\":\"__privateGet\",\"lines\":[326,329],\"text\":\"\\t\\texport var __privateGet = (obj, member, getter) => (\\n\\t\\t\\t__accessCheck(obj, member, 'read from private field'),\\n\\t\\t\\tgetter ? getter.call(obj) : member.get(obj)\\n\\t\\t)\"},{\"name\":\"__privateAdd\",\"lines\":[330,333],\"text\":\"\\t\\texport var __privateAdd = (obj, member, value) => (\\n\\t\\t\\tmember.has(obj) ? __typeError('Cannot add the same private member more than once') :\\n\\t\\t\\tmember instanceof WeakSet ? member.add(obj) : member.set(obj, value)\\n\\t\\t)\"},{\"name\":\"__privateSet\",\"lines\":[334,338],\"text\":\"\\t\\texport var __privateSet = (obj, member, value, setter) => (\\n\\t\\t\\t__accessCheck(obj, member, 'write to private field'),\\n\\t\\t\\tsetter ? setter.call(obj, value) : member.set(obj, value),\\n\\t\\t\\tvalue\\n\\t\\t)\"},{\"name\":\"__privateMethod\",\"lines\":[339,342],\"text\":\"\\t\\texport var __privateMethod = (obj, member, method) => (\\n\\t\\t\\t__accessCheck(obj, member, 'access private method'),\\n\\t\\t\\tmethod\\n\\t\\t)\"},{\"name\":\"__privateWrapper\",\"lines\":[350,353],\"text\":\"\\t\\t\\texport var __privateWrapper = (obj, member, setter, getter) => ({\\n\\t\\t\\t\\tset _(value) { __privateSet(obj, member, value, setter) },\\n\\t\\t\\t\\tget _() { return __privateGet(obj, member, getter) },\\n\\t\\t\\t})\"}];\nconst actual=fs.readFileSync('dist/assets/index-BLNXrQCn.js','utf8').split('(function(){')[0];\nconst names=['__defProp','__typeError','__defNormalProp','__publicField','__accessCheck','__privateGet','__privateAdd','__privateSet','__privateMethod','__privateWrapper'];\nconst aliases=['Ic','Jo','$c','Ri','zr','At','as','Fc','ht','Kr'];\nconst source=snippets.map(x=>x.text).join('\\n').replace(/\\bexport /g,'');\nconst options={loader:'js',format:'esm',minify:true,treeShaking:true,target:['es2020','edge88','firefox78','chrome87','safari14']};\nconst [a,b]=await Promise.all([transform(source+'\\nglobalThis.__AB_LICENSE_PROOF = ['+names.join(',')+'];',options),transform(actual+'\\nglobalThis.__AB_LICENSE_PROOF = ['+aliases.join(',')+'];',options)]);\nconst hash=s=>crypto.createHash('sha256').update(s).digest('hex');\nconsole.log(JSON.stringify({source_snippets:snippets,source,actual_prefix:actual,name_mapping:Object.fromEntries(names.map((x,i)=>[x,aliases[i]])),options,canonical_source:a.code,canonical_actual:b.code,exact_canonical_match:a.code===b.code,source_sha256:hash(source),actual_prefix_sha256:hash(actual),canonical_sha256:hash(a.code)},null,2));",
+    "binding_aware_comparison_stdin_module": "import ts from 'typescript';import crypto from 'node:crypto';\nconst pair={\"source\":\"var p=Object.defineProperty,i=r=>{throw TypeError(r)},v=(r,a,t)=>a in r?p(r,a,{enumerable:!0,configurable:!0,writable:!0,value:t}):r[a]=t,l=(r,a,t)=>v(r,typeof a!=\\\"symbol\\\"?a+\\\"\\\":a,t),_=(r,a,t)=>a.has(r)||i(\\\"Cannot \\\"+t),d=(r,a,t)=>(_(r,a,\\\"read from private field\\\"),t?t.call(r):a.get(r)),s=(r,a,t)=>a.has(r)?i(\\\"Cannot add the same private member more than once\\\"):a instanceof WeakSet?a.add(r):a.set(r,t),n=(r,a,t,e)=>(_(r,a,\\\"write to private field\\\"),e?e.call(r,t):a.set(r,t),t),o=(r,a,t)=>(_(r,a,\\\"access private method\\\"),t),f=(r,a,t,e)=>({set _(c){n(r,a,c,t)},get _(){return d(r,a,e)}});globalThis.__AB_LICENSE_PROOF=[p,i,v,l,_,d,s,n,o,f];\\n\",\"actual\":\"var n=Object.defineProperty,l=a=>{throw TypeError(a)},c=(a,r,e)=>r in a?n(a,r,{enumerable:!0,configurable:!0,writable:!0,value:e}):a[r]=e,d=(a,r,e)=>c(a,typeof r!=\\\"symbol\\\"?r+\\\"\\\":r,e),o=(a,r,e)=>r.has(a)||l(\\\"Cannot \\\"+e),s=(a,r,e)=>(o(a,r,\\\"read from private field\\\"),e?e.call(a):r.get(a)),h=(a,r,e)=>r.has(a)?l(\\\"Cannot add the same private member more than once\\\"):r instanceof WeakSet?r.add(a):r.set(a,e),v=(a,r,e,t)=>(o(a,r,\\\"write to private field\\\"),t?t.call(a,e):r.set(a,e),e),m=(a,r,e)=>(o(a,r,\\\"access private method\\\"),e),b=(a,r,e,t)=>({set _(i){v(a,r,i,e)},get _(){return s(a,r,t)}});globalThis.__AB_LICENSE_PROOF=[n,l,c,d,o,s,h,v,m,b];\\n\"};\nfunction fingerprint(code){\n const ast=ts.createSourceFile('helper.js',code,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),global=new Map();let g=0,fn=0;\n for(const statement of ast.statements)if(ts.isVariableStatement(statement))for(const d of statement.declarationList.declarations){if(!ts.isIdentifier(d.name))throw Error('unexpected binding');global.set(d.name.text,'G'+g++);}\n function visit(node,env){\n  if(ts.isFunctionLike(node)){env=new Map(env);const id=fn++;for(const [i,p]of node.parameters.entries()){if(!ts.isIdentifier(p.name))throw Error('unexpected parameter');env.set(p.name.text,'F'+id+'P'+i);}}\n  if(ts.isIdentifier(node)){const p=node.parent;const property=p&&p.name===node&&(ts.isPropertyAccessExpression(p)||ts.isPropertyAssignment(p)||ts.isGetAccessorDeclaration(p)||ts.isSetAccessorDeclaration(p));return ['Identifier',property?node.text:(env.get(node.text)||node.text)];}\n  if(ts.isStringLiteral(node)||ts.isNumericLiteral(node))return [ts.SyntaxKind[node.kind],node.text];\n  let children=[];node.forEachChild(child=>{children.push(visit(child,env));});return[ts.SyntaxKind[node.kind],...children];\n }\n return JSON.stringify(visit(ast,global));\n}\nconst a=fingerprint(pair.source),b=fingerprint(pair.actual),hash=s=>crypto.createHash('sha256').update(s).digest('hex');\nconsole.log(JSON.stringify({method:'TypeScript AST after esbuild syntax minification; alpha-renames variable bindings and per-function parameters only; preserves literal values and property names',source_fingerprint_sha256:hash(a),actual_fingerprint_sha256:hash(b),alpha_equivalent:a===b,source_fingerprint:a,actual_fingerprint:b}));",
+    "archive_verification_stdin_module": "import fs from 'node:fs';\nimport crypto from 'node:crypto';\nimport zlib from 'node:zlib';\nconst lock=JSON.parse(fs.readFileSync('package-lock.json'));\nconst hash=(b,alg='sha256')=>crypto.createHash(alg).update(b).digest('hex');\nfunction tar(a){const b=zlib.gunzipSync(a),m=new Map();for(let i=0;i+512<=b.length;){const h=b.subarray(i,i+512);if(h.every(c=>!c))break;const str=(s,e)=>h.subarray(s,e).toString().replace(/\\0.*$/s,'');let name=str(0,100);const prefix=str(345,500);if(prefix)name=prefix+'/'+name;const n=parseInt(str(124,136).trim()||'0',8),type=str(156,157);if(!Number.isSafeInteger(n)||i+512+n>b.length)throw Error('invalid tar');if(type==='0'||type==='')m.set(name,b.subarray(i+512,i+512+n));i+=512+Math.ceil(n/512)*512;}return m}\nconst choices=[\n['@tauri-apps/api',['package.json','core.js','event.js','external/tslib/tslib.es6.js','LICENSE_MIT']],\n['vite',['package.json','LICENSE.md','dist/node/chunks/dep-Dm0c1Wj2.js']],\n['esbuild',['package.json','LICENSE.md','lib/main.js']],\n['@esbuild/win32-x64',['package.json','esbuild.exe']]\n];\nconst records=await Promise.all(choices.map(async([name,paths])=>{const p='node_modules/'+name,e=lock.packages[p],r=await fetch(e.resolved,{signal:AbortSignal.timeout(20000)});if(r.status!==200)throw Error('archive status '+r.status);const a=Buffer.from(await r.arrayBuffer());if(a.length>8*1024*1024)throw Error('archive cap');const [algorithm,integrity]=e.integrity.split('-');const actual=crypto.createHash(algorithm).update(a).digest('base64');if(actual!==integrity)throw Error('archive integrity '+name);const entries=tar(a);const files=paths.map(path=>{const local=fs.readFileSync(p+'/'+path),arch=entries.get('package/'+path);if(!arch?.equals(local))throw Error('local differs '+name+'/'+path);return {path:p+'/'+path,bytes:local.length,sha256:hash(local),archive_path:'package/'+path,archive_equal:true}});const pkg=JSON.parse(entries.get('package/package.json'));if(pkg.version!==e.version)throw Error('version mismatch');return {name,version:e.version,license:pkg.license,lock_dev:e.dev??false,url:e.resolved,lock_integrity:e.integrity,archive_bytes:a.length,archive_sha256:hash(a),integrity_matches:true,files}}));\nconst urls=['https://raw.githubusercontent.com/evanw/esbuild/v0.25.12/internal/runtime/runtime.go','https://raw.githubusercontent.com/evanw/esbuild/v0.25.12/LICENSE.md','https://raw.githubusercontent.com/vitejs/vite/v6.4.3/packages/vite/src/node/plugins/modulePreloadPolyfill.ts'];\nconst primary=await Promise.all(urls.map(async url=>{const r=await fetch(url,{signal:AbortSignal.timeout(15000)});if(r.status!==200)throw Error('primary status '+r.status);const b=Buffer.from(await r.arrayBuffer());return {url,status:r.status,bytes:b.length,sha256:hash(b),text:b.toString()}}));\nconsole.log(JSON.stringify({archives:records,primary,esbuild_license_upstream_equal:Buffer.from(primary[1].text).equals(fs.readFileSync('node_modules/esbuild/LICENSE.md'))},null,2));",
+    "caveat": "Recorded commit/input/output hashes identify this run. A future HEAD changes the embedded app stamp; re-evaluate output hashes rather than assuming historical identity. No command regenerates historical inventories."
+  },
+  "limits": [
+    "This selects frontend notice texts; no installer/portable license payload has been built or inspected.",
+    "The native EXE remains the old 6a45c12 artifact.",
+    "THIRD_PARTY_LICENSES.md and historical inventory/report hashes are unchanged.",
+    "The old 151-package/260-file general inventory was not rerun; only the concrete helper paths and retained notice sources were checked.",
+    "The whole esbuild native executable was checked against its npm archive as installed tool provenance; no claim of shipped compiler executable is made."
+  ]
+}

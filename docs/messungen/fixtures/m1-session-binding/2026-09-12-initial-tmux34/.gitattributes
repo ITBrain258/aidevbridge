@@ -1,0 +1,8 @@
+* -text
+.gitattributes text eol=lf
+artifact-manifest.json whitespace=cr-at-eol
+binding-selftest.jsonl.invocation.json whitespace=cr-at-eol
+binding-tmux34-absence.jsonl.invocation.json whitespace=cr-at-eol
+binding-tmux34.jsonl.invocation.json whitespace=cr-at-eol
+execution-summary.json whitespace=cr-at-eol
+parser-selftest.jsonl.invocation.json whitespace=cr-at-eol

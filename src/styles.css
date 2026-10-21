@@ -1,0 +1,4082 @@
+/* aidevbridge shell. The terminal fills all space it can get: xterm.js'
+   FitAddon computes cols/rows from the pixel size of the mounting element
+   (`.tile-terminal`, see below), so every ancestor in this chain needs an
+   explicit height -- a `height: auto` anywhere up the chain and fit() would
+   compute against a collapsed box. */
+
+:root {
+  /* --- Modus: Dark only (v2 §2). Steuert auch native <select>-Popups,
+         Kontextmenues und den xterm-Viewport-Scrollbalken. --- */
+  color-scheme: dark;
+
+  /* Flaechen, Texte und Akzent stehen in den Grundton- und Akzentbloecken
+     unter diesem Block (Farbwahl-Spec §3). */
+  --ab-bg-scrim: rgba(4, 6, 8, 0.6);
+
+  /* ===== In allen Themen gleich -- v2 §5.1 ===== */
+  --ab-ok:        #4ADE80;
+  --ab-ok-bg:     rgba(74, 222, 128, 0.15);
+  --ab-warn:      #FBBF24;
+  --ab-warn-bg:   rgba(251, 191, 36, 0.15);
+  --ab-danger:    #FCA5A5;
+  --ab-danger-bg: rgba(248, 113, 113, 0.13);
+  /* Agentenstatus "idle" (M1.2): heller als das Blau im Entwurf (#60A5FA),
+     damit die Pille auch auf dem fokussierten Kachelkopf 4,5:1 haelt. */
+  --ab-idle:      #93C5FD;
+  --ab-idle-bg:   rgba(147, 197, 253, 0.15);
+
+  /* Farbwahl-Spec §2: neutral und fest, nie akzentgetoent. Ein blassroter
+     Ring saehe aus wie ein Fehlerrand, ein akzentfarbenes "verbindet" bei
+     gruenem Akzent wie "verbunden". */
+  --ab-focus-ring:    #E6EAF0;
+  --ab-connecting:    #DCE3EC;
+  --ab-connecting-bg: rgba(220, 227, 236, 0.10);
+
+  --ab-line:        rgba(255, 255, 255, 0.06);
+  --ab-line-strong: rgba(255, 255, 255, 0.12);
+  --ab-border-w:    1px;
+
+  --ab-scrollbar:       rgba(255, 255, 255, 0.34);
+  --ab-scrollbar-hover: var(--ab-text-muted);
+
+  --ab-radius-xs:   6px;
+  --ab-radius-sm:   7px;
+  --ab-radius-md:   9px;
+  --ab-radius-lg:   10px;
+  --ab-radius-xl:   12px;
+  --ab-radius-pill: 999px;
+
+  /* --- Schrift (v2 §6) --- */
+  --ab-font-ui:       "Segoe UI Variable Text", "Segoe UI", system-ui, "Noto Sans", sans-serif;
+  --ab-font-ui-small: "Segoe UI Variable Small", "Segoe UI", system-ui, sans-serif;
+  --ab-font-mono:     "Cascadia Mono", "Cascadia Code", Consolas, "Segoe UI Mono", ui-monospace, monospace;
+
+  --ab-fs-2xs: 10px; --ab-lh-2xs: 12px; /* nur Kuerzel und Kachelnummern */
+  --ab-fs-xs:  11px; --ab-lh-xs:  14px;
+  --ab-fs-sm:  12px; --ab-lh-sm:  16px;
+  --ab-fs-md:  13px; --ab-lh-md:  18px;
+  --ab-fs-lg:  15px; --ab-lh-lg:  20px;
+  --ab-fs-xl:  18px; --ab-lh-xl:  24px;
+
+  --ab-fw-regular:  400;
+  --ab-fw-semibold: 600;
+  --ab-fw-bold:     700; /* nur am Kuerzelquadrat (Test in styles.test.ts) */
+
+  /* --- Abstaende (Basis 4px; Namen und Werte wie v1). Nur die Stufen, die
+         eine Regel liest (UX-Spec §11). --- */
+  --ab-space-1: 2px;
+  --ab-space-2: 4px;
+  --ab-space-3: 6px;
+  --ab-space-4: 8px;
+  --ab-space-5: 12px;
+  --ab-space-6: 16px;
+  --ab-space-7: 20px;
+  --ab-space-8: 24px;
+  /* 6 statt der in Spec 5.1 genannten 8 px (Startwert-Anpassung nach Spec 19,
+     gemessen am Fenster 2026-09-07): der Wert traegt in `#app` BEIDES, den
+     Rand der Leinwand und den Spalt zwischen Seitenleiste und Raster -- im
+     Vollbild fehlten der Kachel dadurch 16 px, und das Spaltenbudget (Spec
+     8.5, nach Spec 19 nicht verhandelbar) riss um eine Spalte. Die zwei
+     Stufen aus 8.5 (Innen 4 -> 2, Luecke 8 -> 6) greifen im Vollbild nicht:
+     der Innenabstand bringt nur 4 px, die Kachelluecke gibt es bei einer
+     einzigen Kachel gar nicht. 6 px halten den sichtbaren Spalt und geben
+     4 px zurueck. */
+  --ab-canvas-gap: 6px;
+
+  /* --- Masse (v2 §5.1) --- */
+  --ab-sidebar-w:      240px;
+  --ab-sb-head-h:      40px;
+  --ab-row-h-host:     32px;
+  --ab-row-h-session:  26px;
+  --ab-row-h-lane:     38px;
+  --ab-row-btn-h:      26px;
+  --ab-suggestion-h:   36px;
+  --ab-tile-head-h:    30px;
+  --ab-control-h:      32px;
+  --ab-dialog-head-h:  44px;
+  --ab-focus-w:        2px;
+
+  /* --- Erhebung --- */
+  --ab-shadow-card:  0 6px 18px rgba(0, 0, 0, 0.35);
+  --ab-shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.55);
+
+  /* --- Bewegung: nur Farbe und Deckkraft, nie Layout (v2 §14) --- */
+  --ab-motion-fast: 100ms;
+  --ab-motion-ease: cubic-bezier(0.2, 0, 0.38, 0.9);
+
+  font-family: var(--ab-font-ui);
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  color: var(--ab-text-primary);
+  /* UX-Spec §8.5: die Flaeche am html (= :root). Mit `color-scheme: dark` in
+     index.html und `backgroundColor` des Fensters (tauri.conf.json, beide
+     #15171C = Graphit-`--ab-bg-canvas`) gibt es beim Start keinen weissen
+     Blitz. */
+  background-color: var(--ab-bg-canvas);
+  /* Farbwahl-Spec §2.8: Kaestchen und Radios folgen dem gewaehlten Akzent. */
+  accent-color: var(--ab-accent);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ===== Grundton (Farbwahl-Spec §3): Flaechen und Text. Jeder Block nennt
+   dieselben Token. Die Selektoren greifen auch unterhalb von <html>: der
+   Einstellungsdialog zeigt jede Karte ueber `data-base` in IHREM Grundton.
+   An <html> gesetzt von src/theme.ts::applyTheme. ===== */
+
+/* Graphit (Standard) -- die Flaechen von "Tuerkis auf Graphit", v2 §5.2. */
+:root, [data-base="graphite"] {
+  --ab-bg-canvas:   #15171C;
+  --ab-bg-panel:    #1D2027;
+  --ab-bg-card:     #242830;
+  --ab-bg-hover:    #2A2F38;
+  --ab-bg-active:   #303641;
+
+  --ab-text-primary:   #EDEFF3;
+  --ab-text-secondary: #C9D0DA;
+  --ab-text-muted:     #939CAA;
+  --ab-text-disabled:  #5B6470;
+
+  --ab-term-bg:                 #0F1115;
+  --ab-term-selection-inactive: #2A323D;
+}
+
+/* Schiefer -- die Flaechen von "Blau auf Schiefer", v2 §5.3. */
+[data-base="slate"] {
+  --ab-bg-canvas:   #12161E;
+  --ab-bg-panel:    #1A2030;
+  --ab-bg-card:     #212A3C;
+  --ab-bg-hover:    #283349;
+  --ab-bg-active:   #2F3B54;
+
+  --ab-text-primary:   #E8EDF5;
+  --ab-text-secondary: #C6CFDD;
+  --ab-text-muted:     #94A0B4;
+  --ab-text-disabled:  #5C687C;
+
+  --ab-term-bg:                 #0D111A;
+  --ab-term-selection-inactive: #283349;
+}
+
+/* ===== Akzent (Farbwahl-Spec §3.2). Tuerkis und Blau sind die Werte aus
+   v2 §5.2/§5.3; die uebrigen sind Startwerte (v2 §19). Bei Pink und Rot ist
+   die Auswahltoenung entsaettigt (sonst glich sie `--ab-danger-bg`), bei Rot
+   auch das Kuerzelquadrat; bei Rot und Gruen bleibt die Terminalauswahl fast
+   neutral, weil Agenten-Diffs selbst rote und gruene Hintergruende zeigen.
+   Wie beim Grundton greifen die Selektoren auch an den Farbfeldern im
+   Dialog. ===== */
+:root, [data-accent="turquoise"] {
+  --ab-accent:         #2DD4BF;
+  --ab-accent-hover:   #5EE3D2;
+  --ab-accent-ink:     #0F172A;
+  --ab-accent-soft:    rgba(45, 212, 191, 0.13);
+  --ab-avatar-bg:      #1F3A44;
+  --ab-avatar-fg:      #7EE8DC;
+  --ab-term-selection: #2B4A52;
+}
+
+[data-accent="blue"] {
+  --ab-accent:         #6FA8FF;
+  --ab-accent-hover:   #92BDFF;
+  --ab-accent-ink:     #0B1220;
+  --ab-accent-soft:    rgba(111, 168, 255, 0.14);
+  --ab-avatar-bg:      #233656;
+  --ab-avatar-fg:      #A9C8FF;
+  --ab-term-selection: #2B3E5C;
+}
+
+[data-accent="violet"] {
+  --ab-accent:         #A193FC;
+  --ab-accent-hover:   #B2A9FE;
+  --ab-accent-ink:     #151325;
+  --ab-accent-soft:    rgba(161, 147, 252, 0.13);
+  --ab-avatar-bg:      #34324B;
+  --ab-avatar-fg:      #CECAFF;
+  --ab-term-selection: #403D58;
+}
+
+[data-accent="pink"] {
+  --ab-accent:         #F180B5;
+  --ab-accent-hover:   #F79BC4;
+  --ab-accent-ink:     #220F18;
+  --ab-accent-soft:    rgba(194, 160, 174, 0.13);
+  --ab-avatar-bg:      #472C38;
+  --ab-avatar-fg:      #FFBAD7;
+  --ab-term-selection: #543743;
+}
+
+[data-accent="red"] {
+  --ab-accent:         #F66C69;
+  --ab-accent-hover:   #FA8B85;
+  --ab-accent-ink:     #240F0E;
+  --ab-accent-soft:    rgba(179, 151, 148, 0.13);
+  --ab-avatar-bg:      #403130;
+  --ab-avatar-fg:      #EDC6C3;
+  --ab-term-selection: #493E3D;
+}
+
+[data-accent="orange"] {
+  --ab-accent:         #FA9947;
+  --ab-accent-hover:   #FFB277;
+  --ab-accent-ink:     #221205;
+  --ab-accent-soft:    rgba(250, 153, 71, 0.13);
+  --ab-avatar-bg:      #472F1D;
+  --ab-avatar-fg:      #FEC396;
+  --ab-term-selection: #533B29;
+}
+
+[data-accent="green"] {
+  --ab-accent:         #59D483;
+  --ab-accent-hover:   #85E19F;
+  --ab-accent-ink:     #081B0E;
+  --ab-accent-soft:    rgba(89, 212, 131, 0.13);
+  --ab-avatar-bg:      #233C2A;
+  --ab-avatar-fg:      #A5E3B4;
+  --ab-term-selection: #3B443D;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --ab-motion-fast: 0ms; }
+
+  /* `:not(.xterm *)` ist hier KEINE Politur, sondern notwendig: xterm.js hat
+     seit Version 6 keinen Canvas-Renderer mehr, und `src/terminal.ts` faellt
+     ausdruecklich auf den DOM-Renderer zurueck (kein WebGL verfuegbar, oder
+     `onContextLoss` disposed den Addon). Der DOM-Renderer blinkt den Cursor
+     ueber eine CSS-`animation` -- ein globales `animation-duration: 1ms`
+     wuerde genau diesen Cursor stilllegen. Der Terminalinhalt gehoert xterm,
+     auch beim Bewegungs-Reset. */
+  *:not(.xterm *), *:not(.xterm *)::before, *:not(.xterm *)::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Abnahme B3, keine Geschmacksfrage: der Reset darueber macht jede Aenderung
+     an `#app` zu einem 1-ms-Uebergang ueber `all` -- die Spalte der
+     Seitenleiste (`grid-template-columns`) ebenso wie `height: 100vh` beim
+     Fenster-Resize. Das Raster liest seine Flaeche synchron (bewusst kein
+     ResizeObserver, Spec §4.5) und bekaeme den Anfangswert: die Kacheln
+     stuenden einen Schritt hinter der Seitenleiste. Die Seitenleiste wird
+     ohnehin nicht animiert (Spec §6.1). ID und `!important` schlagen den
+     Reset. */
+  #app {
+    transition: none !important;
+  }
+}
+
+/* `user-select: none` (UX-Spec §11): die Oberflaeche ist eine Anwendung, kein
+   Dokument -- sonst markierte Strg+A ausserhalb des Terminals die ganze
+   Oberflaeche, und Ziehen markierte Beschriftungen. Markierbar bleibt nur, was
+   jemand kopieren will (Regel darunter). */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  user-select: none;
+}
+
+/* Markierbar: Felder, das Terminal (xterm markiert in seinem Element selbst,
+   `.xterm` setzt dafuer eigens `none`), Fehlertexte, der Fingerabdruck der
+   Hostschluesselfrage und Pfade -- in den Hinweisen des Verzeichnisbaums und
+   im Hinweis des Hostformulars (der Schluesselordner `%USERPROFILE%\.ssh`).
+   Der Pfad der Einstellungsdatei hat seine eigene Regel
+   (`.settings-value--path`). */
+input,
+textarea,
+.tile-terminal,
+[role="alert"],
+.host-notice-message,
+.host-notice-detail,
+.first-run-followup-message,
+.host-key-prompt-fingerprint-value,
+.dir-tree-notice,
+.host-form-hint {
+  user-select: text;
+}
+
+/* Autorenregeln mit `display` (z. B. `.btn { display: inline-flex }`) schlagen
+   die UA-Regel `[hidden] { display: none }` -- Herkunft vor Spezifitaet. Diese
+   eine Regel stellt `hidden` ueberall wieder her; die `:not([hidden])`-Gates
+   der Komponenten bleiben als zweite Sicherung (Gate in styles.test.ts). */
+[hidden] {
+  display: none !important;
+}
+
+/* Designsystem §6.4: EIN globaler Fokusring, ueberall gleich, auf JEDEM
+   interaktiven Element -- steht bewusst VOR jeder Komponentenregel (die
+   Spezifikation selbst verlangt genau diese Reihenfolge). Ersetzt vormals
+   lokale Kopien (etwa in Host-Formular, Sitzungsdialog und Seitenleiste),
+   die nur deshalb lokal standen, weil diese globale Fassung erst mit
+   Shell-Task 11 ("main.ts verdrahten") kommen sollte -- siehe deren
+   jeweilige, jetzt entfernte Kommentare. Ohne `.ab-seg-item`
+   (keine Klasse dieser Anwendung heisst so) und ohne `border-radius:
+   inherit`, das einem fokussierten Knopf den Radius seines Elternelements
+   gab (UX-Spec §11). Eine EINZIGE Ausnahme lebt weiter unten bei
+   `.tile-head` (Kachelkopf-Schaltflaechen, `outline-offset: -2px` statt der
+   hier gesetzten `2px`) -- die Spezifikation nennt sie ausdruecklich als
+   Ausnahme, keine Redundanz. */
+:where(button, a, input, select, [tabindex], .ab-row):focus-visible {
+  outline: var(--ab-focus-w) solid var(--ab-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Shell-Task 11 (Spec §4.2/§11.2): `#app` ist das Zwei-Spalten-Grundgeruest
+   aus dem Mockup (`.app`-Regel dort) -- `#sidebar`/`#grid` fuellen ihre
+   Grid-Zelle jeweils ueber das Standard-`stretch`-Verhalten von CSS Grid,
+   ohne eigene Hoehenregeln noetig zu haben. Die Breite der Seitenleiste ist
+   das Token `--ab-sidebar-w`: hier die Vorgabe, zur Laufzeit setzt der
+   Ziehgriff (UX-Spec §7.8, `views/sidebar-resize.ts`) es inline an `#app`. */
+#app {
+  display: grid;
+  grid-template-columns: var(--ab-sidebar-w) 1fr;
+  height: 100vh;
+  overflow: hidden;
+  /* Spaltenraster bleibt (Spec 7.1: Seitenleiste und Raster liegen als
+     eigene Karten auf dem Leinwandhintergrund, mit sichtbarem Spalt
+     dazwischen statt Kante an Kante wie in v1). */
+  padding: var(--ab-canvas-gap);
+  column-gap: var(--ab-canvas-gap);
+  background-color: var(--ab-bg-canvas);
+  /* Ohne border-box waere die Randbox 100vh + 16px (Polster oben/unten) --
+     das sprengt die Ansicht um 16px Dokument-Scrollbalken und schiebt den
+     unteren Leinwandspalt unter den sichtbaren Bereich. */
+  box-sizing: border-box;
+}
+
+/* KEIN overflow: hidden hier -- das wuerde den Kartenschatten von
+   `.sidebar` (box-shadow: --ab-shadow-card, Spec 7.1) an allen vier Seiten
+   beschneiden, denn der Schatten muss ausserhalb der Randbox malen koennen.
+   Stattdessen halten `min-width: 0` die Spalte und `min-height: 0` die Zeile
+   von `#app` (Aufgabe 19, Fixrunde 3): ohne Letzteres wuchs die Zeile mit dem
+   Inhalt der Liste, `#app { overflow: hidden }` schnitt den Rest ab, und
+   `.sb-list` rollte nie. Darunter traegt die Kette schon: `.sidebar` nimmt mit
+   `height: 100%` die gestreckte Hoehe, `.sb-list` fuellt als Flex-Kind den
+   Rest und rollt. `position: relative` verankert den Ziehgriff
+   (`.sb-resize`). */
+#sidebar {
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+}
+
+/* Wie #sidebar oben: KEIN overflow: hidden, sonst beschneidet die Randbox
+   den Kartenschatten der Randkacheln UND die nach innen wachsende
+   Fokuskontur (.tile.focused, outline-offset: -2px) an den Aussenkanten des
+   Rasters. min-width/min-height: 0 reichen, um die Grid-Zelle am Aufblaehen
+   durch ihre Flex-/Grid-Kinder zu hindern. */
+#grid {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Task 12 (`sidebar.toggle`, Ctrl+Shift+B): blendet die Seitenleiste
+   VOLLSTAENDIG aus. `#sidebar { display: none }` nimmt sie aus dem Boxbaum
+   und damit aus dem Raster; `#grid` ist danach das einzige Rasterelement und
+   wird per Auto-Platzierung in die ERSTE Spalte gelegt. Darum bleibt hier
+   genau eine Spalte: mit `0 1fr` landete `#grid` in der 0-px-Spur, und
+   FitAddon klemmte jedes Terminal auf 2 Spalten (Spec 2026-10-19 §3, §8.5).
+   `display: none` nimmt die Seitenleiste zugleich aus der Tab-Reihenfolge. */
+#app.sidebar-collapsed {
+  grid-template-columns: 1fr;
+}
+
+#app.sidebar-collapsed #sidebar {
+  display: none;
+}
+
+/* Ziehgriff der Seitenleiste (UX-Spec §7.8, `views/sidebar-resize.ts`): am
+   rechten Rand, genau im Spalt zwischen Leistenkarte und Raster -- er deckt
+   weder Karte noch Scrollbalken der Liste. Seine Breite IST die
+   Leinwandluecke (`--ab-canvas-gap`, 6 px wie in der Spec); aendert sie sich,
+   fuellt er den Spalt weiter. In Ruhe unsichtbar; beim Zeigen und Ziehen eine
+   Linie in der starken Haarlinienfarbe. Kein `z-index`: als positioniertes
+   Element malt er ohnehin ueber den Kartenschatten der Kacheln.
+   `touch-action: none`, sonst rollte ein Zug mit dem Finger die Seite, statt
+   zu ziehen. Eingeklappt geht er mit `#sidebar` (Regel darueber). */
+.sb-resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: var(--ab-canvas-gap);
+  cursor: col-resize;
+  touch-action: none;
+  background-color: transparent;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.sb-resize:hover,
+.sb-resize--dragging {
+  background-color: var(--ab-line-strong);
+}
+
+/* Ring innen: aussen laege er auf Leistenkarte und Kachelrand. */
+.sb-resize:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Erststart (Spec 9): im Raster ein Panel mit zentrierter 440-px-Spalte;
+   im "Add host"-Dialog (`--compact`) ohne Panel und ohne Marke/Fusszeile.
+   Ersetzt den Aufbau aus Task 13 (eine Ueberschrift plus gestapelte
+   Abschnitte): die Ueberschrift `.first-run-heading` gibt es nicht mehr --
+   im Willkommen traegt der Name sie, im Dialog der Dialogkopf (Spec 13.4).
+   Nachtrag B, Punkt 1 gilt unveraendert weiter: die Regeln hier treffen
+   ausschliesslich Elemente, die `first-run.ts` SELBST erzeugt -- bewusst
+   KEINE `.first-run-view label`/`input`/`select`-Regel: das eingebettete
+   `host-form.ts` (`.first-run-host-form`) traegt seine eigene, bereits
+   richtige Formatierung (`.host-form-view` weiter unten) und soll
+   UNVERAENDERT bleiben, egal ob es hier oder im "Edit host"-Dialog steht --
+   ein breiter Selektor hier wuerde in beide Kontexte hinein kaskadieren.
+
+   `safe center` (UX-Spec §11): passt der Inhalt nicht ins Fenster, beginnt er
+   oben und rollt -- ein blosses `center` schnitte den oberen Teil
+   unerreichbar ab. */
+.first-run-view {
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: var(--ab-space-6);
+  padding: var(--ab-space-8);
+  overflow-y: auto;
+  background-color: var(--ab-bg-panel);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-card);
+}
+
+.first-run-view--compact {
+  height: auto;
+  justify-content: flex-start;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.first-run-brand,
+.first-run-card,
+.first-run-footer {
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
+}
+
+.first-run-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-3);
+  text-align: center;
+}
+
+.first-run-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ab-radius-xl);
+  background-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+  font-size: var(--ab-fs-xl);
+  line-height: var(--ab-lh-xl);
+  font-weight: var(--ab-fw-semibold);
+}
+
+.first-run-name {
+  margin: 0;
+  font-size: var(--ab-fs-xl);
+  line-height: var(--ab-lh-xl);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.first-run-tagline {
+  margin: 0;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+.first-run-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+  padding: var(--ab-space-5);
+  background-color: var(--ab-bg-card);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-md);
+}
+
+/* Abschnittslabel nach Designsystem §3.2 (`--ab-fs-xs`, 600,
+   Grossbuchstaben, `letter-spacing`).
+   Nachtrag C (Befund 6): hier stand zuvor "dieselbe Vorgabe wie
+   `.sb-head h1`" -- das stimmt NICHT, jene Regel setzt `--ab-fs-sm`. Die
+   Gemeinsamkeit ist die Rolle (Abschnittslabel), nicht die Schriftgroesse;
+   diese Regel folgt §3.2, `.sb-head h1` weicht eine Stufe nach oben ab. */
+.first-run-section-label {
+  margin: 0;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ab-text-muted);
+}
+
+.first-run-notice {
+  margin: 0;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-secondary);
+}
+
+/* Die Karte setzt ihre Abstaende ueber `gap` -- ein leerer Hinweis (Status,
+   Ladezeile) darf deshalb keinen Platz halten. */
+.first-run-notice:empty {
+  display: none;
+}
+
+/* Gesamtreview M0 (Befund 3): `display` steht nur in der
+   `:not([hidden])`-Regel, dasselbe Muster wie `.tile-lock` oben --
+   `first-run.ts` schaltet diese Liste per `hidden`-Attribut (Erfolgspfad in
+   `connect()` und `goBack()`), sonst schlaegt die Autorenregel hier die
+   UA-Regel `[hidden]` und die Liste bliebe immer sichtbar. */
+.first-run-suggested-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+}
+
+.first-run-suggested-list:not([hidden]) {
+  display: flex;
+}
+
+/* Ein Vorschlag ist eine ZEILE (Spec 9.2): Kuerzelquadrat, Alias mit
+   Detailzeile, und rechts der einzige Knopf. Der Klick auf die Zeile leitet
+   an ihn weiter, deshalb `cursor: pointer` auf der ganzen Zeile. */
+.first-run-suggestion {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--ab-radius-sm);
+}
+
+.first-run-suggestion-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-4);
+  height: var(--ab-suggestion-h);
+  padding: 0 var(--ab-space-3);
+  border-radius: var(--ab-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.first-run-suggestion-row:hover {
+  background-color: var(--ab-bg-hover);
+}
+
+/* Waehrend eines laufenden Versuchs sind ALLE Connect-Knoepfe gesperrt
+   (`connect()`) -- eine Zeile, die dann noch mit Zeiger und Hover-Flaeche
+   Anklickbarkeit behauptet, waere eine stille Sackgasse. */
+.first-run-suggestion.is-connecting .first-run-suggestion-row {
+  cursor: default;
+}
+
+.first-run-suggestion.is-connecting .first-run-suggestion-row:hover {
+  background-color: transparent;
+}
+
+.first-run-suggestion-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Getrimmt (Optische Mitte unten): nur waagerecht kuerzen, Unterlaengen
+   bleiben sichtbar. */
+.first-run-suggestion-alias {
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+  overflow-x: clip;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.first-run-suggestion-detail {
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+  overflow-x: clip;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.first-run-suggestion-empty {
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+.first-run-manual-toggle {
+  align-self: flex-start;
+}
+
+.first-run-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ab-space-3);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+.first-run-checks {
+  width: 100%;
+  margin: 0;
+  padding: 0 0 0 var(--ab-space-6);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+.first-run-preflight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+}
+
+.first-run-preflight-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pruefzeile (Spec 9.4): 26 px, Icon-Kasten 16, Text 12/16 sekundaer.
+   Das Zustandswort ("✓"/"✗") steht weiterhin im Markup, nur versteckt
+   (`.ab-visually-hidden`, siehe `first-run.ts::checkRow`) -- die Farbe
+   traegt hier deshalb der Icon-Kasten, nicht mehr die Glyphe. */
+.preflight-check {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-4);
+  height: var(--ab-row-btn-h);
+  list-style: none;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-secondary);
+}
+
+.preflight-check-ok .icon-box {
+  color: var(--ab-ok);
+}
+
+.preflight-check-fail .icon-box {
+  color: var(--ab-danger);
+}
+
+.first-run-preflight-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ab-space-4);
+}
+
+/* Anmeldezweig und Fehlerflaeche unter einer Vorschlagszeile (Spec 9.3).
+   Der Einzug 46 px setzt die Flaeche unter den TEXT der Zeile, nicht unter
+   das Kuerzelquadrat (8 Innenabstand + 24 Kuerzel + 8 Luecke + 6 Ausgleich). */
+.first-run-suggestion-followup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-3);
+  margin: var(--ab-space-2) var(--ab-space-3) var(--ab-space-3) 46px;
+  padding: var(--ab-space-4);
+  border-radius: var(--ab-radius-sm);
+  background-color: var(--ab-bg-hover);
+}
+
+.first-run-suggestion-followup--error {
+  background-color: var(--ab-danger-bg);
+}
+
+.first-run-followup-message {
+  margin: 0;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-secondary);
+}
+
+.first-run-suggestion-followup--error .first-run-followup-message {
+  color: var(--ab-danger);
+}
+
+.first-run-suggestion-followup .acts {
+  display: flex;
+  gap: var(--ab-space-3);
+}
+
+.first-run-suggestion-followup .btn--primary {
+  align-self: flex-start;
+}
+
+/* Shell-Task 8: Anmeldungsmenue (`src/views/host-form.ts`). Neue Klasse,
+   deshalb gleich mit den `--ab-*`-Tokens statt mit den Literalwerten, die
+   die aelteren, generischen `label`/`input`/`button`-Regeln weiter unten
+   trugen (die stammen von vor dem Designsystem, Shell-Task 1) -- jene sind
+   mit Shell-Task 11 nachtraeglich ebenfalls auf Tokens umgestellt, siehe
+   dortigen Kommentar. */
+.host-form-view form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-5);
+}
+
+/* Keine eigene Feldregel mehr (UI v2, Spec 11.3): die generische Feldbasis
+   weiter unten in dieser Datei traegt Hoehe, Radius, Rahmen und Flaeche fuer
+   ALLE Felder. Sie musste hier weichen, nicht nur veralten: ihr Selektor
+   `.host-form-view select` (0,1,1) schlaegt den `select`-Teil der Basis
+   (0,0,1) -- das Anmeldungsmenue haette als einziges Feld des Formulars
+   Radius 9 und die Kartenflaeche behalten, waehrend die Textfelder daneben
+   auf Radius 7 und die Canvas-Flaeche gewechselt sind. */
+
+.host-form-hint {
+  margin: 0;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+/* Eine WARNUNG (Spec §9.4: "Warnung statt Ablehnung"), keine harte
+   Fehlermeldung -- eigene Warnfarbe statt der globalen `[role=alert]`-
+   Fehlerfarbe weiter unten in dieser Datei; hoehere Spezifitaet
+   (Klasse+Attribut) gewinnt innerhalb dieser Ansicht. */
+.host-form-view [role="alert"] {
+  margin: 0;
+  padding: var(--ab-space-4) var(--ab-space-5);
+  border-radius: var(--ab-radius-md);
+  border: var(--ab-border-w) solid var(--ab-warn);
+  background-color: var(--ab-warn-bg);
+  color: var(--ab-warn);
+  /* Zeilenhoehe ausdruecklich dazu: die globale `[role="alert"]`-Regel
+     steht seit UI v2 auf der 11/14-Stufe, ohne diese Zeile stuenden hier
+     12 px Schrift in 14 px Zeilen. */
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+}
+
+/* Shell-Task 9b: Sitzungsdialog (`src/views/session-dialog.ts`). Kein
+   Mockup deckt diesen Dialog ab (er fiel ohne eigene Aufgabe durch das
+   Raster, siehe Kopfkommentar der Datei) -- Aufbau daher an
+   `.host-form-view` oben angelehnt, deshalb dieselbe Token-Basis statt
+   eigener Werte. */
+.session-dialog-view form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-5);
+}
+
+/* Auch hier keine eigene Feldregel mehr (UI v2, Spec 11.3) -- Begruendung
+   an derselben Stelle in `.host-form-view` oben. Die Knopfleiste steht
+   jetzt bei `.host-key-prompt-actions` weiter unten: beide Dialoge stellen
+   ihre Knoepfe gleich, das ist EINE Regel wert. */
+
+/* Echte Ablehnung, kein "Warnung statt Ablehnung"-Fall wie
+   `.host-form-view [role=alert]` oben: ein relativer Pfad oder eine Tilde
+   werden nicht nur angemerkt, das Absenden wird verweigert (siehe
+   `isAcceptableRemotePath` in `session-dialog.ts`) -- Gefahrfarbe statt
+   Warnfarbe. */
+.session-dialog-view [role="alert"] {
+  margin: 0;
+  padding: var(--ab-space-4) var(--ab-space-5);
+  border-radius: var(--ab-radius-md);
+  border: var(--ab-border-w) solid var(--ab-danger);
+  background-color: var(--ab-danger-bg);
+  color: var(--ab-danger);
+  /* Zeilenhoehe wie bei `.host-form-view [role="alert"]` oben, gleiche
+     Begruendung. */
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+}
+
+/* Shell-Task 9: Seitenleiste (`src/views/sidebar.ts`). Struktur und
+   Klassennamen aus
+   docs/specs/2026-07-27-agent-management-shell-mockup.html
+   uebernommen (Aufgabentext: "Vorlage fuer Aufbau und Klassen") --
+   Variablenwerte hier gegen die echten `--ab-*`-Tokens oben in dieser
+   Datei aufgeloest statt gegen die Kopie im Mockup-<style>-Block. */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  padding: 0 var(--ab-space-4) var(--ab-space-4);
+  background-color: var(--ab-bg-panel);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-card);
+  /* Ohne border-box waere die Randbox bei height: 100% um Polster + Rahmen
+     (10px) hoeher als die Grid-Zelle des Elternteils `#sidebar` -- dessen
+     eigenes `overflow: hidden` (frueher gesetzt, jetzt entfernt, siehe
+     Kommentar dort) hat genau diese 10px abgeschnitten: die untere
+     Haarlinie, die zwei unteren Ecken und den Platz unter `.sb-version`.
+     `border-box` laesst die Karte in ihre Zelle passen, statt in sie
+     hineinzuwachsen. */
+  box-sizing: border-box;
+}
+
+.sb-head {
+  flex: none;
+  height: var(--ab-sb-head-h);
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  padding: 0;
+}
+
+.sb-head h1 {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+/* Oben OHNE Innenabstand: das Rechteck, gegen das `position: sticky` mit
+   `top: 0` anschlaegt, ist der Polsterkasten des Scrollbehaelters -- eine
+   Polsterung oben liesse Sessionzeilen durch einen Streifen ueber der
+   angehefteten Hostzeile scrollen (im Browser gemessen, Sofortfix-Paket). */
+.sb-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.sb-foot {
+  flex: none;
+  padding: 0;
+}
+
+/* Reset gegen die globale `input, button`-Regel weiter unten. */
+.ab-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-4);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--ab-radius-xs);
+  background: none;
+  border: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  /* Ausdruecklich normal: die Knopfbasis (Regel `button`) stellt jeden
+     `<button>` halbfett (Spec 11.2 meint damit ECHTE Knoepfe). Eine Zeile
+     ist ein Listeneintrag, kein Knopf -- halbfett gehoert hier nur der
+     Hostzeile, und die setzt es selbst (`.row-host` weiter unten, spaeter in
+     der Kaskade bei gleicher Spezifitaet). */
+  font-weight: var(--ab-fw-regular);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.ab-row:hover {
+  background-color: var(--ab-bg-hover);
+}
+
+/* Hostzeile (Spec 7.3): 32 px, klebt am oberen Rand des Scrollbehaelters
+   `.sb-list`, solange ihre Karte sichtbar ist. Flaeche = Karte, oberer
+   Radius = Kartenradius minus Rahmen, Haarlinie unten per ::after. Der Name
+   beginnt bei 16 (Chevron) + 8 + 24 (Kuerzel) + 8 = 56 px. */
+.row-host {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: var(--ab-row-h-host);
+  padding: 0 var(--ab-space-4) 0 0;
+  border-radius: calc(var(--ab-radius-md) - var(--ab-border-w)) calc(var(--ab-radius-md) - var(--ab-border-w)) 0 0;
+  background-color: var(--ab-bg-card);
+  color: var(--ab-text-primary);
+  font-weight: var(--ab-fw-semibold);
+}
+
+.row-host:hover {
+  background-color: var(--ab-bg-hover);
+}
+
+.row-host::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--ab-border-w);
+  background-color: var(--ab-line);
+}
+
+.row-host .chev {
+  color: var(--ab-text-muted);
+}
+
+.row-session-count {
+  flex: none;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-regular);
+  color: var(--ab-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Getrimmt (Optische Mitte unten): nur waagerecht kuerzen, Unterlaengen und
+   Klammern bleiben sichtbar -- in Seitenleiste, Verzeichnisbaum und "Recent". */
+.row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Meta-Feld (Spec 7.6): zwei Plaetze, zuerst Agent (M1), dann Kanal. */
+.row-meta {
+  margin-left: auto;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+/* Sessionzeile (Spec 7.4): 26 px, Einzug 34 px, Indikator 14er-Kasten, 8 px,
+   Name -- beginnt bei 34 + 14 + 8 = 56 px wie der Hostname. */
+.row-session {
+  height: var(--ab-row-h-session);
+  padding-left: 34px;
+  padding-right: var(--ab-space-4);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  font-weight: var(--ab-fw-regular);
+  color: var(--ab-text-secondary);
+}
+
+.row-session[aria-current="true"] {
+  background-color: var(--ab-accent-soft);
+  color: var(--ab-text-primary);
+}
+
+.row-session[aria-current="true"] .row-meta {
+  color: var(--ab-text-secondary);
+}
+
+/* Fokusring INNEN an Host- und Sessionzeile (Spec 6.9): ein aussen
+   versetzter Ring wuerde vom Scrollbehaelter `.sb-list` beschnitten. */
+.row-host:focus-visible,
+.row-session:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Wartet-Spur (Spec 2026-10-19 §7): ganz oben in der Liste, ueber den
+   Hosts; unten eine Linie, darunter derselbe Abstand wie zwischen den
+   Hostkarten (`.sb-host-block`), damit die Linie nicht auf der Oberkante der
+   ersten Karte liegt. Zugeklappt hoechstens Kopf, fuenf Zeilen und
+   "+n more", rund 250 px, mit dem Abstand rund 255 px. */
+.sb-lane {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--ab-space-2);
+  margin-bottom: var(--ab-space-4);
+  border-bottom: var(--ab-border-w) solid var(--ab-line);
+}
+
+.sb-lane-head {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  height: var(--ab-row-h-session);
+  padding: 0 var(--ab-space-4);
+  color: var(--ab-text-muted);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-semibold);
+  text-transform: uppercase;
+}
+
+.sb-lane-head kbd {
+  margin-left: auto;
+  text-transform: none;
+}
+
+/* Zwei Zeilen: oben Raute, Kuerzel, Name, Kachelnummer und Wartezeit, darunter
+   der Grund. */
+.row-lane {
+  height: var(--ab-row-h-lane);
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  padding: 0 var(--ab-space-4);
+}
+
+.row-lane-main {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  min-width: 0;
+}
+
+.row-lane .sb-avatar {
+  width: 16px;
+  height: 16px;
+  font-size: var(--ab-fs-2xs);
+  line-height: var(--ab-lh-2xs);
+}
+
+.row-lane-time {
+  margin-left: auto;
+  flex: none;
+  color: var(--ab-text-muted);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.row-lane-reason {
+  overflow-x: clip;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 38px;
+  color: var(--ab-text-muted);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+.row-lane-more {
+  height: var(--ab-row-h-session);
+  padding: 0 var(--ab-space-4) 0 46px;
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+/* Fokusring INNEN wie an Host- und Sessionzeile: ein aussen versetzter Ring
+   wuerde vom Scrollbehaelter `.sb-list` beschnitten. */
+.row-lane:focus-visible,
+.row-lane-more:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Zustandsformen (Designsystem §8.4): Geometrie + Fuellung + Text, NIE
+   Farbe allein. Der Text steht als eigener Textknoten neben diesen Formen
+   -- siehe `sidebar.ts::appendIndicator`. */
+.ind {
+  display: inline-block;
+  flex: none;
+  width: var(--ab-space-4);
+  height: var(--ab-space-4);
+  border-radius: var(--ab-radius-sm);
+}
+.ind-sm {
+  width: var(--ab-space-3);
+  height: var(--ab-space-3);
+}
+.ind-on {
+  background-color: var(--ab-ok);
+}
+/* 1.5px Randstaerke (hier und bei `.ind-connecting`/`::after` unten): die
+   Randskala kennt nur 1px (--ab-border-w) und 2px (--ab-focus-w) -- 1px
+   waere bei einer 8px/6px-Flaeche kaum sichtbar, 2px liesse vom hohlen
+   Quadrat fast nichts mehr uebrig. Keiner der beiden passt, deshalb
+   literal. */
+.ind-off {
+  border: 1.5px solid var(--ab-text-muted);
+}
+
+/* Verbindet: hohles Quadrat (Basisform bleibt erhalten) MIT einem
+   rotierenden Bogen als eigenem Element obendrauf -- unter
+   `prefers-reduced-motion: reduce` wird daraus ein STATISCHES halb
+   gefuelltes Quadrat, nicht nur eine verlangsamte Animation. */
+.ind-connecting {
+  /* 1.5px: gleiche Randstaerke wie `.ind-off` oben, gleiche Begruendung. */
+  position: relative;
+  /* Validierung (M10): stand auf `--ab-text-muted` und war damit vom
+     ruhenden "getrennt" (`.ind-off`) nur noch am Bogen zu unterscheiden.
+     Seit der Farbwahl (Spec §2.2) traegt es das feste helle
+     `--ab-connecting` statt des Akzents, fuer BEIDE Teile der Form: heller
+     als `.ind-off`, und bei gruenem Akzent nicht mit "verbunden" zu
+     verwechseln. */
+  border: 1.5px solid var(--ab-connecting);
+}
+.ind-connecting::after {
+  content: "";
+  position: absolute;
+  /* -1.5px: muss exakt die Randstaerke von `.ind-connecting` selbst
+     spiegeln, damit der rotierende Bogen buendig auf dessen Aussenkante
+     liegt -- kein eigenstaendiger Groessenwert, sondern an die Randstaerke
+     zwei Zeilen darueber gekoppelt. */
+  inset: -1.5px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  border-top-color: var(--ab-connecting);
+  animation: ab-sidebar-spin 900ms linear infinite;
+}
+@keyframes ab-sidebar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ind-connecting::after {
+    content: none;
+  }
+  .ind-connecting {
+    /* Dieselbe Farbe wie an der Basisregel oben (Validierung M10, Farbwahl
+       §2.2): das statische halb gefuellte Quadrat ist fuer Nutzer mit
+       `prefers-reduced-motion` die EINZIGE Fassung dieses Zustands -- eine
+       nur dort abweichende Faerbung waere derselbe §8.4-Verstoss, nur fuer
+       weniger Leute sichtbar. */
+    border-color: var(--ab-connecting);
+    background: linear-gradient(to right, var(--ab-connecting) 50%, transparent 50%);
+  }
+}
+
+/* Fehlgeschlagen: ein DREIECK -- andere Geometrie, nicht nur andere Farbe,
+   damit der Zustand auch ohne Farbwahrnehmung von den Quadraten oben
+   unterscheidbar bleibt (Aufgabentext: "deliberately a different
+   geometry"). */
+.ind-fail {
+  width: 0;
+  height: 0;
+  background: none;
+  border-radius: 0;
+  /* 5px/8px: Dreiecks-Trick ueber Randbreiten, keine Groessen im Sinne der
+     Skala -- 5px ist die halbe Grundlinie, 8px die Hoehe, beide nur im
+     Verhaeltnis zueinander sinnvoll (aendert man eine Zahl ohne die andere,
+     kippt die Form). Dass 8px zufaellig mit --ab-space-4 uebereinstimmt,
+     ist Zufall, kein Bezug -- das Token hier einzusetzen wuerde diesen
+     Zufall als Absicht ausgeben. */
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--ab-danger);
+}
+
+/* Eingabe gesperrt (Nachtrag B, Punkt 3, Designsystem §8.4): dasselbe
+   Dreieck wie `.ind-fail`, andere Farbe -- "fehlgeschlagen" und "Eingabe
+   gesperrt" teilen bewusst die Geometrie (beides ist ein Warnsignal, keine
+   Erfolgsmeldung), die Randfarbe traegt den Unterschied. 5px/8px aus
+   demselben Grund wie dort literal: der Dreiecks-Trick ist ein Verhaeltnis
+   zueinander, keine Groesse der Skala. */
+.ind-warn {
+  width: 0;
+  height: 0;
+  background: none;
+  border-radius: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--ab-warn);
+}
+
+/* Agentenstatus als Pille (M1.2, UI-v2-Nachtrag 2026-09-14): Form im
+   14-px-Kasten plus Wort auf getoenter Pille. Jeder Zustand hat eigene
+   Farbe UND eigene Form; keine Form gleicht einer Kanalform (Kreis,
+   Dreieck). Unbekannt und veraltet sind neutral wie "Disconnected". */
+.st {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  height: 18px;
+  padding: 0 var(--ab-space-3) 0 var(--ab-space-1);
+  border-radius: var(--ab-radius-pill);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-semibold);
+  white-space: nowrap;
+}
+.st-waiting { background-color: var(--ab-warn-bg);   color: var(--ab-warn); }
+.st-busy    { background-color: var(--ab-ok-bg);     color: var(--ab-ok); }
+.st-idle    { background-color: var(--ab-idle-bg);   color: var(--ab-idle); }
+.st-ended   { background-color: var(--ab-danger-bg); color: var(--ab-danger); }
+.st-unknown,
+.st-stale   { background-color: var(--ab-bg-hover);  color: var(--ab-text-secondary); }
+
+.ag {
+  display: block;
+  box-sizing: border-box;
+}
+/* Raute: 7 px Kante, gedreht rund 10 px -- passt in den 14-px-Kasten. */
+.ag-waiting {
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  background-color: var(--ab-warn);
+  transform: rotate(45deg);
+}
+/* Drei Punkte: ein Punkt, zwei Schatten links und rechts. */
+.ag-busy {
+  width: 2.5px;
+  height: 2.5px;
+  border-radius: 50%;
+  background-color: var(--ab-ok);
+  box-shadow: -4px 0 0 var(--ab-ok), 4px 0 0 var(--ab-ok);
+}
+/* 1.5px: dieselbe Randstaerke wie `.ind-off`, gleiche Begruendung. */
+.ag-idle {
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--ab-idle);
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+.ag-ended {
+  width: 7px;
+  height: 7px;
+  border-radius: 1.5px;
+  background-color: var(--ab-danger);
+}
+.ag-unknown {
+  width: 8px;
+  height: 8px;
+  border: 1.5px dashed var(--ab-text-secondary);
+  border-radius: 50%;
+}
+.ag-stale { opacity: 0.45; }
+
+.sb-host-block {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 var(--ab-space-4);
+  padding: 0 0 var(--ab-space-3);
+  background-color: var(--ab-bg-card);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-md);
+}
+
+/* Kinder ausser der klebenden Hostzeile sind 6 px eingerueckt (Spec 7.3);
+   Sessionzeilen NICHT -- ihr Einzug von 34 px rechnet vom Kartenrand. */
+.sb-host-block > .host-actions,
+.sb-host-block > .host-confirm-remove,
+.sb-host-block > .host-notice {
+  margin: var(--ab-space-2) var(--ab-space-3) 0;
+}
+
+/* :not(:has(.host-actions [aria-expanded="true"])) haelt die Leiste
+   sichtbar, waehrend das eigene ⋯-Menue offen ist: das Menue haengt an
+   `.sidebar`, nicht am Host-Block (`root.appendChild(menuEl)` in
+   `views/sidebar.ts`), darum verlaesst der Fokus beim Oeffnen
+   `.sb-host-block` und `:focus-within` wird falsch -- ohne diese Klausel
+   verschwaende `.host-actions` unter dem offenen Menue, und `closeMenu()`
+   faende beim Fokus-Rueckweg einen `display: none`-Knopf (Tastatur-
+   Sackgasse). Bewusst auf `.host-actions [aria-expanded]` ENGER als auf
+   `.sb-host-block [aria-expanded]`: `.row-host` traegt selbst ein
+   `aria-expanded` fuer den Aufklapp-Zustand der Sessionliste
+   (`buildHostBlock` in `views/sidebar.ts`), das mit dem Menue nichts zu tun
+   hat -- ein Selektor ohne diese Einengung wuerde die Leiste an JEDEM
+   aufgeklappten, nicht nur am fokussierten oder aktiven Host zeigen.
+
+   `--held` (Abnahme B2): der Block, in dem beim Druck in der Liste der Fokus
+   stand, behaelt seine Leiste bis nach dem Klick, auch wenn der Druck den
+   Fokus aus ihm herausnimmt (`views/sidebar.ts`). */
+.sb-host-block:not(.sb-host-block--active):not(.sb-host-block--held):not(:focus-within):not(:has(.host-actions [aria-expanded="true"])) .host-actions {
+  display: none;
+}
+
+/* Abnahme B2: waehrend eines Drucks in der Liste (`views/sidebar.ts` setzt die
+   Klasse vom Druck bis nach dem Klick) bleiben genau die Leisten stehen, die
+   beim Druck zu sehen waren: die des markierten Hosts, die des Blocks, in dem
+   der Fokus stand (`--held`), und die mit offenem eigenem Menue wie oben. Der
+   Fokus steht aber schon im gedrueckten Element, und `:focus-within` oben
+   zeigte sonst die Leiste von dessen Block: die Zeilen rueckten vor dem
+   Loslassen weg, und der Klick ginge verloren. */
+.sb-list--pressing .sb-host-block:not(.sb-host-block--active):not(.sb-host-block--held):not(:has(.host-actions [aria-expanded="true"])) .host-actions {
+  display: none;
+}
+
+/* Eigene `<div>` NEBEN der Host-Zeile (nicht darin) fuer die sichtbaren
+   Aktionen -- Verbinden/Trennen sowie Neue Session und Neu laden als
+   Icon-Knoepfe (UX-Spec §7.8) -- plus den `⋯`-Knopf, hinter dem Bearbeiten und
+   Entfernen liegen (Entwurf §1.2). Die Begruendung dieser Aufteilung steht bei
+   `buildHostActions` in `views/sidebar.ts`. */
+.host-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ab-space-2);
+  padding: var(--ab-space-2) 0;
+}
+
+/* Zeilenknopf, Sekundaer (Spec 11.2): 26 px, Haarlinie stark, Radius 7. */
+.host-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  height: var(--ab-row-btn-h);
+  padding: 0 var(--ab-space-4);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-sm);
+  background-color: transparent;
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-semibold);
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+/* Nur ein bedienbarer Knopf reagiert auf den Zeiger (Aufgabe 19, Fixrunde
+   3). Als blosses `:hover` (0,2,0) schlug die Regel `button:disabled` (0,1,1):
+   ein deaktiviertes "New session" oder "Reload sessions" hellte beim Zeigen
+   auf und bekam die Hover-Flaeche. */
+.host-action-btn:not(:disabled):hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+}
+
+/* "New session" und "Reload sessions" (UX-Spec §7.8): Icon-Knoepfe der
+   Leiste, Quadrate in der Hoehe der Zeilenknoepfe -- dieselbe Form wie die
+   Icon-Knoepfe der Sessionzeile, aber mit dem Rahmen ihrer Nachbarn. Steht nach
+   `.host-action-btn`, damit `padding: 0` dessen Innenabstand schlaegt
+   (gleiche Spezifitaet). */
+.host-icon-btn {
+  justify-content: center;
+  width: var(--ab-row-btn-h);
+  padding: 0;
+}
+
+/* Hostmenue (Entwurf §1). `position: fixed`, weil es aus `.sb-list`s
+   `overflow-y: auto` heraus malen muss; die Lage rechnet
+   `views/menu-position.ts` und schreibt sie als Inline-Stil an.
+   `z-index: 50`: siehe die Stapelleiter weiter unten in dieser Datei. */
+.sb-menu {
+  position: fixed;
+  z-index: 50;
+  min-width: 12em;
+  padding: var(--ab-space-2);
+  background-color: var(--ab-bg-panel);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-md);
+  box-shadow: var(--ab-shadow-modal);
+}
+
+.sb-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--ab-row-btn-h);
+  padding: 0 var(--ab-space-4);
+  background: none;
+  border: 0;
+  border-radius: var(--ab-radius-xs);
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  /* Wie bei `.ab-row`: ein Menueeintrag ist eine Zeile, kein Knopf -- die
+     halbfette Knopfbasis (Regel `button`) gilt hier nicht. */
+  font-weight: var(--ab-fw-regular);
+  text-align: left;
+  cursor: pointer;
+}
+.sb-menu-item:hover {
+  background-color: var(--ab-bg-hover);
+}
+.sb-menu-item-danger {
+  color: var(--ab-danger);
+}
+
+/* Die Trennlinie ist die GEOMETRIE, mit der "Remove…" abgesetzt ist -- die
+   Farbe allein traegt den Zustand nicht (Designsystem 8.4). */
+.sb-menu-separator {
+  height: var(--ab-border-w);
+  margin: var(--ab-space-2) 0;
+  background-color: var(--ab-line);
+}
+
+/* Terminalmenue (UX-Spec §6.3, `views/terminal-menu.ts`): Huelle und Eintraege
+   sind die des Hostmenues (`.sb-menu`, `.sb-menu-item`, Lage und Ebene
+   inklusive); hier steht nur, was darueber hinausgeht. `width: max-content`,
+   weil die Lage mit der gemessenen Breite rechnet: ein Menue am rechten Rand
+   schrumpfte sonst nach dem Verschieben unter das gemessene Mass. */
+.terminal-menu {
+  width: max-content;
+}
+
+.terminal-menu-item {
+  justify-content: space-between;
+  gap: var(--ab-space-7);
+}
+
+/* Ausgegraut ist `aria-disabled`, nicht `disabled` (siehe `TerminalMenuItem`):
+   `button:disabled` greift hier nicht, die Zustandsfarbe steht deshalb hier. */
+.terminal-menu-item[aria-disabled="true"] {
+  color: var(--ab-text-disabled);
+  cursor: default;
+}
+
+.terminal-menu-item[aria-disabled="true"]:hover {
+  background-color: transparent;
+}
+
+.terminal-menu-shortcut {
+  color: var(--ab-text-muted);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+.terminal-menu-item[aria-disabled="true"] .terminal-menu-shortcut {
+  color: inherit;
+}
+
+/* Hinweiszeile unter den Eintraegen. `width: 0; min-width: 100%`: der lange
+   Satz bestimmt die Breite des Menues nicht mit, sondern bricht innerhalb der
+   Breite der Eintraege um. */
+.terminal-menu-hint {
+  box-sizing: border-box;
+  width: 0;
+  min-width: 100%;
+  margin-top: var(--ab-space-2);
+  padding: var(--ab-space-3) var(--ab-space-4) var(--ab-space-2);
+  border-top: var(--ab-border-w) solid var(--ab-line);
+  color: var(--ab-text-muted);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+/* Zielzeile ueber den Eintraegen: das volle Ziel eines OSC-8-Links, dessen
+   Text es nicht zeigt. Hoechstens 480 px breit; eine Adresse ohne
+   Leerzeichen bricht an jeder Stelle um, abgeschnitten wird nichts.
+   Terminalschrift, damit aehnliche Zeichen unterscheidbar bleiben. */
+.terminal-menu-heading {
+  box-sizing: border-box;
+  max-width: 480px;
+  margin-bottom: var(--ab-space-2);
+  padding: var(--ab-space-2) var(--ab-space-4) var(--ab-space-3);
+  border-bottom: var(--ab-border-w) solid var(--ab-line);
+  color: var(--ab-text-primary);
+  font-family: var(--ab-font-mono);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  overflow-wrap: anywhere;
+}
+
+/* Sessionzeile (Spec 7.4, Nachtrag Task 16): die Zeile bleibt immer volle
+   Breite; die zwei Aktionen liegen als Icon-Knoepfe rechts IN der Zeile und
+   erscheinen nur bei Auswahl, Fokus oder Hover -- per visibility, damit
+   nichts springt. Sie ueberlagern dann das Zustandswort. Bis dahin war die
+   Zeile ein umbrechender Flex-Container mit den Knoepfen als Geschwistern,
+   und je nach Zustand mal schmal, mal breit.
+
+   OHNE eigenen Einzug/Rand (anders als v1): `.row-session` rechnet ihre
+   34px Einzug seit v2 direkt vom Kartenrand (Kommentar bei `.sb-host-block`
+   oben) -- ein Einzug HIER addierte sich dazu, und ein Seitenrand liesse die
+   Auswahltoenung von `[aria-current]` schmaler als die Karte enden, anders
+   als bei der Hostzeile.
+
+   Die Optik der Icon-Knoepfe selbst (`.session-icon-btn`) steht weiter unten,
+   NACH dem Knopfsystem: `.btn--text`/`.btn--row` bringen eigene `padding`-
+   Werte gleicher Spezifitaet mit und gewaennen von hier aus ueber die
+   Kaskade. */
+.sb-session-row {
+  position: relative;
+  display: block;
+}
+
+.sb-session-row .ab-row.row-session {
+  width: 100%;
+  margin: 0;
+}
+
+.session-acts {
+  position: absolute;
+  top: 0;
+  right: var(--ab-space-2);
+  height: var(--ab-row-h-session);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  visibility: hidden;
+}
+
+.sb-session-row:hover .session-acts,
+.sb-session-row:focus-within .session-acts,
+.sb-session-row:has(.row-session[aria-current="true"]) .session-acts {
+  visibility: visible;
+}
+
+/* Review Runde 1, Befund 2 (gering): ohne Aktionsknoepfe (getrennter Host,
+   geschlossene Session) blieb `.session-acts` leer, aber diese drei Regeln
+   versteckten `.row-meta` trotzdem -- Hover ueber einer solchen Zeile loeschte
+   das Zustandswort ("Closed"), ohne etwas an seiner Stelle zu zeigen.
+   `:has(.session-acts button)` beschraenkt das Verstecken auf Zeilen, die
+   tatsaechlich einen Knopf zeigen. */
+.sb-session-row:hover:has(.session-acts button) .row-meta,
+.sb-session-row:focus-within:has(.session-acts button) .row-meta,
+.sb-session-row:has(.row-session[aria-current="true"]):has(.session-acts button) .row-meta {
+  visibility: hidden;
+}
+
+/* Review Runde 1, Befund 1 (wichtig): `.session-acts` ist absolut gesetzt und
+   nimmt `.row-label` deshalb keine Breite weg -- die Ellipse des Namens wurde
+   bisher nur gegen `.row-meta` berechnet. Das Zustandswort-Feld haelt hier den
+   Platz der zwei 26-px-Knoepfe frei, damit der Sessionname vor ihnen endet
+   statt unter ihnen durchzuscheinen. */
+.sb-session-row .row-meta {
+  min-width: calc(2 * var(--ab-row-h-session) + 2px);
+  justify-content: flex-end;
+}
+
+/* `border-box` und keine Seitenraender -- beides ist Arithmetik, nicht
+   Geschmack: `.host-confirm-remove` erbt kein `box-sizing` (diese Datei hat
+   keinen globalen Reset) und bringt 9px Innenpolster, 1px Rahmen und 8px
+   Aussenrand je Seite mit. Eine volle Breite auf die 200px Innenbreite
+   der Sessionzeile ergaebe damit 236px -- 36px Ueberlauf, und weil `.sb-list`
+   `overflow-y: auto` setzt, wird das benachbarte `overflow-x` zu `auto`: die
+   ganze Seitenleiste bekaeme einen waagerechten Rollbalken, sobald irgendwo
+   eine Rueckfrage offen steht. Die Host-Rueckfrage hat das Problem nicht, sie
+   ist ein gewoehnliches Blockkind mit `width: auto`. */
+.sb-session-row .session-confirm-kill {
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+}
+/* Ein Sessionname kann aus einer FREMDEN tmux-Sitzung stammen und dann
+   beliebig lang und ohne Leerzeichen sein -- die Allowlist gilt nur fuer
+   selbst angelegte. Ohne Umbruch verbreiterte er die Leiste. */
+.sb-session-row .session-confirm-kill strong,
+.sb-session-row .session-confirm-kill span {
+  overflow-wrap: anywhere;
+}
+
+/* Rueckfrage vor dem Entfernen (Entwurf §2.2). Geometrie und Innenpolster
+   wie `.host-notice` darunter -- beides sind schmale Streifen im Block
+   EINES Hosts, und zwei verschiedene Masse dafuer waeren blosse Unruhe.
+   Rand entfaellt seit v2: die Flaeche selbst (eine Stufe heller als die
+   Karte) traegt die Abgrenzung, kein zusaetzlicher Rahmen noetig.
+
+   Anders als die Hinweisleiste traegt sie aber KEINE Gefahrenflaeche: sie
+   meldet keinen Fehlerzustand, sie stellt eine Frage. Die Gefahr steckt in
+   genau EINEM ihrer zwei Knoepfe, und nur der ist entsprechend gefaerbt. */
+.host-confirm-remove {
+  padding: var(--ab-space-4);
+  background-color: var(--ab-bg-hover);
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-secondary);
+}
+/* Die Frage traegt den Hostnamen und steht ueber dem Satz -- dieselbe
+   Aufteilung wie Titel und Fehlertext in `.host-notice`. */
+.host-confirm-remove strong {
+  display: block;
+  margin-bottom: var(--ab-space-1);
+  color: var(--ab-text-primary);
+  font-weight: var(--ab-fw-semibold);
+}
+.host-confirm-remove .acts {
+  display: flex;
+  gap: var(--ab-space-4);
+  margin-top: var(--ab-space-2);
+}
+
+/* Keine eigene Regel mehr fuer `.host-confirm-btn`/`-danger` (Aufraeumpunkt
+   Aufgabe 14, Abschlussreview Aufgabe 13): seit die Knoepfe additiv das
+   Knopfsystem tragen (`btn btn--secondary btn--row` bzw.
+   `btn btn--danger btn--row`, `sidebar.ts`), ueberschreiben dessen Regeln
+   jede Deklaration hier unbedingt -- gleiche Spezifitaet, spaeter in der
+   Kaskade. Die beiden Klassennamen bleiben am Element stehen (Vertrag der
+   Tests), tragen aber keine eigene Optik mehr. */
+
+/* Hinweisleiste bei nicht verbindbarem Host (Spec §11.2). Flaeche = die in
+   allen Themen gleiche Gefahrentoenung `--ab-danger-bg`; kein Rahmen mehr
+   noetig, die Farbflaeche selbst grenzt den Streifen gegen die Karte ab. */
+.host-notice {
+  padding: var(--ab-space-4);
+  background-color: var(--ab-danger-bg);
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-danger);
+}
+.host-notice strong {
+  display: block;
+  margin-bottom: var(--ab-space-1);
+  color: var(--ab-danger);
+  font-weight: var(--ab-fw-semibold);
+}
+/* Gedaempfter Text erreicht auf der danger-Toenung keine 4,5:1 (Spec 5.4);
+   die Feldbeschriftung steht hier deshalb sekundaer. */
+.host-notice label,
+.host-notice .credential-field {
+  color: var(--ab-text-secondary);
+}
+/* Passphrase-Feld in der Hinweisleiste (Abschlussreview, Important 1) --
+   erscheint nur bei einem fehlgeschlagenen Host mit gespeichertem
+   Schluesselpfad, siehe `sidebar.ts`s `buildHostNotice`. Label ueber dem
+   Feld statt daneben: die Seitenleiste ist schmal, eine zweispaltige Zeile
+   liesse fuer die Eingabe kaum Platz. */
+.host-notice-passphrase {
+  display: block;
+  margin-top: var(--ab-space-2);
+}
+.host-notice-passphrase input {
+  /* `width`/`margin-top` bleiben aus v1: `.host-notice-passphrase` ist
+     `display: block` (kein Flex-Elternteil mit `stretch` wie bei
+     `.host-form-view form`) -- ohne eigene Breite bliebe das Feld auf der
+     Browser-Vorgabe (~20 Zeichen) stehen, statt die Hinweisleiste zu
+     fuellen. `box-sizing` dazu (diese Datei hat keinen globalen Reset,
+     Begruendung bei `.sb-session-row .session-confirm-kill` oben): sonst
+     addierten sich Polster und Rahmen zu den 100% und der Feldrand liefe
+     ueber die Hinweisleiste hinaus. */
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: var(--ab-space-2);
+  height: var(--ab-control-h);
+  padding: 0 var(--ab-space-4);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-sm);
+  background-color: var(--ab-bg-canvas);
+  color: var(--ab-text-primary);
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+}
+
+/* Umbruch statt Ueberlauf: aufgeklappt stehen Hauptknopf, "Details" und
+   "Copy diagnostics" in einer Reihe, und die passt nicht in 240 px. */
+.host-notice .acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ab-space-2) var(--ab-space-4);
+  margin-top: var(--ab-space-2);
+}
+/* `<button>`, nicht `<a>` wie im Mockup -- siehe Kopfkommentar von
+   `sidebar.ts`. Keine eigene Regel mehr fuer die Grundform (Aufraeumpunkt
+   Aufgabe 14): `.host-notice-link` traegt additiv das Knopfsystem
+   (`btn btn--secondary btn--row` bzw. `btn btn--text btn--row`,
+   `sidebar.ts`), dessen Regeln jede Deklaration hier unbedingt ueberschrieben
+   haetten -- der Klassenname bleibt am Element stehen (Vertrag der Tests),
+   traegt aber keine eigene Optik mehr. Die Unterstreichung bei Hover bleibt
+   NUR fuer die Textrolle bestehen: `.btn--secondary` (Retry) ist ein
+   umrandeter Knopf, keine Textzeile, eine Unterstreichung darin waere
+   falsch. */
+.host-notice-link.btn--text:hover {
+  text-decoration: underline;
+}
+
+/* Kompakte Hinweise (UX-Spec §5.7): hoechstens zwei Zeilen Meldung; "Details"
+   (`.host-notice--expanded`, `sidebar.ts`) zeigt sie ganz. Lange Pfade und
+   Befehle ohne Leerzeichen brechen um, statt die Leiste zu verbreitern. */
+.host-notice-message {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.host-notice--expanded .host-notice-message {
+  display: block;
+  -webkit-line-clamp: none;
+  line-clamp: none;
+  overflow: visible;
+}
+/* Rohtext des Backends, nur aufgeklappt sichtbar (UX-Spec §10). */
+.host-notice-detail {
+  margin: var(--ab-space-2) 0 0;
+  overflow-wrap: anywhere;
+}
+
+/* Ruhige Zeile waehrend der Selbstreparatur (UX-Spec §5.3, §5.7) und des
+   Neuverbindens (§5.4): gedaempfter Text mit Drehsymbol, ohne Rahmen und
+   ohne Flaeche. Das Drehsymbol ist `.ind-connecting` in der Farbe der Zeile
+   -- samt seiner Fassung fuer reduzierte Bewegung, die hier dieselbe Farbe
+   bekommt. Der Hinweis im Kachelkopf (`.tile-quiet`, §5.5) traegt dieselbe
+   Form. */
+.sb-host-block > .control-quiet,
+.sb-host-block > .host-quiet {
+  margin: var(--ab-space-2) var(--ab-space-3) 0;
+}
+.host-quiet,
+.control-quiet {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+.control-quiet .ind-connecting,
+.host-quiet .ind-connecting,
+.tile-quiet .ind-connecting {
+  border-color: currentColor;
+}
+.control-quiet .ind-connecting::after,
+.host-quiet .ind-connecting::after,
+.tile-quiet .ind-connecting::after {
+  border-top-color: currentColor;
+}
+@media (prefers-reduced-motion: reduce) {
+  .control-quiet .ind-connecting,
+  .host-quiet .ind-connecting,
+  .tile-quiet .ind-connecting {
+    background: linear-gradient(to right, currentColor 50%, transparent 50%);
+  }
+}
+
+/* "+ Host" als Primaerpille im Kopf (Spec 7.2, 11.2). Klasse und
+   Fokusschluessel sind Vertraege der Tests (Spec 16.2). */
+.sb-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ab-space-2);
+  height: var(--ab-row-btn-h);
+  padding: 0 var(--ab-space-5) 0 var(--ab-space-4);
+  border: 0;
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+  font-family: inherit;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  font-weight: var(--ab-fw-semibold);
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.sb-btn:hover {
+  background-color: var(--ab-accent-hover);
+}
+
+/* Standard-Muster fuer "nicht sichtbar, aber gefordert" (Designsystem §6.2:
+   die versteckte "Focused"-Ansage; §7.2: die aria-live-Ansage beim
+   Maximieren) -- Klemm-Technik statt `display:none`, das waere fuer
+   Screenreader ebenfalls unsichtbar. */
+.ab-visually-hidden {
+  position: absolute;
+  /* 1px: die kleinste Groesse, die eine leere Box fuer den Accessibility-Baum
+     ueberhaupt behaelt -- kein Token der Groessenskala meint "so klein wie
+     moeglich, aber nicht 0". */
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Shell-Task 10: Kachelraster (`src/views/grid.ts`). Aufbau und Klassennamen
+   aus
+   docs/specs/2026-07-27-agent-management-shell-mockup.html
+   uebernommen, Werte gegen die echten `--ab-*`-Tokens oben aufgeloest --
+   dasselbe Vorgehen wie bei `.sidebar` weiter oben. */
+/* Kein overflow: hidden mehr (wie #grid oben) -- derselbe Kartenschatten-
+   und Fokuskontur-Beschnitt, hier am inneren Flex-Container. Der Beschnitt
+   fuer Terminal und Such-Overlay bleibt an `.tile-terminal`. */
+.tile-grid-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.key-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+/* Kuerzelchip (Spec 8.1, 10). Die Schriftfamilie steht bewusst NICHT hier,
+   sondern einmal im Kleinschrift-Abschnitt weiter unten -- 11 px bekommen
+   ueberall "Segoe UI Variable Small", nicht nur an dieser Stelle. */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--ab-space-3);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-xs);
+  background-color: var(--ab-bg-card);
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  /* Ohne border-box waere die Box 20px statt 18px hoch (Rahmen 1px x2). */
+  box-sizing: border-box;
+}
+
+/* Raster (Spec 2026-10-19 §4.3): Bezugsrahmen fuer die absolut gelegten
+   Kacheln. Lage und Groesse jeder Kachel setzt `grid.ts::updateLayout` inline
+   aus `layoutTiles` (8 px Luecke, `TILE_GAP` in tile-layout.ts). Kein `overflow: hidden`:
+   der Kartenschatten der Kacheln muss ausserhalb ihrer Randbox malen
+   koennen. Ohne eigene `display`-Regel greift `hidden` (Leerzustand) ohne
+   Zusatzregel. */
+.grid {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background-color: var(--ab-bg-canvas);
+}
+
+/* Leerzustand (Spec 10): ein Panel, die Karte darin zentriert. Ersetzt das
+   GANZE Raster (keine leeren Kachelrahmen, Designsystem §5.6), nicht nur eine
+   einzelne Kachel. */
+.grid-empty {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--ab-bg-panel);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-card);
+}
+
+.grid-empty[hidden] {
+  display: none;
+}
+
+.grid-empty:not([hidden]) {
+  display: flex;
+}
+
+/* Reine Abstandshalter (siehe grid.ts' Kommentar zu deren Wachstumsverhaeltnis
+   38:62) -- kein sichtbarer Inhalt, deshalb keine eigenen Farb-/Randregeln. */
+.grid-empty-spacer {
+  flex-shrink: 1;
+  flex-basis: 0%;
+  width: 100%;
+}
+
+/* 600 statt 440 px seit Task 16, Punkt D: die fuenf Tastenhinweise passen
+   damit in EINE Reihe, statt in eine zweite umzubrechen. */
+.grid-empty-card {
+  flex: none;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-4);
+  padding: var(--ab-space-8) var(--ab-space-7);
+  text-align: center;
+}
+
+.grid-empty-icon {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  color: var(--ab-text-disabled);
+}
+
+.grid-empty-card h2 {
+  margin: 0;
+  font-size: var(--ab-fs-lg);
+  line-height: var(--ab-lh-lg);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.grid-empty-card p {
+  margin: 0;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+.grid-empty-keys {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--ab-space-4);
+  margin: var(--ab-space-4) 0 0;
+  padding: 0;
+}
+
+/* ===== Knopfsystem (Spec 11.2) =============================================
+   EINE Grundform, vier Rollen als Zusatzklasse -- die Aufgaben 11 bis 13
+   benutzen dieselben Klassen mit. Die generische `button:disabled`-Regel
+   weiter unten daempft nur noch Cursor und Textfarbe, keine Deckkraft mehr --
+   `.btn:disabled` braucht deshalb keine eigene Deckkraft mehr, um das zu
+   unterlaufen; die Rollen sagen ueber Rand- und Textfarbe selbst, dass sie
+   gerade nicht wirken. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ab-space-3);
+  height: var(--ab-control-h);
+  padding: 0 14px;
+  border: var(--ab-border-w) solid transparent;
+  border-radius: var(--ab-radius-sm);
+  background-color: transparent;
+  color: var(--ab-text-secondary);
+  font-family: inherit;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  font-weight: var(--ab-fw-semibold);
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease), border-color var(--ab-motion-fast) var(--ab-motion-ease);
+  /* Ohne border-box waere die Box 34px statt 32px hoch (Rahmen 1px x2). */
+  box-sizing: border-box;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  color: var(--ab-text-disabled);
+}
+
+.btn--primary {
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+}
+
+.btn--primary:hover {
+  background-color: var(--ab-accent-hover);
+  border-color: transparent;
+}
+
+.btn--primary:disabled {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-disabled);
+}
+
+.btn--secondary {
+  border-color: var(--ab-line-strong);
+}
+
+.btn--secondary:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+  border-color: var(--ab-line-strong);
+}
+
+.btn--danger {
+  border-color: var(--ab-danger);
+  color: var(--ab-danger);
+}
+
+.btn--danger:hover {
+  background-color: var(--ab-danger-bg);
+  border-color: var(--ab-danger);
+}
+
+/* Farbwahl-Spec §2.4: Gefahr-Knoepfe tragen in allen Varianten das
+   Warndreieck (Lucide `triangle-alert`, Strich 1,75 wie `icon()`), damit
+   eine Gefahrentscheidung neben einem Primaerknopf nicht allein an
+   "umrandet gegen gefuellt" haengt -- bei rotem Akzent sind beide rot. Als
+   Maske in currentColor, damit es der Textfarbe folgt (auch deaktiviert);
+   die CSP erlaubt `img-src data:`. */
+.btn--danger::before {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* In der 26-px-Zeile (11-px-Schrift) wie `.icon-box--sm`. */
+.btn--row.btn--danger::before {
+  width: 14px;
+  height: 14px;
+}
+
+/* Deaktiviert bliebe der Rahmen sonst in Linien-/Gefahrfarbe stehen und
+   wirkte weiter wie ein aktiver Knopf; `.btn:disabled` daempft nur den Text. */
+.btn--secondary:disabled,
+.btn--danger:disabled {
+  border-color: var(--ab-line);
+}
+
+.btn--text {
+  padding: 0 var(--ab-space-3);
+}
+
+.btn--text:hover {
+  color: var(--ab-text-primary);
+  border-color: transparent;
+}
+
+.btn--row {
+  height: var(--ab-row-btn-h);
+  padding: 0 var(--ab-space-4);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+/* Die zwei Sessionaktionen (Nachtrag Task 16, Punkt A): quadratisch,
+   26x26 -- so hoch wie die Sessionzeile, damit sie in ihr aufgehen. Der
+   Platz steht HIER und nicht bei `.session-acts` weiter oben: `padding: 0`
+   muss `.btn--text`/`.btn--row` schlagen, und die haben dieselbe
+   Spezifitaet (0,1,0) -- entschieden wird also allein ueber die Reihenfolge.
+   Ruhefarbe sekundaer statt der Gefahrfarbe von frueher: zwei dauerhaft rote
+   Knoepfe in jeder Zeile waeren ein Alarmzustand, den es nicht gibt. */
+.session-icon-btn {
+  width: var(--ab-row-h-session);
+  padding: 0;
+  color: var(--ab-text-secondary);
+}
+
+.session-icon-btn:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+}
+
+/* Der zerstoererische der beiden bleibt als solcher erkennbar -- unter dem
+   Zeiger, wo die Absicht entsteht. */
+.session-kill-btn.session-icon-btn:hover {
+  color: var(--ab-danger);
+}
+
+/* Kachel (Spec 8.2): Panel mit Radius 10, Haarlinie, Kartenschatten, kein
+   overflow: hidden (der Beschnitt sitzt am Terminalcontainer). */
+.tile {
+  display: flex;
+  /* Spec 2026-10-19 §4.3: absolut im Raster; `width`/`height` inline schliessen
+     den Rahmen ein, sonst ragte jede Kachel 2 px in die Luecke. */
+  position: absolute;
+  box-sizing: border-box;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background-color: var(--ab-bg-panel);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-card);
+  /* Kontur steht IMMER, nur transparent im Ruhezustand: `outline-style` ist
+     nicht animierbar, ein Sprung von `none` auf `solid` beim Fokussieren
+     wuerde die Konturfarbe hart umschalten statt einblenden. Mit fester
+     Kontur transportiert die Transition unten tatsaechlich eine Farbe. */
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+/* Fokussignal 1 von 3 (Spec 8.4): Kontur 2 px Akzent, innen. `state.focusedTile`
+   treibt diese Klasse (`grid.ts`), nicht `:focus-within` -- ein Tastaturbefehl
+   kann den Fokus verschieben, ohne dass sich der tatsaechliche DOM-Fokus
+   bewegt, und muss trotzdem hier ankommen. Breite und Versatz stehen schon
+   an `.tile` oben, hier wechselt nur die Farbe. */
+.tile.focused {
+  outline-color: var(--ab-accent);
+}
+
+/* Spec 2026-10-19 §5.4: waehrend eines Zugs am Kopf ist die Quelle blass und
+   das Ziel umrandet. */
+.tile--drag-source {
+  opacity: 0.4;
+}
+
+.tile.tile--drop-target {
+  outline-color: var(--ab-focus-ring);
+}
+
+/* Spec 2026-10-19 §6.3, Schritt 1: das Wiederfinden. Die Kontur leuchtet
+   600 ms in `--ab-focus-ring` auf (JS haelt die Klasse), ohne Uebergang. */
+.tile.tile--flash {
+  outline-color: var(--ab-focus-ring);
+  transition: none;
+}
+
+.tile-head {
+  height: var(--ab-tile-head-h);
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-4);
+  padding: 0 10px;
+  border-radius: calc(var(--ab-radius-lg) - var(--ab-border-w)) calc(var(--ab-radius-lg) - var(--ab-border-w)) 0 0;
+  background-color: transparent;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+  /* Spec 2026-10-19 §5.4: der Kopf ist der Griff zum Tauschen. */
+  cursor: grab;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+  /* Abnahme B4, das letzte Netz: was trotz Nachgeben (Titel, Host, Chips) nicht
+     passt, malt und trifft nicht in der Nachbarkachel. Hier und nicht an
+     `.tile`: deren Beschnitt rundete die Ecken des Terminals ab. Die
+     Kopfknoepfe tragen ihren Fokusring innen (Regel unten), die Kontur der
+     Kachel gehoert der Kachel selbst; Suchleiste und Menues haengen nicht im
+     Kopf. Die Hoehe bleibt, das Terminal misst nichts neu. */
+  overflow: clip;
+}
+
+/* Fokussignal 2 von 3: Kopfflaeche und Titelgewicht. */
+.tile.focused .tile-head {
+  background-color: var(--ab-bg-active);
+}
+
+/* Nachtrag B, Punkt 3 (Designsystem §8.3, "Kanaltrennung"): der Kopf gehoert
+   AUSSCHLIESSLICH dem Zustand, die Kontur (oben) AUSSCHLIESSLICH dem Fokus --
+   ein gesperrter Zustand faerbt den Kopf deshalb IMMER um, auch wenn dieselbe
+   Kachel zugleich fokussiert ist. Gleiche Spezifitaet wie
+   `.tile.focused .tile-head` oben (zwei Klassen + Nachfahre): diese Regel
+   steht deshalb bewusst DANACH in der Kaskade, damit sie im Gleichstand
+   gewinnt. Die Fokuskontur selbst (`.tile.focused` oben) bleibt unangetastet. */
+.tile.locked .tile-head {
+  background-color: var(--ab-warn-bg);
+}
+
+/* Chip im Kachelkopf (Designsystem §8.3, Punkt 1): "rechts erscheint ein
+   Chip: Warndreieck + Text". Sitzt vor den Kopf-Schaltflaechen INNERHALB von
+   `.tile-acts`, deren `margin-left: auto` ihn mit an den rechten Rand zieht. */
+.tile-lock-chip {
+  min-width: 0;
+  align-items: center;
+  gap: var(--ab-space-2);
+  color: var(--ab-text-secondary);
+  white-space: nowrap;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+.tile-lock-chip:not([hidden]) {
+  display: flex;
+}
+
+/* Spec 2026-10-19 §8.4: die Kachel ist schmaler als 80 x 20. Warnfarbe, Text
+   statt Symbol; `display` nur ohne `hidden` (Gate in styles.test.ts). */
+.tile-narrow {
+  min-width: 0;
+  align-items: center;
+  color: var(--ab-warn);
+  white-space: nowrap;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.tile-narrow:not([hidden]) {
+  display: flex;
+}
+
+/* Ruhiger Hinweis "Reconnecting…" an der Stelle des Chips (UX-Spec §5.4,
+   §5.5): gedaempft und ohne Flaeche wie die ruhige Zeile der Seitenleiste.
+   Er sitzt im Kopf und aendert deshalb die Terminalgroesse nicht. */
+.tile-quiet {
+  min-width: 0;
+  align-items: center;
+  gap: var(--ab-space-2);
+  color: var(--ab-text-muted);
+  white-space: nowrap;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+.tile-quiet:not([hidden]) {
+  display: flex;
+}
+
+/* UX-Spec §6.1: Haekchen + "Copied" nach jedem Kopieren, 1200 ms lang
+   (grid.ts). Der Chip ist die Live-Region und bleibt deshalb auch leer
+   gerendert -- ein eben erst eingeblendeter Knoten wird nicht zuverlaessig
+   angesagt. Leer steht er absolut: dann ist er kein Flex-Kind, und
+   `.tile-acts` setzt fuer ihn keine Luecke. */
+.tile-copied {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  color: var(--ab-text-secondary);
+  white-space: nowrap;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+.tile-copied:empty {
+  position: absolute;
+}
+
+.tile-copied .icon-box {
+  color: var(--ab-ok);
+}
+
+/* Abnahme B4: der Text eines Kopfchips (Groesse, Copied, Reconnecting,
+   Disconnected) in eigenem Element -- `text-overflow` wirkt nur in einem
+   Blockcontainer, ein Text direkt im Flex-Chip wuerde bloss abgeschnitten. Die
+   Chips geben in der Knopfgruppe zuletzt nach, nach Titel und Host; ihr Symbol
+   bleibt. Waagerecht wie Titel und Host, senkrecht nichts beschnitten. */
+.tile-chip-text {
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Nummernchip 16 x 16, Radius 6; hohl unfokussiert, gefuellt fokussiert. */
+.badge {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-xs);
+  font-family: var(--ab-font-ui-small);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--ab-text-muted);
+  background: none;
+  /* Ohne border-box waere die Box 18x18px statt 16x16px (Rahmen 1px x2). */
+  box-sizing: border-box;
+}
+
+/* Gedaempfter Text steht nie auf einer Toenung (Spec 5.4): ein gesperrter,
+   aber unfokussierter Kopf faerbt den Nummernchip sekundaer, nicht gedaempft.
+   Gleiche Spezifitaet wie `.tile.focused .badge` unten -- diese Regel steht
+   bewusst DAVOR, damit das Fokussignal im Gleichstand gewinnt. */
+.tile.locked .badge {
+  color: var(--ab-text-secondary);
+}
+
+/* Fokussignal 3 von 3: hohl -> gefuellt, eine Formaenderung, unabhaengig von
+   Farbwahrnehmung. */
+.tile.focused .badge {
+  background-color: var(--ab-accent);
+  border-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+}
+
+/* Spec 2026-10-19 §7: die Kachelnummer in Liste und Spur -- dieselbe Form wie
+   `.badge` im Kachelkopf, 14 statt 16 px, fokussiert gefuellt. */
+.tile-number {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-xs);
+  font-family: var(--ab-font-ui-small);
+  font-size: var(--ab-fs-2xs);
+  line-height: var(--ab-lh-2xs);
+  font-weight: var(--ab-fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--ab-text-muted);
+  background: none;
+  /* Ohne border-box waere die Box 16 statt 14 px (Rahmen 1 px x 2). */
+  box-sizing: border-box;
+}
+
+.tile-number--focused {
+  background-color: var(--ab-accent);
+  border-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+}
+
+/* Getrimmt (Optische Mitte unten): nur waagerecht kuerzen. `clip` macht kein
+   Rollelement, die Mindestbreite eines Flex-Elements waere sonst sein Inhalt;
+   `min-width: 0` laesst Titel und Host weiter schrumpfen, damit die Ellipse
+   greift.
+
+   Abnahme B4: Grundmass 0 und hoechstens der Inhalt -- Titel und Host bekommen
+   nur den Platz, der neben Abzeichen, Statuspille und Knopfgruppe frei bleibt,
+   und geben damit ZUERST nach. Mit Grundmass `auto` schrumpften sie im
+   Verhaeltnis mit den Chips, und die Chips kuerzten, solange der Titel noch
+   Text zeigte. Ist Platz da, wachsen beide bis zu ihrem Inhalt, und
+   `margin-left: auto` der Knopfgruppe nimmt den Rest: das Bild wie bisher. */
+.tile-title {
+  flex: 1 1 0;
+  max-width: max-content;
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--ab-fw-regular);
+  color: var(--ab-text-secondary);
+}
+
+.tile.focused .tile-title {
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.tile-host {
+  flex: 1 1 0;
+  max-width: max-content;
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+/* Gedaempfter Text steht nie auf `--ab-bg-active` oder einer Toenung
+   (Spec 5.4): auf fokussiertem und gesperrtem Kopf wird der Host sekundaer. */
+.tile.focused .tile-host,
+.tile.locked .tile-host {
+  color: var(--ab-text-secondary);
+}
+
+/* Abnahme B4: schrumpft, sobald Titel und Host nichts mehr hergeben -- dann
+   kuerzen die Chips darin, die Knoepfe (`.tile-btn`, `flex: none`) behalten
+   ihre Groesse. */
+.tile-acts {
+  margin-left: auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+}
+
+/* Maximize/Close als Textknoepfe mit Icon (Spec 8.2). Tragen additiv das
+   Knopfsystem (`btn btn--text`, grid.ts); hier bleibt nur, was fuer den
+   22-px-Icon-Knopf abweicht -- Flaechen-/Textfarbe, `box-sizing` und die
+   Grundgeometrie liefert `.btn`. `border: 0` bleibt trotz `.btn`s eigenem
+   (durchsichtigem) 1px-Rahmen: die Breite dieses Knopfs ist nicht fixiert
+   (nur Hoehe/`min-width` sind es), ein zusaetzlicher Rahmen verschoebe die
+   gerenderte Breite um 2px, auch unsichtbar. */
+.tile-btn {
+  height: 22px;
+  min-width: 22px;
+  flex: none;
+  gap: var(--ab-space-2);
+  padding: 0 var(--ab-space-1);
+  border: 0;
+  border-radius: var(--ab-radius-xs);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  /* Ausdruecklich normal: der Knopf traegt neben dem Icon einen Hinweistext
+     ("maximized", `grid.ts::maximizeLabel`), und die halbfette Knopfbasis
+     (Regel `button`) wuerde den fett stellen. */
+  font-weight: var(--ab-fw-regular);
+}
+
+/* `.btn--text:hover` faerbt nur den Text um -- die Hoverflaeche selbst kennt
+   das Knopfsystem fuer die Text-Rolle nicht, die bleibt hier eigens. */
+.tile-btn:hover {
+  background-color: var(--ab-bg-hover);
+}
+
+/* Maximiert-Zustand: sichtbarer Text statt reinem Icon (Designsystem §7.2,
+   "Chip ist Text plus Glyphe, nie nur Icon") -- braucht mehr Polster als der
+   quadratische Icon-Knopf oben. */
+.tile-btn--wide {
+  padding: 0 var(--ab-space-3);
+}
+
+/* Sperrleiste (Spec 8.4): 32 px, warn-Toenung, 1 px warn unten. Kostet zwei
+   Terminalzeilen -- das ist hingenommen (siehe grid.ts' refit()-Kommentar),
+   nicht versehentlich. `display` steht nur in der `:not([hidden])`-Regel. */
+.tile-lock {
+  flex: none;
+  align-items: center;
+  gap: var(--ab-space-3);
+  height: 32px;
+  padding: 0 var(--ab-space-4);
+  background-color: var(--ab-warn-bg);
+  border-bottom: var(--ab-border-w) solid var(--ab-warn);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-secondary);
+  /* Ohne border-box waere die Leiste 33px statt 32px hoch (Rahmen unten). */
+  box-sizing: border-box;
+  /* Abnahme B5, das letzte Netz: passen die Knoepfe nicht mehr neben die
+     gekuerzte Meldung, malt nichts in die Nachbarkachel. Nur waagerecht: der
+     Fokusring der Knoepfe ragt 4 px nach aussen, ueber und unter dem
+     26-px-Knopf bleiben 2,5 px. */
+  overflow-x: clip;
+}
+
+/* Abnahme B5: die Meldung bleibt auf einer Zeile und gibt als erste nach, mit
+   Ellipse; die Knoepfe behalten ihre Groesse. Ihren vollen Text traegt der
+   Tooltip (`title`, grid.ts). Umgebrochen lag sie in einer 420 px breiten
+   Kachel 56 px hoch ueber Kopf und Terminal. */
+.tile-lock-message {
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tile-lock b {
+  color: var(--ab-warn);
+  font-weight: var(--ab-fw-semibold);
+}
+
+.tile-lock:not([hidden]) {
+  display: flex;
+}
+
+/* Beide Schaltflaechen der Sperrleiste (Designsystem §8.3, Punkt 2:
+   `Reconnect` primaer, `Close terminal` sekundaer). Tragen jetzt additiv
+   das Knopfsystem (`btn btn--primary btn--row` bzw. `btn btn--secondary
+   btn--row`, grid.ts); hier bleibt nur, was das Knopfsystem nicht liefert.
+   `margin-left: auto` steht auf der ERSTEN der beiden: es schiebt das Paar
+   als Ganzes an den rechten Rand. Auf der zweiten stehend (so war es,
+   solange `Close terminal` allein im Streifen sass) rueckte nur sie nach
+   rechts, und der Reconnect-Knopf klebte am Meldungstext. */
+.tile-lock-reconnect,
+.tile-lock-close {
+  flex: none;
+}
+
+/* `border: 0` bleibt trotz `.btn`s eigenem (durchsichtigem) 1px-Rahmen:
+   dieselbe Breitenbegruendung wie bei `.tile-btn` oben, dieser Knopf hat
+   keine feste Breite. */
+.tile-lock-reconnect {
+  margin-left: auto;
+  border: 0;
+}
+
+/* Bei einer beendeten Session faellt "Reconnect" weg (UX-Spec §5.5); dann
+   rueckt "Close terminal" allein an den rechten Rand. */
+.tile-lock-reconnect[hidden] + .tile-lock-close {
+  margin-left: auto;
+}
+
+/* Terminal 2 px innen, eckig, eigene Flaeche; behaelt overflow: hidden als
+   Anker des Such-Overlays (Spec 8.3). xterm.js zeichnet seinen eigenen
+   Hintergrund ueber das Theme -- Padding INNEN liesse einen Rand, den xterm
+   nicht kennt, der Abstand sitzt deshalb als Aussenabstand am Container.
+
+   2 statt der in Spec 8.3 genannten 4 px: die Messung am Fenster (2026-09-07,
+   Tor 17.1) ergab im Vollbild 233 gegenüber 237 Spalten, also vier statt der
+   erlaubten drei. Spec 8.5 schreibt fuer diesen Fall genau diese Kuerzung vor
+   ("zuerst Innen 4 -> 2, dann Luecke 8 -> 6"), und das Spaltenbudget ist nach
+   Spec 19 nicht verhandelbar. Die Ecke des Terminals liegt damit bei (2, 2)
+   und weiterhin innerhalb der 10-px-Kurve des Rahmens. */
+.tile-terminal {
+  flex: 1;
+  min-height: 0;
+  margin: 0 var(--ab-space-1) var(--ab-space-1);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--ab-term-bg);
+}
+
+/* Ausnahme von der globalen Fokusring-Regel weiter oben (Spec 6.9):
+   `outline-offset: -2px` (statt der dort gesetzten `2px`) NUR fuer die
+   Kachelkopf-Schaltflaechen, die dicht an der Kachelkante sitzen -- ein nach
+   AUSSEN wachsender Ring wuerde dort von der Nachbarkachel ueberdeckt. Hoehere
+   Spezifitaet (Klasse + `:where(button)`) als die globale Regel gewinnt
+   deshalb genau hier. */
+.tile-head :where(button):focus-visible {
+  outline: var(--ab-focus-w) solid var(--ab-focus-ring);
+  outline-offset: -2px;
+}
+
+/* Spalt zwischen zwei Kacheln (Spec 2026-10-19 §4.4): die 8-px-Luecke selbst
+   ist der Griff. Unsichtbar bis zum Zeiger; beim Ziehen eine Linie in der
+   Mitte, wie am Griff der Seitenleiste. */
+.tile-split {
+  position: absolute;
+  z-index: 1;
+  touch-action: none;
+}
+
+.tile-split[data-kind="col"] {
+  cursor: col-resize;
+}
+
+.tile-split[data-kind="row"] {
+  cursor: row-resize;
+}
+
+.tile-split::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  background-color: transparent;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.tile-split[data-kind="col"]::after {
+  width: 2px;
+}
+
+.tile-split[data-kind="row"]::after {
+  height: 2px;
+}
+
+.tile-split:hover::after,
+.tile-split--dragging::after {
+  background-color: var(--ab-line-strong);
+}
+
+/* Beschriftung UEBER dem Feld (Spec 11.3). `host-form.ts` und
+   `session-dialog.ts` bauen ihre `<label>` als ELTERN des Feldes (das Feld
+   haengt darin), deshalb traegt diese Regel die Spalte: Text oben, Feld
+   darunter, 4 Pixel dazwischen. Labels mit eigener Bauform setzen ihr
+   `display` selbst und schlagen diese Regel ueber die Klasse
+   (`.dir-tree-hidden`, `.host-notice-passphrase`, `.accent-option`,
+   `.base-card`). */
+label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-2);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+/* Felder (Spec 11.3): 32 px, Radius 7, Canvas-Flaeche, Haarlinie stark.
+   Die Kaestchen sind AUSGENOMMEN -- eine Checkbox mit vom Autor gesetzter
+   Flaeche und Rahmen malt Chromium nicht mehr nativ, sondern als leeres
+   Rechteck (siehe `.dir-tree-hidden input[type="checkbox"]` weiter unten).
+   Der Selektor steht bewusst in EINER Zeile: `styles.test.ts` sucht ihn
+   woertlich am Zeilenanfang. */
+input:not([type="checkbox"]):not([type="radio"]), select {
+  box-sizing: border-box;
+  height: var(--ab-control-h);
+  padding: 0 var(--ab-space-4);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-sm);
+  background-color: var(--ab-bg-canvas);
+  color: var(--ab-text-primary);
+  font-family: inherit;
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+}
+
+input::placeholder {
+  color: var(--ab-text-muted);
+}
+
+/* Der Fehlerzustand eines Feldes (Spec 11.3): Host- und Sessionformular setzen
+   `aria-invalid` (UX-Spec §11). Die Ausschluesse der Feldregel oben stehen mit
+   im Selektor -- sie hat die Spezifitaet (0,2,1), ein blosses
+   `input[aria-invalid]` (0,1,1) verloere gegen ihren Rand. */
+input[aria-invalid="true"]:not([type="checkbox"]):not([type="radio"]),
+select[aria-invalid="true"] {
+  border-color: var(--ab-danger);
+}
+
+/* Knopfbasis: jeder Knopf ohne .btn-Klasse sieht wie ein Sekundaerknopf aus.
+   Die Komponenten mit eigener Bauform (`.ab-row`, `.tile-btn`,
+   `.sb-menu-item`, `.sb-head-btn`, `.dialog-close-btn`, `.sb-btn`,
+   `.host-action-btn`, `.tile-lock-*`) setzen Hoehe UND Rahmen selbst und
+   bleiben davon unberuehrt. */
+button {
+  box-sizing: border-box;
+  height: var(--ab-control-h);
+  padding: 0 var(--ab-space-5);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-sm);
+  background-color: transparent;
+  color: var(--ab-text-secondary);
+  font-family: inherit;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  font-weight: var(--ab-fw-semibold);
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  color: var(--ab-text-disabled);
+}
+
+[role="alert"]:empty {
+  display: none;
+}
+
+[role="alert"] {
+  color: var(--ab-danger);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+/* Suchleiste im Terminal (UX-Spec §6.6, `views/terminal-search.ts`): ein
+   Streifen oben rechts in der Kachel, von links nach rechts Feld, Zaehler und
+   vier Knoepfe (vorheriger, naechster, "Aa", schliessen). Die Leiste entsteht
+   und verschwindet mit jedem Oeffnen -- kein statisches Markup in index.html,
+   weil sie an eine `SearchAddon`-Instanz pro Mount gebunden ist.
+
+   `position: absolute` haelt sie aus dem Layoutfluss und damit aus der Box,
+   die FitAddon misst (Spec V12). In einer schmalen Kachel gibt das Feld nach,
+   nicht der Streifen. */
+.terminal-search-overlay {
+  position: absolute;
+  top: var(--ab-space-4);
+  right: var(--ab-space-4);
+  /* Ebene 10 der Stapelleiter weiter unten (siehe dort): innerhalb EINER
+     Kachel, unter allem, was das ganze Fenster betrifft. */
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  box-sizing: border-box;
+  max-width: calc(100% - 2 * var(--ab-space-4));
+  padding: var(--ab-space-3);
+  background-color: var(--ab-bg-panel);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-md);
+  /* Kartenschatten, nicht Modalschatten (Spec 5.6): der Streifen schwebt
+     ueber EINER Kachel, er legt nicht das Fenster still. */
+  box-shadow: var(--ab-shadow-card);
+}
+
+/* Das Feld ist kompakter als die 32 px der Feldregel oben, damit es mit den
+   26-px-Knoepfen eine Zeile bildet. Der Selektor nennt deren Ausschluesse
+   mit: die Feldregel hat die Spezifitaet (0,2,1), und eine blosse Klasse
+   schluege sie nicht. */
+input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
+  flex: 1 1 auto;
+  width: 180px;
+  min-width: 0;
+  height: var(--ab-row-btn-h);
+}
+
+/* Der Zaehler ("3/17", "No results") reserviert seine Breite, damit der
+   Streifen nicht springt, wenn der erste Treffer eintrifft. `min-width` gilt
+   samt Polster: 72 px lassen 64 px fuer den Text. "No results" braucht bei
+   11 px gemessen 51 px (Segoe UI Variable Small), "999/999" 41 px; der Rest ist
+   Luft fuer Ersatzschriften. Ein laengerer Text waechst darueber hinaus statt
+   abgeschnitten zu werden. */
+.terminal-search-count {
+  flex: none;
+  box-sizing: border-box;
+  min-width: 72px;
+  padding: 0 var(--ab-space-2);
+  text-align: right;
+  white-space: nowrap;
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Icon-Knoepfe wie `.sb-head-btn`: quadratisch, ohne Rahmen. Die allgemeine
+   Knopfregel (`button`, weiter oben) setzt 32 px Hoehe, Polster und Rahmen;
+   eine Klasse schlaegt sie. */
+.terminal-search-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--ab-row-btn-h);
+  height: var(--ab-row-btn-h);
+  padding: 0;
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  background-color: transparent;
+  color: var(--ab-text-secondary);
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.terminal-search-btn:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+}
+
+/* "Aa" ist ein Schalter: gedrueckt ist die Akzentflaeche mit Tinte, wie beim
+   gewaehlten Segment in den Einstellungen (`.settings-seg-option`) -- nicht
+   nur eine andere Farbe. `aria-pressed` setzt `terminal-search.ts`. */
+.terminal-search-btn[aria-pressed="true"] {
+  background-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+}
+
+.terminal-search-btn[aria-pressed="true"]:hover {
+  background-color: var(--ab-accent-hover);
+}
+
+/* === DIE Stapelleiter dieser Anwendung ==================================
+   Validierung (Critical): `#host-key-prompt-root` und `#dialog-root` trugen
+   BEIDE `z-index: 100`. Bei gleichem Wert entscheidet die Dokument-
+   reihenfolge -- `#dialog-root` steht in index.html spaeter und malte
+   deshalb ueber die TOFU-Rueckfrage. Wer aus der "Add host"-Ueberlagerung
+   heraus verband, bekam den Fingerabdruck nie zu sehen, konnte ihn per
+   Maus nicht anklicken (der Scrim der Ueberlagerung lag darueber) und per
+   Tastatur nicht erreichen (die Fokus-Falle, heute
+   `views/dialog.ts::onDialogKeydown`, holte den Fokus zurueck) -- nach
+   60 Sekunden endete das in "Connection failed", ohne dass je etwas zu
+   entscheiden gewesen waere.
+   Die Ebenen waren nie als Leiter entschieden worden, sondern jede
+   einzeln; das hier ist die Entscheidung, in EINER Liste:
+
+     1   Klebende Hostzeile            -- gehoert INNERHALB der Seiten-
+                                          leistenliste: die Zeile muss ueber
+                                          die Sessionzeilen malen, die unter
+                                          ihr hinwegscrollen
+                                          (`.row-host`, klebt gegen `.sb-list`)
+     10  Such-Overlay im Terminal      -- gehoert INNERHALB einer Kachel
+                                          (`.terminal-search-overlay`)
+     50  Host- und Terminalmenue       -- ueber der klebenden Hostzeile (1)
+                                          und den Sessionzeilen, unter der
+                                          Dialog-Ueberlagerung (100): bei
+                                          offenem Dialog ist `#app` inert,
+                                          ein Menue kann dann gar nicht offen
+                                          sein -- und bliebe doch eines
+                                          stehen, muss der Dialog es zudecken
+                                          (`.sb-menu`; das Terminalmenue der
+                                          Rechtsklicks teilt die Klasse)
+     100 Dialog-Ueberlagerung          -- Add/Edit host, neue Session
+                                          (`#dialog-root`)
+     200 TOFU-Rueckfrage               -- MUSS ueber der Dialog-
+                                          Ueberlagerung liegen: sie
+                                          blockiert den SSH-Handshake, und
+                                          ein Fingerabdruck, den niemand
+                                          sieht, ist keine Entscheidung
+                                          (`#host-key-prompt-root`)
+     300 Globaler Fehlerhinweis        -- trifft asynchron ein, auch
+                                          waehrend etwas offen ist
+                                          (`.global-error-banner`)
+     400 Hostschluessel-Speicherfehler -- der Nachklang GENAU der
+                                          Entscheidung aus Ebene 200
+                                          (`.host-key-persist-failure-banner`)
+
+   Die beiden obersten Ebenen sind schmale Streifen an der Fensteroberkante
+   (`top: 0` bzw. `top: var(--ab-space-5)`), keine Scrims -- sie koennen die
+   mittig stehende Rueckfrage darunter also nicht zudecken.
+
+   Bewusst LITERALE Werte statt `--ab-*`-Tokens: `getComputedStyle` loest
+   unter jsdom (Testumgebung) `var()` nicht auf und liefert die Zeichenkette
+   "var(--ab-z-...)" zurueck -- die Gegenprobe zu diesem Befund koennte die
+   Leiter dann nicht mehr nachrechnen, sondern nur noch Text vergleichen.
+   Ein literaler Wert ist hier also die pruefbarere Fassung, nicht die
+   nachlaessigere. Die Begruendung steht dafuer EINMAL hier, statt fuenfmal
+   verstreut; jede Fundstelle verweist hierher.
+   ====================================================================== */
+
+/* TOFU-Rueckfrage (Task 13, Nachtrag) -- `#host-key-prompt-root` liegt
+   ausserhalb von `#app` (siehe index.html), damit sie ueber JEDER Ansicht
+   erscheinen kann. `position: fixed` deckt das gesamte Fenster ab
+   (Modal-Charakter): die Rueckfrage blockiert die Verbindung tatsaechlich
+   (Eigenschaft 2 des TOFU-Nachtrags), das Ueberlagern macht das auch
+   visuell unmissverstaendlich. Dasselbe Muster traegt `#dialog-root`
+   (Shell-Task 11: Add/Edit host, neue Session) -- geteilt bleibt alles
+   AUSSER der Ebene, siehe die Stapelleiter oben. */
+#host-key-prompt-root:not(:empty),
+#dialog-root:not(:empty) {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--ab-bg-scrim);
+}
+
+/* Ebene 100/200 der Stapelleiter oben. Kein `pointer-events`-Kunstgriff:
+   sobald die Rueckfrage HOEHER liegt, trifft die Maus sie zuerst -- ein
+   `pointer-events: none` auf dem Scrim der Ueberlagerung wuerde Klicks
+   stattdessen bis ins Raster durchfallen lassen und damit genau das
+   kaputtmachen, was der Scrim leistet. */
+#dialog-root:not(:empty) {
+  z-index: 100;
+}
+#host-key-prompt-root:not(:empty) {
+  z-index: 200;
+}
+
+/* Gemeinsame Dialoghuelle (Spec 11.1) fuer "Add host", "Edit host", "Neue
+   Session", Einstellungen (`views/dialog.ts::openDialog` baut Kopf und
+   Koerper) UND
+   die TOFU-Rueckfrage (`host-key-prompt.ts::buildDialog` baut dieselben
+   beiden Teile selbst, ohne Schliessen-Kreuz). Feste Pixelbreite mit
+   Fensterdeckel statt `max-width` in em: die Breite ist eine
+   Design-Entscheidung, keine Funktion der Schriftgroesse. Das Polster sitzt
+   im Koerper, nicht am Panel -- sonst haette der Kopf keine durchgehende
+   Trennlinie. */
+.dialog-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, calc(100vw - 2 * var(--ab-space-6)));
+  max-height: calc(100vh - 2 * var(--ab-space-8));
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--ab-bg-panel);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-xl);
+  box-shadow: var(--ab-shadow-modal);
+  opacity: 1;
+  transition: opacity var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+/* Einblenden 100 ms Deckkraft (Spec 11.1) -- ueber @starting-style, ohne
+   animation. */
+@starting-style {
+  .dialog-panel {
+    opacity: 0;
+  }
+}
+
+.dialog-panel--wide {
+  width: min(520px, calc(100vw - 2 * var(--ab-space-6)));
+}
+
+.host-key-prompt {
+  width: min(440px, calc(100vw - 2 * var(--ab-space-6)));
+}
+
+.dialog-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ab-space-5);
+  height: var(--ab-dialog-head-h);
+  margin: 0;
+  padding: 0 var(--ab-space-4) 0 var(--ab-space-6);
+  border-bottom: var(--ab-border-w) solid var(--ab-line);
+}
+
+.dialog-head h2 {
+  margin: 0;
+  font-size: var(--ab-fs-lg);
+  line-height: var(--ab-lh-lg);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.dialog-close-btn {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  color: var(--ab-text-secondary);
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.dialog-close-btn:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+}
+
+.dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--ab-space-6);
+}
+
+/* Schnelloeffnen (UX-Spec §7.5, `views/quick-open.ts`): Feld oben, darunter
+   die Liste. Nur die Liste scrollt, das Feld bleibt stehen. Die Zeilen sind
+   keine Knoepfe -- der Fokus bleibt im Feld, `aria-activedescendant` zeigt auf
+   die gewaehlte Zeile --, sie hat die Toenung der gewaehlten Session und des
+   gewaehlten Tabs. Zeilenhoehe und Schrift wie die Sessionzeile der
+   Seitenleiste, aus der die meisten Eintraege stammen. Abstaende als Rand statt
+   `gap`: die Statusregion "No matches" bleibt immer im Baum und darf leer keine
+   Luecke erzeugen (siehe `.quick-open-empty`). */
+.quick-open {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-open-input {
+  width: 100%;
+}
+
+.quick-open-list {
+  max-height: min(390px, 50vh);
+  margin: var(--ab-space-4) 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.quick-open-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-4);
+  height: var(--ab-row-h-session);
+  padding: 0 var(--ab-space-4);
+  border-radius: var(--ab-radius-xs);
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.quick-open-option:hover {
+  background-color: var(--ab-bg-hover);
+}
+
+/* Nach :hover, damit die gewaehlte Zeile beim Ueberfahren ihre Toenung behaelt. */
+.quick-open-option[aria-selected="true"] {
+  background-color: var(--ab-accent-soft);
+  color: var(--ab-text-primary);
+}
+
+.quick-open-label,
+.quick-open-host {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Der Host neben dem Sessionnamen gedaempft (UX-Spec §7.5); auf der getoenten
+   Zeile sekundaer wie das Meta-Feld der gewaehlten Sessionzeile. */
+.quick-open-host {
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+.quick-open-option[aria-selected="true"] .quick-open-host {
+  color: var(--ab-text-secondary);
+}
+
+/* Statuspille und Kuerzelchip stehen rechts. */
+.quick-open-option .st,
+.quick-open-option kbd {
+  flex: none;
+  margin-left: auto;
+}
+
+/* Die Statusregion steht immer im Baum (`role="status"`, quick-open.ts); leer
+   hat sie keine Hoehe, mit Text denselben Abstand wie die Liste. */
+.quick-open-empty {
+  margin: 0;
+  padding: 0 var(--ab-space-4);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+.quick-open-empty:not(:empty) {
+  margin-top: var(--ab-space-4);
+  padding-top: var(--ab-space-2);
+  padding-bottom: var(--ab-space-2);
+}
+
+/* Derselbe Scrollbalken wie an Liste, Dialogkoerper, Baum und Einstellungen
+   (Spec 13.3), als eigene Regeln: die gemeinsamen nennt `styles.test.ts`
+   woertlich. */
+.quick-open-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.quick-open-list::-webkit-scrollbar-thumb {
+  background-color: var(--ab-scrollbar);
+  border-radius: var(--ab-radius-pill);
+}
+
+.quick-open-list::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ab-scrollbar-hover);
+}
+
+.quick-open-list::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Fingerabdruck-Karte (Spec 11.4). Der Schluesseltyp bleibt
+   Teil des bestehenden Beschriftungssatzes, kein eigener Chip -- deshalb
+   traegt die Beschriftungszeile hier dieselbe gedaempfte 11/14-Schrift wie
+   der Countdown darunter. */
+.host-key-prompt-fingerprint-label,
+.host-key-prompt-countdown {
+  margin: var(--ab-space-4) 0 0;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+.host-key-prompt-countdown {
+  font-variant-numeric: tabular-nums;
+}
+
+.host-key-prompt-fingerprint-value {
+  display: block;
+  margin: var(--ab-space-2) 0 0;
+  padding: var(--ab-space-4);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-sm);
+  background-color: var(--ab-bg-card);
+  font-family: var(--ab-font-mono);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-primary);
+  word-break: break-all;
+}
+
+.host-key-prompt-actions,
+.session-dialog-actions,
+.host-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ab-space-4);
+  margin-top: var(--ab-space-6);
+}
+
+/* Globaler Fehlerhinweis (Shell-Task 11: `main.ts::mountGlobalErrorBanner`)
+   fuer `GridOptions.onTerminalError` und fehlgeschlagene
+   `create_session`-Aufrufe -- beide sind nicht kachel- oder host-spezifisch
+   adressierbar. */
+.global-error-banner {
+  position: fixed;
+  top: var(--ab-space-5);
+  left: 50%;
+  transform: translateX(-50%);
+  /* Ebene 300 der Stapelleiter weiter oben (siehe dort). Validierung (M6):
+     stand auf 90 und damit UNTER beiden Ueberlagerungen -- ein Fehler, der
+     asynchron waehrend eines offenen Dialogs eintrifft
+     (`GridOptions.onTerminalError`, fehlgeschlagenes `create_session`),
+     landete hinter dem Scrim und war erst zu sehen, nachdem man den Dialog
+     geschlossen hatte. Gerade die Meldungen, die niemand anfordert,
+     gehoeren ueber das, was man gerade offen hat. */
+  z-index: 300;
+  align-items: center;
+  gap: var(--ab-space-5);
+  /* 480px: dieselbe Breite wie die schmale Dialoghuelle (Spec 11.1) -- der
+     Streifen erscheint an derselben Stelle des Fensters und soll dieselbe
+     Kante halten. Kein Token der Groessenskala meint eine Textbreite. */
+  max-width: 480px;
+  padding: var(--ab-space-4) var(--ab-space-5);
+  /* Kein Rahmen mehr (Spec 5.6): die Gefahrentoenung grenzt den Streifen
+     selbst ab, der Kartenschatten hebt ihn von der Ansicht darunter. */
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  background-color: var(--ab-danger-bg);
+  color: var(--ab-danger);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  box-shadow: var(--ab-shadow-card);
+}
+/* Nachtrag A (zweiter Fund, selbe Ursache wie
+   `.host-key-persist-failure-banner` weiter unten): `hidden` ist eine
+   User-Agent-Regel, `display: flex` in der Basisregel oben eine
+   Autoren-Regel -- Autoren-Herkunft gewinnt gegen UA-Herkunft IMMER, auch
+   bei niedrigerer Spezifitaet. Ungated haette dieser Banner denselben Fehler
+   wie der TOFU-Persistenzfehler-Hinweis: sichtbar und leer ab
+   Programmstart, obwohl `mountGlobalErrorBanner` ihn mit `hidden = true`
+   erzeugt. `display` deshalb nur gesetzt, wenn `[hidden]` NICHT greift --
+   die UA-Regel bleibt dann die einzige Quelle fuer `display`, wenn versteckt. */
+.global-error-banner:not([hidden]) {
+  display: flex;
+}
+
+/* Spec 2026-10-19 §5.3: der Grenzhinweis ist kein Fehler -- dieselbe Stelle
+   und Form, ohne Gefahrentoenung. */
+.global-error-banner--neutral {
+  border: var(--ab-border-w) solid var(--ab-line);
+  background-color: var(--ab-bg-card);
+  color: var(--ab-text-primary);
+}
+
+/* Persistenzfehler-Hinweis (`host-key-prompt.ts`, Review-Befund 3) --
+   frueher komplett inline gesetzt, inklusive zweier
+   hardkodierter Farben (#c0392b/#ffffff) von vor dem Designsystem und eines
+   inline `display: flex`, das `hidden` unwirksam machte: eine Autoren-Regel
+   mit `display` gewinnt in der CSS-Kaskade IMMER gegen die
+   `[hidden]`-User-Agent-Regel, unabhaengig von deren Spezifitaet (Herkunft
+   schlaegt Spezifitaet) -- der Banner stand deshalb von Programmstart an
+   sichtbar, leer und ueber der Erststart-Ueberschrift, obwohl `.hidden`
+   bereits `true` war. `display: flex` deshalb NICHT in dieser Basisregel,
+   sondern unten in `:not([hidden])` ausgelagert -- die Basisregel setzt nur
+   noch Eigenschaften, die auch im versteckten Zustand harmlos sind
+   (Position/Farbe/Abstand wirken erst, sobald `display` selbst nicht mehr
+   `none` ist). Volle Fensterbreite oben (nicht zentriert wie
+   `.global-error-banner`), damit ein fehlgeschlagenes Speichern des
+   Hostschluessels nicht mit dessen Position kollidiert. */
+.host-key-persist-failure-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Ebene 400 der Stapelleiter weiter oben (siehe dort) -- die oberste.
+     Dieser Hinweis ist der Nachklang GENAU der Entscheidung, die eine Ebene
+     tiefer (200) getroffen wurde ("dein Ja gilt nur fuer diesmal"); er darf
+     von nichts verdeckt werden, auch nicht vom generischen Fehlerhinweis
+     (300). Frueher 200 und damit gleichauf mit dem, was jetzt die
+     TOFU-Rueckfrage traegt. */
+  z-index: 400;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ab-space-5);
+  padding: var(--ab-space-4) var(--ab-space-5);
+  border-bottom: var(--ab-border-w) solid var(--ab-danger);
+  background-color: var(--ab-danger-bg);
+  color: var(--ab-danger);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+}
+/* Siehe Kommentar oben an der Basisregel: `display` nur gesetzt, wenn
+   `[hidden]` NICHT greift -- sonst bliebe die UA-Regel wirkungslos, genau
+   der urspruengliche Befund. */
+.host-key-persist-failure-banner:not([hidden]) {
+  display: flex;
+}
+
+/* Verzeichnisauswahl (`src/views/directory-tree.ts`, Entwurf 2026-07-29
+   §4). Kein Mockup deckt den Baum ab -- seine Zeilen erben deshalb
+   `.ab-row` und `.row-label` der Seitenleiste (dieselbe Bauform: Dreieck,
+   Beschriftung, Zusatz rechts) statt eigener Werte. Das Dreieck NICHT: die
+   einzige weitere `.chev`-Regel dieser Datei ist `.row-host .chev` und damit
+   auf die Hostzeile eingeschraenkt (Review Runde 2: der Kommentar behauptete
+   hier vorher eine Vererbung, die es nicht gibt). Seine Groesse kommt seit
+   UI v2 aus `.icon-box` -- dasselbe wie an der Hostzeile --, `.dir-row .chev`
+   weiter unten setzt deshalb nur noch die Farbe. Sonst steht hier nur, was
+   der Baum eigenverantwortlich traegt: die Einrueckung je Ebene und die
+   beiden Textzustaende. Der Fokusring kommt aus der EINEN globalen Regel
+   weiter oben -- nirgends `outline: none` (Entwurf §7). */
+.dir-tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-4);
+  min-height: 0;
+}
+
+/* `flex-direction` und `line-height` ausdruecklich: die `label`-Regel weiter
+   unten stellt Beschriftungen seit UI v2 als SPALTE ueber ihr Feld
+   (11/14-Schrift) -- hier steht das Kaestchen aber NEBEN seinem Text, und
+   die Zeile bleibt auf der 12/16-Stufe. */
+.dir-tree-hidden {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ab-space-4);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-secondary);
+}
+
+/* Ruecknahme von Feldregeln, die auf ein TEXTFELD gemuenzt sind und ein
+   Kaestchen mittreffen. Zwei Urheber, in dieser Reihenfolge entstanden:
+
+   1. die generische `input, button`-Basis weiter oben (Rahmen,
+      Radius, `padding: 0.5em 0.8em`, Flaechenfarbe) -- die traf das
+      Kaestchen schon immer; Chromium malt eine Checkbox mit vom Autor
+      gesetzter Flaeche/Rahmen nicht mehr nativ, sondern als leeres
+      Rechteck.
+   2. `.session-dialog-view input` (Shell-Task 9b) -- erst seit der
+      Verzeichnisauswahl-Task 4 im Spiel, weil der Baum seitdem INNERHALB
+      dieser Ansicht haengt. Sie stellt zusaetzlich `height` auf die
+      Bedienelementhoehe und macht daraus ein breites Feld.
+
+   Zurueckgesetzt wird je Eigenschaft mit `revert` (auf die Darstellung des
+   Browsers), NICHT mit `all: revert`. Der Grund liegt in der globalen
+   Fokusregel oben: ihr Selektor steht in `:where(...)`, und `:where` traegt
+   NULL Spezifitaet bei -- sie SIEHT hochspezifisch aus und ist es nicht
+   (`0,1,0`, allein aus `:focus-visible`). Dieser Selektor hier liegt mit
+   `0,2,1` darueber, `all: revert` gewaenne also auch fuer `outline` und
+   `outline-offset`. Nicht auf `outline: none` -- es bliebe Chromiums
+   eigener Ring; verloren gingen die Designsystem-Zusage (Akzentring mit
+   2px-Fuge), nicht die woertliche Klausel aus Entwurf §7.
+
+   Jene Regel setzt nur `outline` und `outline-offset` (ihr frueheres
+   `border-radius: inherit` ist seit UX-Spec §11 fort); das `border-radius:
+   revert` unten beruehrt den Fokusring also nicht.
+
+   Die Punktdarstellung selbst kommt vom Betriebssystem und ist durch
+   `color-scheme: dark` auf `:root` bereits dunkel -- dieselbe Zeile, die
+   die nativen `<select>`-Popups dunkel haelt.
+
+   KEINE Zusicherung dazu, und das ist gemessen statt vermutet (Fixrunde 2):
+   jsdom gibt `revert` woertlich zurueck (`border` als "revert revert
+   revert"), loest `var()` nicht auf -- und kaskadiert am NACHBARFELD
+   zwischen genau diesen beiden Urheberregeln falsch: `input[name=cwd]`
+   bekommt `padding-left: 0.8em` aus der generischen Basis statt aus der
+   spezifischeren Dialogregel. Ein gruener Test haette hier nur behauptet,
+   jsdom sei einverstanden. Gehoert in die Sichtpruefung.
+
+   NACHTRAG UI v2 (Aufgabe 13): BEIDE Urheber erreichen das Kaestchen nicht
+   mehr -- die generische Basis nimmt Kaestchen und Radioknoepfe per `:not()`
+   ausdruecklich aus, und `.session-dialog-view input` gibt es nicht mehr
+   (die Felder kommen jetzt alle aus jener Basis). Diese Ruecknahme bleibt
+   trotzdem stehen: sie kostet nichts und faengt die naechste Feldregel ab,
+   die ein Kaestchen mittrifft, bevor sie es wieder zum leeren Rechteck
+   macht. */
+.dir-tree-hidden input[type="checkbox"] {
+  height: revert;
+  padding: revert;
+  border: revert;
+  border-radius: revert;
+  background-color: revert;
+}
+
+/* Warnfarbe, nicht Gefahrfarbe: ein Arbeitsverzeichnis, das zwischen zwei
+   Sitzungen verschwindet, ist kein Fehler des Nutzers (Entwurf §5) -- aber
+   der Baum steht danach woanders, als das Feld sagt, und das muss auffallen. */
+.dir-tree-notice {
+  margin: 0;
+  padding: var(--ab-space-3) var(--ab-space-5);
+  /* Kein Rahmen (Spec 5.6, wie bei den Bannern): die Warntoenung grenzt den
+     Streifen selbst ab. */
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  background-color: var(--ab-warn-bg);
+  color: var(--ab-warn);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+/* `max-height` statt `flex: 1`: der Baum sitzt in einem Dialog, dessen Hoehe
+   sich sonst mit jeder aufgeklappten Ebene aendern wuerde -- eine Liste, die
+   den Schalter ueber sich und die Knoepfe unter sich verschiebt, waehrend
+   man sie bedient. Offener Punkt §11 (ein Verzeichnis mit tausenden
+   Eintraegen) bleibt davon unberuehrt: gerendert wird weiter alles, es
+   scrollt nur. */
+.dir-tree-rows {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--ab-space-2) 0;
+  border-radius: var(--ab-radius-sm);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  background-color: var(--ab-bg-canvas);
+}
+
+/* `--dir-depth` setzt `directory-tree.ts` je Zeile -- der Wert ist eine
+   ZAEHLUNG, kein Token; die Schrittweite selbst bleibt hier, damit kein
+   Pixelwert im TypeScript steht. Vorgabe `0`, damit das `calc()` auch dann
+   gueltig bleibt, wenn die Eigenschaft einmal nicht gesetzt ist. */
+.dir-row {
+  --dir-depth: 0;
+  height: var(--ab-row-h-session);
+  padding-left: calc(var(--ab-space-4) + var(--dir-depth) * var(--ab-space-6));
+  border-radius: var(--ab-radius-xs);
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+}
+
+/* Nur noch die Farbe: die Breite kommt seit UI v2 aus `.icon-box` (das
+   Dreieck ist ein Icon, kein Zeichen im Textfluss). */
+.dir-row .chev {
+  color: var(--ab-text-muted);
+}
+
+/* Drei-Kanal-Regel (Gesamtentwurf §7.7): Ladezustand und Fehler tragen
+   TEXT. Diese beiden Regeln faerben ihn nur zusaetzlich ein -- die Farbe ist
+   nie der einzige Kanal, siehe `noteFor` in `directory-tree.ts`. */
+.dir-row-note {
+  margin-left: auto;
+  flex: none;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+.dir-row-error {
+  color: var(--ab-danger);
+}
+
+/* UX-Spec §7.6: die letzten Verzeichnisse des Sitzungsdialogs als kompakte
+   Liste zwischen Feld und Baum. Aufbau wie eine Feldbeschriftung (`label`
+   weiter oben: Spalte, 11/14, gedaempft), damit "Recent" neben "Working
+   directory on the host" wie eine weitere Beschriftung liest. Die Zeilen
+   erben `.ab-row` und `.row-label` wie die Baumzeilen und stehen deshalb wie
+   `.dir-row` HINTER `.ab-row` (gleiche Spezifitaet): dieselbe Hoehe, Schrift
+   und Farbe, ein langer Pfad endet in "…". */
+.session-dialog-recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-2);
+}
+
+.session-dialog-recent-label {
+  margin: 0;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+.session-dialog-recent ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.session-dialog-recent-row {
+  height: var(--ab-row-h-session);
+  padding: 0 var(--ab-space-4);
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+}
+
+/* ===== Icons (v2 §6.3, §13) ================================================
+   Jedes Icon sitzt in einem Kasten fester Groesse; kein Icon steht als
+   Inline-Zeichen im Textfluss. Der Rueckfall-Versatz fuer die optische
+   Mitte (§6.4) haengt an der Textgroesse der Zeile und steht je Komponente
+   im Abschnitt "Optische Mitte" weiter unten. */
+.ab-icon {
+  display: block;
+  flex: none;
+}
+
+.icon-box {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.icon-box--sm {
+  width: 14px;
+  height: 14px;
+}
+
+/* ===== xterm-Scrollbalken (v2 §13.3) =====================================
+   xterm 6 baut seinen Balken als DOM-Overlay (`ScrollbarVisibility.Auto`) und
+   blendet ihn per `.invisible.fade` in 800 ms aus; `::-webkit-scrollbar`
+   trifft dort nichts. Farben kommen aus dem ITheme (terminal.ts). Dieser
+   Selektor ist das vierte Gate in styles.test.ts. */
+.tile-terminal .xterm .xterm-scrollable-element > .invisible {
+  opacity: 1;
+  pointer-events: auto;
+  transition: none;
+}
+
+/* ===== Seitenleistenkopf: Zahnrad (v2 §7.2) ===== */
+.sb-head-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  background-color: transparent;
+  color: var(--ab-text-secondary);
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.sb-head-btn:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+}
+
+/* ===== Einstellungen (Einstellungs-Spec §2, Farbwahl-Spec §6) =====
+   Grosse Huelle mit fester Hoehe, damit der Dialog beim Bereichswechsel
+   nicht springt; der Koerper scrollt nicht selbst, das tut das Panel.
+   `grid-template-rows: minmax(0, 1fr)` haelt die Zeile auf Koerperhoehe --
+   eine `auto`-Zeile wuechse mit dem Inhalt, und das Panel scrollte nie. */
+.dialog-panel--large {
+  width: min(760px, calc(100vw - 2 * var(--ab-space-6)));
+  height: min(540px, calc(100vh - 2 * var(--ab-space-8)));
+}
+
+.dialog-panel--large .dialog-body {
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+}
+
+.settings-view {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ab-space-1);
+  padding: var(--ab-space-4);
+  border-right: var(--ab-border-w) solid var(--ab-line);
+  background-color: var(--ab-bg-panel);
+}
+
+/* Eigene Bauform wie `.ab-row`: die Knopfbasis (Regel `button`) setzt Rahmen,
+   12 px und halbfett -- ein Tab ist ein Listeneintrag. */
+.settings-tab {
+  display: flex;
+  align-items: center;
+  height: var(--ab-control-h);
+  padding: 0 var(--ab-space-5);
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  background: none;
+  color: var(--ab-text-secondary);
+  font-family: inherit;
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  font-weight: var(--ab-fw-regular);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.settings-tab:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+}
+
+/* Wie die gewaehlte Session in der Seitenleiste; steht nach :hover, damit
+   der gewaehlte Tab beim Ueberfahren seine Toenung behaelt. */
+.settings-tab[aria-selected="true"] {
+  background-color: var(--ab-accent-soft);
+  color: var(--ab-text-primary);
+}
+
+/* Fokusring INNEN: Spalte und Panel beschnitten einen aussen versetzten. */
+.settings-tab:focus-visible,
+.settings-panel:focus-visible {
+  outline: var(--ab-focus-w) solid var(--ab-focus-ring);
+  outline-offset: -2px;
+}
+
+.settings-panel {
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--ab-space-7);
+  background-color: var(--ab-bg-canvas);
+}
+
+.settings-intro {
+  margin: 0 var(--ab-space-1) var(--ab-space-5);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+.settings-card {
+  padding: var(--ab-space-6);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-lg);
+  background-color: var(--ab-bg-card);
+}
+
+.settings-card + .settings-card {
+  margin-top: var(--ab-space-5);
+}
+
+/* Auch die Legende der Appearance-Gruppen (settings-appearance.ts). */
+.settings-card-title {
+  margin: 0 0 var(--ab-space-5);
+  padding: 0;
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.settings-card-title--rows {
+  margin-bottom: var(--ab-space-2);
+}
+
+.settings-card-note {
+  margin: 0 0 var(--ab-space-3);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+.settings-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.settings-rows {
+  margin: 0;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ab-space-6);
+  min-height: var(--ab-control-h);
+}
+
+.settings-row + .settings-row {
+  border-top: var(--ab-border-w) solid var(--ab-line);
+}
+
+.settings-row > dt {
+  color: var(--ab-text-secondary);
+}
+
+.settings-row > dd {
+  margin: 0;
+}
+
+.settings-value {
+  color: var(--ab-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.settings-value--mono {
+  font-family: var(--ab-font-mono);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+}
+
+/* Jede Taste ein eigener Chip (Spec §6.3): einen Ton heller als die Karte
+   und mit 2 px Unterkante, damit er darauf als Taste lesbar bleibt. Der
+   globale `kbd` (etwa im Leerzustand) bleibt, wie er ist. */
+.settings-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+}
+
+.settings-keys kbd {
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  background-color: var(--ab-bg-hover);
+  border-bottom-width: 2px;
+}
+
+.settings-copy {
+  margin-top: var(--ab-space-5);
+}
+
+/* Zeilen mit mehreren Belegungen (UX-Spec §9.1): je Belegung eine Chipgruppe,
+   dazwischen "or" oder " / " (`.settings-keys-sep`); ein Zusatz wie "with
+   selection" steht in der Gruppe. Wird die Zeile zu schmal, bricht sie
+   zwischen den Gruppen um. */
+.settings-keys-alternatives {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ab-space-2) var(--ab-space-3);
+}
+
+.settings-keys-sep,
+.settings-keys-note {
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+/* Der Pfad von settings.toml (UX-Spec §9.1, §11): markierbar und umbrechbar --
+   ein langer Windows-Pfad passt nicht in eine Zeile neben "Settings file". */
+.settings-value--path {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+  user-select: text;
+  cursor: text;
+}
+
+/* ===== Einstellungen mit Bedienelementen (UX-Spec §9.1) =====================
+   General und Terminal (`settings-rows.ts`): links Beschriftung und Hinweis,
+   rechts Schalter, Stepper oder Segmentwahl. */
+.settings-row--hint {
+  padding: var(--ab-space-3) 0;
+}
+
+.settings-row-text {
+  min-width: 0;
+}
+
+/* Die globale `label`-Regel der Formulare (Spalte, 11 px, gedaempft) gilt hier
+   nicht: die Beschriftung ist sekundaer in 13 px wie `.settings-row > dt`. */
+.settings-label {
+  display: block;
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  color: var(--ab-text-secondary);
+}
+
+.settings-row-hint,
+.settings-card-hint {
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+.settings-row-hint {
+  margin: var(--ab-space-2) 0 0;
+}
+
+.settings-card-hint {
+  margin: var(--ab-space-4) 0 0;
+}
+
+/* Schalter (`switch.ts`): 32 x 18 in Pillenform. Aus: Hover-Flaeche mit
+   gedaempftem Knopf links; an: Akzent mit Tinte rechts. Der Knopf springt
+   ohne Uebergang -- Bewegung nur ueber Farbe und Deckkraft (v2 §14). Sein
+   durchsichtiger Rahmen wird im Kontrastmodus sichtbar; dort zeigt dann die
+   Lage den Zustand. */
+.ab-switch {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 32px;
+  height: 18px;
+  padding: 0 var(--ab-space-1);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-bg-hover);
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), border-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.ab-switch-thumb {
+  width: 12px;
+  height: 12px;
+  border: var(--ab-border-w) solid transparent;
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-text-muted);
+  box-sizing: border-box;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.ab-switch:hover .ab-switch-thumb {
+  background-color: var(--ab-text-secondary);
+}
+
+.ab-switch[aria-checked="true"] {
+  justify-content: flex-end;
+  border-color: var(--ab-accent);
+  background-color: var(--ab-accent);
+}
+
+.ab-switch[aria-checked="true"]:hover {
+  border-color: var(--ab-accent-hover);
+  background-color: var(--ab-accent-hover);
+}
+
+/* Steht nach der Hover-Regel: der eingeschaltete Knopf bleibt Tinte. */
+.ab-switch[aria-checked="true"] .ab-switch-thumb {
+  background-color: var(--ab-accent-ink);
+}
+
+/* Schriftgroesse (UX-Spec §6.7): − Wert + in einem Rahmen, daneben "Reset". */
+.settings-font-controls {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ab-space-4);
+}
+
+.settings-stepper {
+  display: inline-flex;
+  align-items: center;
+  height: var(--ab-row-btn-h);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-sm);
+  box-sizing: border-box;
+}
+
+.settings-stepper-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  background: none;
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-lg);
+  line-height: var(--ab-lh-lg);
+  font-weight: var(--ab-fw-regular);
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.settings-stepper-btn:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+}
+
+/* An der Grenze gedaempft und ohne Hover, aber fokussierbar (`aria-disabled`
+   statt `disabled`, siehe settings-terminal.ts). */
+.settings-stepper-btn[aria-disabled="true"],
+.settings-stepper-btn[aria-disabled="true"]:hover {
+  background-color: transparent;
+  color: var(--ab-text-disabled);
+  cursor: default;
+}
+
+.settings-stepper-value {
+  min-width: 28px;
+  text-align: center;
+  color: var(--ab-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Segmentwahl "Right click" als Pille mit nativen Radios darin
+   (settings-terminal.ts). */
+.settings-seg {
+  display: inline-flex;
+  flex: none;
+  height: var(--ab-row-btn-h);
+  padding: 2px;
+  gap: 2px;
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-bg-panel);
+  box-sizing: border-box;
+}
+
+/* Die globale `label`-Regel (Spalte, 11 px, gedaempft) wird hier ersetzt. */
+.settings-seg-option {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 var(--ab-space-4);
+  border-radius: var(--ab-radius-pill);
+  color: var(--ab-text-muted);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.settings-seg-option:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-secondary);
+}
+
+/* Gewaehlt: Akzent mit Tinte PLUS Gewicht -- nicht allein ueber Farbe. */
+.settings-seg-option:has(input:checked) {
+  background-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+  font-weight: var(--ab-fw-semibold);
+}
+
+/* Das Radio selbst ist unsichtbar; der Fokusring gehoert an sein Segment. */
+.settings-seg-option:has(input:focus-visible) {
+  outline: var(--ab-focus-w) solid var(--ab-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Akzent: runde Felder mit 12 px Abstand -- Platz fuer den Auswahlring
+   (2 px im Abstand 2) und den Fokusring (2 px im Abstand 6), ohne dass sich
+   die Ringe benachbarter Felder beruehren. Der Auswahlring ist neutral,
+   weil das Feld selbst die Akzentfarbe ist. */
+.accent-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-6);
+  padding: var(--ab-space-3) var(--ab-space-2);
+}
+
+.accent-swatches {
+  display: flex;
+  gap: var(--ab-space-5);
+}
+
+/* `position: relative` verankert das visuell versteckte, absolut
+   positionierte Radio im Feld selbst (wie bei `.base-card`) -- sonst hinge
+   es an einem fernen Vorfahren, und das Scrollen zum Fokus zielte daneben. */
+.accent-option {
+  position: relative;
+  display: inline-flex;
+  border-radius: var(--ab-radius-pill);
+  cursor: pointer;
+}
+
+.accent-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+}
+
+.accent-dot .ab-icon {
+  visibility: hidden;
+}
+
+.accent-option:has(input:checked) .accent-dot {
+  outline: 2px solid var(--ab-text-secondary);
+  outline-offset: 2px;
+}
+
+.accent-option:has(input:checked) .accent-dot .ab-icon {
+  visibility: visible;
+}
+
+.accent-option:has(input:focus-visible) {
+  outline: var(--ab-focus-w) solid var(--ab-focus-ring);
+  outline-offset: 6px;
+}
+
+.accent-current {
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-secondary);
+}
+
+/* Grundton: `data-base` an der Karte setzt ihre Flaechentoken (Grundton-
+   bloecke oben) -- Karte und Quadrate erscheinen im EIGENEN Grundton. */
+.base-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ab-space-4);
+}
+
+.base-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 16px;
+  gap: var(--ab-space-3);
+  padding: var(--ab-space-5);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-md);
+  background-color: var(--ab-bg-card);
+  cursor: pointer;
+}
+
+/* Die Auswahl als Rand plus Innenschatten (UX-Spec §11), zusammen 2 px wie
+   zuvor die innere Kontur: die `outline` gehoert dem Fokusring darunter, und
+   der verdraengte sonst die Auswahl, sobald die Karte den Fokus hat. */
+.base-card:has(input:checked) {
+  border-color: var(--ab-accent);
+  box-shadow: inset 0 0 0 1px var(--ab-accent);
+}
+
+.base-card:has(input:focus-visible) {
+  outline: var(--ab-focus-w) solid var(--ab-focus-ring);
+  outline-offset: 2px;
+}
+
+.base-swatches {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--ab-space-2);
+}
+
+.base-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--ab-radius-xs);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+}
+
+.base-swatch--canvas { background-color: var(--ab-bg-canvas); }
+.base-swatch--panel  { background-color: var(--ab-bg-panel); }
+.base-swatch--card   { background-color: var(--ab-bg-card); }
+.base-swatch--accent { background-color: var(--ab-accent); }
+
+.base-card-name {
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-secondary);
+}
+
+.base-card:has(input:checked) .base-card-name {
+  font-weight: var(--ab-fw-semibold);
+  color: var(--ab-text-primary);
+}
+
+.base-card-check {
+  color: var(--ab-accent);
+  visibility: hidden;
+}
+
+.base-card:has(input:checked) .base-card-check {
+  visibility: visible;
+}
+
+.settings-hint {
+  margin: var(--ab-space-5) 0 0;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+/* ===== Seitenleiste v2, Teil 1 (Aufgabe 8): neue Elemente ===== */
+.sb-version {
+  padding-top: var(--ab-space-4);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sb-empty-hint {
+  margin: var(--ab-space-4) 0 0;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-muted);
+}
+
+.sb-avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--ab-radius-sm);
+  background-color: var(--ab-avatar-bg);
+  color: var(--ab-avatar-fg);
+  font-family: var(--ab-font-ui-small);
+  font-size: var(--ab-fs-2xs);
+  line-height: var(--ab-lh-2xs);
+  font-weight: var(--ab-fw-bold);
+}
+
+/* Innenabstand 6 statt 8 px seit Task 16, Punkt B: jedes Pixel, das die
+   Pille nicht braucht, gehoert dem Hostnamen daneben. */
+.state-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  height: 20px;
+  padding: 0 var(--ab-space-3);
+  border-radius: var(--ab-radius-pill);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-semibold);
+}
+
+.state-pill--connected    { background-color: var(--ab-ok-bg);      color: var(--ab-ok); }
+.state-pill--connecting   { background-color: var(--ab-connecting-bg); color: var(--ab-connecting); }
+.state-pill--disconnected { background-color: var(--ab-bg-hover);   color: var(--ab-text-secondary); }
+.state-pill--failed       { background-color: var(--ab-danger-bg);  color: var(--ab-danger); }
+
+.state-pill .ind-off { border-color: currentColor; }
+.state-pill .ind-fail { border-bottom-color: currentColor; }
+
+/* ===== Optische Mitte (v2 §6.4) ===========================================
+   Segoe UI sitzt geometrisch zentriert 1-2 px zu hoch. Mit `text-box`
+   (Chromium ab 133) wird der Textkasten auf Versal- und Grundlinie
+   getrimmt; ohne Unterstuetzung ruecken die Icon-Kaesten neben dem Text
+   um 1 px (neben 11/12 px) bzw. 2 px (ab 13 px) nach unten. Nie transform.
+   Der getrimmte Kasten endet an der Grundlinie: keines dieser Elemente darf
+   senkrecht beschneiden, sonst fehlen Unterlaengen und Klammern. Gekuerzte
+   Beschriftungen nehmen `overflow-x: clip` mit `overflow-y: visible`. */
+@supports (text-box: trim-both cap alphabetic) {
+  .row-label, .row-meta, .row-state-word, .row-session-count, .state-pill, .st, .sb-avatar, .badge, .tile-number,
+  .sb-lane-title, .row-lane-time, .row-lane-reason, .row-lane-more,
+  .tile-title, .tile-host, .tile-lock-chip, .tile-quiet, .tile-copied, .tile-narrow, .key-hint, kbd, .btn, .sb-btn, .host-action-btn,
+  .first-run-suggestion-alias, .first-run-suggestion-detail, .preflight-check, .base-card-name, .accent-current,
+  .settings-tab, .settings-row > dt, .settings-value, .terminal-search-count,
+  .settings-label, .settings-seg-option, .settings-stepper-value {
+    text-box: trim-both cap alphabetic;
+  }
+}
+
+@supports not (text-box: trim-both cap alphabetic) {
+  .row-host .chev { position: relative; top: 2px; }
+  .row-session .ind-box, .dir-row .chev, .preflight-check .icon-box, .base-card-check,
+  .tile-btn .icon-box, .tile-copied .icon-box, .sb-btn .icon-box, .st .icon-box, .btn--danger::before { position: relative; top: 1px; }
+}
+
+/* Kleinschrift (v2 §6.1): fuer 10 und 11 px "Segoe UI Variable Small" voran. */
+.row-meta, .row-state-word, .row-session-count, .state-pill, .st, .tile-host, .tile-lock-chip, .tile-quiet, .tile-copied, .tile-narrow,
+.sb-lane-title, .row-lane-time, .row-lane-reason, .row-lane-more,
+.key-hint, kbd, .first-run-suggestion-detail, .first-run-footer,
+.first-run-section-label, .sb-version, .sb-empty-hint, .control-quiet, .host-quiet,
+.terminal-menu-shortcut, .terminal-menu-hint, .terminal-search-count,
+.settings-keys-sep, .settings-keys-note, .quick-open-host {
+  font-family: var(--ab-font-ui-small);
+}
+
+/* ===== Scrollbalken ausserhalb des Terminals (Spec 13.3) ===== */
+/* Der Erststart scrollt, wenn das Fenster niedrig ist (UX-Spec §11). */
+.sb-list::-webkit-scrollbar, .dialog-body::-webkit-scrollbar, .dir-tree-rows::-webkit-scrollbar, .settings-panel::-webkit-scrollbar,
+.first-run-view::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sb-list::-webkit-scrollbar-thumb, .dialog-body::-webkit-scrollbar-thumb, .dir-tree-rows::-webkit-scrollbar-thumb, .settings-panel::-webkit-scrollbar-thumb,
+.first-run-view::-webkit-scrollbar-thumb {
+  background-color: var(--ab-scrollbar);
+  border-radius: var(--ab-radius-pill);
+}
+
+.sb-list::-webkit-scrollbar-thumb:hover, .dialog-body::-webkit-scrollbar-thumb:hover, .dir-tree-rows::-webkit-scrollbar-thumb:hover, .settings-panel::-webkit-scrollbar-thumb:hover,
+.first-run-view::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ab-scrollbar-hover);
+}
+
+.sb-list::-webkit-scrollbar-track, .dialog-body::-webkit-scrollbar-track, .dir-tree-rows::-webkit-scrollbar-track, .settings-panel::-webkit-scrollbar-track,
+.first-run-view::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* ===== Kontrastmodus (UX-Spec §11) =========================================
+   Im Windows-Kontrastmodus ersetzt der Browser die Flaechen- und Linienfarben
+   durch die Systemfarben, und `box-shadow` faellt weg. Eine Auswahl, die nur
+   von der Toenung lebt, waere dann unsichtbar. Systemfarben stehen nur in
+   diesem Block (styles.test.ts).
+
+   Die Auswahl ist eine Kontur in `Highlight`, innen wie die Fokusringe dieser
+   Elemente, aber GESTRICHELT: den Fokusring zeichnet der Browser hier
+   ebenfalls in Highlight und durchgezogen, und Fokus und Auswahl koennen auf
+   verschiedenen Zeilen stehen (der Zeiger der Liste gegen `aria-current`).
+   `:where()` haelt die Auswahl ohne Spezifitaet: steht der Fokus auf einem
+   gewaehlten Element, gewinnt der Fokusring (der Tab, die Sessionzeile, die
+   Grundtonkarte mit ihrem Haken). */
+@media (forced-colors: active) {
+  :where(.settings-tab[aria-selected="true"], .row-session[aria-current="true"], .quick-open-option[aria-selected="true"], .base-card:has(input:checked)) {
+    outline: var(--ab-focus-w) dashed Highlight;
+    outline-offset: -2px;
+  }
+
+  /* Farbfelder zeigen Farben -- ohne ihre eigene Flaeche saehen alle gleich aus. */
+  .accent-dot,
+  .base-swatch {
+    forced-color-adjust: none;
+  }
+
+  /* Das Akzentfeld zeichnet seine Auswahl schon als Kontur; Farbe und Strich
+     folgen derselben Sprache wie oben (Auswahl gestrichelt), denn das Feld
+     selbst behaelt seine Farbe. */
+  .accent-option:has(input:checked) .accent-dot {
+    outline-color: Highlight;
+    outline-style: dashed;
+  }
+
+  /* Die Linie des Ziehgriffs ist eine Flaeche und verschwaende sonst. */
+  .sb-resize:hover,
+  .sb-resize--dragging {
+    background-color: Highlight;
+  }
+
+  .tile-split:hover::after,
+  .tile-split--dragging::after {
+    background-color: Highlight;
+  }
+}

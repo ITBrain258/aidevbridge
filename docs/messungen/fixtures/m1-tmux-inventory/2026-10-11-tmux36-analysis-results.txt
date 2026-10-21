@@ -1,0 +1,54 @@
+[OK ] version_output_exact: 'tmux 3.6\n' stderr=''
+[OK ] version_current_gate_rejects: MeasuredVersion::from_response -> None today
+[OK ] version_with_v3_6_arm: an arm "tmux 3.6\n" => V3_6 would accept it
+[OK ] binary_identity: sha256 3bdeba4db61fa25e569e5d1ca6466acfd193018c7bbc2bc924ec415ffa0c2e58, '\0 3.6 \0' x1, '3.6a' x0
+[OK ] matrix_28_classes_equal: 28/28 gleiche Klasse
+[OK ] matrix_28_shapes_equal: 28/28 gleiche Form (Zahlenwerte maskiert)
+[OK ] output_escaping_changed: 3.6 gibt 'a\x1bb\x01c\rd\x7fe\n' roh aus; 3.4 haette laut Quelle a\033b\001c\rd\177e ausgegeben
+[OK ] title_controls_rejected: select-pane -T mit LF/CR/TAB wird wie unter 3.4 nicht uebernommen
+[OK ] option_lf_tab_raw: LF/TAB in eigener Option wie unter 3.4 roh
+[OK ] p_absent_list_server_absent: diagnosis='/tmp/tmux-1000/abtest_ux36_1' prediction='/tmp/tmux-1000/abtest_ux36_1' -> ServerAbsent, sobald V3_6 nicht wie V3_0 ausgenommen wird
+[OK ] p_inert_list_server_absent: diagnosis='/tmp/tmux-1000/abtest_ux36_1' prediction='/tmp/tmux-1000/abtest_ux36_1' -> ServerAbsent, sobald V3_6 nicht wie V3_0 ausgenommen wird
+[OK ] p_absent_names_server_absent_tolerant: 'error connecting to /tmp/tmux-1000/abtest_ux36_1 (No such file or directory)\n'
+[OK ] p_inert_names_server_absent_tolerant: 'no server running on /tmp/tmux-1000/abtest_ux36_1\n'
+[OK ] p_absent_kill_name_server_absent_tolerant: 'error connecting to /tmp/tmux-1000/abtest_ux36_1 (No such file or directory)\n'
+[OK ] p_inert_kill_name_server_absent_tolerant: 'no server running on /tmp/tmux-1000/abtest_ux36_1\n'
+[OK ] p_absent_inventory_direct_named_is_error: benannter Socket: kein NoServer im Klassifizierer (wie 3.4)
+[OK ] p_absent_inventory_guarded_named_is_error: benannter Socket: kein NoServer im Klassifizierer (wie 3.4)
+[OK ] p_inert_inventory_direct_named_is_error: benannter Socket: kein NoServer im Klassifizierer (wie 3.4)
+[OK ] absent_probes_started_nothing: Socketdatei nach allen Abwesenheitsproben weiter abwesend
+[OK ] empty_server_inventory: B/E ohne Q/P, direkt == bewacht
+[OK ] empty_guard_kill_rejects: AB_M1_REJECT, Exit 0
+[OK ] empty_resolve_error: 'no current target\n'
+[OK ] create_codex: C=C|685669|1791713381|$0|@0|%0|686327
+[OK ] create_grok: C=C|685669|1791713381|$1|@1|%1|686458
+[OK ] create_grokwait: C=C|685669|1791713381|$2|@2|%2|686591
+[OK ] create_plain: C=C|685669|1791713381|$3|@3|%3|686707
+[OK ] create_dead: C=C|685669|1791713381|$4|@4|%4|686825
+[OK ] create_kill: C=C|685669|1791713381|$5|@5|%5|686940
+[OK ] create_namekill: C=C|685669|1791713381|$6|@6|%6|687077
+[OK ] create_rename: C=C|685669|1791713381|$7|@7|%7|687192
+[OK ] create_repl: C=C|685669|1791713381|$8|@8|%8|687309
+[OK ] create_repl_replacement: C=C|685669|1791713381|$14|@15|%16|690167
+[OK ] duplicate_create: 'duplicate session: ab_ux36_plain\n'
+[OK ] missing_exact_name: "can't find session: ab_ux36\n"
+[OK ] obs_inventory_snapshot: 14 Sessions, 16 Panes
+[OK ] obs_guarded_equals_direct: list-commands-Huelle (bewacht) liefert dasselbe Inventar
+[OK ] obs_all_sessions_bound: 14/14 Bound
+[OK ] dead_pane_numeric: pane_dead=1 mit pane_pid=686825
+[OK ] multi_window_resolve: {"3": {"pane": 15, "pane_pid": 687912, "active": true}, "14": {"pane": 14, "pane_pid": 687872, "active": false}}
+[OK ] title_status_pipeline: {"$0": ["Busy", "working (Codex title)"], "$1": ["Busy", "working (Grok title)"], "$2": ["Waiting", "approval required (Grok title)"], "$4": ["Ended", "the session's pane is dead"]}
+[OK ] title_default: Standardtitel = Hostname wie unter 3.4
+[OK ] guard_argv_equals_builder: ausgefuehrte argv == BindingQuery-Builder (Python-Nachbau)
+[OK ] guard_false_rejects: p_guard_kill_wrong_pid, p_guard_kill_wrong_start, p_guard_kill_missing_session, p_guard_attach_wrong_pane_pid
+[OK ] guard_true_kill: Exit 0, leer, Session weg
+[OK ] guard_true_attach_without_pty: 'open terminal failed: not a terminal\n'
+[OK ] name_kill_missing_idempotent: "can't find session: ab_ux36_nosuch\n"
+[OK ] rename_detected: ListingChanged
+[OK ] replacement_rejects_old: r_old=TmuxError:1 old_creation=CreationMismatch new_creation=Bound
+[OK ] p_open_confirmed_open: W={'pid': 690464, 'ticks': 8043793, 'uid': 1000, 'tty_nr': 34824, 'tty': '/dev/pts/8'}, J flags=['UTF-8', 'attached', 'focused'], uid=1000, J-Felder=17, confirm=Bound, Exit nach detach=0
+[OK ] m_open_confirmed_open: W={'pid': 684896, 'ticks': 8042856, 'uid': 1000, 'tty_nr': 34820, 'tty': '/dev/pts/4'}, J flags=['UTF-8', 'attached', 'focused'], uid=1000, J-Felder=17, confirm=Bound, Exit nach detach=0
+[OK ] foreign_names_parse: parse_list behaelt die gelisteten Bytes
+[OK ] foreign_names_display_differs_from_34: {"punctuation": {"requested": "cash$back\\slash|semi;quote'#[x]", "listed36": "cash$back\\\\slash|semi;quote'#[x]", "listed34": "cash\\\\$back\\\\slash|semi;quote'#[x]", "has_requested_exit": 1, "has_listed_exit": 0}}
+[OK ] j_shape_equals_34: 3.4: J|2853784|1789233409|2853810|1789233409|$0|@0|%0|2853794|1|1|0|0|0|/dev/pts/6|1000|attached,focused,UTF-8 | 3.6: J|685669|1791713381|690464|1791713389|$0|@0|%0|686327|1|1|0|0|0|/dev/pts/8|1000|attached,focused,UTF-8
+ALL OK

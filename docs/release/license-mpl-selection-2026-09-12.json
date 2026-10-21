@@ -1,0 +1,3085 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-09-12T12:22:06.719Z",
+  "status": "target_specific_mpl_selection_complete_delivery_verification_pending",
+  "input_head": "b5d87910736ebb0fdc2515fd6548bf055ef1f4a3",
+  "scope": {
+    "target": "x86_64-pc-windows-msvc",
+    "features": "default plus tauri/custom-protocol",
+    "native_source_commit": "6a45c12",
+    "existing_native_unchanged": true,
+    "frontend_dist_note": "The separately rebuilt dist stamp bfa8de5 is not embedded in this native EXE.",
+    "no_build_or_install_performed": true,
+    "only_components": [
+      "selectors 0.36.1",
+      "option-ext 0.2.0"
+    ],
+    "source_distribution_note": "This package writes only assessment metadata and source pointers. It does not add MPL implementation excerpts, a source archive or a new license/notice payload."
+  },
+  "inputs": [
+    {
+      "path": "Cargo.toml",
+      "bytes": 256,
+      "sha256": "38b006f1e3936f256a5c475a2cf0ca3b7654bed93f75572a0a033522a4bd404b"
+    },
+    {
+      "path": "Cargo.lock",
+      "bytes": 153532,
+      "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "bytes": 5008,
+      "sha256": "337de8247088d03fe34826d772bbf3e002360c8df05faefad5d2c8de0e99dde2"
+    },
+    {
+      "path": "src-tauri/build.rs",
+      "bytes": 3462,
+      "sha256": "545bc3b54b7d0396786257c786b518c8096b0be1d4a4695dedad8a6044d6475a"
+    },
+    {
+      "path": "src-tauri/src/lib.rs",
+      "bytes": 6603,
+      "sha256": "b38c64cfeaf5e4ef3cd8f18970e0ad6a52e4889cac28f14a9466b7810966ca1c"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "bytes": 1295,
+      "sha256": "38050385b160e40c38ce20387154b6a7e896bb1dafef56f5c61798532a33a2b7"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "bytes": 66,
+      "sha256": "e7155b5437585c3c3acc3053b08c6936020e9e93cc343e47e7e25f0033418e84"
+    },
+    {
+      "path": "package.json",
+      "bytes": 952,
+      "sha256": "ac3ccd4deb2afb5613e41a88adfbd0948fbc61013b30ff8d848f61c483c16efe"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 140,
+      "sha256": "65ad6451bc2bfd49c7c817ea0e1250face81ba088dd8692da2e2ba9d243bb527"
+    },
+    {
+      "path": "docs/release/license-inventory-2026-09-12-rust.json",
+      "bytes": 1708392,
+      "sha256": "9e9637f332eaa701a88475cbd677885e65ca6ce9fd67f981643973836d31d021"
+    },
+    {
+      "path": "docs/release/license-remaining-rust-2026-09-12.json",
+      "bytes": 171246,
+      "sha256": "b481d51198b3917064d651b817935c2bc97ad22c96f030892bfffbf536a26950"
+    },
+    {
+      "path": "docs/release/license-rust-stdlib-2026-09-12.json",
+      "bytes": 112683,
+      "sha256": "ec7bb211cde6dc8b876efb4372c54dd71d02d79d0a87c606ed06426f5b737b40"
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "-p",
+        "agentbridge",
+        "--features",
+        "tauri/custom-protocol",
+        "--edges",
+        "normal,build",
+        "-i",
+        "selectors@0.36.1"
+      ],
+      "exit_code": 0,
+      "stdout": "selectors v0.36.1\n└── dom_query v0.27.0\n    └── tauri-utils v2.9.3\n        ├── tauri-build v2.6.3\n        │   [build-dependencies]\n        │   ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n        │   └── tauri v2.11.5\n        │       ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n        │       ├── tauri-plugin-dialog v2.7.2\n        │       │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n        │       ├── tauri-plugin-fs v2.5.1\n        │       │   └── tauri-plugin-dialog v2.7.2 (*)\n        │       ├── tauri-plugin-opener v2.5.4\n        │       │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n        │       └── tauri-plugin-window-state v2.4.1\n        │           └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n        ├── tauri-codegen v2.6.3\n        │   └── tauri-macros v2.6.3 (proc-macro)\n        │       └── tauri v2.11.5 (*)\n        ├── tauri-macros v2.6.3 (proc-macro) (*)\n        └── tauri-plugin v2.6.3\n            [build-dependencies]\n            ├── tauri-plugin-dialog v2.7.2 (*)\n            ├── tauri-plugin-fs v2.5.1 (*)\n            ├── tauri-plugin-opener v2.5.4 (*)\n            └── tauri-plugin-window-state v2.4.1 (*)\n        [build-dependencies]\n        ├── tauri v2.11.5 (*)\n        └── tauri-plugin-fs v2.5.1 (*)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "-p",
+        "agentbridge",
+        "--features",
+        "tauri/custom-protocol",
+        "--edges",
+        "normal,no-proc-macro",
+        "-i",
+        "selectors@0.36.1"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "warning: nothing to print.\n\nTo find dependencies that require specific target platforms, try to use option `--target all` first, and then narrow your search scope accordingly.\n"
+    },
+    {
+      "command": [
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "-p",
+        "agentbridge",
+        "--features",
+        "tauri/custom-protocol",
+        "--edges",
+        "normal,build",
+        "-i",
+        "option-ext@0.2.0"
+      ],
+      "exit_code": 0,
+      "stdout": "option-ext v0.2.0\n└── dirs-sys v0.5.0\n    └── dirs v6.0.0\n        └── tauri-build v2.6.3\n            [build-dependencies]\n            ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n            └── tauri v2.11.5\n                ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n                ├── tauri-plugin-dialog v2.7.2\n                │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n                ├── tauri-plugin-fs v2.5.1\n                │   └── tauri-plugin-dialog v2.7.2 (*)\n                ├── tauri-plugin-opener v2.5.4\n                │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n                └── tauri-plugin-window-state v2.4.1\n                    └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n\noption-ext v0.2.0\n├── dirs-sys v0.4.1\n│   └── dirs v5.0.1\n│       └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n└── dirs-sys v0.5.0\n    └── dirs v6.0.0\n        └── tauri v2.11.5 (*)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "-p",
+        "agentbridge",
+        "--features",
+        "tauri/custom-protocol",
+        "--edges",
+        "normal,no-proc-macro",
+        "-i",
+        "option-ext@0.2.0"
+      ],
+      "exit_code": 0,
+      "stdout": "option-ext v0.2.0\n├── dirs-sys v0.4.1\n│   └── dirs v5.0.1\n│       └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n└── dirs-sys v0.5.0\n    └── dirs v6.0.0\n        └── tauri v2.11.5\n            ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n            ├── tauri-plugin-dialog v2.7.2\n            │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n            ├── tauri-plugin-fs v2.5.1\n            │   └── tauri-plugin-dialog v2.7.2 (*)\n            ├── tauri-plugin-opener v2.5.4\n            │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n            └── tauri-plugin-window-state v2.4.1\n                └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rustc",
+        "--print",
+        "cfg",
+        "--target",
+        "x86_64-pc-windows-msvc"
+      ],
+      "exit_code": 0,
+      "stdout": "debug_assertions\npanic=\"unwind\"\ntarget_abi=\"\"\ntarget_arch=\"x86_64\"\ntarget_endian=\"little\"\ntarget_env=\"msvc\"\ntarget_family=\"windows\"\ntarget_feature=\"cmpxchg16b\"\ntarget_feature=\"fxsr\"\ntarget_feature=\"sse\"\ntarget_feature=\"sse2\"\ntarget_feature=\"sse3\"\ntarget_has_atomic=\"128\"\ntarget_has_atomic=\"16\"\ntarget_has_atomic=\"32\"\ntarget_has_atomic=\"64\"\ntarget_has_atomic=\"8\"\ntarget_has_atomic=\"ptr\"\ntarget_has_atomic_primitive_alignment=\"128\"\ntarget_has_atomic_primitive_alignment=\"16\"\ntarget_has_atomic_primitive_alignment=\"32\"\ntarget_has_atomic_primitive_alignment=\"64\"\ntarget_has_atomic_primitive_alignment=\"8\"\ntarget_has_atomic_primitive_alignment=\"ptr\"\ntarget_os=\"windows\"\ntarget_pointer_width=\"64\"\ntarget_vendor=\"pc\"\nwindows\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "6a45c12",
+        "--",
+        "Cargo.toml",
+        "Cargo.lock",
+        "src-tauri/Cargo.toml",
+        "src-tauri/build.rs",
+        "src-tauri/tauri.conf.json",
+        "rust-toolchain.toml"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "primary_crate_source_checks": [
+    {
+      "name": "option-ext",
+      "version": "0.2.0",
+      "archive_url": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
+      "archive_bytes": 7345,
+      "lock_checksum": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
+      "archive_sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
+      "source_files": [
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/option-ext-0.2.0/Cargo.toml",
+          "bytes": 866,
+          "sha256": "ecd67cb17a0586f1406b7d494ef93191ed8ebf149db46667a7778052d94e1e6c",
+          "archive_member": "option-ext-0.2.0/Cargo.toml",
+          "relative_path": "Cargo.toml",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/option-ext-0.2.0/Cargo.toml.orig",
+          "bytes": 399,
+          "sha256": "202b034590ddf9857aaa639982f7fa8d0b2d36abc4e8223b0211bcd104e34180",
+          "archive_member": "option-ext-0.2.0/Cargo.toml.orig",
+          "relative_path": "Cargo.toml.orig",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/option-ext-0.2.0/.cargo_vcs_info.json",
+          "bytes": 94,
+          "sha256": "a39230404ac7fee558f4bb1de8449a6aeafcc064d63228bcc32428e0e4366dd8",
+          "archive_member": "option-ext-0.2.0/.cargo_vcs_info.json",
+          "relative_path": ".cargo_vcs_info.json",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/option-ext-0.2.0/src/lib.rs",
+          "bytes": 2397,
+          "sha256": "5a0a1fb2ca896a06bcbc32024c8fe64be682170585be6313ba3ff2a87672d1fc",
+          "archive_member": "option-ext-0.2.0/src/lib.rs",
+          "relative_path": "src/lib.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/option-ext-0.2.0/src/impl.rs",
+          "bytes": 490,
+          "sha256": "2f0b6f0421c4d37b1a8f0412cf71e9720cb8c5ddcec61ac802474e40ab8a3f9b",
+          "archive_member": "option-ext-0.2.0/src/impl.rs",
+          "relative_path": "src/impl.rs",
+          "archive_bytes_equal": true
+        }
+      ],
+      "vcs": {
+        "git": {
+          "sha1": "272f22fc9ea1ac6b08f01704af52c4ac338df4e2"
+        },
+        "path_in_vcs": ""
+      }
+    },
+    {
+      "name": "selectors",
+      "version": "0.36.1",
+      "archive_url": "https://static.crates.io/crates/selectors/selectors-0.36.1.crate",
+      "archive_bytes": 69832,
+      "lock_checksum": "c5d9c0c92a92d33f08817311cf3f2c29a3538a8240e94a6a3c622ce652d7e00c",
+      "archive_sha256": "c5d9c0c92a92d33f08817311cf3f2c29a3538a8240e94a6a3c622ce652d7e00c",
+      "source_files": [
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/Cargo.toml",
+          "bytes": 1705,
+          "sha256": "c4d292da59a7b7787100f0839b7c18d9a2fa661ab7906d1617137469e1aca2da",
+          "archive_member": "selectors-0.36.1/Cargo.toml",
+          "relative_path": "Cargo.toml",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/.cargo_vcs_info.json",
+          "bytes": 103,
+          "sha256": "b9b619f8e31f591cd1326578b87ccb14b4f3687af65b505674522513ed4d276d",
+          "archive_member": "selectors-0.36.1/.cargo_vcs_info.json",
+          "relative_path": ".cargo_vcs_info.json",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/lib.rs",
+          "bytes": 643,
+          "sha256": "d54c6e13e9e952dac17d209171df8657e3cae93beaddace4906150cdec8d02e9",
+          "archive_member": "selectors-0.36.1/lib.rs",
+          "relative_path": "lib.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/build.rs",
+          "bytes": 1446,
+          "sha256": "36ba09a8d2089d0cae8e310829ecf0e94bcbaa87e775a6578c7d2f0459a5b6ca",
+          "archive_member": "selectors-0.36.1/build.rs",
+          "relative_path": "build.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/attr.rs",
+          "bytes": 6686,
+          "sha256": "cfb9ba3ae47538a05b218ed63cc1360ebcf7ba448cb910f2af638f66244c1ae6",
+          "archive_member": "selectors-0.36.1/attr.rs",
+          "relative_path": "attr.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/parser.rs",
+          "bytes": 176481,
+          "sha256": "99081617e5c204bce5a7f430805ae86ca4c2eb340d59e6d2213ed1264419b9eb",
+          "archive_member": "selectors-0.36.1/parser.rs",
+          "relative_path": "parser.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/matching.rs",
+          "bytes": 56962,
+          "sha256": "90fb23dfb0dc9b9fa51e711ec4feb2b5a61d8f6bb8b284069d69f80ba82500fa",
+          "archive_member": "selectors-0.36.1/matching.rs",
+          "relative_path": "matching.rs",
+          "archive_bytes_equal": true
+        }
+      ],
+      "vcs": {
+        "git": {
+          "sha1": "635e1a19d02960588a00e189bd4bd5bdb150ec3d"
+        },
+        "path_in_vcs": "selectors"
+      }
+    },
+    {
+      "name": "dirs-sys",
+      "version": "0.4.1",
+      "archive_url": "https://static.crates.io/crates/dirs-sys/dirs-sys-0.4.1.crate",
+      "archive_bytes": 10719,
+      "lock_checksum": "520f05a5cbd335fae5a99ff7a6ab8627577660ee5cfd6a94a6a929b52ff0321c",
+      "archive_sha256": "520f05a5cbd335fae5a99ff7a6ab8627577660ee5cfd6a94a6a929b52ff0321c",
+      "source_files": [
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dirs-sys-0.4.1/Cargo.toml",
+          "bytes": 1148,
+          "sha256": "7dca1a46dad98e82764bd2c4fcab995b82a2650e2e6ac85be41ffd133a08be03",
+          "archive_member": "dirs-sys-0.4.1/Cargo.toml",
+          "relative_path": "Cargo.toml",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dirs-sys-0.4.1/src/lib.rs",
+          "bytes": 6431,
+          "sha256": "e3966443913b2a5e4b3b87ae7aa18a99c1a1b82b75fc8585e69dffcc548d5beb",
+          "archive_member": "dirs-sys-0.4.1/src/lib.rs",
+          "relative_path": "src/lib.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dirs-sys-0.4.1/src/xdg_user_dirs.rs",
+          "bytes": 9155,
+          "sha256": "4b02f72e6b1868fbe76ce910edb53130a4712e5ff9e61801d8719aaa81f7a617",
+          "archive_member": "dirs-sys-0.4.1/src/xdg_user_dirs.rs",
+          "relative_path": "src/xdg_user_dirs.rs",
+          "archive_bytes_equal": true
+        }
+      ],
+      "vcs": {
+        "git": {
+          "sha1": "f369f0904bec9833572f24c988c7e48454173983"
+        },
+        "path_in_vcs": ""
+      }
+    },
+    {
+      "name": "dirs-sys",
+      "version": "0.5.0",
+      "archive_url": "https://static.crates.io/crates/dirs-sys/dirs-sys-0.5.0.crate",
+      "archive_bytes": 10157,
+      "lock_checksum": "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab",
+      "archive_sha256": "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab",
+      "source_files": [
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dirs-sys-0.5.0/Cargo.toml",
+          "bytes": 1300,
+          "sha256": "7085f746e45a405e7861e7ab3335cb92ecdf836863bd1baa350f961a5f06b04c",
+          "archive_member": "dirs-sys-0.5.0/Cargo.toml",
+          "relative_path": "Cargo.toml",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dirs-sys-0.5.0/src/lib.rs",
+          "bytes": 6388,
+          "sha256": "b519e22cfb5ccc4b307aed57f67a66641660f2b29496f00db761b7c49307e2dd",
+          "archive_member": "dirs-sys-0.5.0/src/lib.rs",
+          "relative_path": "src/lib.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dirs-sys-0.5.0/src/xdg_user_dirs.rs",
+          "bytes": 9155,
+          "sha256": "4b02f72e6b1868fbe76ce910edb53130a4712e5ff9e61801d8719aaa81f7a617",
+          "archive_member": "dirs-sys-0.5.0/src/xdg_user_dirs.rs",
+          "relative_path": "src/xdg_user_dirs.rs",
+          "archive_bytes_equal": true
+        }
+      ],
+      "vcs": {
+        "git": {
+          "sha1": "8bcd4aa2c35990d57a2cff2953793525fc42709c"
+        },
+        "path_in_vcs": ""
+      }
+    },
+    {
+      "name": "dom_query",
+      "version": "0.27.0",
+      "archive_url": "https://static.crates.io/crates/dom_query/dom_query-0.27.0.crate",
+      "archive_bytes": 94297,
+      "lock_checksum": "521e380c0c8afb8d9a1e83a1822ee03556fc3e3e7dbc1fd30be14e37f9cb3f89",
+      "archive_sha256": "521e380c0c8afb8d9a1e83a1822ee03556fc3e3e7dbc1fd30be14e37f9cb3f89",
+      "source_files": [
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dom_query-0.27.0/Cargo.toml",
+          "bytes": 3390,
+          "sha256": "a705d6135c8cd3fb74c137bbe80a38ca46f98e83ebaec5528af9c6e965601f01",
+          "archive_member": "dom_query-0.27.0/Cargo.toml",
+          "relative_path": "Cargo.toml",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dom_query-0.27.0/src/matcher.rs",
+          "bytes": 10088,
+          "sha256": "a7ddb4baf34d9d17e4c6572d2bcc29d5e842dcb3a84e85a6e910ba68a0dedce2",
+          "archive_member": "dom_query-0.27.0/src/matcher.rs",
+          "relative_path": "src/matcher.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dom_query-0.27.0/src/document.rs",
+          "bytes": 18114,
+          "sha256": "0b21882b5512c0a95ebe64e7f34d1ded96439b5c97c11573958ae0472d32e9b8",
+          "archive_member": "dom_query-0.27.0/src/document.rs",
+          "relative_path": "src/document.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dom_query-0.27.0/src/selection.rs",
+          "bytes": 31718,
+          "sha256": "7428cd3e2d1649632920fb80275825435a39c276a9c2d1314cc3367cff9aa4a4",
+          "archive_member": "dom_query-0.27.0/src/selection.rs",
+          "relative_path": "src/selection.rs",
+          "archive_bytes_equal": true
+        }
+      ],
+      "vcs": {
+        "git": {
+          "sha1": "94ef144a3c5a7459c6d952439bd329a96bd26d0d"
+        },
+        "path_in_vcs": ""
+      }
+    },
+    {
+      "name": "tauri-utils",
+      "version": "2.9.3",
+      "archive_url": "https://static.crates.io/crates/tauri-utils/tauri-utils-2.9.3.crate",
+      "archive_bytes": 150044,
+      "lock_checksum": "3e176a18e67764923c4f1ce66f25ae4abe5f688384d5eb1a0fa6c77f3d90f887",
+      "archive_sha256": "3e176a18e67764923c4f1ce66f25ae4abe5f688384d5eb1a0fa6c77f3d90f887",
+      "source_files": [
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-utils-2.9.3/Cargo.toml",
+          "bytes": 3863,
+          "sha256": "6fba2793fa0b11e4695d1c0b71ae81487c2ba1d554bfb6b16c3034cfd85ecf2c",
+          "archive_member": "tauri-utils-2.9.3/Cargo.toml",
+          "relative_path": "Cargo.toml",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-utils-2.9.3/src/lib.rs",
+          "bytes": 12261,
+          "sha256": "d913767f5b291497cb752d4bb64271f2ff0b9ae711fcbc41fb880252ac549d6e",
+          "archive_member": "tauri-utils-2.9.3/src/lib.rs",
+          "relative_path": "src/lib.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-utils-2.9.3/src/html2.rs",
+          "bytes": 10532,
+          "sha256": "04beee12c794585d349cf1e45850483d5f7eeea73df7268dbd2470d8675bb7b3",
+          "archive_member": "tauri-utils-2.9.3/src/html2.rs",
+          "relative_path": "src/html2.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-utils-2.9.3/src/assets.rs",
+          "bytes": 6185,
+          "sha256": "7d7ae635a4abc79088ebe537c3e96d1cb493748782963674b33e42e727857f81",
+          "archive_member": "tauri-utils-2.9.3/src/assets.rs",
+          "relative_path": "src/assets.rs",
+          "archive_bytes_equal": true
+        }
+      ],
+      "vcs": {
+        "git": {
+          "sha1": "6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a"
+        },
+        "path_in_vcs": "crates/tauri-utils"
+      }
+    },
+    {
+      "name": "tauri-codegen",
+      "version": "2.6.3",
+      "archive_url": "https://static.crates.io/crates/tauri-codegen/tauri-codegen-2.6.3.crate",
+      "archive_bytes": 37300,
+      "lock_checksum": "08279169ff42f8fc45a1dbc9dcae888893ba95288142e5880c59b93a26d2cfc5",
+      "archive_sha256": "08279169ff42f8fc45a1dbc9dcae888893ba95288142e5880c59b93a26d2cfc5",
+      "source_files": [
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-codegen-2.6.3/Cargo.toml",
+          "bytes": 2280,
+          "sha256": "06d1e91c64548d4eed62c90a9d4a46c9697abf6f4b770deaa33c568eb8345d36",
+          "archive_member": "tauri-codegen-2.6.3/Cargo.toml",
+          "relative_path": "Cargo.toml",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-codegen-2.6.3/src/context.rs",
+          "bytes": 15516,
+          "sha256": "ea13b70394f0166813d3aa1938d423ddd3ed809f81ecf541586c2f32f15255bd",
+          "archive_member": "tauri-codegen-2.6.3/src/context.rs",
+          "relative_path": "src/context.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-codegen-2.6.3/src/embedded_assets.rs",
+          "bytes": 14496,
+          "sha256": "95d96bdf8295ee6edadc8c091c347533bcc7c3963be7db4da95005d9598380ee",
+          "archive_member": "tauri-codegen-2.6.3/src/embedded_assets.rs",
+          "relative_path": "src/embedded_assets.rs",
+          "archive_bytes_equal": true
+        }
+      ],
+      "vcs": {
+        "git": {
+          "sha1": "6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a"
+        },
+        "path_in_vcs": "crates/tauri-codegen"
+      }
+    },
+    {
+      "name": "tauri-macros",
+      "version": "2.6.3",
+      "archive_url": "https://static.crates.io/crates/tauri-macros/tauri-macros-2.6.3.crate",
+      "archive_bytes": 34903,
+      "lock_checksum": "e8b394794f399a421811d06966343e7933fcae92d59f5180b9388d1174497a45",
+      "archive_sha256": "e8b394794f399a421811d06966343e7933fcae92d59f5180b9388d1174497a45",
+      "source_files": [
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-macros-2.6.3/Cargo.toml",
+          "bytes": 1685,
+          "sha256": "359f36b12d366f379f46fb9b59d78678e2df4a1617e605c9c480301d3d57e4b3",
+          "archive_member": "tauri-macros-2.6.3/Cargo.toml",
+          "relative_path": "Cargo.toml",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-macros-2.6.3/src/lib.rs",
+          "bytes": 7274,
+          "sha256": "56f7e3c05015098fcab1365d194783d4c14313180e05bee1077bbc8f6f168b62",
+          "archive_member": "tauri-macros-2.6.3/src/lib.rs",
+          "relative_path": "src/lib.rs",
+          "archive_bytes_equal": true
+        },
+        {
+          "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-macros-2.6.3/src/context.rs",
+          "bytes": 5085,
+          "sha256": "11792baac8002f7875518a36e41f482e6ee7ca93de30bc459d23581b55e3b3ae",
+          "archive_member": "tauri-macros-2.6.3/src/context.rs",
+          "relative_path": "src/context.rs",
+          "archive_bytes_equal": true
+        }
+      ],
+      "vcs": {
+        "git": {
+          "sha1": "6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a"
+        },
+        "path_in_vcs": "crates/tauri-macros"
+      }
+    }
+  ],
+  "existing_license_evidence": [
+    {
+      "component": "selectors 0.36.1",
+      "path": "docs/release/licenses/selectors-0.36.1-LICENSE-MPL-2.0.txt",
+      "prior_report": "docs/release/license-remaining-rust-2026-09-12.md",
+      "action": "preserve; no re-audit or replacement"
+    },
+    {
+      "component": "option-ext 0.2.0",
+      "path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/option-ext-0.2.0/LICENSE.txt",
+      "prior_inventory": "docs/release/license-inventory-2026-09-12-rust.json",
+      "action": "existing recorded full-text source; no new payload selected"
+    }
+  ],
+  "fingerprints": [
+    {
+      "path": "target/release/.fingerprint/dirs-sys-2fa52ea907baecf6/lib-dirs_sys.json",
+      "bytes": 476,
+      "sha256": "34123310559ae006f515b4dc947a19cf68fadf0297de333764c43d6d44cfbe5f",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 9773438591563278000,
+        "profile": 2040997289075261400,
+        "path": 17137517651279692000,
+        "deps": [
+          [
+            6568467691589962000,
+            "windows_sys",
+            false,
+            2618272129337228300
+          ],
+          [
+            9760035060063615000,
+            "option_ext",
+            false,
+            8355818406203503000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\dirs-sys-2fa52ea907baecf6\\dep-lib-dirs_sys",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/dirs-sys-9c5d903f5537679e/lib-dirs_sys.json",
+      "bytes": 475,
+      "sha256": "5265656688515115a0104767fa424e0532b5b3da7fe99588ea3dcaefdb5265e9",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 1716570026465205000,
+        "profile": 2040997289075261400,
+        "path": 8861557719917502000,
+        "deps": [
+          [
+            1999565553139417600,
+            "windows_sys",
+            false,
+            1421330762629833200
+          ],
+          [
+            9760035060063615000,
+            "option_ext",
+            false,
+            8355818406203503000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\dirs-sys-9c5d903f5537679e\\dep-lib-dirs_sys",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/dirs-sys-a690be6a516b7db3/lib-dirs_sys.json",
+      "bytes": 476,
+      "sha256": "2fbe88cbd368c33a611382a1f84a6fd273457fdcdc97427648b4c1e004403524",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 9773438591563278000,
+        "profile": 1369601567987815700,
+        "path": 17137517651279692000,
+        "deps": [
+          [
+            6568467691589962000,
+            "windows_sys",
+            false,
+            9887525131472890000
+          ],
+          [
+            9760035060063615000,
+            "option_ext",
+            false,
+            2660049123899442000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\dirs-sys-a690be6a516b7db3\\dep-lib-dirs_sys",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/dom_query-05bd8d1b0949585e/lib-dom_query.json",
+      "bytes": 853,
+      "sha256": "290fe3d40e0d8039be0b8f1509a19444987e939df59ea15ada30444e7cb558db",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[]",
+        "declared_features": "[\"atomic\", \"default\", \"hashbrown\", \"markdown\", \"mini_selector\"]",
+        "target": 10213660345579516000,
+        "profile": 1369601567987815700,
+        "path": 9691755723647705000,
+        "deps": [
+          [
+            2981812677314479000,
+            "foldhash",
+            false,
+            1191234804692755500
+          ],
+          [
+            3494194805942705000,
+            "html5ever",
+            false,
+            15615831945013795000
+          ],
+          [
+            5050523513169279000,
+            "cssparser",
+            false,
+            14359278029743583000
+          ],
+          [
+            5869642311777132000,
+            "tendril",
+            false,
+            5186427618381867000
+          ],
+          [
+            6995234255362136000,
+            "precomputed_hash",
+            false,
+            12526092746245090000
+          ],
+          [
+            9519969280819313000,
+            "bit_set",
+            false,
+            3392796241944614000
+          ],
+          [
+            13998751768313215000,
+            "selectors",
+            false,
+            12605330902705560000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\dom_query-05bd8d1b0949585e\\dep-lib-dom_query",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/option-ext-110f0c62f094694f/lib-option_ext.json",
+      "bytes": 359,
+      "sha256": "48b28483bc5108d0b67afadcc4a366e9f89307a271858002d8b5d39194a0bae2",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 17153617223804709000,
+        "profile": 2040997289075261400,
+        "path": 18442503574215242000,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\option-ext-110f0c62f094694f\\dep-lib-option_ext",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/option-ext-af5189632c4b0039/lib-option_ext.json",
+      "bytes": 359,
+      "sha256": "ce10a3aad52da941af01994abf760bff9720eed2ae4e2a1590e555f57c87e70e",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[]",
+        "declared_features": "[]",
+        "target": 17153617223804709000,
+        "profile": 1369601567987815700,
+        "path": 18442503574215242000,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\option-ext-af5189632c4b0039\\dep-lib-option_ext",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/selectors-14a291c3243f41ae/lib-selectors.json",
+      "bytes": 1060,
+      "sha256": "02db0b46b0e14194fcc0e760c1f092ec53d034c50c64d18a3f1e9d467d40c802",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[]",
+        "declared_features": "[\"bench\", \"to_shmem\"]",
+        "target": 16656759480927365000,
+        "profile": 1369601567987815700,
+        "path": 10712099509447315000,
+        "deps": [
+          [
+            595566797399950300,
+            "derive_more",
+            false,
+            16595919297284712000
+          ],
+          [
+            2295442787663447300,
+            "smallvec",
+            false,
+            16588872586021065000
+          ],
+          [
+            2687729594444539000,
+            "debug_unreachable",
+            false,
+            4186106994598150700
+          ],
+          [
+            5050523513169279000,
+            "cssparser",
+            false,
+            14359278029743583000
+          ],
+          [
+            5127344325563759000,
+            "bitflags",
+            false,
+            9382433275413880000
+          ],
+          [
+            5793233592449581000,
+            "rustc_hash",
+            false,
+            14128583510676906000
+          ],
+          [
+            6995234255362136000,
+            "precomputed_hash",
+            false,
+            12526092746245090000
+          ],
+          [
+            7143558179796333000,
+            "phf",
+            false,
+            2355319542840720400
+          ],
+          [
+            13998751768313215000,
+            "build_script_build",
+            false,
+            12140329365419977000
+          ],
+          [
+            17353235279385985000,
+            "log",
+            false,
+            4302322009624086000
+          ],
+          [
+            17777032797720920000,
+            "servo_arc",
+            false,
+            9182177019953620000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\selectors-14a291c3243f41ae\\dep-lib-selectors",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/selectors-cb22e9caae49570d/build-script-build-script-build.json",
+      "bytes": 457,
+      "sha256": "dc173235f3f38e73aebe1ca300b602fd0658d3dde595bcf894dc8399d6cc255e",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[]",
+        "declared_features": "[\"bench\", \"to_shmem\"]",
+        "target": 5408242616063298000,
+        "profile": 1369601567987815700,
+        "path": 7769624061512334000,
+        "deps": [
+          [
+            7948629064644086000,
+            "phf_codegen",
+            false,
+            1467321924886566100
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\selectors-cb22e9caae49570d\\dep-build-script-build-script-build",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/selectors-d4ca9b8a11199791/run-build-script-build-script-build.json",
+      "bytes": 257,
+      "sha256": "ca6b224720e479b4d65f5dc20868f87a45bd300143ace4eeab7521ced95b15f7",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "",
+        "declared_features": "",
+        "target": 0,
+        "profile": 0,
+        "path": 0,
+        "deps": [
+          [
+            13998751768313215000,
+            "build_script_build",
+            false,
+            3085117938538574300
+          ]
+        ],
+        "local": [
+          {
+            "Precalculated": "0.36.1"
+          }
+        ],
+        "rustflags": [],
+        "config": 0,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/tauri-macros-cefe85aa02a41e57/lib-tauri_macros.json",
+      "bytes": 832,
+      "sha256": "f4960bb96e961cc903d702e4ee33f08152f1d6afa51951ed202449b367360b33",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[\"compression\"]",
+        "declared_features": "[\"compression\", \"config-json5\", \"config-toml\", \"custom-protocol\", \"isolation\", \"tracing\"]",
+        "target": 4649449654257170000,
+        "profile": 1369601567987815700,
+        "path": 6599116584483012000,
+        "deps": [
+          [
+            8340115751793987000,
+            "tauri_codegen",
+            false,
+            8762824049656962000
+          ],
+          [
+            8949245912927224000,
+            "quote",
+            false,
+            3751060401900328000
+          ],
+          [
+            10190449710562617000,
+            "syn",
+            false,
+            1340549065883968800
+          ],
+          [
+            10779410350406414000,
+            "tauri_utils",
+            false,
+            1905354907687720200
+          ],
+          [
+            13077543566650298000,
+            "heck",
+            false,
+            11192286146240221000
+          ],
+          [
+            16346726298725430000,
+            "proc_macro2",
+            false,
+            7867787888426487000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\tauri-macros-cefe85aa02a41e57\\dep-lib-tauri_macros",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/tauri-macros-f4237ccb2cdacb6d/lib-tauri_macros.json",
+      "bytes": 853,
+      "sha256": "a677bc45028110f29dd00b09b6d2bf19d3f97164bdbffa9c4567a5bc8fd14c50",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[\"compression\", \"custom-protocol\"]",
+        "declared_features": "[\"compression\", \"config-json5\", \"config-toml\", \"custom-protocol\", \"isolation\", \"tracing\"]",
+        "target": 4649449654257170000,
+        "profile": 1369601567987815700,
+        "path": 6599116584483012000,
+        "deps": [
+          [
+            8340115751793987000,
+            "tauri_codegen",
+            false,
+            8762824049656962000
+          ],
+          [
+            8949245912927224000,
+            "quote",
+            false,
+            3751060401900328000
+          ],
+          [
+            10190449710562617000,
+            "syn",
+            false,
+            1340549065883968800
+          ],
+          [
+            10779410350406414000,
+            "tauri_utils",
+            false,
+            1905354907687720200
+          ],
+          [
+            13077543566650298000,
+            "heck",
+            false,
+            11192286146240221000
+          ],
+          [
+            16346726298725430000,
+            "proc_macro2",
+            false,
+            7867787888426487000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\tauri-macros-f4237ccb2cdacb6d\\dep-lib-tauri_macros",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/tauri-utils-4d632c158e0e1088/lib-tauri_utils.json",
+      "bytes": 2188,
+      "sha256": "6301195c148b883be2af2d8764986948f820604b3bb60475825d726368043c37",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[\"brotli\", \"compression\", \"resources\", \"walkdir\"]",
+        "declared_features": "[\"aes-gcm\", \"brotli\", \"build\", \"build-2\", \"cargo_metadata\", \"compression\", \"config-json5\", \"config-toml\", \"getrandom\", \"html-manipulation\", \"html-manipulation-2\", \"isolation\", \"json5\", \"proc-macro2\", \"process-relaunch-dangerous-allow-symlink-macos\", \"quote\", \"resources\", \"schema\", \"schemars\", \"serialize-to-javascript\", \"swift-rs\", \"walkdir\"]",
+        "target": 7530130812022396000,
+        "profile": 2040997289075261400,
+        "path": 14526815285216764000,
+        "deps": [
+          [
+            295930454691973800,
+            "brotli",
+            false,
+            7576394901508565000
+          ],
+          [
+            310359321821557760,
+            "regex",
+            false,
+            9060012581376220000
+          ],
+          [
+            1200537532907108600,
+            "urlpattern",
+            false,
+            17102612471198233000
+          ],
+          [
+            1528297757488249600,
+            "url",
+            false,
+            11102164578148256000
+          ],
+          [
+            5135709663570677000,
+            "serde_with",
+            false,
+            4520754815430262300
+          ],
+          [
+            5330460842384404000,
+            "serde_json",
+            false,
+            14617476212513626000
+          ],
+          [
+            6557439603276904000,
+            "serde",
+            false,
+            375242652616043260
+          ],
+          [
+            7143558179796333000,
+            "phf",
+            false,
+            7607987424629852000
+          ],
+          [
+            7170110829644102000,
+            "json_patch",
+            false,
+            18290328131234777000
+          ],
+          [
+            7586572823156118000,
+            "uuid",
+            false,
+            3486433720500515300
+          ],
+          [
+            8184031567584964000,
+            "glob",
+            false,
+            17317024541134537000
+          ],
+          [
+            9086780327361459000,
+            "serde_untagged",
+            false,
+            15716509308089567000
+          ],
+          [
+            9527682391154729000,
+            "plist",
+            false,
+            4721950751367272000
+          ],
+          [
+            9680020106200216000,
+            "semver",
+            false,
+            13387067531655057000
+          ],
+          [
+            10364619138950790000,
+            "anyhow",
+            false,
+            5105938164148055000
+          ],
+          [
+            11742730876020404000,
+            "thiserror",
+            false,
+            3547835950730841000
+          ],
+          [
+            11989259058781684000,
+            "dunce",
+            false,
+            6635059341190832000
+          ],
+          [
+            12613788554453944000,
+            "memchr",
+            false,
+            8153116129988046000
+          ],
+          [
+            13225293409241199000,
+            "ctor",
+            false,
+            10612700282968890000
+          ],
+          [
+            15622660310229664000,
+            "walkdir",
+            false,
+            17448902376141648000
+          ],
+          [
+            16641382279720489000,
+            "toml",
+            false,
+            8225165800672749000
+          ],
+          [
+            17146114186171652000,
+            "infer",
+            false,
+            4395380866284697000
+          ],
+          [
+            17353235279385985000,
+            "log",
+            false,
+            11805391710229820000
+          ],
+          [
+            17371538545939333000,
+            "http",
+            false,
+            5374725258402865000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\tauri-utils-4d632c158e0e1088\\dep-lib-tauri_utils",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    },
+    {
+      "path": "target/release/.fingerprint/tauri-utils-54acc9ea301d56b2/lib-tauri_utils.json",
+      "bytes": 2616,
+      "sha256": "a43e168cf45fbe73384954ec94fa04b2eef8bcf0a263948ad389d714d5653281",
+      "data": {
+        "rustc": 3720210673988097000,
+        "features": "[\"brotli\", \"build-2\", \"cargo_metadata\", \"compression\", \"html-manipulation-2\", \"proc-macro2\", \"quote\", \"resources\", \"schema\", \"schemars\", \"swift-rs\", \"walkdir\"]",
+        "declared_features": "[\"aes-gcm\", \"brotli\", \"build\", \"build-2\", \"cargo_metadata\", \"compression\", \"config-json5\", \"config-toml\", \"getrandom\", \"html-manipulation\", \"html-manipulation-2\", \"isolation\", \"json5\", \"proc-macro2\", \"process-relaunch-dangerous-allow-symlink-macos\", \"quote\", \"resources\", \"schema\", \"schemars\", \"serialize-to-javascript\", \"swift-rs\", \"walkdir\"]",
+        "target": 7530130812022396000,
+        "profile": 1369601567987815700,
+        "path": 14526815285216764000,
+        "deps": [
+          [
+            295930454691973800,
+            "brotli",
+            false,
+            9587071509566495000
+          ],
+          [
+            310359321821557760,
+            "regex",
+            false,
+            8500284032428045000
+          ],
+          [
+            1200537532907108600,
+            "urlpattern",
+            false,
+            792696771866871700
+          ],
+          [
+            1528297757488249600,
+            "url",
+            false,
+            817177973378940800
+          ],
+          [
+            5135709663570677000,
+            "serde_with",
+            false,
+            10467216541347213000
+          ],
+          [
+            5330460842384404000,
+            "serde_json",
+            false,
+            14939474641120813000
+          ],
+          [
+            6557439603276904000,
+            "serde",
+            false,
+            15676842999218686000
+          ],
+          [
+            6913375703034175000,
+            "schemars",
+            false,
+            12970334996039981000
+          ],
+          [
+            7143558179796333000,
+            "phf",
+            false,
+            2355319542840720400
+          ],
+          [
+            7170110829644102000,
+            "json_patch",
+            false,
+            16115377068967709000
+          ],
+          [
+            7586572823156118000,
+            "uuid",
+            false,
+            8517928545553247000
+          ],
+          [
+            8184031567584964000,
+            "glob",
+            false,
+            15240501968119419000
+          ],
+          [
+            8949245912927224000,
+            "quote",
+            false,
+            3751060401900328000
+          ],
+          [
+            9086780327361459000,
+            "serde_untagged",
+            false,
+            16975703988631407000
+          ],
+          [
+            9527682391154729000,
+            "plist",
+            false,
+            1183861513620195000
+          ],
+          [
+            9680020106200216000,
+            "semver",
+            false,
+            944441160700482700
+          ],
+          [
+            10364619138950790000,
+            "anyhow",
+            false,
+            9687896758375023000
+          ],
+          [
+            11655476559277113000,
+            "cargo_metadata",
+            false,
+            8230298522541382000
+          ],
+          [
+            11742730876020404000,
+            "thiserror",
+            false,
+            12505879956908902000
+          ],
+          [
+            11989259058781684000,
+            "dunce",
+            false,
+            900682809010503600
+          ],
+          [
+            12613788554453944000,
+            "memchr",
+            false,
+            12384814249646580000
+          ],
+          [
+            13225293409241199000,
+            "ctor",
+            false,
+            5361172642968510000
+          ],
+          [
+            15154230876750856000,
+            "dom_query",
+            false,
+            8810188931867131000
+          ],
+          [
+            15622660310229664000,
+            "walkdir",
+            false,
+            4280192856002777600
+          ],
+          [
+            16346726298725430000,
+            "proc_macro2",
+            false,
+            7867787888426487000
+          ],
+          [
+            16641382279720489000,
+            "toml",
+            false,
+            2199624788022312200
+          ],
+          [
+            17146114186171652000,
+            "infer",
+            false,
+            9656369173282476000
+          ],
+          [
+            17353235279385985000,
+            "log",
+            false,
+            4302322009624086000
+          ],
+          [
+            17371538545939333000,
+            "http",
+            false,
+            14533011279684585000
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release\\.fingerprint\\tauri-utils-54acc9ea301d56b2\\dep-lib-tauri_utils",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672933000,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "native_evidence": {
+    "artifacts": [
+      {
+        "path": "target/release/agentbridge.exe",
+        "bytes": 16016896,
+        "sha256": "8aa177e304e0b8c067159ac7912d7894b770bc05021a47bd9b0de593cd8255e9"
+      },
+      {
+        "path": "target/release/agentbridge.pdb",
+        "bytes": 8916992,
+        "sha256": "8f6451daf43b1f32c8bf9e8d661060656db211a185df61eda6ac92e13768c48c"
+      }
+    ],
+    "pe_pdb_binding_reused_from": "docs/release/license-rust-stdlib-2026-09-12.json",
+    "binding_guid_bytes": "9f9643b8d47a284ebd910f348e046951",
+    "binding_age": 1,
+    "pdb_selected_archive_paths": [
+      "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libdirs_sys-2fa52ea907baecf6.rlib",
+      "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libdirs_sys-9c5d903f5537679e.rlib",
+      "C:\\Users\\U\\Projekt\\agentbridge\\target\\release\\deps\\libtauri_utils-4d632c158e0e1088.rlib"
+    ],
+    "interpretation": "Positive PDB paths bind the runtime tauri-utils instance and both dirs-sys instances. Absence of selectors/option-ext strings is not an exclusion proof; source/cfg and emitted-data paths below are decisive."
+  },
+  "option_ext_archives": [
+    {
+      "path": "target/release/deps/liboption_ext-110f0c62f094694f.rlib",
+      "bytes": 10510,
+      "sha256": "934b7301742bf6b1e68f4d409b7cedef6a0464d861302ecd1922f63939759797",
+      "members": [
+        {
+          "name": "/",
+          "bytes": 4
+        },
+        {
+          "name": "/",
+          "bytes": 20
+        },
+        {
+          "name": "lib.rmeta/",
+          "bytes": 9546
+        },
+        {
+          "name": "lib.rmeta-link/",
+          "bytes": 178
+        },
+        {
+          "name": "option_ext-110f0c62f094694f.option_ext.ec9da13acf40995a-cgu.0.rcgu.o",
+          "bytes": 324,
+          "sections": [
+            {
+              "name": ".text",
+              "bytes": 0,
+              "characteristics": "60300020"
+            },
+            {
+              "name": ".data",
+              "bytes": 0,
+              "characteristics": "c0300040"
+            },
+            {
+              "name": ".bss",
+              "bytes": 0,
+              "characteristics": "c0300080"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "target/release/deps/liboption_ext-af5189632c4b0039.rlib",
+      "bytes": 10454,
+      "sha256": "e4945303d68f22b6161681b53143dbb1028fade79efc6ee918e7378f21b90fa2",
+      "members": [
+        {
+          "name": "/",
+          "bytes": 4
+        },
+        {
+          "name": "/",
+          "bytes": 20
+        },
+        {
+          "name": "lib.rmeta/",
+          "bytes": 9490
+        },
+        {
+          "name": "lib.rmeta-link/",
+          "bytes": 178
+        },
+        {
+          "name": "option_ext-af5189632c4b0039.option_ext.c10d643a30cd1135-cgu.0.rcgu.o",
+          "bytes": 324,
+          "sections": [
+            {
+              "name": ".text",
+              "bytes": 0,
+              "characteristics": "60300020"
+            },
+            {
+              "name": ".data",
+              "bytes": 0,
+              "characteristics": "c0300040"
+            },
+            {
+              "name": ".bss",
+              "bytes": 0,
+              "characteristics": "c0300080"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "repository_source_inventory": {
+    "tracked_file_count": 457,
+    "tracked_list_sha256": "badbb69ae0e809846fff336f436dfbdde95b7a79d9fdd7d2610094b831adbf9d",
+    "vendor_roots": [
+      "vendor/russh"
+    ],
+    "application_code_files_scanned": 183,
+    "component_reference_hits": [],
+    "registry_sources_outside_repository": true,
+    "ignored_build_and_package_roots": [
+      "target/",
+      "src-tauri/target/",
+      "dist/",
+      "out/",
+      "node_modules/"
+    ],
+    "scope": "Git source checkout with its existing evidence documents; not a ZIP of the entire local work directory. Lockfile references and license/metadata excerpts are not redistribution of the implementation source trees."
+  },
+  "legal_primary_sources": [
+    {
+      "url": "https://www.mozilla.org/en-US/MPL/2.0/",
+      "http_status": 200,
+      "bytes": 17329,
+      "sha256": "657c6bf1f09f877dcc862e214cecc312f77a9f4f7693cdf7ee7b1281854941a4",
+      "accessed_utc": "2026-09-12T12:22:06.282Z"
+    },
+    {
+      "url": "https://www.mozilla.org/en-US/MPL/2.0/FAQ/",
+      "http_status": 200,
+      "bytes": 70384,
+      "sha256": "09cecdb33a99c63a2a885f4039aa43896fd56cbe1c6990b31377eec3bb82d761",
+      "accessed_utc": "2026-09-12T12:22:06.719Z"
+    }
+  ],
+  "source_access_rules": {
+    "sections": [
+      "MPL 1.4, 1.6, 1.10, 1.13",
+      "MPL 3.1, 3.2(a), 3.4",
+      "Mozilla FAQ Q5, Q8, Q11, Q17"
+    ],
+    "application": "Using a local tool does not itself distribute its code. Distribution of covered executable code requires corresponding source access and a recipient notice. Distribution of covered source must retain MPL terms and existing notices. The selected output is assessed by actual code/data flow, not dependency-category labels."
+  },
+  "selection": [
+    {
+      "component": "selectors",
+      "version": "0.36.1",
+      "license": "MPL-2.0",
+      "windows_binary": "exclude",
+      "repository_implementation_source": "not vendored or copied",
+      "host_build_tools": "present in dom_query / tauri-utils build-2 / tauri-codegen / tauri-macros chain; not part of intended user payload",
+      "basis": [
+        "The runtime tauri-utils-4d632c158e0e1088 feature set lacks html-manipulation-2 and dom_query; the separate build instance 54acc9ea301d56b2 has them.",
+        "dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table.",
+        "selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output."
+      ],
+      "corresponding_source_required_for_selected_binary": false,
+      "exact_source_if_delivery_changes": {
+        "archive": "https://static.crates.io/crates/selectors/selectors-0.36.1.crate",
+        "sha256": "c5d9c0c92a92d33f08817311cf3f2c29a3538a8240e94a6a3c622ce652d7e00c",
+        "repository": "https://github.com/servo/stylo/tree/635e1a19d02960588a00e189bd4bd5bdb150ec3d/selectors"
+      },
+      "license_payload_selected": false
+    },
+    {
+      "component": "option-ext",
+      "version": "0.2.0",
+      "license": "MPL-2.0",
+      "windows_binary": "exclude",
+      "repository_implementation_source": "not vendored or copied",
+      "host_build_tools": "unconditionally declared by dirs-sys; same Unix-use boundary on the Windows host",
+      "basis": [
+        "Both dirs-sys versions unconditionally declare extern crate option_ext, so the dependency tree alone does not exclude it.",
+        "Their only OptionExt use is user_dir.contains in xdg_user_dirs.rs, whose module is gated by unix and not macOS/iOS. The Windows implementation calls known-folder APIs instead.",
+        "option-ext consists of a generic trait and generic impl only, with no initializer or non-generic runtime payload. Both existing release RLIBs contain a single 324-byte COFF object whose text/data/bss raw sizes are zero; metadata is not delivered as the application. No generic instantiation is claimed absent merely because the object is empty; the caller/cfg proof is necessary."
+      ],
+      "corresponding_source_required_for_selected_binary": false,
+      "exact_source_if_delivery_changes": {
+        "archive": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
+        "sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
+        "repository": "https://github.com/soc/option-ext/tree/272f22fc9ea1ac6b08f01704af52c4ac338df4e2"
+      },
+      "license_payload_selected": false
+    }
+  ],
+  "source_path_reading": [
+    {
+      "component": "option-ext 0.2.0",
+      "path": "src/lib.rs",
+      "source_sha256": "5a0a1fb2ca896a06bcbc32024c8fe64be682170585be6313ba3ff2a87672d1fc",
+      "archive_url": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
+      "archive_member": "option-ext-0.2.0/src/lib.rs",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 70,
+          "lf_joined_fragment_sha256": "9fd1fc99a50e3ca7699acb8260517fdc8e49554715f449e93102d678582d5c74"
+        }
+      ],
+      "interpretation": "Whole crate root: generic trait, documentation examples, one implementation module; no initializer or code generator.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "option-ext 0.2.0",
+      "path": "src/impl.rs",
+      "source_sha256": "2f0b6f0421c4d37b1a8f0412cf71e9720cb8c5ddcec61ac802474e40ab8a3f9b",
+      "archive_url": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
+      "archive_member": "option-ext-0.2.0/src/impl.rs",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 20,
+          "lf_joined_fragment_sha256": "892f2818641032d4cb3ad282fb288a9ba01b3a64002c45bf9331ab9fdda2b192"
+        }
+      ],
+      "interpretation": "Whole generic implementation; instantiated code needs a concrete caller.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "dirs-sys 0.4.1",
+      "path": "src/lib.rs",
+      "source_sha256": "e3966443913b2a5e4b3b87ae7aa18a99c1a1b82b75fc8585e69dffcc548d5beb",
+      "archive_url": "https://static.crates.io/crates/dirs-sys/dirs-sys-0.4.1.crate",
+      "archive_member": "dirs-sys-0.4.1/src/lib.rs",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 4,
+          "lf_joined_fragment_sha256": "45f5ed7f0229069136463f9cb965e4407a788ef93565f657b16fb13d31a97134"
+        },
+        {
+          "first_line": 99,
+          "last_line": 106,
+          "lf_joined_fragment_sha256": "477b8728446e924e211a294e142e5ec6127a743827c4fb779c5662cd71566d32"
+        },
+        {
+          "first_line": 133,
+          "last_line": 172,
+          "lf_joined_fragment_sha256": "9714beb5b9fecd68559acb37e83d2f272caba566a057fd114eed9f6f959f6dcd"
+        },
+        {
+          "first_line": 216,
+          "last_line": 221,
+          "lf_joined_fragment_sha256": "cd975b569e7f9b905ff803deaedb58edb4847cdf346532f5eb3b1a7ac8076e19"
+        }
+      ],
+      "interpretation": "Both versions: unconditional crate declaration, Unix-only XDG module, Windows known-folder implementation.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "dirs-sys 0.5.0",
+      "path": "src/lib.rs",
+      "source_sha256": "b519e22cfb5ccc4b307aed57f67a66641660f2b29496f00db761b7c49307e2dd",
+      "archive_url": "https://static.crates.io/crates/dirs-sys/dirs-sys-0.5.0.crate",
+      "archive_member": "dirs-sys-0.5.0/src/lib.rs",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 4,
+          "lf_joined_fragment_sha256": "45f5ed7f0229069136463f9cb965e4407a788ef93565f657b16fb13d31a97134"
+        },
+        {
+          "first_line": 99,
+          "last_line": 106,
+          "lf_joined_fragment_sha256": "477b8728446e924e211a294e142e5ec6127a743827c4fb779c5662cd71566d32"
+        },
+        {
+          "first_line": 133,
+          "last_line": 172,
+          "lf_joined_fragment_sha256": "742ad80edd14d6fbadfc0ceaa3c798cfe517d1b1c6b5ecd1eea2764a083f0fce"
+        },
+        {
+          "first_line": 216,
+          "last_line": 221,
+          "lf_joined_fragment_sha256": "6af17d4388d2f849d24b857bc9321a40756af43e7092295f73d6aa5d21619f98"
+        }
+      ],
+      "interpretation": "Both versions: unconditional crate declaration, Unix-only XDG module, Windows known-folder implementation.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "dirs-sys 0.4.1",
+      "path": "src/xdg_user_dirs.rs",
+      "source_sha256": "4b02f72e6b1868fbe76ce910edb53130a4712e5ff9e61801d8719aaa81f7a617",
+      "archive_url": "https://static.crates.io/crates/dirs-sys/dirs-sys-0.4.1.crate",
+      "archive_member": "dirs-sys-0.4.1/src/xdg_user_dirs.rs",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 12,
+          "lf_joined_fragment_sha256": "40c92d68496314d3f5ec5af1d65b35a4d08f80fa5f0e5d03c194721ef87d3801"
+        },
+        {
+          "first_line": 25,
+          "last_line": 46,
+          "lf_joined_fragment_sha256": "8e94675eaf169d555f6038e69564453b277331b19d380395f4862db85024e84a"
+        }
+      ],
+      "interpretation": "Both versions: only OptionExt import/use at lines 9 and 37, inside the cfg-excluded XDG source.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "dirs-sys 0.5.0",
+      "path": "src/xdg_user_dirs.rs",
+      "source_sha256": "4b02f72e6b1868fbe76ce910edb53130a4712e5ff9e61801d8719aaa81f7a617",
+      "archive_url": "https://static.crates.io/crates/dirs-sys/dirs-sys-0.5.0.crate",
+      "archive_member": "dirs-sys-0.5.0/src/xdg_user_dirs.rs",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 12,
+          "lf_joined_fragment_sha256": "40c92d68496314d3f5ec5af1d65b35a4d08f80fa5f0e5d03c194721ef87d3801"
+        },
+        {
+          "first_line": 25,
+          "last_line": 46,
+          "lf_joined_fragment_sha256": "8e94675eaf169d555f6038e69564453b277331b19d380395f4862db85024e84a"
+        }
+      ],
+      "interpretation": "Both versions: only OptionExt import/use at lines 9 and 37, inside the cfg-excluded XDG source.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "selectors 0.36.1",
+      "path": "build.rs",
+      "source_sha256": "36ba09a8d2089d0cae8e310829ecf0e94bcbaa87e775a6578c7d2f0459a5b6ca",
+      "archive_url": "https://static.crates.io/crates/selectors/selectors-0.36.1.crate",
+      "archive_member": "selectors-0.36.1/build.rs",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 30,
+          "lf_joined_fragment_sha256": "f278ce2d57fb6d52ffd2a0c42dacdf34e826bdfa1620bcd4484404846ea6076a"
+        }
+      ],
+      "interpretation": "Own build script generates an internal PHF table, not an AgentBridge runtime helper.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "selectors 0.36.1",
+      "path": "parser.rs",
+      "source_sha256": "99081617e5c204bce5a7f430805ae86ca4c2eb340d59e6d2213ed1264419b9eb",
+      "archive_url": "https://static.crates.io/crates/selectors/selectors-0.36.1.crate",
+      "archive_member": "selectors-0.36.1/parser.rs",
+      "ranges": [
+        {
+          "first_line": 3217,
+          "last_line": 3235,
+          "lf_joined_fragment_sha256": "7efe9df4576bf909e2b8ec608d7664f6170b3ebba03a97cab72c5ffa5b314fb9"
+        }
+      ],
+      "interpretation": "Generated attribute table is included into the selectors parser.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "dom_query 0.27.0",
+      "path": "src/matcher.rs",
+      "source_sha256": "a7ddb4baf34d9d17e4c6572d2bcc29d5e842dcb3a84e85a6e910ba68a0dedce2",
+      "archive_url": "https://static.crates.io/crates/dom_query/dom_query-0.27.0.crate",
+      "archive_member": "dom_query-0.27.0/src/matcher.rs",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 49,
+          "lf_joined_fragment_sha256": "01a3f70f4d3c5ae485b8847d02a4aa2c8b41f5248cb58fd5514181532c8d9d83"
+        }
+      ],
+      "interpretation": "Matcher wraps selector parsing/matching and yields matches, not generated matcher source.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "dom_query 0.27.0",
+      "path": "src/document.rs",
+      "source_sha256": "0b21882b5512c0a95ebe64e7f34d1ded96439b5c97c11573958ae0472d32e9b8",
+      "archive_url": "https://static.crates.io/crates/dom_query/dom_query-0.27.0.crate",
+      "archive_member": "dom_query-0.27.0/src/document.rs",
+      "ranges": [
+        {
+          "first_line": 193,
+          "last_line": 238,
+          "lf_joined_fragment_sha256": "15a89866982479a733980cffb52ad990f93fe59ed911973730a9af44ee536d23"
+        }
+      ],
+      "interpretation": "Document selection returns DOM nodes through Matcher and DescendantMatches.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "tauri-utils 2.9.3",
+      "path": "Cargo.toml",
+      "source_sha256": "6fba2793fa0b11e4695d1c0b71ae81487c2ba1d554bfb6b16c3034cfd85ecf2c",
+      "archive_url": "https://static.crates.io/crates/tauri-utils/tauri-utils-2.9.3.crate",
+      "archive_member": "tauri-utils-2.9.3/Cargo.toml",
+      "ranges": [
+        {
+          "first_line": 38,
+          "last_line": 63,
+          "lf_joined_fragment_sha256": "279947071a47bd3167a2a8ba61ea1f0284171f4ac9e4da4e1b77c80773af8c19"
+        },
+        {
+          "first_line": 99,
+          "last_line": 106,
+          "lf_joined_fragment_sha256": "1fda6c2eaf5beeb59c55ab644f040dc40880f299754e607daf22f77ddad86dce"
+        }
+      ],
+      "interpretation": "build-2 activates html-manipulation-2 and optional dom_query.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "tauri-utils 2.9.3",
+      "path": "src/lib.rs",
+      "source_sha256": "d913767f5b291497cb752d4bb64271f2ff0b9ae711fcbc41fb880252ac549d6e",
+      "archive_url": "https://static.crates.io/crates/tauri-utils/tauri-utils-2.9.3.crate",
+      "archive_member": "tauri-utils-2.9.3/src/lib.rs",
+      "ranges": [
+        {
+          "first_line": 23,
+          "last_line": 42,
+          "lf_joined_fragment_sha256": "da2e2441fc1afb70ca96b0f216ff842247f7fd2757d70304b1d1a40c1a20affa"
+        }
+      ],
+      "interpretation": "HTML/codegen modules are feature-gated.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "tauri-utils 2.9.3",
+      "path": "src/html2.rs",
+      "source_sha256": "04beee12c794585d349cf1e45850483d5f7eeea73df7268dbd2470d8675bb7b3",
+      "archive_url": "https://static.crates.io/crates/tauri-utils/tauri-utils-2.9.3.crate",
+      "archive_member": "tauri-utils-2.9.3/src/html2.rs",
+      "ranges": [
+        {
+          "first_line": 12,
+          "last_line": 38,
+          "lf_joined_fragment_sha256": "a096c0e2a1ec9796c1cc7cec9b387211ee6632989a350b95a2cdb7a05ddde183"
+        },
+        {
+          "first_line": 49,
+          "last_line": 78,
+          "lf_joined_fragment_sha256": "38fa6aa6fb2100e507fe2fb1f979e544779979ac1eb61d240e900445df1b0d67"
+        },
+        {
+          "first_line": 111,
+          "last_line": 164,
+          "lf_joined_fragment_sha256": "7b853f949f028ecc0aad46d273a0fb9d9a918d75f9957d3581699afcedfe6cf2"
+        }
+      ],
+      "interpretation": "Document serialization, nonce changes and separate isolation-only script insertion.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "tauri-codegen 2.6.3",
+      "path": "src/context.rs",
+      "source_sha256": "ea13b70394f0166813d3aa1938d423ddd3ed809f81ecf541586c2f32f15255bd",
+      "archive_url": "https://static.crates.io/crates/tauri-codegen/tauri-codegen-2.6.3.crate",
+      "archive_member": "tauri-codegen-2.6.3/src/context.rs",
+      "ranges": [
+        {
+          "first_line": 20,
+          "last_line": 31,
+          "lf_joined_fragment_sha256": "a3e2a50b819cfddb8d2f5560ea028fc97bd8c3a58f1e8a090d8f598cbe3d3411"
+        },
+        {
+          "first_line": 47,
+          "last_line": 91,
+          "lf_joined_fragment_sha256": "24a7f46c63dd6d3713460638c5404847a4dc2def28b9b31333a9c0c5f76cb32d"
+        },
+        {
+          "first_line": 158,
+          "last_line": 207,
+          "lf_joined_fragment_sha256": "e2f09367ec45b785c9f3b73ea63a0f0814fd18429ccdafe8e956f729b120934a"
+        }
+      ],
+      "interpretation": "Active CSP transformation consumes DOM matches and emits transformed document bytes and script hashes.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "tauri-codegen 2.6.3",
+      "path": "src/embedded_assets.rs",
+      "source_sha256": "95d96bdf8295ee6edadc8c091c347533bcc7c3963be7db4da95005d9598380ee",
+      "archive_url": "https://static.crates.io/crates/tauri-codegen/tauri-codegen-2.6.3.crate",
+      "archive_member": "tauri-codegen-2.6.3/src/embedded_assets.rs",
+      "ranges": [
+        {
+          "first_line": 249,
+          "last_line": 286,
+          "lf_joined_fragment_sha256": "3139a9589baab0c366b83914a4dee0256c2a22e000447888178ce3d18587a9f3"
+        },
+        {
+          "first_line": 316,
+          "last_line": 384,
+          "lf_joined_fragment_sha256": "7a4e9af3e21bd9f5e5c487e94922fe1eab67312cec8b9139a43e071528536a70"
+        },
+        {
+          "first_line": 391,
+          "last_line": 436,
+          "lf_joined_fragment_sha256": "b1818e03a4a76a24f930c2d81c51bd4a3fc5c4f449d62a23e6afbc56a7623db0"
+        }
+      ],
+      "interpretation": "Input asset bytes are mapped, optionally compressed, written; token output embeds bytes and hash literals, not parser/matcher implementation.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "tauri-macros 2.6.3",
+      "path": "src/lib.rs",
+      "source_sha256": "56f7e3c05015098fcab1365d194783d4c14313180e05bee1077bbc8f6f168b62",
+      "archive_url": "https://static.crates.io/crates/tauri-macros/tauri-macros-2.6.3.crate",
+      "archive_member": "tauri-macros-2.6.3/src/lib.rs",
+      "ranges": [
+        {
+          "first_line": 78,
+          "last_line": 87,
+          "lf_joined_fragment_sha256": "9cdb0ea692257471caddc90a96c5e16f4a2cfdd13a868d4bbbca7e53cb496de3"
+        }
+      ],
+      "interpretation": "Proc-macro entry point delegates generate_context.",
+      "implementation_text_copied_into_this_report": false
+    },
+    {
+      "component": "tauri-macros 2.6.3",
+      "path": "src/context.rs",
+      "source_sha256": "11792baac8002f7875518a36e41f482e6ee7ca93de30bc459d23581b55e3b3ae",
+      "archive_url": "https://static.crates.io/crates/tauri-macros/tauri-macros-2.6.3.crate",
+      "archive_member": "tauri-macros-2.6.3/src/context.rs",
+      "ranges": [
+        {
+          "first_line": 151,
+          "last_line": 169,
+          "lf_joined_fragment_sha256": "e533c36e740fe7b7fe9c3d30b12eafa18b6f8b8565fafe9a347f2397c67077f9"
+        }
+      ],
+      "interpretation": "Custom-protocol macro invokes context_codegen on host.",
+      "implementation_text_copied_into_this_report": false
+    }
+  ],
+  "additional_license_or_source_payloads": [],
+  "remaining": [
+    "The final Windows package verifier must enumerate actual NSIS/MSI/ZIP contents and confirm that no Cargo cache, RLIB, proc-macro DLL or build executable is shipped. This selection is not that packaging proof.",
+    "Re-evaluate if target/features/dependencies, native build inputs, generated output paths or delivered files change. A Linux target or distributing the covered host tools/source requires a corresponding new selection and retained MPL/source-access notices.",
+    "The normal binary/license delivery implementation and independent source/diff review remain separate work."
+  ],
+  "reproduction": {
+    "mode": "read-only; no compilation, installation, source extraction onto a build path or VM operations",
+    "archive_check": "Download each primary_crate_source_checks.archive_url in memory, SHA-256 against Cargo.lock and recorded checksum; gunzip/tar-read the listed archive_member bytes and compare with the source_files paths. No license full-text re-audit is part of this package.",
+    "commands": "Execute only the six explicit command arrays in commands; both cargo tree categories and the positive source/cfg flow are necessary. Generic rustc --print cfg is a target-cfg observation, not a historical release invocation.",
+    "artifact_check": "Hash the listed native files and retain their already reviewed PE/PDB GUID+Age binding from the stdlib report. The listed PDB RLIB strings identify the runtime tauri-utils/dirs-sys instances. Parse option-ext RLIB ar headers and their AMD64 COFF section tables; metadata and empty object sections alone cannot exclude generic instantiation.",
+    "source_reading": "Read source_path_reading in order using exact archive members, line ranges and file/fragment hashes. The annotated data-flow boundary, generic caller exclusion and runtime feature split support the selection; marker absence does not.",
+    "repository_boundary": "git ls-files -z; expected only vendor/russh under vendor. The source reference scan covered 183 tracked code/manifest files and excludes only the existing inventory generator itself. This is a narrow supplement, not a claim to detect arbitrary unattributed code copies. Final package contents remain to be verified."
+  },
+  "deltas": [
+    {
+      "id": "2026-09-12-cssparser-macros-dtoa-short",
+      "generated_utc": "2026-09-12T12:50:45.134Z",
+      "status": "technical_selection_complete_independent_delta_review_and_delivery_pending",
+      "input_head": "6bb2b999dd8d41ee6e7732c4770a8c1d0acd69fe",
+      "scope": {
+        "only_components": [
+          "cssparser 0.36.0",
+          "cssparser-macros 0.6.1",
+          "dtoa-short 0.3.5"
+        ],
+        "target": "x86_64-pc-windows-msvc",
+        "features": "defaults plus tauri/custom-protocol",
+        "native_source_commit": "6a45c12",
+        "no_build_install_vm_or_product_change": true,
+        "existing_mpl_selection_unchanged": true
+      },
+      "historical_baseline": {
+        "accepted_commit": "96838a70037f976d1875595b89586a5bb86199e9",
+        "markdown": {
+          "path": "C:/Users/U/AppData/Local/Temp/agentbridge-mpl-css-20260912-r7838e4be6690/baseline.md",
+          "bytes": 8857,
+          "sha256": "7517840b37e827813f6f3b1d9d7a9d6c8dff7c7671ce64f204b07b89fab6bd8f"
+        },
+        "json": {
+          "path": "C:/Users/U/AppData/Local/Temp/agentbridge-mpl-css-20260912-r7838e4be6690/baseline.json",
+          "bytes": 76221,
+          "sha256": "468c506209f6c9e1043eb85a9fb498eaeaf6f42cd40546afc753db3521139e6f"
+        },
+        "rule": "All pre-existing JSON properties and the complete pre-existing Markdown prefix remain unchanged. This delta extends scope only through this explicitly separate object/section."
+      },
+      "inputs": [
+        {
+          "path": "Cargo.toml",
+          "bytes": 256,
+          "sha256": "38b006f1e3936f256a5c475a2cf0ca3b7654bed93f75572a0a033522a4bd404b"
+        },
+        {
+          "path": "Cargo.lock",
+          "bytes": 153532,
+          "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f"
+        },
+        {
+          "path": "src-tauri/Cargo.toml",
+          "bytes": 5008,
+          "sha256": "337de8247088d03fe34826d772bbf3e002360c8df05faefad5d2c8de0e99dde2"
+        },
+        {
+          "path": "src-tauri/build.rs",
+          "bytes": 3462,
+          "sha256": "545bc3b54b7d0396786257c786b518c8096b0be1d4a4695dedad8a6044d6475a"
+        },
+        {
+          "path": "src-tauri/tauri.conf.json",
+          "bytes": 1295,
+          "sha256": "38050385b160e40c38ce20387154b6a7e896bb1dafef56f5c61798532a33a2b7"
+        },
+        {
+          "path": "rust-toolchain.toml",
+          "bytes": 66,
+          "sha256": "e7155b5437585c3c3acc3053b08c6936020e9e93cc343e47e7e25f0033418e84"
+        }
+      ],
+      "primary_crate_source_checks": [
+        {
+          "name": "cssparser",
+          "version": "0.36.0",
+          "archive_url": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+          "final_url": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+          "http_status": 200,
+          "retrieved_utc": "2026-09-12T12:50:39.745Z",
+          "archive": {
+            "path": "C:/Users/U/AppData/Local/Temp/agentbridge-mpl-css-20260912-r7838e4be6690/cssparser-0.36.0.crate",
+            "bytes": 56357,
+            "sha256": "dae61cf9c0abb83bd659dab65b7e4e38d8236824c85f0f804f173567bda257d2"
+          },
+          "cargo_lock_checksum": "dae61cf9c0abb83bd659dab65b7e4e38d8236824c85f0f804f173567bda257d2",
+          "checksum_matches": true,
+          "declared_license": "MPL-2.0",
+          "source_files": [
+            {
+              "archive_member": "cssparser-0.36.0/Cargo.toml",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/Cargo.toml",
+              "bytes": 1742,
+              "sha256": "1a1bf623e831c9015a9c91aac6f960825e2d397be3974fcce56ebf73dd9d7aec",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-0.36.0/.cargo_vcs_info.json",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/.cargo_vcs_info.json",
+              "bytes": 94,
+              "sha256": "f0af6c4fb3969fea2c76a982abcec85912c5459244202577dc50daa63652305d",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-0.36.0/LICENSE",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/LICENSE",
+              "bytes": 16726,
+              "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-0.36.0/src/lib.rs",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/lib.rs",
+              "bytes": 3747,
+              "sha256": "817a739180a561f9e7e45c539b4191af1286ca61e29cb2b8a366cd21bd5c7a9e",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-0.36.0/src/macros.rs",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/macros.rs",
+              "bytes": 7714,
+              "sha256": "64ad9e506e5cea52767a5177779ac4a1cbdac1b2188abaa1291e9feb8f1653bf",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-0.36.0/src/tokenizer.rs",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/tokenizer.rs",
+              "bytes": 48295,
+              "sha256": "952c763521e34572590c30539b9673f55cf567ac44cf8fb54dbfb864800f7e1a",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-0.36.0/src/serializer.rs",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/serializer.rs",
+              "bytes": 19327,
+              "sha256": "e3aa3e0ca294d34b3850e54680f4475143aa09fcb85129fa85d7084c4c9ea09e",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-0.36.0/src/color.rs",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/color.rs",
+              "bytes": 12541,
+              "sha256": "e0f43f7fd0e4ef2051e55675ae9ca30215382b403472f3d0ebe84f55899e857d",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-0.36.0/src/nth.rs",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/nth.rs",
+              "bytes": 5016,
+              "sha256": "972cc94275126e747c95621e8c5f56ce5d869924e60bb0dc990f4c98f3d74890",
+              "local_byte_equal": true
+            }
+          ],
+          "vcs": {
+            "git": {
+              "sha1": "9339ddd71443463dfb85d1185ad50cd98b34bc8f"
+            },
+            "path_in_vcs": ""
+          },
+          "license_text_action": "Archive member retained and hashed; no replacement or independent full-text audit of existing MPL terms."
+        },
+        {
+          "name": "cssparser-macros",
+          "version": "0.6.1",
+          "archive_url": "https://static.crates.io/crates/cssparser-macros/cssparser-macros-0.6.1.crate",
+          "final_url": "https://static.crates.io/crates/cssparser-macros/cssparser-macros-0.6.1.crate",
+          "http_status": 200,
+          "retrieved_utc": "2026-09-12T12:50:39.774Z",
+          "archive": {
+            "path": "C:/Users/U/AppData/Local/Temp/agentbridge-mpl-css-20260912-r7838e4be6690/cssparser-macros-0.6.1.crate",
+            "bytes": 7914,
+            "sha256": "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331"
+          },
+          "cargo_lock_checksum": "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331",
+          "checksum_matches": true,
+          "declared_license": "MPL-2.0",
+          "source_files": [
+            {
+              "archive_member": "cssparser-macros-0.6.1/Cargo.toml",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-macros-0.6.1/Cargo.toml",
+              "bytes": 920,
+              "sha256": "d4a43ad31d5048cf19ee80ec38de90fa98b9b9902b97d61e4edc940246806295",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-macros-0.6.1/.cargo_vcs_info.json",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-macros-0.6.1/.cargo_vcs_info.json",
+              "bytes": 100,
+              "sha256": "705364eb932e3234e7257532d9c3a92812353a3c7352932bc881334763c23ff0",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-macros-0.6.1/LICENSE",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-macros-0.6.1/LICENSE",
+              "bytes": 16726,
+              "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "cssparser-macros-0.6.1/lib.rs",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-macros-0.6.1/lib.rs",
+              "bytes": 6017,
+              "sha256": "10e68d5a92a053ff498cb1caa8290e508f691e32b73222a5a4737ee9a4097ce2",
+              "local_byte_equal": true
+            }
+          ],
+          "vcs": {
+            "git": {
+              "sha1": "0ebd17bcd13808f087b083f34d2f816e380b5155"
+            },
+            "path_in_vcs": "macros"
+          },
+          "license_text_action": "Archive member retained and hashed; no replacement or independent full-text audit of existing MPL terms."
+        },
+        {
+          "name": "dtoa-short",
+          "version": "0.3.5",
+          "archive_url": "https://static.crates.io/crates/dtoa-short/dtoa-short-0.3.5.crate",
+          "final_url": "https://static.crates.io/crates/dtoa-short/dtoa-short-0.3.5.crate",
+          "http_status": 200,
+          "retrieved_utc": "2026-09-12T12:50:39.801Z",
+          "archive": {
+            "path": "C:/Users/U/AppData/Local/Temp/agentbridge-mpl-css-20260912-r7838e4be6690/dtoa-short-0.3.5.crate",
+            "bytes": 8287,
+            "sha256": "cd1511a7b6a56299bd043a9c167a6d2bfb37bf84a6dfceaba651168adfb43c87"
+          },
+          "cargo_lock_checksum": "cd1511a7b6a56299bd043a9c167a6d2bfb37bf84a6dfceaba651168adfb43c87",
+          "checksum_matches": true,
+          "declared_license": "MPL-2.0",
+          "source_files": [
+            {
+              "archive_member": "dtoa-short-0.3.5/Cargo.toml",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dtoa-short-0.3.5/Cargo.toml",
+              "bytes": 1030,
+              "sha256": "f6316d9ba867b8cdcdc39142bcc1690f769cc54e41c4425b96fe33ee442e11b5",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "dtoa-short-0.3.5/.cargo_vcs_info.json",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dtoa-short-0.3.5/.cargo_vcs_info.json",
+              "bytes": 94,
+              "sha256": "5b1c95547aaba08b15aac1a0d0bfdf2c27665d4305e89942c30418ec89d57680",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "dtoa-short-0.3.5/LICENSE",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dtoa-short-0.3.5/LICENSE",
+              "bytes": 16725,
+              "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+              "local_byte_equal": true
+            },
+            {
+              "archive_member": "dtoa-short-0.3.5/src/lib.rs",
+              "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dtoa-short-0.3.5/src/lib.rs",
+              "bytes": 6024,
+              "sha256": "3ab8d9a808725e9bc1972cc385be659ebf786bb17c45f7ad2c3b63fd3973b39d",
+              "local_byte_equal": true
+            }
+          ],
+          "vcs": {
+            "git": {
+              "sha1": "2d905cdb8b2e08163dc0d015f529877fe657b4ef"
+            },
+            "path_in_vcs": ""
+          },
+          "license_text_action": "Archive member retained and hashed; no replacement or independent full-text audit of existing MPL terms."
+        }
+      ],
+      "commands": [
+        {
+          "command": [
+            "cargo",
+            "tree",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "-p",
+            "agentbridge",
+            "--features",
+            "tauri/custom-protocol",
+            "--edges",
+            "normal,build",
+            "-i",
+            "cssparser@0.36.0"
+          ],
+          "exit_code": 0,
+          "stdout": "cssparser v0.36.0\n├── dom_query v0.27.0\n│   └── tauri-utils v2.9.3\n│       ├── tauri-build v2.6.3\n│       │   [build-dependencies]\n│       │   ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n│       │   └── tauri v2.11.5\n│       │       ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n│       │       ├── tauri-plugin-dialog v2.7.2\n│       │       │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n│       │       ├── tauri-plugin-fs v2.5.1\n│       │       │   └── tauri-plugin-dialog v2.7.2 (*)\n│       │       ├── tauri-plugin-opener v2.5.4\n│       │       │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n│       │       └── tauri-plugin-window-state v2.4.1\n│       │           └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n│       ├── tauri-codegen v2.6.3\n│       │   └── tauri-macros v2.6.3 (proc-macro)\n│       │       └── tauri v2.11.5 (*)\n│       ├── tauri-macros v2.6.3 (proc-macro) (*)\n│       └── tauri-plugin v2.6.3\n│           [build-dependencies]\n│           ├── tauri-plugin-dialog v2.7.2 (*)\n│           ├── tauri-plugin-fs v2.5.1 (*)\n│           ├── tauri-plugin-opener v2.5.4 (*)\n│           └── tauri-plugin-window-state v2.4.1 (*)\n│       [build-dependencies]\n│       ├── tauri v2.11.5 (*)\n│       └── tauri-plugin-fs v2.5.1 (*)\n└── selectors v0.36.1\n    └── dom_query v0.27.0 (*)\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "cargo",
+            "tree",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "-p",
+            "agentbridge",
+            "--features",
+            "tauri/custom-protocol",
+            "--edges",
+            "normal,no-proc-macro",
+            "-i",
+            "cssparser@0.36.0"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "warning: nothing to print.\n\nTo find dependencies that require specific target platforms, try to use option `--target all` first, and then narrow your search scope accordingly.\n"
+        },
+        {
+          "command": [
+            "cargo",
+            "tree",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "-p",
+            "agentbridge",
+            "--features",
+            "tauri/custom-protocol",
+            "--edges",
+            "normal,build",
+            "-i",
+            "cssparser-macros@0.6.1"
+          ],
+          "exit_code": 0,
+          "stdout": "cssparser-macros v0.6.1 (proc-macro)\n└── cssparser v0.36.0\n    ├── dom_query v0.27.0\n    │   └── tauri-utils v2.9.3\n    │       ├── tauri-build v2.6.3\n    │       │   [build-dependencies]\n    │       │   ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       │   └── tauri v2.11.5\n    │       │       ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       │       ├── tauri-plugin-dialog v2.7.2\n    │       │       │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       │       ├── tauri-plugin-fs v2.5.1\n    │       │       │   └── tauri-plugin-dialog v2.7.2 (*)\n    │       │       ├── tauri-plugin-opener v2.5.4\n    │       │       │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       │       └── tauri-plugin-window-state v2.4.1\n    │       │           └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       ├── tauri-codegen v2.6.3\n    │       │   └── tauri-macros v2.6.3 (proc-macro)\n    │       │       └── tauri v2.11.5 (*)\n    │       ├── tauri-macros v2.6.3 (proc-macro) (*)\n    │       └── tauri-plugin v2.6.3\n    │           [build-dependencies]\n    │           ├── tauri-plugin-dialog v2.7.2 (*)\n    │           ├── tauri-plugin-fs v2.5.1 (*)\n    │           ├── tauri-plugin-opener v2.5.4 (*)\n    │           └── tauri-plugin-window-state v2.4.1 (*)\n    │       [build-dependencies]\n    │       ├── tauri v2.11.5 (*)\n    │       └── tauri-plugin-fs v2.5.1 (*)\n    └── selectors v0.36.1\n        └── dom_query v0.27.0 (*)\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "cargo",
+            "tree",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "-p",
+            "agentbridge",
+            "--features",
+            "tauri/custom-protocol",
+            "--edges",
+            "normal,no-proc-macro",
+            "-i",
+            "cssparser-macros@0.6.1"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "warning: nothing to print.\n\nTo find dependencies that require specific target platforms, try to use option `--target all` first, and then narrow your search scope accordingly.\n"
+        },
+        {
+          "command": [
+            "cargo",
+            "tree",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "-p",
+            "agentbridge",
+            "--features",
+            "tauri/custom-protocol",
+            "--edges",
+            "normal,build",
+            "-i",
+            "dtoa-short@0.3.5"
+          ],
+          "exit_code": 0,
+          "stdout": "dtoa-short v0.3.5\n└── cssparser v0.36.0\n    ├── dom_query v0.27.0\n    │   └── tauri-utils v2.9.3\n    │       ├── tauri-build v2.6.3\n    │       │   [build-dependencies]\n    │       │   ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       │   └── tauri v2.11.5\n    │       │       ├── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       │       ├── tauri-plugin-dialog v2.7.2\n    │       │       │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       │       ├── tauri-plugin-fs v2.5.1\n    │       │       │   └── tauri-plugin-dialog v2.7.2 (*)\n    │       │       ├── tauri-plugin-opener v2.5.4\n    │       │       │   └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       │       └── tauri-plugin-window-state v2.4.1\n    │       │           └── agentbridge v0.1.2 (C:\\Users\\U\\Projekt\\agentbridge\\src-tauri)\n    │       ├── tauri-codegen v2.6.3\n    │       │   └── tauri-macros v2.6.3 (proc-macro)\n    │       │       └── tauri v2.11.5 (*)\n    │       ├── tauri-macros v2.6.3 (proc-macro) (*)\n    │       └── tauri-plugin v2.6.3\n    │           [build-dependencies]\n    │           ├── tauri-plugin-dialog v2.7.2 (*)\n    │           ├── tauri-plugin-fs v2.5.1 (*)\n    │           ├── tauri-plugin-opener v2.5.4 (*)\n    │           └── tauri-plugin-window-state v2.4.1 (*)\n    │       [build-dependencies]\n    │       ├── tauri v2.11.5 (*)\n    │       └── tauri-plugin-fs v2.5.1 (*)\n    └── selectors v0.36.1\n        └── dom_query v0.27.0 (*)\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "cargo",
+            "tree",
+            "--locked",
+            "--offline",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "-p",
+            "agentbridge",
+            "--features",
+            "tauri/custom-protocol",
+            "--edges",
+            "normal,no-proc-macro",
+            "-i",
+            "dtoa-short@0.3.5"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "warning: nothing to print.\n\nTo find dependencies that require specific target platforms, try to use option `--target all` first, and then narrow your search scope accordingly.\n"
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "6a45c12",
+            "--",
+            "Cargo.toml",
+            "Cargo.lock",
+            "rust-toolchain.toml",
+            "src-tauri/Cargo.toml",
+            "src-tauri/build.rs",
+            "src-tauri/tauri.conf.json",
+            "src-tauri/src"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "git",
+            "grep",
+            "-n",
+            "-E",
+            "cssparser|dtoa[-_]short|match_byte!|match_ignore_ascii_case!|ascii_case_insensitive_phf_map!|_cssparser_internal",
+            "--",
+            "src-tauri/src",
+            "src-tauri/build.rs",
+            "src-tauri/Cargo.toml",
+            "Cargo.toml",
+            "src",
+            "vendor"
+          ],
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "fingerprints": [
+        {
+          "path": "target/release/.fingerprint/cssparser-e90eb16264debe5c/lib-cssparser.json",
+          "bytes": 736,
+          "sha256": "cf0ebd903db9a9f948aefbd88d67c9bddd46c0b5b096c8c4e2f86ef2aa96df8f",
+          "data": {
+            "rustc": 3720210673988097000,
+            "features": "[]",
+            "declared_features": "[\"bench\", \"dummy_match_byte\", \"malloc_size_of\", \"serde\", \"skip_long_tests\"]",
+            "target": 716407125743345000,
+            "profile": 1369601567987815700,
+            "path": 14550092120627538000,
+            "deps": [
+              [
+                2295442787663447300,
+                "smallvec",
+                false,
+                16588872586021065000
+              ],
+              [
+                5532778797167691000,
+                "itoa",
+                false,
+                14259322451294851000
+              ],
+              [
+                7143558179796333000,
+                "phf",
+                false,
+                2355319542840720400
+              ],
+              [
+                9280804215119810000,
+                "cssparser_macros",
+                false,
+                8497656328936206000
+              ],
+              [
+                12842584195496217000,
+                "dtoa_short",
+                false,
+                6812336717069104000
+              ]
+            ],
+            "local": [
+              {
+                "CheckDepInfo": {
+                  "dep_info": "release\\.fingerprint\\cssparser-e90eb16264debe5c\\dep-lib-cssparser",
+                  "checksum": false
+                }
+              }
+            ],
+            "rustflags": [],
+            "config": 9396254390672933000,
+            "compile_kind": 0
+          }
+        },
+        {
+          "path": "target/release/.fingerprint/cssparser-macros-a78dab95acd732a0/lib-cssparser_macros.json",
+          "bytes": 479,
+          "sha256": "e54428ff6750c524af8c468cae738cfbfc197cca29a6e7cea46e1c3e7fd0d6de",
+          "data": {
+            "rustc": 3720210673988097000,
+            "features": "[]",
+            "declared_features": "[]",
+            "target": 4853353551047732000,
+            "profile": 1369601567987815700,
+            "path": 9667852002282486000,
+            "deps": [
+              [
+                8949245912927224000,
+                "quote",
+                false,
+                3751060401900328000
+              ],
+              [
+                10190449710562617000,
+                "syn",
+                false,
+                1340549065883968800
+              ]
+            ],
+            "local": [
+              {
+                "CheckDepInfo": {
+                  "dep_info": "release\\.fingerprint\\cssparser-macros-a78dab95acd732a0\\dep-lib-cssparser_macros",
+                  "checksum": false
+                }
+              }
+            ],
+            "rustflags": [],
+            "config": 9396254390672933000,
+            "compile_kind": 0
+          }
+        },
+        {
+          "path": "target/release/.fingerprint/dtoa-short-d056ac24b43972d8/lib-dtoa_short.json",
+          "bytes": 413,
+          "sha256": "a6ee11c6cc33b4f774a1640f13f6509cb9c8e37a72f6fb3bf9eb2d0093a370cd",
+          "data": {
+            "rustc": 3720210673988097000,
+            "features": "[]",
+            "declared_features": "[]",
+            "target": 14166870648037865000,
+            "profile": 1369601567987815700,
+            "path": 9371189754212549000,
+            "deps": [
+              [
+                10942014875894166000,
+                "dtoa",
+                false,
+                8101664927037207000
+              ]
+            ],
+            "local": [
+              {
+                "CheckDepInfo": {
+                  "dep_info": "release\\.fingerprint\\dtoa-short-d056ac24b43972d8\\dep-lib-dtoa_short",
+                  "checksum": false
+                }
+              }
+            ],
+            "rustflags": [],
+            "config": 9396254390672933000,
+            "compile_kind": 0
+          }
+        }
+      ],
+      "reused_fingerprints": [
+        {
+          "path": "target/release/.fingerprint/dom_query-05bd8d1b0949585e/lib-dom_query.json",
+          "bytes": 853,
+          "sha256": "290fe3d40e0d8039be0b8f1509a19444987e939df59ea15ada30444e7cb558db",
+          "baseline_pointer": "fingerprints",
+          "interpretation": "Reused accepted host/runtime boundary; hash refresh only."
+        },
+        {
+          "path": "target/release/.fingerprint/selectors-14a291c3243f41ae/lib-selectors.json",
+          "bytes": 1060,
+          "sha256": "02db0b46b0e14194fcc0e760c1f092ec53d034c50c64d18a3f1e9d467d40c802",
+          "baseline_pointer": "fingerprints",
+          "interpretation": "Reused accepted host/runtime boundary; hash refresh only."
+        },
+        {
+          "path": "target/release/.fingerprint/selectors-cb22e9caae49570d/build-script-build-script-build.json",
+          "bytes": 457,
+          "sha256": "dc173235f3f38e73aebe1ca300b602fd0658d3dde595bcf894dc8399d6cc255e",
+          "baseline_pointer": "fingerprints",
+          "interpretation": "Reused accepted host/runtime boundary; hash refresh only."
+        },
+        {
+          "path": "target/release/.fingerprint/selectors-d4ca9b8a11199791/run-build-script-build-script-build.json",
+          "bytes": 257,
+          "sha256": "ca6b224720e479b4d65f5dc20868f87a45bd300143ace4eeab7521ced95b15f7",
+          "baseline_pointer": "fingerprints",
+          "interpretation": "Reused accepted host/runtime boundary; hash refresh only."
+        },
+        {
+          "path": "target/release/.fingerprint/tauri-utils-4d632c158e0e1088/lib-tauri_utils.json",
+          "bytes": 2188,
+          "sha256": "6301195c148b883be2af2d8764986948f820604b3bb60475825d726368043c37",
+          "baseline_pointer": "fingerprints",
+          "interpretation": "Reused accepted host/runtime boundary; hash refresh only."
+        },
+        {
+          "path": "target/release/.fingerprint/tauri-utils-54acc9ea301d56b2/lib-tauri_utils.json",
+          "bytes": 2616,
+          "sha256": "a43e168cf45fbe73384954ec94fa04b2eef8bcf0a263948ad389d714d5653281",
+          "baseline_pointer": "fingerprints",
+          "interpretation": "Reused accepted host/runtime boundary; hash refresh only."
+        }
+      ],
+      "native_evidence": {
+        "artifacts": [
+          {
+            "path": "target/release/agentbridge.exe",
+            "bytes": 16016896,
+            "sha256": "8aa177e304e0b8c067159ac7912d7894b770bc05021a47bd9b0de593cd8255e9"
+          },
+          {
+            "path": "target/release/agentbridge.pdb",
+            "bytes": 8916992,
+            "sha256": "8f6451daf43b1f32c8bf9e8d661060656db211a185df61eda6ac92e13768c48c"
+          }
+        ],
+        "accepted_binding_reused": "docs/release/license-rust-stdlib-2026-09-12.json",
+        "guid_bytes": "9f9643b8d47a284ebd910f348e046951",
+        "age": 1,
+        "boundary": "Existing positive runtime tauri-utils RLIB/PDB attribution retained by artifact hashes. No new marker-absence argument or claim of complete historical link provenance."
+      },
+      "source_path_reading": [
+        {
+          "component": "cssparser 0.36.0",
+          "path": "src/lib.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/lib.rs",
+          "source_sha256": "817a739180a561f9e7e45c539b4191af1286ca61e29cb2b8a366cd21bd5c7a9e",
+          "archive_url": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+          "archive_member": "cssparser-0.36.0/src/lib.rs",
+          "reused_accepted_source_file": false,
+          "ranges": [
+            {
+              "start_line": 70,
+              "end_line": 103,
+              "fragment_sha256": "ceb542f737da1a0f57721adbcb483219715d57fa125ef19c251cc79e9171cc8e",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "Parser/ToCss exports and cssparser-macros reexports; normal implementation modules and macro module. Public reexports do not by themselves establish user-binary use.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "cssparser 0.36.0",
+          "path": "src/macros.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/macros.rs",
+          "source_sha256": "64ad9e506e5cea52767a5177779ac4a1cbdac1b2188abaa1291e9feb8f1653bf",
+          "archive_url": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+          "archive_member": "cssparser-0.36.0/src/macros.rs",
+          "reused_accepted_source_file": false,
+          "ranges": [
+            {
+              "start_line": 32,
+              "end_line": 63,
+              "fragment_sha256": "f7f2a723c9e8186fcdf575d2d545d54d8207c8e190841fa8c5ab34ea880f3cdc",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 90,
+              "end_line": 157,
+              "fragment_sha256": "45868a08956c64dd7e9272618d6b27931fba307e77c9fddfc9eb3c3b5b4760e5",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 165,
+              "end_line": 204,
+              "fragment_sha256": "ff3c3c0ff0bef60de072a6209bb670efc853bf2632a7cfd6047b6138ededb9b8",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "match_ignore_ascii_case and ASCII PHF macros emit caller-side matching/lowercase helpers and call the max-length proc macro. These are real emitted implementations, not assumed license-free macro output.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "cssparser 0.36.0",
+          "path": "src/tokenizer.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/tokenizer.rs",
+          "source_sha256": "952c763521e34572590c30539b9673f55cf567ac44cf8fb54dbfb864800f7e1a",
+          "archive_url": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+          "archive_member": "cssparser-0.36.0/src/tokenizer.rs",
+          "reused_accepted_source_file": false,
+          "ranges": [
+            {
+              "start_line": 5,
+              "end_line": 17,
+              "fragment_sha256": "2bcdf7639b1eb91035e96804ffcbd1e23ba60fbcfd4b6d9c58ba0213c53516d3",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 557,
+              "end_line": 600,
+              "fragment_sha256": "cd5885092a4b95476c159427e736f25f680e186d32195492ec3fa061283b14a5",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "Imports and invokes match_byte in tokenizer dispatch; the proc macro generated static table and match are compiled into the cssparser consumer on the host path.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "cssparser 0.36.0",
+          "path": "src/serializer.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/serializer.rs",
+          "source_sha256": "e3aa3e0ca294d34b3850e54680f4475143aa09fcb85129fa85d7084c4c9ea09e",
+          "archive_url": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+          "archive_member": "cssparser-0.36.0/src/serializer.rs",
+          "reused_accepted_source_file": false,
+          "ranges": [
+            {
+              "start_line": 5,
+              "end_line": 56,
+              "fragment_sha256": "43c60a2e2f2073b4b357ce037ba01d27d11d2c89a7e5ea61e56c929bd0c6ece6",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 58,
+              "end_line": 115,
+              "fragment_sha256": "6ec8170e82b612277db6086822bda7531ec3b24586a594eab74ac48f2532741b",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 218,
+              "end_line": 240,
+              "fragment_sha256": "827b650c28856fa9fdf5cb453a1f4aa9c3e4924d9937ced20d81dca7a9d285fb",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 361,
+              "end_line": 376,
+              "fragment_sha256": "203c2de46ba6c4a2992c4014d7b572f4cf4b7b13dbcc80740ba2eda3cc9ac518",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "CSS numeric serialization calls dtoa_short::write, including ToCss for floating types; byte escaping uses match_byte. Destination is fmt::Write text, not a Rust implementation token stream.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "cssparser 0.36.0",
+          "path": "src/color.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/color.rs",
+          "source_sha256": "e0f43f7fd0e4ef2051e55675ae9ca30215382b403472f3d0ebe84f55899e857d",
+          "archive_url": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+          "archive_member": "cssparser-0.36.0/src/color.rs",
+          "reused_accepted_source_file": false,
+          "ranges": [
+            {
+              "start_line": 100,
+              "end_line": 120,
+              "fragment_sha256": "635dbd329f55d7b746e83103b6bf7f6edbc399a4c5f69207f3187c717be490f0",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 175,
+              "end_line": 191,
+              "fragment_sha256": "23b5d7cdbc16f0e14fcbee58834c403909673a3b7a341b8eeed7bb75f4a997b8",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "Internal uses of ASCII case matching/PHF macro output within cssparser.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "cssparser 0.36.0",
+          "path": "src/nth.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-0.36.0/src/nth.rs",
+          "source_sha256": "972cc94275126e747c95621e8c5f56ce5d869924e60bb0dc990f4c98f3d74890",
+          "archive_url": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+          "archive_member": "cssparser-0.36.0/src/nth.rs",
+          "reused_accepted_source_file": false,
+          "ranges": [
+            {
+              "start_line": 5,
+              "end_line": 75,
+              "fragment_sha256": "f8890294d82f7d7d2ddfa313b669e4660d75543f6f5566af3522102a03cd432e",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "Internal ASCII match macro uses in nth parsing.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "cssparser-macros 0.6.1",
+          "path": "lib.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cssparser-macros-0.6.1/lib.rs",
+          "source_sha256": "10e68d5a92a053ff498cb1caa8290e508f691e32b73222a5a4737ee9a4097ce2",
+          "archive_url": "https://static.crates.io/crates/cssparser-macros/cssparser-macros-0.6.1.crate",
+          "archive_member": "cssparser-macros-0.6.1/lib.rs",
+          "reused_accepted_source_file": false,
+          "ranges": [
+            {
+              "start_line": 9,
+              "end_line": 39,
+              "fragment_sha256": "03a76ce0a889c13976f1e4769e2d8b97b0444c7049991ab0fbcdcff3443e292f",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 58,
+              "end_line": 109,
+              "fragment_sha256": "2d3f8e1649478cec15090a028ebfedc04c6e8abaa6b3097a82602d53eb07935d",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 124,
+              "end_line": 190,
+              "fragment_sha256": "8f73bb991ee5c2d593ab7c19a7f30407e49dd94d4168b1f3d7ca5931b037854f",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "Both proc-macro entry points read: max-length constant from input literals and match_byte enum/static 256-entry table plus match dispatcher containing caller arms. Generated code stays in cssparser/selectors host consumers here.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "dtoa-short 0.3.5",
+          "path": "src/lib.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dtoa-short-0.3.5/src/lib.rs",
+          "source_sha256": "3ab8d9a808725e9bc1972cc385be659ebf786bb17c45f7ad2c3b63fd3973b39d",
+          "archive_url": "https://static.crates.io/crates/dtoa-short/dtoa-short-0.3.5.crate",
+          "archive_member": "dtoa-short-0.3.5/src/lib.rs",
+          "reused_accepted_source_file": false,
+          "ranges": [
+            {
+              "start_line": 5,
+              "end_line": 77,
+              "fragment_sha256": "79410d9f2df51682982a42e8edbfc75e2ecd04a96ce2abd24e60b7d04d3b6834",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 79,
+              "end_line": 201,
+              "fragment_sha256": "b4cb497cda25280ee4b9fab89fc28fd7e737e39c351c6410c56f67ed198baf4c",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "Complete non-test implementation: generic float formatting/precision restriction writes numeric text. No build script, proc-macro entry point or source-template copying path. No claim that this numerical formatter was exercised during the prior app build.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "dom_query 0.27.0",
+          "path": "src/matcher.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dom_query-0.27.0/src/matcher.rs",
+          "source_sha256": "a7ddb4baf34d9d17e4c6572d2bcc29d5e842dcb3a84e85a6e910ba68a0dedce2",
+          "archive_url": "https://static.crates.io/crates/dom_query/dom_query-0.27.0.crate",
+          "archive_member": "dom_query-0.27.0/src/matcher.rs",
+          "reused_accepted_source_file": true,
+          "ranges": [
+            {
+              "start_line": 1,
+              "end_line": 42,
+              "fragment_sha256": "aacb10db1fe5e48cb2a1c0bea4acee5f803de81eea9a627fa30e8a4b34773108",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "Accepted file reused to extend the direct cssparser edge: ParserInput/Parser are constructed from selector text, then selectors parses the selector list.",
+          "implementation_text_copied_into_report": false
+        },
+        {
+          "component": "selectors 0.36.1",
+          "path": "parser.rs",
+          "local_path": "C:/Users/U/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/selectors-0.36.1/parser.rs",
+          "source_sha256": "99081617e5c204bce5a7f430805ae86ca4c2eb340d59e6d2213ed1264419b9eb",
+          "archive_url": "https://static.crates.io/crates/selectors/selectors-0.36.1.crate",
+          "archive_member": "selectors-0.36.1/parser.rs",
+          "reused_accepted_source_file": true,
+          "ranges": [
+            {
+              "start_line": 17,
+              "end_line": 21,
+              "fragment_sha256": "85073f8b3acc5c5464e6fdf6f32d88b47840f367dda6725151deff7af44a7d21",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 3250,
+              "end_line": 3280,
+              "fragment_sha256": "080874edcb0053337ce457c688e213d5e9654624790380327d17f510d4f0a40d",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            },
+            {
+              "start_line": 3459,
+              "end_line": 3490,
+              "fragment_sha256": "55357c7ba6778f873c62b4c7d4c88fed3ef64efb6848d30c42bd6150cfea5e28",
+              "fragment_encoding": "UTF-8; LF joins; no added final LF"
+            }
+          ],
+          "interpretation": "Accepted file reused only for new macro-consumer edge: CSS parser and ASCII macro imports and real macro expansions inside the already established host selector parser.",
+          "implementation_text_copied_into_report": false
+        }
+      ],
+      "reused_accepted_output_boundary": [
+        {
+          "baseline_pointer": "source_path_reading",
+          "component": "tauri-utils 2.9.3",
+          "path": "src/lib.rs",
+          "source_sha256": "d913767f5b291497cb752d4bb64271f2ff0b9ae711fcbc41fb880252ac549d6e",
+          "ranges": [
+            {
+              "first_line": 23,
+              "last_line": 42,
+              "lf_joined_fragment_sha256": "da2e2441fc1afb70ca96b0f216ff842247f7fd2757d70304b1d1a40c1a20affa"
+            }
+          ],
+          "hash_refresh_matches": true,
+          "interpretation": "HTML/codegen modules are feature-gated."
+        },
+        {
+          "baseline_pointer": "source_path_reading",
+          "component": "tauri-utils 2.9.3",
+          "path": "src/html2.rs",
+          "source_sha256": "04beee12c794585d349cf1e45850483d5f7eeea73df7268dbd2470d8675bb7b3",
+          "ranges": [
+            {
+              "first_line": 12,
+              "last_line": 38,
+              "lf_joined_fragment_sha256": "a096c0e2a1ec9796c1cc7cec9b387211ee6632989a350b95a2cdb7a05ddde183"
+            },
+            {
+              "first_line": 49,
+              "last_line": 78,
+              "lf_joined_fragment_sha256": "38fa6aa6fb2100e507fe2fb1f979e544779979ac1eb61d240e900445df1b0d67"
+            },
+            {
+              "first_line": 111,
+              "last_line": 164,
+              "lf_joined_fragment_sha256": "7b853f949f028ecc0aad46d273a0fb9d9a918d75f9957d3581699afcedfe6cf2"
+            }
+          ],
+          "hash_refresh_matches": true,
+          "interpretation": "Document serialization, nonce changes and separate isolation-only script insertion."
+        },
+        {
+          "baseline_pointer": "source_path_reading",
+          "component": "tauri-codegen 2.6.3",
+          "path": "src/context.rs",
+          "source_sha256": "ea13b70394f0166813d3aa1938d423ddd3ed809f81ecf541586c2f32f15255bd",
+          "ranges": [
+            {
+              "first_line": 20,
+              "last_line": 31,
+              "lf_joined_fragment_sha256": "a3e2a50b819cfddb8d2f5560ea028fc97bd8c3a58f1e8a090d8f598cbe3d3411"
+            },
+            {
+              "first_line": 47,
+              "last_line": 91,
+              "lf_joined_fragment_sha256": "24a7f46c63dd6d3713460638c5404847a4dc2def28b9b31333a9c0c5f76cb32d"
+            },
+            {
+              "first_line": 158,
+              "last_line": 207,
+              "lf_joined_fragment_sha256": "e2f09367ec45b785c9f3b73ea63a0f0814fd18429ccdafe8e956f729b120934a"
+            }
+          ],
+          "hash_refresh_matches": true,
+          "interpretation": "Active CSP transformation consumes DOM matches and emits transformed document bytes and script hashes."
+        },
+        {
+          "baseline_pointer": "source_path_reading",
+          "component": "tauri-codegen 2.6.3",
+          "path": "src/embedded_assets.rs",
+          "source_sha256": "95d96bdf8295ee6edadc8c091c347533bcc7c3963be7db4da95005d9598380ee",
+          "ranges": [
+            {
+              "first_line": 249,
+              "last_line": 286,
+              "lf_joined_fragment_sha256": "3139a9589baab0c366b83914a4dee0256c2a22e000447888178ce3d18587a9f3"
+            },
+            {
+              "first_line": 316,
+              "last_line": 384,
+              "lf_joined_fragment_sha256": "7a4e9af3e21bd9f5e5c487e94922fe1eab67312cec8b9139a43e071528536a70"
+            },
+            {
+              "first_line": 391,
+              "last_line": 436,
+              "lf_joined_fragment_sha256": "b1818e03a4a76a24f930c2d81c51bd4a3fc5c4f449d62a23e6afbc56a7623db0"
+            }
+          ],
+          "hash_refresh_matches": true,
+          "interpretation": "Input asset bytes are mapped, optionally compressed, written; token output embeds bytes and hash literals, not parser/matcher implementation."
+        }
+      ],
+      "legal_basis": {
+        "reused_from": "source_access_rules and legal_primary_sources in the historical baseline",
+        "no_new_legal_rule": true,
+        "macro_output": "Do not exempt all proc-macro output. Here actual generated implementation remains in host consumers; the final Tauri boundary emits document bytes and CSP data, not these implementations."
+      },
+      "selection": [
+        {
+          "component": "cssparser",
+          "version": "0.36.0",
+          "license": "MPL-2.0",
+          "windows_binary": "exclude",
+          "repository_implementation_source": "not vendored or copied; tracked app/vendor reference scan has no hits",
+          "host_build_tools": "present; host artifacts and Cargo caches are outside intended user payload",
+          "basis": "Directly used by dom_query to tokenize/parse selector inputs and indirectly through selectors; parser and exported macro implementations stay in the accepted tauri-utils HTML host branch.",
+          "corresponding_source_required_for_selected_binary": false,
+          "license_payload_selected": false,
+          "exact_source_if_delivery_changes": {
+            "archive": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+            "sha256": "dae61cf9c0abb83bd659dab65b7e4e38d8236824c85f0f804f173567bda257d2",
+            "repository_commit": "9339ddd71443463dfb85d1185ad50cd98b34bc8f",
+            "path_in_vcs": ""
+          }
+        },
+        {
+          "component": "cssparser-macros",
+          "version": "0.6.1",
+          "license": "MPL-2.0",
+          "windows_binary": "exclude",
+          "repository_implementation_source": "not vendored or copied; tracked app/vendor reference scan has no hits",
+          "host_build_tools": "present; host artifacts and Cargo caches are outside intended user payload",
+          "basis": "Proc-macro runs on host and emits real caller-side code: MAX_LENGTH constants, enum/static 256-entry dispatch tables and matches. cssparser uses match_byte; cssparser exported ASCII macros use MAX_LENGTH and expand also in selectors. All consumers in this graph are host-side, before the separate Tauri output-token boundary.",
+          "corresponding_source_required_for_selected_binary": false,
+          "license_payload_selected": false,
+          "exact_source_if_delivery_changes": {
+            "archive": "https://static.crates.io/crates/cssparser-macros/cssparser-macros-0.6.1.crate",
+            "sha256": "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331",
+            "repository_commit": "0ebd17bcd13808f087b083f34d2f816e380b5155",
+            "path_in_vcs": "macros"
+          }
+        },
+        {
+          "component": "dtoa-short",
+          "version": "0.3.5",
+          "license": "MPL-2.0",
+          "windows_binary": "exclude",
+          "repository_implementation_source": "not vendored or copied; tracked app/vendor reference scan has no hits",
+          "host_build_tools": "present; host artifacts and Cargo caches are outside intended user payload",
+          "basis": "Normal library dependency of host cssparser; numeric ToCss paths call its generic formatter and precision restriction. Formatting results are text data, not copied formatter source. No assertion that a particular numeric path was exercised in the historical build.",
+          "corresponding_source_required_for_selected_binary": false,
+          "license_payload_selected": false,
+          "exact_source_if_delivery_changes": {
+            "archive": "https://static.crates.io/crates/dtoa-short/dtoa-short-0.3.5.crate",
+            "sha256": "cd1511a7b6a56299bd043a9c167a6d2bfb37bf84a6dfceaba651168adfb43c87",
+            "repository_commit": "2d905cdb8b2e08163dc0d015f529877fe657b4ef",
+            "path_in_vcs": ""
+          }
+        }
+      ],
+      "additional_license_or_source_payloads": [],
+      "remaining": [
+        "Independent review of this three-crate delta.",
+        "Actual NSIS/MSI/ZIP enumeration must confirm no Cargo caches, RLIBs, build tools or proc-macro DLLs are shipped; no release approval is implied.",
+        "If these implementations or generated implementation parts enter a future user payload, supply corresponding MPL sources including local changes and a source-access notice; preserve applicable source notices. Reassess only the affected target/feature/codegen/delivery change."
+      ],
+      "reproduction": {
+        "originals_directory": "C:/Users/U/AppData/Local/Temp/agentbridge-mpl-css-20260912-r7838e4be6690",
+        "collection_program": {
+          "path": "C:/Users/U/AppData/Local/Temp/agentbridge-mpl-css-20260912-r7838e4be6690/collect.mjs",
+          "bytes": 15339,
+          "sha256": "b22e1ef93486cf6acaa827a660db38ca412ce035c4b08f9c2b995b5752f86661"
+        },
+        "steps": "Read this program; do not rerun against the same directory because original capture uses exclusive creation. The listed commands are read-only. Fetch/hash three crates, compare listed source bytes and fragment hashes, hash the identified existing boundary evidence, then follow the source paths. No compilation or macro expansion is required or claimed.",
+        "source_fragment_text_not_embedded": true,
+        "no_owned_process_left_running": true
+      }
+    }
+  ]
+}

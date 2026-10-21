@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>UI v2 — Entwürfe (Bezug für specs/2026-09-05-ui-v2-design.md)</title>
+<style>
+/* Dauerhafte Kopie der im Brainstorming vom 2026-09-05 gewählten Entwürfe
+   (Richtung, Farbwelt, Erststart); deren Arbeitsdateien sind nicht im Repository.
+   Die Pixelwerte hier sind Entwurfswerte; verbindlich ist die Spec. */
+body{margin:0;padding:24px;background:#0C0D10;color:#C9D0DA;font:13px/18px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif}
+h1{font-size:18px;margin:0 0 4px;color:#EDEFF3}
+h2{font-size:14px;margin:28px 0 8px;color:#EDEFF3}
+p.note{margin:0 0 16px;color:#8A93A1;max-width:900px}
+.mk{width:1200px;height:480px;overflow:hidden;font-size:12px;line-height:16px;text-align:left;padding:8px;background:var(--canvas);color:var(--text);border:1px solid #2A2F38}
+.mk *{box-sizing:border-box}
+/* Themen */
+.turquoise{--canvas:#15171C;--panel:#1D2027;--card:#242830;--hover:#2A2F38;--active:#303641;--ring:#A7F3EA;--line:rgba(255,255,255,.06);--text:#EDEFF3;--sec:#C9D0DA;--muted:#939CAA;--accent:#2DD4BF;--ink:#0F172A;--soft:rgba(45,212,191,.13);--avbg:#1F3A44;--avfg:#7EE8DC;--term:#0F1115;--ok:#4ADE80;--okbg:rgba(74,222,128,.15);--warn:#FBBF24;--warnbg:rgba(251,191,36,.15);--danger:#FCA5A5;--dangerbg:rgba(248,113,113,.13);--shadow:0 6px 18px rgba(0,0,0,.35)}
+.slate{--canvas:#12161E;--panel:#1A2030;--card:#212A3C;--hover:#283349;--active:#2F3B54;--ring:#C7DDFF;--line:rgba(255,255,255,.06);--text:#E8EDF5;--sec:#C6CFDD;--muted:#94A0B4;--accent:#6FA8FF;--ink:#0B1220;--soft:rgba(111,168,255,.14);--avbg:#233656;--avfg:#A9C8FF;--term:#0D111A;--ok:#4ADE80;--okbg:rgba(74,222,128,.15);--warn:#FBBF24;--warnbg:rgba(251,191,36,.15);--danger:#FCA5A5;--dangerbg:rgba(248,113,113,.13);--shadow:0 6px 18px rgba(0,0,0,.35)}
+/* Hauptansicht */
+.app{display:grid;grid-template-columns:240px 1fr;gap:8px;height:100%}
+.side{background:var(--panel);border-radius:10px;border:1px solid var(--line);box-shadow:var(--shadow);padding:0 8px 8px;display:flex;flex-direction:column;min-width:0}
+.side-head{display:flex;align-items:center;justify-content:space-between;height:40px;padding:0 0 0 6px;margin-bottom:4px}
+.side-title{font-size:13px;font-weight:600}
+.head-acts{display:flex;gap:6px;align-items:center}
+.btn{font-size:11px;font-weight:600;color:var(--ink);background:var(--accent);border:0;border-radius:999px;padding:3px 10px;line-height:16px;display:inline-block}
+.btn.ghost{background:transparent;color:var(--sec);border:1px solid rgba(255,255,255,.12)}
+.gear{width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);border:1px solid var(--line)}
+.hostcard{background:var(--card);border-radius:9px;padding:6px;margin-bottom:8px;border:1px solid var(--line)}
+.host{display:flex;align-items:center;gap:8px;height:32px;padding:0 2px;white-space:nowrap}
+.chev{width:12px;color:var(--muted);font-size:10px;text-align:center}
+.avatar{width:24px;height:24px;border-radius:7px;background:var(--avbg);color:var(--avfg);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.host .name{flex:1;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis}
+.pill{font-size:11px;font-weight:600;padding:3px 7px;border-radius:999px;background:var(--okbg);color:var(--ok);line-height:14px}
+.pill.failed{background:var(--dangerbg);color:var(--danger)}.pill.off{background:var(--hover);color:var(--sec)}
+.sess{display:flex;align-items:center;gap:8px;height:26px;padding:0 8px 0 44px;border-radius:6px;color:var(--sec);font-size:12px;white-space:nowrap}
+.sess .name{flex:1;overflow:hidden;text-overflow:ellipsis}
+.sess.focused{background:var(--soft);color:var(--text)}
+.meta{font-size:11px;color:var(--muted)}
+.ind{font-size:9px;color:var(--muted)}.sess.open .ind{color:var(--accent)}
+.notice{margin:6px 2px 2px;padding:8px;background:var(--dangerbg);border-radius:8px;font-size:11px;line-height:15px;color:var(--danger)}
+.notice small{display:block;color:var(--danger);opacity:.85;margin:2px 0 4px}
+.notice a{color:var(--text);margin-right:10px;text-decoration:none;font-weight:600}
+.side-foot{margin-top:auto;padding:8px 6px 0;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.main{display:flex;flex-direction:column;min-width:0}
+.toolbar{height:36px;display:flex;align-items:center;gap:14px;padding:0 4px 8px;font-size:11px;color:var(--muted)}
+.seg{display:inline-flex;background:var(--panel);border-radius:999px;padding:2px;border:1px solid var(--line)}
+.seg b{font-weight:600;color:var(--muted);padding:1px 10px;border-radius:999px;font-size:11px}
+.seg b.on{background:var(--accent);color:var(--ink)}
+.tiles{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;min-height:0}
+.tile{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel);border-radius:10px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.tile.focused{outline:2px solid var(--accent);outline-offset:-2px}
+.thead{display:flex;align-items:center;gap:8px;height:30px;padding:0 10px;font-size:11px;color:var(--muted);white-space:nowrap}
+.tidx{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,.12);font-weight:600;font-size:11px;line-height:14px;border-radius:6px;width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+.tile.focused .tidx{background:var(--accent);color:var(--ink);border-color:var(--accent)}
+.tile.focused .thead{background:var(--active);border-radius:9px 9px 0 0}
+.ttitle{color:var(--sec);font-weight:400}
+.tile.focused .ttitle{color:var(--text);font-weight:600}
+.thost{flex:1;overflow:hidden;text-overflow:ellipsis}
+.term{flex:1;margin:0 4px 4px;padding:8px 10px;background:var(--term);color:#D7DEE6;border-radius:0;font:12px/17px "Cascadia Mono",Consolas,monospace;white-space:pre;overflow:hidden}
+.term .g{color:#56D364}.term .b{color:#79B8FF}.term .m{color:#8B96A3}.term .y{color:#E3B341}.term .c{color:#39C5CF}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);border:1px dashed rgba(255,255,255,.12);border-radius:7px;margin:0 6px 6px;line-height:18px}
+/* Erststart */
+.fr-hint{color:var(--muted);font-size:12px;line-height:16px;padding:8px 6px}
+.fr-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:var(--panel);border-radius:10px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.fr-logo{width:40px;height:40px;border-radius:12px;background:var(--accent);color:#0F172A;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.fr-title{font-size:18px;font-weight:600;line-height:24px}
+.fr-tag{color:var(--muted);font-size:12px;margin:2px 0 14px;text-align:center;max-width:440px}
+.fr-panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;width:440px}
+.fr-panel h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 6px}
+.fr-row{display:flex;align-items:center;gap:10px;height:36px;padding:0 6px;border-radius:7px}
+.fr-row .n{flex:1;min-width:0}
+.fr-row .n b{display:block;font-weight:600}
+.fr-row .n small{display:block;color:var(--muted);font-size:11px;line-height:14px}
+.fr-req{margin-top:12px;font-size:11px;color:var(--muted)}
+.fr-req span{margin-right:10px}
+</style>
+</head>
+<body>
+<h1>UI v2 — gewählte Entwürfe</h1>
+<p class="note">Richtung B ("Weich und freundlich"), Themen Türkis auf Graphit (Standard) und Blau auf Schiefer, nur dunkel. Erststart "Willkommen mit Vorschlägen". Situation in den Hauptansichten: vier Hosts, vier Kacheln, ein Verbindungsfehler. Texte hier teils deutsch, die Oberfläche selbst ist englisch (<code>src/i18n/en.json</code>). Stand nach der Kritikrunde: fehlgeschlagen ist rot, das Kürzel trägt nur Identität, nur die fokussierte Kachel hat gefüllten Chip und halbfetten Titel, das Terminal liegt 4 px innen und ist eckig.</p>
+
+<h2>1. Hauptansicht, Türkis auf Graphit (Standard)</h2>
+<div class="mk turquoise"><div class="app">
+  <aside class="side">
+    <div class="side-head"><span class="side-title">Hosts</span><span class="head-acts"><span class="btn">+ Host</span><span class="gear" title="Settings">⚙</span></span></div>
+    <div class="hostcard">
+      <div class="host"><span class="chev">▾</span><span class="avatar">B1</span><span class="name">vm-build-01</span><span class="pill">Connected</span></div>
+      <div class="sess open focused"><span class="ind">●</span><span class="name">refactor-transport</span><span class="meta">Open</span></div>
+      <div class="sess open"><span class="ind">●</span><span class="name">docs-sweep</span><span class="meta">Open</span></div>
+      <div class="sess"><span class="ind">○</span><span class="name">flaky-hunt</span><span class="meta">Closed</span></div>
+    </div>
+    <div class="hostcard">
+      <div class="host"><span class="chev">▾</span><span class="avatar">A2</span><span class="name">vm-agents-02</span><span class="pill">Connected</span></div>
+      <div class="sess open"><span class="ind">●</span><span class="name">acl-runtime</span><span class="meta">Open</span></div>
+      <div class="sess"><span class="ind">○</span><span class="name">plan2-spike</span><span class="meta">Closed</span></div>
+    </div>
+    <div class="hostcard">
+      <div class="host"><span class="chev">▾</span><span class="avatar">L3</span><span class="name">vm-legacy-03</span><span class="pill failed">Failed</span></div>
+      <div class="notice">Connection failed<small>ssh-agent is not reachable and no key is set. Add one with Edit.</small><a>Retry</a><a>Copy diagnostics</a></div>
+    </div>
+    <div class="hostcard">
+      <div class="host"><span class="chev">▸</span><span class="avatar">S4</span><span class="name">vm-spare-04</span><span class="pill off">Disconnected</span></div>
+    </div>
+    <div class="side-foot">agentbridge 0.1.2 (abc1234)</div>
+  </aside>
+  <main class="main">
+    <div class="toolbar"><span class="seg"><b>1</b><b>2</b><b class="on">4</b></span><span>Layout</span><span style="margin-left:auto">Ctrl+Shift+N new session · Ctrl+Shift+F search · Ctrl+Shift+M maximize</span></div>
+    <div class="tiles">
+      <div class="tile focused"><div class="thead"><span class="tidx">1</span><span class="ttitle">refactor-transport</span><span class="thost">vm-build-01</span><span>⤢ Maximize</span><span>× Close</span></div>
+<pre class="term"><span class="g">$</span> claude
+<span class="b">●</span> Reading src/transport/russh_transport.rs
+<span class="c">●</span> Editing check_server_key …
+<span class="g">✓</span> 3 files changed, tests green
+<span class="m">Do you want to commit? (y/n)</span> ▌</pre></div>
+      <div class="tile"><div class="thead"><span class="tidx">2</span><span class="ttitle">docs-sweep</span><span class="thost">vm-build-01</span><span>⤢ Maximize</span><span>× Close</span></div>
+<pre class="term"><span class="g">$</span> codex
+<span class="y">›</span> Rewriting README section "Prerequisites"
+<span class="m">  working…</span>
+</pre></div>
+      <div class="tile"><div class="thead"><span class="tidx">3</span><span class="ttitle">acl-runtime</span><span class="thost">vm-agents-02</span><span>⤢ Maximize</span><span>× Close</span></div>
+<pre class="term"><span class="g">$</span> cargo test --locked
+running 208 tests
+<span class="g">test result: ok.</span> 208 passed; 0 failed
+<span class="g">$</span> ▌</pre></div>
+      <div class="tile"><div class="empty" style="margin-top:6px">No session in this slot<br><small>Pick one in the sidebar or press Ctrl+Shift+N</small></div></div>
+    </div>
+  </main>
+</div></div>
+
+<h2>2. Hauptansicht, Blau auf Schiefer (zweite Wahl im Umschalter)</h2>
+<div class="mk slate"><div class="app">
+  <aside class="side">
+    <div class="side-head"><span class="side-title">Hosts</span><span class="head-acts"><span class="btn">+ Host</span><span class="gear" title="Settings">⚙</span></span></div>
+    <div class="hostcard">
+      <div class="host"><span class="chev">▾</span><span class="avatar">B1</span><span class="name">vm-build-01</span><span class="pill">Connected</span></div>
+      <div class="sess open focused"><span class="ind">●</span><span class="name">refactor-transport</span><span class="meta">Open</span></div>
+      <div class="sess open"><span class="ind">●</span><span class="name">docs-sweep</span><span class="meta">Open</span></div>
+      <div class="sess"><span class="ind">○</span><span class="name">flaky-hunt</span><span class="meta">Closed</span></div>
+    </div>
+    <div class="hostcard">
+      <div class="host"><span class="chev">▾</span><span class="avatar">A2</span><span class="name">vm-agents-02</span><span class="pill">Connected</span></div>
+      <div class="sess open"><span class="ind">●</span><span class="name">acl-runtime</span><span class="meta">Open</span></div>
+      <div class="sess"><span class="ind">○</span><span class="name">plan2-spike</span><span class="meta">Closed</span></div>
+    </div>
+    <div class="hostcard">
+      <div class="host"><span class="chev">▾</span><span class="avatar">L3</span><span class="name">vm-legacy-03</span><span class="pill failed">Failed</span></div>
+      <div class="notice">Connection failed<small>ssh-agent is not reachable and no key is set. Add one with Edit.</small><a>Retry</a><a>Copy diagnostics</a></div>
+    </div>
+    <div class="hostcard">
+      <div class="host"><span class="chev">▸</span><span class="avatar">S4</span><span class="name">vm-spare-04</span><span class="pill off">Disconnected</span></div>
+    </div>
+    <div class="side-foot">agentbridge 0.1.2 (abc1234)</div>
+  </aside>
+  <main class="main">
+    <div class="toolbar"><span class="seg"><b>1</b><b>2</b><b class="on">4</b></span><span>Layout</span><span style="margin-left:auto">Ctrl+Shift+N new session · Ctrl+Shift+F search · Ctrl+Shift+M maximize</span></div>
+    <div class="tiles">
+      <div class="tile focused"><div class="thead"><span class="tidx">1</span><span class="ttitle">refactor-transport</span><span class="thost">vm-build-01</span><span>⤢ Maximize</span><span>× Close</span></div>
+<pre class="term"><span class="g">$</span> claude
+<span class="b">●</span> Reading src/transport/russh_transport.rs
+<span class="c">●</span> Editing check_server_key …
+<span class="g">✓</span> 3 files changed, tests green
+<span class="m">Do you want to commit? (y/n)</span> ▌</pre></div>
+      <div class="tile"><div class="thead"><span class="tidx">2</span><span class="ttitle">docs-sweep</span><span class="thost">vm-build-01</span><span>⤢ Maximize</span><span>× Close</span></div>
+<pre class="term"><span class="g">$</span> codex
+<span class="y">›</span> Rewriting README section "Prerequisites"
+<span class="m">  working…</span>
+</pre></div>
+      <div class="tile"><div class="thead"><span class="tidx">3</span><span class="ttitle">acl-runtime</span><span class="thost">vm-agents-02</span><span>⤢ Maximize</span><span>× Close</span></div>
+<pre class="term"><span class="g">$</span> cargo test --locked
+running 208 tests
+<span class="g">test result: ok.</span> 208 passed; 0 failed
+<span class="g">$</span> ▌</pre></div>
+      <div class="tile"><div class="empty" style="margin-top:6px">No session in this slot<br><small>Pick one in the sidebar or press Ctrl+Shift+N</small></div></div>
+    </div>
+  </main>
+</div></div>
+
+<h2>3. Erststart, "Willkommen mit Vorschlägen" (Türkis)</h2>
+<div class="mk turquoise"><div class="app">
+  <aside class="side">
+    <div class="side-head"><span class="side-title">Hosts</span><span class="head-acts"><span class="btn">+ Host</span><span class="gear" title="Settings">⚙</span></span></div>
+    <div class="fr-hint">Your hosts appear here. Connect the first one on the right.</div>
+    <div class="side-foot">agentbridge 0.1.2 (abc1234)</div>
+  </aside>
+  <main class="fr-main">
+    <div class="fr-logo">⌁</div>
+    <div class="fr-title">AgentBridge</div>
+    <div class="fr-tag">Your coding agents in tmux, on your machines. Nothing gets installed on the host.</div>
+    <div class="fr-panel">
+      <h4>Found in ~/.ssh/config</h4>
+      <div class="fr-row"><span class="avatar">B1</span><span class="n"><b>vm-build-01</b><small>u@192.0.2.20 · key id_ed25519</small></span><span class="btn">Connect</span></div>
+      <div class="fr-row"><span class="avatar">A2</span><span class="n"><b>vm-agents-02</b><small>dev@192.0.2.10 · key id_ed25519</small></span><span class="btn">Connect</span></div>
+      <div class="fr-row" style="height:32px;margin-top:4px"><span class="btn ghost">Add a host manually</span></div>
+    </div>
+    <div class="fr-req"><span style="color:var(--ok)">✓</span><span>Linux host</span><span>·</span><span>OpenSSH</span><span>·</span><span>tmux 3.0+</span><span>·</span><span style="color:var(--accent)">What gets checked</span></div>
+  </main>
+</div></div>
+</body>
+</html>

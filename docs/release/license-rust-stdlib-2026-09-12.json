@@ -1,0 +1,1498 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-09-12T11:37:37.044Z",
+  "status": "targeted_text_selection_complete_delivery_not_yet_verified",
+  "input_head": "795c34c22c22afaea5c0beadd61f63aa25e71abf",
+  "scope": {
+    "target": "x86_64-pc-windows-msvc",
+    "rust_release": "1.97.1",
+    "rust_commit": "8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+    "existing_native_application_commit": "6a45c12",
+    "new_native_build_performed": false,
+    "excluded": [
+      "MSVC redistributable and CRT license selection",
+      "WebView2 runtime or loader",
+      "installers",
+      "full application Cargo dependency re-audit"
+    ]
+  },
+  "local_evidence": {
+    "commands": [
+      {
+        "command": [
+          "rustc",
+          "-vV"
+        ],
+        "exit_code": 0,
+        "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "rustc",
+          "--print",
+          "sysroot"
+        ],
+        "exit_code": 0,
+        "stdout": "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "rustc",
+          "--print",
+          "target-libdir",
+          "--target",
+          "x86_64-pc-windows-msvc"
+        ],
+        "exit_code": 0,
+        "stdout": "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "rustup",
+          "show",
+          "active-toolchain"
+        ],
+        "exit_code": 0,
+        "stdout": "1.97.1-x86_64-pc-windows-msvc (overridden by 'C:\\Users\\U\\Projekt\\agentbridge\\rust-toolchain.toml')\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "rustup",
+          "component",
+          "list",
+          "--installed"
+        ],
+        "exit_code": 0,
+        "stdout": "cargo-x86_64-pc-windows-msvc\nclippy-x86_64-pc-windows-msvc\nrust-docs-x86_64-pc-windows-msvc\nrust-std-x86_64-pc-windows-msvc\nrust-std-x86_64-unknown-linux-gnu\nrustc-x86_64-pc-windows-msvc\nrustfmt-x86_64-pc-windows-msvc\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "cargo",
+          "--version"
+        ],
+        "exit_code": 0,
+        "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exit_code": 0,
+        "stdout": "795c34c22c22afaea5c0beadd61f63aa25e71abf\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "exit_code": 0,
+        "stdout": "?? docs/release/licenses/compiler-builtins-0.1.160-LICENSE.txt\n?? docs/release/licenses/compiler-builtins-0.1.160-libm-LICENSE.txt\n?? docs/release/licenses/rust-1.97.1-LICENSE-MIT.txt\n?? docs/release/licenses/rust-1.97.1-LICENSE-UNICODE.txt\n?? docs/release/licenses/rust-1.97.1-SOURCE-NOTICES.txt\n?? docs/release/licenses/rust-1.97.1-compiler-rt-CREDITS.txt\n?? docs/release/licenses/rust-1.97.1-compiler-rt-LICENSE.txt\n?? docs/release/licenses/rust-stdlib-cfg-if-1.0.4-LICENSE-MIT.txt\n?? docs/release/licenses/rust-stdlib-hashbrown-0.17.1-LICENSE-MIT.txt\n?? docs/superpowers/fixtures/m1-claude-agents/2026-09-12-errorprofile-401-pilot.json\n?? docs/superpowers/messung-2026-09-12-claude-401-pilot.md\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "git",
+          "show",
+          "6a45c12:rust-toolchain.toml"
+        ],
+        "exit_code": 0,
+        "stdout": "[toolchain]\nchannel = \"1.97.1\"\ncomponents = [\"rustfmt\", \"clippy\"]\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "6a45c12",
+          "--",
+          "rust-toolchain.toml",
+          "Cargo.toml",
+          "src-tauri/Cargo.toml",
+          "src-tauri/build.rs",
+          "src-tauri/tauri.conf.json"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "inputs": [
+      {
+        "path": "rust-toolchain.toml",
+        "bytes": 66,
+        "sha256": "e7155b5437585c3c3acc3053b08c6936020e9e93cc343e47e7e25f0033418e84",
+        "mtime_utc": "2026-07-25T08:59:53.895Z"
+      },
+      {
+        "path": "Cargo.toml",
+        "bytes": 256,
+        "sha256": "38b006f1e3936f256a5c475a2cf0ca3b7654bed93f75572a0a033522a4bd404b",
+        "mtime_utc": "2026-09-11T21:37:11.519Z"
+      },
+      {
+        "path": "Cargo.lock",
+        "bytes": 153532,
+        "sha256": "1e0d4c57bcc0b10e4b650066d6a592e08fb8755a3d7dfd5229c7ba88c74b0e2f",
+        "mtime_utc": "2026-09-11T21:39:49.252Z"
+      },
+      {
+        "path": "src-tauri/Cargo.toml",
+        "bytes": 5008,
+        "sha256": "337de8247088d03fe34826d772bbf3e002360c8df05faefad5d2c8de0e99dde2",
+        "mtime_utc": "2026-09-12T06:46:43.943Z"
+      },
+      {
+        "path": "src-tauri/build.rs",
+        "bytes": 3462,
+        "sha256": "545bc3b54b7d0396786257c786b518c8096b0be1d4a4695dedad8a6044d6475a",
+        "mtime_utc": "2026-09-11T21:19:54.926Z"
+      },
+      {
+        "path": "src-tauri/tauri.conf.json",
+        "bytes": 1295,
+        "sha256": "38050385b160e40c38ce20387154b6a7e896bb1dafef56f5c61798532a33a2b7",
+        "mtime_utc": "2026-09-06T14:54:01.895Z"
+      },
+      {
+        "path": "package.json",
+        "bytes": 952,
+        "sha256": "ac3ccd4deb2afb5613e41a88adfbd0948fbc61013b30ff8d848f61c483c16efe",
+        "mtime_utc": "2026-09-11T10:23:43.951Z"
+      },
+      {
+        "path": "docs/release/license-inventory-2026-09-12-rust.json",
+        "bytes": 1708392,
+        "sha256": "9e9637f332eaa701a88475cbd677885e65ca6ce9fd67f981643973836d31d021",
+        "mtime_utc": "2026-09-12T09:03:52.815Z"
+      },
+      {
+        "path": "target/.rustc_info.json",
+        "bytes": 2425,
+        "sha256": "dae8f3f38a0a3f898c46970f6ddb2df59c523dc1bcd72153629c86faf37a0b83",
+        "mtime_utc": "2026-09-12T08:45:25.555Z"
+      },
+      {
+        "path": "target/release/.fingerprint/agentbridge-d6760445c8995c66/bin-agentbridge.json",
+        "bytes": 1633,
+        "sha256": "c43190d5089174af8cee5538563b7891115e7125868ed4a4021c1bf2e2abe90a",
+        "mtime_utc": "2026-09-12T07:18:09.018Z"
+      },
+      {
+        "path": "target/release/.fingerprint/agentbridge-d6760445c8995c66/lib-agentbridge_lib.json",
+        "bytes": 1569,
+        "sha256": "8be1d0a0f48fc12fb68710451c82beb2896a343174408f1cb86fd160e360b678",
+        "mtime_utc": "2026-09-12T07:18:05.218Z"
+      }
+    ],
+    "toolchain_files": [
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/multirust-channel-manifest.toml",
+        "bytes": 972396,
+        "sha256": "09cbf0ad7b7e084e3bf1131c6bd970ad34c29c9fcdc8db1f7836463b7322e69a",
+        "mtime_utc": "2026-07-25T12:41:12.987Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/components",
+        "bytes": 234,
+        "sha256": "e0196fc126b59df7297f6ace0ed889baf02eb8a21056eedfb875fa7a0affa188",
+        "mtime_utc": "2026-07-25T12:41:12.943Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/manifest-rust-std-x86_64-pc-windows-msvc",
+        "bytes": 3666,
+        "sha256": "fc50d455d52cb907a9f337b3abf0831f6332eafd510a8bf93d0973425650515e",
+        "mtime_utc": "2026-07-25T08:02:20.605Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/multirust-config.toml",
+        "bytes": 647,
+        "sha256": "4b3cd1b7826d15238b3feca53c92e3261727e97e817be7ee77d169309077b5d2",
+        "mtime_utc": "2026-07-25T12:41:12.992Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/bin/rustc.exe",
+        "bytes": 110592,
+        "sha256": "cf79cfd77b0a144c56a0a6af6bf10bcdf095a73718cd4bf2b9d4fe2d2cbded55",
+        "mtime_utc": "2026-07-25T08:03:15.544Z"
+      }
+    ],
+    "distribution_manifest": {
+      "date": "2026-07-16",
+      "sections": [
+        {
+          "section": "pkg.rust-std",
+          "text": "[pkg.rust-std]\nversion = \"1.97.1 (8bab26f4f 2026-07-14)\"\n"
+        },
+        {
+          "section": "pkg.rust-std.target.x86_64-pc-windows-msvc",
+          "text": "[pkg.rust-std.target.x86_64-pc-windows-msvc]\navailable = true\nurl = \"https://static.rust-lang.org/dist/2026-07-16/rust-std-1.97.1-x86_64-pc-windows-msvc.tar.gz\"\nhash = \"ea544e8d86c9978987a91bad66a0750003840cb995c54972f34fa69343fce74b\"\nxz_url = \"https://static.rust-lang.org/dist/2026-07-16/rust-std-1.97.1-x86_64-pc-windows-msvc.tar.xz\"\nxz_hash = \"05f356609926e663a81e9697077214236514b2f9ff7a36e63b0070f43f073f66\"\ncomponents = []\nextensions = []\n"
+        },
+        {
+          "section": "pkg.rust-docs",
+          "text": "[pkg.rust-docs]\nversion = \"1.97.1 (8bab26f4f 2026-07-14)\"\n"
+        },
+        {
+          "section": "pkg.rust-docs.target.x86_64-pc-windows-msvc",
+          "text": "[pkg.rust-docs.target.x86_64-pc-windows-msvc]\navailable = true\nurl = \"https://static.rust-lang.org/dist/2026-07-16/rust-docs-1.97.1-x86_64-pc-windows-msvc.tar.gz\"\nhash = \"57ccca80f17e0bf0fe1db9ac51ba73b7bd09d331abadc07bd585cef98e7ff659\"\nxz_url = \"https://static.rust-lang.org/dist/2026-07-16/rust-docs-1.97.1-x86_64-pc-windows-msvc.tar.xz\"\nxz_hash = \"ddcbcbb04a8008dafb1f7c8c28070f597e208e824f5c3d42dbaf8d7ad9477be2\"\ncomponents = []\nextensions = []\n"
+        }
+      ],
+      "archive_hashes_are_recorded_manifest_values_not_reverified_downloads": true
+    },
+    "installed_std_manifest": "file:lib/rustlib/x86_64-pc-windows-msvc/lib/liballoc-87fb57237703c7e7.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/liballoc-87fb57237703c7e7.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libcfg_if-17b5feb2688e8da7.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libcfg_if-17b5feb2688e8da7.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libcompiler_builtins-ce654cf527ce7df8.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libcompiler_builtins-ce654cf527ce7df8.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libcore-cf5ef8f9edb2b6bd.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libcore-cf5ef8f9edb2b6bd.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libgetopts-63c87bf656180066.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libgetopts-63c87bf656180066.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libhashbrown-d36d08601ec23735.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libhashbrown-d36d08601ec23735.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libpanic_abort-7bee198819d30888.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libpanic_abort-7bee198819d30888.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libpanic_unwind-f714b742ea2703a4.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libpanic_unwind-f714b742ea2703a4.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libproc_macro-eb5361a424d20ef2.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libproc_macro-eb5361a424d20ef2.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libprofiler_builtins-b46d56135138cb58.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libprofiler_builtins-b46d56135138cb58.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_demangle-2b049fac4bb9f18a.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_demangle-2b049fac4bb9f18a.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_literal_escaper-3b135b62cfd31bf8.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_literal_escaper-3b135b62cfd31bf8.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_alloc-b37431f0b8bc51d4.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_alloc-b37431f0b8bc51d4.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_core-60d1e6d1166a33b4.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_core-60d1e6d1166a33b4.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_std-1aea871a990e777a.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_std-1aea871a990e777a.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libstd-ad7efb1bc85901be.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libstd-ad7efb1bc85901be.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libstd_detect-5f713681f2cbd266.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libstd_detect-5f713681f2cbd266.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libsysroot-25bf08ec630a5d59.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libsysroot-25bf08ec630a5d59.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libtest-a55db7a77a277664.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libtest-a55db7a77a277664.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libunwind-c0ec228d03fbdf58.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libunwind-c0ec228d03fbdf58.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libwindows_link-e554f8198c348704.rlib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/libwindows_link-e554f8198c348704.rmeta\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/std-ad7efb1bc85901be.dll\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/std-ad7efb1bc85901be.dll.lib\nfile:lib/rustlib/x86_64-pc-windows-msvc/lib/std-ad7efb1bc85901be.pdb\n",
+    "stdlib_installed_archives": [
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/liballoc-87fb57237703c7e7.rlib",
+        "bytes": 667476,
+        "sha256": "b15f4542d933be7d67d88ce0df84b52a29b374708fcaad6231a6295ca67db9c4",
+        "mtime_utc": "2026-07-25T08:02:19.986Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libcfg_if-17b5feb2688e8da7.rlib",
+        "bytes": 4280,
+        "sha256": "3f6a7d0f59ba8394c3191c96c51bbd517910cfb34d3c72e6a0e553c45b93acb7",
+        "mtime_utc": "2026-07-25T08:02:19.964Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libcompiler_builtins-ce654cf527ce7df8.rlib",
+        "bytes": 3059590,
+        "sha256": "5c2ba0181a45744d4cc1eca6369193443c4682ace39178920cf388ff19704e47",
+        "mtime_utc": "2026-07-25T08:02:20.043Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libcore-cf5ef8f9edb2b6bd.rlib",
+        "bytes": 2314352,
+        "sha256": "3772dc2eb5376d705b81c2746d605fe556961dd38c9d778fc6b244b4923af9fb",
+        "mtime_utc": "2026-07-25T08:02:20.125Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libgetopts-63c87bf656180066.rlib",
+        "bytes": 523230,
+        "sha256": "840606f15ae132eb863e174ce6cd75e06d917bd185bd9934c336db1a88f06282",
+        "mtime_utc": "2026-07-25T08:02:19.964Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libhashbrown-d36d08601ec23735.rlib",
+        "bytes": 34540,
+        "sha256": "13db071b97c42c4848a8c7ccb20c66335af63c82104f796a9b66f9df06df86c9",
+        "mtime_utc": "2026-07-25T08:02:19.943Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libpanic_abort-7bee198819d30888.rlib",
+        "bytes": 9030,
+        "sha256": "98449f4dc1e30e97b96b55e0085682ee3ca4006d5b293986b5190b440e546b0d",
+        "mtime_utc": "2026-07-25T08:02:19.997Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libpanic_unwind-f714b742ea2703a4.rlib",
+        "bytes": 29936,
+        "sha256": "140e27cb6243beab7a0b04b27f3e7557154b84ab2ba93a6fcdc37e052e803fad",
+        "mtime_utc": "2026-07-25T08:02:19.941Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libproc_macro-eb5361a424d20ef2.rlib",
+        "bytes": 2819072,
+        "sha256": "0ea4ce9377518b5f2cc002dca35c8ffb4690ee0abe053dd9886ce462165a694c",
+        "mtime_utc": "2026-07-25T08:02:19.785Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libprofiler_builtins-b46d56135138cb58.rlib",
+        "bytes": 376468,
+        "sha256": "faed7f4988dad26f97d007af8a94b582284e1fc8831d393e6ee697a649a952b5",
+        "mtime_utc": "2026-07-25T08:02:19.996Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_demangle-2b049fac4bb9f18a.rlib",
+        "bytes": 217496,
+        "sha256": "4911acf9428ff5617dfaf757687b84ec44b3be0170db22623b0c650160a39f90",
+        "mtime_utc": "2026-07-25T08:02:20.050Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_literal_escaper-3b135b62cfd31bf8.rlib",
+        "bytes": 4526,
+        "sha256": "20eecf937e136d641f837e7c687858505bfe50748c1949ab430da500aaf4a194",
+        "mtime_utc": "2026-07-25T08:02:19.997Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_alloc-b37431f0b8bc51d4.rlib",
+        "bytes": 4662,
+        "sha256": "60c2b2824234065de8bd024dcac8f1da9e0f80716569899aa2602b1a8d4a5160",
+        "mtime_utc": "2026-07-25T08:02:19.942Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_core-60d1e6d1166a33b4.rlib",
+        "bytes": 4652,
+        "sha256": "86c4bc76d2d3722d7ec471a1d32c45d36dbf832e768107b34ad83faa4a85886e",
+        "mtime_utc": "2026-07-25T08:02:19.941Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/librustc_std_workspace_std-1aea871a990e777a.rlib",
+        "bytes": 4636,
+        "sha256": "b77783ee78a1babbb146db90840c1d7fe4ce10be671692a7729930b2f3047a90",
+        "mtime_utc": "2026-07-25T08:02:20.042Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libstd-ad7efb1bc85901be.rlib",
+        "bytes": 5646442,
+        "sha256": "4680f4982f8a2dce11140fa9c3a48d9bc7130b7e0936c03ca458d6e180b2da34",
+        "mtime_utc": "2026-07-25T08:02:20.304Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libstd_detect-5f713681f2cbd266.rlib",
+        "bytes": 54702,
+        "sha256": "89aa6a2c88b93db1af08df1b95a9c016f39ae0b92a8e8bc901c74e4989f28528",
+        "mtime_utc": "2026-07-25T08:02:19.964Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libsysroot-25bf08ec630a5d59.rlib",
+        "bytes": 4422,
+        "sha256": "983cbe30e3ead621fd4cba4ddc969b46d141e094fc0da7fec475e91edfbc4c14",
+        "mtime_utc": "2026-07-25T08:02:20.041Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libtest-a55db7a77a277664.rlib",
+        "bytes": 5372796,
+        "sha256": "b97523c064732c32e322569fdb954a59f40859909a328b76853ee8f06442c293",
+        "mtime_utc": "2026-07-25T08:02:19.943Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libunwind-c0ec228d03fbdf58.rlib",
+        "bytes": 4410,
+        "sha256": "9d4f57be0990d21ecbad5c4f456e3023921d7911af5ee3af9f48f3307fc774e7",
+        "mtime_utc": "2026-07-25T08:02:19.996Z"
+      },
+      {
+        "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libwindows_link-e554f8198c348704.rlib",
+        "bytes": 4486,
+        "sha256": "bd6807f902778d399ece87c54b78d5af50ed40bb53fd3c2fc501c0bc5dc99ac2",
+        "mtime_utc": "2026-07-25T08:02:19.785Z"
+      }
+    ],
+    "cached_rustc_information": {
+      "rustc_fingerprint": "18271004273001175046",
+      "outputs": {
+        "7971740275564407648": {
+          "success": true,
+          "status": "",
+          "code": 0,
+          "stdout": "___.exe\nlib___.rlib\n___.dll\n___.dll\n___.lib\n___.dll\nC:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\npacked\n___\ndebug_assertions\npanic=\"unwind\"\nproc_macro\ntarget_abi=\"\"\ntarget_arch=\"x86_64\"\ntarget_endian=\"little\"\ntarget_env=\"msvc\"\ntarget_family=\"windows\"\ntarget_feature=\"cmpxchg16b\"\ntarget_feature=\"fxsr\"\ntarget_feature=\"sse\"\ntarget_feature=\"sse2\"\ntarget_feature=\"sse3\"\ntarget_has_atomic=\"128\"\ntarget_has_atomic=\"16\"\ntarget_has_atomic=\"32\"\ntarget_has_atomic=\"64\"\ntarget_has_atomic=\"8\"\ntarget_has_atomic=\"ptr\"\ntarget_has_atomic_primitive_alignment=\"128\"\ntarget_has_atomic_primitive_alignment=\"16\"\ntarget_has_atomic_primitive_alignment=\"32\"\ntarget_has_atomic_primitive_alignment=\"64\"\ntarget_has_atomic_primitive_alignment=\"8\"\ntarget_has_atomic_primitive_alignment=\"ptr\"\ntarget_os=\"windows\"\ntarget_pointer_width=\"64\"\ntarget_vendor=\"pc\"\nwindows\n",
+          "stderr": ""
+        },
+        "1652773195384388339": {
+          "success": true,
+          "status": "",
+          "code": 0,
+          "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+          "stderr": ""
+        },
+        "12004014463585500860": {
+          "success": true,
+          "status": "",
+          "code": 0,
+          "stdout": "___.exe\nlib___.rlib\n___.dll\n___.dll\n___.lib\n___.dll\nC:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\npacked\n___\ndebug_assertions\npanic=\"unwind\"\nproc_macro\ntarget_abi=\"\"\ntarget_arch=\"x86_64\"\ntarget_endian=\"little\"\ntarget_env=\"msvc\"\ntarget_family=\"windows\"\ntarget_feature=\"cmpxchg16b\"\ntarget_feature=\"fxsr\"\ntarget_feature=\"sse\"\ntarget_feature=\"sse2\"\ntarget_feature=\"sse3\"\ntarget_has_atomic=\"128\"\ntarget_has_atomic=\"16\"\ntarget_has_atomic=\"32\"\ntarget_has_atomic=\"64\"\ntarget_has_atomic=\"8\"\ntarget_has_atomic=\"ptr\"\ntarget_has_atomic_primitive_alignment=\"128\"\ntarget_has_atomic_primitive_alignment=\"16\"\ntarget_has_atomic_primitive_alignment=\"32\"\ntarget_has_atomic_primitive_alignment=\"64\"\ntarget_has_atomic_primitive_alignment=\"8\"\ntarget_has_atomic_primitive_alignment=\"ptr\"\ntarget_os=\"windows\"\ntarget_pointer_width=\"64\"\ntarget_vendor=\"pc\"\nwindows\n",
+          "stderr": ""
+        }
+      },
+      "successes": {}
+    }
+  },
+  "existing_native_evidence": {
+    "exe": {
+      "bytes": 16016896,
+      "sha256": "8aa177e304e0b8c067159ac7912d7894b770bc05021a47bd9b0de593cd8255e9",
+      "machine": "8664",
+      "debug": [
+        {
+          "guid_bytes": "9f9643b8d47a284ebd910f348e046951",
+          "age": 1,
+          "pdb_path": "agentbridge.pdb"
+        }
+      ],
+      "imports": [
+        "kernel32.dll",
+        "user32.dll",
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "bcryptprimitives.dll",
+        "advapi32.dll",
+        "combase.dll",
+        "oleaut32.dll",
+        "ntdll.dll",
+        "gdi32.dll",
+        "dwmapi.dll",
+        "ole32.dll",
+        "comctl32.dll",
+        "shlwapi.dll",
+        "shell32.dll",
+        "ws2_32.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll"
+      ]
+    },
+    "pdb": {
+      "bytes": 8916992,
+      "sha256": "8f6451daf43b1f32c8bf9e8d661060656db211a185df61eda6ac92e13768c48c",
+      "info": {
+        "version": 20000404,
+        "signature": 1789197486,
+        "age": 1,
+        "guid_bytes": "9f9643b8d47a284ebd910f348e046951"
+      },
+      "guid_age_match": true,
+      "standard_library_archives": [
+        "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\liballoc-87fb57237703c7e7.rlib",
+        "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libcompiler_builtins-ce654cf527ce7df8.rlib",
+        "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libcore-cf5ef8f9edb2b6bd.rlib",
+        "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libhashbrown-d36d08601ec23735.rlib",
+        "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libpanic_unwind-f714b742ea2703a4.rlib",
+        "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\librustc_demangle-2b049fac4bb9f18a.rlib",
+        "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libstd-ad7efb1bc85901be.rlib",
+        "C:\\Users\\U\\.rustup\\toolchains\\1.97.1-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libstd_detect-5f713681f2cbd266.rlib"
+      ],
+      "compiler_builtins_refs": [
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\float\\conv.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\float\\extend.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\float\\trunc.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\int\\sdiv.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\int\\specialized_div_rem\\asymmetric.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\int\\specialized_div_rem\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\int\\udiv.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\lib.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\macros.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\math\\..\\..\\..\\libm\\src\\math\\support\\float_traits.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\compiler-builtins\\compiler-builtins\\src\\math\\..\\..\\..\\libm\\src\\math\\support\\int_traits.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452\\out\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\deps\\compiler_builtins-ce654cf527ce7df8.compiler_builtins.decb7eba871ccee5-cgu.039.rcgu.o",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452\\out\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\deps\\compiler_builtins-ce654cf527ce7df8.compiler_builtins.decb7eba871ccee5-cgu.116.rcgu.o",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452\\out\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\deps\\compiler_builtins-ce654cf527ce7df8.compiler_builtins.decb7eba871ccee5-cgu.117.rcgu.o",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452\\out\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\deps\\compiler_builtins-ce654cf527ce7df8.compiler_builtins.decb7eba871ccee5-cgu.168.rcgu.o",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452\\out\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\deps\\compiler_builtins-ce654cf527ce7df8.compiler_builtins.decb7eba871ccee5-cgu.171.rcgu.o",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452\\out\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\deps\\compiler_builtins-ce654cf527ce7df8.compiler_builtins.decb7eba871ccee5-cgu.173.rcgu.o",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452\\out\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\deps\\compiler_builtins-ce654cf527ce7df8.compiler_builtins.decb7eba871ccee5-cgu.195.rcgu.o"
+      ]
+    },
+    "stdlib_exe_paths": {
+      "count": 89,
+      "commits": [
+        "8bab26f4f68e0e26f0bb7960be334d5b520ea452"
+      ],
+      "paths": [
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\collections\\btree\\map.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\collections\\btree\\map\\entry.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\collections\\btree\\navigate.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\collections\\btree\\node.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\collections\\vec_deque\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\fmt.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\raw_vec\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\slice.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\str.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\string.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\sync.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\vec\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\alloc\\src\\wtf8\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\char\\methods.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\fmt\\builders.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\fmt\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\fmt\\num.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\future\\ready.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\net\\display_buffer.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\net\\ip_addr.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\net\\parser.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\num\\f64.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\num\\imp\\bignum.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\num\\imp\\dec2flt\\decimal_seq.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\num\\imp\\dec2flt\\parse.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\num\\imp\\diy_float.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\num\\imp\\flt2dec\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\num\\imp\\flt2dec\\strategy\\dragon.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\num\\imp\\flt2dec\\strategy\\grisu.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\ops\\function.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\panicking.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\slice\\index.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\slice\\iter.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\slice\\memchr.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\slice\\sort\\shared\\smallsort.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\slice\\sort\\stable\\quicksort.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\str\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\str\\pattern.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\sync\\atomic.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\time.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\unicode\\printable.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\unicode\\unicode_data.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\core\\src\\wtf8.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\panic_unwind\\src\\seh.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\..\\..\\backtrace\\src\\dbghelp.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\..\\..\\backtrace\\src\\symbolize\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\backtrace.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\env.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\ffi\\os_str.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\io\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\io\\stdio.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\os\\windows\\io\\raw.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\panicking.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\path.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\rt.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\lazy_lock.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\mpmc\\array.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\mpmc\\context.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\mpmc\\list.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\mpmc\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\mpmc\\waker.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\mpmc\\zero.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\once.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sync\\reentrant_lock.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\args\\windows.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\env\\windows.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\helpers\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\io\\error\\windows.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\io\\io_slice\\windows.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\net\\connection\\socket\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\pal\\windows\\mod.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\pal\\windows\\time.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\pal\\windows\\winsock.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\paths\\windows.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\process\\windows.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\process\\windows\\child_pipe.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\stdio\\windows.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\sync\\once\\futex.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\sync\\rwlock\\futex.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\thread\\windows.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\thread_local\\destructors\\list.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\sys\\thread_local\\native\\lazy.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\thread\\current.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\thread\\functions.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\thread\\id.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\thread\\lifecycle.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\thread\\local.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\thread\\scoped.rs",
+        "/rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\\std\\src\\thread\\thread.rs"
+      ]
+    },
+    "compiler_builtins_archive": {
+      "bytes": 3059590,
+      "sha256": "5c2ba0181a45744d4cc1eca6369193443c4682ace39178920cf388ff19704e47",
+      "member_count": 281,
+      "native_named": [
+        {
+          "raw": "/20485",
+          "size": 4424,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-ucmpti2.o"
+        },
+        {
+          "raw": "/20640",
+          "size": 4376,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-ucmpdi2.o"
+        },
+        {
+          "raw": "/20795",
+          "size": 4757,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-subvti3.o"
+        },
+        {
+          "raw": "/20950",
+          "size": 4660,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-subvsi3.o"
+        },
+        {
+          "raw": "/21105",
+          "size": 4665,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-subvdi3.o"
+        },
+        {
+          "raw": "/21260",
+          "size": 4394,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-popcountti2.o"
+        },
+        {
+          "raw": "/21419",
+          "size": 3971,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-popcountsi2.o"
+        },
+        {
+          "raw": "/21578",
+          "size": 4138,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-popcountdi2.o"
+        },
+        {
+          "raw": "/21737",
+          "size": 4676,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-parityti2.o"
+        },
+        {
+          "raw": "/21894",
+          "size": 3964,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-paritysi2.o"
+        },
+        {
+          "raw": "/22051",
+          "size": 4321,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-paritydi2.o"
+        },
+        {
+          "raw": "/22208",
+          "size": 4662,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-negvti2.o"
+        },
+        {
+          "raw": "/22363",
+          "size": 4487,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-negvsi2.o"
+        },
+        {
+          "raw": "/22518",
+          "size": 4494,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-negvdi2.o"
+        },
+        {
+          "raw": "/22673",
+          "size": 3708,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-negti2.o"
+        },
+        {
+          "raw": "/22827",
+          "size": 3879,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-negsf2.o"
+        },
+        {
+          "raw": "/22981",
+          "size": 3761,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-negdi2.o"
+        },
+        {
+          "raw": "/23135",
+          "size": 3879,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-negdf2.o"
+        },
+        {
+          "raw": "/23289",
+          "size": 6310,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-mulvti3.o"
+        },
+        {
+          "raw": "/23444",
+          "size": 5620,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-mulvsi3.o"
+        },
+        {
+          "raw": "/23599",
+          "size": 5570,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-mulvdi3.o"
+        },
+        {
+          "raw": "/23754",
+          "size": 6504,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-mulsc3.o"
+        },
+        {
+          "raw": "/23908",
+          "size": 6561,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-muldc3.o"
+        },
+        {
+          "raw": "/24062",
+          "size": 4137,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-int_util.o"
+        },
+        {
+          "raw": "/24218",
+          "size": 4315,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-ffsti2.o"
+        },
+        {
+          "raw": "/24372",
+          "size": 14602,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-divsc3.o"
+        },
+        {
+          "raw": "/24526",
+          "size": 15174,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-divdc3.o"
+        },
+        {
+          "raw": "/24680",
+          "size": 4438,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-cmpti2.o"
+        },
+        {
+          "raw": "/24834",
+          "size": 4431,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-cmpdi2.o"
+        },
+        {
+          "raw": "/24988",
+          "size": 4724,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-addvti3.o"
+        },
+        {
+          "raw": "/25143",
+          "size": 4659,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-addvsi3.o"
+        },
+        {
+          "raw": "/25298",
+          "size": 4663,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-addvdi3.o"
+        },
+        {
+          "raw": "/25453",
+          "size": 4696,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-absvti2.o"
+        },
+        {
+          "raw": "/25608",
+          "size": 4501,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-absvsi2.o"
+        },
+        {
+          "raw": "/25763",
+          "size": 4517,
+          "name": "C:\\a\\rust\\rust\\build\\x86_64-pc-windows-msvc\\stage1-std\\x86_64-pc-windows-msvc\\dist\\build\\compiler_builtins-fe8801a440937ae1\\out\\d067f95df2315da6-absvdi2.o"
+        }
+      ]
+    }
+  },
+  "provenance_conclusion": {
+    "qualified": "PE/PDB GUID+age binding, 89 unique Rust library source paths with one exact Rust commit, and eight corresponding sysroot RLIB paths in the bound PDB support the Rust 1.97.1 Windows standard-library family in the unchanged old EXE.",
+    "limits": [
+      "Current RLIB byte hashes are present-machine inputs, not retrospective hash attestation of each old linker input.",
+      "The bound PDB path scan is not a complete symbol-to-object or code-byte attribution map.",
+      "The installed distribution archive SHA values were read from rustup metadata, not verified by re-downloading the Rust packages.",
+      "Generic cached rustc cfg output is not a release-profile compiler invocation; debug_assertions there does not describe the EXE."
+    ]
+  },
+  "primary_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/LICENSE-MIT",
+      "bytes": 1068,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1",
+      "output": {
+        "path": "docs/release/licenses/rust-1.97.1-LICENSE-MIT.txt",
+        "bytes": 1068,
+        "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+      },
+      "excerpts": []
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/LICENSES/Unicode-3.0.txt",
+      "bytes": 1995,
+      "sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443",
+      "output": {
+        "path": "docs/release/licenses/rust-1.97.1-LICENSE-UNICODE.txt",
+        "bytes": 1995,
+        "sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443"
+      },
+      "excerpts": []
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/LICENSE.txt",
+      "bytes": 15078,
+      "sha256": "ab6eec6caf0fa5775e411c7a8bc6a45c4ef2956b0980b157ab74fc5cd62a928b",
+      "output": {
+        "path": "docs/release/licenses/compiler-builtins-0.1.160-LICENSE.txt",
+        "bytes": 15078,
+        "sha256": "ab6eec6caf0fa5775e411c7a8bc6a45c4ef2956b0980b157ab74fc5cd62a928b"
+      },
+      "excerpts": []
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/libm/LICENSE.txt",
+      "bytes": 14088,
+      "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7",
+      "output": {
+        "path": "docs/release/licenses/compiler-builtins-0.1.160-libm-LICENSE.txt",
+        "bytes": 14088,
+        "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7"
+      },
+      "excerpts": []
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/Cargo.lock",
+      "bytes": 9834,
+      "sha256": "02120dd57c4c5fd70c81fd92472681c8de5cc2dd78258276da37bb2253666061",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            39,
+            63
+          ],
+          "text": "]\n\n[[package]]\nname = \"cc\"\nversion = \"1.2.0\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\nchecksum = \"1aeb932158bd710538c73702db6945cb68a8fb08c519e6e12706b94263b36db8\"\ndependencies = [\n \"shlex\",\n]\n\n[[package]]\nname = \"cfg-if\"\nversion = \"1.0.4\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\nchecksum = \"9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801\"\ndependencies = [\n \"rustc-std-workspace-core\",\n]\n\n[[package]]\nname = \"compiler_builtins\"\nversion = \"0.1.160\"\ndependencies = [\n \"cc\","
+        },
+        {
+          "lines": [
+            118,
+            127
+          ],
+          "text": "version = \"0.32.3\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\nchecksum = \"e629b9b98ef3dd8afe6ca2bd0f89306cec16d43d907889945bc5d6687f2f13c7\"\ndependencies = [\n \"rustc-std-workspace-alloc\",\n \"rustc-std-workspace-core\",\n]\n\n[[package]]\nname = \"hashbrown\""
+        },
+        {
+          "lines": [
+            258,
+            265
+          ],
+          "text": "]\n\n[[package]]\nname = \"rand_core\"\nversion = \"0.9.3\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\nchecksum = \"99d9a13982dcf210057a8a78572b2217b667c3beacbf3a0d8b454f6f82837d38\"\n"
+        },
+        {
+          "lines": [
+            301,
+            340
+          ],
+          "text": "name = \"rustc-std-workspace-core\"\nversion = \"1.99.0\"\ndependencies = [\n \"compiler_builtins\",\n \"core\",\n]\n\n[[package]]\nname = \"rustc-std-workspace-std\"\nversion = \"1.99.0\"\ndependencies = [\n \"std\",\n]\n\n[[package]]\nname = \"shlex\"\nversion = \"1.3.0\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\nchecksum = \"0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64\"\n\n[[package]]\nname = \"std\"\nversion = \"0.0.0\"\ndependencies = [\n \"addr2line\",\n \"alloc\",\n \"cfg-if\",\n \"core\",\n \"dlmalloc\",\n \"fortanix-sgx-abi\",\n \"hashbrown\",\n \"hermit-abi\",\n \"libc\",\n \"miniz_oxide\",\n \"moto-rt\",\n \"object\",\n \"panic_abort\",\n \"panic_unwind\",\n \"r-efi\",\n \"r-efi-alloc\","
+        },
+        {
+          "lines": [
+            360,
+            378
+          ],
+          "text": "]\n\n[[package]]\nname = \"sysroot\"\nversion = \"0.0.0\"\ndependencies = [\n \"proc_macro\",\n \"profiler_builtins\",\n \"std\",\n \"test\",\n]\n\n[[package]]\nname = \"test\"\nversion = \"0.0.0\"\ndependencies = [\n \"core\",\n \"getopts\",\n \"libc\","
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/Cargo.toml",
+      "bytes": 5587,
+      "sha256": "ff5272b18cb16a9e67256a1045dc35d9d08ae38916a218f684a2ae2f4360f078",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            1,
+            65
+          ],
+          "text": "cargo-features = [\"public-dependency\"]\n\n[package]\nname = \"std\"\nversion = \"0.0.0\"\nlicense = \"MIT OR Apache-2.0\"\nrepository = \"https://github.com/rust-lang/rust.git\"\ndescription = \"The Rust Standard Library\"\nedition = \"2024\"\nautobenches = false\n\n[lib]\ncrate-type = [\"dylib\", \"rlib\"]\n\n[dependencies]\nalloc = { path = \"../alloc\", public = true }\n# std no longer uses cfg-if directly, but the included copy of backtrace does.\ncfg-if = { version = \"1.0\", features = ['rustc-dep-of-std'] }\npanic_unwind = { path = \"../panic_unwind\", optional = true }\npanic_abort = { path = \"../panic_abort\" }\ncore = { path = \"../core\", public = true }\nunwind = { path = \"../unwind\" }\nhashbrown = { version = \"0.17.1\", default-features = false, features = [\n    'rustc-dep-of-std',\n] }\nstd_detect = { path = \"../std_detect\", public = true }\n\n# Dependencies of the `backtrace` crate\nrustc-demangle = { version = \"0.1.27\", features = ['rustc-dep-of-std'] }\n\n[target.'cfg(not(all(windows, target_env = \"msvc\", not(target_vendor = \"uwp\"))))'.dependencies]\nminiz_oxide = { version = \"0.8.0\", optional = true, default-features = false }\naddr2line = { version = \"0.25.0\", optional = true, default-features = false }\n\n[target.'cfg(not(all(windows, target_env = \"msvc\")))'.dependencies]\nlibc = { version = \"0.2.185\", default-features = false, features = [\n    'rustc-dep-of-std',\n], public = true }\n\n[target.'cfg(all(not(target_os = \"aix\"), not(all(windows, target_env = \"msvc\", not(target_vendor = \"uwp\")))))'.dependencies]\nobject = { version = \"0.37.1\", default-features = false, optional = true, features = [\n    'read_core',\n    'elf',\n    'macho',\n    'pe',\n    'unaligned',\n    'archive',\n] }\n\n[target.'cfg(target_os = \"aix\")'.dependencies]\nobject = { version = \"0.37.1\", default-features = false, optional = true, features = [\n    'read_core',\n    'xcoff',\n    'unaligned',\n    'archive',\n] }\n\n[target.'cfg(any(windows, target_os = \"cygwin\"))'.dependencies.windows-link]\npath = \"../windows_link\"\n\n[dev-dependencies]\nrand = { version = \"0.9.0\", default-features = false, features = [\"alloc\"] }\nrand_xorshift = \"0.4.0\"\n\n[target.'cfg(any(all(target_family = \"wasm\", not(any(unix, target_os = \"wasi\"))), target_os = \"xous\", target_os = \"vexos\", all(target_vendor = \"fortanix\", target_env = \"sgx\")))'.dependencies]"
+        },
+        {
+          "lines": [
+            95,
+            160
+          ],
+          "text": "\n[target.'cfg(target_os = \"uefi\")'.dependencies]\nr-efi = { version = \"5.2.0\", features = ['rustc-dep-of-std'] }\nr-efi-alloc = { version = \"2.0.0\", features = ['rustc-dep-of-std'] }\n\n[target.'cfg(target_os = \"vexos\")'.dependencies]\nvex-sdk = { version = \"0.27.0\", features = [\n    'rustc-dep-of-std',\n], default-features = false }\n\n[features]\nbacktrace = [\n    'addr2line/rustc-dep-of-std',\n    'object/rustc-dep-of-std',\n    'miniz_oxide/rustc-dep-of-std',\n]\n# Disable symbolization in backtraces. For use with -Zbuild-std.\n# FIXME: Ideally this should be an additive backtrace-symbolization feature\nbacktrace-trace-only = []\n\npanic-unwind = [\"dep:panic_unwind\"]\ncompiler-builtins-c = [\"alloc/compiler-builtins-c\"]\ncompiler-builtins-mem = [\"alloc/compiler-builtins-mem\"]\nllvm-libunwind = [\"unwind/llvm-libunwind\"]\nsystem-llvm-libunwind = [\"unwind/system-llvm-libunwind\"]\n\n# Choose algorithms that are optimized for binary size instead of runtime performance\noptimize_for_size = [\"core/optimize_for_size\", \"alloc/optimize_for_size\"]\n\n# Make `RefCell` store additional debugging information, which is printed out when\n# a borrow error occurs\ndebug_refcell = [\"core/debug_refcell\"]\n\nllvm_enzyme = [\"core/llvm_enzyme\"]\n\n# Enable using raw-dylib for Windows imports.\n# This will eventually be the default.\nwindows_raw_dylib = [\"windows-link/windows_raw_dylib\"]\n\n[package.metadata.fortanix-sgx]\n# Maximum possible number of threads when testing\nthreads = 125\n# Maximum heap size\nheap_size = 0x8000000\n\n[[test]]\nname = \"pipe-subprocess\"\npath = \"tests/pipe_subprocess.rs\"\nharness = false\n\n[[test]]\nname = \"sync\"\npath = \"tests/sync/lib.rs\"\n\n[[test]]\nname = \"thread_local\"\npath = \"tests/thread_local/lib.rs\"\n\n[[bench]]\nname = \"stdbenches\"\npath = \"benches/lib.rs\"\ntest = true\n\n[lints.rust.unexpected_cfgs]\nlevel = \"warn\"\ncheck-cfg = ["
+        },
+        {
+          "lines": [
+            61,
+            74
+          ],
+          "text": "[dev-dependencies]\nrand = { version = \"0.9.0\", default-features = false, features = [\"alloc\"] }\nrand_xorshift = \"0.4.0\"\n\n[target.'cfg(any(all(target_family = \"wasm\", not(any(unix, target_os = \"wasi\"))), target_os = \"xous\", target_os = \"vexos\", all(target_vendor = \"fortanix\", target_env = \"sgx\")))'.dependencies]\ndlmalloc = { version = \"0.2.10\", features = ['rustc-dep-of-std'] }\n\n[target.x86_64-fortanix-unknown-sgx.dependencies]\nfortanix-sgx-abi = { version = \"0.6.1\", features = [\n    'rustc-dep-of-std',\n], public = true }\n\n[target.'cfg(target_os = \"motor\")'.dependencies]\nmoto-rt = { version = \"0.16\", features = ['rustc-dep-of-std'], public = true }"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/compiler-builtins/Cargo.toml",
+      "bytes": 2005,
+      "sha256": "d89e31fed70f2cad9c6e91b787bf4c0fb680c631196b2a7215c81745aaf7fb7e",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            1,
+            58
+          ],
+          "text": "# NOTE: Must be kept in sync with `../builtins-shim/Cargo.toml`.\n#\n# This manifest is actually used in-tree by rust-lang/rust,\n# `../builtins-shim/Cargo.toml` is used by out-of-tree testing. See the other\n# manifest for further details.\n\n[package]\nname = \"compiler_builtins\"\nversion = \"0.1.160\"\nauthors = [\n    \"Alex Crichton <alex@alexcrichton.com>\",\n    \"Amanieu d'Antras <amanieu@gmail.com>\",\n    \"Jorge Aparicio <japaricious@gmail.com>\",\n    \"Trevor Gross <tg@trevorgross.com>\",\n]\ndescription = \"Compiler intrinsics used by the Rust compiler.\"\nrepository = \"https://github.com/rust-lang/compiler-builtins\"\nlicense = \"MIT AND Apache-2.0 WITH LLVM-exception AND (MIT OR Apache-2.0)\"\nedition = \"2024\"\npublish = false\nlinks = \"compiler-rt\"\n\n[lib]\nbench = false\ndoctest = false\ntest = false\n# make sure this crate isn't included in public standard library docs\ndoc = false\n\n[dependencies]\ncore = { path = \"../../core\", optional = true }\n\n[build-dependencies]\ncc = { version = \"1.2\", optional = true }\n\n[features]\ndefault = [\"arch\"]\n\n# Enable architecture-specific features such as SIMD or assembly routines. If\n# disabled, the generic version can be tested on any platform.\narch = []\n\n# Enable compilation of C code in compiler-rt, filling in some more optimized\n# implementations and also filling in unimplemented intrinsics\nc = [\"dep:cc\"]\n\n# Flag this library as the unstable compiler-builtins lib. This must be enabled\n# when using as `std`'s dependency.'\ncompiler-builtins = [\"dep:core\", \"unmangled-names\"]\n\n# Enable `no_mangle` symbols for memory-related intrinsics like memcpy. The\n# mangled versions are always available.\nmem = []\n\n# Enable `no_mangle` symbols so this crate gets used as the runtime intrinsic\n# implementation. Leave this disabled for testing to avoid conflicting with\n# the system intrinsics.\nunmangled-names = []"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/compiler-builtins/src/lib.rs",
+      "bytes": 2725,
+      "sha256": "9a1094d65dc886b962b5173ac51fc956a5758c2c5ddf6c865bbf02fc8db127bc",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            35,
+            52
+          ],
+          "text": "// that follow \"x86 naming convention\" (e.g. addsf3). Those aeabi intrinsics must adhere to the\n// AAPCS calling convention (`extern \"aapcs\"`) because that's how LLVM will call them.\n\n#[cfg(test)]\nextern crate core;\n\n#[macro_use]\nmod macros;\n\npub mod float;\npub mod int;\npub mod math;\npub mod mem;\npub mod sync;\n\n// `libm` expects its `support` module to be available in the crate root.\n#[cfg(feature = \"unstable-public-internals\")]\npub use math::libm_math::support;"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/compiler-builtins/src/math/mod.rs",
+      "bytes": 7270,
+      "sha256": "a3ff615e04d9ae9a0bb36cfbfd9a0aaf183ab6e32ddfe836cdf4f243f97a401e",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            1,
+            17
+          ],
+          "text": "#[rustfmt::skip]\n#[allow(dead_code)]\n#[allow(unused_imports)]\n#[allow(clippy::all)]\n#[path = \"../../../libm/src/math/mod.rs\"]\npub(crate) mod libm_math;\n\nmacro_rules! libm_intrinsics {\n    ($(fn $fun:ident($($iid:ident : $ity:ty),+) -> $oty:ty;)+) => {\n        intrinsics! {\n            $(\n                pub extern \"C\" fn $fun($($iid: $ity),+) -> $oty {\n                    $crate::math::libm_math::$fun($($iid),+)\n                }\n            )+\n        }\n    }"
+        },
+        {
+          "lines": [
+            40,
+            45
+          ],
+          "text": "        fn sqrtf16(x: f16) -> f16;\n        fn truncf16(x: f16) -> f16;\n    }\n\n    /* Weak linkage is unreliable on Windows and Apple, so we don't expose symbols that we know\n     * the system libc provides in order to avoid conflicts. */"
+        },
+        {
+          "lines": [
+            76,
+            90
+          ],
+          "text": "        fn rint(x: f64) -> f64;\n        fn round(x: f64) -> f64;\n        fn sqrt(x: f64) -> f64;\n        fn trunc(x: f64) -> f64;\n    }\n\n    // Windows and MacOS do not yet expose roundeven and IEEE 754-2019 `maximum` / `minimum`,\n    // however, so we still provide a fallback.\n    libm_intrinsics! {\n        fn fmaximum(x: f64, y: f64) -> f64;\n        fn fmaximum_num(x: f64, y: f64) -> f64;\n        fn fmaximum_numf(x: f32, y: f32) -> f32;\n        fn fmaximumf(x: f32, y: f32) -> f32;\n        fn fminimum(x: f64, y: f64) -> f64;\n        fn fminimum_num(x: f64, y: f64) -> f64;"
+        },
+        {
+          "lines": [
+            188,
+            203
+          ],
+          "text": "        fn sinhf(n: f32) -> f32;\n        fn tan(x: f64) -> f64;\n        fn tanf(n: f32) -> f32;\n        fn tanh(x: f64) -> f64;\n        fn tanhf(n: f32) -> f32;\n        fn tgamma(x: f64) -> f64;\n        fn tgammaf(x: f32) -> f32;\n    }\n\n    // allow for windows (and other targets)\n    intrinsics! {\n        pub extern \"C\" fn lgamma_r(x: f64, s: &mut i32) -> f64 {\n            let r = super::libm_math::lgamma_r(x);\n            *s = r.1;\n            r.0\n        }"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/compiler-builtins/build.rs",
+      "bytes": 27190,
+      "sha256": "8af2074ada6eb9e49b246dbbe86c0e6927e2ca49569d425228f9321724850977",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            75,
+            88
+          ],
+          "text": "    // Build missing intrinsics from compiler-rt C source code. If we're\n    // mangling names though we assume that we're also in test mode so we don't\n    // build anything and we rely on the upstream implementation of compiler-rt\n    // functions\n    if cfg!(feature = \"unmangled-names\") && cfg!(feature = \"c\") && maybe_build_c {\n        #[cfg(feature = \"c\")]\n        c::compile(&cfg);\n    }\n}\n\n/// Emit directives for features we expect to support that aren't in `Cargo.toml`.\n///\n/// These are mostly cfg elements emitted by this `build.rs`.\nfn configure_check_cfg() {"
+        },
+        {
+          "lines": [
+            515,
+            528
+          ],
+          "text": "        // When compiling the C code we require the user to tell us where the\n        // source code is, and this is largely done so when we're compiling as\n        // part of rust-lang/rust we can use the same llvm-project repository as\n        // rust-lang/rust.\n        let root = match env::var_os(\"RUST_COMPILER_RT_ROOT\") {\n            Some(s) => PathBuf::from(s),\n            // If a prebuild libcompiler-rt is provided, set a valid\n            // path to simplify later logic. Nothing should be compiled.\n            None if link_against_prebuilt_rt => PathBuf::new(),\n            None => {\n                panic!(\n                    \"RUST_COMPILER_RT_ROOT is not set. You may need to run \\\n                    `ci/download-compiler-rt.sh`.\"\n                );"
+        },
+        {
+          "lines": [
+            522,
+            535
+          ],
+          "text": "            // path to simplify later logic. Nothing should be compiled.\n            None if link_against_prebuilt_rt => PathBuf::new(),\n            None => {\n                panic!(\n                    \"RUST_COMPILER_RT_ROOT is not set. You may need to run \\\n                    `ci/download-compiler-rt.sh`.\"\n                );\n            }\n        };\n        if !link_against_prebuilt_rt && !root.exists() {\n            panic!(\"RUST_COMPILER_RT_ROOT={} does not exist\", root.display());\n        }\n\n        // Support deterministic builds by remapping the __FILE__ prefix if the"
+        },
+        {
+          "lines": [
+            528,
+            541
+          ],
+          "text": "                );\n            }\n        };\n        if !link_against_prebuilt_rt && !root.exists() {\n            panic!(\"RUST_COMPILER_RT_ROOT={} does not exist\", root.display());\n        }\n\n        // Support deterministic builds by remapping the __FILE__ prefix if the\n        // compiler supports it.  This fixes the nondeterminism caused by the\n        // use of that macro in lib/builtins/int_util.h in compiler-rt.\n        build.flag_if_supported(&format!(\"-ffile-prefix-map={}=.\", root.display()));\n\n        // Include out-of-line atomics for aarch64, which are all generated by supplying different\n        // sets of flags to the same source file."
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/libm/Cargo.toml",
+      "bytes": 1456,
+      "sha256": "8448af22d4285030a2e79f825942e9b7b33dd5d1b16bc39dcf3ef7506f037f8d",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            1,
+            24
+          ],
+          "text": "[package]\nname = \"libm\"\nversion = \"0.2.16\"\nauthors = [\n    \"Alex Crichton <alex@alexcrichton.com>\",\n    \"Amanieu d'Antras <amanieu@gmail.com>\",\n    \"Jorge Aparicio <japaricious@gmail.com>\",\n    \"Trevor Gross <tg@trevorgross.com>\",\n]\ndescription = \"libm in pure Rust\"\ncategories = [\"no-std\"]\nkeywords = [\"libm\", \"math\"]\nrepository = \"https://github.com/rust-lang/compiler-builtins\"\nlicense = \"MIT\"\nedition = \"2021\"\nrust-version = \"1.67\"\n\n[dev-dependencies]\n# FIXME(msrv): switch to `no-panic.workspace` when possible\nno-panic = \"0.1.36\"\n\n[features]\ndefault = [\"arch\"]\n"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/libm/src/math/support/float_traits.rs",
+      "bytes": 23088,
+      "sha256": "f4eab4da1d39d57f912b8ab4794128b839df95e7ecd4ef155dedf59cc820259d",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            1,
+            30
+          ],
+          "text": "use core::{fmt, mem, ops};\n\nuse super::int_traits::{CastFrom, Int, MinInt};\nuse crate::support::{DInt, DisplayHex};\n\n/// Wrapper to extract the integer type half of the float's size\n#[allow(unused)] // only used in c-b\npub type HalfRep<F> = <<F as Float>::Int as DInt>::H;\n\n/// Whether MIPS sNaN/qNaNs should be used.\n///\n/// Note that MIPS is doing some general migration here, though this is only available on (rare)\n/// modern MIPS hardware per discussion at <https://github.com/WebAssembly/design/issues/976>.\nconst MIPS_NAN: bool = cfg!(target_arch = \"mips\") || cfg!(target_arch = \"mips64\");\n\n/// Trait for some basic operations on floats\n// #[allow(dead_code)]\n#[allow(dead_code)] // Some constants are only used with tests\npub trait Float:\n    Copy\n    + fmt::Debug\n    + DisplayHex\n    + PartialEq\n    + PartialOrd\n    + ops::AddAssign\n    + ops::MulAssign\n    + ops::Add<Output = Self>\n    + ops::Sub<Output = Self>\n    + ops::Mul<Output = Self>\n    + ops::Div<Output = Self>"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/libm/src/math/support/int_traits.rs",
+      "bytes": 14443,
+      "sha256": "94dc5734b105384decc980694dccec342c4a598b1158378722e09d77291c9427",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            1,
+            30
+          ],
+          "text": "use core::{cmp, fmt, ops};\n\nmod narrowing_div;\npub use narrowing_div::NarrowingDiv;\n\nuse crate::support::DisplayHex;\n\n/// Minimal integer implementations needed on all integer types, including wide integers.\n#[allow(dead_code)] // Some constants are only used with tests\npub trait MinInt:\n    Copy\n    + fmt::Debug\n    + ops::BitOr<Output = Self>\n    + ops::Not<Output = Self>\n    + ops::Shl<u32, Output = Self>\n{\n    /// Type with the same width but other signedness\n    type OtherSign: MinInt;\n    /// Unsigned version of Self\n    type Unsigned: MinInt;\n\n    /// If `Self` is a signed integer\n    const SIGNED: bool;\n\n    /// The bitwidth of the int type\n    const BITS: u32;\n\n    const ZERO: Self;\n    const ONE: Self;\n    const MIN: Self;"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/unwind/src/lib.rs",
+      "bytes": 7052,
+      "sha256": "484e038e6514d2a8bc915318a98fddcde95bf917af6f8efa2d75e0949c425325",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            1,
+            55
+          ],
+          "text": "#![no_std]\n#![unstable(feature = \"panic_unwind\", issue = \"32837\")]\n#![feature(cfg_emscripten_wasm_eh)]\n#![feature(link_cfg)]\n#![feature(staged_api)]\n#![cfg_attr(\n    all(target_family = \"wasm\", any(not(target_os = \"emscripten\"), emscripten_wasm_eh)),\n    feature(link_llvm_intrinsics, simd_wasm64, asm_experimental_arch)\n)]\n#![allow(internal_features)]\n#![allow(unused_features)]\n#![deny(unsafe_op_in_unsafe_fn)]\n\n// Force libc to be included even if unused. This is required by many platforms.\n#[cfg(not(all(windows, target_env = \"msvc\")))]\nextern crate libc as _;\n\ncfg_select! {\n    target_env = \"msvc\" => {\n        // Windows MSVC no extra unwinder support needed\n    }\n    any(\n        target_os = \"l4re\",\n        target_os = \"none\",\n        target_os = \"espidf\",\n        target_os = \"nuttx\",\n    ) => {\n        // These \"unix\" family members do not have unwinder.\n    }\n    any(\n        unix,\n        windows,\n        target_os = \"psp\",\n        target_os = \"solid_asp3\",\n        all(target_vendor = \"fortanix\", target_env = \"sgx\"),\n        all(target_os = \"wasi\", panic = \"unwind\"),\n    ) => {\n        mod libunwind;\n        pub use libunwind::*;\n    }\n    target_os = \"xous\" => {\n        mod unwinding;\n        pub use unwinding::*;\n    }\n    target_family = \"wasm\" => {\n        mod wasm;\n        pub use wasm::*;\n    }\n    _ => {\n        // no unwinder on the system!\n        // - os=none (\"bare metal\" targets)\n        // - os=hermit\n        // - os=uefi\n        // - os=cuda\n        // - nvptx64-nvidia-cuda"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/unicode/unicode_data.rs",
+      "bytes": 75006,
+      "sha256": "4438831f7c584a35457022c4016ab8a295f242ff809b81a5c81b9bb14dc5e166",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            140,
+            153
+          ],
+          "text": "    }\n    offset_idx % 2 == 1\n}\n\npub const UNICODE_VERSION: (u8, u8, u8) = (17, 0, 0);\n\n#[rustfmt::skip]\npub mod alphabetic {\n    use super::ShortOffsetRunHeader;\n\n    static SHORT_OFFSET_RUNS: [ShortOffsetRunHeader; 51] = [\n        ShortOffsetRunHeader::new(0, 706), ShortOffsetRunHeader::new(12, 4681),\n        ShortOffsetRunHeader::new(414, 5741), ShortOffsetRunHeader::new(452, 7958),\n        ShortOffsetRunHeader::new(552, 9398), ShortOffsetRunHeader::new(623, 11264),"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/llvm-project/dcc3606807c989700e0ac1cac18c31741bcd40d9/compiler-rt/LICENSE.TXT",
+      "bytes": 16708,
+      "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d",
+      "output": {
+        "path": "docs/release/licenses/rust-1.97.1-compiler-rt-LICENSE.txt",
+        "bytes": 16708,
+        "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d"
+      },
+      "excerpts": []
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/llvm-project/dcc3606807c989700e0ac1cac18c31741bcd40d9/compiler-rt/CREDITS.TXT",
+      "bytes": 1049,
+      "sha256": "a9901f47a089da41e4690682d00ce4cedaa2baf41fedbe79beee366d43ac2461",
+      "output": {
+        "path": "docs/release/licenses/rust-1.97.1-compiler-rt-CREDITS.txt",
+        "bytes": 1049,
+        "sha256": "a9901f47a089da41e4690682d00ce4cedaa2baf41fedbe79beee366d43ac2461"
+      },
+      "excerpts": []
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/llvm-project/dcc3606807c989700e0ac1cac18c31741bcd40d9/compiler-rt/lib/builtins/ucmpti2.c",
+      "bytes": 978,
+      "sha256": "c74d7be5038666f1e845e9c3e327295065de5779b8619b0c754e97a161d62618",
+      "output": null,
+      "excerpts": [
+        {
+          "lines": [
+            1,
+            24
+          ],
+          "text": "//===-- ucmpti2.c - Implement __ucmpti2 -----------------------------------===//\n//\n// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.\n// See https://llvm.org/LICENSE.txt for license information.\n// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception\n//\n//===----------------------------------------------------------------------===//\n//\n// This file implements __ucmpti2 for the compiler_rt library.\n//\n//===----------------------------------------------------------------------===//\n\n#include \"int_lib.h\"\n\n#ifdef CRT_HAS_128BIT\n\n// Returns:  if (a <  b) returns 0\n//           if (a == b) returns 1\n//           if (a >  b) returns 2\n\nCOMPILER_RT_ABI si_int __ucmpti2(tu_int a, tu_int b) {\n  utwords x;\n  x.all = a;\n  utwords y;"
+        }
+      ]
+    }
+  ],
+  "crate_archives": [
+    {
+      "name": "cfg-if",
+      "version": "1.0.4",
+      "url": "https://static.crates.io/crates/cfg-if/cfg-if-1.0.4.crate",
+      "archive_bytes": 9360,
+      "archive_sha256": "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801",
+      "lock_checksum": "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801",
+      "archive_integrity_matches": true,
+      "license_output": {
+        "path": "docs/release/licenses/rust-stdlib-cfg-if-1.0.4-LICENSE-MIT.txt",
+        "bytes": 1057,
+        "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+      },
+      "installed_copyright_license_matches_trimmed": true,
+      "manifest_sha256": "281d508beb1fe3927cf03d3f2f8c9a5117b1e4fe97ae21b9026cf318e8c35273",
+      "feature_excerpts": [
+        {
+          "line": 30,
+          "text": "license = \"MIT OR Apache-2.0\""
+        },
+        {
+          "line": 33,
+          "text": "[features]"
+        },
+        {
+          "line": 34,
+          "text": "rustc-dep-of-std = [\"core\"]"
+        }
+      ]
+    },
+    {
+      "name": "hashbrown",
+      "version": "0.17.1",
+      "url": "https://static.crates.io/crates/hashbrown/hashbrown-0.17.1.crate",
+      "archive_bytes": 155512,
+      "archive_sha256": "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a",
+      "lock_checksum": "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a",
+      "archive_integrity_matches": true,
+      "license_output": {
+        "path": "docs/release/licenses/rust-stdlib-hashbrown-0.17.1-LICENSE-MIT.txt",
+        "bytes": 1060,
+        "sha256": "ff8f68cb076caf8cefe7a6430d4ac086ce6af2ca8ce2c4e5a2004d4552ef52a2"
+      },
+      "installed_copyright_license_matches_trimmed": true,
+      "manifest_sha256": "afcb0e62d498f756bd4ddf69785c8282d01ee4fa40016158c7eac12ceb302f8c",
+      "feature_excerpts": [
+        {
+          "line": 39,
+          "text": "license = \"MIT OR Apache-2.0\""
+        },
+        {
+          "line": 51,
+          "text": "[features]"
+        },
+        {
+          "line": 52,
+          "text": "default = ["
+        },
+        {
+          "line": 59,
+          "text": "default-hasher = [\"dep:foldhash\"]"
+        },
+        {
+          "line": 62,
+          "text": "    \"foldhash?/nightly\","
+        },
+        {
+          "line": 66,
+          "text": "rustc-dep-of-std = ["
+        },
+        {
+          "line": 120,
+          "text": "default-features = false"
+        },
+        {
+          "line": 130,
+          "text": "default-features = false"
+        },
+        {
+          "line": 132,
+          "text": "[dependencies.foldhash]"
+        },
+        {
+          "line": 135,
+          "text": "default-features = false"
+        },
+        {
+          "line": 144,
+          "text": "default-features = false"
+        },
+        {
+          "line": 170,
+          "text": "default-features = false"
+        }
+      ],
+      "feature_detail": [
+        {
+          "lines": [
+            51,
+            73
+          ],
+          "text": "[features]\ndefault = [\n    \"default-hasher\",\n    \"inline-more\",\n    \"allocator-api2\",\n    \"equivalent\",\n    \"raw-entry\",\n]\ndefault-hasher = [\"dep:foldhash\"]\ninline-more = []\nnightly = [\n    \"foldhash?/nightly\",\n    \"bumpalo/allocator_api\",\n]\nraw-entry = []\nrustc-dep-of-std = [\n    \"nightly\",\n    \"core\",\n    \"alloc\",\n    \"rustc-internal-api\",\n]\nrustc-internal-api = []\nserde = ["
+        },
+        {
+          "lines": [
+            132,
+            136
+          ],
+          "text": "[dependencies.foldhash]\nversion = \"0.2.0\"\noptional = true\ndefault-features = false\n"
+        }
+      ]
+    },
+    {
+      "name": "rustc-demangle",
+      "version": "0.1.27",
+      "url": "https://static.crates.io/crates/rustc-demangle/rustc-demangle-0.1.27.crate",
+      "archive_bytes": 30448,
+      "archive_sha256": "b50b8869d9fc858ce7266cce0194bd74df58b9d0e3f6df3a9fc8eb470d95c09d",
+      "lock_checksum": "b50b8869d9fc858ce7266cce0194bd74df58b9d0e3f6df3a9fc8eb470d95c09d",
+      "archive_integrity_matches": true,
+      "license_output": {
+        "path": "docs/release/licenses/rust-stdlib-cfg-if-1.0.4-LICENSE-MIT.txt",
+        "bytes": 1057,
+        "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+        "reuses": true
+      },
+      "installed_copyright_license_matches_trimmed": true,
+      "manifest_sha256": "ec462e775f134cf7646d9dda346c43bbc2c0cd44def02e3af5b678bb6a9d879c",
+      "feature_excerpts": [
+        {
+          "line": 28,
+          "text": "license = \"MIT/Apache-2.0\""
+        },
+        {
+          "line": 38,
+          "text": "[features]"
+        },
+        {
+          "line": 40,
+          "text": "rustc-dep-of-std = [\"core\"]"
+        }
+      ]
+    }
+  ],
+  "installed_copyright_index": {
+    "path": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/share/doc/rust/COPYRIGHT-library.html",
+    "bytes": 279302,
+    "sha256": "0a65bb747c49c7bb816cbc7188319bd6e4e8d08091c1190b8a3c0971c47968ed",
+    "heading_count": 25,
+    "pre_count": 47,
+    "in_tree_html": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Copyright notices for The Rust Standard Library</title>\n</head>\n<body>\n\n<h1>Copyright notices for The Rust Standard Library</h1>\n\n<h2>Table of Contents</h2>\n<ul>\n    <li><a href=\"#short-version\">Short version for non-lawyers</a></li>\n    <li><a href=\"#longer-version\">Longer version</a></li>\n    <li><a href=\"#in-tree-files\">In-tree files</a></li>\n    <li><a href=\"#out-of-tree-dependencies\">Out-of-tree dependencies</a></li>\n</ul>\n\n<h2 id=\"short-version\">Short version for non-lawyers</h2>\n\nThe Rust Standard Library is dual-licensed under Apache 2.0 and MIT terms.\n\n<h2 id=\"longer-version\">Longer version</h2>\n\n<p>Copyrights in the Rust Standard Library are retained by their contributors. No copyright assignment is required to contribute to the Rust project.</p>\n\n<p>Some files include explicit copyright notices and/or license notices. For full authorship information, see the version control history or <a href=\"https://thanks.rust-lang.org\">https://thanks.rust-lang.org</a>.</p>\n\n<p>Except as otherwise noted (below and/or in individual files), the Rust Standard Library is licensed under the <a href=\"http://www.apache.org/licenses/LICENSE-2.0\">Apache License, Version 2.0</a> or the <a href=\"http://opensource.org/licenses/MIT\">MIT</a> license, at your option.</p>\n\n<p>This file describes the copyright and licensing information for the source code within The Rust Project git tree related to the Rust Standard Library, and the third-party dependencies used when building the Rust Standard Library.</p>\n\n<h2 id=\"in-tree-files\">In-tree files</h2>\n\n<p>The following licenses cover the in-tree source files that were used in this release:</p>\n\n\n\n\n\n\n<div style=\"border:1px solid black; padding: 5px;\">\n\n    <p>\n    <b>File/Directory:</b> <code>.</code>\n    </p>\n\n    \n\n    <p><b>License:</b> Apache-2.0 OR MIT</p>\n    \n    <p><b>Copyright:</b> The Rust Project Developers (see https://thanks.rust-lang.org)</p>\n    \n\n    \n\n    \n\n    <p><b>Exceptions:</b></p>\n    \n    \n\n<div style=\"border:1px solid black; padding: 5px;\">\n\n    <p>\n    <b>File/Directory:</b> <code>library/backtrace</code>\n    </p>\n\n    \n\n    <p><b>License:</b> Apache-2.0 OR MIT</p>\n    \n    <p><b>Copyright:</b> 2014 Alex Crichton</p>\n    \n    <p><b>Copyright:</b> The Rust Project Developers (see https://thanks.rust-lang.org)</p>\n    \n\n    \n\n    \n\n</div>\n\n\n    \n    \n\n<div style=\"border:1px solid black; padding: 5px;\">\n    <p>\n    <b>File/Directory:</b> <code>library/core/src/unicode/unicode_data.rs</code>\n    </p>\n\n    <p><b>License:</b> Unicode-3.0</p>\n    \n    <p><b>Copyright:</b> 1991-2024 Unicode, Inc</p>\n    \n</div>\n\n\n    \n    \n\n<div style=\"border:1px solid black; padding: 5px;\">\n\n    <p>\n    <b>File/Directory:</b> <code>library/std/src/sync/mpmc</code>\n    </p>\n\n    \n\n    <p><b>License:</b> Apache-2.0 OR MIT</p>\n    \n    <p><b>Copyright:</b> 2019 The Crossbeam Project Developers</p>\n    \n    <p><b>Copyright:</b> The Rust Project Developers (see https://thanks.rust-lang.org)</p>\n    \n\n    \n\n    \n\n</div>\n\n\n    \n    \n\n<div style=\"border:1px solid black; padding: 5px;\">\n    <p>\n    <b>File/Directory:</b> <code>library/std/src/sys/sync/mutex/fuchsia.rs</code>\n    </p>\n\n    <p><b>License:</b> BSD-2-Clause AND (Apache-2.0 OR MIT)</p>\n    \n    <p><b>Copyright:</b> 2016 The Fuchsia Authors</p>\n    \n    <p><b>Copyright:</b> The Rust Project Developers (see https://thanks.rust-lang.org)</p>\n    \n</div>\n\n\n    \n\n    \n\n</div>\n\n\n\n\n\n\n",
+    "interpretation": "source/build and multi-target index; neither exact Windows linker inventory nor complete compiler-builtins license text"
+  },
+  "llvm_submodule": {
+    "url": "https://api.github.com/repos/rust-lang/rust/contents/src/llvm-project?ref=8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+    "name": "llvm-project",
+    "path": "src/llvm-project",
+    "sha": "dcc3606807c989700e0ac1cac18c31741bcd40d9",
+    "size": 0,
+    "html_url": "https://github.com/rust-lang/llvm-project/tree/dcc3606807c989700e0ac1cac18c31741bcd40d9",
+    "git_url": "https://api.github.com/repos/rust-lang/llvm-project/git/trees/dcc3606807c989700e0ac1cac18c31741bcd40d9",
+    "download_url": null,
+    "type": "submodule",
+    "submodule_git_url": "https://github.com/rust-lang/llvm-project.git",
+    "_links": {
+      "self": "https://api.github.com/repos/rust-lang/rust/contents/src/llvm-project?ref=8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+      "git": "https://api.github.com/repos/rust-lang/llvm-project/git/trees/dcc3606807c989700e0ac1cac18c31741bcd40d9",
+      "html": "https://github.com/rust-lang/llvm-project/tree/dcc3606807c989700e0ac1cac18c31741bcd40d9"
+    }
+  },
+  "selection": [
+    {
+      "component": "Rust std/core/alloc/panic_unwind/std_detect/windows_link and in-tree support",
+      "version": "1.97.1",
+      "license_expression": "MIT OR Apache-2.0",
+      "selected": "MIT",
+      "texts": [
+        "rust-1.97.1-LICENSE-MIT.txt",
+        "rust-1.97.1-SOURCE-NOTICES.txt"
+      ],
+      "evidence": "Bound EXE/PDB and exact Rust source commit. Additional library/backtrace and std/sync/mpmc attributions retained from installed standard-library copyright index."
+    },
+    {
+      "component": "core Unicode tables",
+      "version": "Unicode 17.0.0 at Rust 1.97.1 commit",
+      "selected": "Unicode-3.0",
+      "texts": [
+        "rust-1.97.1-LICENSE-UNICODE.txt"
+      ],
+      "evidence": "EXE has library/core/src/unicode/unicode_data.rs path; exact source declares UNICODE_VERSION=(17,0,0), release copyright index and LICENSES/Unicode-3.0.txt retain 1991-2024 notice."
+    },
+    {
+      "component": "cfg-if",
+      "version": "1.0.4",
+      "selected": "MIT",
+      "texts": [
+        "rust-stdlib-cfg-if-1.0.4-LICENSE-MIT.txt"
+      ],
+      "evidence": "Actual installed RLIB, exact std Cargo manifest (included backtrace dependency), library lock checksum; upstream archive license agrees with installed HTML after removing HTML-added surrounding whitespace."
+    },
+    {
+      "component": "rustc-demangle",
+      "version": "0.1.27",
+      "selected": "MIT",
+      "texts": [
+        "rust-stdlib-cfg-if-1.0.4-LICENSE-MIT.txt"
+      ],
+      "evidence": "Bound PDB RLIB, std manifest and exact library lock; its upstream MIT bytes are identical to cfg-if 1.0.4 and reused without notice loss."
+    },
+    {
+      "component": "hashbrown",
+      "version": "0.17.1",
+      "selected": "MIT",
+      "texts": [
+        "rust-stdlib-hashbrown-0.17.1-LICENSE-MIT.txt"
+      ],
+      "evidence": "Bound PDB RLIB, exact library lock/archive; std uses default-features=false and rustc-dep-of-std."
+    },
+    {
+      "component": "compiler_builtins",
+      "version": "0.1.160 in the Rust commit, not app Cargo.lock",
+      "license_expression": "MIT AND Apache-2.0 WITH LLVM-exception AND (MIT OR Apache-2.0)",
+      "selected": "MIT AND Apache-2.0 WITH LLVM-exception",
+      "texts": [
+        "compiler-builtins-0.1.160-LICENSE.txt"
+      ],
+      "evidence": "Bound PDB compiler_builtins archive and object/source references; full upstream combined text includes LLVM exception and historical attribution. Complete text is retained instead of relying on embedding exceptions to remove a notice."
+    },
+    {
+      "component": "libm source embedded in compiler_builtins",
+      "version": "libm manifest 0.2.16 in same Rust source tree; not separate app dependency",
+      "selected": "MIT",
+      "texts": [
+        "compiler-builtins-0.1.160-libm-LICENSE.txt"
+      ],
+      "evidence": "compiler_builtins math path imports libm source; bound PDB references libm support int_traits.rs and float_traits.rs. Full upstream text retained including attributions; this does not assert every libm function is linked."
+    },
+    {
+      "component": "compiler-rt builtins family",
+      "version": "Rust llvm-project submodule dcc3606807c989700e0ac1cac18c31741bcd40d9",
+      "selected": "Apache-2.0 WITH LLVM-exception; MIT alternative for legacy dual-licensed material",
+      "texts": [
+        "rust-1.97.1-compiler-rt-LICENSE.txt",
+        "rust-1.97.1-compiler-rt-CREDITS.txt"
+      ],
+      "evidence": "Installed compiler_builtins RLIB includes 35 native-named builtins objects. Rust source build.rs selects compiler-rt source under RUST_COMPILER_RT_ROOT, matching Rust's pinned llvm-project family. Supplemental complete upstream file retained, including original legacy alternatives. No claim all 35 objects or LLVM itself are in the EXE."
+    }
+  ],
+  "exclusions": [
+    {
+      "components": [
+        "libc",
+        "addr2line",
+        "miniz_oxide",
+        "object"
+      ],
+      "scope": "this stdlib branch only",
+      "reason": "Exact std Cargo.toml excludes ordinary windows-msvc-pc; application dependencies may independently include these crates and retain their separate selection."
+    },
+    {
+      "components": [
+        "dlmalloc",
+        "fortanix-sgx-abi",
+        "hermit-abi",
+        "moto-rt",
+        "r-efi",
+        "r-efi-alloc",
+        "wasip1",
+        "wasip2",
+        "wasip3",
+        "wit-bindgen",
+        "vex-sdk",
+        "Fuchsia-specific BSD exception"
+      ],
+      "reason": "Different platform branches, not the selected x86_64-pc-windows-msvc standard-library path."
+    },
+    {
+      "components": [
+        "foldhash"
+      ],
+      "reason": "hashbrown default-hasher is disabled; rustc-dep-of-std activates nightly whose foldhash?/nightly edge is weak. No foldhash RLIB in installed Windows std component. This excludes only std's hashbrown instance."
+    },
+    {
+      "components": [
+        "getopts",
+        "rustc-literal-escaper",
+        "libtest",
+        "proc_macro",
+        "profiler_builtins",
+        "cc",
+        "shlex",
+        "rand test dependencies"
+      ],
+      "reason": "Presence in the multi-target source/build copyright bundle or installed test/compiler support is not evidence of application runtime inclusion. No such std RLIB path in the bound PDB scan; the production build has no tests/profile instrumentation override. This is not a whole dependency-tree exclusion."
+    },
+    {
+      "components": [
+        "LLVM libunwind",
+        "unwinding"
+      ],
+      "reason": "Exact library/unwind/src/lib.rs selects an empty extra-unwinder branch for target_env=msvc. panic_unwind SEH source is positively referenced in the EXE; MSVC runtime selection remains outside this package."
+    }
+  ],
+  "outputs": [
+    {
+      "path": "docs/release/licenses/rust-1.97.1-LICENSE-MIT.txt",
+      "bytes": 1068,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1",
+      "source_url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/LICENSE-MIT",
+      "source_sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+    },
+    {
+      "path": "docs/release/licenses/rust-1.97.1-LICENSE-UNICODE.txt",
+      "bytes": 1995,
+      "sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443",
+      "source_url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/LICENSES/Unicode-3.0.txt",
+      "source_sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443"
+    },
+    {
+      "path": "docs/release/licenses/compiler-builtins-0.1.160-LICENSE.txt",
+      "bytes": 15078,
+      "sha256": "ab6eec6caf0fa5775e411c7a8bc6a45c4ef2956b0980b157ab74fc5cd62a928b",
+      "source_url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/LICENSE.txt",
+      "source_sha256": "ab6eec6caf0fa5775e411c7a8bc6a45c4ef2956b0980b157ab74fc5cd62a928b"
+    },
+    {
+      "path": "docs/release/licenses/compiler-builtins-0.1.160-libm-LICENSE.txt",
+      "bytes": 14088,
+      "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7",
+      "source_url": "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/libm/LICENSE.txt",
+      "source_sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7"
+    },
+    {
+      "path": "docs/release/licenses/rust-1.97.1-compiler-rt-LICENSE.txt",
+      "bytes": 16708,
+      "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d",
+      "source_url": "https://raw.githubusercontent.com/rust-lang/llvm-project/dcc3606807c989700e0ac1cac18c31741bcd40d9/compiler-rt/LICENSE.TXT",
+      "source_sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d"
+    },
+    {
+      "path": "docs/release/licenses/rust-1.97.1-compiler-rt-CREDITS.txt",
+      "bytes": 1049,
+      "sha256": "a9901f47a089da41e4690682d00ce4cedaa2baf41fedbe79beee366d43ac2461",
+      "source_url": "https://raw.githubusercontent.com/rust-lang/llvm-project/dcc3606807c989700e0ac1cac18c31741bcd40d9/compiler-rt/CREDITS.TXT",
+      "source_sha256": "a9901f47a089da41e4690682d00ce4cedaa2baf41fedbe79beee366d43ac2461"
+    },
+    {
+      "path": "docs/release/licenses/rust-stdlib-cfg-if-1.0.4-LICENSE-MIT.txt",
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "source_url": "https://static.crates.io/crates/cfg-if/cfg-if-1.0.4.crate",
+      "archive_member": "cfg-if-1.0.4/LICENSE-MIT"
+    },
+    {
+      "path": "docs/release/licenses/rust-stdlib-hashbrown-0.17.1-LICENSE-MIT.txt",
+      "bytes": 1060,
+      "sha256": "ff8f68cb076caf8cefe7a6430d4ac086ce6af2ca8ce2c4e5a2004d4552ef52a2",
+      "source_url": "https://static.crates.io/crates/hashbrown/hashbrown-0.17.1.crate",
+      "archive_member": "hashbrown-0.17.1/LICENSE-MIT"
+    },
+    {
+      "path": "docs/release/licenses/rust-1.97.1-SOURCE-NOTICES.txt",
+      "bytes": 513,
+      "sha256": "b63c9730511eea54defb67251ea45b98003c126c0bff11531af543e9515890c7",
+      "source_local": "C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/share/doc/rust/COPYRIGHT-library.html",
+      "kind": "authored attribution index; original copyright names retained"
+    }
+  ],
+  "reproduction": {
+    "read_only_local_program": "const fs=require('fs'),crypto=require('crypto'),cp=require('child_process');const hash=b=>crypto.createHash('sha256').update(b).digest('hex'),meta=p=>{const b=fs.readFileSync(p),s=fs.statSync(p);return {path:p,bytes:b.length,sha256:hash(b),mtime_utc:s.mtime.toISOString()}};\nfunction run(exe,args){const r=cp.spawnSync(exe,args,{encoding:'utf8',timeout:10000,windowsHide:true,maxBuffer:2000000});if(r.error||r.status!==0)throw Error(exe+' failed '+r.error+' '+r.stderr);return {command:[exe,...args],exit_code:r.status,stdout:r.stdout,stderr:r.stderr}}\nconst commands=[run('rustc',['-vV']),run('rustc',['--print','sysroot']),run('rustc',['--print','target-libdir','--target','x86_64-pc-windows-msvc']),run('rustup',['show','active-toolchain']),run('rustup',['component','list','--installed']),run('cargo',['--version']),run('git',['rev-parse','HEAD']),run('git',['status','--short']),run('git',['show','6a45c12:rust-toolchain.toml']),run('git',['diff','6a45c12','--','rust-toolchain.toml','Cargo.toml','src-tauri/Cargo.toml','src-tauri/build.rs','src-tauri/tauri.conf.json'])];\nconst sys=commands[1].stdout.trim().replace(/\\\\/g,'/'),manifestPath=sys+'/lib/rustlib/multirust-channel-manifest.toml',manifest=fs.readFileSync(manifestPath,'utf8');let sections=[];for(const title of ['pkg.rust-std','pkg.rust-std.target.x86_64-pc-windows-msvc','pkg.rust-docs','pkg.rust-docs.target.x86_64-pc-windows-msvc']){let a=manifest.indexOf('['+title+']'),b=manifest.indexOf('\\n[',a+1);if(a<0)throw Error('manifestsection');sections.push({section:title,text:manifest.slice(a,b)})}\nconst inputs=['rust-toolchain.toml','Cargo.toml','Cargo.lock','src-tauri/Cargo.toml','src-tauri/build.rs','src-tauri/tauri.conf.json','package.json','docs/release/license-inventory-2026-09-12-rust.json','target/.rustc_info.json','target/release/.fingerprint/agentbridge-d6760445c8995c66/bin-agentbridge.json','target/release/.fingerprint/agentbridge-d6760445c8995c66/lib-agentbridge_lib.json'].map(meta);\nconst toolchain_files=[manifestPath,sys+'/lib/rustlib/components',sys+'/lib/rustlib/manifest-rust-std-x86_64-pc-windows-msvc',sys+'/lib/rustlib/multirust-config.toml',sys+'/bin/rustc.exe'].map(meta);\nconst installed_std_manifest=fs.readFileSync(sys+'/lib/rustlib/manifest-rust-std-x86_64-pc-windows-msvc','utf8');\nconst stdlib_installed_archives=installed_std_manifest.split('\\n').map(x=>x.replace(/\\r$/,'')).filter(x=>x.endsWith('.rlib')).map(x=>meta(sys+'/'+x.replace(/^file:/,'')));\nconsole.log(JSON.stringify({commands,inputs,toolchain_files,distribution_manifest:{date:manifest.match(/^date = \"([^\"]+)\"/m)[1],sections,archive_hashes_are_recorded_manifest_values_not_reverified_downloads:true},installed_std_manifest,stdlib_installed_archives,cached_rustc_information:JSON.parse(fs.readFileSync('target/.rustc_info.json','utf8').replace(/(\"rustc_fingerprint\"\\s*:\\s*)(\\d+)/,'$1\"$2\"'))},null,2));",
+    "read_only_artifact_program": "const fs=require('fs'),crypto=require('crypto');\nconst sha=b=>crypto.createHash('sha256').update(b).digest('hex');\nconst exe=fs.readFileSync('target/release/agentbridge.exe'),pdb=fs.readFileSync('target/release/agentbridge.pdb');\nconst assert=(x,m)=>{if(!x)throw Error(m)};\nconst pe=exe.readUInt32LE(0x3c);assert(exe.toString('ascii',pe,pe+4)==='PE\\0\\0','PE');const n=exe.readUInt16LE(pe+6),opt=pe+24;assert(exe.readUInt16LE(opt)===0x20b,'PE32+');\nconst sec=[];for(let i=0;i<n;i++){let o=opt+exe.readUInt16LE(pe+20)+40*i;sec.push({name:exe.toString('ascii',o,o+8).replace(/\\0/g,''),virtual_size:exe.readUInt32LE(o+8),rva:exe.readUInt32LE(o+12),raw_size:exe.readUInt32LE(o+16),file_offset:exe.readUInt32LE(o+20)})}\nconst off=rva=>{const s=sec.find(s=>rva>=s.rva&&rva<s.rva+s.raw_size);assert(s,'RVA');return s.file_offset+rva-s.rva};\nconst z=(b,o)=>{let e=b.indexOf(0,o);assert(e>=o,'NUL');return b.toString('utf8',o,e)};\nconst dr=exe.readUInt32LE(opt+112+6*8),ds=exe.readUInt32LE(opt+112+6*8+4);const debug=[];\nfor(let i=0;i<ds;i+=28){const o=off(dr)+i;if(exe.readUInt32LE(o+12)!==2)continue;let p=exe.readUInt32LE(o+24);assert(exe.toString('ascii',p,p+4)==='RSDS','RSDS');debug.push({guid_bytes:exe.subarray(p+4,p+20).toString('hex'),age:exe.readUInt32LE(p+20),pdb_path:z(exe,p+24)})}\nassert(pdb.subarray(0,32).equals(Buffer.from('Microsoft C/C++ MSF 7.00\\r\\n\\x1aDS\\0\\0\\0','ascii')),'MSF7');const bs=pdb.readUInt32LE(32),nb=pdb.readUInt32LE(40),db=pdb.readUInt32LE(44),bm=pdb.readUInt32LE(52);assert(bs===4096&&nb*bs===pdb.length,'MSFsize');const blocks=(map,start,count)=>{let a=[];for(let i=0;i<count;i++){let idx=map.readUInt32LE(start+4*i);assert(idx<nb,'blockindex');a.push(pdb.subarray(idx*bs,(idx+1)*bs))}return Buffer.concat(a)};\nconst dir=blocks(pdb,bm*bs,Math.ceil(db/bs)).subarray(0,db),ns=dir.readUInt32LE(0);let cursor=4+4*ns,streams=[];for(let i=0;i<ns;i++){let size=dir.readUInt32LE(4+4*i);if(size===0xffffffff){streams.push(null);continue;}const c=Math.ceil(size/bs);streams.push(blocks(dir,cursor,c).subarray(0,size));cursor+=c*4}assert(cursor===db,'directorysize');const info=streams[1];const pi={version:info.readUInt32LE(0),signature:info.readUInt32LE(4),age:info.readUInt32LE(8),guid_bytes:info.subarray(12,28).toString('hex')};assert(debug.length===1&&debug[0].age===pi.age&&debug[0].guid_bytes===pi.guid_bytes,'PE PDB mismatch');\nconst imports=[];let ir=exe.readUInt32LE(opt+112+8);if(ir){let io=off(ir);for(let i=0;i<100;i++,io+=20){let nr=exe.readUInt32LE(io+12);if(!nr)break;imports.push(z(exe,off(nr)))}}\nconst s=exe.toString('latin1'),ps=pdb.toString('latin1');const paths=[...new Set(s.match(/[\\\\/]rustc[\\\\/][a-f0-9]{40}[\\\\/]library[\\\\/][A-Za-z0-9_./\\\\-]+/g)||[])].sort();\nconst rlibs=[...new Set(ps.match(/[A-Za-z]:\\\\[^\\x00\\r\\n\"]{0,160}?\\\\toolchains\\\\1\\.97\\.1-x86_64-pc-windows-msvc\\\\lib\\\\rustlib\\\\x86_64-pc-windows-msvc\\\\lib\\\\lib[a-z0-9_-]+\\.rlib/g)||[])].sort();\nconst refs=[...new Set(ps.match(/\\/rustc\\/[a-f0-9]{40}[\\\\/][^\\x00\\r\\n]{1,300}?(?:\\.rs|\\.rcgu\\.o)/g)||[])].filter(x=>/compiler[-_]builtins/.test(x)).sort();\nconst archive='C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/lib/libcompiler_builtins-ce654cf527ce7df8.rlib';const ar=fs.readFileSync(archive);assert(ar.toString('ascii',0,8)==='!<arch>\\n','ar');let members=[],longnames;for(let p=8;p<ar.length;){assert(ar.toString('ascii',p+58,p+60)==='\\x60\\n','arhead');const raw=ar.toString('ascii',p,p+16).trim(),size=Number(ar.toString('ascii',p+48,p+58).trim());if(raw==='//')longnames=ar.subarray(p+60,p+60+size);members.push({raw,size});p+=60+size+(size%2)}members=members.map(m=>({...m,name:/^\\/\\d+$/.test(m.raw)?longnames.toString('ascii',Number(m.raw.slice(1)),longnames.indexOf(0,Number(m.raw.slice(1)))).replace(/\\/$/,''):m.raw.replace(/\\/$/,'')}));\nconsole.log(JSON.stringify({exe:{bytes:exe.length,sha256:sha(exe),machine:exe.readUInt16LE(pe+4).toString(16),debug,imports},pdb:{bytes:pdb.length,sha256:sha(pdb),info:pi,guid_age_match:true,standard_library_archives:rlibs,compiler_builtins_refs:refs},stdlib_exe_paths:{count:paths.length,commits:[...new Set(paths.map(x=>x.match(/[a-f0-9]{40}/)[0]))],paths},compiler_builtins_archive:{bytes:ar.length,sha256:sha(ar),member_count:members.length,native_named:members.filter(m=>!m.name.endsWith('.rcgu.o')&&!['','/','lib.rmeta','lib.rmeta-link'].includes(m.name))}},null,2));",
+    "source_retrieval_and_exact_text_writer_program": "const fs=require('fs'),crypto=require('crypto'),zlib=require('zlib'),{JSDOM}=require('jsdom');\nconst hash=b=>crypto.createHash('sha256').update(b).digest('hex');\nconst root='https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/';\nconst llvm='https://raw.githubusercontent.com/rust-lang/llvm-project/dcc3606807c989700e0ac1cac18c31741bcd40d9/';\nconst selections=[\n['LICENSE-MIT','rust-1.97.1-LICENSE-MIT.txt',[]],\n['LICENSES/Unicode-3.0.txt','rust-1.97.1-LICENSE-UNICODE.txt',[]],\n['library/compiler-builtins/LICENSE.txt','compiler-builtins-0.1.160-LICENSE.txt',[]],\n['library/compiler-builtins/libm/LICENSE.txt','compiler-builtins-0.1.160-libm-LICENSE.txt',[]],\n['library/Cargo.lock',null,[[39,63],[118,127],[258,265],[301,340],[360,378]]],\n['library/std/Cargo.toml',null,[[1,65],[95,160]]],\n['library/compiler-builtins/compiler-builtins/Cargo.toml',null,[[1,58]]],\n['library/compiler-builtins/compiler-builtins/src/lib.rs',null,[[35,52]]],\n['library/compiler-builtins/compiler-builtins/src/math/mod.rs',null,[[1,17],[40,45],[76,90],[188,203]]],\n['library/compiler-builtins/compiler-builtins/build.rs',null,[[66,75],[470,520]]],\n['library/compiler-builtins/libm/Cargo.toml',null,[[1,24]]],\n['library/compiler-builtins/libm/src/math/support/float_traits.rs',null,[[1,30]]],\n['library/compiler-builtins/libm/src/math/support/int_traits.rs',null,[[1,30]]],\n['library/unwind/src/lib.rs',null,[[1,55]]],\n['library/core/src/unicode/unicode_data.rs',null,[[1,13],[137,138]]],\n['compiler-rt/LICENSE.TXT','rust-1.97.1-compiler-rt-LICENSE.txt',[],llvm],\n['compiler-rt/CREDITS.TXT','rust-1.97.1-compiler-rt-CREDITS.txt',[],llvm],\n['compiler-rt/lib/builtins/ucmpti2.c',null,[[1,24]],llvm]\n];\nasync function get(url){const r=await fetch(url,{signal:AbortSignal.timeout(20000)});if(!r.ok)throw Error(url+' HTTP '+r.status);const b=Buffer.from(await r.arrayBuffer());if(b.length>2000000)throw Error('size '+url);return b}\nfunction save(name,b){const p='docs/release/licenses/'+name;if(fs.existsSync(p)){if(!fs.readFileSync(p).equals(b))throw Error('different output exists '+p);}else fs.writeFileSync(p,b,{flag:'wx'});return {path:p,bytes:b.length,sha256:hash(b)}}\n(async()=>{\nconst results=await Promise.allSettled(selections.map(async([path,out,ranges,base])=>{const url=(base||root)+path,b=await get(url),s=b.toString('utf8'),lines=s.split('\\n');return {url,bytes:b.length,sha256:hash(b),output:out?{name:out,data:b.toString('base64')}:null,excerpts:ranges.map(([from,to])=>({lines:[from,Math.min(to,lines.length)],text:lines.slice(from-1,to).join('\\n')}))}}));\nfor(const r of results)if(r.status==='rejected')throw r.reason;\nconst sources=results.map(r=>r.value);const lock=(await get(root+'library/Cargo.lock')).toString('utf8');\nconst docpath='C:/Users/U/.rustup/toolchains/1.97.1-x86_64-pc-windows-msvc/share/doc/rust/COPYRIGHT-library.html';const docbytes=fs.readFileSync(docpath),doc=new JSDOM(docbytes.toString('utf8')).window.document;\nconst outputs=[];\nfor(const s of sources){if(s.output){const {name,data}=s.output;s.output=save(name,Buffer.from(data,'base64'));outputs.push({...s.output,source_url:s.url,source_sha256:s.sha256})}}\nconst crates=[];\nfor(const [name,version] of [['cfg-if','1.0.4'],['hashbrown','0.17.1'],['rustc-demangle','0.1.27']]){\nconst block=lock.split('[[package]]').find(s=>s.includes('name = \"'+name+'\"')&&s.includes('version = \"'+version+'\"'));if(!block)throw Error('lockpackage');const expected=block.match(/checksum = \"([a-f0-9]{64})\"/)[1];\nconst url='https://static.crates.io/crates/'+name+'/'+name+'-'+version+'.crate',gz=await get(url);if(hash(gz)!==expected)throw Error('crate integrity');\nconst tar=zlib.gunzipSync(gz);if(tar.length>5000000)throw Error('tar limit');let entries=new Map();\nfor(let p=0;p+512<=tar.length;){let h=tar.subarray(p,p+512);if(h.every(x=>x===0))break;let nm=h.toString('utf8',0,100).split('\\0')[0],size=parseInt(h.toString('ascii',124,136).replace(/\\0/g,'').trim(),8);if(!Number.isFinite(size)||p+512+size>tar.length)throw Error('tar size');if(['0','\\0'].includes(String.fromCharCode(h[156])))entries.set(nm,tar.subarray(p+512,p+512+size));p+=512+Math.ceil(size/512)*512}\nconst license=entries.get(name+'-'+version+'/LICENSE-MIT');if(!license)throw Error('MIT');\nconst heading=[...doc.querySelectorAll('h3')].find(h=>h.textContent.endsWith(name+'-'+version));let details=[];for(let p=heading.nextElementSibling;p&&p.tagName!=='H3';p=p.nextElementSibling){if(p.tagName==='DETAILS')details.push(p);details.push(...p.querySelectorAll('details'));}\nconst text=details.find(x=>x.querySelector('summary').textContent.trim()==='LICENSE-MIT').querySelector('pre').textContent;\nif(text.trim()!==license.toString('utf8').trim())throw Error('local doc differs '+name);\nconst destination=name==='rustc-demangle'?'rust-stdlib-cfg-if-1.0.4-LICENSE-MIT.txt':'rust-stdlib-'+name+'-'+version+'-LICENSE-MIT.txt';\nconst output=name==='rustc-demangle'?{path:'docs/release/licenses/'+destination,bytes:license.length,sha256:hash(license),reuses:true}:save(destination,license);\nif(name==='rustc-demangle'&&!fs.readFileSync(output.path).equals(license))throw Error('reuse');\nif(!output.reuses)outputs.push({...output,source_url:url,archive_member:name+'-'+version+'/LICENSE-MIT'});\nconst cargo=entries.get(name+'-'+version+'/Cargo.toml').toString('utf8');const l=cargo.split('\\n');crates.push({name,version,url,archive_bytes:gz.length,archive_sha256:hash(gz),lock_checksum:expected,archive_integrity_matches:true,license_output:output,installed_copyright_license_matches_trimmed:true,manifest_sha256:hash(Buffer.from(cargo)),feature_excerpts:l.map((t,i)=>({line:i+1,text:t})).filter(x=>/^\\[features\\]|^default|^default-hasher|foldhash|^rustc-dep|^license/.test(x.text))});\n}\nconst notice=Buffer.from('Rust Standard Library 1.97.1\\nRust commit: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\\n\\nCopyright: The Rust Project Developers (see https://thanks.rust-lang.org)\\nAdditional copyright for library/backtrace: 2014 Alex Crichton\\nAdditional copyright for library/std/src/sync/mpmc: 2019 The Crossbeam Project Developers\\n\\nThese components use the MIT alternative. The full permission and warranty\\nterms are supplied in rust-1.97.1-LICENSE-MIT.txt.\\nThe separate Unicode and compiler-builtins notices retain their own terms.\\n');\noutputs.push({...save('rust-1.97.1-SOURCE-NOTICES.txt',notice),source_local:docpath,kind:'authored attribution index; original copyright names retained'});\nconsole.log(JSON.stringify({sources,crate_archives:crates,outputs,installed_copyright:{path:docpath,bytes:docbytes.length,sha256:hash(docbytes),heading_count:doc.querySelectorAll('h3').length,pre_count:doc.querySelectorAll('pre').length,in_tree_html:docbytes.toString('utf8').split('<h2 id=\"out-of-tree-dependencies\">')[0],interpretation:'source/build and multi-target index; neither exact Windows linker inventory nor complete compiler-builtins license text'}},null,2))\n})().catch(e=>{console.error(e);process.exitCode=1});",
+    "program_format": "Node CommonJS stdin, from repository root; local installed jsdom used only for non-executing HTML parsing. Source writer permits only absent or byte-identical named output files; no package installation or build.",
+    "format_sources": [
+      "https://llvm.org/docs/PDB/MsfFile.html",
+      "https://llvm.org/docs/PDB/PdbStream.html",
+      "https://learn.microsoft.com/en-us/windows/win32/debug/pe-format"
+    ],
+    "probe_history": [
+      "Initial PDB magic comparison used a 24-byte slice; failed MSF7 guard. Corrected to exact 32-byte magic, then actual GUID and age passed.",
+      "Initial archive long-name decoding assumed newline termination; Windows COFF names are NUL-terminated. Corrected before using member classifications; 35 native-named entries reported.",
+      "Initial and whitespace-only-adjusted HTML traversal both failed because DETAILS elements are siblings of the closed P element. Corrected sibling handling; all three archive MIT texts then matched installed index. Already written original texts were accepted only after byte-equality checks."
+    ],
+    "validation": "Three locked crate archive SHA-256 checks, three matching local-index MIT texts, all eight upstream output files exact source/member bytes, authored attribution index separately labelled. No production tests or rebuild."
+  },
+  "remaining": [
+    "Integrate these nine texts into the final Windows selection and copy/check them in the actual license payload.",
+    "Pin/check Rust release commit and target plus stdlib inputs for any future native build; this record is not an automatic approval after toolchain/target/flags changes.",
+    "MSVC, WebView2, installer payload and other license-delivery work remain outside this package."
+  ]
+}

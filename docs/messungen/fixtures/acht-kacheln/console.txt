@@ -1,0 +1,3 @@
+2026-10-21T10:27:19.819Z SAMPLER gen 1 attached http://tauri.localhost/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0
+2026-10-21T10:27:20.143Z [log.security.error] Connecting to 'http://tauri.localhost/.well-known/appspecific/com.chrome.devtools.json' violates the following Content Security Policy directive: "connect-src ipc: http://ipc.localhost". The request has been blocked.
+

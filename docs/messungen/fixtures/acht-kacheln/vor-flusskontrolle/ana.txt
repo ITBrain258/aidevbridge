@@ -1,0 +1,68 @@
+
+== N4-L1: Uhrabstand VM minus Windows 1056 ms (1055, 1056)
+idle  Status: Wechsel 9, verpasst 0, Latenz ms n=9 med=1766 p95=2912 max=2912, veraltet 0 | Poll ms n=21 med=812 p95=859 max=993, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=16 | Teilausfaelle Titel/Claude 0/0
+flood Status: Wechsel 24, verpasst 0, Latenz ms n=24 med=2130 p95=3701 max=4082, veraltet 0 | Poll ms n=58 med=1081 p95=1489 max=1607, gescheitert 0 | Ereignisschleife ms n=1784 med=0 p95=17 max=748 | Teilausfaelle Titel/Claude 0/0
+rest  Status: Wechsel 9, verpasst 0, Latenz ms n=9 med=1723 p95=3095 max=3095, veraltet 0 | Poll ms n=20 med=923 p95=985 max=1027, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=68 | Teilausfaelle Titel/Claude 0/0
+Verluste: Ruhe-Chip 0, Sperre 0, Banner [], open/close in der Flut 0, abgewiesen 0
+Acks in der Flut: 4 Kacheln, MB je Kachel n=4 med=13.1 p95=13.1 max=13.1, laengste Luecke 816 ms
+list_sessions ms n=0 med=null p95=null max=null; resize_terminal in der Flut: -
+Fenster: immer sichtbar true, DevTools offen false, Kacheln 4, davon sichtbar 4, GL-Canvas 4, JS-Heap hoechstens 459 MB
+Speicher privat MB: Leerlauf 265, letzte 60 s der Flut 723-1052 (+45.4 %), nach dem Nachlauf 813 (207.3 % ueber Leerlauf); Renderer 55 -> 787; Working Set Flutende 1319; GPU dediziert/geteilt 0/105; GPU-PIDs 36620; Renderer-Prozesse 1 | CPU % in der Flut: Renderer 73, GPU 21, App 37
+tmux-Clients: vorher 4, nachher dieselben true; Last vorher 0.51 0.31 0.20 1/1467 704298, nachher 0.65 0.59 0.35 2/1463 768739
+
+== N6-L1: Uhrabstand VM minus Windows 1066 ms (1063, 1069)
+idle  Status: Wechsel 9, verpasst 0, Latenz ms n=9 med=1860 p95=3119 max=3119, veraltet 0 | Poll ms n=22 med=804 p95=892 max=1041, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=14 | Teilausfaelle Titel/Claude 0/0
+flood Status: Wechsel 24, verpasst 0, Latenz ms n=24 med=1591 p95=3039 max=3158, veraltet 0 | Poll ms n=62 med=821 p95=1208 max=1279, gescheitert 0 | Ereignisschleife ms n=1794 med=0 p95=15 max=340 | Teilausfaelle Titel/Claude 0/0
+rest  Status: Wechsel 8, verpasst 0, Latenz ms n=8 med=1544 p95=2945 max=2945, veraltet 0 | Poll ms n=21 med=793 p95=849 max=1018, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=15 | Teilausfaelle Titel/Claude 0/0
+Verluste: Ruhe-Chip 0, Sperre 0, Banner [], open/close in der Flut 0, abgewiesen 0
+Acks in der Flut: 6 Kacheln, MB je Kachel n=6 med=6.8 p95=6.8 max=6.8, laengste Luecke 465 ms
+list_sessions ms n=0 med=null p95=null max=null; resize_terminal in der Flut: -
+Fenster: immer sichtbar true, DevTools offen false, Kacheln 6, davon sichtbar 6, GL-Canvas 6, JS-Heap hoechstens 387 MB
+Speicher privat MB: Leerlauf 390, letzte 60 s der Flut 746-917 (+22.8 %), nach dem Nachlauf 920 (135.7 % ueber Leerlauf); Renderer 129 -> 658; Working Set Flutende 1205; GPU dediziert/geteilt 0/115; GPU-PIDs 36620; Renderer-Prozesse 1 | CPU % in der Flut: Renderer 83, GPU 22, App 45
+tmux-Clients: vorher 6, nachher dieselben true; Last vorher 0.65 0.57 0.38 2/1463 788341, nachher 0.57 0.81 0.54 1/1475 862975
+
+== N8-L1: Uhrabstand VM minus Windows 1295 ms (1067, 1523)
+idle  Status: Wechsel 8, verpasst 0, Latenz ms n=8 med=1264 p95=2954 max=2954, veraltet 0 | Poll ms n=21 med=800 p95=1048 max=1085, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=12 | Teilausfaelle Titel/Claude 0/0
+flood Status: Wechsel 25, verpasst 0, Latenz ms n=25 med=2349 p95=4602 max=4871, veraltet 0 | Poll ms n=56 med=934 p95=1795 max=1911, gescheitert 0 | Ereignisschleife ms n=1394 med=2 p95=198 max=905 | Teilausfaelle Titel/Claude 0/0
+rest  Status: Wechsel 8, verpasst 0, Latenz ms n=8 med=1979 p95=3045 max=3045, veraltet 0 | Poll ms n=21 med=801 p95=1060 max=1276, gescheitert 0 | Ereignisschleife ms n=571 med=-5 p95=11 max=236 | Teilausfaelle Titel/Claude 0/0
+Verluste: Ruhe-Chip 0, Sperre 0, Banner [], open/close in der Flut 0, abgewiesen 0
+Acks in der Flut: 8 Kacheln, MB je Kachel n=8 med=4.1 p95=7.7 max=7.7, laengste Luecke 1069 ms
+list_sessions ms n=0 med=null p95=null max=null; resize_terminal in der Flut: -
+Fenster: immer sichtbar true, DevTools offen false, Kacheln 8, davon sichtbar 8, GL-Canvas 8, JS-Heap hoechstens 402 MB
+Speicher privat MB: Leerlauf 409, letzte 60 s der Flut 831-1034 (+24.4 %), nach dem Nachlauf 1005 (145.8 % ueber Leerlauf); Renderer 152 -> 750; Working Set Flutende 1325; GPU dediziert/geteilt 0/108; GPU-PIDs 36620; Renderer-Prozesse 1 | CPU % in der Flut: Renderer 108, GPU 20, App 61
+tmux-Clients: vorher 8, nachher dieselben true; Last vorher 0.22 0.66 0.50 2/1479 875092, nachher 0.74 0.77 0.59 1/1470 955819
+
+== N8-L2: Uhrabstand VM minus Windows 1075 ms (1072, 1077)
+idle  Status: Wechsel 9, verpasst 0, Latenz ms n=9 med=1765 p95=3089 max=3089, veraltet 0 | Poll ms n=21 med=817 p95=929 max=1075, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=22 | Teilausfaelle Titel/Claude 0/0
+flood Status: Wechsel 16, verpasst 0, Latenz ms n=16 med=2115 p95=5028 max=5028, veraltet 0 | Poll ms n=28 med=1481 p95=1856 max=2188, gescheitert 0 | Ereignisschleife ms n=690 med=9 p95=223 max=302 | Teilausfaelle Titel/Claude 0/0
+rest  Status: Wechsel 8, verpasst 0, Latenz ms n=8 med=2004 p95=3293 max=3293, veraltet 0 | Poll ms n=21 med=821 p95=989 max=1081, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=15 | Teilausfaelle Titel/Claude 0/0
+Verluste: Ruhe-Chip 8, Sperre 8, Banner [], open/close in der Flut 48, abgewiesen 0
+Acks in der Flut: 21 Kacheln, MB je Kachel n=21 med=0 p95=1.5 max=1.5, laengste Luecke 40687 ms
+list_sessions ms n=3 med=4841 p95=4989 max=4989; resize_terminal in der Flut: -
+Fenster: immer sichtbar true, DevTools offen false, Kacheln 8, davon sichtbar 8, GL-Canvas 8, JS-Heap hoechstens 43 MB
+Speicher privat MB: Leerlauf 488, letzte 60 s der Flut 621-670 (+7.8 %), nach dem Nachlauf 603 (23.5 % ueber Leerlauf); Renderer 222 -> 373; Working Set Flutende 901; GPU dediziert/geteilt 0/86; GPU-PIDs 36620; Renderer-Prozesse 1 | CPU % in der Flut: Renderer 90, GPU 11, App 61
+tmux-Clients: vorher 8, nachher dieselben false; Last vorher 0.55 0.72 0.58 3/1477 963524, nachher 2.11 2.13 1.21 1/1465 1008467
+
+== N4-L2: Uhrabstand VM minus Windows 1080 ms (1078, 1081)
+idle  Status: Wechsel 9, verpasst 0, Latenz ms n=9 med=1755 p95=3514 max=3514, veraltet 0 | Poll ms n=21 med=867 p95=1047 max=1095, gescheitert 0 | Ereignisschleife ms n=599 med=-4 p95=10 max=137 | Teilausfaelle Titel/Claude 0/0
+flood Status: Wechsel 16, verpasst 0, Latenz ms n=16 med=2363 p95=3613 max=3613, veraltet 0 | Poll ms n=34 med=1168 p95=1397 max=1688, gescheitert 0 | Ereignisschleife ms n=1070 med=5 p95=97 max=133 | Teilausfaelle Titel/Claude 0/0
+rest  Status: Wechsel 8, verpasst 0, Latenz ms n=8 med=1646 p95=3058 max=3058, veraltet 0 | Poll ms n=20 med=875 p95=974 max=1078, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=14 | Teilausfaelle Titel/Claude 0/0
+Verluste: Ruhe-Chip 4, Sperre 4, Banner [], open/close in der Flut 24, abgewiesen 0
+Acks in der Flut: 12 Kacheln, MB je Kachel n=12 med=0 p95=1.5 max=1.5, laengste Luecke 62589 ms
+list_sessions ms n=3 med=4384 p95=4418 max=4418; resize_terminal in der Flut: -
+Fenster: immer sichtbar true, DevTools offen false, Kacheln 4, davon sichtbar 4, GL-Canvas 4, JS-Heap hoechstens 49 MB
+Speicher privat MB: Leerlauf 521, letzte 60 s der Flut 576-594 (+3.2 %), nach dem Nachlauf 522 (0.1 % ueber Leerlauf); Renderer 275 -> 320; Working Set Flutende 860; GPU dediziert/geteilt 0/106; GPU-PIDs 36620; Renderer-Prozesse 1 | CPU % in der Flut: Renderer 34, GPU 5, App 26
+tmux-Clients: vorher 4, nachher dieselben false; Last vorher 0.89 1.67 1.14 1/1465 1027128, nachher 2.05 2.42 1.59 2/1457 1070538
+
+== N1-L2: Uhrabstand VM minus Windows 1085 ms (1083, 1086)
+idle  Status: Wechsel 9, verpasst 0, Latenz ms n=9 med=1668 p95=3049 max=3049, veraltet 0 | Poll ms n=21 med=875 p95=933 max=955, gescheitert 0 | Ereignisschleife ms n=600 med=-4 p95=10 max=75 | Teilausfaelle Titel/Claude 0/0
+flood Status: Wechsel 16, verpasst 0, Latenz ms n=16 med=1836 p95=3314 max=3314, veraltet 0 | Poll ms n=39 med=929 p95=1119 max=1127, gescheitert 0 | Ereignisschleife ms n=1200 med=-4 p95=10 max=26 | Teilausfaelle Titel/Claude 0/0
+rest  Status: Wechsel 8, verpasst 0, Latenz ms n=8 med=1815 p95=3097 max=3097, veraltet 0 | Poll ms n=21 med=868 p95=950 max=1004, gescheitert 0 | Ereignisschleife ms n=600 med=-5 p95=10 max=14 | Teilausfaelle Titel/Claude 0/0
+Verluste: Ruhe-Chip 1, Sperre 1, Banner [], open/close in der Flut 6, abgewiesen 3: open_terminal "attach wrapper was not a registered client"; open_terminal "attach wrapper was not a registered client"; open_terminal "attach wrapper was not a registered client"
+Acks in der Flut: 0 Kacheln, MB je Kachel n=0 med=null p95=null max=null, laengste Luecke 0 ms
+list_sessions ms n=1 med=3990 p95=3990 max=3990; resize_terminal in der Flut: -
+Fenster: immer sichtbar true, DevTools offen false, Kacheln 1, davon sichtbar 1, GL-Canvas 1, JS-Heap hoechstens 11 MB
+Speicher privat MB: Leerlauf 382, letzte 60 s der Flut 348-369 (+6.0 %), nach dem Nachlauf 367 (-4.0 % ueber Leerlauf); Renderer 177 -> 161; Working Set Flutende 642; GPU dediziert/geteilt 0/83; GPU-PIDs 36620; Renderer-Prozesse 1 | CPU % in der Flut: Renderer 2, GPU 2, App 1
+tmux-Clients: vorher 1, nachher dieselben false; Last vorher 0.97 2.02 1.51 1/1459 1082007, nachher 1.76 2.34 1.77 1/1456 1127153
+
+Zuwachs je Kachel (Hoechstwert privat, letzte 60 s der Flut): 4->6 -67.4 MB, 6->8 58.8 MB, Verhaeltnis -0.87

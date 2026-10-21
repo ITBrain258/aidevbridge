@@ -1,0 +1,94 @@
+UNIC 0.9.0 source notices
+
+Transcribed original source header blocks. This file is an aidevbridge compilation,
+not an upstream file. The release code-license choice is MIT.
+
+// Copyright 2017 The UNIC Project Developers.
+//
+// See the COPYRIGHT file at the top-level directory of this distribution.
+//
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
+
+// Copyright 2018 The UNIC Project Developers.
+//
+// See the COPYRIGHT file at the top-level directory of this distribution.
+//
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
+
+// Copyright 2017-2019 The UNIC Project Developers.
+//
+// See the COPYRIGHT file at the top-level directory of this distribution.
+//
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
+
+Source mapping:
+unic-char-property 0.9.0 / src/lib.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-property 0.9.0 / src/macros.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-property 0.9.0 / src/pkg_info.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-property 0.9.0 / src/property.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-property 0.9.0 / src/range_types.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-property 0.9.0 / src/tables.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/iter.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/iter_fused.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/iter_trusted_len.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/lib.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/macros.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/par_iter.rs: // Copyright 2018 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/pkg_info.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/range.rs: // Copyright 2017 The UNIC Project Developers.
+unic-char-range 0.9.0 / src/step.rs: // Copyright 2017 The UNIC Project Developers.
+unic-common 0.9.0 / src/lib.rs: // Copyright 2017 The UNIC Project Developers.
+unic-common 0.9.0 / src/pkg_info.rs: // Copyright 2017 The UNIC Project Developers.
+unic-common 0.9.0 / src/version.rs: // Copyright 2017 The UNIC Project Developers.
+unic-ucd-version 0.9.0 / src/lib.rs: // Copyright 2017 The UNIC Project Developers.
+unic-ucd-version 0.9.0 / src/pkg_info.rs: // Copyright 2017 The UNIC Project Developers.
+unic-ucd-version 0.9.0 / src/unicode_version.rs: // Copyright 2017 The UNIC Project Developers.
+unic-ucd-ident 0.9.0 / src/id.rs: // Copyright 2017-2019 The UNIC Project Developers.
+unic-ucd-ident 0.9.0 / src/lib.rs: // Copyright 2017-2019 The UNIC Project Developers.
+unic-ucd-ident 0.9.0 / src/pattern.rs: // Copyright 2017-2019 The UNIC Project Developers.
+unic-ucd-ident 0.9.0 / src/pkg_info.rs: // Copyright 2017 The UNIC Project Developers.
+unic-ucd-ident 0.9.0 / src/xid.rs: // Copyright 2017-2019 The UNIC Project Developers.
+
+The 2018 header belongs to optional unic-char-range/src/par_iter.rs; rayon is not
+enabled in the recorded Windows release feature set. It is retained for provenance.
+
+Unicode 10.0.0 data notices (exact header excerpts from official input files):
+
+ReadMe.txt:
+# Unicode Character Database
+# Date: 2017-06-18, 23:32:00 GMT [KW]
+# © 2017 Unicode®, Inc.
+# For terms of use, see http://www.unicode.org/terms_of_use.html
+#
+# For documentation, see the following:
+# NamesList.html
+# UAX #38, "Unicode Han Database (Unihan)"
+# UAX #44, "Unicode Character Database."
+#
+# The UAXes can be accessed at http://www.unicode.org/versions/Unicode10.0.0/
+
+This directory contains the final data files
+for the Unicode Character Database, for Version 10.0.0 of the Unicode Standard.
+
+
+DerivedCoreProperties.txt:
+# DerivedCoreProperties-10.0.0.txt
+# Date: 2017-03-19, 00:05:15 GMT
+# © 2017 Unicode®, Inc.
+# Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
+# For terms of use, see http://www.unicode.org/terms_of_use.html
+#
+# Unicode Character Database
+#   For documentation, see http://www.unicode.org/reports/tr44/

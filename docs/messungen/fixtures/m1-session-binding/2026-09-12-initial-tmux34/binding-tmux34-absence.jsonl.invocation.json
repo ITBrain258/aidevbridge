@@ -1,0 +1,17 @@
+{
+  "stage": "binding-tmux34-absence",
+  "started_utc": "2026-09-12T14:20:59.7534477Z",
+  "source_sha256": "f8b9fbfecd0e57c304d6998ec474e5cba44683df0ba39098ffb4093a6d1d2fa3",
+  "executable": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
+  "source": "C:\\Users\\U\\AppData\\Local\\Temp\\agentbridge-session-binding-20260912-r99ebc7f8cd25\\verify-tmux34-absence.py",
+  "arguments": [
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ConnectTimeout=8",
+    "u@192.0.2.20",
+    "python3 -"
+  ]
+}

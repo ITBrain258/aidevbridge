@@ -1,0 +1,85 @@
+{
+  "kind": "session_binding_execution_summary",
+  "helper_sha256": "e7701fc8c14757557cbd619f5077fea82642838aeb080eddfde065ffcca44454",
+  "stages": [
+    {
+      "passed": 30,
+      "ssh_exit": 0,
+      "checks": 30,
+      "name": "binding-selftest"
+    },
+    {
+      "passed": 22,
+      "ssh_exit": 0,
+      "checks": 22,
+      "name": "parser-selftest"
+    },
+    {
+      "failure": "punctuation_not_bound",
+      "ssh_exit": 1,
+      "name": "binding-tmux34"
+    },
+    {
+      "all_eight_paths_absent": true,
+      "ssh_exit": 0,
+      "name": "binding-tmux34-absence"
+    }
+  ],
+  "vm_root": "/tmp/ab-m1-inventory-83adb3e7bddf4034b6d5b692f4a019f0",
+  "bound_observations": [
+    "prefix_anchor",
+    "prefix_unchanged",
+    "normal",
+    "unicode",
+    "spaces"
+  ],
+  "failed_observation": [
+    {
+      "name": "punctuation",
+      "listed_name": "cash\\\\$back\\\\slash|semi;quote'#[x]",
+      "result": {
+        "class": "Unverified"
+      }
+    }
+  ],
+  "punctuation_creation": [
+    {
+      "name": "punctuation",
+      "requested_name": "cash$back\\slash|semi;quote'#[x]",
+      "listed_name": "cash\\\\$back\\\\slash|semi;quote'#[x]",
+      "request_equals_listed": false,
+      "created": {
+        "class": "Created",
+        "server": [
+          2681451,
+          1789222822
+        ],
+        "session_id": "$4",
+        "window_id": "@4",
+        "pane_id": "%4",
+        "pane_pid": 2681509
+      }
+    }
+  ],
+  "commands": 42,
+  "cleanup": {
+    "kind": "cleanup",
+    "root": "/tmp/ab-m1-inventory-83adb3e7bddf4034b6d5b692f4a019f0",
+    "signals": [],
+    "echild": true,
+    "socket_absent": true,
+    "directory_removed": true,
+    "exported_before_remove": true,
+    "all_measured_processes_ended": true
+  },
+  "all_ssh_invocations_returned_terminal_in_initial_tool_call": true,
+  "outstanding_tool_handles": [],
+  "tmux30_build_started": false,
+  "product_integration": false,
+  "not_reached": [
+    "duplicate creation",
+    "two-window three-pane selection",
+    "three same-name replacement and rename repetitions"
+  ],
+  "no_retry_or_query_change": true
+}

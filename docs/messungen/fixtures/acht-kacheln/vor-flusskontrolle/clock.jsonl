@@ -1,0 +1,13 @@
+{"t":1792564027579,"label":"trocken","rtt":26,"offset":1050}
+{"t":1792564169026,"label":"N4-L1-before","rtt":20,"offset":1055}
+{"t":1792564473058,"label":"N4-L1-after","rtt":24,"offset":1056}
+{"t":1792564584420,"label":"N6-L1-before","rtt":19,"offset":1063}
+{"t":1792564889627,"label":"N6-L1-after","rtt":28,"offset":1069}
+{"t":1792564954188,"label":"N8-L1-before","rtt":17,"offset":1067}
+{"t":1792565257307,"label":"N8-L1-after","rtt":19,"offset":1523}
+{"t":1792565300446,"label":"N8-L2-before","rtt":18,"offset":1072}
+{"t":1792565542715,"label":"N8-L2-after","rtt":20,"offset":1077}
+{"t":1792565643299,"label":"N4-L2-before","rtt":18,"offset":1078}
+{"t":1792565885870,"label":"N4-L2-after","rtt":18,"offset":1081}
+{"t":1792565950271,"label":"N1-L2-before","rtt":20,"offset":1083}
+{"t":1792566192614,"label":"N1-L2-after","rtt":19,"offset":1086}
