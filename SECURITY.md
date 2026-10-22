@@ -102,6 +102,24 @@ precisely timed operations the attack needs. We accept the advisory for that
 reason and will update `rsa` as soon as a fixed release exists. Where you
 can, use an ed25519 key.
 
+## Known advisories: russh server code
+
+GitHub reports two advisories for the vendored `russh` 0.63.2:
+
+- [GHSA-j7h2-66j4-ghjf](https://github.com/advisories/GHSA-j7h2-66j4-ghjf):
+  a russh SSH server accepts a public key login whose signature uses a
+  different algorithm than the request names (fixed in 0.64.0);
+- [GHSA-4wc5-f2rc-q74m](https://github.com/advisories/GHSA-4wc5-f2rc-q74m):
+  russh's SSH agent server allocates unbounded memory for crafted
+  constraint records (fixed in 0.64.1).
+
+Both affect only server code that aidevbridge never runs. The app is an SSH
+client: it doesn't accept SSH connections and doesn't act as an SSH agent;
+it talks to the Windows OpenSSH agent as a client. Its tests start russh
+servers on 127.0.0.1 as test peers, nothing else does. The vendored copy
+stays on 0.63.2 because of its local patches; the next russh update moves
+to a fixed version.
+
 ## Unsigned binaries and checking a download
 
 The Windows binaries are not code-signed yet, so Windows SmartScreen warns
