@@ -33,7 +33,8 @@
     "docs/release/license-frontend-output-2026-09-12.json",
     "docs/release/license-mpl-selection-2026-09-12.json",
     "docs/release/license-windows-runtime-2026-09-12.json",
-    "docs/release/windows-installer-attribution-2026-09-12.md"
+    "docs/release/windows-installer-attribution-2026-09-12.md",
+    "docs/release/license-frontend-vite-6.4.4-2026-10-22.json"
   ],
   "inputs": {
     "files": [
@@ -44,8 +45,8 @@
       },
       {
         "path": "Cargo.toml",
-        "bytes": 388,
-        "sha256": "f3e42fd3d8f92c503e06b48f2a85ee85833eef509b18cd242a5acb76f6ef1414"
+        "bytes": 456,
+        "sha256": "d32b9718d3b7d34921b65f70f955ccc8d4568ee565f5df5a32c30a5ddff68111"
       },
       {
         "path": "LICENSE-APACHE",
@@ -60,7 +61,7 @@
       {
         "path": "THIRD_PARTY_LICENSES.md",
         "bytes": 12875,
-        "sha256": "693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256": "4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       },
       {
         "path": "docs/release/license-and-unicode-2026-09-12.json",
@@ -71,6 +72,11 @@
         "path": "docs/release/license-frontend-output-2026-09-12.json",
         "bytes": 90757,
         "sha256": "fb8b94b9e01391ebd1f98adb0b87875c827c56a2e699258a941b5c15c040ccc7"
+      },
+      {
+        "path": "docs/release/license-frontend-vite-6.4.4-2026-10-22.json",
+        "bytes": 3141,
+        "sha256": "9d7d30ee9886d2cbf2124a9c71241bf985ca0074badb2275a14046b009d63552"
       },
       {
         "path": "docs/release/license-inventory-2026-09-12-rust.json",
@@ -359,8 +365,8 @@
       },
       {
         "path": "docs/release/windows-zip-readme.txt",
-        "bytes": 1100,
-        "sha256": "4847d9796fd12c0750de758df25f2152e4e13be3fdd25b0653f1e7cb4df0542d"
+        "bytes": 1012,
+        "sha256": "2b4bb744ffe12b6057aa72d7539ef7a382ce678bae6d234ada7bc735c7770e04"
       },
       {
         "path": "index.html",
@@ -505,17 +511,17 @@
       {
         "path": "node_modules/vite/package.json",
         "bytes": 5251,
-        "sha256": "a1d0149fd986fd34b6d35503d2c0d8d9f743c4dbaaf94fbc11812bc84b05884d"
+        "sha256": "08aa811517022c5b83c52c63dc435d2aa725a64fe4e3cfa6f351affa6b9ed9de"
       },
       {
         "path": "package-lock.json",
-        "bytes": 78997,
-        "sha256": "3b98a00af2d77e9449610649b10627f74ed79ce8a232a5a1aad645df90482bc5"
+        "bytes": 78998,
+        "sha256": "86ffb0a6bea7ecba9da07c938b55842bf7ee7dc2a918feb55870d9f8469d684d"
       },
       {
         "path": "package.json",
-        "bytes": 1227,
-        "sha256": "ce5034ed5c24991e4107a5498064098536c6ba2d203ce00ff95163526317c15f"
+        "bytes": 1273,
+        "sha256": "4c5514a54438574a4113f82e718024a90c71141776c1e43ff89d7edc7357cd70"
       },
       {
         "path": "rust-toolchain.toml",
@@ -674,8 +680,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 122377,
-        "sha256": "011f5e6cd239ad76f21698445e3a681f6f9f48b4259fb5783768075c6c4c8829"
+        "bytes": 122378,
+        "sha256": "531419a627123263c04817003a90795c7c44bf79c17688b32018c34d20f830dc"
       },
       {
         "path": "src/views/types.ts",
@@ -907,8 +913,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 122377,
-            "sha256": "011f5e6cd239ad76f21698445e3a681f6f9f48b4259fb5783768075c6c4c8829"
+            "bytes": 122378,
+            "sha256": "531419a627123263c04817003a90795c7c44bf79c17688b32018c34d20f830dc"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -968,8 +974,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 261944,
-            "sha256": "8f55d93a58ae61461bc03b9814f6088c6823f302bcf6b991ccf7300d0f54637c"
+            "bytes": 261859,
+            "sha256": "6788c973b272a4f71f1d63b1a9dafc487bf541873f3be5a3e4401afb7672fe96"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1103,8 +1109,8 @@
           },
           {
             "path": "src-tauri/src/tmux/client.rs",
-            "bytes": 39627,
-            "sha256": "25662f099bde3ae295db58427aeacb0202580339f33cf60fa7f323a624a42e35"
+            "bytes": 39611,
+            "sha256": "6beafeab7305ba306ddfc671c7d63f07615194c1d79f86f837c79a6d8a71e65e"
           },
           {
             "path": "src-tauri/src/tmux/client_observation_tests.rs",
@@ -1168,13 +1174,13 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 22918,
-            "sha256": "6568b48bb8cd5a180a68e054dfae2d0e522ad0172031eddeb8a0ff5a29d660ca"
+            "bytes": 24481,
+            "sha256": "c041a3c5efac87ced6287cb6b19dc0fc87cc0ce3e859f4a3ffe530662a12bfa3"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
-            "bytes": 86928,
-            "sha256": "d31fcc49579edc1fcb627b2caf6c54823fd6daf85b6a2678963397a51131f154"
+            "bytes": 87712,
+            "sha256": "7af9e3b9db9697fb724ccaa35342e5e16946ca29d641be82ae2c7ee40429e951"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/owned_operations.rs",
@@ -1449,8 +1455,8 @@
           },
           {
             "path": "vendor/russh/AGENTBRIDGE-PATCH.md",
-            "bytes": 7162,
-            "sha256": "711669e79978e73f7b3b62953be588c65e0072d383eb0c7901ab0150f5e99a9f"
+            "bytes": 8248,
+            "sha256": "f1cfab67486865712645e1fd77ffdcd83ff57da2150c3548c09f949767787aa1"
           },
           {
             "path": "vendor/russh/Cargo.lock",
@@ -1634,8 +1640,8 @@
           },
           {
             "path": "vendor/russh/src/client/mod.rs",
-            "bytes": 105015,
-            "sha256": "f8638e31239d8ee1d7bc726b358894e7e9ac9f8f625f525d403d2a70689a407c"
+            "bytes": 104953,
+            "sha256": "b20337d1d7db5be34bba453f41d8a86061c226c01a01f64ddeaf0f000660a359"
           },
           {
             "path": "vendor/russh/src/client/session.rs",
@@ -22954,7 +22960,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices. For the window-title and attention calls the bundle also contains window.js, dpi.js and image.js; they carry the same Commons Conservancy header, which THIRD_PARTY_LICENSES.md lists.",
       "decision_basis": [
@@ -22972,7 +22978,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -23006,7 +23012,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -23024,7 +23030,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -23042,7 +23048,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -23060,7 +23066,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -23078,7 +23084,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Bundled for Ctrl+click links. Its MIT text and copyright line (identical bytes to addon-search) and the two module headers shared with the other xterm packages are retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -23097,7 +23103,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -23115,7 +23121,7 @@
       "selected_license": "ISC AND MIT (Feather)",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Icon geometries copied into src/icons.ts (ICON_NAMES, generated by scripts/gen-icons.mjs) and the triangle-alert geometry inlined as a CSS mask in src/styles.css; the full ISC and Feather MIT texts are retained.",
       "decision_basis": [
@@ -23126,21 +23132,22 @@
       ]
     },
     {
-      "id": "npm:vite@6.4.3",
+      "id": "npm:vite@6.4.4",
       "name": "vite",
-      "version": "6.4.3",
+      "version": "6.4.4",
       "declared_license": "MIT",
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Only the emitted modulepreload polyfill; no wholesale Vite build dependency payload.",
       "decision_basis": [
-        "docs/release/license-frontend-output-2026-09-12.json"
+        "docs/release/license-frontend-output-2026-09-12.json",
+        "docs/release/license-frontend-vite-6.4.4-2026-10-22.json"
       ],
       "source_urls": [
-        "https://www.npmjs.com/package/vite/v/6.4.3"
+        "https://www.npmjs.com/package/vite/v/6.4.4"
       ]
     },
     {
@@ -23201,7 +23208,7 @@
       "selected_license": "0BSD",
       "disposition": "include",
       "documents": [
-        "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf"
+        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
       ],
       "reason": "Re-decided on 2026-10-20: the production JS contains __classPrivateFieldGet and __classPrivateFieldSet, reached through @tauri-apps/api/window -> image.js (Image extends Resource from core.js); the earlier exclusion no longer holds. The verbatim Microsoft notice of the vendored file (0BSD terms, no attribution duty) is retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -23474,10 +23481,10 @@
       "source_urls": []
     },
     {
-      "id": "sha256:693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf",
+      "id": "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6",
       "file_name": "THIRD_PARTY_LICENSES.md",
       "bytes": 12875,
-      "sha256": "693872ef8f6516884ea117feb8110530f8c161398f00ec8741479b11e3e9d5cf",
+      "sha256": "4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6",
       "sources": [
         {
           "kind": "file",

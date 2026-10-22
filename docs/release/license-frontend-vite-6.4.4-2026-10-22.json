@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-10-22T13:26:31.626Z",
+  "scope": "Vite 6.4.3 to 6.4.4 (security update of a build tool); whether the frontend output and the selected Vite notice change. Not final application compliance or installer delivery.",
+  "basis": "docs/release/license-frontend-output-2026-09-12.json",
+  "packages": {
+    "6.4.3": {
+      "url": "https://registry.npmjs.org/vite/-/vite-6.4.3.tgz",
+      "archive_bytes": 632844,
+      "archive_sha256": "e498f166131407cd8ab819dfbc656c62d514b4e5e62f6f639efcef1614beb809"
+    },
+    "6.4.4": {
+      "url": "https://registry.npmjs.org/vite/-/vite-6.4.4.tgz",
+      "lock_integrity": "sha512-xGjU/SyjeNyb0E4KxXBvYz/1C+3JXuujvf2hXNOtnlcE+58o5ajd9N2/n2VhkiJvpCP2qQasnUpx5PXNeI+p1Q==",
+      "package_json": {
+        "path": "node_modules/vite/package.json",
+        "bytes": 5251,
+        "sha256": "08aa811517022c5b83c52c63dc435d2aa725a64fe4e3cfa6f351affa6b9ed9de"
+      }
+    }
+  },
+  "license_text": {
+    "path": "LICENSE.md",
+    "6.4.3_sha256": "008938a3441801ca3960f8e3ccb4c0738e7996442a53063141d57d3769a7344d",
+    "6.4.4_sha256": "008938a3441801ca3960f8e3ccb4c0738e7996442a53063141d57d3769a7344d",
+    "equal": true
+  },
+  "modulepreload_polyfill_source": {
+    "6.4.3": {
+      "path": "dist/node/chunks/dep-Dm0c1Wj2.js",
+      "polyfill_bytes": 3122,
+      "polyfill_sha256": "982010151b1773565e6fedd1285d8e40fafbc7d1830ad03272d5137e7261a074"
+    },
+    "6.4.4": {
+      "path": "dist/node/chunks/dep-3O3b9SCF.js",
+      "polyfill_bytes": 3122,
+      "polyfill_sha256": "982010151b1773565e6fedd1285d8e40fafbc7d1830ad03272d5137e7261a074"
+    },
+    "equal": true
+  },
+  "frontend_output": {
+    "command": "npm run build (tsc && vite build), same checkout, Vite 6.4.3 installed without saving versus the locked 6.4.4",
+    "6.4.3": [
+      {
+        "path": "dist/assets/index-BrRc4Jzw.js",
+        "bytes": 742054,
+        "sha256": "e8e71b4246028dccc1d3cff67b1be7c2065c28e61f465c2fd2ee0fdb7fff9aba"
+      },
+      {
+        "path": "dist/assets/index-DHLiGwCA.css",
+        "bytes": 63408,
+        "sha256": "b9dfa0264e5a13b45c838aabcf5e2b3648145932780efa60625e151a2ce28446"
+      },
+      {
+        "path": "dist/index.html",
+        "bytes": 1945,
+        "sha256": "a6f6eb8608ac9ab7fbbb1fb005cb09152866612606e33b0d5261a4db047bbb09"
+      }
+    ],
+    "6.4.4": [
+      {
+        "path": "dist/assets/index-BrRc4Jzw.js",
+        "bytes": 742054,
+        "sha256": "e8e71b4246028dccc1d3cff67b1be7c2065c28e61f465c2fd2ee0fdb7fff9aba"
+      },
+      {
+        "path": "dist/assets/index-DHLiGwCA.css",
+        "bytes": 63408,
+        "sha256": "b9dfa0264e5a13b45c838aabcf5e2b3648145932780efa60625e151a2ce28446"
+      },
+      {
+        "path": "dist/index.html",
+        "bytes": 1945,
+        "sha256": "a6f6eb8608ac9ab7fbbb1fb005cb09152866612606e33b0d5261a4db047bbb09"
+      }
+    ],
+    "equal": true
+  },
+  "decision": "Unchanged decision for Vite: the frontend still contains only the generated modulepreload polyfill, byte for byte as with 6.4.3, under the same MIT text. The component moves to npm:vite@6.4.4 and THIRD_PARTY_LICENSES.md names 6.4.4."
+}
