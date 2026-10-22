@@ -69,7 +69,7 @@ impl BindingQuery {
             "#{{==:#{{pid}}/#{{start_time}}/#{{session_id}},{}/{}/{target}}}",
             server.pid, server.start_time
         );
-        Ok(self.guard_command(&target, &test, "kill-session"))
+        Ok(self.guard_command(&[], &target, &test, "kill-session"))
     }
 
     /// Adds the selected window/pane/process and active/live flags to the
@@ -78,6 +78,26 @@ impl BindingQuery {
     /// PTY publication gate are separate obligations of the future caller.
     pub fn guarded_attach_command(
         &self,
+        binding: PaneIdentity,
+    ) -> Result<String, InvalidGuardBinding> {
+        self.attach_guard(&[], binding)
+    }
+
+    /// Wie [`Self::guarded_attach_command`], nur schaltet derselbe tmux-Aufruf
+    /// vorher die Statuszeile aus ([`super::HIDE_STATUS`]). Der Waechter
+    /// dahinter bleibt Byte fuer Byte der gemessene; die Option beruehrt keine
+    /// der Identitaeten, die er prueft. Lehnt er ab, ist die Zeile trotzdem
+    /// aus, sonst geschieht nichts.
+    pub fn guarded_attach_command_without_status(
+        &self,
+        binding: PaneIdentity,
+    ) -> Result<String, InvalidGuardBinding> {
+        self.attach_guard(&super::HIDE_STATUS, binding)
+    }
+
+    fn attach_guard(
+        &self,
+        prefix: &[&str],
         binding: PaneIdentity,
     ) -> Result<String, InvalidGuardBinding> {
         validate_guard_server(binding.server)?;
@@ -90,15 +110,18 @@ impl BindingQuery {
             binding.server.pid, binding.server.start_time,
             binding.window_id.0, binding.pane_id.0, binding.pane_pid
         );
-        Ok(self.guard_command(&target, &test, "attach-session"))
+        Ok(self.guard_command(prefix, &target, &test, "attach-session"))
     }
 
-    fn guard_command(&self, target: &str, test: &str, action: &str) -> String {
+    fn guard_command(&self, prefix: &[&str], target: &str, test: &str, action: &str) -> String {
         // Only fixed action literals and formatted integers reach this nested
         // tmux command. The validated socket remains a separate outer argv.
-        // No command may be inserted between the guard and its action.
+        // No command may be inserted between the guard and its action; a fixed
+        // prefix runs before the guard.
         let action = format!("{action} -t '{target}'");
-        self.query_command(&["if-shell", "-F", "-t", target, test, &action, GUARD_REJECT])
+        let mut args: Vec<&str> = prefix.to_vec();
+        args.extend_from_slice(&["if-shell", "-F", "-t", target, test, &action, GUARD_REJECT]);
+        self.query_command(&args)
     }
 
     /// Keeps the existing product creation policy and the user's locale. This
@@ -1029,6 +1052,27 @@ mod tests {
         assert_eq!(argv[11], "attach-session -t '$4294967295'");
         // Zero numeric object IDs are valid, unlike process IDs/start times.
         assert!(q.guarded_attach_command(identity).is_ok());
+    }
+
+    /// Die Statuszeile geht im selben tmux-Aufruf aus; dahinter steht der
+    /// gemessene Waechter unveraendert, und ungueltige Identitaeten bleiben
+    /// abgelehnt.
+    #[test]
+    fn attach_without_status_prefixes_the_unchanged_measured_guard() {
+        let q = BindingQuery::new(query());
+        let identity = parse_created(&output(C)).unwrap().identity();
+        let guarded = decoded_argv(&q.guarded_attach_command(identity).unwrap());
+        let hidden = decoded_argv(&q.guarded_attach_command_without_status(identity).unwrap());
+        assert_eq!(&hidden[..6], &guarded[..6]);
+        assert_eq!(&hidden[6..11], crate::tmux::HIDE_STATUS);
+        assert_eq!(&hidden[11..], &guarded[6..]);
+        assert_eq!(
+            q.guarded_attach_command_without_status(PaneIdentity {
+                pane_pid: 0,
+                ..identity
+            }),
+            Err(InvalidGuardBinding::PanePid)
+        );
     }
 
     #[test]

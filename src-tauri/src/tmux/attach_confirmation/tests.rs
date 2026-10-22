@@ -301,6 +301,13 @@ fn socket_binding_requires_matching_named_and_absolute_responses() {
     let attach = decoded_argv(&binding.attach_command(NONCE).unwrap());
     assert_eq!(attach[0], "sh");
     assert!(attach.contains(&NONCE.into()));
+    let tmux = decoded_argv(attach.last().unwrap());
+    assert_eq!(
+        &tmux[..6],
+        ["env", "LC_ALL=C", "tmux", "-u", "-S", "/tmp/ab/tmux.sock"]
+    );
+    assert_eq!(&tmux[6..11], crate::tmux::HIDE_STATUS);
+    assert_eq!(tmux[11], "if-shell");
     let changed = exec("S|50|1000|$0|/tmp/ab/other.sock\n");
     assert_eq!(
         match SocketBinding::from_responses(&named, &changed, selected) {

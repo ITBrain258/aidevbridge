@@ -1099,13 +1099,13 @@
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation.rs",
-            "bytes": 18833,
-            "sha256": "d76cfe449a3b1522d7a24466be4580a32f5673edb000fff0eebb94ca6423b693"
+            "bytes": 18913,
+            "sha256": "c410ccf180345030fa2451fc8bf3384f60a23e773150f715038aace76ec988ef"
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation/tests.rs",
-            "bytes": 11285,
-            "sha256": "f372498ef1ce745aa61fe57c67bb7e70c03adf4d7646bfc48f95d7bedc8c1c59"
+            "bytes": 11544,
+            "sha256": "077eaf430c3f610557ec7ec10c93315270a4a9ae9c90706d90ccdbc65effb3b1"
           },
           {
             "path": "src-tauri/src/tmux/client.rs",
@@ -1134,8 +1134,8 @@
           },
           {
             "path": "src-tauri/src/tmux/mod.rs",
-            "bytes": 263,
-            "sha256": "b99fea9962b2b2f04fd6d937db4e87755eee006c4f7b24fd903e6d9a6313f50c"
+            "bytes": 837,
+            "sha256": "743408c7947c9b87f3bde4a2f7cdd95b67328ff347aa2827b8304b8a69bbfdb7"
           },
           {
             "path": "src-tauri/src/tmux/names.rs",
@@ -1144,8 +1144,8 @@
           },
           {
             "path": "src-tauri/src/tmux/session_binding.rs",
-            "bytes": 48941,
-            "sha256": "92e6cff6e33491e623ec21df88aee5b1daa1c721785336a4a30015b6869b23ec"
+            "bytes": 50780,
+            "sha256": "667e4937e075433a9519d816df760b6260bc1702339afad6731dcd53a0f1f8a9"
           },
           {
             "path": "src-tauri/src/transport/abortable_io.rs",
@@ -1169,8 +1169,8 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
-            "bytes": 27782,
-            "sha256": "4d2a47eed110bf84a57c68d5623f451132d2833f4e09cc3bd7d5422733d04bf6"
+            "bytes": 28030,
+            "sha256": "bf31a020d1d30f00ab796bd7b634a9b775e98fa4cc41f2b0016df35fe775df1f"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",

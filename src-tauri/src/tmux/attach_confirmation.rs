@@ -520,9 +520,10 @@ impl SocketBinding {
         }
         // Reuse the accepted numeric builder, executing its fixed shell program
         // in the wrapper's own process; no display name enters this command.
+        // The same tmux client first turns the status line off.
         let guard = self
             .query
-            .guarded_attach_command(self.selected)
+            .guarded_attach_command_without_status(self.selected)
             .map_err(|_| Unverified::Frame)?;
         Ok(remote::build(&[
             "sh",

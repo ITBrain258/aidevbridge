@@ -491,9 +491,15 @@ impl RusshTransport {
 /// Beenden: der Nutzer tippt dann in die Sitzung eines fremden Projekts,
 /// waehrend die Oberflaeche den von ihm gewaehlten Namen anzeigt. Siehe
 /// `TmuxClient::kill_session` fuer die Messung und fuer den Preis.
+///
+/// Davor schaltet derselbe tmux-Aufruf die Statuszeile aus
+/// (`crate::tmux::HIDE_STATUS`).
 fn attach_command_line(socket: &str, session: &str) -> String {
     let target = format!("={session}");
-    crate::remote::build(&["tmux", "-L", socket, "attach", "-t", &target])
+    let mut argv = vec!["tmux", "-L", socket];
+    argv.extend_from_slice(&crate::tmux::HIDE_STATUS);
+    argv.extend_from_slice(&["attach", "-t", &target]);
+    crate::remote::build(&argv)
 }
 
 #[async_trait]
@@ -675,7 +681,7 @@ mod tests {
     fn attach_targets_the_session_exactly_and_not_by_prefix() {
         assert_eq!(
             crate::remote::command::decoded_argv(&attach_command_line("sock", "zz_x")),
-            vec!["tmux", "-L", "sock", "attach", "-t", "=zz_x"],
+            vec!["tmux", "-L", "sock", "set", "-g", "status", "off", ";", "attach", "-t", "=zz_x"],
             "ohne das `=` haengt sich tmux bei fehlendem `zz_x` an `zz_x2` an"
         );
     }

@@ -468,6 +468,13 @@ Fokus im Terminal:
     neuen Server von vorn.
 - `set-clipboard` bleibt beim tmux-Standard `external` (§6.2).
 - `mouse` setzt die App nicht. Die Nutzerkonfiguration gilt.
+- Nachtrag vom 22.10.2026: `status` steht auf `off`. Derselbe tmux-Aufruf,
+  der anhängt, setzt vorher `set -g status off`; im gebundenen Weg steht es
+  vor dem unveränderten, gemessenen Wächter, im Weg über den Namen vor
+  `attach`. Sessionname, Host und Status zeigt der Kachelkopf; die
+  tmux-Statuszeile kostete jede Kachel eine Zeile und kürzte den Namen auf
+  zehn Zeichen. Die Option gilt für jede Session des App-Sockets ohne eigene
+  Einstellung, auch für einen Client, der per Hand anhängt.
 
 ### 6.9 Fehlertexte im Terminal
 
