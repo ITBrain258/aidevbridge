@@ -352,8 +352,12 @@ node scripts/release-windows-artifacts.mjs verify out/release-windows/<run-id>
 The license selection `docs/release/license-selection.windows-x64.json`
 binds the app's inputs by hash and stops the build when one of them changed.
 Review the change and update only the affected records; do not refresh all
-hashes to get past a failure. The pipeline does not sign, install or publish
-anything.
+hashes to get past a failure. `node scripts/release-license-rebind.mjs <path>...`
+shows which records the named files would change and writes them with
+`--write`; `--add` binds a new input file, and files of a dependency need
+`--third-party` after reviewing its new version. It never adds or changes a
+license decision. `node scripts/release-licenses.mjs check` confirms the
+result. The pipeline does not sign, install or publish anything.
 
 ### Why not `cargo build --release`
 
