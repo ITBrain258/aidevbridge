@@ -1,6 +1,7 @@
-// Seitenleiste (Shell-Task 9): Baum aus Hosts und ihren Sessions -- das
-// zentrale Navigationselement der neuen Oberflaeche. Ersetzt host-list.ts
-// (Task 13) vollstaendig, siehe deren Loeschung im selben Commit.
+// Seitenleiste: Baum aus Hosts und ihren Sessions -- das zentrale
+// Navigationselement der Oberflaeche. "Entwurf §n" verweist auf den
+// Seitenleistenentwurf vom 31.07.2026; er liegt nicht in diesem Repository,
+// die Gruende stehen jeweils am Ort.
 //
 // Zeichnet bei JEDER `state.subscribe`-Benachrichtigung komplett neu
 // (`list.replaceChildren()` + Neuaufbau) -- keine eigene Kopie des Baums,
@@ -624,11 +625,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     return button;
   }
 
-  /** Sichtbare Knoepfe plus ein Aufklappmenue (Entwurf
-   * `2026-07-31-seitenleiste-design.md` §1.2): sichtbar bleibt, was man im
-   * Betrieb braucht -- der Verbindungsumschalter, "New session" und seit
-   * UX-Spec §7.8 "Reload sessions", die beiden letzten als Icon-Knoepfe --,
-   * hinter dem `⋯` liegt, was man selten tut (Bearbeiten, Entfernen).
+  /** Sichtbare Knoepfe plus ein Aufklappmenue (Entwurf §1.2): sichtbar
+   * bleibt, was man im Betrieb braucht -- der Verbindungsumschalter, "New
+   * session" und seit UX-Spec §7.8 "Reload sessions", die beiden letzten als
+   * Icon-Knoepfe --, hinter dem `⋯` liegt, was man selten tut (Bearbeiten,
+   * Entfernen).
    *
    * Der frueher hier stehende Kommentar begruendete fuenf flache Knoepfe
    * mit einem Aufgabentext ("keine Kontextmenues ueber die im Interface

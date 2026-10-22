@@ -279,8 +279,8 @@ npm ci
 npm run tauri -- dev
 ```
 
-With npm 12, `npm ci` reports that the install script of `esbuild` is blocked.
-You can ignore this: the build and the tests run without it.
+`package.json` denies the install script of `esbuild` (`allowScripts`, read
+by npm 12): the build and the tests run without it.
 
 Builds pin `russh` to the published version **0.63.2** with four local
 changes: SSH channel-close acknowledgements, including cleanup of unsent data

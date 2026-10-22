@@ -322,7 +322,7 @@ impl TmuxClient {
         let r = t.exec_mutation(&remote::build(&self.tmux(args))).await?;
         if r.code != 0 {
             anyhow::bail!(
-                "tmux {} fehlgeschlagen (Exit {}): {}",
+                "tmux {} failed (exit {}): {}",
                 args.join(" "),
                 r.code,
                 r.stderr.trim()
@@ -433,7 +433,7 @@ impl TmuxClient {
             return Ok(CreateOutcome::DuplicateName);
         }
         Err(anyhow::anyhow!(
-            "new-session fehlgeschlagen: {}",
+            "new-session failed: {}",
             r.stderr.trim()
         ))
     }

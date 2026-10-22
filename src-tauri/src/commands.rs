@@ -2925,7 +2925,7 @@ pub fn suggest_hosts() -> Result<Vec<crate::ssh::SshConfigHost>, String> {
     suggest_hosts_impl()
 }
 
-/// Liefert die in `settings.toml` gespeicherten Hosts (`src/views/host-list.ts`).
+/// Liefert die in `settings.toml` gespeicherten Hosts (fuer `src/views/sidebar.ts`).
 /// Ein Ladefehler (z. B. eine Datei aus einer neueren Version, siehe
 /// `settings::parse_settings`) wird an den Aufrufer durchgereicht, NICHT
 /// stillschweigend als leere Liste behandelt -- eine leere Liste wuerde dem
@@ -2967,7 +2967,7 @@ pub fn list_hosts() -> Result<Vec<HostEntry>, String> {
     list_hosts_impl(&path)
 }
 
-/// DTO aus dem manuellen Formular in `first-run.ts`/`host-list.ts`. Anders
+/// DTO aus dem manuellen Formular in `first-run.ts`/`host-form.ts`. Anders
 /// als `HostEntry` traegt es keine `id` -- die vergibt `add_host_impl`
 /// selbst (siehe `new_host_id`).
 #[derive(serde::Deserialize)]
@@ -2983,8 +2983,7 @@ pub struct NewHostEntryDto {
     // (first-run.ts) den Schluesselpfad beim Speichern -- ein Nutzer, der
     // sich mit Schluesseldatei verbindet und den Host speichert, landete ab
     // dem zweiten Start stillschweigend auf ssh-agent. `#[serde(default)]`:
-    // `host-list.ts` verdrahtet fest keinen Schluesselpfad (dort gibt es
-    // keinen -- Hosts werden ja bereits gespeichert verbunden).
+    // Anmeldearten ohne Schluesseldatei lassen das Feld weg.
     #[serde(default)]
     pub key_path: Option<String>,
     // Task 8 (Spec §4.8): die vom Nutzer GEWAEHLTE Anmeldeart --
@@ -3456,7 +3455,7 @@ pub fn respond_host_key(
 #[tauri::command]
 pub async fn list_ssh_keys() -> Result<Vec<crate::ssh::keys::SshKeyDto>, String> {
     let dir = dirs::home_dir()
-        .ok_or_else(|| "Heimatverzeichnis nicht ermittelbar".to_string())?
+        .ok_or_else(|| "Home directory not found".to_string())?
         .join(".ssh");
     Ok(crate::ssh::keys::list_keys_in(&dir))
 }
