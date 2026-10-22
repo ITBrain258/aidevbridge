@@ -1,9 +1,9 @@
 # aidevbridge: Stand und offene Punkte
 
 **Stand:** Version `0.2.0`, vor dem ersten Release; keine Releasefreigabe.
-Das öffentliche Repository beginnt mit einem einzigen Anfangs-Commit. Die
-Versionen 0.1.1 und 0.1.2 erschienen nur privat und noch unter dem Namen
-agentbridge; ihre Tags gibt es dort nicht.
+Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
+einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
+privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
 
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
 steht im [README](../README.md#what-it-is), die Änderungen im
@@ -76,18 +76,18 @@ In dieser Reihenfolge:
    sendet kein Resize. Ablauf und Log:
    [Handabnahme §9](abnahme-handarbeit.md#9-m1-tor). Die aktuellen
    Agentversionen weichen von den gemessenen ab (Punkt 3).
-2. **Veröffentlichung und erstes Release** (Schritte des Maintainers): das
-   öffentliche Repository `ITBrain258/aidevbridge` mit privatem Meldeweg für
-   Sicherheitslücken (Private Vulnerability Reporting), Warnungen von
-   Dependabot, Secret Scanning mit Push Protection und GitHub Actions für
-   `.github/workflows/ci.yml`. Mit dem privaten Meldeweg fällt der Absatz zur
-   Übergangszeit in [`SECURITY.md`](../SECURITY.md) weg. Die Schlüssel unter
+2. **Erstes Release** nach dem M1-Tor (Entscheidung vom 22.10.; Tag und
+   Release setzt der Maintainer): `v0.2.0` ist der Tag auf dem Commit, aus
+   dem die Pakete gebaut sind, dazu das ZIP aus `npm run build:windows` mit
+   seinem SHA-256-Wert; MSI und Setup-EXE erst nach der Installerabnahme
+   (Punkt 6). Das Repository ist seit dem 22.10. öffentlich, mit privatem
+   Meldeweg für Sicherheitslücken (Private Vulnerability Reporting),
+   Warnungen von Dependabot, Secret Scanning mit Push Protection und GitHub
+   Actions für `.github/workflows/ci.yml`; Workflows aus Pull Requests
+   externer Beitragender laufen erst nach Freigabe. Die Schlüssel unter
    `src-tauri/tests/fixtures/rsa-signing/`, in `src-tauri/src/ssh/auth.rs`
    und in `vendor/russh` sowie der synthetische Schlüssel in
-   `scripts/m1-error-profile.py` sind Testdaten. Das erste Release ist
-   `v0.2.0`: der Tag auf dem Commit, aus dem die Pakete gebaut sind, und das
-   ZIP aus `npm run build:windows` mit seinem SHA-256-Wert; MSI und
-   Setup-EXE erst nach der Installerabnahme (Punkt 6).
+   `scripts/m1-error-profile.py` sind Testdaten.
 3. **Statusquelle vor dem Release-Kandidaten:**
    - Codex-Einstellungen `tui.animations` und `tui.terminal_title` lesend
      berücksichtigen.
@@ -241,8 +241,8 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   Sessions ([CONTRIBUTING](../CONTRIBUTING.md#live-tests-against-a-test-host)).
 - Jede weitergegebene Kopie trägt die Lizenzhinweise (Punkt 6).
 - Das Tor sind die lokalen Prüfungen aus dem
-  [README](../README.md#tests); `.github/workflows/ci.yml` führt sie aus,
-  sobald GitHub Actions im öffentlichen Repository eingeschaltet ist.
+  [README](../README.md#tests); `.github/workflows/ci.yml` führt sie bei
+  jedem Push und Pull Request aus.
 
 ## Wo was steht
 

@@ -12,10 +12,6 @@ Use GitHub's private vulnerability reporting:
 (Security tab → "Report a vulnerability"). Please keep details out of public
 issues, discussions and pull requests.
 
-Private reporting is switched on right after the repository becomes public.
-If the form isn't there yet, open an issue that only asks for a private
-contact, without any details, and wait until the form is available.
-
 Please include:
 
 - the aidevbridge version (Settings → About → "Copy version info") or the
