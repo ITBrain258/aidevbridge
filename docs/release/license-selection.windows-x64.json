@@ -1109,8 +1109,8 @@
           },
           {
             "path": "src-tauri/src/tmux/client.rs",
-            "bytes": 39611,
-            "sha256": "6beafeab7305ba306ddfc671c7d63f07615194c1d79f86f837c79a6d8a71e65e"
+            "bytes": 39577,
+            "sha256": "5b3843b558c07dd547794b0d6a91a98190e81cb416a1f9cc75f7b88a79228552"
           },
           {
             "path": "src-tauri/src/tmux/client_observation_tests.rs",

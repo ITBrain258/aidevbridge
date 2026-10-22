@@ -432,10 +432,7 @@ impl TmuxClient {
         if r.stderr.contains("duplicate session") {
             return Ok(CreateOutcome::DuplicateName);
         }
-        Err(anyhow::anyhow!(
-            "new-session failed: {}",
-            r.stderr.trim()
-        ))
+        Err(anyhow::anyhow!("new-session failed: {}", r.stderr.trim()))
     }
 
     /// Setzt `exit-empty` wieder auf "on".
