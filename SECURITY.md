@@ -102,7 +102,7 @@ precisely timed operations the attack needs. We accept the advisory for that
 reason and will update `rsa` as soon as a fixed release exists. Where you
 can, use an ed25519 key.
 
-## Known advisories: russh server code
+## Known advisories in code the app doesn't run
 
 GitHub reports two advisories for the vendored `russh` 0.63.2:
 
@@ -119,6 +119,12 @@ it talks to the Windows OpenSSH agent as a client. Its tests start russh
 servers on 127.0.0.1 as test peers, nothing else does. The vendored copy
 stays on 0.63.2 because of its local patches; the next russh update moves
 to a fixed version.
+
+[GHSA-wrw7-89jp-8q8g](https://github.com/advisories/GHSA-wrw7-89jp-8q8g)
+concerns `glib` 0.18 (unsound `VariantStrIter`, fixed in 0.20). Tauri uses
+`glib` only for its Linux GTK backend; the Windows build doesn't contain it
+(`cargo tree --target x86_64-pc-windows-msvc -i glib` finds nothing). It
+stays in `Cargo.lock` until Tauri moves to a newer GTK binding.
 
 ## Unsigned binaries and checking a download
 
