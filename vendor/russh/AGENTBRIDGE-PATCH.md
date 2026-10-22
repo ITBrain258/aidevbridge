@@ -1,7 +1,8 @@
 # AgentBridge local patch to russh 0.63.2
 
 This directory preserves the published russh 0.63.2 source, with local
-channel-close, channel-end observation and manual receive window changes. It
+channel-close, channel-end observation, manual receive window and
+authentication reply changes. It
 is not a new upstream release. Original copyright notices and the Apache-2.0
 package license remain intact; the local changes use the same license.
 Every changed upstream file starts with a two-line notice (Apache-2.0
@@ -96,6 +97,23 @@ The PTY owner opens its channels with it in
 `src-tauri/src/transport/russh_transport/owned_operations.rs` and returns
 credit when the terminal's output queue (`pty_output.rs`) hands a chunk to its
 reader.
+
+The 2026-10-22 addition changes what the client's authentication calls return
+when the session ends before the server answers. Upstream turns the closed
+reply channel into `AuthResult::Failure` with an empty method set, which reads
+like a server refusal with no remaining methods; a server that disconnects
+after too many attempts, or a dropped network, then looked like "method not
+offered". The password, `none`, public key and certificate calls now return
+`Error::RecvError`, as upstream's keyboard-interactive wait already does; the
+signer-based calls (`authenticate_publickey_with`,
+`authenticate_certificate_with`, `authenticate_gssapi_with_mic`) return a
+`SendError`, as they do when sending to the closed session fails. Replies the
+server actually sent are unchanged, including an empty method list.
+
+Changed for it: `src/client/mod.rs`. No vendored test covers it.
+AgentBridge's loopback test against a real russh server does, in
+`src-tauri/src/transport/russh_transport/connect_tests.rs`
+(`a_session_ending_during_password_auth_is_a_connection_error`).
 
 ## Changed files
 

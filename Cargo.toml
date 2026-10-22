@@ -4,7 +4,8 @@ resolver = "2"
 
 # Keep russh 0.63.2 and its production features; the local patches change channel
 # Close handling, add the ChannelEndObserver API and a manual receive window for
-# client session channels (terminal flow control).
+# client session channels (terminal flow control), and report a session that
+# ends during authentication as an error.
 # Provenance and regression scope: vendor/russh/AGENTBRIDGE-PATCH.md.
 [patch.crates-io]
 russh = { path = "vendor/russh" }

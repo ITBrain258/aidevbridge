@@ -213,12 +213,6 @@ In dieser Reihenfolge:
      Eingaben, Größenänderungen und das Schließen anderer Terminals
      derselben Verbindung aufhalten (vorbestehend, bei der Flusskontrolle
      gefunden).
-   - Bricht die Verbindung während der Passwortanmeldung ab, meldet die App
-     „method not offered: password“ statt eines Verbindungsfehlers: russh
-     meldet eine beendete Sitzung als Fehlschlag ohne verbleibende Methoden
-     (`wait_recv_reply`), und `classify_password_failure` in
-     `src-tauri/src/ssh/auth.rs` liest das als nicht angebotenes Passwort
-     (gefunden beim ersten CI-Lauf unter Linux).
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

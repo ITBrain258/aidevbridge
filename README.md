@@ -282,12 +282,13 @@ npm run tauri -- dev
 With npm 12, `npm ci` reports that the install script of `esbuild` is blocked.
 You can ignore this: the build and the tests run without it.
 
-Builds pin `russh` to the published version **0.63.2** with three local
+Builds pin `russh` to the published version **0.63.2** with four local
 changes: SSH channel-close acknowledgements, including cleanup of unsent data
 after remote close; a public `ChannelEndObserver`/`ChannelEndSnapshot` API
 that reports how a client channel ended (EOF, exit status or signal, Close,
-session end); and a manual receive window for terminal channels, so the host
-sends a terminal's output only as fast as the app consumes it. Cryptographic
+session end); a manual receive window for terminal channels, so the host
+sends a terminal's output only as fast as the app consumes it; and an error
+instead of an empty method list when the session ends during sign-in. Cryptographic
 code and requested production features are unchanged. The [vendored source record](vendor/russh/AGENTBRIDGE-PATCH.md)
 lists every changed and added file and documents the upstream commit, original
 archive checksum and Apache-2.0 license; the

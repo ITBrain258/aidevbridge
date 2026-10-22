@@ -57,6 +57,7 @@ Erste oeffentliche Version, jetzt unter dem Namen aidevbridge.
 
 ### Fixed
 
+- Endet die Verbindung waehrend der Anmeldung, etwa weil der Server nach zu vielen Versuchen trennt oder das Netz wegbricht, meldet die App einen Verbindungsfehler statt "The server does not offer this authentication method".
 - Ctrl+Shift+B (Seitenleiste ausblenden) liess die Terminals auf zwei Spalten schrumpfen.
 - Beim Entsorgen eines Terminals wird sein WebGL-Kontext freigegeben.
 - Der erste Klick auf eine Session oder Hostzeile eines Hosts, dessen Hostleiste gerade verborgen ist, geht nicht mehr verloren: Die Leiste erscheint erst nach dem Klick. Ein Doppelklick wirkt nur einmal.

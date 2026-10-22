@@ -451,12 +451,10 @@ impl<H: Handler> Handle<H> {
                         partial_success,
                     });
                 }
-                None => {
-                    return Ok(AuthResult::Failure {
-                        remaining_methods: MethodSet::empty(),
-                        partial_success: false,
-                    });
-                }
+                // AgentBridge local patch: a session that ended before the
+                // reply is a lost connection, not a server refusal with no
+                // remaining methods (as in the keyboard-interactive wait).
+                None => return Err(crate::Error::RecvError),
                 _ => {}
             }
         }
@@ -548,12 +546,9 @@ impl<H: Handler> Handle<H> {
                         return Err((crate::SendError {}).into());
                     }
                 }
-                None => {
-                    return Ok(AuthResult::Failure {
-                        remaining_methods: MethodSet::empty(),
-                        partial_success: false,
-                    });
-                }
+                // AgentBridge local patch: the session ended before the
+                // reply, as for a failed send above.
+                None => return Err((crate::SendError {}).into()),
                 _ => {}
             }
         }
@@ -614,12 +609,9 @@ impl<H: Handler> Handle<H> {
                 Some(Reply::AuthGssapiError { error }) => {
                     authenticator.gssapi_error(error).await;
                 }
-                None => {
-                    return Ok(AuthResult::Failure {
-                        remaining_methods: MethodSet::empty(),
-                        partial_success: false,
-                    });
-                }
+                // AgentBridge local patch: the session ended before the
+                // reply, as for a failed send.
+                None => return Err((crate::SendError {}).into()),
                 _ => {}
             }
         }
@@ -693,12 +685,9 @@ impl<H: Handler> Handle<H> {
                         return Err((crate::SendError {}).into());
                     }
                 }
-                None => {
-                    return Ok(AuthResult::Failure {
-                        remaining_methods: MethodSet::empty(),
-                        partial_success: false,
-                    });
-                }
+                // AgentBridge local patch: the session ended before the
+                // reply, as for a failed send above.
+                None => return Err((crate::SendError {}).into()),
                 _ => {}
             }
         }

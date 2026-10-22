@@ -291,6 +291,58 @@ async fn controlled_connect_silent_password_auth_deadline_aborts_socket() {
     callback_or_auth_stall(false, false).await;
 }
 
+struct EndingPasswordServer;
+
+impl russh::server::Handler for EndingPasswordServer {
+    type Error = russh::Error;
+    async fn auth_password(
+        &mut self,
+        _: &str,
+        _: &str,
+    ) -> Result<russh::server::Auth, Self::Error> {
+        // The peer ends the session instead of answering, as a server does
+        // after too many failed attempts or when the network drops.
+        Err(russh::Error::Disconnect)
+    }
+}
+
+#[tokio::test]
+async fn a_session_ending_during_password_auth_is_a_connection_error() {
+    let (listener, spec) = listener().await;
+    let (policy, _) = policy(None);
+    let server = tokio::spawn(async move {
+        let (peer, _) = listener.accept().await?;
+        russh::server::run_stream(server_config(), peer, EndingPasswordServer)
+            .await?
+            .await
+    });
+    let control = ConnectControl::new(ConnectLimits {
+        total: TEST_END,
+        network: TEST_END,
+        auth: TEST_END,
+        tofu: TEST_END,
+    });
+    let result = timeout(
+        TEST_END,
+        RusshTransport::connect_controlled(&spec, policy, password(), control),
+    )
+    .await
+    .unwrap();
+    let error = match result {
+        Ok(_) => panic!("unexpected connected transport"),
+        Err(error) => error,
+    };
+    // Not "method not offered": the server never answered the request.
+    assert!(
+        matches!(
+            error.downcast_ref::<AuthError>(),
+            Some(AuthError::HostUnreachable)
+        ),
+        "{error:#}"
+    );
+    let _ = timeout(TEST_END, server).await.unwrap();
+}
+
 async fn late_key_worker(cancel: bool) {
     let pool = Arc::new(BlockingPool::new(1, 1));
     let (listener, spec) = listener().await;
