@@ -53,8 +53,8 @@ xterm.js.
   yourself. There is no exception for a single app.
 - **Check the file.** Every release lists the SHA-256 of each package, taken
   from the `release-manifest.json` of its build. In PowerShell,
-  `Get-FileHash .\aidevbridge-0.2.0-windows-x64.zip -Algorithm SHA256`
-  must print the same value. It prints upper-case letters where the release
+  `Get-FileHash .\aidevbridge-0.2.0-windows-x64-setup.exe -Algorithm SHA256`
+  (or the name of the file you downloaded) must print the same value. It prints upper-case letters where the release
   lists lower-case ones; letter case does not matter.
 - **Or build it yourself**, see [Build from source](#build-from-source).
 
@@ -91,15 +91,22 @@ see [Supported agents and detected states](#supported-agents-and-detected-states
 
 ## Install
 
-aidevbridge runs on Windows 10 and 11 (x64). Release 0.2.0 comes as a ZIP,
-`aidevbridge-0.2.0-windows-x64.zip`: extract the whole ZIP into a folder and
-start `aidevbridge.exe`. Installers (MSI and setup EXE) follow once their
-license page and the WebView2 terms presentation are accepted.
+aidevbridge runs on Windows 10 and 11 (x64). Release 0.2.0 comes in three
+forms with the same program; pick one:
+
+- `aidevbridge-0.2.0-windows-x64-setup.exe`: the setup program. It installs
+  for your Windows account and needs no administrator rights.
+- `aidevbridge-0.2.0-windows-x64.msi`: the Windows Installer package, for
+  example for `msiexec /i aidevbridge-0.2.0-windows-x64.msi`. It installs for
+  all users and asks for administrator rights.
+- `aidevbridge-0.2.0-windows-x64.zip`: no installation. Extract the whole ZIP
+  into a folder and start `aidevbridge.exe`.
 
 The window is drawn by Microsoft Edge WebView2, which current Windows 10 and
-11 already include; the ZIP expects WebView2 to be installed and does not
-download it. The ZIP carries the license texts in a `licenses` folder
-(`licenses/index.html`); keep it next to the program.
+11 already include. Both installers download and install WebView2 if it is
+missing; the ZIP expects it to be installed. Every form carries the license
+texts in a `licenses` folder (`licenses/index.html`) next to the program; keep
+it there.
 
 There is no automatic update. To hear about new versions, watch the
 repository's releases on GitHub (Watch → Custom → Releases).
@@ -111,8 +118,10 @@ When its own folder `%APPDATA%\io.github.itbrain258.aidevbridge\` holds no
 window position starts fresh. Your sessions on the hosts stay visible,
 because the tmux socket is still named `agentbridge`.
 
-**Removing** the app: close it and delete its folder. Your settings and the
-host keys you accepted stay; see [Privacy](#privacy) for where they are.
+**Removing** the app: uninstall it under Settings → Apps → Installed apps,
+or, for the ZIP, close it and delete its folder. Your settings and the host
+keys you accepted stay unless you let the uninstaller of the setup program
+delete the app data; see [Privacy](#privacy) for where they are.
 
 ## Quick start
 
@@ -188,7 +197,9 @@ on the host. Sessions on tmux's default socket do not appear.
   Ctrl+click first shows the full address with **Open link**.
 - **On your hosts** the app runs tmux on its own socket `agentbridge` and
   sets a few tmux options there (`history-limit`, `remain-on-exit`,
-  `terminal-overrides`). For the status it runs the read-only
+  `terminal-overrides`, and `status off`, which hides tmux's status line on
+  that socket because each terminal's head already shows the session). For
+  the status it runs the read-only
   `claude agents --json` and reads pane titles and program names from
   `/proc`. It installs nothing and changes no configuration.
 - **On your PC** aidevbridge keeps:
@@ -203,7 +214,7 @@ on the host. Sessions on tmux's default socket do not appear.
 - **Passwords and key passphrases are never stored.** The app asks again
   when it needs them.
 - Removing the app keeps `known_hosts` and `settings.toml`; only the
-  uninstaller of the setup EXE, once offered, can delete the app data.
+  uninstaller of the setup EXE can delete the app data, and it asks first.
   Delete the folders by hand if you no longer need them, and remove a host
   key with `ssh-keygen -R <host>`.
 
@@ -213,9 +224,8 @@ on the host. Sessions on tmux's default socket do not appear.
   shortcuts (Settings → Shortcuts lists them); `git worktree` when creating a
   session; code signing, automatic updates and winget.
 - **Installers:** `npm run build:windows` builds and checks MSI, setup EXE
-  and ZIP. Releases offer only the ZIP until the installers' license page and
-  the WebView2 terms presentation are accepted; installing on a fresh
-  computer has not been tested yet.
+  and ZIP. The installers of 0.2.0 are unsigned, and installing them on a
+  fresh computer has not been tested yet.
 - **Only the app's own tmux socket** (`agentbridge`) is listed; sessions on
   tmux's default socket do not appear.
 - **Authentication:** a key file, the Windows OpenSSH agent (the `ssh-agent`

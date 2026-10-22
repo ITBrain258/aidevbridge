@@ -1,6 +1,8 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.0`, vor dem ersten Release; keine Releasefreigabe.
+**Stand:** Version `0.2.0`, erstes Release am 22.10.2026 mit MSI, Setup-EXE
+und ZIP, unsigniert (Entscheidung des Maintainers vom 22.10., vor dem M1-Tor
+und vor der Installerabnahme).
 Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
 einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
 privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
@@ -78,11 +80,13 @@ In dieser Reihenfolge:
    sendet kein Resize. Ablauf und Log:
    [Handabnahme §9](abnahme-handarbeit.md#9-m1-tor). Die aktuellen
    Agentversionen weichen von den gemessenen ab (Punkt 3).
-2. **Erstes Release** nach dem M1-Tor (Entscheidung vom 22.10.; Tag und
-   Release setzt der Maintainer): `v0.2.0` ist der Tag auf dem Commit, aus
-   dem die Pakete gebaut sind, dazu das ZIP aus `npm run build:windows` mit
-   seinem SHA-256-Wert; MSI und Setup-EXE erst nach der Installerabnahme
-   (Punkt 6). Das Repository ist seit dem 22.10. öffentlich, mit privatem
+2. **Erstes Release:** Abweichend von der Planung (erst nach dem M1-Tor,
+   MSI und Setup-EXE erst nach der Installerabnahme) erschien `v0.2.0` auf
+   Entscheidung des Maintainers schon am 22.10.: Der Tag steht auf dem
+   Commit, aus dem die Pakete gebaut sind; das Release trägt MSI, Setup-EXE
+   und ZIP aus `npm run build:windows` mit ihren SHA-256-Werten. M1-Tor und
+   Installerabnahme (Punkt 6) bleiben offen und gelten für das nächste
+   Release. Das Repository ist seit dem 22.10. öffentlich, mit privatem
    Meldeweg für Sicherheitslücken (Private Vulnerability Reporting),
    Warnungen von Dependabot, Secret Scanning mit Push Protection und GitHub
    Actions für `.github/workflows/ci.yml`; Workflows aus Pull Requests
@@ -142,8 +146,8 @@ In dieser Reihenfolge:
    Lauf meldet sie als `pending`: `nsis_msi_payload`, `installer_terms_ui`,
    `installer_stub_notices`; dazu `native_import_family_review` für die
    Durchsicht der nativen Importe der EXE und
-   `product_and_windows_acceptance` für die Abnahme am Fenster); bis dahin
-   erscheint nur das ZIP, MSI und Setup-EXE bleiben unveröffentlicht. Die
+   `product_and_windows_acceptance` für die Abnahme am Fenster). MSI und
+   Setup-EXE von 0.2.0 sind ohne diese Abnahme veröffentlicht (Punkt 2). Die
    Release-Binaries enthalten die Pfade des Cargo-Registers der Baumaschine
    (Panic-Orte von Kisten aus
    crates.io unter `<Profil>\.cargo\registry\src\…`); damit steht der
@@ -231,7 +235,9 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   Arbeitsspeicher über einen Verbindungsversuch hinaus. Selbstheilung gibt es
   deshalb nur für Schlüssel und ssh-agent.
 - Eigene tmux-Serveroptionen auf dem App-Socket sind erlaubt
-  (`history-limit`, `remain-on-exit`, `terminal-overrides`); `mouse` und
+  (`history-limit`, `remain-on-exit`, `terminal-overrides`, seit 22.10.
+  `status off` vor jedem Anhängen, siehe
+  [UX-Spec](specs/2026-10-11-ux-ueberarbeitung-design.md) §6.8); `mouse` und
   `set-clipboard` setzt die App nicht. Der App-Socket heißt `agentbridge`,
   auch nach der Umbenennung.
 - Tests gegen echte Hosts nur mit eigenem Testsocket, nie mit produktiven

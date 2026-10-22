@@ -4,7 +4,7 @@ Format nach Keep a Changelog, Versionen nach SemVer. Vor 1.0 kann jede
 Minor-Version brechen. 0.1.1 und 0.1.2 erschienen nur privat und noch unter
 dem Namen agentbridge.
 
-## [0.2.0] - unreleased
+## [0.2.0] - 2026-10-22
 
 Erste oeffentliche Version, jetzt unter dem Namen aidevbridge.
 
@@ -48,6 +48,7 @@ Erste oeffentliche Version, jetzt unter dem Namen aidevbridge.
 - Statusabfrage: Der naechste Poll eines Hosts beginnt fruehestens 2 s nach dem Ende des vorigen und setzt aus, solange die Sessionliste laedt; verzichtbare Lesungen starten nur mit genug Restzeit. Die Sessionliste laedt nur nach einer Reparatur der Steuerung neu, nicht bei jedem Zustandswechsel.
 - `settings.toml` hat neue Felder unter `[ui]` und den Abschnitt `[workspace]`; die Dateiversion bleibt 1. Aeltere Builds lesen die Datei weiter, lassen die neuen Felder beim naechsten Speichern aber weg.
 - Die App haengt ihre tmux-Option `terminal-overrides` an die Standardliste an, statt sie zu ersetzen; `mouse` und `set-clipboard` setzt sie weiterhin nicht.
+- Keine tmux-Statuszeile mehr in den Kacheln: Derselbe tmux-Aufruf, der ein Terminal anhaengt, setzt vorher `set -g status off` auf dem Socket `agentbridge`. Sessionname, Host und Status stehen im Kachelkopf, und jede Kachel gewinnt eine Zeile. Das gilt fuer jede Session des Sockets ohne eigene `status`-Einstellung, auch fuer einen Client, der per Hand anhaengt.
 - Fehlt tmux auf dem Host oder ist es zu alt, nennt die Preflight-Meldung den Weg ueber die Paketverwaltung. Die App installiert weiterhin nichts auf dem Host.
 - Der Paaraufbau liest und decodiert einen Dateischluessel einmal und bereitet beide RSA-Anmeldungen vor dem ersten TCP-Aufbau vor. Das gesamte Paar teilt die Vier-Minuten-Frist; jede Verbindung hat 15 Sekunden fuer Netzwerkaufbau und eine Minute fuer Authentifizierung. Ein bestaetigungspflichtiger SSH-Agent kann zwei Freigaben verlangen.
 - `russh` ist exakt auf 0.63.2 festgelegt, mit lokalen Patches fuer das Schliessen von SSH-Kanaelen, einen Beobachter fuer das Kanalende und ein manuelles Empfangsfenster fuer Terminalkanaele; Krypto-Code und Produktionsfeatures bleiben unveraendert. Herkunft, Umfang und Lizenz stehen in [vendor/russh/AGENTBRIDGE-PATCH.md](vendor/russh/AGENTBRIDGE-PATCH.md).
