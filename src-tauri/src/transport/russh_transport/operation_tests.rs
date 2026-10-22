@@ -630,14 +630,17 @@ impl Peer {
             auth_rejection_time: Duration::ZERO,
             auth_rejection_time_initial: Some(Duration::ZERO),
             inactivity_timeout: None,
-            keepalive_interval: Some(Duration::from_millis(30)),
-            // The deadline case stays alive well beyond three missed replies;
-            // close-gate cases deliberately suspend the peer callback for 2s.
-            keepalive_max: if scenario == Scenario::DelayedEndlessExec {
-                3
-            } else {
-                100
-            },
+            // The russh server starts its keepalive timer before
+            // authentication, and the russh client ends the session on a
+            // GLOBAL_REQUEST it receives during authentication. Under load a
+            // 30ms timer fires mid-handshake and the connect fails as "method
+            // not offered: password". Only the deadline case asserts on live
+            // keepalives, so only it enables them; it stays alive well beyond
+            // three missed replies. That case keeps the race: under four
+            // parallel test processes it failed its connect once in 50 runs.
+            keepalive_interval: (scenario == Scenario::DelayedEndlessExec)
+                .then_some(Duration::from_millis(30)),
+            keepalive_max: 3,
             nodelay: true,
             window_size: match scenario {
                 Scenario::ZeroWindow => 0,
@@ -686,17 +689,25 @@ impl Peer {
         .await;
         let transport = match result {
             Ok(Ok(transport)) => Arc::new(transport),
-            _ => {
+            failed => {
+                let cause = match failed {
+                    Ok(Err(err)) => format!("{err:#}"),
+                    _ => "outer deadline".to_string(),
+                };
                 // Connect's own abort closes the peer; explicitly join it even
                 // when fixture setup fails rather than relying on runtime Drop.
                 seen.close_gate.add_permits(1);
                 seen.stop.send_replace(true);
                 let mut server = server;
-                if timeout(END, &mut server).await.is_err() {
-                    server.abort();
-                    let _ = server.await;
-                }
-                panic!("own operation-test connection failed");
+                let server_end = match timeout(END, &mut server).await {
+                    Ok(end) => format!("{end:?}"),
+                    Err(_) => {
+                        server.abort();
+                        let _ = server.await;
+                        "server deadline".to_string()
+                    }
+                };
+                panic!("own operation-test connection failed: {cause}; server: {server_end}");
             }
         };
         Self {

@@ -137,9 +137,12 @@ In dieser Reihenfolge:
    erscheint nur das ZIP, MSI und Setup-EXE bleiben unveröffentlicht. Offen
    ist auch ein eingechecktes Werkzeug zum Neubinden: Für 0.2.0 band ein
    Einmalprogramm, das nicht im Repository liegt, nur die geänderten Einträge
-   neu; für künftige Releases fehlt es noch. Beim nächsten Neubinden
-   mitnehmen: drei Fehlertexte des Backends sind noch deutsch
-   (`run_checked` und `create_session` in `src-tauri/src/tmux/client.rs`,
+   neu; für künftige Releases fehlt es noch. Seit dem 22.10. weicht
+   `src-tauri/src/transport/russh_transport/operation_tests.rs` von der
+   Bindung ab (Keepalive der Testgegenstelle, ohne neues Fremdmaterial).
+   Beim nächsten Neubinden mitnehmen: drei Fehlertexte des Backends sind
+   noch deutsch (`run_checked` und `create_session` in
+   `src-tauri/src/tmux/client.rs`,
    `list_ssh_keys` in `src-tauri/src/commands.rs`); zwei Kommentare
    verweisen auf Dateien, die es nicht mehr gibt (`src/views/sidebar.ts`
    auf einen Entwurf der Seitenleiste, `src-tauri/src/commands.rs` auf
@@ -210,6 +213,12 @@ In dieser Reihenfolge:
      Eingaben, Größenänderungen und das Schließen anderer Terminals
      derselben Verbindung aufhalten (vorbestehend, bei der Flusskontrolle
      gefunden).
+   - Bricht die Verbindung während der Passwortanmeldung ab, meldet die App
+     „method not offered: password“ statt eines Verbindungsfehlers: russh
+     meldet eine beendete Sitzung als Fehlschlag ohne verbleibende Methoden
+     (`wait_recv_reply`), und `classify_password_failure` in
+     `src-tauri/src/ssh/auth.rs` liest das als nicht angebotenes Passwort
+     (gefunden beim ersten CI-Lauf unter Linux).
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

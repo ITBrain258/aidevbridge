@@ -107,7 +107,17 @@ fn invoke_and_get_error(
             cmd: cmd.into(),
             callback: tauri::ipc::CallbackFn(0),
             error: tauri::ipc::CallbackFn(1),
-            url: "http://tauri.localhost".parse().unwrap(),
+            // Die lokale Herkunft der App, wie `tauri::protocol::origin` sie
+            // bildet: unter Windows (und Android) `http://tauri.localhost`,
+            // sonst `tauri://localhost`. Mit der jeweils anderen gilt die
+            // Anfrage als entfernt, und die Capability lehnt alles ab.
+            url: if cfg!(windows) || cfg!(target_os = "android") {
+                "http://tauri.localhost"
+            } else {
+                "tauri://localhost"
+            }
+            .parse()
+            .unwrap(),
             body: tauri::ipc::InvokeBody::Json(serde_json::json!({})),
             headers: Default::default(),
             invoke_key: INVOKE_KEY.to_string(),
