@@ -42,16 +42,18 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 
 ## Letzte Prüfung
 
-Am 21.10.2026 auf dem Endstand vor der Veröffentlichung: 2631
-Frontend-Tests in 49 Dateien, TypeScript- und Vite-Build und 72
-Skripttests grün; Rust: fmt, Clippy mit `-D warnings` und `cargo test --all`
-grün, 643 Tests bestanden, die 11 VM-Abnahmetests ignoriert.
+Am 22.10.2026 nach den Korrekturen für die CI, den Abhängigkeits-Updates und
+dem russh-Patch für Anmeldefehler: 2631 Frontend-Tests in 49 Dateien,
+TypeScript- und Vite-Build und 76 Skripttests grün; Rust: fmt, Clippy mit
+`-D warnings` und `cargo test --all --no-fail-fast` grün, 644 Tests
+bestanden, die 11 VM-Abnahmetests ignoriert;
 `node scripts/release-licenses.mjs check` und `npm run build:windows` grün
-(MSI, NSIS und ZIP, unsigniert). Live-Suiten gegen eine eigene Test-VM
-(tmux 3.6) mit eigenem Testsocket: Bibliothek 575, `integration_commands`
-23, `socket_abort_probe` 13, `integration_transport` 8, `test_environment`
-7, `integration_tmux` 5, `capabilities_acl` 5, `integration_pty` 4,
-`acl_runtime` 2, `integration_preflight` 1; VM-Abnahme: 11 bestanden, der
+(MSI, NSIS und ZIP, unsigniert). Vom 21.10., also vor diesen Änderungen:
+Live-Suiten gegen eine eigene Test-VM (tmux 3.6) mit eigenem Testsocket:
+Bibliothek 575, `integration_commands` 23, `socket_abort_probe` 13,
+`integration_transport` 8, `test_environment` 7, `integration_tmux` 5,
+`capabilities_acl` 5, `integration_pty` 4, `acl_runtime` 2,
+`integration_preflight` 1; VM-Abnahme: 11 bestanden, der
 Passwortzweig ohne Passwort übersprungen. Fensterabnahme an einer
 abgeschotteten Testinstanz der umbenannten App: Sie übernahm die
 `settings.toml` aus einem alten Testordner, Host und Kacheln erschienen wie
@@ -114,44 +116,36 @@ In dieser Reihenfolge:
    Diagnosetext; Mindestgröße, Fensterlage und Icon sind erledigt), dazu ein
    neues Logozeichen für den Erststart (Entscheidung vom 21.10.); die
    Rust-Meldung RUSTSEC-2023-0071 zu `rsa`, eingeordnet in
-   [`SECURITY.md`](../SECURITY.md), und eine echte RSA-Abnahme; Signatur der
-   Pakete und winget.
+   [`SECURITY.md`](../SECURITY.md), und eine echte RSA-Abnahme; ein
+   russh-Update, das die beiden Meldungen zum russh-Servercode mitnimmt
+   (ebenfalls in `SECURITY.md`; die App nutzt diesen Code nicht); Signatur
+   der Pakete und winget.
 6. **Lieferung:** Die [Lizenzauswahl](release/license-selection.windows-x64.json)
    ist für 0.2.0 neu gebunden: `@xterm/addon-web-links`, die Tauri-Module
    `window`, `dpi` und `image` und die tslib-Helfer sind aufgenommen; die
    geänderten eigenen Quellen, die erzeugten Permissions, `pageant` und die
-   Änderungsvermerke in `vendor/russh` sind neu gebunden.
+   Änderungsvermerke in `vendor/russh` sind neu gebunden. Am 22.10. kamen
+   vite 6.4.4 (Lizenztext, Polyfill und gebautes Frontend byte-gleich mit
+   6.4.3, siehe [Nachweis](release/license-frontend-vite-6.4.4-2026-10-22.json)),
+   die seither geänderten eigenen Quellen und der russh-Patch dazu, gebunden
+   mit `scripts/release-license-rebind.mjs`.
    `npm run build:windows` lief danach vollständig durch (MSI, NSIS und ZIP,
    unsigniert). Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
    auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
    `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
    aus `npm run build:app` bleibt auf dem eigenen Rechner. Ändert sich ein
    gebundener Eingang, vor dem nächsten Lauf die Änderungen auf neues
-   Fremdmaterial prüfen und nur die betroffenen Einträge neu binden (README,
-   „Windows packages“). Offen ist die Installerabnahme: Anzeige der
+   Fremdmaterial prüfen und nur die betroffenen Einträge mit
+   `scripts/release-license-rebind.mjs` neu binden (README, „Windows
+   packages“). Offen ist die Installerabnahme: Anzeige der
    Lizenzseite, WebView2-Bedingungen, Hinweise der Installer-Stubs (jeder
    Lauf meldet sie als `pending`: `nsis_msi_payload`, `installer_terms_ui`,
    `installer_stub_notices`; dazu `native_import_family_review` für die
    Durchsicht der nativen Importe der EXE und
    `product_and_windows_acceptance` für die Abnahme am Fenster); bis dahin
-   erscheint nur das ZIP, MSI und Setup-EXE bleiben unveröffentlicht. Offen
-   ist auch ein eingechecktes Werkzeug zum Neubinden: Für 0.2.0 band ein
-   Einmalprogramm, das nicht im Repository liegt, nur die geänderten Einträge
-   neu; für künftige Releases fehlt es noch. Seit dem 22.10. weicht
-   `src-tauri/src/transport/russh_transport/operation_tests.rs` von der
-   Bindung ab (Keepalive der Testgegenstelle, ohne neues Fremdmaterial).
-   Beim nächsten Neubinden mitnehmen: drei Fehlertexte des Backends sind
-   noch deutsch (`run_checked` und `create_session` in
-   `src-tauri/src/tmux/client.rs`,
-   `list_ssh_keys` in `src-tauri/src/commands.rs`); zwei Kommentare
-   verweisen auf Dateien, die es nicht mehr gibt (`src/views/sidebar.ts`
-   auf einen Entwurf der Seitenleiste, `src-tauri/src/commands.rs` auf
-   `src/views/host-list.ts`); die [ZIP-Anleitung](release/windows-zip-readme.txt)
-   spricht noch in Prüfbegriffen („an execution without the application
-   installer“, „product acceptance“); eine `allowScripts`-Regel für esbuild
-   in `package.json` nähme die Warnung von npm 12 beim `npm ci`. Die
-   Release-Binaries enthalten
-   die Pfade des Cargo-Registers der Baumaschine (Panic-Orte von Kisten aus
+   erscheint nur das ZIP, MSI und Setup-EXE bleiben unveröffentlicht. Die
+   Release-Binaries enthalten die Pfade des Cargo-Registers der Baumaschine
+   (Panic-Orte von Kisten aus
    crates.io unter `<Profil>\.cargo\registry\src\…`); damit steht der
    Benutzername des Bauprofils in den Panic-Pfaden der Binaries. Das ist
    hingenommen. Der Lieferlauf weist `RUSTFLAGS` und `.cargo/config.toml`

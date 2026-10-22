@@ -337,7 +337,9 @@ npm run build:windows
 
 This needs Windows x64, PowerShell 7, Node.js 24 or newer, the pinned Rust
 toolchain, the MSVC Build Tools and a clean, committed Git checkout; a source
-ZIP downloaded from GitHub only works with `npm run build:app`. The pipeline
+ZIP downloaded from GitHub only works with `npm run build:app`. Keep the
+checkout path short: the run builds 140 characters and more below it, and the
+MSVC linker fails with `LNK1104` once a path exceeds 260 characters. The pipeline
 installs the locked npm dependencies, fetches the locked Cargo dependencies
 and downloads three pinned WiX and NSIS build tools from their upstream URLs,
 checking their hashes. From one native build it creates the MSI, the setup
