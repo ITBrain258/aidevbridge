@@ -283,6 +283,13 @@ fn agent_named(exe: &str) -> Option<DetectedAgent> {
     // A program replaced while it runs (an update) reads "<path> (deleted)".
     let exe = exe.strip_suffix(" (deleted)").unwrap_or(exe);
     let (dir, name) = exe.rsplit_once('/')?;
+    // agy 1.4.6 updates itself on start and keeps running from the file it
+    // moved aside, "<name>.<digits>.old" (measured on 2026-10-23).
+    let name = name
+        .strip_suffix(".old")
+        .and_then(|rest| rest.rsplit_once('.'))
+        .filter(|(_, digits)| !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()))
+        .map_or(name, |(base, _)| base);
     match name {
         "claude" => Some(DetectedAgent::Claude),
         "codex" => Some(DetectedAgent::Codex),
@@ -549,6 +556,14 @@ mod tests {
             Some(DetectedAgent::Codex)
         );
         assert_eq!(a(&format!("{CODEX} (deleted)")), Some(DetectedAgent::Codex));
+        // agy after its self-update on start, measured on 2026-10-23.
+        assert_eq!(
+            a("/home/u/.local/bin/agy.1792771665724759683.old"),
+            Some(DetectedAgent::Agy)
+        );
+        assert_eq!(a("/home/u/.local/bin/agy.old"), None);
+        assert_eq!(a("/home/u/.local/bin/agy.x1.old"), None);
+        assert_eq!(a("/home/u/.local/bin/agy.1.bak"), None);
         // Only the file name counts, never a directory on the way.
         assert_eq!(a("/home/u/codex/bin/node"), None);
         assert_eq!(a("/opt/claude/versions"), None);
