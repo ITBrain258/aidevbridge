@@ -15,12 +15,16 @@ use std::collections::BTreeSet;
 
 pub mod title;
 
+/// `waitingFor` values. Claude Code 2.1.309 adds "goal proposal" and counts
+/// it as a permission, like "permission prompt" (read from its bundle on
+/// 2026-10-23, `docs/messungen/messung-2026-10-23-agentversionen.md`).
 const WAITING: &[&str] = &[
     "permission prompt",
     "input needed",
     "sandbox request",
     "worker request",
     "dialog open",
+    "goal proposal",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -511,6 +515,39 @@ mod tests {
         assert_eq!(parse_agents("{}"), Err(AgentsParse::NotArray));
     }
 
+    /// Claude Code 2.1.309 on 2026-10-23: a permission prompt and an open
+    /// AskUserQuestion dialog were measured; "goal proposal" is read from its
+    /// bundle, where it counts as a permission.
+    #[test]
+    fn every_waiting_reason_of_claude_2_1_309_is_waiting() {
+        for reason in [
+            "permission prompt",
+            "input needed",
+            "sandbox request",
+            "worker request",
+            "dialog open",
+            "goal proposal",
+        ] {
+            let agents = parse_agents(&format!(
+                r#"[{{"kind":"interactive","pid":10,"status":"waiting","waitingFor":"{reason}"}}]"#
+            ))
+            .unwrap();
+            assert_eq!(agents[0].kind, StatusKind::Waiting, "{reason}");
+            assert_eq!(agents[0].waiting_for.as_deref(), Some(reason));
+        }
+    }
+
+    /// Measured right after start on 2026-10-23: for one read the row has no
+    /// `status` yet. That row is unknown, the next read has its status.
+    #[test]
+    fn a_freshly_started_row_without_status_is_unknown() {
+        let agents = parse_agents(
+            r#"[{"pid":10,"cwd":"/tmp","kind":"interactive","startedAt":1,"sessionId":"s","name":"n"}]"#,
+        )
+        .unwrap();
+        assert_eq!(agents[0].kind, StatusKind::Unknown);
+    }
+
     #[test]
     fn a_bound_unrecognized_row_says_so() {
         let status = apply_cli(
@@ -820,8 +857,9 @@ mod tests {
     fn codex_waiting() -> title::PaneDetails {
         title::PaneDetails {
             title: Some("[ ! ] Action Required | thread | home".into()),
-            children: vec!["node".into()],
-            grandchildren: vec!["codex".into()],
+            children: vec!["/usr/bin/node".into()],
+            grandchildren: vec!["/usr/lib/node_modules/@openai/codex/bin/codex".into()],
+            codex: title::CodexTitle::Full,
         }
     }
 

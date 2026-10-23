@@ -4089,8 +4089,12 @@ mod tests {
     async fn status_poll_reads_the_inventory_titles_and_the_cli_in_five_commands() {
         let titles = [
             crate::status::title::details_line('T', 1, "[ ! ] Action Required | thread | home"),
-            crate::status::title::details_line('C', 1, "node"),
-            crate::status::title::details_line('G', 1, "codex"),
+            crate::status::title::details_line('C', 1, "/usr/bin/node"),
+            crate::status::title::details_line(
+                'G',
+                1,
+                "/usr/lib/node_modules/@openai/codex/bin/codex",
+            ),
         ]
         .concat();
         let t = ScriptedTransport::new(vec![
