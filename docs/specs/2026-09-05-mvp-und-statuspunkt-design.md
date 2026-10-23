@@ -391,7 +391,7 @@ Nach der [Messung vom 23.10.](../messungen/messung-2026-10-23-agentversionen.md)
 
 **Versionen:** Keine feste Versionsbindung. Die Formen werden gegen die jeweils neueste Version gemessen; jede Version zählt, solange ihre Ausgabe eine gemessene Form hat, jede andere Form ergibt unbekannt. Im Tor M1 tritt an die Stelle von „in den gemessenen Versionen (2.1.269, 2.1.270)“ die zuletzt gemessene Version, am 23.10. Claude Code 2.1.309 und Codex 0.164.0. `waitingFor: "goal proposal"` (2.1.309, dort eine Freigabe) gehört zum bekannten Vokabular.
 
-**Identität:** Der Lesebefehl liest statt `/proc/<pid>/comm` den Pfad aus `/proc/<pid>/exe`. Es zählt der Dateiname; ein Pfad in `…/claude/versions/` gilt als Claude Code, ein angehängtes ` (deleted)` wird übergangen.
+**Identität:** Der Lesebefehl liest statt `/proc/<pid>/comm` den Pfad aus `/proc/<pid>/exe`. Es zählt der Dateiname; ein Pfad in `…/claude/versions/` gilt als Claude Code, ein angehängtes ` (deleted)` wird übergangen, `<name>.<Ziffern>.old` (agy 1.4.6 nach seinem Selbstupdate) zählt als `<name>`.
 
 **Grenzen:** Titel bis 1024 Byte, Programmpfade bis 4096 Byte, je Einstellungsdatei bis 16384 Byte. Das Skript liest je Wert ein Byte mehr; was darüber hinausgeht, verwirft der Parser. Ein verworfener Titel ergibt bei Codex und Grok unbekannt.
 

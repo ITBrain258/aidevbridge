@@ -11,7 +11,11 @@ dem Namen agentbridge.
 - Agentstatus gegen die aktuellen Agentversionen gemessen: Claude Code 2.1.309, Codex 0.163.0 und 0.164.0 (Grok nicht erneut). Es gibt keine feste Versionsliste: jede Version zaehlt, solange ihre Ausgabe die gemessene Form hat; eine andere Form ergibt weiterhin unbekannt.
 - Claude Code: Der Wartegrund "goal proposal" (neu in 2.1.309, dort eine Freigabe) ergibt wartet statt unbekannt.
 - Codex: Die App liest die `tui`-Schluessel aus `/etc/codex/config.toml` und `$CODEX_HOME/config.toml`, nur solange Codex laeuft und nur diese Schluessel. Mit `tui.animations` oder `tui.effects.progress` aus zaehlt nur noch wartet, sonst unbekannt; mit eigenen Titelelementen (`tui.terminal_title`) unbekannt. Bisher zeigte ein arbeitendes Codex mit solchen Einstellungen untaetig. Ein Titel mit "Action Required" oder dem Mikrofonzeichen "●" vorn ergibt nie untaetig.
-- Titelquelle: Der Agent einer Pane gilt ueber die Programmdatei (`/proc/<pid>/exe`) statt ueber den Prozessnamen, den ein Programm selbst setzen kann; ein Skript namens `codex` ist kein Codex. Titel ueber 1024 Byte und Pfade ueber 4096 Byte werden nicht gelesen.
+- Titelquelle: Der Agent einer Pane gilt ueber die Programmdatei (`/proc/<pid>/exe`) statt ueber den Prozessnamen, den ein Programm selbst setzen kann; ein Skript namens `codex` ist kein Codex. Titel ueber 1024 Byte und Pfade ueber 4096 Byte werden nicht gelesen. agy, das sich beim Start selbst ersetzt und aus `agy.<Ziffern>.old` weiterlaeuft, gilt weiter als agy.
+
+### Fixed
+
+- Eine Kachel haengt sich nach dem Verlust ihres Kanals nicht mehr still an eine neue Session gleichen Namens: Wurde die Session beendet und unter demselben Namen neu angelegt, zeigt die Kachel "This session has ended on the host" ohne Reconnect. Bisher las die Probe nach dem Verlust die Liste neu, und die Kachel zeigte danach die fremde Session (gefunden im M1-Tor).
 
 ## [0.2.0] - 2026-10-22
 

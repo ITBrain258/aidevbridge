@@ -136,7 +136,9 @@ command“, „Request approval for probe file“), `tmp` der Projektname.
   setzen kann (ein Skript namens `codex` hat `comm` `codex`, aber die Shell
   als `exe`). Claude Codes Installer ruft eine Datei mit der Version als
   Namen auf; ein Pfad in `…/claude/versions/` gilt deshalb als Claude. Ein
-  ersetztes Programm (`… (deleted)`) zählt weiter.
+  ersetztes Programm (`… (deleted)`) zählt weiter, ebenso agy 1.4.6, das
+  sich beim Start selbst ersetzt und aus `agy.<Ziffern>.old` weiterläuft
+  (gesehen im [M1-Tor](messung-2026-10-23-m1-tor.md)).
 - **Grenzen:** Titel bis 1024 Byte, Programmpfade bis 4096 Byte, je
   Einstellungsdatei bis 16384 Byte nach dem Filter. Was länger ist, wird
   verworfen; ein zu langer Titel ergibt „Unknown“.

@@ -396,7 +396,9 @@ nicht auslösen, dafür gelten die Fehlermessungen vom 12.09. (nicht im
    springt hin. Freigeben, Kachel wieder schließen; bei der dritten
    Freigabe dasselbe.
 3. **BEL und Resize.** In `m1-f1`: `printf '\a'`. In `m1-f2`:
-   `trap 'echo WINCH' WINCH; while :; do sleep 1; done`. Nur `m1-f1` und
+   `bash -c 'trap "echo WINCH" WINCH; while :; do sleep 1 & wait $!; done'`
+   (in der interaktiven Shell selbst liefe `sleep` als eigene
+   Vordergrundgruppe, und das Signal käme nie an). Nur `m1-f1` und
    `m1-f2` sind offen. Mit Ctrl+Shift+1 und 2 und per Klick zwischen den
    Kacheln wechseln, danach `m1-f2` maximieren und wiederherstellen, dann
    `m1-f3` öffnen und wieder schließen.
@@ -436,9 +438,13 @@ nicht auslösen, dafür gelten die Fehlermessungen vom 12.09. (nicht im
    updates“.
 7. **Neuanlage gleichen Namens.** In `m1-f3`:
    `tmux -L agentbridge kill-session -t m1-f4 && tmux -L agentbridge new-session -d -s m1-f4`.
-   Erwartung: Die alte Zeile `m1-f4` zeigt Ended, ihre Kachel lebt nicht
-   weiter. Nach „Reload sessions“ steht `m1-f4` als neue Session da, ohne
-   den alten Status.
+   Erwartung: Die Kachel von `m1-f4` lebt nicht weiter: Sperrleiste „This
+   session has ended on the host“, ohne Reconnect, kein tmux-Client an der
+   neuen Session. Die alte Zeile `m1-f4` zeigt Ended, solange die Liste
+   ihres Eintrags nicht neu gelesen ist; der Host der Kachel liest sie nach
+   dem Kanalverlust selbst neu und zeigt dann die neue Session. Nach
+   „Reload sessions“ steht `m1-f4` als neue Session da, ohne den alten
+   Status.
 8. **Neustart.** In `m1-claude1` Claude mit `/exit` beenden, dann wieder
    `claude` starten. Die Shell in `m1-f1` mit `exit` beenden. Die App
    schließen, neu starten und beide Hosts verbinden.
@@ -462,7 +468,8 @@ nicht auslösen, dafür gelten die Fehlermessungen vom 12.09. (nicht im
     `m1-drei`) den an der Gesamtgrenze („9 terminals are open, the
     limit.“). Beide neutral, nichts schließt.
 11. **Tausch und Maximieren.** In zwei gleich großen Kacheln
-    `trap 'echo WINCH' WINCH; while :; do sleep 1; done` starten, die
+    `bash -c 'trap "echo WINCH" WINCH; while :; do sleep 1 & wait $!; done'`
+    starten (siehe Schritt 3), die
     beiden per Zug am Kopf tauschen, dann eine Kachel maximieren und
     zurückholen. Per SSH läuft vor und nach dem Tausch auf den VMs
     `tmux -L agentbridge list-clients -F '#{client_tty} #{client_created}'`.
@@ -504,4 +511,5 @@ Eintrag `m1-drei` entfernen und die Probedateien löschen (`/tmp/m1-*`,
 | Datum | Person | Build | Farben | Maus | Bracketed Paste | Dauerlast | Abriss | Wiederverbinden | Tastatur | Status | Notizen |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-10-12 | automatisierter Lauf (Fensterabnahme über CDP, keine Handabnahme) | 0.1.2, Debug-Bau vom 12.10. (Code nach der letzten Korrekturrunde) | teilweise: 125 % am echten Bildschirm, 100/150 % emuliert; Kontrastmodus (emuliert) und volle Unterlängen bestanden; 14 Themen nicht geprüft | teilweise: Umschalt+Ziehen + Strg+C legt den Text in die Windows-Zwischenablage (per PowerShell gelesen) und schickt kein ^C; Ziehen kopiert über tmux ebenfalls in die Windows-Zwischenablage, mit „Copied“; Rechtsklick nicht geprüft | bestanden: Strg+V und Umschalt+Einfg fügen geklammert ein, auch Text aus der Windows-Zwischenablage (per PowerShell gesetzt); nichts ausgeführt | nicht geprüft | nicht geprüft | teilweise: Neustart stellt Host, Kachel mit Verlauf, Layout und Seitenleiste her; nicht mehr vorhandene Session ergibt einen leeren Platz ohne Banner; echter Standby nicht geprüft | teilweise: Strg+Umschalt+P/N, Strg+„,“, Strg+=/0, F5 außerhalb des Terminals bestanden; AltGr-Zeichen `@ € \ { [ ] } \| ~` bei bestehender Markierung (als Strg+Alt-Ereignisse über CDP) kommen an und kopieren nichts; echte Tastatur nicht geprüft | teilweise: Host rund 35 min „Online“ ohne Fehlalarm, tmux-Uhr lief | Testinstanz isoliert (eigene `settings.toml`, Sockets `abtest_20261012_w1`/`_w2`). Echte Tastatur, Rechtsklick, 100/150 % am echten Bildschirm, Standby, VPN-Wechsel und Bildschirmleser bleiben Handabnahme. Strg+C direkt nach dem Ziehen auf einem Host mit `mouse on` geht als ^C an die Shell (Spec §6.1/§6.4) — im Alltag beurteilen. |
+| 2026-10-23 | automatisierter Lauf des M1-Tors (CDP und SSH, keine Handabnahme) | 0.2.0, Debug-Bau von 43e41d5, Schritt 7 erneut mit 861e434 | nicht geprüft | nicht geprüft | nicht geprüft | teilweise: vier Kacheln mit `yes`, Fenster bedienbar | teilweise: Kontrollverbindung gezielt beendet (M1-Tor Schritt 6), kein Netzabriss | nicht geprüft | nicht geprüft | bestanden über CDP: Claude Code 2.1.309, Codex 0.164.0, agy 1.4.6; Busy, Waiting, Idle, Unknown, Ended; Fenstertitel, Wartet-Spur, Ctrl+Shift+A; Taskleistenblinken nicht sichtbar | M1-Tor Schritte 1 bis 11 bestanden, Schritt 7 nach Korrektur; Schritt 12 (M2) offen. Bericht: [messung-2026-10-23-m1-tor.md](messungen/messung-2026-10-23-m1-tor.md). |
 | | | | | | | | | | | | |

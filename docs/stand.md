@@ -52,6 +52,12 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 
 ## Letzte Prüfung
 
+Am 23.10.2026 nach den Korrekturen aus dem M1-Tor: 2635 Frontend-Tests in
+49 Dateien und TypeScript- und Vite-Build grün; Rust fmt und Clippy grün,
+Bibliothekstests bis auf einen wechselnden `commands::connect_tests` grün
+(siehe unten); 76 Skripttests grün. CI auf `main` für 0.2.0 nach dem
+Neustart des abgebrochenen Jobs grün.
+
 Am 23.10.2026 nach der Statusquelle, auf einem Rechner mit 8 GB
 Arbeitsspeicher: Rust fmt und Clippy mit `-D warnings` grün,
 `cargo test --all --no-fail-fast` grün bis auf zwei bis drei wechselnde
@@ -98,6 +104,17 @@ In dieser Reihenfolge:
    sendet kein Resize. Ablauf und Log:
    [Handabnahme §9](abnahme-handarbeit.md#9-m1-tor), seit 23.10. ohne Grok
    und mit Agents, die zurückfragen.
+   **Stand 23.10.:** automatisierter Lauf (CDP und SSH, isolierte
+   Testinstanz) über die Schritte 1 bis 11 bestanden
+   ([Bericht](messungen/messung-2026-10-23-m1-tor.md)); Statuslatenz unter
+   vier flutenden Kacheln 1,07 s. Schritt 7 scheiterte zuerst: Die Kachel
+   hing sich nach `kill-session`/`new-session` gleichen Namens an die neue
+   Session (behoben, die stille Wiederanhängung prüft jetzt die
+   Session-ID). Die WINCH-Schleife der Schritte 3 und 11 ist korrigiert.
+   Offen am Fenster: Taskleistenblinken, der Kasten nach fünf gescheiterten
+   Kontrollreparaturen, echte Tastatur und Maus; Schritt 12 ist das M2-Tor
+   (Punkt 4). Beobachtung: Nach einem Neustart erscheint für die Kachel
+   einer beendeten Session zusätzlich zur Sperrleiste ein Fehlerbanner.
 2. **Erstes Release:** Abweichend von der Planung (erst nach dem M1-Tor,
    MSI und Setup-EXE erst nach der Installerabnahme) erschien `v0.2.0` auf
    Entscheidung des Maintainers schon am 22.10.: Der Tag steht auf dem
