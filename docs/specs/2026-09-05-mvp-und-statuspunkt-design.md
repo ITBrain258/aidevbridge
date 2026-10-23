@@ -384,3 +384,17 @@ Befund der Vorprüfung zum M1-Tor: Seit dem 13.09. liest `list_sessions` über d
 | `TMUX_TMPDIR` zeigt ins Leere | tmux weicht auf `/tmp` aus, die Vorhersage bleibt leer: Fehler |
 
 Frisches `TMUX_TMPDIR`, abschließender Schrägstrich und Symlink ergaben dieselbe Übereinstimmung. tmux 3.0 bildet den Pfad beim allerersten Aufruf als `/tmp//tmux-<uid>` und ist nicht erneut gemessen; dort bleibt eine fehlgeschlagene erste Liste ein Fehler.
+
+## Nachtrag 2026-10-23: Agentversionen und gehärtete Titelquelle
+
+Nach der [Messung vom 23.10.](../messungen/messung-2026-10-23-agentversionen.md) mit Claude Code 2.1.309 und Codex 0.163.0 und 0.164.0. Dieser Nachtrag ersetzt, wo er abweicht, die Nachträge vom 13.09. und 14.09.; Grok bleibt dort unverändert, ist aber nicht erneut gemessen und vorerst nicht Teil des Tors (Entscheidung des Maintainers vom 23.10.).
+
+**Versionen:** Keine feste Versionsbindung. Die Formen werden gegen die jeweils neueste Version gemessen; jede Version zählt, solange ihre Ausgabe eine gemessene Form hat, jede andere Form ergibt unbekannt. Im Tor M1 tritt an die Stelle von „in den gemessenen Versionen (2.1.269, 2.1.270)“ die zuletzt gemessene Version, am 23.10. Claude Code 2.1.309 und Codex 0.164.0. `waitingFor: "goal proposal"` (2.1.309, dort eine Freigabe) gehört zum bekannten Vokabular.
+
+**Identität:** Der Lesebefehl liest statt `/proc/<pid>/comm` den Pfad aus `/proc/<pid>/exe`. Es zählt der Dateiname; ein Pfad in `…/claude/versions/` gilt als Claude Code, ein angehängtes ` (deleted)` wird übergangen.
+
+**Grenzen:** Titel bis 1024 Byte, Programmpfade bis 4096 Byte, je Einstellungsdatei bis 16384 Byte. Das Skript liest je Wert ein Byte mehr; was darüber hinausgeht, verwirft der Parser. Ein verworfener Titel ergibt bei Codex und Grok unbekannt.
+
+**Codex-Einstellungen:** Nur wenn unter einer gelesenen Pane ein Programm namens `codex` läuft, gibt derselbe Befehl `/etc/codex/config.toml` und `${CODEX_HOME:-$HOME/.codex}/config.toml` aus, je auf die `tui`-Schlüssel gefiltert (Zeilen `tui…` vor der ersten Tabelle und die Tabellen `[tui]` und `[tui.*]`). Die Benutzerdatei überschreibt die Systemdatei Schlüssel für Schlüssel. Ohne Spinner (`tui.animations` oder `tui.effects.progress` aus) ergibt nur „Action Required“ wartet, jede andere Form unbekannt. Eigene Titelelemente (`tui.terminal_title` abweichend von `activity`/`spinner`, `thread-name`, `project-name`) ergeben unbekannt, eine unlesbare Datei ebenso. Projektdateien, `-c`-Optionen und die reduzierte Bewegung des Desktops bleiben ungelesen. Ein Codex-Titel mit „Action Required“ oder dem Mikrofonzeichen „●“ vorn ergibt nie untätig.
+
+**Test:** `src-tauri/tests/integration_status_title.rs` prüft Lesebefehl und Parser an einem echten Host mit Attrappen (Kopien der Shell unter Agentnamen), nur auf dem eigenen Testsocket.

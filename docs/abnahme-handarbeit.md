@@ -304,7 +304,8 @@ verbinden sich, ihre Kacheln kommen zurück, Passwort-Hosts bleiben offline.
 ## 8. Status und Aufmerksamkeit
 
 **Was zu tun ist:** Auf dem Testhost je eine entbehrliche Session mit Claude
-Code, Codex und Grok von Hand starten und jeden Agent einmal arbeiten, auf
+Code und Codex (Grok vorerst nicht, Entscheidung vom 23.10.) von Hand
+starten, mit Rückfragen wie in Punkt 9, und jeden Agent einmal arbeiten, auf
 eine Freigabe warten und ruhen lassen; mindestens einen davon auf einem Host
 mit tmux 3.6 (192.0.2.20). Das Fenster zwischendurch in den Hintergrund legen.
 Einen Host mit wartender Session in der Seitenleiste zuklappen, bei 208 und
@@ -332,10 +333,12 @@ auf den VMs (nur mitlesend, außer in Schritt 6). Die Bedingungen stehen in der
 [MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md) §3.4 mit den
 Nachträgen vom 13.09. und 14.09., für das Raster (Schritte 3, 4 und 10 bis 12)
 in der [Raster-Spec](specs/2026-10-19-dynamisches-raster-design.md) §10.2.
-Gemessen sind Claude Code 2.1.269 und 2.1.270; auf 192.0.2.20 lief am 12.10.
-2.1.296, Schritt 1 belegt die Version am Tag des Tors. API-Fehler lassen sich
-am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
-(nicht im öffentlichen Repository).
+Zuletzt gemessen am 23.10.: Claude Code 2.1.309, Codex 0.163.0 und 0.164.0
+([Messung](messungen/messung-2026-10-23-agentversionen.md)); Schritt 1 belegt
+die Versionen am Tag des Tors. Grok ist vorerst nicht Teil des Tors
+(Entscheidung des Maintainers vom 23.10.). API-Fehler lassen sich am Fenster
+nicht auslösen, dafür gelten die Fehlermessungen vom 12.09. (nicht im
+öffentlichen Repository).
 
 **Vorbereitung**
 
@@ -357,7 +360,7 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
 
   | Host | Flut | Agents |
   |---|---|---|
-  | 192.0.2.10 | `m1-f1`, `m1-f2` | `m1-claude1` (`claude`), `m1-grok` (`grok`) |
+  | 192.0.2.10 | `m1-f1`, `m1-f2` | `m1-claude1` (`claude`), `m1-codex1` (`codex`) |
   | 192.0.2.20 | `m1-f3` bis `m1-f9` | `m1-claude2` (`claude`), `m1-codex` (`codex`) |
 
   `m1-f5` ist die eigene Session von `m1-drei`: Sie liegt auf demselben
@@ -365,17 +368,19 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
   `m1-f6` bis `m1-f9` braucht erst Schritt 10: Mit ihnen zeigt 192.0.2.20 acht
   Kacheln.
 
-  Codex nur auf 192.0.2.20. Dort lief am 12.10. in der interaktiven Shell
-  0.156.1, gemessen sind die Titelformen von 0.154.0; vor dem Tor neu messen
-  ([Stand](stand.md), Punkt 3).
+  Die Agents so starten, dass sie zurückfragen: `claude --permission-mode
+  default` und `codex -a on-request`. Ein Auto-Modus gibt Befehle selbst
+  frei, und es gibt nichts zu warten.
 - Vor Schritt 3 alle übrigen Kacheln schließen; danach öffnet jeder Klick eine
   Kachel dazu.
 
 **Schritte**
 
-1. **Claude-Zustände.** In `m1-claude1`: „Führe `sleep 20 && echo fertig`
-   mit Bash aus.“ Freigeben. Danach denselben Auftrag mit „No“ ablehnen,
-   ein drittes Mal freigeben und während der Arbeit Esc drücken.
+1. **Claude-Zustände.** In `m1-claude1`: „Führe
+   `sleep 20 && touch /tmp/m1-probe && echo fertig` mit Bash aus.“
+   Freigeben. Danach denselben Auftrag mit „No“ ablehnen, ein drittes Mal
+   freigeben und während der Arbeit Esc drücken. (Ohne `touch` führt Claude
+   Code 2.1.309 den Befehl ohne Rückfrage aus.)
    Erwartung: Busy beim Nachdenken, Waiting bei jeder Freigabe, Busy
    während `sleep`, Idle nach dem Ende, nach „No“ und nach Esc. Pille in
    Sessionzeile und Kachelkopf gleich, der Tooltip nennt den Grund. Per SSH
@@ -383,9 +388,9 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
    aufgezeichnet; daraus folgt die Signalverzögerung des Agents getrennt von
    der App.
 2. **Freigabe bei geschlossener Kachel.** In `m1-claude1`: „Führe
-   nacheinander einzeln aus: `sleep 15`, `sleep 15`, `echo fertig`.“ Die
-   erste Freigabe erteilen, die Kachel schließen, das Fenster in den
-   Hintergrund legen.
+   nacheinander einzeln mit Bash aus: `sleep 15 && touch /tmp/m1-a`,
+   `sleep 15 && touch /tmp/m1-b`, `touch /tmp/m1-c`.“ Die erste Freigabe
+   erteilen, die Kachel schließen, das Fenster in den Hintergrund legen.
    Erwartung: Bei der zweiten Freigabe zeigt die Sessionzeile Waiting, der
    Fenstertitel zählt sie, die Taskleiste blinkt einmal, Ctrl+Shift+A
    springt hin. Freigeben, Kachel wieder schließen; bei der dritten
@@ -411,11 +416,13 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
    herausgerechnet.
    Ziel: binnen 4 s. Das Fenster bleibt bedienbar. Danach `yes` in allen
    vier Kacheln mit Ctrl+C beenden und Claude mit „No“ antworten.
-5. **Codex und Grok.** In `m1-grok` und `m1-codex` je eine kleine Aufgabe
-   geben. Falls vorhanden, kurz `opencode` oder `agy` in einer Flut-Session
-   starten.
-   Erwartung: Busy während der Arbeit, danach Idle; Codex vor dem ersten
-   Auftrag Unknown; `opencode` und `agy` Unknown mit Grund.
+5. **Codex.** In `m1-codex1` und `m1-codex` je eine kleine Aufgabe geben,
+   in `m1-codex` eine mit Freigabe: „Lege `/var/tmp/m1-codex-probe.txt` mit
+   dem Inhalt ok an, mit einem einzigen Shellbefehl.“ Falls vorhanden, kurz
+   `opencode` oder `agy` in einer Flut-Session starten.
+   Erwartung: Codex vor dem ersten Auftrag Unknown, Busy während der
+   Arbeit, Waiting bei der Freigabe, danach Idle; `opencode` und `agy`
+   Unknown mit Grund.
 6. **Kontrollausfall.** Per SSH wird auf 192.0.2.20 gezielt der sshd-Prozess
    der Kontrollverbindung der App beendet; vorher wird er der Person am
    Fenster gezeigt.
@@ -471,16 +478,17 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
     zeigen die wartenden kurz „Reconnecting…“ oder „Opening…“.
 
 Zum Schluss die `m1-*`-Sessions über „End session…“ beenden, danach den
-Eintrag `m1-drei` entfernen.
+Eintrag `m1-drei` entfernen und die Probedateien löschen (`/tmp/m1-*`,
+`/var/tmp/m1-codex-probe.txt`).
 
 | Schritt | Ergebnis | Notiz |
 |---|---|---|
-| Datum, Build, Versionen (Claude, Codex, Grok, tmux) | | |
+| Datum, Build, Versionen (Claude, Codex, tmux) | | |
 | 1 Claude-Zustände | | |
 | 2 Geschlossene Kachel | | |
 | 3 BEL und Resize | | |
 | 4 Vier flutende Kacheln | | |
-| 5 Codex und Grok | | |
+| 5 Codex | | |
 | 6 Kontrollausfall | | |
 | 7 Neuanlage gleichen Namens | | |
 | 8 Neustart | | |
