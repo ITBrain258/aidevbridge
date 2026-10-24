@@ -1331,7 +1331,11 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
         const reattach = view.reattach;
         const attempt = reattach !== null && reattach.series.attaching &&
           reattach.key === wantKey && reattach.runtimeId === runtimeHostId;
-        let quietErrors = attempt;
+        // Ebenso still: eine beendete Session, etwa die wiederhergestellte
+        // Kachel einer toten Pane nach dem Neustart. Ihr Oeffnen scheitert am
+        // Waechter, und die Sperrleiste nennt den Grund schon (UX-Spec §5.5);
+        // ein Banner daneben sagte dasselbe noch einmal (M1-Tor, Schritt 8).
+        let quietErrors = attempt || resolved.status === "ended";
         const ownAttempt = (): ReattachEntry | null =>
           attempt && view.reattach === reattach && reattach.series.attaching ? reattach : null;
         let capacityDetail: string | null = null;

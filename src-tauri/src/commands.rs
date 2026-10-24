@@ -3617,7 +3617,13 @@ pub async fn list_sessions_impl(
                 .sessions
                 .into_iter()
                 .map(|session| {
-                    let status = crate::status::listed_status(&session, &agents, &parents, &titles);
+                    let status = crate::status::listed_status(
+                        &session,
+                        &observed.inventory,
+                        &agents,
+                        &parents,
+                        &titles,
+                    );
                     session_list_item(session, status, version)
                 })
                 .collect())

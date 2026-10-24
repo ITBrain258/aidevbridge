@@ -331,13 +331,23 @@ pub fn listed_title_panes(rows: &[ListedSessionObservation]) -> Vec<(PaneId, u32
 }
 
 /// A listed session's status from the same sources as the poll, so a list
-/// refresh does not undo it: its selected pane's title, then a bound CLI row.
+/// refresh does not undo it: a dead active pane is ended as in the poll, else
+/// its selected pane's title, then a bound CLI row. Without the first rule a
+/// restored tile of an ended session saw Unknown and tried to attach.
 pub fn listed_status(
     row: &ListedSessionObservation,
+    inventory: &InventorySnapshot,
     agents: &[AgentRow],
     parents: &BTreeMap<u32, u32>,
     titles: &BTreeMap<PaneId, title::PaneDetails>,
 ) -> SessionStatus {
+    if single_active_pane(inventory, row.session_id).is_some_and(|pane| pane.pane_dead) {
+        return SessionStatus {
+            kind: StatusKind::Ended,
+            reason: "the session's pane is dead".into(),
+            ..from_listing(row)
+        };
+    }
     let pane = selected_pane(row);
     apply_cli(
         apply_title(from_listing(row), pane.and_then(|(id, _)| titles.get(&id))),
@@ -953,18 +963,58 @@ mod tests {
     #[test]
     fn a_listed_session_reads_the_title_of_its_selected_pane() {
         let rows = [row(0, true), row(1, false)];
+        let snapshot = inventory(
+            &[0, 1],
+            vec![
+                pane(0, 0, 0, 10, true, false),
+                pane(1, 1, 1, 20, true, false),
+            ],
+        );
         assert_eq!(listed_title_panes(&rows), vec![(PaneId(0), 10)]);
         let titles = BTreeMap::from([(PaneId(0), codex_waiting())]);
-        let bound = listed_status(&rows[0], &[], &BTreeMap::new(), &titles);
+        let bound = listed_status(&rows[0], &snapshot, &[], &BTreeMap::new(), &titles);
         assert_eq!(
             (bound.kind, bound.reason.as_str()),
             (StatusKind::Waiting, "action required (Codex title)")
         );
         // An unverified binding names no pane, so no title speaks for it.
-        let unbound = listed_status(&rows[1], &[], &BTreeMap::new(), &titles);
+        let unbound = listed_status(&rows[1], &snapshot, &[], &BTreeMap::new(), &titles);
         assert_eq!(
             (unbound.kind, unbound.reason.as_str()),
             (StatusKind::Unknown, "numeric binding is unverified")
         );
+    }
+
+    /// The poll's first rule holds for the list too: a dead active pane is
+    /// ended, bound or not, and neither a title nor a CLI row revives it.
+    #[test]
+    fn a_listed_session_with_a_dead_active_pane_is_ended() {
+        let rows = [row(0, true), row(1, false)];
+        let snapshot = inventory(
+            &[0, 1],
+            vec![pane(0, 0, 0, 10, true, true), pane(1, 1, 1, 20, true, true)],
+        );
+        let titles = BTreeMap::from([(PaneId(0), codex_waiting())]);
+        for listed in &rows {
+            let status = listed_status(
+                listed,
+                &snapshot,
+                &[agent(10, StatusKind::Busy)],
+                &BTreeMap::new(),
+                &titles,
+            );
+            assert_eq!(
+                (
+                    status.kind,
+                    status.reason.as_str(),
+                    status.display_name.as_str()
+                ),
+                (
+                    StatusKind::Ended,
+                    "the session's pane is dead",
+                    listed.display_name.as_str()
+                )
+            );
+        }
     }
 }

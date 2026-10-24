@@ -790,28 +790,33 @@ export class AppState {
     return { kind: "added", tileId: tile.id };
   }
 
-  /** Legt die gespeicherten Kacheln EINES Hosts an, der Reihe nach, fuer den
+  /** Legt gespeicherte Kacheln an, der Reihe nach, fuer den
    * wiederhergestellten Arbeitsplatz (Spec 2026-10-19 §4.6), und benachrichtigt
    * danach einmal: so montiert das Raster jede gleich mit ihrer Endgeometrie
    * und meldet diese Groesse mit `open_terminal` (§4.5), statt die frueheren
-   * mit jeder weiteren neu zu vermessen. Ohne Fokus: waehrend die Hosts
-   * nacheinander verbinden, tippt der Nutzer womoeglich schon in einer anderen
-   * Kachel. Je Session nur, wenn sie in der Liste ihres Hosts steht, in keiner
-   * Kachel liegt und keine Grenze erreicht ist (`planOpen`, die schon
-   * angelegten mitgezaehlt). `place` nennt die Position der neuen Kachel `id`,
-   * gefragt unmittelbar vor dem Einfuegen, also mit den schon angelegten in
-   * `tiles`; mehr als das Ende wird es nicht. Ohne neue Kachel keine
-   * Benachrichtigung. */
-  restoreTiles(hostId: string, names: readonly string[], place: (name: string, id: number) => number): void {
+   * mit jeder weiteren neu zu vermessen. Beim Start kommen so die Kacheln
+   * aller Hosts, auf die er wartet, in einem Zug (`WorkspaceSync.hostListed`).
+   * Ohne Fokus: waehrend die Hosts nacheinander verbinden, tippt der Nutzer
+   * womoeglich schon in einer anderen Kachel. Je Session nur, wenn sie in der
+   * Liste ihres Hosts steht, in keiner Kachel liegt und keine Grenze erreicht
+   * ist (`planOpen`, die schon angelegten mitgezaehlt). `place` nennt die
+   * Position der neuen Kachel `id`, gefragt unmittelbar vor dem Einfuegen,
+   * also mit den schon angelegten in `tiles`; mehr als das Ende wird es nicht.
+   * Ohne neue Kachel keine Benachrichtigung. */
+  restoreTiles(
+    entries: ReadonlyArray<{ hostId: string; name: string }>,
+    place: (entry: { hostId: string; name: string }, id: number) => number,
+  ): void {
     let added = false;
-    for (const name of names) {
+    for (const entry of entries) {
+      const { hostId, name } = entry;
       const session = this.hosts.find((h) => h.id === hostId)?.sessions.find((s) => s.name === name);
       if (!session) continue;
       const key = sessionKey(hostId, name);
       const plan = planOpen(this.tiles, key, hostId, (other) => this.#hostOfKey(other));
       if (plan.kind !== "add") continue;
       const tile: Tile = { id: this.#nextTileId++, sessionKey: key, lastFocusedAt: 0 };
-      const position = place(name, tile.id);
+      const position = place(entry, tile.id);
       this.tiles.splice(Math.max(0, Math.min(position, this.tiles.length)), 0, tile);
       session.open = true;
       added = true;

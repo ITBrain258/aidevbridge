@@ -2,7 +2,10 @@
 
 **Stand:** Version `0.2.0`, erstes Release am 22.10.2026 mit MSI, Setup-EXE
 und ZIP, unsigniert (Entscheidung des Maintainers vom 22.10., vor dem M1-Tor
-und vor der Installerabnahme).
+und vor der Installerabnahme). Installerabnahme, M1- und M2-Tor sind
+seitdem bestanden (gemeldet am 24.10.). `0.2.1` ist vorbereitet: Version,
+CHANGELOG, Lizenzauswahl und ein Lieferlauf aus `5cabf45`; Tag und Release
+stehen aus.
 Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
 einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
 privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
@@ -45,12 +48,25 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 | M0 Fundament | abgeschlossen mit 0.1.1 |
 | UI v2 | abgeschlossen mit 0.1.2; seit 14.09. Farbwahl (7 Akzente auf 2 Grundtönen) und Einstellungsdialog |
 | Stabilität und Verbindung | Kontroll- und Terminalverbindung je Host, Fristen, Kontrollreparatur, Korrekturen an Hostschlüsseln, Erststart und Hostverwaltung, RSA-Blinding |
-| M1 Statuspunkt | gebaut bis auf das Tor: numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel. Seit 23.10. gemessen gegen Claude Code 2.1.309 und Codex 0.163.0/0.164.0 ([Messung](messungen/messung-2026-10-23-agentversionen.md)), Agent über `/proc/<pid>/exe`, Codex-Einstellungen gelesen, Größengrenzen, VM-Test mit Attrappen |
+| M1 Statuspunkt | abgeschlossen, Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel. Seit 23.10. gemessen gegen Claude Code 2.1.309 und Codex 0.163.0/0.164.0 ([Messung](messungen/messung-2026-10-23-agentversionen.md)), Agent über `/proc/<pid>/exe`, Codex-Einstellungen gelesen, Größengrenzen, VM-Test mit Attrappen |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Steuerzustand nur bei echtem Verlust, Selbstheilung für Schlüssel- und Agent-Hosts und Verlauf beim Anhängen; Arbeitsplatz, Schnellöffnen, Namensvorschlag, Anzeigename, ziehbare Seitenleiste; fünf Einstellungsbereiche; tmux 3.6 |
 | Dynamisches Raster | Schritt 0, 1 und 3 abgeschlossen nach der [Spec vom 19.10.](specs/2026-10-19-dynamisches-raster-design.md): bis zu 9 Kacheln, höchstens 8 je Host, je Host höchstens 4 Öffnungen zugleich („Opening…“), Tauschen per Zug am Kopf, Größe per Spalt, Maximieren verbirgt die übrigen Kacheln statt sie zu schließen, Wartet-Spur mit Wartezeit, Kachelnummer in Liste und Spur |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger Lauf für 0.2.0 nach dem Neubinden der Lizenzauswahl |
 
 ## Letzte Prüfung
+
+Am 24.10.2026 für 0.2.1, auf dem Rechner mit 8 GB Arbeitsspeicher: 2645
+Frontend-Tests in 49 Dateien und TypeScript- und Vite-Build grün; Rust fmt
+und Clippy mit `-D warnings` grün, `cargo test --all --no-fail-fast` mit
+`-j 2` grün bis auf fünf wechselnde `commands::connect_tests`, die einzeln
+alle elf grün laufen (siehe unten); 76 Skripttests grün;
+`node scripts/release-licenses.mjs check` nach `prepare` grün. Am Fenster
+einer abgeschotteten Testinstanz (Debug-Bau mit eingebettetem Frontend,
+eigener Socket auf beiden Test-VMs, tmux 3.3a und 3.6): vier Kacheln über
+beide Hosts gespeichert, eine davon mit beendeter Shell; nach Schließen und
+Neustart kamen alle vier an ihre Plätze, die beendete nur mit Sperrleiste
+(„This session has ended on the host“, ohne „Reconnect“) und ohne Banner,
+und keine der drei übrigen Panes bekam ein WINCH.
 
 Am 23.10.2026 nach den Korrekturen aus dem M1-Tor: 2635 Frontend-Tests in
 49 Dateien und TypeScript- und Vite-Build grün; Rust fmt und Clippy grün,
@@ -111,17 +127,22 @@ In dieser Reihenfolge:
    hing sich nach `kill-session`/`new-session` gleichen Namens an die neue
    Session (behoben, die stille Wiederanhängung prüft jetzt die
    Session-ID). Die WINCH-Schleife der Schritte 3 und 11 ist korrigiert.
-   Offen am Fenster: Taskleistenblinken, der Kasten nach fünf gescheiterten
-   Kontrollreparaturen, echte Tastatur und Maus; Schritt 12 ist das M2-Tor
-   (Punkt 4). Beobachtung: Nach einem Neustart erscheint für die Kachel
-   einer beendeten Session zusätzlich zur Sperrleiste ein Fehlerbanner.
+   **Bestanden:** Die Punkte am Fenster (Taskleistenblinken, der Kasten
+   nach fünf gescheiterten Kontrollreparaturen, echte Tastatur und Maus) hat
+   der Maintainer am Stand vom 23.10. abgenommen, gemeldet am 24.10.; damit
+   ist das M1-Tor bestanden. Schritt 12 ist das M2-Tor (Punkt 4). Die
+   Beobachtung aus Schritt 8 ist am 24.10. behoben: Nach
+   einem Neustart zeigte die Kachel einer beendeten Session neben der
+   Sperrleiste ein Fehlerbanner, weil die Sessionliste eine tote Pane noch
+   als unbekannt meldete; sie meldet sie jetzt wie die Statusabfrage als
+   beendet.
 2. **Erstes Release:** Abweichend von der Planung (erst nach dem M1-Tor,
    MSI und Setup-EXE erst nach der Installerabnahme) erschien `v0.2.0` auf
    Entscheidung des Maintainers schon am 22.10.: Der Tag steht auf dem
    Commit, aus dem die Pakete gebaut sind; das Release trägt MSI, Setup-EXE
-   und ZIP aus `npm run build:windows` mit ihren SHA-256-Werten. M1-Tor und
-   Installerabnahme (Punkt 6) bleiben offen und gelten für das nächste
-   Release. Das Repository ist seit dem 22.10. öffentlich, mit privatem
+   und ZIP aus `npm run build:windows` mit ihren SHA-256-Werten. Die
+   Installerabnahme (Punkt 6) hat der Maintainer am 24.10. an diesen
+   Paketen nachgeholt; das M1-Tor bleibt offen (Punkt 1). Das Repository ist seit dem 22.10. öffentlich, mit privatem
    Meldeweg für Sicherheitslücken (Private Vulnerability Reporting),
    Warnungen von Dependabot, Secret Scanning mit Push Protection und GitHub
    Actions für `.github/workflows/ci.yml`; Workflows aus Pull Requests
@@ -142,12 +163,13 @@ In dieser Reihenfolge:
    ungelesen.
 4. **M2:** History-Restore und Auto-Reconnect sind mit der UX-Überarbeitung
    gebaut ([Spec](specs/2026-10-11-ux-ueberarbeitung-design.md) §5.3–§5.6),
-   die Selbstheilung nur für Schlüssel und ssh-agent. Offen ist das Tor am
-   Fenster: 10 Minuten Ruhezustand, danach ohne Klick verbunden, der Verlauf
-   ist lesbar ([Handabnahme §6](abnahme-handarbeit.md#6-wiederverbinden)),
+   die Selbstheilung nur für Schlüssel und ssh-agent. **Das Tor ist
+   bestanden:** 10 Minuten Ruhezustand, danach ohne Klick verbunden, der
+   Verlauf ist lesbar ([Handabnahme §6](abnahme-handarbeit.md#6-wiederverbinden)),
    auch mit 8 + 1 Kacheln
-   ([Raster-Spec](specs/2026-10-19-dynamisches-raster-design.md) §10.2); das
-   prüft der Maintainer am Gerät, über Remote Desktop geht es nicht.
+   ([Raster-Spec](specs/2026-10-19-dynamisches-raster-design.md) §10.2);
+   abgenommen vom Maintainer am Gerät am Stand vom 23.10., gemeldet am
+   24.10.
 5. **M3:** fremde Sessions auf dem Standard-Socket sehen und bedienen, mit
    gesperrtem Beenden ([Roadmap](plans/2026-09-05-roadmap-bis-release.md)
    S3.1); die übrige Windows-Politur nach S3.2 (Protokolldatei, globaler
@@ -168,20 +190,35 @@ In dieser Reihenfolge:
    die seither geänderten eigenen Quellen und der russh-Patch dazu, gebunden
    mit `scripts/release-license-rebind.mjs`.
    `npm run build:windows` lief danach vollständig durch (MSI, NSIS und ZIP,
-   unsigniert). Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
+   unsigniert). Für 0.2.1 sind am 24.10. die zwölf seit 0.2.0 geänderten
+   gebundenen Eingänge neu gebunden (sieben eigene Quellen, `package.json`,
+   `src-tauri/Cargo.toml`, `tauri.conf.json` und beide Lockfiles; sie tragen
+   kein neues Fremdmaterial, Manifeste und Lockfiles ändern nur die eigene
+   Version). Die Version des eigenen Pakets steht in
+   der Auswahl an acht Stellen (`scope.product_version`, der Paketeintrag
+   samt Manifest-Hash, die Komponente und vier Dokumente unter
+   `tests/fixtures/rsa-signing/`); das Rebind-Werkzeug ändert keine
+   Versionen, sie sind von Hand gesetzt. `npm run build:windows` lief für
+   0.2.1 am 24.10. aus `5cabf45` vollständig durch (Lauf
+   `20261024T125654037-9195392bc11d`, `verify` grün, unsigniert), nach den
+   Korrekturen aus dem Review und ihrer Neubindung; SHA-256: MSI
+   `667ff8ae…ac6c6`, Setup-EXE `bb244197…ab0f2`, ZIP `e81ff6df…ce901`,
+   vollständig in `release-manifest.json` des Laufs. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
    auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
    `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
    aus `npm run build:app` bleibt auf dem eigenen Rechner. Ändert sich ein
    gebundener Eingang, vor dem nächsten Lauf die Änderungen auf neues
    Fremdmaterial prüfen und nur die betroffenen Einträge mit
    `scripts/release-license-rebind.mjs` neu binden (README, „Windows
-   packages“). Offen ist die Installerabnahme: Anzeige der
-   Lizenzseite, WebView2-Bedingungen, Hinweise der Installer-Stubs (jeder
-   Lauf meldet sie als `pending`: `nsis_msi_payload`, `installer_terms_ui`,
-   `installer_stub_notices`; dazu `native_import_family_review` für die
+   packages“). Die Installerabnahme hat der Maintainer am 24.10. an MSI
+   und Setup-EXE von 0.2.0 bestanden: Anzeige der Lizenzseite,
+   WebView2-Bedingungen, Hinweise der Installer-Stubs. Das Manifest jedes
+   Laufs meldet sie weiter als `pending` (`nsis_msi_payload`,
+   `installer_terms_ui`, `installer_stub_notices`), weil ein Bau sie nicht
+   kennt; erneut abzunehmen ist sie, wenn sich Installer, Lizenzseite oder
+   Stubs ändern. Offen bleiben `native_import_family_review` für die
    Durchsicht der nativen Importe der EXE und
-   `product_and_windows_acceptance` für die Abnahme am Fenster). MSI und
-   Setup-EXE von 0.2.0 sind ohne diese Abnahme veröffentlicht (Punkt 2). Die
+   `product_and_windows_acceptance` für die Abnahme am Fenster. Die
    Release-Binaries enthalten die Pfade des Cargo-Registers der Baumaschine
    (Panic-Orte von Kisten aus
    crates.io unter `<Profil>\.cargo\registry\src\…`); damit steht der
@@ -225,10 +262,11 @@ In dieser Reihenfolge:
      Größenchip kein Platz, und der Hinweis an der Grenze verdeckt bei 9
      Kacheln die Köpfe der ersten beiden, bis er geschlossen wird
      (Optik-Runde, Spec §12).
-   - Beim Start mit Kacheln mehrerer Hosts ändert die Liste eines später
-     verbindenden Hosts die Größe der Kacheln früher verbundener, je Kachel
-     ein `resize_terminal` (Spec §4.6, §4.7); Codex verliert dabei seinen
-     Verlauf.
+   - Beim Start mit Kacheln mehrerer Hosts ändert ein Host, der erst nach
+     der Frist von 5 s gelistet wird (oder von Hand verbunden), die Größe der
+     übrigen Kacheln, je Kachel ein `resize_terminal`; Codex verliert dabei
+     seinen Verlauf. Innerhalb der Frist kommen seit dem 24.10. alle Kacheln
+     in einem Zug (Raster-Spec §4.6, Nachtrag vom 24.10.).
    - Eine noch gesperrte Session, die nach dem Neuverbinden ihres Hosts neu
      montiert wird, erscheint mit sichtbarer Sperrleiste und bekommt danach
      ein zusätzliches `resize_terminal`; „Reconnect“ in der Sperrleiste

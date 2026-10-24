@@ -8,7 +8,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.2.0",
+    "product_version": "0.2.1",
     "installer_webview2_mode": "downloadBootstrapper",
     "installer_webview2_silent": true,
     "meaning": "License text selection for the application plus explicitly disclosed source/build families; not binary or installer acceptance.",
@@ -41,7 +41,7 @@
       {
         "path": "Cargo.lock",
         "bytes": 153541,
-        "sha256": "8a4f4c5d94567fb23ffce767b4b7995a14423c76b667639dea799496e8a18739"
+        "sha256": "9135eabcb7a07c0c4efc4b04d1c50c43af8818a70401de4a8647004168db892f"
       },
       {
         "path": "Cargo.toml",
@@ -516,12 +516,12 @@
       {
         "path": "package-lock.json",
         "bytes": 78998,
-        "sha256": "86ffb0a6bea7ecba9da07c938b55842bf7ee7dc2a918feb55870d9f8469d684d"
+        "sha256": "4491b0830bd1c8f3517eab4b0be19bd3dc53f90cfb8e1f9dedde41c67ba05aff"
       },
       {
         "path": "package.json",
         "bytes": 1273,
-        "sha256": "4c5514a54438574a4113f82e718024a90c71141776c1e43ff89d7edc7357cd70"
+        "sha256": "c0919755108a639676b9453c58c5748b1ab1a2406e54e9c1410cb7d038ced1a3"
       },
       {
         "path": "rust-toolchain.toml",
@@ -551,7 +551,7 @@
       {
         "path": "src-tauri/Cargo.toml",
         "bytes": 5397,
-        "sha256": "09c2d6840ba4bcd3b7794fddfdb0bebc1b974488fdcf9e0be27590a238ae712a"
+        "sha256": "646aaf10163121836f254232790aedb315e07eb7b670a61fd9d7deb4c8b781f1"
       },
       {
         "path": "src-tauri/build.rs",
@@ -561,7 +561,7 @@
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1460,
-        "sha256": "9df848445fba613c605c2c169dea20f3736db36959ea14656a5742d1931a384f"
+        "sha256": "1c588501beaf1e56d42f7a9f90f39044e195fc90fab29cfbde4d96117951010e"
       },
       {
         "path": "src-tauri/tauri.release.windows.json",
@@ -590,13 +590,13 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 132977,
-        "sha256": "6a0ab6049a809df795d0c84f963a09d262688998369c22e8eb6118c7f90022d0"
+        "bytes": 133338,
+        "sha256": "6b4e112b4560710ee4a8b549b14bec335ac6bd66f514bd4bec9af726b3c81b7a"
       },
       {
         "path": "src/state/app-state.ts",
-        "bytes": 45952,
-        "sha256": "e7da5478810143cd04e3c7d72400132b35bdd5e9167fc44ee6e23dbf8fb38cde"
+        "bytes": 46146,
+        "sha256": "6f6ed0cd362ad0fd8657f9d52cac90d1e4d0b70d5c4c62760da73808f5083f17"
       },
       {
         "path": "src/state/dir-tree.ts",
@@ -645,8 +645,8 @@
       },
       {
         "path": "src/views/grid.ts",
-        "bytes": 103408,
-        "sha256": "c6c3a0b1f00e01530eedf25894c7bb08addafe4da87890bdec6c1dfb836e4c2a"
+        "bytes": 105870,
+        "sha256": "dcdec99e1c8d0ae5735ec9b9109d04c0515881e4982cbbb182c47623098ebe91"
       },
       {
         "path": "src/views/host-form.ts",
@@ -733,13 +733,13 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 132977,
-            "sha256": "6a0ab6049a809df795d0c84f963a09d262688998369c22e8eb6118c7f90022d0"
+            "bytes": 133338,
+            "sha256": "6b4e112b4560710ee4a8b549b14bec335ac6bd66f514bd4bec9af726b3c81b7a"
           },
           {
             "path": "src/state/app-state.ts",
-            "bytes": 45952,
-            "sha256": "e7da5478810143cd04e3c7d72400132b35bdd5e9167fc44ee6e23dbf8fb38cde"
+            "bytes": 46146,
+            "sha256": "6f6ed0cd362ad0fd8657f9d52cac90d1e4d0b70d5c4c62760da73808f5083f17"
           },
           {
             "path": "src/state/attention.ts",
@@ -773,8 +773,8 @@
           },
           {
             "path": "src/state/workspace.ts",
-            "bytes": 25981,
-            "sha256": "4c0be8d6bcefb652c32ca7b6ab19ab121dd1fba418c5aaa31ddb3811732a28de"
+            "bytes": 29168,
+            "sha256": "7b24606fc62833343414f16478e5dba0770cf582a9774409f282ad438e48ee3e"
           },
           {
             "path": "src/styles.css",
@@ -833,8 +833,8 @@
           },
           {
             "path": "src/views/grid.ts",
-            "bytes": 103408,
-            "sha256": "c6c3a0b1f00e01530eedf25894c7bb08addafe4da87890bdec6c1dfb836e4c2a"
+            "bytes": 105870,
+            "sha256": "dcdec99e1c8d0ae5735ec9b9109d04c0515881e4982cbbb182c47623098ebe91"
           },
           {
             "path": "src/views/host-form.ts",
@@ -974,8 +974,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 261859,
-            "sha256": "6788c973b272a4f71f1d63b1a9dafc487bf541873f3be5a3e4401afb7672fe96"
+            "bytes": 262135,
+            "sha256": "091aa50e2a4abc99655b4848c6f77c14c820a1825ebc2f038ff9e423ef4826dd"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1089,13 +1089,13 @@
           },
           {
             "path": "src-tauri/src/status.rs",
-            "bytes": 31071,
-            "sha256": "31fe9c7306d442e227d37d6e1e0e2dcd7c57b92fa7ea3a047969996ac09856a4"
+            "bytes": 34492,
+            "sha256": "ef8720c6cc56c8c004fee8bf4fa783cd78439be386b45cc6cea7b9dea0901c5f"
           },
           {
             "path": "src-tauri/src/status/title.rs",
-            "bytes": 18461,
-            "sha256": "6f45b32231a571d2f86466c6511e7ba1bdeac2886d46da56834b4ee2d1dc6ba7"
+            "bytes": 36217,
+            "sha256": "0c5719c20ab443d082fd835979d14160f717ce0f04a86081d9fab8da7ad09194"
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation.rs",
@@ -1957,11 +1957,11 @@
         "declared_license": "Apache-2.0 OR MIT"
       },
       {
-        "package": "aidevbridge@0.2.0",
+        "package": "aidevbridge@0.2.1",
         "source": null,
         "manifest": {
           "bytes": 5397,
-          "sha256": "09c2d6840ba4bcd3b7794fddfdb0bebc1b974488fdcf9e0be27590a238ae712a"
+          "sha256": "646aaf10163121836f254232790aedb315e07eb7b670a61fd9d7deb4c8b781f1"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5451,25 +5451,25 @@
         "sha256": "25f77efa393854f7c15eaf6a2589a2071db2d7337642742763adb12bdecf0445"
       },
       {
-        "package": "aidevbridge@0.2.0",
+        "package": "aidevbridge@0.2.1",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.2.0",
+        "package": "aidevbridge@0.2.1",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.2.0",
+        "package": "aidevbridge@0.2.1",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.2.0",
+        "package": "aidevbridge@0.2.1",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11850,9 +11850,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.2.0",
+      "id": "cargo:aidevbridge@0.2.1",
       "name": "aidevbridge",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",
