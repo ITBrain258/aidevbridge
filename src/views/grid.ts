@@ -306,6 +306,34 @@ interface ResolvedSession {
   statusReason: string | null;
 }
 
+/** Die numerische Identitaet, mit der eine Kachel montiert wurde. */
+interface BoundIdentity {
+  sessionId: number;
+  serverPid: number | null;
+  serverStartTime: number | null;
+}
+
+function boundIdentity(session: ResolvedSession): BoundIdentity | null {
+  return session.sessionId === null
+    ? null
+    : { sessionId: session.sessionId, serverPid: session.serverPid, serverStartTime: session.serverStartTime };
+}
+
+/** Steht unter dem Namen inzwischen eine andere Session -- eine andere ID
+ * oder ein anderer tmux-Server? Der Name ist nie Identitaet (MVP-Spec,
+ * Nachtrag 2026-09-13): eine Neuanlage gleichen Namens ist eine neue
+ * Session, die alte ist beendet. Ohne numerische Bindung auf einer der
+ * beiden Seiten laesst sich das nicht sagen. */
+function replacedSince(identity: BoundIdentity | null, now: ResolvedSession): boolean {
+  if (identity === null || now.sessionId === null) return false;
+  if (now.sessionId !== identity.sessionId) return true;
+  const servers = [identity.serverPid, identity.serverStartTime, now.serverPid, now.serverStartTime];
+  return (
+    servers.every((value) => value !== null) &&
+    (now.serverPid !== identity.serverPid || now.serverStartTime !== identity.serverStartTime)
+  );
+}
+
 /** Ueber `sessionKey()` verglichen, nicht per String-Zerlegung -- der
  * Schluessel ist ausserhalb von `app-state.ts` ein opaker Wert (dasselbe
  * Muster wie `AppState.closeTile`). */
@@ -551,6 +579,9 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     name: string;
     /** Die Verbindung, auf der der Kanal verloren ging. */
     runtimeId: string;
+    /** Die Session, an der der verlorene Kanal hing. Haengt unter dem Namen
+     * inzwischen eine andere, ist diese beendet (`replacedSince`). */
+    identity: BoundIdentity | null;
     series: TileReattach;
     /** Die zuletzt still gehaltene Fehlermeldung eines Versuchs -- fuer die
      * Konsole, wenn die Reihe aufgibt. */
@@ -584,6 +615,10 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
      * Kachel mit Kanal bleibt an einer Kanalgrenze mit Sperrleiste und
      * "Reconnect" (`closesOnCapacity`; Spec 2026-10-19 §1 Nr. 1, §5.8, §8.3). */
     hadChannel: boolean;
+    /** Wurde die Session dieser Kachel durch eine gleichnamige ersetzt? Dann
+     * nennt die Sperrleiste sie beendet und bietet kein "Reconnect" an, das an
+     * die neue haengen wuerde. Faellt mit dem naechsten angehaengten Kanal. */
+    replaced: boolean;
     /** Hat der Nutzer diese Kachel mit "Reconnect" neu anhaengen lassen? Die
      * Sperre faellt dabei vor dem frischen Terminal (`requestReconnect`), das
      * Montieren sieht sie also nicht mehr; die Marke haelt fest, dass die Kachel
@@ -1062,6 +1097,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       entry?.series.cancel();
       entry = {
         key, hostId: mounted.hostId, name: mounted.name, runtimeId, lastError: null,
+        identity: boundIdentity(mounted),
         series: createTileReattach({
           attach: () => attemptReattach(view),
           setTimer: (callback, ms) => window.setTimeout(callback, ms),
@@ -1080,7 +1116,8 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
   }
 
   /** Der faellige Versuch. Eine beendete Session wird gar nicht erst
-   * angehaengt; ihre Kachel behaelt die letzte Ausgabe. */
+   * angehaengt, auch keine, an deren Namen inzwischen eine neue haengt; ihre
+   * Kachel behaelt die letzte Ausgabe. */
   function attemptReattach(view: TileView): void {
     const entry = view.reattach;
     if (!isLive(view) || !entry) return;
@@ -1090,7 +1127,9 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       render();
       return;
     }
-    if (target.status === "ended") {
+    const replaced = replacedSince(entry.identity, target);
+    if (target.status === "ended" || replaced) {
+      view.replaced = replaced;
       giveUpReattach(view, entry, true);
       return;
     }
@@ -1102,11 +1141,14 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
 
   /** Das frische Terminal eines Versuchs konnte nicht anhaengen. */
   function onReattachFailed(view: TileView, entry: ReattachEntry): void {
-    const ended = resolveSession(state, entry.key)?.status === "ended";
+    const resolved = resolveSession(state, entry.key);
+    const replaced = resolved !== null && replacedSince(entry.identity, resolved);
+    const ended = resolved?.status === "ended" || replaced;
     if (!ended && entry.series.failed()) {
       render();
       return;
     }
+    view.replaced = replaced;
     giveUpReattach(view, entry, ended);
   }
 
@@ -1338,6 +1380,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
             onOpened: () => {
               quietErrors = false;
               view.hadChannel = true;
+              view.replaced = false;
               const entry = ownAttempt();
               entry?.series.opened();
               // Spec 2026-10-19 §8.1 (Schritt 3): wer angehaengt hat, wartet
@@ -1447,6 +1490,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
         flashTimer: undefined,
         lastLocked: false,
         hadChannel: false,
+        replaced: false,
         reconnectRequested: false,
         queued: false,
         rect: null,
@@ -1854,7 +1898,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     // UX-Spec §5.5: ist die Session auf dem Host beendet (die Statusabfrage
     // fand sie in keiner vollstaendigen Liste mehr), nennt die Leiste diesen
     // Grund, und "Reconnect" faellt weg -- es gibt nichts mehr anzuhaengen.
-    const ended = locked && resolved?.status === "ended";
+    const ended = locked && (resolved?.status === "ended" || view.replaced);
     refs.lockMessage.textContent = locked
       ? ` — ${t(ended ? "terminal.sessionEnded" : "terminal.connectionLost")}`
       : "";

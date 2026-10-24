@@ -30,6 +30,14 @@ steht im [README](../README.md#what-it-is), die Änderungen im
   erklärt SmartScreen und Smart App Control, und jede Veröffentlichung nennt
   die SHA-256-Werte aus `release-manifest.json` des Lieferlaufs.
 
+## Entscheidungen vom 23.10.2026
+
+- **Keine feste Versionsbindung:** Die Statusformen werden gegen die jeweils
+  neueste Agentversion gemessen; jede Version zählt, solange ihre Ausgabe eine
+  gemessene Form hat, sonst „Unknown“. Keine Version im Tooltip.
+- **Grok vorerst nicht:** Messungen und M1-Tor nur mit Claude Code und Codex.
+  Die Titelregeln für Grok bleiben im Code, sind aber nicht erneut gemessen.
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -37,12 +45,28 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 | M0 Fundament | abgeschlossen mit 0.1.1 |
 | UI v2 | abgeschlossen mit 0.1.2; seit 14.09. Farbwahl (7 Akzente auf 2 Grundtönen) und Einstellungsdialog |
 | Stabilität und Verbindung | Kontroll- und Terminalverbindung je Host, Fristen, Kontrollreparatur, Korrekturen an Hostschlüsseln, Erststart und Hostverwaltung, RSA-Blinding |
-| M1 Statuspunkt | gebaut bis auf das Tor: numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel |
+| M1 Statuspunkt | gebaut bis auf das Tor: numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel. Seit 23.10. gemessen gegen Claude Code 2.1.309 und Codex 0.163.0/0.164.0 ([Messung](messungen/messung-2026-10-23-agentversionen.md)), Agent über `/proc/<pid>/exe`, Codex-Einstellungen gelesen, Größengrenzen, VM-Test mit Attrappen |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Steuerzustand nur bei echtem Verlust, Selbstheilung für Schlüssel- und Agent-Hosts und Verlauf beim Anhängen; Arbeitsplatz, Schnellöffnen, Namensvorschlag, Anzeigename, ziehbare Seitenleiste; fünf Einstellungsbereiche; tmux 3.6 |
 | Dynamisches Raster | Schritt 0, 1 und 3 abgeschlossen nach der [Spec vom 19.10.](specs/2026-10-19-dynamisches-raster-design.md): bis zu 9 Kacheln, höchstens 8 je Host, je Host höchstens 4 Öffnungen zugleich („Opening…“), Tauschen per Zug am Kopf, Größe per Spalt, Maximieren verbirgt die übrigen Kacheln statt sie zu schließen, Wartet-Spur mit Wartezeit, Kachelnummer in Liste und Spur |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger Lauf für 0.2.0 nach dem Neubinden der Lizenzauswahl |
 
 ## Letzte Prüfung
+
+Am 23.10.2026 nach den Korrekturen aus dem M1-Tor: 2635 Frontend-Tests in
+49 Dateien und TypeScript- und Vite-Build grün; Rust fmt und Clippy grün,
+Bibliothekstests bis auf einen wechselnden `commands::connect_tests` grün
+(siehe unten); 76 Skripttests grün. CI auf `main` für 0.2.0 nach dem
+Neustart des abgebrochenen Jobs grün.
+
+Am 23.10.2026 nach der Statusquelle, auf einem Rechner mit 8 GB
+Arbeitsspeicher: Rust fmt und Clippy mit `-D warnings` grün,
+`cargo test --all --no-fail-fast` grün bis auf zwei bis drei wechselnde
+`commands::connect_tests` (Frist von 5 s für eine lokale Testverbindung). Sie
+fallen auf diesem Rechner auch ohne die Änderungen aus, einzeln laufen sie
+grün; `-j 2` war nötig, weil sonst die Auslagerungsdatei nicht reichte.
+`integration_status_title` gegen beide Test-VMs grün (tmux 3.3a und 3.6).
+Frontend und Skripte unverändert, nicht neu geprüft. Die Lizenzauswahl ist
+für die geänderten eigenen Quellen vor dem nächsten Release neu zu binden.
 
 Am 22.10.2026 nach den Korrekturen für die CI, den Abhängigkeits-Updates und
 dem russh-Patch für Anmeldefehler: 2631 Frontend-Tests in 49 Dateien,
@@ -78,8 +102,19 @@ In dieser Reihenfolge:
    Neuanlage gleichen Namens wird über die IDs erkannt, zwischen den Polls
    läuft kein Überwachungsprozess, ein Kachelwechsel ohne Größenänderung
    sendet kein Resize. Ablauf und Log:
-   [Handabnahme §9](abnahme-handarbeit.md#9-m1-tor). Die aktuellen
-   Agentversionen weichen von den gemessenen ab (Punkt 3).
+   [Handabnahme §9](abnahme-handarbeit.md#9-m1-tor), seit 23.10. ohne Grok
+   und mit Agents, die zurückfragen.
+   **Stand 23.10.:** automatisierter Lauf (CDP und SSH, isolierte
+   Testinstanz) über die Schritte 1 bis 11 bestanden
+   ([Bericht](messungen/messung-2026-10-23-m1-tor.md)); Statuslatenz unter
+   vier flutenden Kacheln 1,07 s. Schritt 7 scheiterte zuerst: Die Kachel
+   hing sich nach `kill-session`/`new-session` gleichen Namens an die neue
+   Session (behoben, die stille Wiederanhängung prüft jetzt die
+   Session-ID). Die WINCH-Schleife der Schritte 3 und 11 ist korrigiert.
+   Offen am Fenster: Taskleistenblinken, der Kasten nach fünf gescheiterten
+   Kontrollreparaturen, echte Tastatur und Maus; Schritt 12 ist das M2-Tor
+   (Punkt 4). Beobachtung: Nach einem Neustart erscheint für die Kachel
+   einer beendeten Session zusätzlich zur Sperrleiste ein Fehlerbanner.
 2. **Erstes Release:** Abweichend von der Planung (erst nach dem M1-Tor,
    MSI und Setup-EXE erst nach der Installerabnahme) erschien `v0.2.0` auf
    Entscheidung des Maintainers schon am 22.10.: Der Tag steht auf dem
@@ -94,18 +129,17 @@ In dieser Reihenfolge:
    `src-tauri/tests/fixtures/rsa-signing/`, in `src-tauri/src/ssh/auth.rs`
    und in `vendor/russh` sowie der synthetische Schlüssel in
    `scripts/m1-error-profile.py` sind Testdaten.
-3. **Statusquelle vor dem Release-Kandidaten:**
-   - Codex-Einstellungen `tui.animations` und `tui.terminal_title` lesend
-     berücksichtigen.
-   - Über die Versionsbindung entscheiden: feste Liste oder Titelform mit
-     Rückfall auf „Unknown“ und Version im Tooltip.
-   - Die Formen gegen aktuelle Agentversionen neu messen. Gemessen sind
-     Claude Code 2.1.269 und 2.1.270, Codex 0.154.0 und Grok 1.0.30 (der
-     Freigabetitel mit 1.0.13); neuere Versionen wie Claude Code 2.1.296,
-     Codex 0.156.1 und Grok 1.0.44 sind nicht gemessen. Dabei auch Freigabe
-     und langen Hintergrundbefehl von Grok nachmessen.
-   - Titelquelle härten: `/proc/<pid>/exe` als Identität, Größengrenze je
-     Titel, Socket als Argument, VM-Test mit einem Attrappen-Agent.
+3. **Statusquelle:** erledigt am 23.10. ([Messung](messungen/messung-2026-10-23-agentversionen.md),
+   [Nachtrag der MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md)
+   vom 23.10.). Keine feste Versionsbindung; gemessen Claude Code 2.1.309
+   und Codex 0.163.0 und 0.164.0, „goal proposal“ ergibt wartet. Die
+   Codex-Einstellungen `tui.animations`, `tui.effects.progress` und
+   `tui.terminal_title` werden gelesen. Die Titelquelle erkennt den Agent
+   über `/proc/<pid>/exe`, begrenzt Titel auf 1024 und Pfade auf 4096 Byte,
+   bekommt den Socket als Argument und hat einen VM-Test mit Attrappen.
+   Offen: Grok (Freigabe, langer Hintergrundbefehl, aktuelle Version), wenn
+   es zurückkommt; Projektdateien und `-c`-Optionen von Codex bleiben
+   ungelesen.
 4. **M2:** History-Restore und Auto-Reconnect sind mit der UX-Überarbeitung
    gebaut ([Spec](specs/2026-10-11-ux-ueberarbeitung-design.md) §5.3–§5.6),
    die Selbstheilung nur für Schlüssel und ssh-agent. Offen ist das Tor am

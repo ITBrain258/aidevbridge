@@ -2539,10 +2539,14 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
     return calls[calls.length - 1][3] as (error: TerminalError) => void;
   }
 
-  function setup(opts: Partial<GridOptions> = {}): { state: AppState; el: HTMLElement; options: GridOptions } {
+  function setup(
+    opts: Partial<GridOptions> = {},
+    before?: (state: AppState) => void,
+  ): { state: AppState; el: HTMLElement; options: GridOptions } {
     const state = new AppState();
     state.upsertHost(makeHost("h1", "vm-1"));
     state.setSessions("h1", ["s1"]);
+    before?.(state);
     state.openSession("h1", "s1");
     const el = document.createElement("div");
     const options: GridOptions = {
@@ -2721,6 +2725,72 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
     expect(warn).not.toHaveBeenCalled();
     vi.advanceTimersByTime(60_000);
     expect(mounts()).toBe(2);
+  });
+
+  // M1-Tor, Schritt 7 (2026-10-23): kill-session und new-session gleichen
+  // Namens. Die Probe nach dem Verlust liest die Liste neu, und unter dem
+  // Namen haengt eine neue Session; die Kachel hing sich an sie. Der Name ist
+  // nie Identitaet: die alte Session ist beendet.
+  describe("Neuanlage gleichen Namens", () => {
+    const bound = { name: "s1", sessionId: 1, serverPid: 50, serverStartTime: 1000 };
+    const bindOld = (state: AppState): void => state.setSessionRecords("h1", [bound]);
+
+    function expectEnded(el: HTMLElement): void {
+      expect(quiet(el).hidden).toBe(true);
+      expect(strip(el).hidden).toBe(false);
+      expect(strip(el).textContent).toContain("This session has ended on the host.");
+      expect(strip(el).textContent).not.toContain("lost its connection");
+      expect(strip(el).querySelector<HTMLButtonElement>(".tile-lock-reconnect")!.hidden).toBe(true);
+    }
+
+    it("haengt sich nicht an eine gleichnamige neue Session und nennt die alte beendet", () => {
+      const { state, el, options } = setup({}, bindOld);
+      lastOpts().onConnectionLost();
+      state.setSessionRecords("h1", [
+        { ...bound, sessionId: 9, status: "unknown", statusReason: "no agent source is attached yet" },
+      ]);
+      vi.advanceTimersByTime(60_000);
+      expect(mounts()).toBe(1);
+      expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+      expectEnded(el);
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    it("gibt auf, wenn die Neuanlage erst nach einem gescheiterten Versuch in der Liste steht", () => {
+      const { state, el, options } = setup({}, bindOld);
+      lastOpts().onConnectionLost();
+      vi.advanceTimersByTime(500);
+      expect(mounts()).toBe(2);
+      // Die alte Pane gibt es nicht mehr: das gebundene Oeffnen scheitert.
+      lastOnError()({ kind: "open", detail: "bound pane is gone" });
+      lastOpts().onOpenFailed();
+      state.setSessionRecords("h1", [{ ...bound, sessionId: 9 }]);
+      vi.advanceTimersByTime(60_000);
+      expect(mounts()).toBe(2);
+      expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+      expectEnded(el);
+    });
+
+    it("nennt die Session auch beendet, wenn derselbe Name auf einem neuen tmux-Server liegt", () => {
+      const { state, el } = setup({}, bindOld);
+      lastOpts().onConnectionLost();
+      state.setSessionRecords("h1", [{ ...bound, serverStartTime: 2000 }]);
+      vi.advanceTimersByTime(60_000);
+      expect(mounts()).toBe(1);
+      expectEnded(el);
+    });
+
+    it("haengt bei derselben Identitaet weiter an, und ein neuer Kanal hebt die Marke auf", () => {
+      const { state, el, options } = setup({}, bindOld);
+      lastOpts().onConnectionLost();
+      state.setSessionRecords("h1", [{ ...bound, status: "idle", statusReason: "agent is idle" }]);
+      vi.advanceTimersByTime(500);
+      expect(mounts()).toBe(2);
+      lastOpts().onOpened?.();
+      expect(quiet(el).hidden).toBe(true);
+      expect(strip(el).hidden).toBe(true);
+      expect(options.onTerminalOpenFailed).not.toHaveBeenCalled();
+    });
   });
 
   it("haengt eine beendete Session gar nicht erst an und laesst die letzte Ausgabe stehen", () => {

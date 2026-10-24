@@ -304,7 +304,8 @@ verbinden sich, ihre Kacheln kommen zurück, Passwort-Hosts bleiben offline.
 ## 8. Status und Aufmerksamkeit
 
 **Was zu tun ist:** Auf dem Testhost je eine entbehrliche Session mit Claude
-Code, Codex und Grok von Hand starten und jeden Agent einmal arbeiten, auf
+Code und Codex (Grok vorerst nicht, Entscheidung vom 23.10.) von Hand
+starten, mit Rückfragen wie in Punkt 9, und jeden Agent einmal arbeiten, auf
 eine Freigabe warten und ruhen lassen; mindestens einen davon auf einem Host
 mit tmux 3.6 (192.0.2.20). Das Fenster zwischendurch in den Hintergrund legen.
 Einen Host mit wartender Session in der Seitenleiste zuklappen, bei 208 und
@@ -332,10 +333,12 @@ auf den VMs (nur mitlesend, außer in Schritt 6). Die Bedingungen stehen in der
 [MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md) §3.4 mit den
 Nachträgen vom 13.09. und 14.09., für das Raster (Schritte 3, 4 und 10 bis 12)
 in der [Raster-Spec](specs/2026-10-19-dynamisches-raster-design.md) §10.2.
-Gemessen sind Claude Code 2.1.269 und 2.1.270; auf 192.0.2.20 lief am 12.10.
-2.1.296, Schritt 1 belegt die Version am Tag des Tors. API-Fehler lassen sich
-am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
-(nicht im öffentlichen Repository).
+Zuletzt gemessen am 23.10.: Claude Code 2.1.309, Codex 0.163.0 und 0.164.0
+([Messung](messungen/messung-2026-10-23-agentversionen.md)); Schritt 1 belegt
+die Versionen am Tag des Tors. Grok ist vorerst nicht Teil des Tors
+(Entscheidung des Maintainers vom 23.10.). API-Fehler lassen sich am Fenster
+nicht auslösen, dafür gelten die Fehlermessungen vom 12.09. (nicht im
+öffentlichen Repository).
 
 **Vorbereitung**
 
@@ -357,7 +360,7 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
 
   | Host | Flut | Agents |
   |---|---|---|
-  | 192.0.2.10 | `m1-f1`, `m1-f2` | `m1-claude1` (`claude`), `m1-grok` (`grok`) |
+  | 192.0.2.10 | `m1-f1`, `m1-f2` | `m1-claude1` (`claude`), `m1-codex1` (`codex`) |
   | 192.0.2.20 | `m1-f3` bis `m1-f9` | `m1-claude2` (`claude`), `m1-codex` (`codex`) |
 
   `m1-f5` ist die eigene Session von `m1-drei`: Sie liegt auf demselben
@@ -365,17 +368,19 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
   `m1-f6` bis `m1-f9` braucht erst Schritt 10: Mit ihnen zeigt 192.0.2.20 acht
   Kacheln.
 
-  Codex nur auf 192.0.2.20. Dort lief am 12.10. in der interaktiven Shell
-  0.156.1, gemessen sind die Titelformen von 0.154.0; vor dem Tor neu messen
-  ([Stand](stand.md), Punkt 3).
+  Die Agents so starten, dass sie zurückfragen: `claude --permission-mode
+  default` und `codex -a on-request`. Ein Auto-Modus gibt Befehle selbst
+  frei, und es gibt nichts zu warten.
 - Vor Schritt 3 alle übrigen Kacheln schließen; danach öffnet jeder Klick eine
   Kachel dazu.
 
 **Schritte**
 
-1. **Claude-Zustände.** In `m1-claude1`: „Führe `sleep 20 && echo fertig`
-   mit Bash aus.“ Freigeben. Danach denselben Auftrag mit „No“ ablehnen,
-   ein drittes Mal freigeben und während der Arbeit Esc drücken.
+1. **Claude-Zustände.** In `m1-claude1`: „Führe
+   `sleep 20 && touch /tmp/m1-probe && echo fertig` mit Bash aus.“
+   Freigeben. Danach denselben Auftrag mit „No“ ablehnen, ein drittes Mal
+   freigeben und während der Arbeit Esc drücken. (Ohne `touch` führt Claude
+   Code 2.1.309 den Befehl ohne Rückfrage aus.)
    Erwartung: Busy beim Nachdenken, Waiting bei jeder Freigabe, Busy
    während `sleep`, Idle nach dem Ende, nach „No“ und nach Esc. Pille in
    Sessionzeile und Kachelkopf gleich, der Tooltip nennt den Grund. Per SSH
@@ -383,15 +388,17 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
    aufgezeichnet; daraus folgt die Signalverzögerung des Agents getrennt von
    der App.
 2. **Freigabe bei geschlossener Kachel.** In `m1-claude1`: „Führe
-   nacheinander einzeln aus: `sleep 15`, `sleep 15`, `echo fertig`.“ Die
-   erste Freigabe erteilen, die Kachel schließen, das Fenster in den
-   Hintergrund legen.
+   nacheinander einzeln mit Bash aus: `sleep 15 && touch /tmp/m1-a`,
+   `sleep 15 && touch /tmp/m1-b`, `touch /tmp/m1-c`.“ Die erste Freigabe
+   erteilen, die Kachel schließen, das Fenster in den Hintergrund legen.
    Erwartung: Bei der zweiten Freigabe zeigt die Sessionzeile Waiting, der
    Fenstertitel zählt sie, die Taskleiste blinkt einmal, Ctrl+Shift+A
    springt hin. Freigeben, Kachel wieder schließen; bei der dritten
    Freigabe dasselbe.
 3. **BEL und Resize.** In `m1-f1`: `printf '\a'`. In `m1-f2`:
-   `trap 'echo WINCH' WINCH; while :; do sleep 1; done`. Nur `m1-f1` und
+   `bash -c 'trap "echo WINCH" WINCH; while :; do sleep 1 & wait $!; done'`
+   (in der interaktiven Shell selbst liefe `sleep` als eigene
+   Vordergrundgruppe, und das Signal käme nie an). Nur `m1-f1` und
    `m1-f2` sind offen. Mit Ctrl+Shift+1 und 2 und per Klick zwischen den
    Kacheln wechseln, danach `m1-f2` maximieren und wiederherstellen, dann
    `m1-f3` öffnen und wieder schließen.
@@ -411,11 +418,13 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
    herausgerechnet.
    Ziel: binnen 4 s. Das Fenster bleibt bedienbar. Danach `yes` in allen
    vier Kacheln mit Ctrl+C beenden und Claude mit „No“ antworten.
-5. **Codex und Grok.** In `m1-grok` und `m1-codex` je eine kleine Aufgabe
-   geben. Falls vorhanden, kurz `opencode` oder `agy` in einer Flut-Session
-   starten.
-   Erwartung: Busy während der Arbeit, danach Idle; Codex vor dem ersten
-   Auftrag Unknown; `opencode` und `agy` Unknown mit Grund.
+5. **Codex.** In `m1-codex1` und `m1-codex` je eine kleine Aufgabe geben,
+   in `m1-codex` eine mit Freigabe: „Lege `/var/tmp/m1-codex-probe.txt` mit
+   dem Inhalt ok an, mit einem einzigen Shellbefehl.“ Falls vorhanden, kurz
+   `opencode` oder `agy` in einer Flut-Session starten.
+   Erwartung: Codex vor dem ersten Auftrag Unknown, Busy während der
+   Arbeit, Waiting bei der Freigabe, danach Idle; `opencode` und `agy`
+   Unknown mit Grund.
 6. **Kontrollausfall.** Per SSH wird auf 192.0.2.20 gezielt der sshd-Prozess
    der Kontrollverbindung der App beendet; vorher wird er der Person am
    Fenster gezeigt.
@@ -429,9 +438,13 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
    updates“.
 7. **Neuanlage gleichen Namens.** In `m1-f3`:
    `tmux -L agentbridge kill-session -t m1-f4 && tmux -L agentbridge new-session -d -s m1-f4`.
-   Erwartung: Die alte Zeile `m1-f4` zeigt Ended, ihre Kachel lebt nicht
-   weiter. Nach „Reload sessions“ steht `m1-f4` als neue Session da, ohne
-   den alten Status.
+   Erwartung: Die Kachel von `m1-f4` lebt nicht weiter: Sperrleiste „This
+   session has ended on the host“, ohne Reconnect, kein tmux-Client an der
+   neuen Session. Die alte Zeile `m1-f4` zeigt Ended, solange die Liste
+   ihres Eintrags nicht neu gelesen ist; der Host der Kachel liest sie nach
+   dem Kanalverlust selbst neu und zeigt dann die neue Session. Nach
+   „Reload sessions“ steht `m1-f4` als neue Session da, ohne den alten
+   Status.
 8. **Neustart.** In `m1-claude1` Claude mit `/exit` beenden, dann wieder
    `claude` starten. Die Shell in `m1-f1` mit `exit` beenden. Die App
    schließen, neu starten und beide Hosts verbinden.
@@ -455,7 +468,8 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
     `m1-drei`) den an der Gesamtgrenze („9 terminals are open, the
     limit.“). Beide neutral, nichts schließt.
 11. **Tausch und Maximieren.** In zwei gleich großen Kacheln
-    `trap 'echo WINCH' WINCH; while :; do sleep 1; done` starten, die
+    `bash -c 'trap "echo WINCH" WINCH; while :; do sleep 1 & wait $!; done'`
+    starten (siehe Schritt 3), die
     beiden per Zug am Kopf tauschen, dann eine Kachel maximieren und
     zurückholen. Per SSH läuft vor und nach dem Tausch auf den VMs
     `tmux -L agentbridge list-clients -F '#{client_tty} #{client_created}'`.
@@ -471,16 +485,17 @@ am Fenster nicht auslösen, dafür gelten die Fehlermessungen vom 12.09.
     zeigen die wartenden kurz „Reconnecting…“ oder „Opening…“.
 
 Zum Schluss die `m1-*`-Sessions über „End session…“ beenden, danach den
-Eintrag `m1-drei` entfernen.
+Eintrag `m1-drei` entfernen und die Probedateien löschen (`/tmp/m1-*`,
+`/var/tmp/m1-codex-probe.txt`).
 
 | Schritt | Ergebnis | Notiz |
 |---|---|---|
-| Datum, Build, Versionen (Claude, Codex, Grok, tmux) | | |
+| Datum, Build, Versionen (Claude, Codex, tmux) | | |
 | 1 Claude-Zustände | | |
 | 2 Geschlossene Kachel | | |
 | 3 BEL und Resize | | |
 | 4 Vier flutende Kacheln | | |
-| 5 Codex und Grok | | |
+| 5 Codex | | |
 | 6 Kontrollausfall | | |
 | 7 Neuanlage gleichen Namens | | |
 | 8 Neustart | | |
@@ -496,4 +511,5 @@ Eintrag `m1-drei` entfernen.
 | Datum | Person | Build | Farben | Maus | Bracketed Paste | Dauerlast | Abriss | Wiederverbinden | Tastatur | Status | Notizen |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-10-12 | automatisierter Lauf (Fensterabnahme über CDP, keine Handabnahme) | 0.1.2, Debug-Bau vom 12.10. (Code nach der letzten Korrekturrunde) | teilweise: 125 % am echten Bildschirm, 100/150 % emuliert; Kontrastmodus (emuliert) und volle Unterlängen bestanden; 14 Themen nicht geprüft | teilweise: Umschalt+Ziehen + Strg+C legt den Text in die Windows-Zwischenablage (per PowerShell gelesen) und schickt kein ^C; Ziehen kopiert über tmux ebenfalls in die Windows-Zwischenablage, mit „Copied“; Rechtsklick nicht geprüft | bestanden: Strg+V und Umschalt+Einfg fügen geklammert ein, auch Text aus der Windows-Zwischenablage (per PowerShell gesetzt); nichts ausgeführt | nicht geprüft | nicht geprüft | teilweise: Neustart stellt Host, Kachel mit Verlauf, Layout und Seitenleiste her; nicht mehr vorhandene Session ergibt einen leeren Platz ohne Banner; echter Standby nicht geprüft | teilweise: Strg+Umschalt+P/N, Strg+„,“, Strg+=/0, F5 außerhalb des Terminals bestanden; AltGr-Zeichen `@ € \ { [ ] } \| ~` bei bestehender Markierung (als Strg+Alt-Ereignisse über CDP) kommen an und kopieren nichts; echte Tastatur nicht geprüft | teilweise: Host rund 35 min „Online“ ohne Fehlalarm, tmux-Uhr lief | Testinstanz isoliert (eigene `settings.toml`, Sockets `abtest_20261012_w1`/`_w2`). Echte Tastatur, Rechtsklick, 100/150 % am echten Bildschirm, Standby, VPN-Wechsel und Bildschirmleser bleiben Handabnahme. Strg+C direkt nach dem Ziehen auf einem Host mit `mouse on` geht als ^C an die Shell (Spec §6.1/§6.4) — im Alltag beurteilen. |
+| 2026-10-23 | automatisierter Lauf des M1-Tors (CDP und SSH, keine Handabnahme) | 0.2.0, Debug-Bau von 43e41d5, Schritt 7 erneut mit 861e434 | nicht geprüft | nicht geprüft | nicht geprüft | teilweise: vier Kacheln mit `yes`, Fenster bedienbar | teilweise: Kontrollverbindung gezielt beendet (M1-Tor Schritt 6), kein Netzabriss | nicht geprüft | nicht geprüft | bestanden über CDP: Claude Code 2.1.309, Codex 0.164.0, agy 1.4.6; Busy, Waiting, Idle, Unknown, Ended; Fenstertitel, Wartet-Spur, Ctrl+Shift+A; Taskleistenblinken nicht sichtbar | M1-Tor Schritte 1 bis 11 bestanden, Schritt 7 nach Korrektur; Schritt 12 (M2) offen. Bericht: [messung-2026-10-23-m1-tor.md](messungen/messung-2026-10-23-m1-tor.md). |
 | | | | | | | | | | | | |

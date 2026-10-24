@@ -1,0 +1,73 @@
+A 1792770930.634531796 []
+P 1792771030.123157594 m1-claude1 65333 1 <host>|m1-codex1 65337 1 <host>|m1-f2 65324 1 <host>|
+P 1792771047.980655289 
+P 1792771052.676304562 m1-f1 68629 1 <host>|
+P 1792771066.529203801 m1-claude1 70878 1 <host>|m1-codex1 70882 1 <host>|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+A 1792771094.592298174 [[74844,70878,"idle",null]]
+P 1792771094.592298174 m1-claude1 70878 1 ✳ Claude Code|m1-codex1 70882 1 <host>|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771095.082021635 m1-claude1 70878 1 ✳ Claude Code|m1-codex1 70882 1 ⠙ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771095.591454847 m1-claude1 70878 1 ✳ Claude Code|m1-codex1 70882 1 tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+A 1792771179.573196081 [[74844,70878,"busy",null]]
+A 1792771181.438249090 [[74844,70878,"waiting","permission prompt"]]
+P 1792771181.438249090 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+A 1792771210.135423741 [[74844,70878,"busy",null]]
+A 1792771231.395121157 [[74844,70878,"idle",null]]
+A 1792771235.120161073 [[74844,70878,"busy",null]]
+A 1792771236.552160240 [[74844,70878,"waiting","permission prompt"]]
+A 1792771239.365239546 [[74844,70878,"idle",null]]
+A 1792771251.041360967 [[74844,70878,"busy",null]]
+A 1792771252.477496285 [[74844,70878,"waiting","permission prompt"]]
+A 1792771254.764700255 [[74844,70878,"busy",null]]
+A 1792771261.250943353 [[74844,70878,"idle",null]]
+A 1792771286.488283920 [[74844,70878,"busy",null]]
+A 1792771287.943111266 [[74844,70878,"waiting","permission prompt"]]
+A 1792771288.969019396 [[74844,70878,"busy",null]]
+A 1792771305.150838536 [[74844,70878,"waiting","permission prompt"]]
+A 1792771333.220955346 [[74844,70878,"busy",null]]
+A 1792771349.585031553 [[74844,70878,"waiting","permission prompt"]]
+A 1792771359.558469751 [[74844,70878,"busy",null]]
+A 1792771361.900705408 [[74844,70878,"idle",null]]
+P 1792771629.438550927 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠼ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771629.912518844 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠏ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771630.377150196 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠸ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771630.844576407 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠇ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771631.315882743 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠸ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771631.758566537 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠧ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771632.221757155 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠹ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771632.670499336 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠦ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771633.112766532 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠙ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771633.578104926 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠦ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771634.053765995 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠙ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771634.575584188 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠦ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771635.115624655 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠙ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771635.625406989 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠦ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771636.108910636 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠙ tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771636.609126039 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠦ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771637.088239223 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠙ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771637.582113690 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠦ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771638.091960540 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠋ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771638.545688930 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠦ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771639.055199758 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠋ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771639.530134980 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠴ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771639.988309112 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠋ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771640.459677007 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠴ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771640.986302371 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠋ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771641.456663083 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠼ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771641.902817638 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠏ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771642.383880142 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠼ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771642.869825023 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠇ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771643.332540320 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠸ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771643.776350879 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠇ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771644.331586942 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠸ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771644.800843945 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠇ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771645.283549044 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠸ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771645.812860758 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠇ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771646.305481674 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠸ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771646.785096301 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠇ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771647.268913547 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠸ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771647.746547934 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 ⠧ Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+P 1792771648.230266969 m1-claude1 70878 1 ✳ Bash-Probe /tmp/m1-probe|m1-codex1 70882 1 Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+A 1792772340.218344656 []
+P 1792772340.218344656 m1-claude1 70878 1 |m1-codex1 70882 1 Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
+A 1792772343.481622041 [[249570,70878,"idle",null]]
+P 1792772343.481622041 m1-claude1 70878 1 ✳ Claude Code|m1-codex1 70882 1 Run sleep command | tmp|m1-f1 68629 1 <host>|m1-f2 70874 1 <host>|
