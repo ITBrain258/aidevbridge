@@ -590,8 +590,8 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 133226,
-        "sha256": "a4902f0ecba734c9d63f1c3cc00e4bb77cbd6aa6e70452675bc4971d0b16fb7e"
+        "bytes": 133338,
+        "sha256": "6b4e112b4560710ee4a8b549b14bec335ac6bd66f514bd4bec9af726b3c81b7a"
       },
       {
         "path": "src/state/app-state.ts",
@@ -733,8 +733,8 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 133226,
-            "sha256": "a4902f0ecba734c9d63f1c3cc00e4bb77cbd6aa6e70452675bc4971d0b16fb7e"
+            "bytes": 133338,
+            "sha256": "6b4e112b4560710ee4a8b549b14bec335ac6bd66f514bd4bec9af726b3c81b7a"
           },
           {
             "path": "src/state/app-state.ts",
@@ -773,8 +773,8 @@
           },
           {
             "path": "src/state/workspace.ts",
-            "bytes": 28544,
-            "sha256": "5af201f81d63f19cb50593f3a1e0293bfe3c945e30ddfe8392e9686f7c28eb1d"
+            "bytes": 29168,
+            "sha256": "7b24606fc62833343414f16478e5dba0770cf582a9774409f282ad438e48ee3e"
           },
           {
             "path": "src/styles.css",
