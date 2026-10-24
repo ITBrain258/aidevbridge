@@ -76,6 +76,11 @@ export function buildStatusPill(view: AgentStatusView): HTMLSpanElement {
   shape.className = view.kind === "stale" ? `ag ag-${view.shape} ag-stale` : `ag ag-${view.shape}`;
   box.appendChild(shape);
   pill.appendChild(box);
-  pill.appendChild(document.createTextNode(view.word));
+  // In eigenem Element: in einer schmalen Kachel blendet styles.css das Wort
+  // nur fuer das Auge aus, der Bildschirmleser liest es weiter.
+  const word = document.createElement("span");
+  word.className = "st-word";
+  word.textContent = view.word;
+  pill.appendChild(word);
   return pill;
 }

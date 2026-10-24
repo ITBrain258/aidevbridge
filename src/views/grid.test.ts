@@ -3556,6 +3556,21 @@ describe("mountGrid: schmale Kachel (Spec 2026-10-19 §8.4)", () => {
     expect(chip.hidden).toBe(true);
   });
 
+  // Optik-Runde vom 24.10.: in einer schmalen Kachel zeigt der Chip nur die
+  // Groesse (styles.css); der ganze Satz steht im Tooltip.
+  it("traegt Groesse und Rest des Satzes in eigenen Teilen, den ganzen Satz im Tooltip", () => {
+    const el = document.createElement("div");
+    mount(el, stateWithTiles(["s1"]));
+    const chip = el.querySelector<HTMLElement>(".tile-narrow")!;
+    reportSize(62, 13);
+    expect(chip.querySelector(".tile-narrow-size")?.textContent).toBe("62×13");
+    expect(chip.querySelector(".tile-narrow-rest")?.textContent).toBe(" · narrow");
+    expect(chip.title).toBe("62×13 · narrow");
+    reportSize(120, 40);
+    expect(chip.hasAttribute("title")).toBe(false);
+    expect(chip.textContent).toBe("");
+  });
+
   it("bleibt ohne Meldung verborgen, etwa in einer Kachel ohne Terminal", () => {
     const state = new AppState();
     state.upsertHost(makeHost("h1", "vm-1", null));
@@ -4312,5 +4327,23 @@ describe("UI v2: Kacheln und Leerzustand (Spec 8, 10)", () => {
     state.lockInput("h1", "s1");
     expect(head.querySelector(".tile-agent:not([hidden]) .st")).toBeNull();
     expect(el.querySelector<HTMLElement>(".tile-lock-chip:not([hidden])")?.textContent).toBe("Disconnected");
+  });
+
+  // Optik-Runde vom 24.10.: in einer schmalen Kachel zeigt die Pille nur ihren
+  // Punkt (styles.css); ihr Wort steht deshalb im Tooltip, vor dem Grund.
+  it("puts the pill's word in its own element and, in the tile head, in front of the reason in its tooltip", () => {
+    const state = new AppState();
+    state.upsertHost(makeHost("h1", "vm-1"));
+    state.setSessions("h1", ["s1"]);
+    const session = state.hosts[0].sessions[0];
+    session.sessionId = 1;
+    session.status = "waiting";
+    session.statusReason = "permission prompt";
+    const el = document.createElement("div");
+    mount(el, state);
+    state.openSession("h1", "s1");
+    const pill = el.querySelector<HTMLElement>(".tile-head .tile-agent .st")!;
+    expect(pill.querySelector(".st-word")?.textContent).toBe("Waiting");
+    expect(pill.title).toBe("Waiting · permission prompt");
   });
 });

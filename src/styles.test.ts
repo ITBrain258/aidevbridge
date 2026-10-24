@@ -899,7 +899,11 @@ describe("Kompakte Hinweise und ruhige Zeile (UX-Spec §5.7)", () => {
 /** Inhalt eines `@media`-Blocks samt verschachtelter Regeln (ohne die
  * aeusseren Klammern), aus der kommentarfreien Fassung. */
 function mediaBlock(query: string): string {
-  const head = `@media ${query} {`;
+  return atRuleBlock(`@media ${query} {`);
+}
+
+/** Dasselbe fuer jede Gruppenregel mit Kopf `head` (etwa `@container`). */
+function atRuleBlock(head: string): string {
   const start = code.indexOf(head);
   if (start < 0) throw new Error(`Block ${head} fehlt`);
   let depth = 1;
@@ -917,6 +921,26 @@ function blockRule(block: string, selector: string): string {
   if (start < 0) throw new Error(`Regel ${selector} fehlt im Block`);
   return block.slice(start, block.indexOf("}", start));
 }
+
+// Optik-Runde vom 24.10.: unter 260 px weicht der Host, die Pille zeigt nur
+// ihren Punkt, der Groessenchip nur die Groesse. jsdom wertet keine
+// Container-Abfrage aus; hier steht, dass es sie gibt und was sie tut.
+describe("schmaler Kachelkopf (Optik-Runde vom 24.10.)", () => {
+  it("die Kachel ist der Container, und unter 260 px weicht der Host", () => {
+    expect(ruleBody(".tile")).toMatch(/container:\s*tile\s*\/\s*inline-size/);
+    const block = atRuleBlock("@container tile (max-width: 259px) {");
+    expect(blockRule(block, ".tile-host")).toMatch(/display:\s*none/);
+  });
+
+  it("Wort der Pille und Rest des Groessenchips bleiben fuer Bildschirmleser im Baum", () => {
+    const block = atRuleBlock("@container tile (max-width: 259px) {");
+    const rule = blockRule(block, ".tile-narrow-rest");
+    expect(block).toContain(".tile-head .st-word,");
+    expect(rule).toMatch(/position:\s*absolute/);
+    expect(rule).toMatch(/clip:\s*rect\(0, 0, 0, 0\)/);
+    expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden/);
+  });
+});
 
 describe("Barrierefreiheit und Optik (UX-Spec §11)", () => {
   it("die toten Token und `.ab-seg-item` sind fort", () => {

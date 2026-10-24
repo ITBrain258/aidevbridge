@@ -1025,7 +1025,30 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     if (!isLive(view)) return;
     const narrow = cols < NARROW_COLS || rows < NARROW_ROWS;
     view.refs.narrowChip.hidden = !narrow;
-    view.refs.narrowText.textContent = narrow ? t("tile.narrow", { cols: String(cols), rows: String(rows) }) : "";
+    if (!narrow) {
+      view.refs.narrowText.replaceChildren();
+      view.refs.narrowChip.removeAttribute("title");
+      return;
+    }
+    // Zwei Teile, damit eine schmale Kachel nur die Groesse zeigt (styles.css):
+    // die Groesse und der Rest des Satzes. Steht die Groesse in einer
+    // Uebersetzung nicht vorn, bleibt der Satz ganz.
+    const params = { cols: String(cols), rows: String(rows) };
+    const full = t("tile.narrow", params);
+    const size = t("tile.narrow.size", params);
+    const sizeText = document.createElement("span");
+    sizeText.className = "tile-narrow-size";
+    if (full.startsWith(size)) {
+      sizeText.textContent = size;
+      const rest = document.createElement("span");
+      rest.className = "tile-narrow-rest";
+      rest.textContent = full.slice(size.length);
+      view.refs.narrowText.replaceChildren(sizeText, rest);
+    } else {
+      sizeText.textContent = full;
+      view.refs.narrowText.replaceChildren(sizeText);
+    }
+    view.refs.narrowChip.title = full;
   }
 
   /** Spec 2026-10-19 §8.1 (Schritt 3): das Terminal der Kachel wartet auf
@@ -1898,7 +1921,13 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
             state.sessionStatusObservedAt(resolved.hostId, resolved.name),
           );
     refs.agentSlot.hidden = pill === null;
-    refs.agentSlot.replaceChildren(...(pill ? [buildStatusPill(pill)] : []));
+    if (pill) {
+      // In einer schmalen Kachel zeigt die Pille nur ihren Punkt (styles.css);
+      // ihr Wort steht darum auch im Tooltip, vor dem Grund.
+      const element = buildStatusPill(pill);
+      if (pill.title !== pill.word) element.title = `${pill.word} · ${pill.title}`;
+      refs.agentSlot.replaceChildren(element);
+    } else refs.agentSlot.replaceChildren();
     refs.lockStrip.hidden = !locked;
     // Ohne `{host}` seit B4, und das ist die Aussage: die Meldung nannte den
     // Host als Schuldigen ("Connection to {host} was lost"), obwohl im

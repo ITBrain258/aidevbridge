@@ -2069,6 +2069,9 @@ kbd {
   /* Spec 2026-10-19 §4.3: absolut im Raster; `width`/`height` inline schliessen
      den Rahmen ein, sonst ragte jede Kachel 2 px in die Luecke. */
   position: absolute;
+  /* Fuer den schmalen Kopf (`@container tile` unten). Die Breite steht inline,
+     die Eindaemmung der Breite aendert also nichts an der Lage. */
+  container: tile / inline-size;
   box-sizing: border-box;
   flex-direction: column;
   min-width: 0;
@@ -2350,6 +2353,29 @@ kbd {
 .tile.focused .tile-host,
 .tile.locked .tile-host {
   color: var(--ab-text-secondary);
+}
+
+/* Optik-Runde vom 24.10. (stand.md, bekannte Fehler des Rasters): unter
+   260 px Kachelbreite blieb neben Statuspille und Groessenchip fuer Titel und
+   Host nichts. Dann weicht der Host ganz, die Pille zeigt nur ihren Punkt
+   (ihr Wort steht im Tooltip, grid.ts) und der Groessenchip nur die Groesse in
+   Warnfarbe. Wort und "narrow" bleiben fuer Bildschirmleser im Baum, mit der
+   Klemm-Technik von `.ab-visually-hidden`. */
+@container tile (max-width: 259px) {
+  .tile-host {
+    display: none;
+  }
+
+  .tile-head .st-word,
+  .tile-narrow-rest {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
 }
 
 /* Abnahme B4: schrumpft, sobald Titel und Host nichts mehr hergeben -- dann
