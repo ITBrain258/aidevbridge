@@ -17,6 +17,7 @@ dem Namen agentbridge.
 
 - Eine Kachel haengt sich nach dem Verlust ihres Kanals nicht mehr still an eine neue Session gleichen Namens: Wurde die Session beendet und unter demselben Namen neu angelegt, zeigt die Kachel "This session has ended on the host" ohne Reconnect. Bisher las die Probe nach dem Verlust die Liste neu, und die Kachel zeigte danach die fremde Session (gefunden im M1-Tor).
 - Nach einem Neustart zeigt die wiederhergestellte Kachel einer beendeten Session nur noch die Sperrleiste mit "This session has ended on the host", ohne das Banner "Couldn't open …" daneben. Die Sessionliste meldet eine tote Pane jetzt wie die Statusabfrage als beendet; bisher meldete sie unbekannt, und ein Neuladen der Liste setzte einen schon beendeten Status bis zur naechsten Abfrage zurueck (gefunden im M1-Tor).
+- Beim Start mit gespeicherten Kacheln mehrerer Hosts aendern die Kacheln des zuerst verbundenen Hosts nicht mehr ihre Groesse, wenn ein weiterer dazukommt; Codex verlor dabei seinen Verlauf. Die App legt die Kacheln jetzt erst an, wenn jeder Host, den sie selbst verbindet, seine Liste hat oder sein Versuch endete, hoechstens nach 5 s, und dann alle auf einmal. Ein Host, der spaeter kommt, reiht seine Kacheln wie bisher ein.
 
 ## [0.2.0] - 2026-10-22
 

@@ -32,6 +32,10 @@ import type { HostDirsDto, TileEntryDto, WorkspaceDto } from "../views/types";
 export const WORKSPACE_PERSIST_MS = 500;
 /** UX-Spec §7.2: so viele Verbindungen baut der Start hoechstens zugleich auf. */
 export const RESTORE_CONNECT_LIMIT = 3;
+/** Spec 2026-10-19 §4.6, Nachtrag vom 24.10.: so lange wartet der Start
+ * hoechstens auf die Listen der Hosts, die er selbst verbindet, bevor er die
+ * gespeicherten Kacheln anlegt. */
+export const RESTORE_HOLD_MS = 5000;
 /** UX-Spec §7.6: so viele letzte Verzeichnisse fuehrt jeder Host (Rust
  * `MAX_RECENT_DIRS`). */
 export const RECENT_DIRS_LIMIT = 5;
@@ -397,6 +401,8 @@ export interface WorkspaceSyncDeps {
   sidebarCollapsed: () => boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
   delayMs?: number;
+  /** Frist des Starts fuer die Listen (`RESTORE_HOLD_MS`). */
+  holdMs?: number;
 }
 
 export interface WorkspaceSync {
@@ -424,8 +430,16 @@ export interface WorkspaceSync {
    * fragt das, unmittelbar bevor sie ihn verbindet. */
   wantsConnected(hostId: string): boolean;
   /** Die Sessionliste dieses Hosts ist da: legt seine wartenden Kacheln an
-   * ihre Positionen, ohne Fokus; sie warten danach nicht mehr. */
+   * ihre Positionen, ohne Fokus; sie warten danach nicht mehr. Waehrend der
+   * Start noch auf einen Host wartet, den er selbst verbindet, legt es erst
+   * an, wenn der letzte gelistet ist oder sein Versuch endete, oder nach
+   * `RESTORE_HOLD_MS`: dann alle in einem Zug, und keine Kachel eines frueh
+   * gelisteten Hosts aendert ihre Groesse, weil ein spaeterer dazukommt
+   * (Spec 2026-10-19 §4.5, §4.6). */
   hostListed(hostId: string): void;
+  /** Der Versuch des Starts, diesen Host zu verbinden, ist zu Ende, gelungen
+   * oder nicht. Ohne Liste wartet der Start dann nicht mehr auf ihn. */
+  hostSettled(hostId: string): void;
   /** Die Verzeichnisse dieses Hosts fuer "Neue Session" (UX-Spec §7.6) als
    * Kopie, `null` ohne Eintrag. */
   dirs(hostId: string): HostDirsDto | null;
@@ -453,6 +467,13 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
    * stoeren darum nicht. */
   const restoredSlots = new Map<number, number>();
   let dirs: Record<string, HostDirsDto> = {};
+  /** Hosts, die der Start selbst verbindet und die noch gespeicherte Kacheln
+   * haben, solange weder ihre Liste kam noch ihr Versuch endete. */
+  const awaited = new Set<string>();
+  /** Hosts, deren Liste kam, waehrend der Start noch wartete. */
+  const listedWhileHeld = new Set<string>();
+  /** Die Frist des Wartens; gesetzt genau, solange der Start wartet. */
+  let holdTimer: ReturnType<typeof setTimeout> | undefined;
 
   function snapshot(): WorkspaceDto {
     return workspaceFromState(state, {
@@ -473,29 +494,54 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
     writer.schedule(snapshot());
   }
 
-  function hostListed(hostId: string): void {
-    if (!writer) return;
-    const mine = pending.filter((tile) => tile.host_id === hostId).sort((a, b) => a.slot - b.slot);
+  /** Legt die wartenden Kacheln dieser Hosts an, in Platzreihenfolge. */
+  function restoreHosts(hostIds: readonly string[]): void {
+    const mine = pending.filter((tile) => hostIds.includes(tile.host_id)).sort((a, b) => a.slot - b.slot);
     if (mine.length === 0) return;
     // Nur einmal: aus der Warteliste, bevor `restoreTiles` benachrichtigt. Was
     // nicht passt (Session fort, Grenze erreicht), entfaellt.
-    pending = pending.filter((tile) => tile.host_id !== hostId);
+    pending = pending.filter((tile) => !hostIds.includes(tile.host_id));
     // Alle in einem Zug mit einer Benachrichtigung: jede Kachel montiert mit
     // ihrer Endgeometrie (Spec 2026-10-19 §4.5). Die Position jeder richtet
     // sich nach den schon angelegten; ihr Anker steht darum, bevor die naechste
     // gefragt wird.
-    const slots = new Map(mine.map((tile) => [tile.session, tile.slot]));
+    const slots = new Map(mine.map((tile) => [sessionKey(tile.host_id, tile.session), tile.slot]));
     state.restoreTiles(
-      hostId,
-      mine.map((tile) => tile.session),
-      (name, id) => {
-        const slot = slots.get(name)!;
+      mine.map((tile) => ({ hostId: tile.host_id, name: tile.session })),
+      ({ hostId, name }, id) => {
+        const slot = slots.get(sessionKey(hostId, name))!;
         const at = insertionIndex(state.tiles.map((open) => restoredSlots.get(open.id) ?? null), slot);
         restoredSlots.set(id, slot);
         return at;
       },
     );
     changed();
+  }
+
+  /** Das Warten endet: was bis hier gelistet ist, kommt in einem Zug. */
+  function release(): void {
+    clearTimeout(holdTimer);
+    holdTimer = undefined;
+    awaited.clear();
+    const hostIds = [...listedWhileHeld];
+    listedWhileHeld.clear();
+    restoreHosts(hostIds);
+  }
+
+  /** Auf diesen Host wartet der Start nicht mehr. */
+  function settle(hostId: string): void {
+    if (holdTimer === undefined || !awaited.delete(hostId)) return;
+    if (awaited.size === 0) release();
+  }
+
+  function hostListed(hostId: string): void {
+    if (!writer) return;
+    if (holdTimer === undefined) {
+      restoreHosts([hostId]);
+      return;
+    }
+    listedWhileHeld.add(hostId);
+    settle(hostId);
   }
 
   /** Nimmt einen Host aus `connected`; vor `start` merkt es sich das. */
@@ -525,14 +571,19 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
       // neuer als die gelesenen.
       dirs = { ...copyDirs(stored.dirs), ...dirs };
       writer = createWorkspaceWriter(deps.write, deps.delayMs, restore ? stored : snapshot());
+      const connecting = state.hosts
+        .filter((host) => wanted.includes(host.id) && (host.authKind === "agent" || host.authKind === "key"))
+        .map((host) => host.id);
+      for (const hostId of connecting) {
+        if (pending.some((tile) => tile.host_id === hostId)) awaited.add(hostId);
+      }
+      if (awaited.size > 0) holdTimer = setTimeout(release, deps.holdMs ?? RESTORE_HOLD_MS);
       // Ein Host, dessen Liste schon vor der Antwort kam.
       for (const host of state.hosts) {
         if (host.state === "connected" && state.sessionListForHost(host.id).status === "current") hostListed(host.id);
       }
       changed();
-      return state.hosts
-        .filter((host) => wanted.includes(host.id) && (host.authKind === "agent" || host.authKind === "key"))
-        .map((host) => host.id);
+      return connecting;
     },
     changed,
     hostConnected(hostId) {
@@ -543,11 +594,14 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
     },
     hostDisconnectedByUser(hostId) {
       dropConnected(hostId);
+      settle(hostId);
       changed();
     },
     hostRemoved(hostId) {
       dropConnected(hostId);
       pending = pending.filter((tile) => tile.host_id !== hostId);
+      listedWhileHeld.delete(hostId);
+      settle(hostId);
       const rest = { ...dirs };
       delete rest[hostId];
       dirs = rest;
@@ -557,6 +611,7 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
       return connected.includes(hostId);
     },
     hostListed,
+    hostSettled: settle,
     dirs(hostId) {
       const entry = dirs[hostId];
       return entry ? { ...entry, recent: [...entry.recent] } : null;
@@ -567,6 +622,8 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
     },
     dispose() {
       disposed = true;
+      clearTimeout(holdTimer);
+      holdTimer = undefined;
       writer?.dispose();
       writer = null;
     },

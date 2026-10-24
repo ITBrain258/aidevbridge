@@ -6,6 +6,7 @@ import { AppState, type Host } from "./app-state";
 import { MAX_TILES, MAX_TILES_PER_HOST } from "./tile-assignment";
 import type { WorkspaceDto } from "../views/types";
 import {
+  RESTORE_HOLD_MS,
   WORKSPACE_PERSIST_MS,
   connectInOrder,
   createWorkspaceSync,
@@ -871,6 +872,88 @@ describe("createWorkspaceSync: gespeicherter Arbeitsplatz im laufenden Betrieb",
     listHost(state, "c", ["c0", "c2"]);
     sync.hostListed("c");
     expect(state.tiles.map((t) => t.sessionKey)).toEqual(["c/c0", "a/a1", "c/c2", "a/a3"]);
+  });
+
+  // Spec 2026-10-19 §4.6, Nachtrag vom 24.10.: kaemen die Kacheln je Host,
+  // aenderte die Liste des spaeteren Hosts die Groesse jeder Kachel des
+  // frueheren, je Kachel ein `resize_terminal`; Codex verlor dabei den Verlauf.
+  describe("der Start wartet auf die Hosts, die er selbst verbindet", () => {
+    const TWO_HOSTS = workspace({
+      connected: ["a", "c"],
+      tiles: [
+        { slot: 0, host_id: "a", session: "a0" },
+        { slot: 1, host_id: "c", session: "c1" },
+        { slot: 2, host_id: "a", session: "a2" },
+      ],
+    });
+
+    it("legt die Kacheln erst mit der letzten Liste an, alle in einer Benachrichtigung", () => {
+      expect(sync.start(TWO_HOSTS, true)).toEqual(["a", "c"]);
+      const notified = vi.fn();
+      listHost(state, "a", ["a0", "a2"]);
+      state.subscribe(notified);
+      sync.hostListed("a");
+      expect(state.tiles).toEqual([]);
+
+      listHost(state, "c", ["c1"]);
+      notified.mockClear();
+      sync.hostListed("c");
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/a0", "c/c1", "a/a2"]);
+      expect(notified).toHaveBeenCalledTimes(1);
+      expect(state.focusedTile).toBeNull();
+    });
+
+    it("wartet nicht weiter auf einen Host, dessen Versuch ohne Liste endete", () => {
+      sync.start(TWO_HOSTS, true);
+      listHost(state, "a", ["a0", "a2"]);
+      sync.hostListed("a");
+      sync.hostSettled("a");
+      expect(state.tiles).toEqual([]);
+
+      sync.hostSettled("c");
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/a0", "a/a2"]);
+    });
+
+    it("legt nach der Frist an, was gelistet ist; ein spaeterer Host reiht sich an seinen Plaetzen ein", () => {
+      sync.start(TWO_HOSTS, true);
+      listHost(state, "a", ["a0", "a2"]);
+      sync.hostListed("a");
+      vi.advanceTimersByTime(RESTORE_HOLD_MS - 1);
+      expect(state.tiles).toEqual([]);
+      vi.advanceTimersByTime(1);
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/a0", "a/a2"]);
+
+      listHost(state, "c", ["c1"]);
+      sync.hostListed("c");
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/a0", "c/c1", "a/a2"]);
+    });
+
+    it("wartet nicht auf einen Host, den der Nutzer trennt oder entfernt", () => {
+      sync.start(TWO_HOSTS, true);
+      listHost(state, "a", ["a0", "a2"]);
+      sync.hostListed("a");
+      sync.hostDisconnectedByUser("c");
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/a0", "a/a2"]);
+    });
+
+    it("wartet nicht auf einen Host ohne gespeicherte Kacheln oder einen, den der Start nicht verbindet", () => {
+      // SAVED: Kacheln auf a und dem Passwort-Host b; c hat keine.
+      sync.start(SAVED, true);
+      listHost(state, "a", ["s1", "s2"]);
+      sync.hostListed("a");
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/s1", "a/s2"]);
+    });
+
+    it("ein Host, der waehrend des Wartens gelistet wird, kommt im selben Zug mit", () => {
+      sync.start(SAVED, true);
+      // Der Nutzer verbindet den Passwort-Host b von Hand, bevor a gelistet ist.
+      listHost(state, "b", ["x"]);
+      sync.hostListed("b");
+      expect(state.tiles).toEqual([]);
+      listHost(state, "a", ["s1", "s2"]);
+      sync.hostListed("a");
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/s1", "b/x", "a/s2"]);
+    });
   });
 
   // Spec 2026-10-19 §8.1 (ab Schritt 3), Review Focus 1: acht gespeicherte

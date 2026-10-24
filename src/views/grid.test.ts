@@ -482,7 +482,7 @@ describe("mountGrid: verborgene Kacheln behalten ihr Terminal (Anforderung 2, Sp
       mount(el, state);
       state.toggleMaximize(state.tiles[0].id);
 
-      state.restoreTiles("h2", ["t1"], () => state.tiles.length);
+      state.restoreTiles([{ hostId: "h2", name: "t1" }], () => state.tiles.length);
 
       expect(state.maximizedTile).toBe(state.tiles[0].id);
       expect(state.tiles.map((tile) => tile.sessionKey)).toEqual(["h1/s1", "h1/s2", "h2/t1"]);

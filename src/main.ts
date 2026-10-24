@@ -1296,15 +1296,21 @@ export function main(): void {
    * der Aufbau am Netz -- typisch: die App startet, bevor das VPN steht --,
    * uebernimmt das Neuverbinden aus §5.4, sofern der Host selbst neu verbunden
    * werden darf. Jeder andere Fehler zeigt den gewohnten Zustand; eine
-   * fehlende Passphrase ihr Feld, ohne Wiederholung. */
+   * fehlende Passphrase ihr Feld, ohne Wiederholung. Danach wartet der Start
+   * mit den gespeicherten Kacheln nicht mehr auf diesen Host; ein gelungener
+   * Versuch hat seine Liste da schon gemeldet (`connectHost`). */
   async function connectRestoredHost(hostId: string): Promise<void> {
     const host = state.hosts.find((candidate) => candidate.id === hostId);
     if (backgroundStopped || !host || host.state === "connected" || host.state === "connecting" ||
       hostReconnects.isActive(hostId) || !workspaceSync.wantsConnected(hostId)) return;
-    const result = await onConnectHost(hostId);
-    if (result.kind === "failed" && isRetryableConnectError(result.error) && state.hosts.includes(host) &&
-      reconnectsByItself(host)) {
-      hostReconnects.start(hostId);
+    try {
+      const result = await onConnectHost(hostId);
+      if (result.kind === "failed" && isRetryableConnectError(result.error) && state.hosts.includes(host) &&
+        reconnectsByItself(host)) {
+        hostReconnects.start(hostId);
+      }
+    } finally {
+      workspaceSync.hostSettled(hostId);
     }
   }
 

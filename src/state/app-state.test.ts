@@ -17,6 +17,11 @@ function sessionNames(n: number): string[] {
   return Array.from({ length: n }, (_, i) => `s${i + 1}`);
 }
 
+/** Die Eintraege fuer `restoreTiles`: diese Sessions eines Hosts. */
+function on(hostId: string, names: readonly string[]): Array<{ hostId: string; name: string }> {
+  return names.map((name) => ({ hostId, name }));
+}
+
 describe("AppState", () => {
   it("qualifiziert Sessionschluessel mit dem Host", () => {
     expect(sessionKey("h1", "ab_x")).toBe("h1/ab_x");
@@ -542,7 +547,7 @@ describe("AppState: Kachelliste (Spec 2026-10-19 §4.1, §5.1, §5.5, §5.7)", (
     s.upsertHost(host("h1", ["a", "b"]));
     const positions = new Map([["b", 5], ["a", 0]]);
     const asked: Array<{ name: string; id: number; before: string[] }> = [];
-    s.restoreTiles("h1", ["b", "a"], (name, id) => {
+    s.restoreTiles(on("h1", ["b", "a"]), ({ name }, id) => {
       asked.push({ name, id, before: keys(s) });
       return positions.get(name)!;
     });
@@ -560,10 +565,10 @@ describe("AppState: Kachelliste (Spec 2026-10-19 §4.1, §5.1, §5.5, §5.7)", (
     s.upsertHost(host("h1", ["a", "b", "c", "d"]));
     const notified = vi.fn();
     s.subscribe(notified);
-    s.restoreTiles("h1", ["a", "b", "c", "d"], () => Number.MAX_SAFE_INTEGER);
+    s.restoreTiles(on("h1", ["a", "b", "c", "d"]), () => Number.MAX_SAFE_INTEGER);
     expect(keys(s)).toEqual(["h1/a", "h1/b", "h1/c", "h1/d"]);
     expect(notified).toHaveBeenCalledTimes(1);
-    s.restoreTiles("h1", ["a", "missing"], () => 0);
+    s.restoreTiles(on("h1", ["a", "missing"]), () => 0);
     expect(notified).toHaveBeenCalledTimes(1);
   });
 
@@ -574,13 +579,12 @@ describe("AppState: Kachelliste (Spec 2026-10-19 §4.1, §5.1, §5.5, §5.7)", (
     s.upsertHost(host("h2", ["x"]));
     const notified = vi.fn();
     s.subscribe(notified);
-    s.restoreTiles("h1", fill, () => Number.MAX_SAFE_INTEGER);
-    s.restoreTiles("h2", ["x"], () => Number.MAX_SAFE_INTEGER);
+    s.restoreTiles([...on("h1", fill), ...on("h2", ["x"])], () => Number.MAX_SAFE_INTEGER);
     expect(keys(s)).toEqual([...fill.map((name) => `h1/${name}`), "h2/x"]);
     expect(s.tiles).toHaveLength(MAX_TILES);
-    // Je Host eine Benachrichtigung: alle Kacheln eines Hosts montieren in
-    // einem Zug mit ihrer Endgeometrie (Spec §4.5).
-    expect(notified).toHaveBeenCalledTimes(2);
+    // Eine Benachrichtigung fuer beide Hosts: alle Kacheln montieren in einem
+    // Zug mit ihrer Endgeometrie (Spec §4.5, §4.6).
+    expect(notified).toHaveBeenCalledTimes(1);
     expect(s.focusedTile).toBeNull();
   });
 
@@ -590,12 +594,12 @@ describe("AppState: Kachelliste (Spec 2026-10-19 §4.1, §5.1, §5.5, §5.7)", (
     s.upsertHost(host("h1", [...fill, "over"]));
     s.openSession("h1", fill[0]);
     const focused = s.focusedTile;
-    const place = vi.fn<(name: string, id: number) => number>(() => Number.MAX_SAFE_INTEGER);
-    s.restoreTiles("h1", ["missing", ...fill, "over"], place);
+    const place = vi.fn<(entry: { hostId: string; name: string }, id: number) => number>(() => Number.MAX_SAFE_INTEGER);
+    s.restoreTiles(on("h1", ["missing", ...fill, "over"]), place);
     // fill[0] steht schon in einer Kachel; mit dem Rest von `fill` ist die
     // Grenze je Host erreicht, "over" entfaellt.
     expect(keys(s)).toEqual(fill.map((name) => `h1/${name}`));
-    expect(place.mock.calls.map(([name]) => name)).toEqual(fill.slice(1));
+    expect(place.mock.calls.map(([entry]) => entry.name)).toEqual(fill.slice(1));
     expect(s.focusedTile).toBe(focused);
   });
 });
