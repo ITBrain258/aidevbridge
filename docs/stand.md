@@ -54,7 +54,7 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 
 ## Letzte Prüfung
 
-Am 24.10.2026 für 0.2.1, auf dem Rechner mit 8 GB Arbeitsspeicher: 2643
+Am 24.10.2026 für 0.2.1, auf dem Rechner mit 8 GB Arbeitsspeicher: 2645
 Frontend-Tests in 49 Dateien und TypeScript- und Vite-Build grün; Rust fmt
 und Clippy mit `-D warnings` grün, `cargo test --all --no-fail-fast` mit
 `-j 2` grün bis auf fünf wechselnde `commands::connect_tests`, die einzeln
@@ -195,9 +195,10 @@ In dieser Reihenfolge:
    samt Manifest-Hash, die Komponente und vier Dokumente unter
    `tests/fixtures/rsa-signing/`); das Rebind-Werkzeug ändert keine
    Versionen, sie sind von Hand gesetzt. `npm run build:windows` lief für
-   0.2.1 am 24.10. aus `cb59da2` vollständig durch (Lauf
-   `20261024T115119321-b58ce6e6cabc`, `verify` grün, unsigniert); SHA-256:
-   MSI `a1ea3ed9…4dded`, Setup-EXE `7da3872d…f762c`, ZIP `9a0b9433…14be8`,
+   0.2.1 am 24.10. aus `5cabf45` vollständig durch (Lauf
+   `20261024T125654037-9195392bc11d`, `verify` grün, unsigniert), nach den
+   Korrekturen aus dem Review und ihrer Neubindung; SHA-256: MSI
+   `667ff8ae…ac6c6`, Setup-EXE `bb244197…ab0f2`, ZIP `e81ff6df…ce901`,
    vollständig in `release-manifest.json` des Laufs. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
    auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
    `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
