@@ -3709,6 +3709,52 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
     expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
   });
 
+  /** Wie nach dem Neustart: die Liste meldet die tote Pane schon als beendet,
+   * und die wiederhergestellte Kachel montiert mit diesem Status. */
+  function endedTile() {
+    const state = new AppState();
+    state.upsertHost(makeHost("h1", "vm-1"));
+    state.setSessionRecords("h1", [{ name: "s1", status: "ended", statusReason: "the session's pane is dead" }]);
+    state.openSession("h1", "s1");
+    const onTerminalError = vi.fn();
+    const onTerminalCapacity = vi.fn();
+    // Wie main.ts: ein abgelehntes Oeffnen sperrt die Eingabe.
+    const onTerminalOpenFailed = vi.fn((hostId: string, name: string) => state.lockInput(hostId, name));
+    const el = document.createElement("div");
+    mount(el, state, { onTerminalError, onTerminalOpenFailed, onTerminalCapacity });
+    const [, , , onError, options] = hoisted.mountTerminalSpy.mock.calls[0] as [
+      unknown,
+      unknown,
+      unknown,
+      (error: { kind: string; detail: string }) => void,
+      { onOpenFailed: () => void; onOpened: () => void },
+    ];
+    return { el, onTerminalError, onTerminalCapacity, onTerminalOpenFailed, onError, options };
+  }
+
+  it("eine beendete Session nennt ihr gescheitertes Oeffnen nur in der Sperrleiste (M1-Tor, Schritt 8)", () => {
+    const { el, onTerminalError, onTerminalCapacity, onTerminalOpenFailed, onError, options } = endedTile();
+    onError({ kind: "open", detail: "Terminal operation failed during Admission: Capacity" });
+    options.onOpenFailed();
+    expect(onTerminalError).not.toHaveBeenCalled();
+    expect(onTerminalCapacity).not.toHaveBeenCalled();
+    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+    const strip = el.querySelector<HTMLElement>(".tile-lock")!;
+    expect(strip.hidden).toBe(false);
+    expect(strip.textContent).toContain("This session has ended on the host.");
+    expect(strip.querySelector<HTMLButtonElement>(".tile-lock-reconnect")!.hidden).toBe(true);
+  });
+
+  it("haengt eine als beendet gemeldete Session doch an, melden ihre Fehler wieder ein Banner", () => {
+    const { onTerminalError, onError, options } = endedTile();
+    options.onOpened();
+    onError({ kind: "input", detail: "send_input failed" });
+    expect(onTerminalError).toHaveBeenCalledExactlyOnceWith(
+      "Your typing didn't reach 's1'. Reconnect the terminal.",
+      "send_input failed",
+    );
+  });
+
   it("eine Kachel, die schon einen Kanal hatte, bleibt nach Reconnect mit Sperrleiste; der Satz steht im Banner (Spec §1 Nr. 1, §5.8)", () => {
     const onTerminalError = vi.fn();
     const onTerminalCapacity = vi.fn();
