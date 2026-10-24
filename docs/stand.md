@@ -4,7 +4,7 @@
 und ZIP, unsigniert (Entscheidung des Maintainers vom 22.10., vor dem M1-Tor
 und vor der Installerabnahme). Installerabnahme, M1- und M2-Tor sind
 seitdem bestanden (gemeldet am 24.10.). `0.2.1` ist vorbereitet: Version,
-CHANGELOG, Lizenzauswahl und ein Lieferlauf aus `5cabf45`; Tag und Release
+CHANGELOG, Lizenzauswahl und ein Lieferlauf aus `1da8da2`; Tag und Release
 stehen aus.
 Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
 einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
@@ -54,6 +54,17 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger Lauf für 0.2.0 nach dem Neubinden der Lizenzauswahl |
 
 ## Letzte Prüfung
+
+Am 24.10.2026 nach den Korrekturen der bekannten Rasterfehler, auf dem
+Rechner mit 8 GB Arbeitsspeicher: 2659 Frontend-Tests in 49 Dateien,
+TypeScript- und Vite-Build und 76 Skripttests grün; Rust fmt, Clippy mit
+`-D warnings` und `cargo test --all --no-fail-fast` mit `-j 2` vollständig
+grün, 587 Bibliothekstests. Die `commands::connect_tests` wackeln nicht mehr:
+Sie warteten unbegrenzt, wenn parallele Tests den prozessweiten
+Vorbereitungs-Pool füllten (`connect_capacity` vor jeder TCP-Verbindung), und
+wiederholen diesen Fehler jetzt wie `Fixture::connect`; direkt aufgerufen
+scheiterte die Bibliothek vorher sechs von sechs Mal, danach keinmal in acht
+Läufen.
 
 Am 24.10.2026 für 0.2.1, auf dem Rechner mit 8 GB Arbeitsspeicher: 2645
 Frontend-Tests in 49 Dateien und TypeScript- und Vite-Build grün; Rust fmt
@@ -198,12 +209,13 @@ In dieser Reihenfolge:
    der Auswahl an acht Stellen (`scope.product_version`, der Paketeintrag
    samt Manifest-Hash, die Komponente und vier Dokumente unter
    `tests/fixtures/rsa-signing/`); das Rebind-Werkzeug ändert keine
-   Versionen, sie sind von Hand gesetzt. `npm run build:windows` lief für
-   0.2.1 am 24.10. aus `5cabf45` vollständig durch (Lauf
-   `20261024T125654037-9195392bc11d`, `verify` grün, unsigniert), nach den
-   Korrekturen aus dem Review und ihrer Neubindung; SHA-256: MSI
-   `667ff8ae…ac6c6`, Setup-EXE `bb244197…ab0f2`, ZIP `e81ff6df…ce901`,
-   vollständig in `release-manifest.json` des Laufs. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
+   Versionen, sie sind von Hand gesetzt. Nach den Korrekturen der bekannten Rasterfehler sind am 24.10. neun
+   weitere eigene Quellen neu gebunden. `npm run build:windows` lief für
+   0.2.1 am 24.10. aus `1da8da2` vollständig durch (Lauf
+   `20261024T145315967-feb4ea376d18`, `verify` grün, unsigniert); SHA-256: MSI
+   `8a8179e7…afb5c4`, Setup-EXE `197bba28…4bd388`, ZIP `c3fd2847…51666d`,
+   vollständig in `release-manifest.json` des Laufs. Die früheren Läufe aus
+   `cb59da2` und `5cabf45` sind damit überholt. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
    auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
    `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
    aus `npm run build:app` bleibt auf dem eigenen Rechner. Ändert sich ein
@@ -257,32 +269,33 @@ In dieser Reihenfolge:
    `prefers-reduced-motion`). Nur durch Tests und Durchsicht gesichert:
    Klicks in der Hinweisbox eines Hosts mit Anmeldefehler, der Neustart mit
    gespeicherter Seitenleistenbreite unter reduzierter Bewegung, das
-   Loslassen nach Alt+Tab. Bekannte Fehler:
-   - Bei 200 px Kachelbreite mit Statuspille bleibt für Titel, Host und den
-     Größenchip kein Platz, und der Hinweis an der Grenze verdeckt bei 9
-     Kacheln die Köpfe der ersten beiden, bis er geschlossen wird
-     (Optik-Runde, Spec §12).
+   Loslassen nach Alt+Tab. Am 24.10. behoben (Kopf bei 200 px und
+   Grenzhinweis nach der Optik-Runde mit dem Maintainer, Spec §5.3 und §8.4,
+   Nachträge vom 24.10.): der Kachelkopf unter 260 px, der Grenzhinweis, der
+   bei 9 Kacheln die Köpfe verdeckte, das zusätzliche `resize_terminal` einer
+   gesperrten Kachel nach dem Neuverbinden ihres Hosts, der verlorene Tipp
+   per Touch oder Stift und die Fensterlage unter der Mindestgröße. Am Fenster
+   der Testinstanz geprüft: der schmale Kopf (224 px: Punkt, Größe, ganzer
+   Titel), drei Touch-Tipps auf einen anderen Host und die Anhebung einer
+   gespeicherten Lage von 900 × 400 auf 1100 × 600. Bekannte Fehler:
    - Beim Start mit Kacheln mehrerer Hosts ändert ein Host, der erst nach
      der Frist von 5 s gelistet wird (oder von Hand verbunden), die Größe der
      übrigen Kacheln, je Kachel ein `resize_terminal`; Codex verliert dabei
      seinen Verlauf. Innerhalb der Frist kommen seit dem 24.10. alle Kacheln
      in einem Zug (Raster-Spec §4.6, Nachtrag vom 24.10.).
-   - Eine noch gesperrte Session, die nach dem Neuverbinden ihres Hosts neu
-     montiert wird, erscheint mit sichtbarer Sperrleiste und bekommt danach
-     ein zusätzliches `resize_terminal`; „Reconnect“ in der Sperrleiste
-     montiert dagegen gleich in Endgröße.
-   - Ein Tipp per Touch oder Stift auf eine Session eines anderen Hosts kann
-     verloren gehen; die Korrektur gilt für die Maus.
-   - Die Fensterlage wird auch unterhalb der Mindesthöhe von 600 px
-     wiederhergestellt.
    - Acht Kacheln, die gleichzeitig ungebremst ausgeben, machen die
      Oberfläche zäh (Statuslatenz p95 5,0 s, Ereignisschleife p95 215 ms);
      der Renderer ist der Engpass. Offen, ob ein binärer Ausgabekanal statt
-     JSON-Zahlenfeldern oder weniger Neuzeichnen das behebt.
-   - Eine große Einfügung in ein Programm, das stdin nicht liest, kann
-     Eingaben, Größenänderungen und das Schließen anderer Terminals
-     derselben Verbindung aufhalten (vorbestehend, bei der Flusskontrolle
-     gefunden).
+     JSON-Zahlenfeldern oder weniger Neuzeichnen das behebt; auf Entscheidung
+     des Maintainers vom 24.10. mit eigener Messung und eigenem Plan.
+   - Eine große Einfügung hält die Seite an, solange Chromium die
+     Zwischenablage liest und xterm sie verarbeitet: gemessen am 24.10. rund
+     0,33 s je MB (8 MB: 2,6 s), danach laufen Eingabe, Größenänderung und
+     Schließen anderer Terminals sofort. Bis zum 24.10. ging die Einfügung
+     als ein `send_input` hinaus und hielt die Seite rund 0,8 s je MB an; das
+     Backend bediente die anderen Kanäle dabei weiter. Seitdem geht Eingabe
+     über 64 KiB in Teilen hinaus. Der tmux-Server nimmt die Einfügung in ein
+     Programm, das stdin nicht liest, ganz an und puffert sie selbst.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

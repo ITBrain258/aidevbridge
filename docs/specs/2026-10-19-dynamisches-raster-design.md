@@ -245,6 +245,10 @@ und „New session“:
   terminals, the limit per host. Close one first, or Ctrl+click a session to
   replace the focused terminal.“ und „9 terminals are open, the limit. …“.
 - Geschlossen wird nichts.
+- **Nachtrag 2026-10-24 (Optik-Runde, mit dem Maintainer):** Der Hinweis
+  schließt sich nach 6 s selbst (`NEUTRAL_NOTICE_MS`) und beim nächsten Druck
+  in eine Kachel; bei 9 Kacheln verdeckte er sonst die Köpfe der ersten
+  beiden. Ein Fehlerbanner bleibt, bis der Nutzer es schließt.
 
 ### 5.4 Tauschen und Verschieben
 
@@ -416,6 +420,14 @@ Unter 80 Spalten oder 20 Zeilen nach dem Fit zeigt der Kachelkopf den Chip
 „{cols}×{rows} · narrow“ in `--ab-warn` (Designsystem §5.4, i18n
 `tile.narrow`). Die App verkleinert nie selbst und schließt beim Abdocken
 nichts.
+
+**Nachtrag 2026-10-24 (Optik-Runde, mit dem Maintainer):** Unter 260 px
+Kachelbreite blieb neben Statuspille und Chip für Titel und Host kein Platz.
+Dort weicht der Host ganz, die Pille zeigt nur ihren Punkt (ihr Wort steht im
+Tooltip vor dem Grund) und der Chip nur „{cols}×{rows}“ in `--ab-warn`
+(i18n `tile.narrow.size`, der ganze Satz im Tooltip). Wort und „narrow“
+bleiben für Bildschirmleser im Baum. Die Kachel ist dafür ein Größen-Container
+(`container: tile / inline-size`).
 
 ### 8.5 Strg+Umschalt+B
 

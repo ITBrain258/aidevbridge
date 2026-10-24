@@ -2914,6 +2914,39 @@ describe("mountSidebar: ein Druck in der Liste verschiebt die Zeilen nicht (Abna
     expect(marked(el)).toEqual(["h1"]);
   });
 
+  // Nachtrag vom 24.10.: bei Touch und Stift liefert Chromium Fokuswechsel und
+  // Klick erst aus der Tippgeste, nach dem `pointerup`. Holte die Markierung
+  // dort schon auf, verschoebe der Fokus die Zeilen vor dem Klick.
+  it.each(["touch", "pen"])("ein Tipp per %s holt erst nach seinem Klick auf", (pointerType) => {
+    const { el, h, row } = setup();
+    row.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0, pointerType }));
+    window.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, button: 0, pointerType }));
+    vi.advanceTimersByTime(0);
+    // Erst jetzt nimmt die Zeile den Fokus: die Markierung steht noch.
+    row.focus();
+    expect(marked(el)).toEqual(["h2"]);
+    expect(pressing(el)).toBe(true);
+
+    row.click();
+    expect(h.onOpenSession).toHaveBeenCalled();
+    expect(marked(el)).toEqual(["h2"]);
+    vi.advanceTimersByTime(0);
+    expect(marked(el)).toEqual(["h1"]);
+    expect(pressing(el)).toBe(false);
+  });
+
+  it("ein Tipp ohne Klick, etwa gezogen, holt nach kurzer Frist auf", () => {
+    const { el, row } = setup();
+    row.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0, pointerType: "touch" }));
+    row.focus();
+    window.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, button: 0, pointerType: "touch" }));
+    vi.advanceTimersByTime(499);
+    expect(pressing(el)).toBe(true);
+    vi.advanceTimersByTime(1);
+    expect(pressing(el)).toBe(false);
+    expect(marked(el)).toEqual(["h1"]);
+  });
+
   it("ein Druck, der mit pointercancel endet, holt ebenso auf", () => {
     const { el, row } = setup();
     pointer("pointerdown", row);

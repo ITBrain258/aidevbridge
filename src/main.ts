@@ -204,6 +204,10 @@ const SESSION_STATUS_POLL_MS = 2000;
 /** Raeumt die Hintergrundarbeit des laufenden `main()` ab, gesetzt von dort. */
 let stopBackgroundWork: (() => void) | null = null;
 
+/** So lange steht ein neutraler Hinweis wie die Grenze (Spec 2026-10-19 §5.3),
+ * bevor er sich selbst schliesst (`mountGlobalErrorBanner`). */
+export const NEUTRAL_NOTICE_MS = 6000;
+
 /** Stops the per-host status polls, the self-repair and reconnect timers with
  * their window listeners, disposes the grid (its quiet reattach timers), and
  * removes the keyboard listeners. `main()` calls this on re-entry so tests do
@@ -2490,18 +2494,39 @@ export function main(): void {
     // 32er Knopf sprengte den schmalen Bannerstreifen.
     dismissButton.className = "btn btn--secondary btn--row";
     dismissButton.textContent = t("app.dismiss");
-    dismissButton.addEventListener("click", () => {
-      banner.hidden = true;
-    });
     banner.appendChild(dismissButton);
 
     document.body.appendChild(banner);
+
+    // Optik-Runde vom 24.10.: der neutrale Hinweis (die Grenze, Spec
+    // 2026-10-19 §5.3) verdeckte bei 9 Kacheln die Koepfe der ersten beiden,
+    // bis der Nutzer ihn schloss. Er schliesst sich jetzt nach
+    // `NEUTRAL_NOTICE_MS` selbst und beim naechsten Druck in eine Kachel. Ein
+    // Fehler bleibt stehen, bis der Nutzer ihn schliesst.
+    let neutral = false;
+    let hideTimer: number | undefined;
+    const hide = () => {
+      window.clearTimeout(hideTimer);
+      hideTimer = undefined;
+      banner.hidden = true;
+    };
+    dismissButton.addEventListener("click", hide);
+    elements.grid.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (neutral && !banner.hidden && event.target instanceof Element && event.target.closest(".tile")) hide();
+      },
+      true,
+    );
 
     return (message: string, details?: string, tone: BannerTone = "danger") => {
       text.textContent = message;
       currentDetails = details ?? null;
       copyButton.hidden = currentDetails === null;
-      banner.classList.toggle("global-error-banner--neutral", tone === "neutral");
+      neutral = tone === "neutral";
+      banner.classList.toggle("global-error-banner--neutral", neutral);
+      window.clearTimeout(hideTimer);
+      hideTimer = neutral ? window.setTimeout(hide, NEUTRAL_NOTICE_MS) : undefined;
       banner.hidden = false;
     };
   }

@@ -46,10 +46,22 @@ pub fn run() {
         // muss. Genau daran ist die Fehlersuche am 2026-07-29 dreimal
         // gescheitert.
         .setup(|app| {
-            let window =
-                tauri::WebviewWindowBuilder::from_config(app, &app.config().app.windows[0])?
-                    .enable_clipboard_access()
-                    .build()?;
+            let config = &app.config().app.windows[0];
+            let window = tauri::WebviewWindowBuilder::from_config(app, config)?
+                .enable_clipboard_access()
+                .build()?;
+            // `build()` hat die gespeicherte Lage schon hergestellt (das
+            // `on_window_ready` von window-state, siehe oben); erst danach
+            // laesst sich die Groesse pruefen. Ein maximiertes Fenster fuellt
+            // den Bildschirm ohnehin.
+            if !window.is_maximized()? {
+                let size = window
+                    .inner_size()?
+                    .to_logical::<f64>(window.scale_factor()?);
+                if let Some(raised) = raised_to_minimum(size, config.min_width, config.min_height) {
+                    window.set_size(raised)?;
+                }
+            }
             #[cfg(debug_assertions)]
             window.open_devtools();
             let _ = window;
@@ -119,4 +131,55 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// Fensterlage (Roadmap S3.2): window-state stellt die gespeicherte Groesse
+/// in physischen Pixeln her und prueft dabei die Mindestgroesse aus
+/// tauri.conf.json nicht, die Windows nur beim Ziehen erzwingt. Gespeichert
+/// bei 100 % und hergestellt bei 150 % laege das Fenster darunter. Liefert
+/// die angehobene logische Groesse, `None`, wenn sie schon reicht.
+fn raised_to_minimum(
+    size: tauri::LogicalSize<f64>,
+    min_width: Option<f64>,
+    min_height: Option<f64>,
+) -> Option<tauri::LogicalSize<f64>> {
+    let width = min_width.map_or(size.width, |min| size.width.max(min));
+    let height = min_height.map_or(size.height, |min| size.height.max(min));
+    (width != size.width || height != size.height).then_some(tauri::LogicalSize { width, height })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::raised_to_minimum;
+    use tauri::LogicalSize;
+
+    #[test]
+    fn a_restored_window_below_the_minimum_is_raised_only_where_it_falls_short() {
+        let small = LogicalSize::new(1280.0, 400.0);
+        assert_eq!(
+            raised_to_minimum(small, Some(1100.0), Some(600.0)),
+            Some(LogicalSize::new(1280.0, 600.0))
+        );
+        let narrow = LogicalSize::new(853.3, 533.3);
+        assert_eq!(
+            raised_to_minimum(narrow, Some(1100.0), Some(600.0)),
+            Some(LogicalSize::new(1100.0, 600.0))
+        );
+    }
+
+    #[test]
+    fn a_window_at_or_above_the_minimum_or_without_one_stays() {
+        assert_eq!(
+            raised_to_minimum(LogicalSize::new(1100.0, 600.0), Some(1100.0), Some(600.0)),
+            None
+        );
+        assert_eq!(
+            raised_to_minimum(LogicalSize::new(1920.0, 1009.0), Some(1100.0), Some(600.0)),
+            None
+        );
+        assert_eq!(
+            raised_to_minimum(LogicalSize::new(300.0, 200.0), None, None),
+            None
+        );
+    }
 }

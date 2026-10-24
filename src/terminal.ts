@@ -40,6 +40,10 @@ const RESIZE_DEBOUNCE_MS = 300;
  * aufsummieren. */
 const WHEEL_UNITS_PER_STEP = 100;
 
+/** Groesser geht Eingabe in Teilen dieser Groesse hinaus, der Reihe nach
+ * (`term.onData` unten). */
+export const INPUT_CHUNK_BYTES = 64 * 1024;
+
 export interface TerminalHandle {
   dispose(): void;
   /** Task 10 (Kachelraster): startet/verlaengert denselben entprellten
@@ -985,17 +989,51 @@ export function mountTerminal(
   }
 
   // Eingabe geht roh ans PTY -- keine Interpretation im Frontend.
-  term.onData((data) => {
-    if (disposed || channelClosed) return;
-    const bytes = Array.from(new TextEncoder().encode(data));
-    void invoke("send_input", { hostId, session, openId, bytes }).catch(
+  //
+  // Eine grosse Einfuegung ging als EIN `send_input` mit einem Zahlenfeld
+  // hinaus, bei 8 MB rund 33 MB JSON. Umwandeln und IPC-Aufruf hielten die
+  // Seite Sekunden lang an (gemessen am 24.10.: rund 0,8 s je MB), und mit
+  // ihr Eingabe, Groessenaenderung und Schliessen jedes anderen Terminals;
+  // das Backend selbst bediente die anderen Kanaele weiter. Deshalb geht
+  // Eingabe ueber `INPUT_CHUNK_BYTES` in Teilen hinaus, je Terminal der Reihe
+  // nach: der naechste Teil erst, wenn der vorige angekommen ist, dazwischen
+  // kommt die Seite zum Zug. Was waehrenddessen getippt wird, reiht sich
+  // dahinter ein. Scheitert ein Teil -- etwa an der Frist des Backends, weil
+  // das Programm stdin nicht liest --, entfaellt der Rest dieser Eingabe, mit
+  // einer Meldung statt einer je Teil.
+  let inputTail: Promise<void> | null = null;
+
+  function sendInput(bytes: Uint8Array, burst: { failed: boolean }): Promise<void> {
+    if (burst.failed || disposed || channelClosed) return Promise.resolve();
+    return invoke("send_input", { hostId, session, openId, bytes: Array.from(bytes) }).then(
+      () => {},
       (error: unknown) => {
+        burst.failed = true;
         if (unpublishedOpenError(error)) return;
         // Ohne diesen Pfad bliebe ein fehlgeschlagener Tastendruck
         // unsichtbar verworfen -- kein Fehler, aber auch keine Wirkung.
         onError?.({ kind: "input", detail: String(error) });
       },
     );
+  }
+
+  term.onData((data) => {
+    if (disposed || channelClosed) return;
+    const encoded = new TextEncoder().encode(data);
+    const burst = { failed: false };
+    // Der gewoehnliche Tastendruck: sofort, wie bisher.
+    if (inputTail === null && encoded.length <= INPUT_CHUNK_BYTES) {
+      void sendInput(encoded, burst);
+      return;
+    }
+    for (let offset = 0; offset < encoded.length; offset += INPUT_CHUNK_BYTES) {
+      const part = encoded.subarray(offset, offset + INPUT_CHUNK_BYTES);
+      const tail = (inputTail ?? Promise.resolve()).then(() => sendInput(part, burst));
+      inputTail = tail;
+      void tail.then(() => {
+        if (inputTail === tail) inputTail = null;
+      });
+    }
   });
 
   let disposed = false;

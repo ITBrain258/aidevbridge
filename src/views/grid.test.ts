@@ -788,6 +788,35 @@ describe("mountGrid: die Eingabesperre gehoert zum Kanal", () => {
     expect(lockedTile().querySelector<HTMLElement>(".tile-lock")?.hidden).toBe(true);
   });
 
+  // Spec 2026-10-19 §4.5: das frische Terminal misst mit seiner Endgeometrie.
+  // Mit sichtbarer Sperrleiste maesse es 32 px zu niedrig, und deren
+  // Verschwinden im verschachtelten Durchgang kostete ein zweites
+  // `resize_terminal` -- "Reconnect" loest die Sperre schon vor dem Montieren.
+  it("misst das frische Terminal einer gesperrten Kachel nach dem Neuverbinden ohne Sperrleiste", () => {
+    const state = new AppState();
+    state.upsertHost(makeHost("h1", "vm-1"));
+    state.setSessions("h1", ["s1"]);
+    state.openSession("h1", "s1");
+    const el = document.createElement("div");
+    mount(el, state);
+    state.lockInput("h1", "s1");
+    const strip = () => tilesByPosition(el)[0].querySelector<HTMLElement>(".tile-lock")!;
+    expect(strip().hidden).toBe(false);
+
+    const stripAtMount: boolean[] = [];
+    hoisted.mountTerminalSpy.mockImplementation((container: HTMLElement) => {
+      stripAtMount.push(container.closest<HTMLElement>(".tile")!.querySelector<HTMLElement>(".tile-lock")!.hidden);
+    });
+    state.setHostState("h1", "failed", "transport lost");
+    state.setHostState("h1", "connecting");
+    state.setRuntimeId("h1", "r-h1-new");
+    state.setHostState("h1", "connected");
+
+    expect(stripAtMount).toEqual([true]);
+    expect(state.hosts[0].sessions[0].inputLocked).toBe(false);
+    expect(strip().hidden).toBe(true);
+  });
+
   // Der Fall, der beide vorigen Entwuerfe gekippt haette: bei `failed` bleibt
   // die Laufzeit-ID ABSICHTLICH stehen (Zusage aus Paket 1, die Kachel soll
   // mit ihrer Sperrleiste offen bleiben). Eine Montagebedingung, die nur die
@@ -3527,6 +3556,21 @@ describe("mountGrid: schmale Kachel (Spec 2026-10-19 §8.4)", () => {
     expect(chip.hidden).toBe(true);
   });
 
+  // Optik-Runde vom 24.10.: in einer schmalen Kachel zeigt der Chip nur die
+  // Groesse (styles.css); der ganze Satz steht im Tooltip.
+  it("traegt Groesse und Rest des Satzes in eigenen Teilen, den ganzen Satz im Tooltip", () => {
+    const el = document.createElement("div");
+    mount(el, stateWithTiles(["s1"]));
+    const chip = el.querySelector<HTMLElement>(".tile-narrow")!;
+    reportSize(62, 13);
+    expect(chip.querySelector(".tile-narrow-size")?.textContent).toBe("62×13");
+    expect(chip.querySelector(".tile-narrow-rest")?.textContent).toBe(" · narrow");
+    expect(chip.title).toBe("62×13 · narrow");
+    reportSize(120, 40);
+    expect(chip.hasAttribute("title")).toBe(false);
+    expect(chip.textContent).toBe("");
+  });
+
   it("bleibt ohne Meldung verborgen, etwa in einer Kachel ohne Terminal", () => {
     const state = new AppState();
     state.upsertHost(makeHost("h1", "vm-1", null));
@@ -4283,5 +4327,23 @@ describe("UI v2: Kacheln und Leerzustand (Spec 8, 10)", () => {
     state.lockInput("h1", "s1");
     expect(head.querySelector(".tile-agent:not([hidden]) .st")).toBeNull();
     expect(el.querySelector<HTMLElement>(".tile-lock-chip:not([hidden])")?.textContent).toBe("Disconnected");
+  });
+
+  // Optik-Runde vom 24.10.: in einer schmalen Kachel zeigt die Pille nur ihren
+  // Punkt (styles.css); ihr Wort steht deshalb im Tooltip, vor dem Grund.
+  it("puts the pill's word in its own element and, in the tile head, in front of the reason in its tooltip", () => {
+    const state = new AppState();
+    state.upsertHost(makeHost("h1", "vm-1"));
+    state.setSessions("h1", ["s1"]);
+    const session = state.hosts[0].sessions[0];
+    session.sessionId = 1;
+    session.status = "waiting";
+    session.statusReason = "permission prompt";
+    const el = document.createElement("div");
+    mount(el, state);
+    state.openSession("h1", "s1");
+    const pill = el.querySelector<HTMLElement>(".tile-head .tile-agent .st")!;
+    expect(pill.querySelector(".st-word")?.textContent).toBe("Waiting");
+    expect(pill.title).toBe("Waiting · permission prompt");
   });
 });
