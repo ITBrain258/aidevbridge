@@ -954,6 +954,50 @@ describe("createWorkspaceSync: gespeicherter Arbeitsplatz im laufenden Betrieb",
       sync.hostListed("a");
       expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/s1", "b/x", "a/s2"]);
     });
+
+    it("trennt der Nutzer einen schon gelisteten Host, warten seine Kacheln weiter, statt gesperrt zu erscheinen", async () => {
+      sync.start(TWO_HOSTS, true);
+      listHost(state, "a", ["a0", "a2"]);
+      sync.hostListed("a");
+      // Wie main.ts: getrennt, die Sessionliste bleibt stehen.
+      state.setRuntimeId("a", null);
+      state.setHostState("a", "disconnected");
+      sync.hostDisconnectedByUser("a");
+      listHost(state, "c", ["c1"]);
+      sync.hostListed("c");
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(["c/c1"]);
+      // Gespeichert bleiben sie an ihren Plaetzen.
+      await vi.advanceTimersByTimeAsync(WORKSPACE_PERSIST_MS);
+      expect(written()[written().length - 1]?.tiles).toEqual(TWO_HOSTS.tiles);
+    });
+
+    // Spec 2026-10-19 §8.1: an der Grenze entfaellt, was nicht mehr passt.
+    // Kaeme die Wahl des Nutzers vor die gespeicherten Kacheln, verloere eine
+    // von ihnen den Platz.
+    it("oeffnet der Nutzer selbst, endet das Warten: Gelistetes kommt vor seiner Wahl", () => {
+      const mine = Array.from({ length: MAX_TILES_PER_HOST }, (_, i) => `s${i + 1}`);
+      sync.start(
+        workspace({
+          connected: ["a", "c"],
+          tiles: [
+            ...mine.map((session, slot) => ({ slot, host_id: "a", session })),
+            { slot: MAX_TILES_PER_HOST, host_id: "c", session: "c1" },
+          ],
+        }),
+        true,
+      );
+      listHost(state, "a", [...mine, "extra"]);
+      sync.hostListed("a");
+      expect(state.tiles).toEqual([]);
+
+      sync.beforeUserOpen();
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual(mine.map((name) => `a/${name}`));
+      expect(state.openSession("a", "extra").kind).toBe("limit");
+
+      listHost(state, "c", ["c1"]);
+      sync.hostListed("c");
+      expect(state.tiles.map((t) => t.sessionKey)).toEqual([...mine.map((name) => `a/${name}`), "c/c1"]);
+    });
   });
 
   // Spec 2026-10-19 §8.1 (ab Schritt 3), Review Focus 1: acht gespeicherte

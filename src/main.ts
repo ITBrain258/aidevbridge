@@ -1839,6 +1839,7 @@ export function main(): void {
         // Diese Liste ist der Abschluss der aktuellen Mutation. Schreiben
         // entwertet noch offene Refreshes, bevor die neue Kachel erscheint.
         writeSessionRecords(hostId, items);
+        workspaceSync.beforeUserOpen();
         const opened = state.openSession(hostId, session);
         if (opened.kind === "limit") {
           showTileLimit(opened);
@@ -2098,6 +2099,7 @@ export function main(): void {
       showGlobalError(t("session.hostNotConnected", { host: host.label }));
       return;
     }
+    workspaceSync.beforeUserOpen();
     const result = request.replace ? state.replaceFocusedTile(hostId, name) : state.openSession(hostId, name);
     if (result.kind === "limit") {
       showTileLimit(result);
@@ -2175,6 +2177,7 @@ export function main(): void {
     sessionsAfterConnect.delete(hostId);
     const host = state.hosts.find((h) => h.id === hostId);
     if (!host?.sessions.some((session) => session.name === wanted.name)) return;
+    workspaceSync.beforeUserOpen();
     const result = wanted.replace
       ? state.replaceFocusedTile(hostId, wanted.name)
       : state.openSession(hostId, wanted.name);

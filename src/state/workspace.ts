@@ -437,6 +437,11 @@ export interface WorkspaceSync {
    * gelisteten Hosts aendert ihre Groesse, weil ein spaeterer dazukommt
    * (Spec 2026-10-19 §4.5, §4.6). */
   hostListed(hostId: string): void;
+  /** Unmittelbar bevor der Nutzer selbst eine Session oeffnet: der Start
+   * wartet nicht weiter, und was schon gelistet ist, kommt vor seiner Wahl.
+   * Sonst naehme sie einer gespeicherten Kachel an der Grenze den Platz, und
+   * die entfiele (`restoreTiles`). */
+  beforeUserOpen(): void;
   /** Der Versuch des Starts, diesen Host zu verbinden, ist zu Ende, gelungen
    * oder nicht. Ohne Liste wartet der Start dann nicht mehr auf ihn. */
   hostSettled(hostId: string): void;
@@ -594,6 +599,10 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
     },
     hostDisconnectedByUser(hostId) {
       dropConnected(hostId);
+      // Seine Liste galt der Verbindung, die der Nutzer gerade trennt: seine
+      // Kacheln warten weiter, wie vor der Liste. Sonst legte das Ende des
+      // Wartens gesperrte Kacheln eines getrennten Hosts an.
+      listedWhileHeld.delete(hostId);
       settle(hostId);
       changed();
     },
@@ -611,6 +620,9 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
       return connected.includes(hostId);
     },
     hostListed,
+    beforeUserOpen() {
+      if (holdTimer !== undefined) release();
+    },
     hostSettled: settle,
     dirs(hostId) {
       const entry = dirs[hostId];

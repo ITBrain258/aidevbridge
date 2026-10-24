@@ -193,9 +193,14 @@ Seitenleiste sowie Grenzen und Reihenfolge hat der Nutzer einzeln bestätigt.
   (`RESTORE_HOLD_MS`). Dann kommen alle in einem Zug und montieren mit ihrer
   Endgeometrie (§4.5). Bisher kamen sie je Host, und die Liste eines später
   verbindenden Hosts änderte die Größe jeder Kachel der früheren, je Kachel
-  ein `resize_terminal`; Codex verlor dabei seinen Verlauf. Ein Host, der
-  erst nach der Frist gelistet wird oder den der Nutzer von Hand verbindet,
-  reiht seine Kacheln wie zuvor ein, und die übrigen ändern dabei ihre Größe.
+  ein `resize_terminal`; Codex verlor dabei seinen Verlauf. Ein Host, den
+  der Nutzer während des Wartens von Hand verbindet und der dabei gelistet
+  wird, kommt im selben Zug mit. Trennt der Nutzer einen schon gelisteten
+  Host, warten dessen Kacheln weiter. Öffnet der Nutzer selbst eine Session,
+  endet das Warten: Was gelistet ist, kommt vor seiner Wahl, damit sie an
+  der Grenze (§8.1) keiner gespeicherten Kachel den Platz nimmt. Ein Host,
+  der erst nach dem Warten gelistet wird, reiht seine Kacheln wie zuvor ein,
+  und die übrigen ändern dabei ihre Größe.
 - Spalt-Anteile, Maximiert und Fokus werden nicht gespeichert.
 
 ### 4.7 Entfällt
