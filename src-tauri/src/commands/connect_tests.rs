@@ -4,6 +4,56 @@ use tokio::net::TcpListener;
 use tokio::time::{timeout, Instant};
 
 const TEST_END: Duration = Duration::from_secs(5);
+/// Hoechstens rund 2 s Warten auf einen freien Vorbereitungsplatz, wie
+/// `Fixture::connect` (connection/tests.rs).
+const PREPARATION_ATTEMPTS: u32 = 40;
+const PREPARATION_RETRY: Duration = Duration::from_millis(50);
+
+/// Verbindet den Versuch mit dem Testserver auf `port`, mit Passwort.
+///
+/// Der Pool fuer die Schluesselvorbereitung ist prozessweit (8 Plaetze), und
+/// parallele Tests teilen ihn: `history_tests` und `terminal_ownership_tests`
+/// belegen ihn mit ihren Verbindungspaaren. Ein Versuch, der dann
+/// `connect_capacity` bekommt, erreichte den Testserver nie, und der Test
+/// wartete vergeblich auf dessen naechsten Schritt, bis `TEST_END` ablief --
+/// auch mit jeder laengeren Frist. Wie `Fixture::connect` wird nur dieser
+/// Fehler wiederholt: Er faellt vor jeder TCP-Verbindung, derselbe Versuch
+/// gilt weiter, und der Testserver hat noch nichts gesehen.
+async fn connect_to_fixture(
+    state: &Arc<AppState>,
+    attempt: &mut ConnectAttempt,
+    port: u16,
+    known_hosts_text: String,
+    sink: Arc<dyn HostKeyRequestSink>,
+    prompt_timeout: Duration,
+) -> Result<String, ConnectError> {
+    let mut tries = 1;
+    loop {
+        let result = connect_host_core(
+            state,
+            attempt,
+            HostSpecDto {
+                hostname: "127.0.0.1".into(),
+                port,
+                user: "fixture-user".into(),
+                key_path: None,
+                passphrase: None,
+                password: Some(zeroize::Zeroizing::new("fixture-password".into())),
+            },
+            known_hosts_text.clone(),
+            PathBuf::from("unused-hermetic-known-hosts"),
+            sink.clone(),
+            prompt_timeout,
+        )
+        .await;
+        let busy = matches!(&result, Err(error) if error.code == "connect_capacity");
+        if !busy || tries == PREPARATION_ATTEMPTS {
+            return result;
+        }
+        tries += 1;
+        tokio::time::sleep(PREPARATION_RETRY).await;
+    }
+}
 
 #[tokio::test]
 async fn cancelled_reservation_cannot_be_consumed() {
@@ -94,19 +144,11 @@ async fn connect_before_banner(disconnect: bool) {
     let child_id = id.clone();
     let mut connecting = tokio::spawn(async move {
         let mut attempt = ConnectAttempt::take(&child_state, child_id).unwrap();
-        connect_host_core(
+        connect_to_fixture(
             &child_state,
             &mut attempt,
-            HostSpecDto {
-                hostname: "127.0.0.1".into(),
-                port,
-                user: "fixture-user".into(),
-                key_path: None,
-                passphrase: None,
-                password: Some(zeroize::Zeroizing::new("fixture-password".into())),
-            },
+            port,
             String::new(),
-            PathBuf::from("unused-hermetic-known-hosts"),
             Arc::new(RejectPrompt),
             Duration::from_secs(1),
         )
@@ -257,19 +299,11 @@ async fn publication_and_disconnect(case: PublicationCase) {
     let child_id = id.clone();
     let mut connecting = tokio::spawn(async move {
         let mut attempt = ConnectAttempt::take(&child_state, child_id).unwrap();
-        connect_host_core(
+        connect_to_fixture(
             &child_state,
             &mut attempt,
-            HostSpecDto {
-                hostname: "127.0.0.1".into(),
-                port,
-                user: "fixture-user".into(),
-                key_path: None,
-                passphrase: None,
-                password: Some(zeroize::Zeroizing::new("fixture-password".into())),
-            },
+            port,
             known,
-            PathBuf::from("unused-hermetic-known-hosts"),
             Arc::new(RejectPrompt),
             Duration::from_secs(1),
         )
@@ -445,19 +479,11 @@ async fn connect_expecting_host_key_failure(
     let mut attempt = ConnectAttempt::take(&state, id).unwrap();
     let error = timeout(
         TEST_END,
-        connect_host_core(
+        connect_to_fixture(
             &state,
             &mut attempt,
-            HostSpecDto {
-                hostname: "127.0.0.1".into(),
-                port: server.port,
-                user: "fixture-user".into(),
-                key_path: None,
-                passphrase: None,
-                password: Some(zeroize::Zeroizing::new("fixture-password".into())),
-            },
+            server.port,
             known_hosts_text,
-            PathBuf::from("unused-hermetic-known-hosts"),
             sink,
             prompt_timeout,
         ),
