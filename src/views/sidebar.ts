@@ -2125,26 +2125,53 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   }
   list.addEventListener("mousedown", onListMouseDown, true);
 
-  /** Am Fenster, damit auch ein Loslassen ausserhalb der Liste zaehlt. Der
-   * Klick folgt dem `pointerup` in derselben Aufgabe; erst danach, im naechsten
-   * Zeitgeber, holt die Markierung auf. Ebenso endet der Druck, wenn das
-   * Fenster den Fokus verliert: ein Loslassen nach Alt+Tab kommt hier nie an,
-   * und die Markierung bliebe bis zum naechsten eingefroren. */
-  function onPressEnd(): void {
+  /** Ein Tipp per Touch oder Stift wartet nach dem Loslassen auf seinen Klick
+   * (`onPressEnd`); so lange hoechstens, falls keiner kommt. */
+  const TAP_CLICK_WAIT_MS = 500;
+  /** Ein Tipp ist losgelassen, sein Klick steht noch aus. */
+  let awaitingTapClick = false;
+
+  /** Am Fenster, damit auch ein Loslassen ausserhalb der Liste zaehlt. Bei
+   * der Maus folgt der Klick dem `pointerup` in derselben Aufgabe; erst
+   * danach, im naechsten Zeitgeber, holt die Markierung auf. Bei Touch und
+   * Stift liefert Chromium `mousedown`, den Fokuswechsel und den Klick erst
+   * aus der Tippgeste, nach dem `pointerup`: holte die Markierung schon dort
+   * auf, verschoebe der Fokuswechsel die Zeilen vor dem Klick, und der Tipp
+   * auf eine Zeile eines anderen Hosts ginge verloren. Ein solcher Druck endet
+   * deshalb erst mit seinem Klick (`onTapClick`), ohne Klick -- gezogen oder
+   * lange gehalten -- nach `TAP_CLICK_WAIT_MS`. Ebenso endet der Druck, wenn
+   * das Fenster den Fokus verliert: ein Loslassen nach Alt+Tab kommt hier nie
+   * an, und die Markierung bliebe bis zum naechsten eingefroren. */
+  function onPressEnd(event: Event): void {
     if (frozenHostId === undefined) return;
+    const tap = event.type === "pointerup" && event instanceof PointerEvent &&
+      (event.pointerType === "touch" || event.pointerType === "pen");
+    awaitingTapClick = tap;
+    endPressAfter(tap ? TAP_CLICK_WAIT_MS : 0);
+  }
+
+  function onTapClick(): void {
+    if (!awaitingTapClick) return;
+    awaitingTapClick = false;
+    endPressAfter(0);
+  }
+
+  function endPressAfter(ms: number): void {
     window.clearTimeout(pressEndTimer);
     pressEndTimer = window.setTimeout(() => {
+      awaitingTapClick = false;
       frozenHostId = undefined;
       heldHostId = null;
       list.classList.remove("sb-list--pressing");
       if (!disposed) applyActiveHostClass();
-    }, 0);
+    }, ms);
   }
   window.addEventListener("pointerup", onPressEnd);
   window.addEventListener("pointercancel", onPressEnd);
   // Ohne Capture: `blur` blubbert nicht, dieser Horcher sieht also nur den
   // Fokusverlust des Fensters, nicht den eines Elements beim Druck selbst.
   window.addEventListener("blur", onPressEnd);
+  window.addEventListener("click", onTapClick);
 
   /** Merkt sich nur, WELCHER Knopf innerhalb der Leiste -- der Host kommt aus
    * `owningHostId()`. Wechselt der Host, faellt der Index auf 0 zurueck
@@ -2473,6 +2500,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       window.removeEventListener("pointerup", onPressEnd);
       window.removeEventListener("pointercancel", onPressEnd);
       window.removeEventListener("blur", onPressEnd);
+      window.removeEventListener("click", onTapClick);
       list.removeEventListener("mousedown", onListMouseDown, true);
       window.clearTimeout(pressEndTimer);
       el.replaceChildren();
