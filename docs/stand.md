@@ -195,7 +195,11 @@ In dieser Reihenfolge:
    der Auswahl an acht Stellen (`scope.product_version`, der Paketeintrag
    samt Manifest-Hash, die Komponente und vier Dokumente unter
    `tests/fixtures/rsa-signing/`); das Rebind-Werkzeug ändert keine
-   Versionen, sie sind von Hand gesetzt. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
+   Versionen, sie sind von Hand gesetzt. `npm run build:windows` lief für
+   0.2.1 am 24.10. aus `cb59da2` vollständig durch (Lauf
+   `20261024T115119321-b58ce6e6cabc`, `verify` grün, unsigniert); SHA-256:
+   MSI `a1ea3ed9…4dded`, Setup-EXE `7da3872d…f762c`, ZIP `9a0b9433…14be8`,
+   vollständig in `release-manifest.json` des Laufs. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
    auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
    `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
    aus `npm run build:app` bleibt auf dem eigenen Rechner. Ändert sich ein
