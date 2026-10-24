@@ -348,6 +348,7 @@ import { listen } from "@tauri-apps/api/event";
 import en from "./i18n/en.json";
 import { installKeyboard } from "./keyboard";
 import {
+  INPUT_CHUNK_BYTES,
   mountTerminal,
   searchDecorations,
   terminalTheme,
@@ -817,6 +818,80 @@ describe("mountTerminal: jeder Fehlerpfad meldet seine Art (UX-Spec §6.9)", () 
     } finally {
       warn.mockRestore();
     }
+  });
+});
+
+// Bekannte Fehler des Rasters, behoben am 24.10.: eine grosse Einfuegung ging
+// als ein `send_input` hinaus und hielt die Seite Sekunden lang an.
+describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
+  /** Jeder `send_input` wartet, bis der Test ihn beantwortet. */
+  function heldSends(): { bytes: () => number[][]; answer: (ok?: boolean) => Promise<void> } {
+    const pending: Array<{ resolve: () => void; reject: (error: unknown) => void }> = [];
+    invokeMock.mockImplementation((command: string) =>
+      command === "send_input"
+        ? new Promise<void>((resolve, reject) => pending.push({ resolve, reject }))
+        : Promise.resolve(undefined));
+    return {
+      bytes: () =>
+        invokeMock.mock.calls
+          .filter(([command]) => command === "send_input")
+          .map(([, args]) => (args as { bytes: number[] }).bytes),
+      answer: async (ok = true) => {
+        const next = pending.shift()!;
+        if (ok) next.resolve();
+        else next.reject("input timed out");
+        await flush();
+      },
+    };
+  }
+
+  it("schickt den naechsten Teil erst, wenn der vorige angekommen ist, und nichts geht verloren", async () => {
+    const sends = heldSends();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    const text = "ab".repeat(INPUT_CHUNK_BYTES + 5);
+
+    hoisted.dataListener?.(text);
+    await flush();
+    expect(sends.bytes().map((part) => part.length)).toEqual([INPUT_CHUNK_BYTES]);
+    await sends.answer();
+    expect(sends.bytes().map((part) => part.length)).toEqual([INPUT_CHUNK_BYTES, INPUT_CHUNK_BYTES]);
+    await sends.answer();
+    expect(sends.bytes().map((part) => part.length)).toEqual([INPUT_CHUNK_BYTES, INPUT_CHUNK_BYTES, 10]);
+    await sends.answer();
+    expect(new TextDecoder().decode(Uint8Array.from(sends.bytes().flat()))).toBe(text);
+  });
+
+  it("was waehrenddessen getippt wird, kommt nach der Einfuegung", async () => {
+    const sends = heldSends();
+    mount(document.createElement("div"), "host-1", "sess-1");
+
+    hoisted.dataListener?.("x".repeat(INPUT_CHUNK_BYTES + 1));
+    await flush();
+    hoisted.dataListener?.("q");
+    await flush();
+    expect(sends.bytes()).toHaveLength(1);
+    await sends.answer();
+    await sends.answer();
+    expect(sends.bytes().map((part) => part.length)).toEqual([INPUT_CHUNK_BYTES, 1, 1]);
+    expect(sends.bytes()[2]).toEqual([113]);
+    await sends.answer();
+    // Danach geht ein Tastendruck wieder sofort hinaus.
+    hoisted.dataListener?.("r");
+    expect(sends.bytes()).toHaveLength(4);
+  });
+
+  it("scheitert ein Teil, entfaellt der Rest dieser Eingabe, und es gibt eine Meldung", async () => {
+    const sends = heldSends();
+    const onError = vi.fn();
+    mount(document.createElement("div"), "host-1", "sess-1", onError);
+
+    hoisted.dataListener?.("x".repeat(3 * INPUT_CHUNK_BYTES));
+    await flush();
+    await sends.answer(false);
+    await flush();
+
+    expect(sends.bytes()).toHaveLength(1);
+    expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "input", detail: "input timed out" });
   });
 });
 
