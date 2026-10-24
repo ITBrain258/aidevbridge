@@ -4,7 +4,7 @@ Format nach Keep a Changelog, Versionen nach SemVer. Vor 1.0 kann jede
 Minor-Version brechen. 0.1.1 und 0.1.2 erschienen nur privat und noch unter
 dem Namen agentbridge.
 
-## [Unreleased]
+## [0.2.1] - unreleased
 
 ### Changed
 

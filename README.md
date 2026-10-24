@@ -53,7 +53,7 @@ xterm.js.
   yourself. There is no exception for a single app.
 - **Check the file.** Every release lists the SHA-256 of each package, taken
   from the `release-manifest.json` of its build. In PowerShell,
-  `Get-FileHash .\aidevbridge-0.2.0-windows-x64-setup.exe -Algorithm SHA256`
+  `Get-FileHash .\aidevbridge-0.2.1-windows-x64-setup.exe -Algorithm SHA256`
   (or the name of the file you downloaded) must print the same value. It prints upper-case letters where the release
   lists lower-case ones; letter case does not matter.
 - **Or build it yourself**, see [Build from source](#build-from-source).
@@ -91,15 +91,15 @@ see [Supported agents and detected states](#supported-agents-and-detected-states
 
 ## Install
 
-aidevbridge runs on Windows 10 and 11 (x64). Release 0.2.0 comes in three
+aidevbridge runs on Windows 10 and 11 (x64). Release 0.2.1 comes in three
 forms with the same program; pick one:
 
-- `aidevbridge-0.2.0-windows-x64-setup.exe`: the setup program. It installs
+- `aidevbridge-0.2.1-windows-x64-setup.exe`: the setup program. It installs
   for your Windows account and needs no administrator rights.
-- `aidevbridge-0.2.0-windows-x64.msi`: the Windows Installer package, for
-  example for `msiexec /i aidevbridge-0.2.0-windows-x64.msi`. It installs for
+- `aidevbridge-0.2.1-windows-x64.msi`: the Windows Installer package, for
+  example for `msiexec /i aidevbridge-0.2.1-windows-x64.msi`. It installs for
   all users and asks for administrator rights.
-- `aidevbridge-0.2.0-windows-x64.zip`: no installation. Extract the whole ZIP
+- `aidevbridge-0.2.1-windows-x64.zip`: no installation. Extract the whole ZIP
   into a folder and start `aidevbridge.exe`.
 
 The window is drawn by Microsoft Edge WebView2, which current Windows 10 and
@@ -233,7 +233,7 @@ on the host. Sessions on tmux's default socket do not appear.
   shortcuts (Settings → Shortcuts lists them); `git worktree` when creating a
   session; code signing, automatic updates and winget.
 - **Installers:** `npm run build:windows` builds and checks MSI, setup EXE
-  and ZIP. The installers of 0.2.0 are unsigned, and installing them on a
+  and ZIP. The installers of 0.2.1 are unsigned, and installing them on a
   fresh computer has not been tested yet.
 - **Only the app's own tmux socket** (`agentbridge`) is listed; sessions on
   tmux's default socket do not appear.
