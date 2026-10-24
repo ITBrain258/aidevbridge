@@ -139,7 +139,7 @@ vi.mock("./terminal", () => ({
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { focusableElements, main, stopSessionStatusPoll } from "./main";
+import { focusableElements, main, NEUTRAL_NOTICE_MS, stopSessionStatusPoll } from "./main";
 import { MAX_TILES_PER_HOST } from "./state/tile-assignment";
 import { DEFAULT_TERMINAL_PREFS, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { appVersionLine } from "./version";
@@ -2278,6 +2278,53 @@ describe("main: Ersetzen, Grenze und Wiederfinden (Spec 2026-10-19 §5.2, §5.3,
 
     expect(banner.hidden).toBe(false);
     expect(banner.classList.contains("global-error-banner--neutral")).toBe(false);
+  });
+
+  // Optik-Runde vom 24.10.: bei 9 Kacheln verdeckte der Hinweis die Koepfe der
+  // ersten beiden, bis der Nutzer ihn schloss.
+  describe("der Grenzhinweis schliesst sich selbst", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function atTheLimit(): Promise<HTMLElement> {
+      await setupTwoHostsThreeSessions({}, [...h1Full, h1Over]);
+      expandHost("h1");
+      for (const name of h1Full) openViaSidebar("h1", name);
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+      openViaSidebar("h1", h1Over);
+      const banner = document.querySelector<HTMLElement>(".global-error-banner")!;
+      expect(banner.hidden).toBe(false);
+      expect(banner.classList.contains("global-error-banner--neutral")).toBe(true);
+      return banner;
+    }
+
+    it(`nach ${NEUTRAL_NOTICE_MS} ms`, async () => {
+      const banner = await atTheLimit();
+      vi.advanceTimersByTime(NEUTRAL_NOTICE_MS - 1);
+      expect(banner.hidden).toBe(false);
+      vi.advanceTimersByTime(1);
+      expect(banner.hidden).toBe(true);
+    });
+
+    it("beim naechsten Druck in eine Kachel", async () => {
+      const banner = await atTheLimit();
+      tilesInOrder()[0].querySelector<HTMLElement>(".tile-head")!.dispatchEvent(
+        new PointerEvent("pointerdown", { bubbles: true, button: 0 }),
+      );
+      expect(banner.hidden).toBe(true);
+    });
+
+    it("ein Fehler danach bleibt stehen", async () => {
+      const banner = await atTheLimit();
+      terminalHoisted.errorByKey.get(`r-h1/${h1Full[0]}`)!({ kind: "open", detail: "no terminal open for this session" });
+      vi.advanceTimersByTime(NEUTRAL_NOTICE_MS);
+      tilesInOrder()[0].querySelector<HTMLElement>(".tile-head")!.dispatchEvent(
+        new PointerEvent("pointerdown", { bubbles: true, button: 0 }),
+      );
+      expect(banner.hidden).toBe(false);
+      expect(banner.classList.contains("global-error-banner--neutral")).toBe(false);
+    });
   });
 
   it("an einer Grenze verbindet ein Klick auf eine Session eines getrennten Hosts nicht erst (Spec §5.1 Nr. 3)", async () => {
