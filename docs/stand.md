@@ -4,7 +4,7 @@
 und ZIP, unsigniert (Entscheidung des Maintainers vom 22.10., vor dem M1-Tor
 und vor der Installerabnahme). Installerabnahme, M1- und M2-Tor sind
 seitdem bestanden (gemeldet am 24.10.). `0.2.1` ist vorbereitet: Version,
-CHANGELOG, Lizenzauswahl und ein Lieferlauf aus `5cabf45`; Tag und Release
+CHANGELOG, Lizenzauswahl und ein Lieferlauf aus `1da8da2`; Tag und Release
 stehen aus.
 Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
 einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
@@ -209,12 +209,13 @@ In dieser Reihenfolge:
    der Auswahl an acht Stellen (`scope.product_version`, der Paketeintrag
    samt Manifest-Hash, die Komponente und vier Dokumente unter
    `tests/fixtures/rsa-signing/`); das Rebind-Werkzeug ändert keine
-   Versionen, sie sind von Hand gesetzt. `npm run build:windows` lief für
-   0.2.1 am 24.10. aus `5cabf45` vollständig durch (Lauf
-   `20261024T125654037-9195392bc11d`, `verify` grün, unsigniert), nach den
-   Korrekturen aus dem Review und ihrer Neubindung; SHA-256: MSI
-   `667ff8ae…ac6c6`, Setup-EXE `bb244197…ab0f2`, ZIP `e81ff6df…ce901`,
-   vollständig in `release-manifest.json` des Laufs. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
+   Versionen, sie sind von Hand gesetzt. Nach den Korrekturen der bekannten Rasterfehler sind am 24.10. neun
+   weitere eigene Quellen neu gebunden. `npm run build:windows` lief für
+   0.2.1 am 24.10. aus `1da8da2` vollständig durch (Lauf
+   `20261024T145315967-feb4ea376d18`, `verify` grün, unsigniert); SHA-256: MSI
+   `8a8179e7…afb5c4`, Setup-EXE `197bba28…4bd388`, ZIP `c3fd2847…51666d`,
+   vollständig in `release-manifest.json` des Laufs. Die früheren Läufe aus
+   `cb59da2` und `5cabf45` sind damit überholt. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
    auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
    `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
    aus `npm run build:app` bleibt auf dem eigenen Rechner. Ändert sich ein
