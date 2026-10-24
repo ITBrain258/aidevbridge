@@ -788,6 +788,35 @@ describe("mountGrid: die Eingabesperre gehoert zum Kanal", () => {
     expect(lockedTile().querySelector<HTMLElement>(".tile-lock")?.hidden).toBe(true);
   });
 
+  // Spec 2026-10-19 §4.5: das frische Terminal misst mit seiner Endgeometrie.
+  // Mit sichtbarer Sperrleiste maesse es 32 px zu niedrig, und deren
+  // Verschwinden im verschachtelten Durchgang kostete ein zweites
+  // `resize_terminal` -- "Reconnect" loest die Sperre schon vor dem Montieren.
+  it("misst das frische Terminal einer gesperrten Kachel nach dem Neuverbinden ohne Sperrleiste", () => {
+    const state = new AppState();
+    state.upsertHost(makeHost("h1", "vm-1"));
+    state.setSessions("h1", ["s1"]);
+    state.openSession("h1", "s1");
+    const el = document.createElement("div");
+    mount(el, state);
+    state.lockInput("h1", "s1");
+    const strip = () => tilesByPosition(el)[0].querySelector<HTMLElement>(".tile-lock")!;
+    expect(strip().hidden).toBe(false);
+
+    const stripAtMount: boolean[] = [];
+    hoisted.mountTerminalSpy.mockImplementation((container: HTMLElement) => {
+      stripAtMount.push(container.closest<HTMLElement>(".tile")!.querySelector<HTMLElement>(".tile-lock")!.hidden);
+    });
+    state.setHostState("h1", "failed", "transport lost");
+    state.setHostState("h1", "connecting");
+    state.setRuntimeId("h1", "r-h1-new");
+    state.setHostState("h1", "connected");
+
+    expect(stripAtMount).toEqual([true]);
+    expect(state.hosts[0].sessions[0].inputLocked).toBe(false);
+    expect(strip().hidden).toBe(true);
+  });
+
   // Der Fall, der beide vorigen Entwuerfe gekippt haette: bei `failed` bleibt
   // die Laufzeit-ID ABSICHTLICH stehen (Zusage aus Paket 1, die Kachel soll
   // mit ihrer Sperrleiste offen bleiben). Eine Montagebedingung, die nur die

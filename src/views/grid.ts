@@ -1344,6 +1344,13 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
         // `onQueued(true)`, und `handle` liesse sich da noch nicht lesen (eine
         // `const` vor ihrer Zuweisung wirft).
         let own: TerminalHandle | null = null;
+        // Die Sperre faellt mit diesem Terminal (`release` unten), die
+        // Sperrleiste darum schon vor dem Messen: sonst maesse `mountTerminal`
+        // 32 px zu niedrig, und ihr Verschwinden im verschachtelten Durchgang
+        // kostete ein zweites `resize_terminal`, etwa nach dem Neuverbinden des
+        // Hosts (Spec 2026-10-19 §4.5). "Reconnect" loest die Sperre schon vor
+        // dem Montieren (`requestReconnect`).
+        if (resolved.inputLocked) view.refs.lockStrip.hidden = true;
         const handle = mountTerminal(
           view.refs.terminal,
           // Hier verlaeuft die Grenze: unterhalb von `mountTerminal` gilt
