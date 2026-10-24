@@ -139,8 +139,7 @@ In dieser Reihenfolge:
    Commit, aus dem die Pakete gebaut sind; das Release trägt MSI, Setup-EXE
    und ZIP aus `npm run build:windows` mit ihren SHA-256-Werten. Die
    Installerabnahme (Punkt 6) hat der Maintainer am 24.10. an diesen
-   Paketen nachgeholt; das M1-Tor bleibt offen und gilt für das nächste
-   Release, 0.2.1. Das Repository ist seit dem 22.10. öffentlich, mit privatem
+   Paketen nachgeholt; das M1-Tor bleibt offen (Punkt 1). Das Repository ist seit dem 22.10. öffentlich, mit privatem
    Meldeweg für Sicherheitslücken (Private Vulnerability Reporting),
    Warnungen von Dependabot, Secret Scanning mit Push Protection und GitHub
    Actions für `.github/workflows/ci.yml`; Workflows aus Pull Requests
