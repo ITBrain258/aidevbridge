@@ -399,6 +399,17 @@ fn a_binding_on_the_default_socket_attaches_with_e_and_keeps_the_status_line() {
     );
     assert_eq!(tmux[6], "if-shell");
     assert!(!tmux.iter().any(|a| a == "status"));
+    // Auch die Pruefung nach dem Anhaengen duldet Sitzungsgruppen.
+    let strict = crate::tmux::inventory::InventoryQuery::conservatively_guarded_absolute(
+        "/tmp/ab/tmux.sock",
+    )
+    .unwrap();
+    assert_eq!(
+        binding.query().inventory(),
+        &strict.clone().tolerating_linked_windows()
+    );
+    let own = SocketBinding::from_responses(&named, &named, selected, SocketKind::App).unwrap();
+    assert_eq!(own.query().inventory(), &strict);
     assert_eq!(
         tmux[tmux.len() - 2],
         format!("attach-session -E -t '${}'", selected.session_id.0)

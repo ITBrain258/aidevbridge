@@ -496,11 +496,16 @@ impl SocketBinding {
             return Err(Unverified::Changed);
         }
         // Conservatively guarded B/E envelope only. It is neither a version
-        // whitelist nor evidence of client-format capabilities.
-        let query = BindingQuery::new(
-            InventoryQuery::conservatively_guarded_absolute(&path)
-                .map_err(|_| Unverified::Frame)?,
-        );
+        // whitelist nor evidence of client-format capabilities. On the default
+        // socket a session group must not fail the check after the attach
+        // either (spec 2026-10-25 §6.2): its sessions stay unbound, the
+        // selected one binds as usual.
+        let inventory = InventoryQuery::conservatively_guarded_absolute(&path)
+            .map_err(|_| Unverified::Frame)?;
+        let query = BindingQuery::new(match kind {
+            SocketKind::App => inventory,
+            SocketKind::Default => inventory.tolerating_linked_windows(),
+        });
         Ok(Self {
             query,
             selected,

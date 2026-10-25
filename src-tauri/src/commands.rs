@@ -2416,7 +2416,7 @@ pub async fn send_input_impl(
     send_input_tagged_impl(state, host_id, SocketKind::App, session, bytes, None).await
 }
 
-async fn send_input_tagged_impl(
+pub async fn send_input_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
     socket: SocketKind,
@@ -2448,7 +2448,7 @@ pub async fn resize_terminal_impl(
     resize_terminal_tagged_impl(state, host_id, SocketKind::App, session, cols, rows, None).await
 }
 
-async fn resize_terminal_tagged_impl(
+pub async fn resize_terminal_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
     socket: SocketKind,
@@ -2487,7 +2487,7 @@ pub async fn ack_output_impl(
     ack_output_tagged_impl(state, host_id, SocketKind::App, session, byte_count, None)
 }
 
-fn ack_output_tagged_impl(
+pub fn ack_output_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
     socket: SocketKind,
@@ -2520,7 +2520,7 @@ pub async fn close_terminal_impl(
     close_terminal_tagged_impl(state, host_id, SocketKind::App, session, None)
 }
 
-fn close_terminal_tagged_impl(
+pub fn close_terminal_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
     socket: SocketKind,
