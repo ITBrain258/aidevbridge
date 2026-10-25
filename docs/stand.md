@@ -182,7 +182,8 @@ In dieser Reihenfolge:
 5. **M3:** fremde Sessions auf dem Standard-Socket sehen und bedienen, mit
    gesperrtem Beenden ([Roadmap](plans/2026-09-05-roadmap-bis-release.md)
    S3.1; [Design](specs/2026-10-25-standard-socket-design.md) vom 25.10. nach
-   Kritikrunde und Entscheidungen, als Nächstes der Plan); die übrige Windows-Politur nach S3.2 (Protokolldatei, globaler
+   Kritikrunde und Entscheidungen, [Plan](plans/2026-10-25-standard-socket.md)
+   vom selben Tag, als Nächstes dessen Schritt 1, die Messung); die übrige Windows-Politur nach S3.2 (Protokolldatei, globaler
    Diagnosetext; Mindestgröße, Fensterlage und Icon sind erledigt), dazu ein
    neues Logozeichen für den Erststart (Entscheidung vom 21.10.); die
    Rust-Meldung RUSTSEC-2023-0071 zu `rsa`, eingeordnet in

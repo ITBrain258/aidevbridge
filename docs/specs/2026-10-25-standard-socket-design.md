@@ -171,8 +171,9 @@ vom 13.09.).
   erkannt wie heute über die vorhergesagte Socket-Datei und tmux' Diagnose.
 - Die Version des Standard-Sockets ist die seines laufenden Servers
   (`#{version}` im Inventar), nicht die des `tmux` im `PATH`. Unterstützt
-  sind die Versionen, für die Bindung, Wächter und Bestätigung gemessen sind:
-  3.3a, 3.4 und 3.6. Bei jeder anderen, auch 3.0 (dort lässt sich ein
+  sind die Versionen, für die Bindung, Bestätigung und der Wächter mit `-E`
+  gemessen sind: 3.3a und 3.6 (Plan, Schritt 1), 3.4 erst nach einer Messung
+  an einem Host mit 3.4. Bei jeder anderen, auch 3.0 (dort lässt sich ein
   fehlender Server nicht beweisen, und die Bestätigung fehlt), bleibt die
   Gruppe leer, und die Hostzeile nennt die Version als Grund.
 - Sitzungsgruppen (`new -t`) teilen Fenster; heute bricht das ganze Inventar
@@ -274,7 +275,7 @@ vom 13.09.).
 
 | Schritt | Inhalt | d |
 | --- | --- | --- |
-| 1 | Messung: Abfrage mit zweitem Inventar unter Last (Werkzeuge vom 21.10.), Wächter mit `-E` auf 3.3a/3.4/3.6 neu gemessen | 0,5 |
+| 1 | Messung: Abfrage mit zweitem Inventar unter Last (Werkzeuge vom 21.10.), Wächter mit `-E` auf 3.3a und 3.6 neu gemessen | 0,5 |
 | 2 | `TmuxSocket`/`OwnSocket` durch Client, Inventar, Bindung, Verlauf, Titel, Anhängen; Tests der Bauer | 1 |
 | 3 | Liste und Abfrage je Socket, Sitzungsgruppen, Bestätigung, Terminalbefehle und Kill mit Socket; Backend-Tests | 1,5 |
 | 4 | Frontend: `Session.socket`, Schlüssel, Liste und Frische je Socket, Neuladen, Arbeitsplatz | 1,5 |
