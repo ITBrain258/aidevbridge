@@ -487,6 +487,7 @@ export async function editHost(host: Host, newValues: HostFormValue): Promise<Ho
       history_limit: host.historyLimit ?? null,
       key_path: newValues.auth.kind === "key" ? newValues.auth.path : null,
       auth_kind: newValues.auth.kind,
+      ...(newValues.showDefaultSocket === undefined ? {} : { show_default_socket: newValues.showDefaultSocket }),
     },
   });
 }

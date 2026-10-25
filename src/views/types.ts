@@ -112,6 +112,8 @@ export interface SessionListItemDto {
   unverified: string | null;
   status: string | null;
   status_reason: string | null;
+  /** Angehaengte Clients laut Inventar; fehlt ohne Inventar. */
+  session_attached?: number | null;
 }
 
 /** One `poll_status` answer. Rows carry numeric identity only; `complete` is

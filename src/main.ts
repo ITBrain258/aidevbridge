@@ -1016,6 +1016,8 @@ export function main(): void {
       panePid: item.pane_pid,
       status: item.status,
       statusReason: item.status_reason,
+      unverified: item.unverified,
+      attached: item.session_attached ?? null,
     }));
   }
 
@@ -1026,13 +1028,17 @@ export function main(): void {
    * Gruppe. */
   function writeDefaultSessions(hostId: string, listed: SocketSessionsDto | null): void {
     if (listed === null) {
-      if (!showsDefaultSocket(hostId)) state.setSessionRecords(hostId, [], Date.now(), "default");
+      if (!showsDefaultSocket(hostId)) {
+        state.setUnsupportedDefaultVersion(hostId, null);
+        state.setSessionRecords(hostId, [], Date.now(), "default");
+      }
       return;
     }
     if (listed.error) {
       state.setSessionListError(hostId, sessionListError(listed.error), "default");
       return;
     }
+    state.setUnsupportedDefaultVersion(hostId, listed.unsupported_version);
     state.setSessionRecords(hostId, sessionRecords(listed.sessions), Date.now(), "default");
   }
 
@@ -1062,6 +1068,7 @@ export function main(): void {
             unverified: item.unverified ?? null,
             status: item.status ?? "unknown",
             status_reason: item.status_reason ?? null,
+            session_attached: item.session_attached ?? null,
           },
     );
   }
@@ -2017,6 +2024,7 @@ export function main(): void {
       hostname: host.hostname,
       user: host.user,
       port: host.port,
+      showDefaultSocket: host.showDefaultSocket !== false,
     };
     // Task 8 (Spec §4.8): vorher NUR fuer `host.keyPath` gesetzt -- ein per
     // Passwort oder ausdruecklich per ssh-agent gespeicherter Host liess
@@ -2118,6 +2126,7 @@ export function main(): void {
       return { saved: false, error: t("hostForm.editFailed", { label: host.label, message: t("hostForm.editBusy") }) };
     }
     const connectionChanged = changesConnection(host, values);
+    const showedDefault = host.showDefaultSocket !== false;
     hostChangesInFlight.set(host.id, { keepsConnection: true });
     try {
       const saved = await editHost(host, values);
@@ -2130,6 +2139,12 @@ export function main(): void {
       // (Escape, dann "Disconnect"), bleibt es beim Speichern.
       const reconnect = connectionChanged && host.state !== "disconnected";
       if (reconnect) onDisconnectHost(host.id, true);
+      // Spec 2026-10-25 §10.1: der Schalter gilt sofort. Ein verbundener Host
+      // laedt seine Liste neu; aus, verschwinden dabei die Sessions des
+      // Standard-Sockets samt ihren Kacheln.
+      else if (showedDefault !== (host.showDefaultSocket !== false) && host.state === "connected") {
+        void refreshSessions(host.id);
+      }
       return { saved: true, reconnect };
     } catch (error) {
       // Der Satz nennt den Grund, denn er steht auch im Dialog, der kein
@@ -2201,6 +2216,23 @@ export function main(): void {
     );
   }
 
+  /** Spec 2026-10-25 §10 Nr. 2: oeffnet eine Session des Standard-Sockets in
+   * einer neuen Kachel, waehrend schon ein anderer Client an ihr haengt, sagt
+   * der neutrale Hinweis, dass tmux das Fenster jetzt nach dieser Kachel
+   * bemisst. Hoechstens einmal je Lauf, nichts davon wird gespeichert. */
+  let foreignSizeHintShown = false;
+
+  function noteForeignOpen(hostId: string, name: string, socket: SessionSocket, result: OpenResult): void {
+    if (socket !== "default" || foreignSizeHintShown) return;
+    if (result.kind !== "added" && result.kind !== "replaced") return;
+    const session = state.hosts
+      .find((host) => host.id === hostId)
+      ?.sessions.find((candidate) => candidate.name === name && socketOf(candidate) === "default");
+    if ((session?.attached ?? 0) === 0) return;
+    foreignSizeHintShown = true;
+    showGlobalError(t("tile.foreign.sizeHint"), undefined, "neutral");
+  }
+
   /** Wie die Wahl ausgeloest wurde: Strg+Klick und Strg+Enter ersetzen die
    * fokussierte Kachel (Spec 2026-10-19 §5.2). */
   interface OpenRequest {
@@ -2239,6 +2271,7 @@ export function main(): void {
       showTileLimit(result);
       return;
     }
+    noteForeignOpen(hostId, name, socket, result);
     // Designsystem §7.5 und Spec 2026-10-19 §6.2: der Tastaturfokus folgt
     // der Kachel, und sie leuchtet auf. Hier und nicht in `grid.ts`s
     // `render()`: DIES ist die Benutzerabsicht (siehe
@@ -2320,6 +2353,7 @@ export function main(): void {
       showTileLimit(result);
       return;
     }
+    noteForeignOpen(hostId, wanted.name, wanted.socket, result);
     gridHandle?.revealTile(result.tileId);
     const active = document.activeElement;
     const focusFree = active === null || active === document.body || elements.sidebar.contains(active);

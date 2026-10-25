@@ -324,3 +324,31 @@ describe("mountHostForm: Feldfehler (UX-Spec §11)", () => {
     expect(el.querySelector("[aria-invalid]")).toBeNull();
   });
 });
+
+describe("mountHostForm: Schalter Show tmux sessions (Spec 2026-10-25 §10.1)", () => {
+  const box = (el: HTMLElement) => el.querySelector<HTMLInputElement>("input[name=showDefaultSocket]");
+
+  it("steht an, auch fuer einen Host ohne gespeicherten Wert, und geht mit dem Absenden", async () => {
+    const { el, form, onSubmit } = await mount();
+    expect(box(el)?.checked).toBe(true);
+    expect(box(el)?.parentElement?.textContent).toBe("Show tmux sessions");
+    fill(el, "10.0.0.9", "u", "22");
+    submit(form);
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ showDefaultSocket: true }));
+  });
+
+  it("uebernimmt einen ausgeschalteten Wert und gibt die Aenderung weiter", async () => {
+    const { el, form, onSubmit } = await mount([], { label: "h", hostname: "10.0.0.9", user: "u", port: 22, showDefaultSocket: false }, "edit");
+    expect(box(el)?.checked).toBe(false);
+    box(el)!.checked = true;
+    submit(form);
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ showDefaultSocket: true }));
+  });
+
+  it("fehlt bei der Reparatur der Steuerung", () => {
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    mountHostForm(el, { existing: [], initial: { hostname: "10.0.0.9", user: "u", port: 22 }, onSubmit: vi.fn(), mode: "control-repair" });
+    expect(box(el)).toBeNull();
+  });
+});

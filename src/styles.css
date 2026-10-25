@@ -982,6 +982,29 @@ textarea,
   color: var(--ab-text-secondary);
 }
 
+/* Spec 2026-10-25 §7: eine Session des Standard-Sockets ohne Bindung steht da,
+   oeffnet aber nicht; der Tooltip nennt den Grund. */
+.row-session[aria-disabled="true"] {
+  color: var(--ab-text-muted);
+  cursor: default;
+}
+
+/* Die Gruppe "tmux sessions" unter den eigenen Sessions eines Hosts, buendig
+   mit deren Namen. */
+.sb-group-label {
+  margin: var(--ab-space-2) 0 0;
+  padding: 0 var(--ab-space-4) 0 56px;
+  color: var(--ab-text-muted);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-semibold);
+  text-transform: uppercase;
+}
+
+.tmux-unsupported {
+  padding: 0 var(--ab-space-4) 0 56px;
+}
+
 .row-session[aria-current="true"] {
   background-color: var(--ab-accent-soft);
   color: var(--ab-text-primary);
@@ -2355,6 +2378,35 @@ kbd {
   color: var(--ab-text-secondary);
 }
 
+/* Spec 2026-10-25 §7: eine Kachel des Standard-Sockets traegt "tmux" neben dem
+   Host, in dessen gedaempfter Farbe. */
+.tile-tmux {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ab-space-1);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
+.tile-tmux[hidden] {
+  display: none;
+}
+
+.tile.focused .tile-tmux,
+.tile.locked .tile-tmux {
+  color: var(--ab-text-secondary);
+}
+
+/* Dasselbe Kennzeichen in Wartet-Spur und Schnelloeffnen, als Text. */
+.tmux-mark {
+  flex: none;
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  color: var(--ab-text-muted);
+}
+
 /* Optik-Runde vom 24.10. (stand.md, bekannte Fehler des Rasters): unter
    260 px Kachelbreite blieb neben Statuspille und Groessenchip fuer Titel und
    Host nichts. Dann weicht der Host ganz, die Pille zeigt nur ihren Punkt
@@ -2366,7 +2418,9 @@ kbd {
     display: none;
   }
 
+  /* Spec 2026-10-25 §7: vom Kennzeichen bleibt das Symbol. */
   .tile-head .st-word,
+  .tile-tmux-word,
   .tile-narrow-rest {
     position: absolute;
     width: 1px;
@@ -4030,10 +4084,10 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
 }
 
 /* Kleinschrift (v2 §6.1): fuer 10 und 11 px "Segoe UI Variable Small" voran. */
-.row-meta, .row-state-word, .row-session-count, .state-pill, .st, .tile-host, .tile-lock-chip, .tile-quiet, .tile-copied, .tile-narrow,
+.row-meta, .row-state-word, .row-session-count, .state-pill, .st, .tile-host, .tile-tmux, .tmux-mark, .tile-lock-chip, .tile-quiet, .tile-copied, .tile-narrow,
 .sb-lane-title, .row-lane-time, .row-lane-reason, .row-lane-more,
 .key-hint, kbd, .first-run-suggestion-detail, .first-run-footer,
-.first-run-section-label, .sb-version, .sb-empty-hint, .control-quiet, .host-quiet,
+.first-run-section-label, .sb-version, .sb-empty-hint, .sb-group-label, .control-quiet, .host-quiet,
 .terminal-menu-shortcut, .terminal-menu-hint, .terminal-search-count,
 .settings-keys-sep, .settings-keys-note, .quick-open-host {
   font-family: var(--ab-font-ui-small);

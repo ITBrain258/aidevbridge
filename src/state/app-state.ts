@@ -58,6 +58,10 @@ export interface Session {
   panePid?: number | null;
   status?: string | null;
   statusReason?: string | null;
+  /** Warum die Liste keine Bindung lieferte (`SessionListItemDto.unverified`). */
+  unverified?: string | null;
+  /** Angehaengte Clients laut Inventar (Spec 2026-10-25 §10 Nr. 2). */
+  attached?: number | null;
 }
 
 export interface Host {
@@ -203,6 +207,21 @@ export class AppState {
   #controlSelfRepairs = new Set<string>();
   /** Hosts, die nach einem Verlust der Terminalverbindung neu verbunden werden. */
   #hostReconnects = new Set<string>();
+  /** Je Host die Version eines Servers auf dem Standard-Socket, an dem die App
+   * nicht anhaengt (Spec 2026-10-25 §6.2). */
+  #unsupportedDefault = new Map<string, string>();
+
+  /** Die Hostzeile nennt sie als Grund, warum die Gruppe leer bleibt. */
+  unsupportedDefaultVersion(hostId: string): string | null {
+    return this.#unsupportedDefault.get(hostId) ?? null;
+  }
+
+  setUnsupportedDefaultVersion(hostId: string, version: string | null): void {
+    if (this.unsupportedDefaultVersion(hostId) === version) return;
+    if (version === null) this.#unsupportedDefault.delete(hostId);
+    else this.#unsupportedDefault.set(hostId, version);
+    this.#notify();
+  }
 
   controlForHost(hostId: string): Readonly<ControlObservation> {
     return this.#controls.get(hostId) ?? INITIAL_CONTROL;
@@ -498,6 +517,7 @@ export class AppState {
     this.#controls.delete(hostId);
     this.#controlSelfRepairs.delete(hostId);
     this.#hostReconnects.delete(hostId);
+    this.#unsupportedDefault.delete(hostId);
     this.hosts = this.hosts.filter((h) => h.id !== hostId);
     // Traegt (Abschlussreview, Important 2): `submitEdit` (`main.ts`) ruft
     // `removeHost` direkt, und NUR diese Schleife nimmt dabei die Kacheln
@@ -714,6 +734,8 @@ export class AppState {
         | "panePid"
         | "status"
         | "statusReason"
+        | "unverified"
+        | "attached"
       >
     >,
     observedAt?: number,

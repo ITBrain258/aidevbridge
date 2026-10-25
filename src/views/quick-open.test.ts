@@ -222,6 +222,21 @@ describe("openQuickOpen (UX-Spec §7.5, §11)", () => {
     expect(input().getAttribute("aria-activedescendant")).toBe(chosen[0].id);
   }
 
+  // Spec 2026-10-25 §7: eine Session des Standard-Sockets traegt "tmux" und
+  // nennt ihren Socket, wenn sie gewaehlt wird.
+  it("kennzeichnet eine Session des Standard-Sockets und fuehrt sie mit ihrem Socket aus", () => {
+    const base = { kind: "session" as const, hostId: "h1", hostLabel: "vm", hostname: "vm.example", status: null, pill: null };
+    const onRun = open([
+      { ...base, name: "main" },
+      { ...base, name: "main", socket: "default" },
+    ]);
+    const marks = options().map((option) => option.querySelector(".tmux-mark")?.textContent ?? null);
+    expect(marks).toEqual([null, "tmux"]);
+    input().dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    input().dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    expect(onRun).toHaveBeenCalledWith(expect.objectContaining({ name: "main", socket: "default" }), expect.anything());
+  });
+
   it("oeffnet 'Quick open' ueber die Dialoghuelle: Fokus im Feld, listbox mit option, erster Eintrag gewaehlt", () => {
     const items = quickOpenItems(world(), quickOpenLabels());
     open(items);

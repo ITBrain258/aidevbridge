@@ -10,6 +10,7 @@ import { DEFAULT_KEYMAP, type KeymapAction } from "../keymap";
 import type { DialogShell } from "./dialog";
 import { agentStatusView, buildStatusPill, type AgentStatusView } from "./status-pill";
 import en from "../i18n/en.json";
+import { tmuxMark } from "./waiting-lane";
 
 type TranslationKey = keyof typeof en;
 
@@ -182,6 +183,7 @@ function buildOption(item: QuickOpenItem, id: string, index: number): HTMLLIElem
       host.className = "quick-open-host";
       host.textContent = item.hostLabel;
       option.appendChild(host);
+      if (item.socket === "default") option.appendChild(tmuxMark());
       if (item.pill) option.appendChild(buildStatusPill(item.pill));
       break;
     }

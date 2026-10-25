@@ -3579,6 +3579,10 @@ pub struct SessionListItemDto {
     pub unverified: Option<String>,
     pub status: String,
     pub status_reason: String,
+    /// Angehaengte Clients laut Inventar (`#{session_attached}`), ohne
+    /// Inventar `None`. Fuer den Hinweis zur Fenstergroesse beim Oeffnen einer
+    /// Session des Standard-Sockets (Spec 2026-10-25 §10 Nr. 2).
+    pub session_attached: Option<u32>,
 }
 
 /// One row of the slim status poll: numeric identity only, no names.
@@ -3616,6 +3620,7 @@ fn session_list_item(
     session: crate::tmux::client::ListedSessionObservation,
     status: crate::status::SessionStatus,
     version: MeasuredVersion,
+    session_attached: Option<u32>,
 ) -> SessionListItemDto {
     // Exhaustive on purpose: a newly measured version needs its own decision.
     let confirmable = match version {
@@ -3634,6 +3639,7 @@ fn session_list_item(
             unverified: None,
             status: status.kind.as_str().into(),
             status_reason: status.reason,
+            session_attached,
         },
         Err(reason) => SessionListItemDto {
             display_name: session.display_name,
@@ -3646,6 +3652,7 @@ fn session_list_item(
             unverified: Some(reason.to_string()),
             status: status.kind.as_str().into(),
             status_reason: status.reason,
+            session_attached,
         },
     }
 }
@@ -3849,6 +3856,7 @@ fn socket_sessions(
                     status: "unknown".into(),
                     status_reason: "tmux version is not a measured 3.0/3.3a/3.4/3.6 inventory"
                         .into(),
+                    session_attached: None,
                 })
                 .collect();
         }
@@ -3865,7 +3873,13 @@ fn socket_sessions(
                         parents,
                         &titles,
                     );
-                    session_list_item(session, status, version)
+                    let attached = observed
+                        .inventory
+                        .panes
+                        .iter()
+                        .find(|pane| pane.session_id == session.session_id)
+                        .map(|pane| pane.session_attached);
+                    session_list_item(session, status, version, attached)
                 })
                 .collect();
         }
@@ -4454,7 +4468,7 @@ mod tests {
         ] {
             let listing = bound_listing(3);
             let status = crate::status::from_listing(&listing);
-            let row = session_list_item(listing, status, version);
+            let row = session_list_item(listing, status, version, None);
             assert_eq!(
                 (row.window_id, row.pane_id, row.pane_pid),
                 (Some(4), Some(7), Some(10)),
@@ -4463,7 +4477,7 @@ mod tests {
         }
         let listing = bound_listing(3);
         let status = crate::status::from_listing(&listing);
-        let row = session_list_item(listing, status, MeasuredVersion::V3_0);
+        let row = session_list_item(listing, status, MeasuredVersion::V3_0, None);
         assert_eq!(
             (row.session_id, row.server_pid, row.server_start_time),
             (Some(3), Some(50), Some(1000))

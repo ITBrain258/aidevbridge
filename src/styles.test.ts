@@ -936,6 +936,8 @@ describe("schmaler Kachelkopf (Optik-Runde vom 24.10.)", () => {
     const block = atRuleBlock("@container tile (max-width: 259px) {");
     const rule = blockRule(block, ".tile-narrow-rest");
     expect(block).toContain(".tile-head .st-word,");
+    // Spec 2026-10-25 §7: vom Kennzeichen tmux bleibt das Symbol.
+    expect(block).toContain(".tile-tmux-word,");
     expect(rule).toMatch(/position:\s*absolute/);
     expect(rule).toMatch(/clip:\s*rect\(0, 0, 0, 0\)/);
     expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden/);

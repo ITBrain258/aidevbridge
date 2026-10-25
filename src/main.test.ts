@@ -8661,6 +8661,32 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
     expect(names()).toEqual(["main"]);
   });
 
+  it("nennt beim Oeffnen einer fremden Session mit anderem Client einmal je Lauf die Fenstergroesse", async () => {
+    const foreign = (name: string, id: number) => ({
+      ...sessionItem({ display_name: name, session_id: id }),
+      server_pid: 60,
+      server_start_time: 2000,
+      window_id: id,
+      pane_id: id,
+      pane_pid: 100 + id,
+      session_attached: 1,
+    });
+    await connect({}, { own: socket([]), default: socket([foreign("main", 1), foreign("other", 2)]) });
+    const hint = "This tmux session is also open elsewhere. While it is open here, tmux sizes its window to this terminal.";
+    openViaSidebar("h1", "main");
+    await flush(20);
+    expect(globalErrorText()).toContain(hint);
+    Array.from(document.querySelectorAll<HTMLButtonElement>(".global-error-banner button"))
+      .find((button) => button.textContent === "Dismiss")
+      ?.click();
+    const banner = () => document.querySelector<HTMLElement>(".global-error-banner")!;
+    expect(banner().hidden).toBe(true);
+    openViaSidebar("h1", "other");
+    await flush(20);
+    // Hoechstens einmal je Lauf.
+    expect(banner().hidden).toBe(true);
+  });
+
   it("laedt die Liste des Standard-Sockets bei einer unbekannten Session neu, hoechstens alle 10 s", async () => {
     let defaultPoll: unknown = { poll: null, error: failure };
     await connect({}, { own: socket(["main"]), default: socket([]) }, () => ({

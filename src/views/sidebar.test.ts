@@ -3915,3 +3915,69 @@ describe("mountSidebar: Neuverbinden eines Hosts (UX-Spec §5.4)", () => {
     expect(pill(el).textContent).toBe("Online");
   });
 });
+
+describe("mountSidebar: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §7)", () => {
+  const bound = { sessionId: 1, serverPid: 2, serverStartTime: 3, windowId: 4, paneId: 5, panePid: 6 };
+
+  function withForeign(foreign: Array<Record<string, unknown>>): AppState {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [{ name: "main" }], 1);
+    s.setSessionRecords("h1", foreign as never, 1, "default");
+    return s;
+  }
+
+  const rows = (el: HTMLElement) => Array.from(el.querySelectorAll<HTMLButtonElement>(".row-session"));
+
+  it("zeigt die Gruppe unter den eigenen Sessions, ohne Beenden und mit Herkunft im Tooltip", () => {
+    const { el } = mount(withForeign([{ name: "main", ...bound }]));
+    const group = el.querySelector(".sb-group-label");
+    expect(group?.textContent).toBe("tmux sessions");
+    const [own, foreign] = rows(el);
+    expect(own.dataset.sessionKey).toBe("h1/main");
+    expect(foreign.dataset.sessionKey).toBe("h1/default:main");
+    // Die Gruppe steht zwischen beiden.
+    expect(own.compareDocumentPosition(group!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(group!.compareDocumentPosition(foreign) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(foreign.title).toContain("tmux session, started outside aidevbridge. End it in tmux.");
+    const killButtons = (row: HTMLElement) => row.parentElement!.querySelectorAll(".session-kill-btn").length;
+    expect(killButtons(own)).toBe(1);
+    expect(killButtons(foreign)).toBe(0);
+  });
+
+  it("oeffnet eine fremde Session mit ihrem Socket, eine ungebundene gar nicht", () => {
+    const { el, h } = mount(withForeign([
+      { name: "main", ...bound },
+      { name: "grouped", sessionId: 7, unverified: "the session shares windows with another session" },
+    ]));
+    const [, foreign, unbound] = rows(el);
+    foreign.click();
+    expect(h.onOpenSession).toHaveBeenCalledWith("h1", "main", { replace: false, socket: "default" });
+    h.onOpenSession.mockClear();
+    expect(unbound.getAttribute("aria-disabled")).toBe("true");
+    expect(unbound.title).toContain("the session shares windows with another session");
+    unbound.click();
+    expect(h.onOpenSession).not.toHaveBeenCalled();
+  });
+
+  it("zeigt keine Gruppe ohne fremde Sessions, nennt aber eine nicht unterstuetzte Version", () => {
+    const s = withForeign([]);
+    const { el } = mount(s);
+    expect(el.querySelector(".sb-group-label")).toBeNull();
+    s.setUnsupportedDefaultVersion("h1", "3.4");
+    expect(el.querySelector(".sb-group-label")?.textContent).toBe("tmux sessions");
+    expect(el.querySelector(".tmux-unsupported")?.textContent).toBe(
+      "tmux sessions not shown: tmux 3.4 on this host is not supported.",
+    );
+  });
+
+  it("zeigt den Fehler des Standard-Sockets in seinem eigenen Kasten, die eigene Liste bleibt", () => {
+    const s = withForeign([]);
+    s.setSessionListError("h1", { message: "boom" }, "default");
+    const { el } = mount(s);
+    const notices = Array.from(el.querySelectorAll(".session-list-notice"));
+    expect(notices).toHaveLength(1);
+    expect(notices[0].querySelector("strong")?.textContent).toBe("tmux sessions unavailable");
+    expect(rows(el).map((row) => row.dataset.sessionKey)).toEqual(["h1/main"]);
+  });
+});

@@ -1003,6 +1003,8 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
           // (`AuthChoice.kind` und `AuthKind` sind bereits deckungsgleich
           // benannt, siehe `host-form.ts`).
           auth_kind: value.auth.kind,
+          // Spec 2026-10-25 §10.1: Vorgabe an.
+          show_default_socket: value.showDefaultSocket ?? true,
         },
       });
       if (disposed || attempt !== attemptGeneration || connectedHostId !== handedOverHostId) return;

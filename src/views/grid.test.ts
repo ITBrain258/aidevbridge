@@ -4376,3 +4376,21 @@ describe("mountGrid: Sessions des Standard-Sockets (Spec 2026-10-25 §5, §6.4)"
     expect(onTerminalOpenFailed).toHaveBeenCalledWith("h1", "main", "app");
   });
 });
+
+describe("mountGrid: Kennzeichen tmux (Spec 2026-10-25 §7)", () => {
+  it("traegt es nur der Kopf einer Kachel des Standard-Sockets", () => {
+    const state = new AppState();
+    state.upsertHost(makeHost("h1", "vm-1"));
+    state.setSessionRecords("h1", [{ name: "main" }]);
+    state.setSessionRecords("h1", [{ name: "main" }], undefined, "default");
+    state.openSession("h1", "main");
+    state.openSession("h1", "main", "default");
+    const el = document.createElement("div");
+    mount(el, state);
+    const marks = tilesByPosition(el).map((tile) => tile.querySelector<HTMLElement>(".tile-tmux"));
+    expect(marks.map((mark) => mark?.hidden)).toEqual([true, false]);
+    expect(marks[1]?.textContent).toBe("tmux");
+    expect(marks[1]?.title).toBe("tmux session, started outside aidevbridge");
+    expect(marks[1]?.querySelector("svg")).not.toBeNull();
+  });
+});

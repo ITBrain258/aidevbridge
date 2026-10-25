@@ -378,6 +378,9 @@ interface TileRefs {
   focusedFlag: HTMLSpanElement;
   title: HTMLSpanElement;
   host: HTMLSpanElement;
+  /** Spec 2026-10-25 §7: "tmux" neben dem Host bei einer Session des
+   * Standard-Sockets; im schmalen Kopf bleibt nur das Symbol. */
+  tmuxMark: HTMLSpanElement;
   /** Nachtrag B, Punkt 3 (Designsystem §8.3, Punkt 1): Warndreieck + Text
    * rechts im Kachelkopf, neben den Kopf-Schaltflaechen. */
   lockChip: HTMLSpanElement;
@@ -763,6 +766,16 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     host.className = "tile-host";
     head.appendChild(host);
 
+    const tmuxMark = document.createElement("span");
+    tmuxMark.className = "tile-tmux";
+    tmuxMark.title = t("tile.tmux.title");
+    tmuxMark.hidden = true;
+    const tmuxWord = document.createElement("span");
+    tmuxWord.className = "tile-tmux-word";
+    tmuxWord.textContent = t("tile.tmux");
+    tmuxMark.append(icon("terminal", 12), tmuxWord);
+    head.appendChild(tmuxMark);
+
     // Nachtrag B, Punkt 3 (Designsystem §8.3, Punkt 1): "rechts erscheint ein
     // Chip: Warndreieck + Text 'Input locked'" -- vor den Kopf-Schaltflaechen
     // eingefuegt, damit er wie diese von `.tile-acts`s `margin-left: auto`
@@ -989,6 +1002,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       focusedFlag,
       title,
       host,
+      tmuxMark,
       lockChip,
       quietChip,
       quietText,
@@ -1844,6 +1858,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     const resolved = key === null ? null : resolveSession(state, key);
     refs.title.textContent = resolved?.name ?? "";
     refs.host.textContent = resolved?.hostLabel ?? "";
+    refs.tmuxMark.hidden = resolved?.socket !== "default";
 
     // Spec 8.4, Signal 1+2 (Akzentkontur innen per CSS ueber `.tile.focused`,
     // Kopf-Flaechenstufe+Titelgewicht ebenfalls per CSS ueber dieselbe
