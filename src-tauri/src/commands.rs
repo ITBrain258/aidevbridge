@@ -3735,22 +3735,33 @@ pub async fn list_sockets_impl(
             control_generation: 0,
         })?;
     let transport = transport.command(deadline);
-    let own = list_own_socket(state, &transport, deadline).await;
+    let installed = transport
+        .exec_with_deadline(
+            &TmuxClient::new(&state.own_tmux_socket()).version_command(),
+            COMMAND_TIMEOUT,
+        )
+        .await
+        .ok()
+        .and_then(|result| MeasuredVersion::from_response(&result));
+    let observed = |listing: &Result<SocketListing, OperationErrorDto>| {
+        matches!(listing, Ok(SocketListing::Observed { .. }))
+    };
+    let own = list_own_socket(state, &transport, installed, deadline).await;
+    // claude gleich nach dem eigenen Socket: ein langsamer Standard-Socket
+    // nimmt den eigenen Sessions so nicht die Zeit fuer ihren Status (Spec
+    // 2026-10-25 §6.3, der eigene Socket zuerst).
+    let mut agents = None;
+    if observed(&own) {
+        agents = Some(read_claude_agents(&transport, deadline).await);
+    }
     let default = match include_default {
-        true => Some(list_default_socket(state, &transport, deadline).await),
+        true => Some(list_default_socket(state, &transport, installed, deadline).await),
         false => None,
     };
-    let observed = [Some(&own), default.as_ref()]
-        .into_iter()
-        .flatten()
-        .any(|listing| matches!(listing, Ok(SocketListing::Observed { .. })));
-    let (agents, parents) = match observed {
-        true => {
-            let (agents, parents, _) = read_claude_agents(&transport, deadline).await;
-            (agents, parents)
-        }
-        false => Default::default(),
-    };
+    if agents.is_none() && default.as_ref().is_some_and(observed) {
+        agents = Some(read_claude_agents(&transport, deadline).await);
+    }
+    let (agents, parents, _) = agents.unwrap_or_default();
     Ok(SessionListDto {
         own: socket_sessions(own, &agents, &parents),
         default: default.map(|listing| socket_sessions(listing, &agents, &parents)),
@@ -3770,16 +3781,12 @@ pub async fn list_sockets_impl(
 async fn list_own_socket(
     state: &Arc<AppState>,
     transport: &CommandTransport,
+    installed: Option<MeasuredVersion>,
     deadline: tokio::time::Instant,
 ) -> Result<SocketListing, OperationErrorDto> {
     let socket = state.own_tmux_socket();
     let client = TmuxClient::new(&socket);
-    let version = transport
-        .exec_with_deadline(&client.version_command(), COMMAND_TIMEOUT)
-        .await
-        .ok()
-        .and_then(|result| MeasuredVersion::from_response(&result));
-    match version {
+    match installed {
         Some(version) => observed_listing(&client, &socket, transport, version, deadline).await,
         None => client
             .list_session_names(transport)
@@ -3795,11 +3802,12 @@ async fn list_own_socket(
 async fn list_default_socket(
     state: &Arc<AppState>,
     transport: &CommandTransport,
+    installed: Option<MeasuredVersion>,
     deadline: tokio::time::Instant,
 ) -> Result<SocketListing, OperationErrorDto> {
     let socket = state.default_socket.clone();
     let client = TmuxClient::new(&socket);
-    let version = match client.server_version(transport, deadline).await {
+    let version = match client.server_version(transport, installed, deadline).await {
         Ok(Some(version)) => version,
         Ok(None) => return Ok(SocketListing::Empty),
         Err(error) => return Err(operation_error(transport, &error)),
@@ -4087,23 +4095,27 @@ async fn poll_sockets_with(
             default: default.map(|_| unmeasured()),
         });
     };
+    let observed = |polled: &anyhow::Result<PolledSocket>| {
+        polled
+            .as_ref()
+            .is_ok_and(|polled| polled.inventory.is_some())
+    };
     let own_polled = poll_socket(transport, own, version, deadline).await;
+    // claude gleich nach dem eigenen Socket, vor dem Standard-Socket: dessen
+    // Inventar und Titel nehmen den eigenen Sessions so nie die Zeit fuer
+    // ihren Status (Spec 2026-10-25 §6.3).
+    let mut agents = None;
+    if observed(&own_polled) {
+        agents = Some(read_claude_agents(transport, deadline).await);
+    }
     let default_polled = match default {
         Some(socket) => Some(poll_socket(transport, socket, version, deadline).await),
         None => None,
     };
-    let observed = [Some(&own_polled), default_polled.as_ref()]
-        .into_iter()
-        .flatten()
-        .any(|polled| {
-            polled
-                .as_ref()
-                .is_ok_and(|polled| polled.inventory.is_some())
-        });
-    let (agents, parents, agents_ok) = match observed {
-        true => read_claude_agents(transport, deadline).await,
-        false => Default::default(),
-    };
+    if agents.is_none() && default_polled.as_ref().is_some_and(observed) {
+        agents = Some(read_claude_agents(transport, deadline).await);
+    }
+    let (agents, parents, agents_ok) = agents.unwrap_or_default();
     let rows = |polled: anyhow::Result<PolledSocket>| {
         polled.map(|polled| status_poll(polled, &agents, &parents, agents_ok))
     };
@@ -4527,9 +4539,9 @@ mod tests {
             poll_exec("tmux 3.6\n"),
             poll_exec(POLL_INVENTORY),
             poll_exec(""),
+            poll_exec("[]"),
             poll_exec(DEFAULT_INVENTORY),
             poll_exec(""),
-            poll_exec("[]"),
         ]);
         let polled = poll_sockets_with(
             &t,
@@ -4548,8 +4560,14 @@ mod tests {
             .map(|line| crate::remote::command::decoded_argv(line))
             .collect();
         assert_eq!(&lines[1][4..6], ["-L", "sock"]);
-        assert_eq!(&lines[3][4..6], ["-L", "dflt"]);
-        assert_eq!(&lines[4][3..], ["aidevbridge-panes", "dflt", "%9", "30"]);
+        // claude kommt vor dem Standard-Socket.
+        assert!(
+            lines[3].iter().any(|arg| arg.contains("claude")),
+            "{:?}",
+            lines[3]
+        );
+        assert_eq!(&lines[4][4..6], ["-L", "dflt"]);
+        assert_eq!(&lines[5][3..], ["aidevbridge-panes", "dflt", "%9", "30"]);
         let own = polled.own.unwrap();
         assert_eq!((own.server_pid, own.sessions.len()), (Some(50), 2));
         let default = polled.default.unwrap().unwrap();
@@ -4582,9 +4600,9 @@ mod tests {
                 poll_exec("tmux 3.6\n"),
                 poll_exec(POLL_INVENTORY),
                 poll_exec(""),
+                poll_exec("[]"),
                 failed_exec("no server running on /tmp/tmux-1000/dflt\n"),
                 poll_exec(prediction),
-                poll_exec("[]"),
             ]);
             let polled = poll_sockets_with(
                 &t,

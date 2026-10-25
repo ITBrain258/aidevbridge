@@ -584,12 +584,17 @@ impl TmuxClient {
     /// Die Version des laufenden Servers dieses Sockets (`#{version}`), nicht
     /// die des `tmux` im `PATH`: Den Standard-Socket kann ein anderes tmux
     /// gestartet haben (Spec 2026-10-25 §6.2). `list-sessions` startet keinen
-    /// Server (Messung vom 25.10., §1). `Ok(None)` heisst kein Server,
-    /// bewiesen wie in [`Self::observe_sessions`], oder ein Server ohne
-    /// Session.
+    /// Server (Messung vom 25.10., §1). `Ok(None)` heisst kein Server oder ein
+    /// Server ohne Session. Bewiesen wird das Fehlen wie in
+    /// [`Self::observe_sessions`], wenn `installed` (das `tmux -V` des `PATH`,
+    /// das der Aufrufer schon hat) eine Vorhersage des Pfads hat; sonst, bei
+    /// 3.0 und ungemessenen Versionen, mit derselben Diagnose wie
+    /// [`Self::list_session_names`]: tmux nennt einen fehlenden Socket dieses
+    /// Namens. Sonst bliebe die Gruppe dort fuer immer ein Fehler.
     pub async fn server_version(
         &self,
         transport: &dyn Transport,
+        installed: Option<MeasuredVersion>,
         deadline: Instant,
     ) -> anyhow::Result<Option<String>> {
         let r = observation_exec(
@@ -613,17 +618,15 @@ impl TmuxClient {
             }
             anyhow::bail!("unexpected tmux server version response");
         }
-        let installed = observation_exec(transport, self.version_command(), deadline)
-            .await
-            .ok()
-            .and_then(|result| MeasuredVersion::from_response(&result));
-        if let Some(installed) = installed {
-            if self
-                .server_proven_absent(transport, installed, &r, deadline)
-                .await?
-            {
-                return Ok(None);
+        let absent = match installed {
+            Some(version) if version != MeasuredVersion::V3_0 => {
+                self.server_proven_absent(transport, version, &r, deadline)
+                    .await?
             }
+            _ => self.server_absent(&r),
+        };
+        if absent {
+            return Ok(None);
         }
         anyhow::bail!(
             "tmux list-sessions failed (exit {}): {}",

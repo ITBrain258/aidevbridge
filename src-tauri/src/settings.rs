@@ -588,9 +588,6 @@ pub fn app_socket() -> Result<String, String> {
     app_socket_from(test_env(TMUX_SOCKET_ENV).as_deref())
 }
 
-/// Testbarer Kern von `app_socket()`. Ein gesetzter, aber ungueltiger Wert
-/// faellt im Debug-Bau nicht still auf den Produktionssocket zurueck -- dort
-/// liegen die echten Sessions des Nutzers.
 /// Der Name des Standard-Sockets: `default`, im Debug-Bau ggf. aus
 /// `AIDEVBRIDGE_TMUX_DEFAULT_SOCKET`. Gesetzt, aber ungueltig, ist ein Fehler.
 pub fn default_socket_name() -> Result<String, String> {
@@ -612,6 +609,9 @@ fn default_socket_name_from(raw: Option<&str>) -> Result<String, String> {
     }
 }
 
+/// Testbarer Kern von `app_socket()`. Ein gesetzter, aber ungueltiger Wert
+/// faellt im Debug-Bau nicht still auf den Produktionssocket zurueck -- dort
+/// liegen die echten Sessions des Nutzers.
 fn app_socket_from(raw: Option<&str>) -> Result<String, String> {
     match (raw, socket_override(raw)) {
         (_, Some(socket)) => Ok(socket),

@@ -549,7 +549,7 @@ async fn the_server_version_comes_from_the_running_server() {
     let transport = ScriptedTransport::new(vec![output("3.6\n3.6\n")], Duration::ZERO);
     assert_eq!(
         default_reader()
-            .server_version(&transport, end())
+            .server_version(&transport, Some(MeasuredVersion::V3_6), end())
             .await
             .unwrap(),
         Some("3.6".to_string())
@@ -571,7 +571,7 @@ async fn the_server_version_comes_from_the_running_server() {
     let transport = ScriptedTransport::new(vec![output("")], Duration::ZERO);
     assert_eq!(
         default_reader()
-            .server_version(&transport, end())
+            .server_version(&transport, Some(MeasuredVersion::V3_6), end())
             .await
             .unwrap(),
         None
@@ -580,7 +580,7 @@ async fn the_server_version_comes_from_the_running_server() {
         let transport = ScriptedTransport::new(vec![output(answer)], Duration::ZERO);
         assert!(
             default_reader()
-                .server_version(&transport, end())
+                .server_version(&transport, Some(MeasuredVersion::V3_6), end())
                 .await
                 .is_err(),
             "{answer:?}"
@@ -593,37 +593,44 @@ async fn the_server_version_comes_from_the_running_server() {
 #[tokio::test(start_paused = true)]
 async fn a_missing_default_server_is_proven_like_a_missing_own_server() {
     let diagnosis = "no server running on /tmp/tmux-1000/default\n";
+    let v36 = Some(MeasuredVersion::V3_6);
     let transport = ScriptedTransport::new(
-        vec![
-            absent(diagnosis),
-            output("tmux 3.6\n"),
-            predicted("/tmp/tmux-1000/default"),
-        ],
+        vec![absent(diagnosis), predicted("/tmp/tmux-1000/default")],
         Duration::ZERO,
     );
     assert_eq!(
         default_reader()
-            .server_version(&transport, end())
+            .server_version(&transport, v36, end())
             .await
             .unwrap(),
         None
     );
-    for script in [
-        vec![
-            absent(diagnosis),
-            output("tmux 3.6\n"),
-            predicted("/tmp/tmux-1000/other"),
-        ],
-        vec![absent(diagnosis), output("tmux 3.5\n")],
-        vec![
-            absent("error connecting to /tmp/tmux-1000/default (Permission denied)\n"),
-            output("tmux 3.6\n"),
-        ],
+    // Ohne gemessene Vorhersage (tmux 3.0 oder ein ungemessenes tmux im PATH)
+    // beweist es die Diagnose wie in list_session_names, ohne weiteren Aufruf.
+    for installed in [None, Some(MeasuredVersion::V3_0)] {
+        let transport = ScriptedTransport::new(vec![absent(diagnosis)], Duration::ZERO);
+        assert_eq!(
+            default_reader()
+                .server_version(&transport, installed, end())
+                .await
+                .unwrap(),
+            None
+        );
+        assert_eq!(transport.calls(), 1);
+    }
+    let denied = "error connecting to /tmp/tmux-1000/default (Permission denied)\n";
+    for (script, installed) in [
+        (
+            vec![absent(diagnosis), predicted("/tmp/tmux-1000/other")],
+            v36,
+        ),
+        (vec![absent(denied)], v36),
+        (vec![absent(denied)], None),
     ] {
         let calls = script.len();
         let transport = ScriptedTransport::new(script, Duration::ZERO);
         assert!(default_reader()
-            .server_version(&transport, end())
+            .server_version(&transport, installed, end())
             .await
             .is_err());
         assert_eq!(transport.calls(), calls);
