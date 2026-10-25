@@ -25,7 +25,7 @@ use crate::tmux::attach_confirmation::{
     registration_ready, verify_process, SocketBinding,
 };
 use crate::tmux::inventory::{
-    InventoryOutcome, InventoryQuery, MeasuredVersion, PaneId, ServerIdentity, SessionId, WindowId,
+    InventoryOutcome, MeasuredVersion, PaneId, ServerIdentity, SessionId, WindowId,
 };
 use crate::tmux::session_binding::PaneIdentity;
 use crate::tmux::{
@@ -3962,32 +3962,125 @@ async fn read_pane_details(
     }
 }
 
-/// The slim status poll: `tmux -V`, one complete numeric inventory, the
-/// active panes' titles, the Claude CLI and, only for its pids, /proc -- five
-/// commands for any number of sessions. It neither names nor lists sessions;
-/// membership and display names stay with `list_sessions`. Each session is
-/// judged by its active pane (`status::statuses_from_inventory`).
+/// Status je Socket (Spec 2026-10-25 §6.3).
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct StatusPollsDto {
+    pub own: SocketPollDto,
+    /// `None`, wenn der Standard-Socket nicht verlangt war (Schalter des
+    /// Hosts aus).
+    pub default: Option<SocketPollDto>,
+}
+
+/// Ein Socket der Abfrage: sein Ergebnis oder sein Fehler. Ein Fehler macht
+/// nur die Sessions dieses Sockets veraltet.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct SocketPollDto {
+    pub poll: Option<StatusPollDto>,
+    pub error: Option<OperationErrorDto>,
+}
+
+struct SocketsPoll {
+    own: anyhow::Result<StatusPollDto>,
+    default: Option<anyhow::Result<StatusPollDto>>,
+}
+
+/// Inventar und Titel eines Sockets; `inventory` ist `None`, wenn auf dem
+/// Standard-Socket bewiesen kein Server laeuft.
+struct PolledSocket {
+    inventory: Option<crate::tmux::inventory::InventorySnapshot>,
+    titles: std::collections::BTreeMap<PaneId, crate::status::title::PaneDetails>,
+    titles_ok: bool,
+}
+
+/// Nur der eigene Socket, wie vor dem Standard-Socket: fuer die Tests der
+/// Abfrage.
+#[cfg(test)]
 async fn poll_status_with(
     transport: &dyn Transport,
     socket: &TmuxSocket,
     deadline: tokio::time::Instant,
 ) -> anyhow::Result<StatusPollDto> {
+    poll_sockets_with(transport, socket, None, deadline)
+        .await?
+        .own
+}
+
+/// The slim status poll: `tmux -V`, one complete numeric inventory, the
+/// active panes' titles, the Claude CLI and, only for its pids, /proc -- five
+/// commands for any number of sessions. It neither names nor lists sessions;
+/// membership and display names stay with `list_sessions`. Each session is
+/// judged by its active pane (`status::statuses_from_inventory`).
+///
+/// Liest je Socket ein Inventar und die Titel seiner Panes, den eigenen
+/// zuerst; `claude agents --json` und die Elternprozesse einmal, denn sie
+/// binden ueber PIDs (Spec 2026-10-25 §6.3). Fuer den eigenen Socket bleibt
+/// die Folge der Aufrufe dieselbe wie ohne Standard-Socket.
+///
+/// Der Rahmen der Inventarabfrage folgt dem `tmux` im `PATH`; fuer 3.3a, 3.4
+/// und 3.6 ist er derselbe. Welche Sessions des Standard-Sockets die App
+/// bindet, entscheidet die Liste nach der Version des laufenden Servers.
+async fn poll_sockets_with(
+    transport: &dyn Transport,
+    own: &TmuxSocket,
+    default: Option<&TmuxSocket>,
+    deadline: tokio::time::Instant,
+) -> anyhow::Result<SocketsPoll> {
     let remaining = || deadline.saturating_duration_since(tokio::time::Instant::now());
     let version = transport
-        .exec_with_deadline(&TmuxClient::new(socket).version_command(), remaining())
+        .exec_with_deadline(&TmuxClient::new(own).version_command(), remaining())
         .await?;
     let Some(version) = MeasuredVersion::from_response(&version) else {
         // Weder Titel noch claude wurden gelesen.
-        return Ok(StatusPollDto {
-            complete: false,
-            server_pid: None,
-            server_start_time: None,
-            sessions: Vec::new(),
-            agents_ok: false,
-            titles_ok: false,
+        let unmeasured = || {
+            Ok(StatusPollDto {
+                complete: false,
+                server_pid: None,
+                server_start_time: None,
+                sessions: Vec::new(),
+                agents_ok: false,
+                titles_ok: false,
+            })
+        };
+        return Ok(SocketsPoll {
+            own: unmeasured(),
+            default: default.map(|_| unmeasured()),
         });
     };
-    let query = InventoryQuery::named(version, socket.name())?;
+    let own_polled = poll_socket(transport, own, version, deadline).await;
+    let default_polled = match default {
+        Some(socket) => Some(poll_socket(transport, socket, version, deadline).await),
+        None => None,
+    };
+    let observed = [Some(&own_polled), default_polled.as_ref()]
+        .into_iter()
+        .flatten()
+        .any(|polled| {
+            polled
+                .as_ref()
+                .is_ok_and(|polled| polled.inventory.is_some())
+        });
+    let (agents, parents, agents_ok) = match observed {
+        true => read_claude_agents(transport, deadline).await,
+        false => Default::default(),
+    };
+    let rows = |polled: anyhow::Result<PolledSocket>| {
+        polled.map(|polled| status_poll(polled, &agents, &parents, agents_ok))
+    };
+    Ok(SocketsPoll {
+        own: rows(own_polled),
+        default: default_polled.map(rows),
+    })
+}
+
+async fn poll_socket(
+    transport: &dyn Transport,
+    socket: &TmuxSocket,
+    version: MeasuredVersion,
+    deadline: tokio::time::Instant,
+) -> anyhow::Result<PolledSocket> {
+    let remaining = || deadline.saturating_duration_since(tokio::time::Instant::now());
+    let client = TmuxClient::new(socket);
+    let query = client.inventory_query(version)?;
     let result = transport
         .exec_with_deadline(&query.command(), remaining())
         .await?;
@@ -3995,9 +4088,23 @@ async fn poll_status_with(
         anyhow::bail!("tmux inventory is not valid UTF-8");
     }
     // Anything but a complete snapshot (including a NoServer the named
-    // socket cannot prove) is a failed poll, never an empty inventory.
-    let InventoryOutcome::Snapshot(inventory) = query.classify(&result) else {
-        anyhow::bail!("tmux inventory is not a complete snapshot");
+    // socket cannot prove) is a failed poll, never an empty inventory. On the
+    // default socket a missing server is proven like in the list, by tmux
+    // naming the predicted path, and is a complete, empty result.
+    let inventory = match query.classify(&result) {
+        InventoryOutcome::Snapshot(inventory) => inventory,
+        _ if socket.kind() == SocketKind::Default
+            && client
+                .server_proven_absent(transport, version, &result, deadline)
+                .await? =>
+        {
+            return Ok(PolledSocket {
+                inventory: None,
+                titles: Default::default(),
+                titles_ok: true,
+            });
+        }
+        _ => anyhow::bail!("tmux inventory is not a complete snapshot"),
     };
     let (titles, titles_ok) = read_pane_details(
         transport,
@@ -4006,28 +4113,68 @@ async fn poll_status_with(
         deadline,
     )
     .await;
-    let (agents, parents, agents_ok) = read_claude_agents(transport, deadline).await;
-    Ok(StatusPollDto {
+    Ok(PolledSocket {
+        inventory: Some(inventory),
+        titles,
+        titles_ok,
+    })
+}
+
+fn status_poll(
+    polled: PolledSocket,
+    agents: &[crate::status::AgentRow],
+    parents: &std::collections::BTreeMap<u32, u32>,
+    agents_ok: bool,
+) -> StatusPollDto {
+    let Some(inventory) = polled.inventory else {
+        return StatusPollDto {
+            complete: true,
+            server_pid: None,
+            server_start_time: None,
+            sessions: Vec::new(),
+            agents_ok,
+            titles_ok: polled.titles_ok,
+        };
+    };
+    StatusPollDto {
         complete: true,
         server_pid: Some(inventory.server.pid),
         server_start_time: Some(inventory.server.start_time),
-        sessions: crate::status::statuses_from_inventory(&inventory, &agents, &parents, &titles)
-            .into_iter()
-            .map(|row| StatusRowDto {
-                session_id: row.session_id.0,
-                status: row.kind.as_str().into(),
-                status_reason: row.reason,
-            })
-            .collect(),
+        sessions: crate::status::statuses_from_inventory(
+            &inventory,
+            agents,
+            parents,
+            &polled.titles,
+        )
+        .into_iter()
+        .map(|row| StatusRowDto {
+            session_id: row.session_id.0,
+            status: row.kind.as_str().into(),
+            status_reason: row.reason,
+        })
+        .collect(),
         agents_ok,
-        titles_ok,
-    })
+        titles_ok: polled.titles_ok,
+    }
 }
 
 pub async fn poll_status_impl(
     state: &Arc<AppState>,
     host_id: String,
 ) -> Result<StatusPollDto, OperationErrorDto> {
+    let polled = poll_sockets_impl(state, host_id, false).await?;
+    match (polled.own.poll, polled.own.error) {
+        (Some(poll), _) => Ok(poll),
+        (None, Some(error)) => Err(error),
+        (None, None) => unreachable!("a socket poll has a result or an error"),
+    }
+}
+
+pub async fn poll_sockets_impl(
+    state: &Arc<AppState>,
+    host_id: String,
+    include_default: bool,
+) -> Result<StatusPollsDto, OperationErrorDto> {
     let deadline = tokio::time::Instant::now() + STATUS_POLL_TIMEOUT;
     // Same lookup as `list_sessions_impl`: the control connection only.
     let transport = state
@@ -4042,9 +4189,29 @@ pub async fn poll_status_impl(
             control_generation: 0,
         })?;
     let transport = transport.command(deadline);
-    poll_status_with(&transport, &state.own_tmux_socket(), deadline)
-        .await
-        .map_err(|e| operation_error(&transport, &e))
+    let default_socket = include_default.then(|| state.default_socket.clone());
+    let polled = poll_sockets_with(
+        &transport,
+        &state.own_tmux_socket(),
+        default_socket.as_ref(),
+        deadline,
+    )
+    .await
+    .map_err(|e| operation_error(&transport, &e))?;
+    let socket = |result: anyhow::Result<StatusPollDto>| match result {
+        Ok(poll) => SocketPollDto {
+            poll: Some(poll),
+            error: None,
+        },
+        Err(error) => SocketPollDto {
+            poll: None,
+            error: Some(operation_error(&transport, &error)),
+        },
+    };
+    Ok(StatusPollsDto {
+        own: socket(polled.own),
+        default: polled.default.map(socket),
+    })
 }
 
 #[tauri::command]
@@ -4294,6 +4461,106 @@ mod tests {
     }
 
     const POLL_INVENTORY: &str = "B|50|1000\nQ|$0|1\nQ|$1|1\nP|$0|@0|%0|10|1|1|0|0|0|1789296086|0|1\nP|$1|@1|%1|20|1|1|0|0|0|1789296086|0|1\nE|50|1000\n";
+
+    const DEFAULT_INVENTORY: &str =
+        "B|60|2000\nQ|$5|1\nP|$5|@3|%9|30|1|1|0|0|1|1789296086|0|1\nE|60|2000\n";
+
+    fn failed_exec(stderr: &str) -> ExecResult {
+        ExecResult {
+            utf8_valid: true,
+            stdout: String::new(),
+            stderr: stderr.into(),
+            code: 1,
+        }
+    }
+
+    /// Spec 2026-10-25 §6.3: Beide Sockets in einer Abfrage, der eigene zuerst,
+    /// jeder mit seinem Inventar und seinen Titeln; claude einmal.
+    #[tokio::test]
+    async fn one_poll_reads_both_sockets_and_claude_once() {
+        let default = TmuxSocket::default_named("dflt");
+        let t = ScriptedTransport::new(vec![
+            poll_exec("tmux 3.6\n"),
+            poll_exec(POLL_INVENTORY),
+            poll_exec(""),
+            poll_exec(DEFAULT_INVENTORY),
+            poll_exec(""),
+            poll_exec("[]"),
+        ]);
+        let polled = poll_sockets_with(
+            &t,
+            &sock(),
+            Some(&default),
+            tokio::time::Instant::now() + COMMAND_TIMEOUT,
+        )
+        .await
+        .unwrap();
+        assert_eq!(*t.calls.lock().unwrap(), 6);
+        let lines: Vec<_> = t
+            .lines
+            .lock()
+            .unwrap()
+            .iter()
+            .map(|line| crate::remote::command::decoded_argv(line))
+            .collect();
+        assert_eq!(&lines[1][4..6], ["-L", "sock"]);
+        assert_eq!(&lines[3][4..6], ["-L", "dflt"]);
+        assert_eq!(&lines[4][3..], ["aidevbridge-panes", "dflt", "%9", "30"]);
+        let own = polled.own.unwrap();
+        assert_eq!((own.server_pid, own.sessions.len()), (Some(50), 2));
+        let default = polled.default.unwrap().unwrap();
+        assert!(default.complete && default.agents_ok && default.titles_ok);
+        assert_eq!(
+            (default.server_pid, default.server_start_time),
+            (Some(60), Some(2000))
+        );
+        assert_eq!(
+            default
+                .sessions
+                .iter()
+                .map(|row| row.session_id)
+                .collect::<Vec<_>>(),
+            [5]
+        );
+    }
+
+    /// Kein Server auf dem Standard-Socket ist ein vollstaendiges, leeres
+    /// Ergebnis, wenn tmux genau den vorhergesagten Pfad nennt; jeder andere
+    /// Fehler dort trifft nur diesen Socket (Spec 2026-10-25 §6.3).
+    #[tokio::test]
+    async fn the_default_socket_fails_or_ends_on_its_own() {
+        let default = TmuxSocket::default_named("dflt");
+        for (prediction, absent) in [
+            ("S|/tmp/tmux-1000/dflt\n", true),
+            ("S|/tmp/tmux-1000/other\n", false),
+        ] {
+            let t = ScriptedTransport::new(vec![
+                poll_exec("tmux 3.6\n"),
+                poll_exec(POLL_INVENTORY),
+                poll_exec(""),
+                failed_exec("no server running on /tmp/tmux-1000/dflt\n"),
+                poll_exec(prediction),
+                poll_exec("[]"),
+            ]);
+            let polled = poll_sockets_with(
+                &t,
+                &sock(),
+                Some(&default),
+                tokio::time::Instant::now() + COMMAND_TIMEOUT,
+            )
+            .await
+            .unwrap();
+            assert_eq!(polled.own.unwrap().sessions.len(), 2);
+            match polled.default.unwrap() {
+                Ok(poll) => {
+                    assert!(absent, "an unproven absence must stay an error");
+                    assert!(poll.complete && poll.sessions.is_empty());
+                    assert_eq!(poll.server_pid, None);
+                }
+                Err(_) => assert!(!absent, "a proven absence is no error"),
+            }
+        }
+    }
 
     /// The status poll needs no per-session name binding: version, one
     /// inventory, the active panes' titles, the Claude CLI and one /proc

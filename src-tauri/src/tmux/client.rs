@@ -230,7 +230,7 @@ impl TmuxClient {
     /// read-only query predicts for this socket. Everything else stays the
     /// list's error. Only 3.0 is excluded: its first call derives the path
     /// differently and no prediction was measured there.
-    async fn server_proven_absent(
+    pub(crate) async fn server_proven_absent(
         &self,
         transport: &dyn Transport,
         version: MeasuredVersion,
