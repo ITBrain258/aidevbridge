@@ -239,8 +239,8 @@ vom 13.09.).
 - **Grenzen:** 8 je Host und 9 insgesamt zählen über beide Sockets (heute schon
   über das Hostpräfix des Schlüssels).
 - **„New session“:** unverändert, eigener Socket.
-- **Schalter und Hinweis:** „Show tmux sessions“ im Host-Dialog; beim ersten
-  Öffnen einer fremden Kachel einmal der Hinweis zur Fenstergröße (§10).
+- **Schalter und Hinweis:** „Show tmux sessions“ im Host-Dialog; der Hinweis
+  zur Fenstergröße, wenn schon ein anderer Client angehängt ist (§10).
 - **Arbeitsplatz:** Eine gespeicherte fremde Kachel wartet, bis die Liste des
   Standard-Sockets ihres Hosts da ist; die Frist des Starts (Raster-Spec §4.6,
   Nachtrag vom 24.10.) wartet auf die Listen beider Sockets.
@@ -279,7 +279,7 @@ vom 13.09.).
 | 2 | `TmuxSocket`/`OwnSocket` durch Client, Inventar, Bindung, Verlauf, Titel, Anhängen; Tests der Bauer | 1 |
 | 3 | Liste und Abfrage je Socket, Sitzungsgruppen, Bestätigung, Terminalbefehle und Kill mit Socket; Backend-Tests | 1,5 |
 | 4 | Frontend: `Session.socket`, Schlüssel, Liste und Frische je Socket, Neuladen, Arbeitsplatz | 1,5 |
-| 5 | Seitenleiste, Kennzeichen, Schalter je Host, einmaliger Hinweis, Texte, README | 0,75 |
+| 5 | Seitenleiste, Kennzeichen, Schalter je Host, Hinweis zur Fenstergröße, Texte, README | 0,75 |
 | 6 | Live-Test, Lauf am Fenster, Doku | 0,5 |
 | **Zusammen** | | **5,75** |
 
@@ -296,10 +296,12 @@ Mit dem Maintainer nach der Kritikrunde:
    Standard-Socket dieses Hosts gar nicht, weder Liste noch Abfrage.
    Grund: Das Anhängen berührt Fenstergröße und Hooks des Nutzers (§4), und
    ein Host kann den Standard-Socket mit vielen Werkzeugen teilen.
-2. **Hinweis zur Fenstergröße:** beim ersten Öffnen einer fremden Kachel
-   einmal der neutrale Hinweis (Raster-Spec §5.3) „tmux sessions take your tmux
-   window size while they are open here, also in your other terminal.“ Danach
-   nie wieder (`[ui] foreign_size_hint_seen`); dazu das README.
+2. **Hinweis zur Fenstergröße:** nur wenn beim Öffnen einer fremden Kachel
+   schon ein anderer Client an der Session hängt (`session_attached` aus dem
+   Inventar), denn nur dann sieht der Nutzer die Übernahme; höchstens einmal je
+   Lauf der App, ohne gespeicherte Einstellung. Der neutrale Hinweis
+   (Raster-Spec §5.3): „This tmux session is also open elsewhere. While it is
+   open here, tmux sizes its window to this terminal.“ Dazu das README.
 3. **`TMUX_TMPDIR`:** in M3.1 ein Satz im README. Einen Hinweis auf
    lauschende tmux-Sockets an anderer Stelle (`/proc/net/unix`) bekommt die
    Diagnose in S3.2.

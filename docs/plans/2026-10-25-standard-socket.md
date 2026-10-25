@@ -71,7 +71,7 @@ Ziel: die zwei Annahmen der Spec belegen, die Code und Frist bestimmen.
 - `attach_confirmation::parse_clients`: streng nur die eigene J-Zeile.
 - `settings.rs`: `HostEntry.show_default_socket` (fehlt = an),
   `TileEntry` mit `foreign_session` und `socket`, ungültig für die Form von
-  0.2.x; `[ui] foreign_size_hint_seen`.
+  0.2.x.
 - Tests in `commands/*_tests.rs`, `tmux/*tests.rs`, `settings.rs`; Live-Test
   `integration_default_socket.rs` gegen einen Testsocket anstelle von
   `default`, mit Vergleich von Optionen, Umgebung und Hooks vorher und
@@ -103,7 +103,8 @@ Ziel: die zwei Annahmen der Spec belegen, die Code und Frist bestimmen.
 - Kennzeichen „tmux“ in Kachelkopf (im schmalen Kopf als Symbol), Wartet-Spur
   und Schnellöffnen.
 - Host-Dialog: Schalter „Show tmux sessions“.
-- Einmaliger Hinweis zur Fenstergröße.
+- Hinweis zur Fenstergröße beim Öffnen, wenn `session_attached` schon über 0
+  liegt, höchstens einmal je Lauf (Spec §10 Nr. 2).
 - Texte in `en.json`; README („Sessions on tmux's default socket“, Fenstergröße,
   `TMUX_TMPDIR`).
 - Tests: Seitenleiste, Raster, Host-Dialog, Hinweis; `styles.test.ts` für das
