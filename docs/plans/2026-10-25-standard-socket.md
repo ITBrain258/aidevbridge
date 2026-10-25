@@ -10,6 +10,12 @@ mit eigenem Testsocket; der echte Standard-Socket nur im Lauf am Fenster
 
 ## Schritt 1: Messen, bevor gebaut wird (0,5 d)
 
+**Erledigt am 25.10.** ([Messbericht](../messungen/messung-2026-10-25-standard-socket.md)):
+Der Wächter mit `-E` hängt auf 3.3a und 3.6 an, lehnt ab und startet ohne
+Server nichts, und er lässt die Umgebung unverändert. Ein zweites Inventar
+kostet 0,17 s im Median; die Abfrage liest den Standard-Socket in jedem
+Durchgang.
+
 Ziel: die zwei Annahmen der Spec belegen, die Code und Frist bestimmen.
 
 1. **Wächter mit `-E`.** Auf beiden VMs (3.3a, 3.6): den Wächter aus
@@ -27,7 +33,7 @@ Ziel: die zwei Annahmen der Spec belegen, die Code und Frist bestimmen.
    dazu eine Session auf einem zweiten Testsocket. Ein Prototyp von
    `poll_status_with` liest das zweite Inventar und dessen Titel mit; gemessen
    werden Dauer der Abfrage und Statuslatenz p95 gegen die Reihe vom 21.10.
-3. **Ergebnis:** Messbericht `docs/messungen/messung-2026-10-2x-standard-socket.md`,
+3. **Ergebnis:** Messbericht `docs/messungen/messung-2026-10-25-standard-socket.md`,
    Rohdaten unter `fixtures/`. Hält die Latenz nicht (über 4 s p95 bei vier
    Kacheln), gilt der Rückfall der Spec §6.3: Standard-Socket nur in jeder
    zweiten Abfrage.

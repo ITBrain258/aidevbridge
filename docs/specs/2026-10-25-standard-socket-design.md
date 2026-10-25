@@ -197,9 +197,11 @@ vom 13.09.).
   unbekannte Session-ID oder einen neuen Server, lädt die App die Liste dieses
   Sockets neu, höchstens alle 10 s je Host. Das löst für den Standard-Socket
   UX-Spec §5.2 ab; der eigene Socket bleibt bei §5.2.
-- Die Frist von 5 s gilt für alles zusammen, der eigene Socket zuerst. Ob die
-  Statuslatenz unter Last hält, misst Schritt 1 (§9); hält sie nicht, liest die
-  App den Standard-Socket nur in jeder zweiten Abfrage.
+- Die Frist von 5 s gilt für alles zusammen, der eigene Socket zuerst. Ein
+  zweites Inventar samt Titeln kostet unter vier flutenden Kacheln 0,17 s im
+  Median und 0,04 s im p95 je Abfrage
+  ([Messung vom 25.10.](../messungen/messung-2026-10-25-standard-socket.md));
+  die App liest den Standard-Socket deshalb in jeder Abfrage.
 
 ### 6.4 Terminal
 
@@ -314,7 +316,7 @@ den Entwurf vom selben Tag. Ihre Befunde und was daraus wurde:
 | Befund | Ergebnis |
 | --- | --- |
 | Anhängen per Name startet einen fehlenden Server samt `~/.tmux.conf` | bestätigt am 25.10. auf beiden VMs; Anhängen nur über den Wächter, ohne Bindung nur zeigen (§3, §6.4) |
-| Anhängen ändert die Umgebung der Session (`update-environment`) | `attach-session -E`, Tor um `show-environment` ergänzt (§1, §4) |
+| Anhängen ändert die Umgebung der Session (`update-environment`) | bestätigt am 25.10. auf beiden VMs; `attach-session -E`, Tor um `show-environment` ergänzt (§1, §4) |
 | `window-size` ist unter 3.0 `smallest`, ab 3.1 `latest`, und schon Öffnen und Größe ändern übernehmen das Fenster | §4 je Version |
 | Ohne `-L` gilt zuerst `$TMUX`; Tests liefen nie die Form des Produkts | `-L default` (§6.1) |
 | Unter 3.0 lässt sich ein fehlender Server nicht beweisen; die Version des Servers kann von der des Clients abweichen | 3.0: Gruppe leer mit Hinweis; Version aus `#{version}` (§6.2) |
@@ -324,7 +326,7 @@ den Entwurf vom selben Tag. Ihre Befunde und was daraus wurde:
 | Kein Server lässt jede Abfrage scheitern und macht alle Sessions des Hosts veraltet | Ergebnis und Frische je Socket (§6.3) |
 | Das Frontend führt eine Liste je Host; ein Fehler des Standard-Sockets schlösse fremde Kacheln | Liste je Socket (§7) |
 | Terminalbefehle und Kill nehmen keinen Socket; Kill macht den Eintrag vor der Ablehnung ungültig | §5, §6.5 |
-| Statuslatenz liegt unter Last schon nahe 4 s | Messung als Schritt 1, Rückfall jede zweite Abfrage (§6.3, §9) |
+| Statuslatenz liegt unter Last schon nahe 4 s | gemessen am 25.10.: +0,17 s im Median, jede Abfrage liest beide Sockets (§6.3) |
 | Rückweg: `tiles_version` 3 schützt nicht, 0.2.x schreibt fremde Kacheln als eigene zurück | für 0.2.x ungültige Form (§5) |
 | Sessionzeilen haben kein Menü, ein ausgegrauter Knopf hat keinen Tooltip; im schmalen Kopf fehlte das Kennzeichen | §7 |
 | Schätzung 3,5 d zu niedrig | 5,5 d, mit den Entscheidungen aus §10 5,75 d (§9) |
