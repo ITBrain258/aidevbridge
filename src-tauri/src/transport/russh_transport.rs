@@ -5,6 +5,7 @@ use crate::ssh::auth::{
     authenticate_prepared, prepare_auth_owned, prepare_auth_pair_owned, AuthError, AuthMethod,
     PreparedAuth,
 };
+use crate::tmux::OwnSocket;
 use anyhow::Context;
 use async_trait::async_trait;
 use russh::client::{self, Handle, Msg};
@@ -400,7 +401,7 @@ impl RusshTransport {
     /// `cfg(test)`.
     pub async fn open_attach(
         &self,
-        socket: &str,
+        socket: &OwnSocket,
         session: &str,
         cols: u16,
         rows: u16,
@@ -417,7 +418,7 @@ impl RusshTransport {
 
     pub async fn open_attach_controlled(
         &self,
-        socket: &str,
+        socket: &OwnSocket,
         session: &str,
         cols: u16,
         rows: u16,
@@ -444,7 +445,7 @@ impl RusshTransport {
     #[cfg(test)]
     pub async fn open_attach_pending_controlled(
         &self,
-        socket: &str,
+        socket: &OwnSocket,
         session: &str,
         cols: u16,
         rows: u16,
@@ -494,9 +495,10 @@ impl RusshTransport {
 ///
 /// Davor schaltet derselbe tmux-Aufruf die Statuszeile aus
 /// (`crate::tmux::HIDE_STATUS`).
-fn attach_command_line(socket: &str, session: &str) -> String {
+fn attach_command_line(socket: &OwnSocket, session: &str) -> String {
     let target = format!("={session}");
-    let mut argv = vec!["tmux", "-L", socket];
+    let mut argv = vec!["tmux"];
+    argv.extend_from_slice(&socket.args());
     argv.extend_from_slice(&crate::tmux::HIDE_STATUS);
     argv.extend_from_slice(&["attach", "-t", &target]);
     crate::remote::build(&argv)
@@ -680,7 +682,10 @@ mod tests {
     #[test]
     fn attach_targets_the_session_exactly_and_not_by_prefix() {
         assert_eq!(
-            crate::remote::command::decoded_argv(&attach_command_line("sock", "zz_x")),
+            crate::remote::command::decoded_argv(&attach_command_line(
+                &OwnSocket::new("sock").unwrap(),
+                "zz_x"
+            )),
             vec!["tmux", "-L", "sock", "set", "-g", "status", "off", ";", "attach", "-t", "=zz_x"],
             "ohne das `=` haengt sich tmux bei fehlendem `zz_x` an `zz_x2` an"
         );

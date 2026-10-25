@@ -3697,7 +3697,7 @@ describe("main: A1 -- die Host-Identitaet steht still", () => {
     // Und der Aufruf, der eine LEBENDE VERBINDUNG meint, faehrt trotzdem auf
     // der Laufzeit-ID -- die Uebersetzung ist da, sie steht nur nicht mehr
     // in `host.id`.
-    expect(invokeMock).toHaveBeenCalledWith("list_sessions", { hostId: "r1" });
+    expect(invokeMock).toHaveBeenCalledWith("list_sessions", { hostId: "r1", includeDefault: true });
     expect(invokeMock).not.toHaveBeenCalledWith("list_sessions", { hostId: "s1" });
   });
 
@@ -3894,7 +3894,7 @@ describe("main: A1 -- die Host-Identitaet steht still", () => {
     // Haelften zusammen: ohne die erste bliebe die Identitaet ungepruef,
     // ohne die zweite koennte `handleHostReady` die Uebersetzung verlieren
     // und die Liste bliebe still leer.
-    expect(invokeMock).toHaveBeenCalledWith("list_sessions", { hostId: "r1" });
+    expect(invokeMock).toHaveBeenCalledWith("list_sessions", { hostId: "r1", includeDefault: true });
     expect(invokeMock).not.toHaveBeenCalledWith("list_sessions", { hostId: "s1" });
   });
 
@@ -8599,5 +8599,195 @@ describe("main: Arbeitsplatz merken und wiederherstellen (UX-Spec §7.1-§7.3)",
       await vi.advanceTimersByTimeAsync(500);
       expect(lastOf(workspaceWrites())?.tiles).toEqual([]);
     });
+  });
+});
+
+describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
+  });
+
+  const names = () =>
+    Array.from(document.querySelectorAll("#sidebar .row-session .row-label")).map((el) => el.textContent);
+  const lists = () => invokeMock.mock.calls.filter(([command]) => command === "list_sessions").length;
+  const socket = (sessions: unknown[]) => ({ sessions, error: null, unsupported_version: null });
+  const failure = { code: "other", message: "boom", control_generation: 0 };
+
+  async function connect(
+    entry: Record<string, unknown>,
+    listed: unknown,
+    poll: () => unknown = () => ({ own: { poll: statusPoll([]), error: null }, default: null }),
+  ): Promise<void> {
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "list_hosts") return Promise.resolve([{ ...hostEntry(), ...entry }]);
+      if (command === "list_ssh_keys") return Promise.resolve([]);
+      if (command === "begin_connect") return Promise.resolve("r1");
+      if (command === "connect_host") return Promise.resolve("r1");
+      if (command === "list_sessions") return Promise.resolve(listed);
+      if (command === "poll_status") return Promise.resolve(poll());
+      return Promise.resolve(undefined);
+    });
+    main();
+    await flush();
+    hostActionButton("h1", "Connect").click();
+    await flush(20);
+    expandHost("h1");
+  }
+
+  it("listet gleichnamige Sessions beider Sockets nebeneinander", async () => {
+    await connect(
+      {},
+      {
+        own: socket([sessionItem({ display_name: "main", session_id: 1 })]),
+        default: socket([sessionItem({ display_name: "main", session_id: 1 })]),
+      },
+    );
+    expect(names()).toEqual(["main", "main"]);
+  });
+
+  it("laesst einen Fehler des Standard-Sockets die eigene Liste stehen", async () => {
+    await connect({}, { own: socket(["main"]), default: { sessions: [], error: failure, unsupported_version: null } });
+    expect(names()).toEqual(["main"]);
+    expect(hostIndicatorClass("h1")).toContain("ind-on");
+  });
+
+  it("fragt den Standard-Socket nicht, wenn der Schalter des Hosts aus ist", async () => {
+    await connect({ show_default_socket: false }, ["main"]);
+    expect(invokeMock).toHaveBeenCalledWith("list_sessions", { hostId: "r1" });
+    expect(names()).toEqual(["main"]);
+  });
+
+  it("nennt beim Oeffnen einer fremden Session mit anderem Client einmal je Lauf die Fenstergroesse", async () => {
+    const foreign = (name: string, id: number) => ({
+      ...sessionItem({ display_name: name, session_id: id }),
+      server_pid: 60,
+      server_start_time: 2000,
+      window_id: id,
+      pane_id: id,
+      pane_pid: 100 + id,
+      session_attached: 1,
+    });
+    await connect({}, { own: socket([]), default: socket([foreign("main", 1), foreign("other", 2)]) });
+    const hint = "This tmux session is also open elsewhere. While it is open here, tmux sizes its window to this terminal.";
+    openViaSidebar("h1", "main");
+    await flush(20);
+    expect(globalErrorText()).toContain(hint);
+    Array.from(document.querySelectorAll<HTMLButtonElement>(".global-error-banner button"))
+      .find((button) => button.textContent === "Dismiss")
+      ?.click();
+    const banner = () => document.querySelector<HTMLElement>(".global-error-banner")!;
+    expect(banner().hidden).toBe(true);
+    openViaSidebar("h1", "other");
+    await flush(20);
+    // Hoechstens einmal je Lauf.
+    expect(banner().hidden).toBe(true);
+  });
+
+  it("oeffnet eine ungebundene fremde Session auf keinem Weg", async () => {
+    await connect({}, {
+      own: socket([]),
+      default: socket([
+        {
+          ...sessionItem({ display_name: "grouped", session_id: 3 }),
+          server_pid: null,
+          server_start_time: null,
+          window_id: null,
+          pane_id: null,
+          pane_pid: null,
+          unverified: "the session shares windows with another session",
+        },
+      ]),
+    });
+    // Ueber das Schnelloeffnen: die Seitenleiste sperrt die Zeile ohnehin.
+    chord("p");
+    runQuickOpenOption("grouped");
+    await vi.advanceTimersByTimeAsync(200);
+    await flush(20);
+    expect(globalErrorText()).toContain("This tmux session cannot be opened here: the session shares windows");
+    expect(document.querySelectorAll("#grid .tile")).toHaveLength(0);
+    expect(invokeMock.mock.calls.some(([command]) => command === "open_terminal")).toBe(false);
+  });
+
+  it("zaehlt den eigenen Client nicht als anderen fuer den Hinweis zur Fenstergroesse", async () => {
+    const bound = {
+      ...sessionItem({ display_name: "main", session_id: 1 }),
+      server_pid: 60,
+      server_start_time: 2000,
+      window_id: 1,
+      pane_id: 1,
+      pane_pid: 101,
+    };
+    let attached = 0;
+    invokeMock.mockClear();
+    await connect({}, { own: socket([]), default: socket([{ ...bound, session_attached: attached }]) });
+    openViaSidebar("h1", "main");
+    await flush(20);
+    const hint = "This tmux session is also open elsewhere.";
+    expect(globalErrorText()).not.toContain(hint);
+    // Eine Liste, waehrend die Kachel offen ist, zaehlt den Client der App mit.
+    attached = 1;
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "list_sessions") {
+        return Promise.resolve({ own: socket([]), default: socket([{ ...bound, session_attached: attached }]) });
+      }
+      if (command === "poll_status") return Promise.resolve({ own: { poll: statusPoll([]), error: null }, default: null });
+      return Promise.resolve(undefined);
+    });
+    hostActionButton("h1", "Reload sessions").click();
+    await flush(20);
+    document.querySelector<HTMLButtonElement>("#grid .tile .tile-btn[aria-label='Close terminal']")?.click();
+    await flush(20);
+    expect(document.querySelectorAll("#grid .tile")).toHaveLength(0);
+    openViaSidebar("h1", "main");
+    await flush(20);
+    expect(document.querySelectorAll("#grid .tile")).toHaveLength(1);
+    expect(globalErrorText()).not.toContain(hint);
+  });
+
+  it("laedt bei einem Server ohne Unterstuetzung nur neu, wenn der Server wechselt", async () => {
+    let server = { pid: 60, start: 2000 };
+    await connect(
+      {},
+      { own: socket(["main"]), default: { sessions: [], error: null, unsupported_version: "3.4" } },
+      () => ({
+        own: { poll: statusPoll([]), error: null },
+        default: { poll: statusPoll([{ session_id: 7, status: "idle" }], server), error: null },
+      }),
+    );
+    const listedAtConnect = lists();
+    await vi.advanceTimersByTimeAsync(24000);
+    await flush(20);
+    expect(lists()).toBe(listedAtConnect);
+    server = { pid: 61, start: 3000 };
+    await vi.advanceTimersByTimeAsync(2000);
+    await flush(20);
+    expect(lists()).toBe(listedAtConnect + 1);
+  });
+
+  it("laedt die Liste des Standard-Sockets bei einer unbekannten Session neu, hoechstens alle 10 s", async () => {
+    let defaultPoll: unknown = { poll: null, error: failure };
+    await connect({}, { own: socket(["main"]), default: socket([]) }, () => ({
+      own: { poll: statusPoll([]), error: null },
+      default: defaultPoll,
+    }));
+    const listedAtConnect = lists();
+    await vi.advanceTimersByTimeAsync(2000);
+    await flush(20);
+    // Ein Fehler nur des Standard-Sockets laedt nichts neu.
+    expect(lists()).toBe(listedAtConnect);
+    defaultPoll = { poll: statusPoll([{ session_id: 7, status: "idle" }], { pid: 60, start: 2000 }), error: null };
+    await vi.advanceTimersByTimeAsync(2000);
+    await flush(20);
+    expect(lists()).toBe(listedAtConnect + 1);
+    await vi.advanceTimersByTimeAsync(4000);
+    await flush(20);
+    expect(lists()).toBe(listedAtConnect + 1);
+    await vi.advanceTimersByTimeAsync(8000);
+    await flush(20);
+    expect(lists()).toBe(listedAtConnect + 2);
   });
 });

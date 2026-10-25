@@ -5,6 +5,11 @@ use std::collections::VecDeque;
 use std::sync::Mutex;
 use std::time::Duration;
 
+/// Ein lesender Client; die Art des Sockets spielt fuer diese Tests keine Rolle.
+fn reader(name: &str) -> TmuxClient {
+    TmuxClient::new(&TmuxSocket::own(&OwnSocket::new(name).unwrap()))
+}
+
 struct Step {
     result: Result<ExecResult, ExecError>,
     elapsed: Duration,
@@ -132,7 +137,7 @@ fn end() -> Instant {
 async fn eight_rows_share_one_inventory_and_one_decreasing_absolute_budget() {
     let transport = ScriptedTransport::new(sequence(8), Duration::from_millis(500));
     let deadline = end();
-    let observed = TmuxClient::new("own'|$socket")
+    let observed = reader("own'|$socket")
         .observe_sessions(&transport, MeasuredVersion::V3_0, deadline)
         .await
         .unwrap();
@@ -205,7 +210,7 @@ async fn completed_r_failures_keep_the_row_unavailable_and_other_rows_bound() {
         let mut results = sequence(2);
         results[index] = replacement;
         let transport = ScriptedTransport::new(results, Duration::ZERO);
-        let observed = TmuxClient::new("own")
+        let observed = reader("own")
             .observe_sessions(&transport, MeasuredVersion::V3_4, end())
             .await
             .unwrap();
@@ -260,7 +265,7 @@ async fn list_inventory_and_whole_list_mismatches_are_errors_not_partial_or_empt
         let mut results = sequence(2);
         results[index] = replacement;
         let transport = ScriptedTransport::new(results, Duration::ZERO);
-        let error = TmuxClient::new("own")
+        let error = reader("own")
             .observe_sessions(&transport, MeasuredVersion::V3_4, end())
             .await
             .unwrap_err();
@@ -285,7 +290,7 @@ async fn list_inventory_and_whole_list_mismatches_are_errors_not_partial_or_empt
 #[tokio::test(start_paused = true)]
 async fn a_live_empty_server_requires_both_lists_and_the_complete_inventory() {
     let transport = ScriptedTransport::new(sequence(0), Duration::ZERO);
-    let observed = TmuxClient::new("own")
+    let observed = reader("own")
         .observe_sessions(&transport, MeasuredVersion::V3_4, end())
         .await
         .unwrap();
@@ -298,7 +303,7 @@ async fn a_live_empty_server_requires_both_lists_and_the_complete_inventory() {
 #[tokio::test(start_paused = true)]
 async fn the_absolute_deadline_rejects_expired_admission_and_late_completed_results() {
     let transport = ScriptedTransport::new(sequence(2), Duration::ZERO);
-    let error = TmuxClient::new("own")
+    let error = reader("own")
         .observe_sessions(&transport, MeasuredVersion::V3_4, Instant::now())
         .await
         .unwrap_err();
@@ -315,7 +320,7 @@ async fn the_absolute_deadline_rejects_expired_admission_and_late_completed_resu
     let transport = ScriptedTransport::new(sequence(2), Duration::from_secs(2));
     transport.steps.lock().unwrap()[2].elapsed = Duration::from_secs(1);
     let deadline = Instant::now() + Duration::from_secs(5);
-    let error = TmuxClient::new("own")
+    let error = reader("own")
         .observe_sessions(&transport, MeasuredVersion::V3_4, deadline)
         .await
         .unwrap_err();
@@ -351,7 +356,7 @@ async fn transport_failures_at_every_phase_stop_all_follow_up_queries() {
             submission: Submission::PossiblySubmitted,
         };
         transport.steps.lock().unwrap()[index].result = Err(expected);
-        let error = TmuxClient::new("own")
+        let error = reader("own")
             .observe_sessions(&transport, MeasuredVersion::V3_4, end())
             .await
             .unwrap_err();
@@ -363,7 +368,7 @@ async fn transport_failures_at_every_phase_stop_all_follow_up_queries() {
 #[tokio::test(start_paused = true)]
 async fn invalid_socket_context_is_rejected_before_any_command() {
     let transport = ScriptedTransport::new(Vec::new(), Duration::ZERO);
-    let error = TmuxClient::new("/not-a-named-socket")
+    let error = reader("/not-a-named-socket")
         .observe_sessions(&transport, MeasuredVersion::V3_4, end())
         .await
         .unwrap_err();
@@ -406,7 +411,7 @@ async fn a_named_socket_is_absent_only_when_tmux_names_the_predicted_path() {
                 vec![absent(diagnosis), predicted("/tmp/tmux-1000/own")],
                 Duration::from_millis(500),
             );
-            let error = TmuxClient::new("own")
+            let error = reader("own")
                 .observe_sessions(&transport, version, end())
                 .await
                 .unwrap_err();
@@ -452,7 +457,7 @@ async fn a_prediction_that_differs_or_fails_keeps_the_failed_list_an_error() {
     ] {
         let transport =
             ScriptedTransport::new(vec![absent(DIAGNOSES[1]), prediction], Duration::ZERO);
-        let error = TmuxClient::new("own")
+        let error = reader("own")
             .observe_sessions(&transport, MeasuredVersion::V3_4, end())
             .await
             .unwrap_err();
@@ -488,7 +493,7 @@ async fn other_list_failures_never_ask_for_a_path_prediction() {
         invalid_utf8,
     ] {
         let transport = ScriptedTransport::new(vec![first], Duration::ZERO);
-        let error = TmuxClient::new("own")
+        let error = reader("own")
             .observe_sessions(&transport, MeasuredVersion::V3_4, end())
             .await
             .unwrap_err();
@@ -502,7 +507,7 @@ async fn tmux_3_0_keeps_a_failed_first_list_an_error() {
     // 3.0 derives the path differently on its very first call ("/tmp//...")
     // and has no measurement of the prediction.
     let transport = ScriptedTransport::new(vec![absent(DIAGNOSES[0])], Duration::ZERO);
-    let error = TmuxClient::new("own")
+    let error = reader("own")
         .observe_sessions(&transport, MeasuredVersion::V3_0, end())
         .await
         .unwrap_err();
@@ -525,10 +530,109 @@ async fn a_failed_prediction_transport_stops_the_observation() {
         submission: Submission::PossiblySubmitted,
     };
     transport.steps.lock().unwrap()[1].result = Err(expected);
-    let error = TmuxClient::new("own")
+    let error = reader("own")
         .observe_sessions(&transport, MeasuredVersion::V3_4, end())
         .await
         .unwrap_err();
     assert_eq!(error.downcast_ref::<ExecError>(), Some(&expected));
     assert_eq!(transport.calls(), 2);
+}
+
+fn default_reader() -> TmuxClient {
+    TmuxClient::new(&TmuxSocket::default_named("default"))
+}
+
+/// Spec 2026-10-25 §6.2: Die Version stammt vom laufenden Server und ist fuer
+/// alle Sessions dieselbe; `list-sessions` startet keinen Server.
+#[tokio::test(start_paused = true)]
+async fn the_server_version_comes_from_the_running_server() {
+    let transport = ScriptedTransport::new(vec![output("3.6\n3.6\n")], Duration::ZERO);
+    assert_eq!(
+        default_reader()
+            .server_version(&transport, Some(MeasuredVersion::V3_6), end())
+            .await
+            .unwrap(),
+        Some("3.6".to_string())
+    );
+    assert_eq!(
+        transport.calls.lock().unwrap()[0].argv,
+        [
+            "env",
+            "LC_ALL=C",
+            "tmux",
+            "-u",
+            "-L",
+            "default",
+            "list-sessions",
+            "-F",
+            "#{version}"
+        ]
+    );
+    let transport = ScriptedTransport::new(vec![output("")], Duration::ZERO);
+    assert_eq!(
+        default_reader()
+            .server_version(&transport, Some(MeasuredVersion::V3_6), end())
+            .await
+            .unwrap(),
+        None
+    );
+    for answer in ["3.6\n3.4\n", "3.6", "3.6 \n", "\n"] {
+        let transport = ScriptedTransport::new(vec![output(answer)], Duration::ZERO);
+        assert!(
+            default_reader()
+                .server_version(&transport, Some(MeasuredVersion::V3_6), end())
+                .await
+                .is_err(),
+            "{answer:?}"
+        );
+    }
+}
+
+/// Ohne Server ist die Liste leer, bewiesen wie in `observe_sessions`: tmux
+/// nennt genau den vorhergesagten Pfad. Sonst bleibt es ein Fehler.
+#[tokio::test(start_paused = true)]
+async fn a_missing_default_server_is_proven_like_a_missing_own_server() {
+    let diagnosis = "no server running on /tmp/tmux-1000/default\n";
+    let v36 = Some(MeasuredVersion::V3_6);
+    let transport = ScriptedTransport::new(
+        vec![absent(diagnosis), predicted("/tmp/tmux-1000/default")],
+        Duration::ZERO,
+    );
+    assert_eq!(
+        default_reader()
+            .server_version(&transport, v36, end())
+            .await
+            .unwrap(),
+        None
+    );
+    // Ohne gemessene Vorhersage (tmux 3.0 oder ein ungemessenes tmux im PATH)
+    // beweist es die Diagnose wie in list_session_names, ohne weiteren Aufruf.
+    for installed in [None, Some(MeasuredVersion::V3_0)] {
+        let transport = ScriptedTransport::new(vec![absent(diagnosis)], Duration::ZERO);
+        assert_eq!(
+            default_reader()
+                .server_version(&transport, installed, end())
+                .await
+                .unwrap(),
+            None
+        );
+        assert_eq!(transport.calls(), 1);
+    }
+    let denied = "error connecting to /tmp/tmux-1000/default (Permission denied)\n";
+    for (script, installed) in [
+        (
+            vec![absent(diagnosis), predicted("/tmp/tmux-1000/other")],
+            v36,
+        ),
+        (vec![absent(denied)], v36),
+        (vec![absent(denied)], None),
+    ] {
+        let calls = script.len();
+        let transport = ScriptedTransport::new(script, Duration::ZERO);
+        assert!(default_reader()
+            .server_version(&transport, installed, end())
+            .await
+            .is_err());
+        assert_eq!(transport.calls(), calls);
+    }
 }

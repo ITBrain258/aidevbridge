@@ -46,7 +46,7 @@ impl Recorded {
 async fn connected() -> (Fixture, Arc<AppState>) {
     let fixture = Fixture::start(2, false, false, false).await;
     let host = fixture.connect().await.unwrap();
-    let state = Arc::new(AppState::with_default_socket("hermetic_socket".into()));
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
     host.start_monitor();
     state
         .hosts
@@ -81,6 +81,7 @@ fn open_session(
             &state,
             sink,
             "hermetic-h0".into(),
+            SocketKind::App,
             session,
             80,
             24,
@@ -116,7 +117,7 @@ async fn wait_until_pending(
     opening: &mut tokio::task::JoinHandle<Result<(), String>>,
     session: &str,
 ) {
-    let key = session_key("hermetic-h0", session);
+    let key = session_key("hermetic-h0", SocketKind::App, session);
     tokio::select! {
         result = opening => panic!("the open must wait for a channel: {result:?}"),
         waited = timeout(END, async {
@@ -148,6 +149,7 @@ async fn late_open_after_tagged_close_cannot_publish_and_old_commands_cannot_tou
     close_terminal_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "same-session".into(),
         Some("opening-old".into()),
     )
@@ -172,6 +174,7 @@ async fn late_open_after_tagged_close_cannot_publish_and_old_commands_cannot_tou
     close_terminal_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "same-session".into(),
         Some("opening-old".into()),
     )
@@ -180,6 +183,7 @@ async fn late_open_after_tagged_close_cannot_publish_and_old_commands_cannot_tou
     assert!(send_input_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "same-session".into(),
         b"old-input".to_vec(),
         Some("opening-old".into())
@@ -189,6 +193,7 @@ async fn late_open_after_tagged_close_cannot_publish_and_old_commands_cannot_tou
     assert!(resize_terminal_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "same-session".into(),
         99,
         35,
@@ -200,7 +205,7 @@ async fn late_open_after_tagged_close_cannot_publish_and_old_commands_cannot_tou
         .terminals
         .lock()
         .unwrap()
-        .get(&session_key("hermetic-h0", "same-session"))
+        .get(&session_key("hermetic-h0", SocketKind::App, "same-session"))
         .unwrap()
         .ack
         .clone();
@@ -209,6 +214,7 @@ async fn late_open_after_tagged_close_cannot_publish_and_old_commands_cannot_tou
     ack_output_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "same-session".into(),
         1,
         Some("opening-old".into()),
@@ -218,6 +224,7 @@ async fn late_open_after_tagged_close_cannot_publish_and_old_commands_cannot_tou
     ack_output_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "same-session".into(),
         1,
         Some("opening-current".into()),
@@ -244,7 +251,7 @@ async fn replacement_of_a_pending_open_survives_the_old_callers_drop() {
             .lock()
             .unwrap()
             .pending
-            .get(&session_key("hermetic-h0", "same-session"))
+            .get(&session_key("hermetic-h0", SocketKind::App, "same-session"))
             .unwrap()
             .open_id,
         "opening-b"
@@ -347,6 +354,7 @@ async fn an_unconfirmed_kill_ends_its_message_with_a_readable_ssh_sentence() {
     let message = kill_session_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "victim".into(),
         None,
         None,
@@ -382,6 +390,7 @@ async fn replace_at_eight_open_waits_until_the_old_channel_is_closed() {
     close_terminal_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "tile-0".into(),
         Some("tile-0".into()),
     )
@@ -409,6 +418,7 @@ async fn replace_with_slow_close_reports_capacity_after_the_slot_wait() {
     close_terminal_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "tile-0".into(),
         Some("tile-0".into()),
     )
@@ -452,6 +462,7 @@ async fn close_ends_a_waiting_open_as_cancelled_without_open() {
     close_terminal_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "tile-8".into(),
         Some("tile-8".into()),
     )
@@ -467,6 +478,7 @@ async fn close_ends_a_waiting_open_as_cancelled_without_open() {
     close_terminal_tagged_impl(
         &state,
         "hermetic-h0".into(),
+        SocketKind::App,
         "tile-0".into(),
         Some("tile-0".into()),
     )
@@ -543,5 +555,100 @@ async fn fifth_pending_open_of_a_host_names_the_known_raw_text() {
     for opening in held {
         timeout(END, opening).await.unwrap().unwrap().unwrap();
     }
+    finish(fixture, state).await;
+}
+
+/// Spec 2026-10-25 §5, §6.5: Der Socket gehoert zum Schluessel. Ein
+/// `kill_session` auf dem Standard-Socket lehnt ab, bevor es irgendetwas
+/// anfasst, und Befehle fuer den Standard-Socket treffen das gleichnamige
+/// Terminal des eigenen Sockets nicht.
+#[tokio::test]
+async fn the_default_socket_neither_ends_nor_touches_a_same_named_own_terminal() {
+    let (fixture, state) = connected().await;
+    let sink = Recorded::default();
+    timeout(END, open(&state, &sink, "own"))
+        .await
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    sink.wait_output("own").await;
+    for (session_id, server_pid, server_start_time) in
+        [(None, None, None), (Some(1), Some(2), Some(3))]
+    {
+        assert_eq!(
+            kill_session_impl(
+                &state,
+                "hermetic-h0".into(),
+                SocketKind::Default,
+                "same-session".into(),
+                session_id,
+                server_pid,
+                server_start_time,
+            )
+            .await,
+            Err(FOREIGN_SESSION.to_string())
+        );
+    }
+    assert_eq!(
+        kill_session_impl(
+            &state,
+            "not-connected".into(),
+            SocketKind::Default,
+            "same-session".into(),
+            None,
+            None,
+            None,
+        )
+        .await,
+        Err(FOREIGN_SESSION.to_string()),
+        "the refusal comes before the host lookup"
+    );
+    close_terminal_tagged_impl(
+        &state,
+        "hermetic-h0".into(),
+        SocketKind::Default,
+        "same-session".into(),
+        None,
+    )
+    .unwrap();
+    assert!(send_input_tagged_impl(
+        &state,
+        "hermetic-h0".into(),
+        SocketKind::Default,
+        "same-session".into(),
+        b"x".to_vec(),
+        None,
+    )
+    .await
+    .is_err());
+    assert!(state.has_terminal("hermetic-h0", "same-session").await);
+    assert!(sink.lost.lock().unwrap().is_empty());
+    finish(fixture, state).await;
+}
+
+/// Spec 2026-10-25 §6.4: Auf dem Standard-Socket haengt die App nur ueber den
+/// Waechter an. Ohne Bindung lehnt `open_terminal` ab, bevor es einen Platz
+/// reserviert oder einen Kanal oeffnet.
+#[tokio::test]
+async fn an_unbound_open_on_the_default_socket_is_refused_before_any_channel() {
+    let (fixture, state) = connected().await;
+    let sink = Recorded::default();
+    assert_eq!(
+        open_terminal_tagged_impl(
+            &state,
+            sink.clone(),
+            "hermetic-h0".into(),
+            SocketKind::Default,
+            "same-session".into(),
+            80,
+            24,
+            "foreign".into(),
+            None,
+        )
+        .await,
+        Err(FOREIGN_UNBOUND.to_string())
+    );
+    assert_eq!(fixture.pty_requests(), 0);
+    assert!(state.terminals.lock().unwrap().pending.is_empty());
     finish(fixture, state).await;
 }

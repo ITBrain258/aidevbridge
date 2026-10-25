@@ -7,6 +7,7 @@ use aidevbridge_lib::remote;
 use aidevbridge_lib::status::title::{details_command, pane_status, parse_details, CodexTitle};
 use aidevbridge_lib::status::StatusKind;
 use aidevbridge_lib::tmux::inventory::PaneId;
+use aidevbridge_lib::tmux::{OwnSocket, TmuxSocket};
 use aidevbridge_lib::transport::Transport;
 mod common;
 
@@ -169,7 +170,11 @@ async fn the_title_counts_only_below_an_agent_executable_and_within_codex_settin
         pane_of(&t, &socket, "ab_t5", 2).await,
     ];
     let read = |prefix: String| {
-        let command = details_command(&socket, &panes).unwrap();
+        let command = details_command(
+            &TmuxSocket::own(&OwnSocket::new(socket.clone()).unwrap()),
+            &panes,
+        )
+        .unwrap();
         let t = &t;
         async move {
             let r = t.exec(&format!("{prefix}{command}")).await.unwrap();

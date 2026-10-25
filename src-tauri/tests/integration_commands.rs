@@ -9,7 +9,7 @@ use aidevbridge_lib::commands::{
 use aidevbridge_lib::remote;
 use aidevbridge_lib::tmux::inventory::{PaneId, ServerIdentity, SessionId, WindowId};
 use aidevbridge_lib::tmux::session_binding::PaneIdentity;
-use aidevbridge_lib::tmux::TmuxClient;
+use aidevbridge_lib::tmux::{OwnSocket, OwnTmuxClient, SocketKind};
 use aidevbridge_lib::transport::Transport;
 use common::{NeverAnswersSink, PanicIfAskedSink};
 use std::path::PathBuf;
@@ -17,6 +17,12 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::mpsc;
 mod common;
+
+/// Ein Client des eigenen Testsockets: Nur er darf Sessions beenden
+/// (Spec 2026-10-25 §6.1); gelesen wird ueber `Deref` wie mit `TmuxClient`.
+fn own(socket: &str) -> OwnTmuxClient {
+    OwnTmuxClient::new(&OwnSocket::new(socket).unwrap())
+}
 
 /// Pfad fuer Testverbindungen, die garantiert nie `append_entry` erreichen
 /// (jeder Aufruf in dieser Datei ausser dem `Unknown`-Timeout-Test landet
@@ -65,7 +71,7 @@ impl OutputSink for ChannelSink {
 #[tokio::test]
 async fn connect_succeeds_with_the_real_hosts_actual_key() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
 
     let host_id = connect_host_with_known_hosts(
         &state,
@@ -101,7 +107,7 @@ async fn connect_succeeds_with_the_real_hosts_actual_key() {
 async fn connect_accepts_a_truly_unknown_real_host_key_after_an_explicit_accept_and_persists_it() {
     let Some(spec) = dto() else { return };
     let hostname = spec.hostname.clone();
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
 
     let nanos = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -173,7 +179,7 @@ async fn connect_accepts_a_truly_unknown_real_host_key_after_an_explicit_accept_
 #[tokio::test]
 async fn connect_rejects_a_host_missing_from_known_hosts() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
 
     // Seit der TOFU-Verdrahtung (Task 13) ist "kein known_hosts-Eintrag"
     // der `Unknown`-Zweig: `TofuPolicy::decide` stellt eine Rueckfrage und
@@ -220,7 +226,7 @@ async fn connect_rejects_a_mismatched_key_with_a_distinct_message() {
     let Some(spec) = dto() else { return };
     let hostname = spec.hostname.clone();
     let port = spec.port;
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
 
     let err = connect_host_with_known_hosts(
         &state,
@@ -257,7 +263,7 @@ async fn connect_rejects_a_mismatched_key_with_a_distinct_message() {
 #[tokio::test]
 async fn full_round_trip_connect_create_open_write_echo_close() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
     let socket = common::test_socket(); // derselbe Socket wie im AppState oben
 
     let host_id = connect_host_with_known_hosts(
@@ -346,10 +352,7 @@ async fn full_round_trip_connect_create_open_write_echo_close() {
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung fuer kill_session");
-    TmuxClient::new(&socket)
-        .kill_session(&t, &session)
-        .await
-        .unwrap();
+    own(&socket).kill_session(&t, &session).await.unwrap();
 
     disconnect_host_impl(&state, host_id.clone()).await.unwrap();
     assert!(!state.has_host(&host_id).await);
@@ -376,7 +379,7 @@ async fn full_round_trip_connect_create_open_write_echo_close() {
 #[tokio::test]
 async fn ack_backpressure_actually_stalls_and_then_resumes() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
 
     let host_id = connect_host_with_known_hosts(
         &state,
@@ -536,7 +539,7 @@ async fn ack_backpressure_actually_stalls_and_then_resumes() {
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung fuer kill_session");
-    TmuxClient::new(&common::test_socket())
+    own(&common::test_socket())
         .kill_session(&t, &session)
         .await
         .unwrap();
@@ -563,7 +566,7 @@ async fn ack_backpressure_actually_stalls_and_then_resumes() {
 #[tokio::test]
 async fn open_terminal_twice_for_the_same_key_closes_the_first_channel_instead_of_leaking_it() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
     let socket = common::test_socket();
 
     let host_id = connect_host_with_known_hosts(
@@ -649,10 +652,7 @@ async fn open_terminal_twice_for_the_same_key_closes_the_first_channel_instead_o
     close_terminal_impl(&state, host_id.clone(), session.clone())
         .await
         .unwrap();
-    TmuxClient::new(&socket)
-        .kill_session(&t, &session)
-        .await
-        .unwrap();
+    own(&socket).kill_session(&t, &session).await.unwrap();
     disconnect_host_impl(&state, host_id).await.unwrap();
 }
 
@@ -690,7 +690,7 @@ async fn open_terminal_twice_for_the_same_key_closes_the_first_channel_instead_o
 async fn closing_a_terminal_while_the_pump_task_is_blocked_on_the_ack_gate_unblocks_it_instead_of_leaking_it(
 ) {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
     let socket = common::test_socket();
 
     let host_id = connect_host_with_known_hosts(
@@ -752,10 +752,7 @@ async fn closing_a_terminal_while_the_pump_task_is_blocked_on_the_ack_gate_unblo
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung fuer kill_session");
-    TmuxClient::new(&socket)
-        .kill_session(&t, &session)
-        .await
-        .unwrap();
+    own(&socket).kill_session(&t, &session).await.unwrap();
     disconnect_host_impl(&state, host_id).await.unwrap();
 }
 
@@ -791,7 +788,7 @@ async fn closing_a_terminal_while_the_pump_task_is_blocked_on_the_ack_gate_unblo
 async fn disconnecting_a_host_while_the_pump_task_is_blocked_on_the_ack_gate_unblocks_it_instead_of_leaking_it(
 ) {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
     let socket = common::test_socket();
 
     let host_id = connect_host_with_known_hosts(
@@ -858,10 +855,7 @@ async fn disconnecting_a_host_while_the_pump_task_is_blocked_on_the_ack_gate_unb
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung fuer kill_session");
-    TmuxClient::new(&socket)
-        .kill_session(&t, &session)
-        .await
-        .unwrap();
+    own(&socket).kill_session(&t, &session).await.unwrap();
 }
 
 // --- M-C (Abschlussreview): terminal://connection-lost ---
@@ -907,7 +901,7 @@ async fn connect_create_and_open_with_recording_sink(
 )> {
     let spec = dto()?;
     let socket = suffix.map_or_else(common::test_socket, common::test_socket_for);
-    let state = Arc::new(AppState::with_default_socket(socket));
+    let state = Arc::new(AppState::with_own_socket(socket));
 
     let host_id = connect_host_with_known_hosts(
         &state,
@@ -989,7 +983,7 @@ async fn an_externally_killed_session_emits_exactly_one_connection_lost_event() 
     let t2 = common::connect_test_host()
         .await
         .expect("zweite, unabhaengige Verbindung fuer das externe Kill");
-    TmuxClient::new(&common::test_socket()) // derselbe Socket wie beim Anlegen; der Produktionsdefault ist gepinnt in production_default_socket_is_agentbridge
+    own(&common::test_socket()) // derselbe Socket wie beim Anlegen; der Produktionsdefault ist gepinnt in production_default_socket_is_agentbridge
         .kill_session(&t2, &session)
         .await
         .unwrap();
@@ -1041,7 +1035,7 @@ async fn closing_a_terminal_deliberately_emits_no_connection_lost_event() {
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung fuer kill_session");
-    TmuxClient::new(&common::test_socket()) // derselbe Socket wie beim Anlegen; der Produktionsdefault ist gepinnt in production_default_socket_is_agentbridge
+    own(&common::test_socket()) // derselbe Socket wie beim Anlegen; der Produktionsdefault ist gepinnt in production_default_socket_is_agentbridge
         .kill_session(&t, &session)
         .await
         .unwrap();
@@ -1078,7 +1072,7 @@ async fn disconnecting_a_host_deliberately_emits_no_connection_lost_event() {
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung fuer kill_session");
-    TmuxClient::new(&common::test_socket()) // derselbe Socket wie beim Anlegen; der Produktionsdefault ist gepinnt in production_default_socket_is_agentbridge
+    own(&common::test_socket()) // derselbe Socket wie beim Anlegen; der Produktionsdefault ist gepinnt in production_default_socket_is_agentbridge
         .kill_session(&t, &session)
         .await
         .unwrap();
@@ -1209,7 +1203,7 @@ async fn a_stalled_session_does_not_take_the_whole_connection_down() {
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung fuer kill_session");
-    let tmux = TmuxClient::new(&common::test_socket()); // derselbe Socket wie beim Anlegen; der Produktionsdefault ist gepinnt in production_default_socket_is_agentbridge
+    let tmux = own(&common::test_socket()); // derselbe Socket wie beim Anlegen; der Produktionsdefault ist gepinnt in production_default_socket_is_agentbridge
     for name in [&session, &control, &recovered] {
         tmux.kill_session(&t, name)
             .await
@@ -1232,7 +1226,7 @@ async fn a_hostile_session_name_is_rejected_and_creates_nothing() {
     // Eigener Socket: Seit der numerischen Liste (12.09.2026) scheitert die
     // Liste unten, sobald parallel laufende Tests Sessions anlegen. Auf dem
     // frischen Socket laeuft kein Server; die Liste ist dann leer.
-    let state = Arc::new(AppState::with_default_socket(common::test_socket_for(
+    let state = Arc::new(AppState::with_own_socket(common::test_socket_for(
         "hostile",
     )));
 
@@ -1301,7 +1295,7 @@ async fn a_hostile_session_name_is_rejected_and_creates_nothing() {
 #[tokio::test]
 async fn a_duplicate_user_name_is_an_end_error_not_a_silent_replacement() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket()));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
 
     let host_id = connect_host_with_known_hosts(
         &state,
@@ -1324,7 +1318,7 @@ async fn a_duplicate_user_name_is_an_end_error_not_a_silent_replacement() {
         let t = common::connect_test_host()
             .await
             .expect("Vorabraeumung braucht eine Verbindung");
-        TmuxClient::new(&common::test_socket())
+        own(&common::test_socket())
             .kill_session(&t, name)
             .await
             .ok();
@@ -1396,7 +1390,7 @@ async fn a_duplicate_user_name_is_an_end_error_not_a_silent_replacement() {
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung");
-    TmuxClient::new(&common::test_socket())
+    own(&common::test_socket())
         .kill_session(&t, name)
         .await
         .unwrap();
@@ -1432,9 +1426,17 @@ async fn killing_a_session_deliberately_emits_no_connection_lost_event() {
         return;
     };
 
-    kill_session_impl(&state, host_id.clone(), session.clone(), None, None, None)
-        .await
-        .expect("das Beenden der eigenen Session muss gelingen");
+    kill_session_impl(
+        &state,
+        host_id.clone(),
+        SocketKind::App,
+        session.clone(),
+        None,
+        None,
+        None,
+    )
+    .await
+    .expect("das Beenden der eigenen Session muss gelingen");
 
     // Test 6 nebenbei, mit derselben Verbindung: die Session ist wirklich
     // weg. Ohne diese Zusicherung waere der Test auch dann gruen, wenn
@@ -1489,9 +1491,7 @@ async fn killing_an_absent_session_is_success_not_a_failed_exit_code() {
     let Some(spec) = dto() else { return };
     // Eigener Socket: Die Vorbedingung unten liest die Sessionliste, die
     // sonst an parallel laufenden Tests derselben Datei scheitert.
-    let state = Arc::new(AppState::with_default_socket(common::test_socket_for(
-        "absent",
-    )));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket_for("absent")));
 
     let host_id = connect_host_with_known_hosts(
         &state,
@@ -1516,6 +1516,7 @@ async fn killing_an_absent_session_is_success_not_a_failed_exit_code() {
     kill_session_impl(
         &state,
         host_id.clone(),
+        SocketKind::App,
         absent.to_string(),
         None,
         None,
@@ -1537,9 +1538,7 @@ async fn killing_an_absent_session_is_success_not_a_failed_exit_code() {
 #[tokio::test]
 async fn a_socket_without_a_server_lists_no_sessions() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket_for(
-        "fresh",
-    )));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket_for("fresh")));
 
     let host_id = connect_host_with_known_hosts(
         &state,
@@ -1567,9 +1566,7 @@ async fn a_socket_without_a_server_lists_no_sessions() {
 #[tokio::test]
 async fn ending_the_last_session_by_its_numeric_identity_succeeds_and_lists_nothing() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket_for(
-        "last",
-    )));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket_for("last")));
 
     let host_id = connect_host_with_known_hosts(
         &state,
@@ -1598,6 +1595,7 @@ async fn ending_the_last_session_by_its_numeric_identity_succeeds_and_lists_noth
     kill_session_impl(
         &state,
         host_id.clone(),
+        SocketKind::App,
         session.clone(),
         row.session_id,
         row.server_pid,
@@ -1697,7 +1695,7 @@ async fn end_session(state: &Arc<AppState>, host_id: String, session: &str) {
     let t = common::connect_test_host()
         .await
         .expect("Aufraeumverbindung fuer kill_session");
-    TmuxClient::new(&state.default_socket)
+    own(state.own_socket.name())
         .kill_session(&t, session)
         .await
         .unwrap();
@@ -1775,9 +1773,7 @@ async fn host_with_fifty_lines(state: &Arc<AppState>, spec: HostSpecDto) -> (Str
 #[tokio::test]
 async fn a_bound_open_restores_the_pane_history_before_live_output() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket_for(
-        "hist",
-    )));
+    let state = Arc::new(AppState::with_own_socket(common::test_socket_for("hist")));
     let (host_id, session) = host_with_fifty_lines(&state, spec).await;
 
     let listed = list_sessions_impl(&state, host_id.clone()).await.unwrap();
@@ -1790,6 +1786,7 @@ async fn a_bound_open_restores_the_pane_history_before_live_output() {
         &state,
         ChannelSink(tx),
         host_id.clone(),
+        SocketKind::App,
         session.clone(),
         80,
         24,
@@ -1838,7 +1835,7 @@ async fn a_bound_open_restores_the_pane_history_before_live_output() {
 #[tokio::test]
 async fn a_bound_open_at_another_size_restores_every_line_exactly_once() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket_for(
+    let state = Arc::new(AppState::with_own_socket(common::test_socket_for(
         "hist_resize",
     )));
     let (host_id, session) = host_with_fifty_lines(&state, spec).await;
@@ -1856,6 +1853,7 @@ async fn a_bound_open_at_another_size_restores_every_line_exactly_once() {
             &state,
             ChannelSink(tx),
             host_id.clone(),
+            SocketKind::App,
             session.clone(),
             80,
             rows,
@@ -1908,7 +1906,7 @@ async fn a_bound_open_at_another_size_restores_every_line_exactly_once() {
 #[tokio::test]
 async fn a_bound_open_of_a_fresh_session_sends_no_history() {
     let Some(spec) = dto() else { return };
-    let state = Arc::new(AppState::with_default_socket(common::test_socket_for(
+    let state = Arc::new(AppState::with_own_socket(common::test_socket_for(
         "hist_fresh",
     )));
     let host_id = connect_host_with_known_hosts(
@@ -1934,6 +1932,7 @@ async fn a_bound_open_of_a_fresh_session_sends_no_history() {
         &state,
         ChannelSink(tx),
         host_id.clone(),
+        SocketKind::App,
         session.clone(),
         80,
         24,
@@ -1958,12 +1957,12 @@ async fn a_bound_open_of_a_fresh_session_sends_no_history() {
 /// Pin fuer den Produktionsdefault: kein VM-Zugriff, laeuft also immer,
 /// unabhaengig von `AIDEVBRIDGE_TEST_HOST`/`AIDEVBRIDGE_TEST_SOCKET`. Jeder
 /// Testlauf in dieser Datei legt seine Sessions ueber
-/// `AppState::with_default_socket(common::test_socket())` an, nicht mehr
+/// `AppState::with_own_socket(common::test_socket())` an, nicht mehr
 /// ueber ein Literal -- dieser Test allein haelt fest, dass
 /// `settings::default_socket()` (und damit `AppState::default()` im
 /// Produktivpfad) weiterhin "agentbridge" liefert. Aendert sich der
 /// Produktionsdefault, faellt DIESER Test, nicht ein verstreutes Literal.
 #[test]
 fn production_default_socket_is_agentbridge() {
-    assert_eq!(AppState::default().default_socket, "agentbridge");
+    assert_eq!(AppState::default().own_socket.name(), "agentbridge");
 }

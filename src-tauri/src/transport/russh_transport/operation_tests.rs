@@ -4,6 +4,7 @@
 use super::pty_output::WINDOW;
 use super::{PtyHandle, PtyOutputReceiver, RusshTransport, SLOT_WAIT};
 use crate::ssh::auth::AuthMethod;
+use crate::tmux::OwnSocket;
 use crate::transport::{
     ConnectControl, ConnectLimits, ExecError, ExecPhase, ExecReason, HostKeyPolicy, HostSpec,
     OperationControl, PtyError, PtyPhase, PtyReason, Submission, Transport,
@@ -26,6 +27,14 @@ use tokio::sync::{mpsc, watch, Semaphore};
 use tokio::task::JoinHandle;
 use tokio::time::{sleep, timeout, Instant};
 use zeroize::Zeroizing;
+
+/// Statisch, weil die Zukunft eines Anhaengens den Socket fuer ihre ganze
+/// Laufzeit leiht.
+fn fixture_socket() -> &'static OwnSocket {
+    static SOCKET: std::sync::LazyLock<OwnSocket> =
+        std::sync::LazyLock::new(|| OwnSocket::new("fixture").unwrap());
+    &SOCKET
+}
 
 const END: Duration = Duration::from_secs(5);
 const BODY_END: Duration = Duration::from_secs(12);
@@ -1020,7 +1029,7 @@ async fn operation_cancelled_pty_open_accepts_late_ack_only_to_close_without_req
         .await
         .check(move |transport, seen, mut delayed| async move {
             let control = OperationControl::new(END);
-            let mut opening = Box::pin(transport.open_attach_controlled("fixture", "own-session", 80, 24, control.clone()));
+            let mut opening = Box::pin(transport.open_attach_controlled(fixture_socket(), "own-session", 80, 24, control.clone()));
             let reply = tokio::select! {
                 result = &mut opening => { let _ = result; panic!("PTY ended before open reply") },
                 reply = delayed.recv() => reply.unwrap(),
@@ -1056,7 +1065,7 @@ async fn operation_pty_and_attach_each_require_actual_success_reply() {
                 let error = pty_error(
                     transport
                         .open_attach_controlled(
-                            "fixture",
+                            fixture_socket(),
                             "own-session",
                             80,
                             24,
@@ -1087,7 +1096,7 @@ async fn operation_stalled_pty_closes_retain_eight_slots_without_aborting_termin
                 ptys.push(
                     transport
                         .open_attach_controlled(
-                            "fixture",
+                            fixture_socket(),
                             &format!("own-{index}"),
                             80,
                             24,
@@ -1109,7 +1118,13 @@ async fn operation_stalled_pty_closes_retain_eight_slots_without_aborting_termin
             let start = Instant::now();
             let error = pty_error(
                 transport
-                    .open_attach_controlled("fixture", "ninth", 80, 24, OperationControl::new(END))
+                    .open_attach_controlled(
+                        fixture_socket(),
+                        "ninth",
+                        80,
+                        24,
+                        OperationControl::new(END),
+                    )
                     .await,
             );
             assert!(
@@ -1137,7 +1152,7 @@ async fn operation_stalled_pty_closes_retain_eight_slots_without_aborting_termin
             // das abgewiesene kein Open gesendet hat: acht plus dieses eine.
             let after = transport
                 .open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     "after-close",
                     80,
                     24,
@@ -1166,7 +1181,13 @@ async fn operation_unread_flood_stops_the_peer_at_one_window_and_closes_without_
         .await
         .check(|transport, seen, _| async move {
             let mut pty = transport
-                .open_attach_controlled("fixture", "own-flood", 80, 24, OperationControl::new(END))
+                .open_attach_controlled(
+                    fixture_socket(),
+                    "own-flood",
+                    80,
+                    24,
+                    OperationControl::new(END),
+                )
                 .await
                 .unwrap();
             let window = WINDOW as usize;
@@ -1222,7 +1243,7 @@ async fn operation_finite_flood_arrives_complete_and_in_order_once_the_reader_dr
         .check(|transport, seen, _| async move {
             let mut pty = transport
                 .open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     "finite-flood",
                     80,
                     24,
@@ -1256,11 +1277,23 @@ async fn operation_second_pty_round_trips_promptly_while_a_sibling_floods() {
         .await
         .check(|transport, _, _| async move {
             let mut flood = transport
-                .open_attach_controlled("fixture", "flood-a", 80, 24, OperationControl::new(END))
+                .open_attach_controlled(
+                    fixture_socket(),
+                    "flood-a",
+                    80,
+                    24,
+                    OperationControl::new(END),
+                )
                 .await
                 .unwrap();
             let mut echo = transport
-                .open_attach_controlled("fixture", "echo-b", 80, 24, OperationControl::new(END))
+                .open_attach_controlled(
+                    fixture_socket(),
+                    "echo-b",
+                    80,
+                    24,
+                    OperationControl::new(END),
+                )
                 .await
                 .unwrap();
             assert_eq!(read_bytes(&mut echo.data, 9).await, b"attached\n");
@@ -1330,7 +1363,7 @@ async fn operation_eight_flooding_ptys_on_one_connection_never_hit_the_output_li
                 ptys.push(
                     transport
                         .open_attach_controlled(
-                            "fixture",
+                            fixture_socket(),
                             &format!("flood-{index}"),
                             80,
                             24,
@@ -1449,7 +1482,13 @@ async fn operation_flooded_pty_with_a_slow_reader_keeps_its_channel_and_byte_ord
         .await
         .check(|transport, _, _| async move {
             let mut pty = transport
-                .open_attach_controlled("fixture", "flood", 80, 24, OperationControl::new(END))
+                .open_attach_controlled(
+                    fixture_socket(),
+                    "flood",
+                    80,
+                    24,
+                    OperationControl::new(END),
+                )
                 .await
                 .unwrap();
             let mut offset = 0;
@@ -1483,7 +1522,7 @@ async fn operation_control_open_failure_preserves_independent_terminal_io_and_re
         .check(|terminal, terminal_seen, _| async move {
             let mut pty = terminal
                 .open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     "own-terminal",
                     80,
                     24,
@@ -1543,7 +1582,7 @@ async fn operation_decoded_end_before_or_beside_each_ack_never_hands_off() {
                         let error = pty_error(
                             transport
                                 .open_attach_controlled(
-                                    "fixture",
+                                    fixture_socket(),
                                     "ended-ack",
                                     80,
                                     24,
@@ -1580,7 +1619,13 @@ async fn operation_early_data_and_extended_data_keep_original_order_across_both_
         .await
         .check(|transport, _, _| async move {
             let mut pty = transport
-                .open_attach_controlled("fixture", "early", 80, 24, OperationControl::new(END))
+                .open_attach_controlled(
+                    fixture_socket(),
+                    "early",
+                    80,
+                    24,
+                    OperationControl::new(END),
+                )
                 .await
                 .unwrap();
             // Die fruehen Pakete liegen schon vor dem Lesen an und kommen
@@ -1608,7 +1653,13 @@ async fn operation_unread_binary_tail_outlives_the_owner_but_input_stops_at_deco
             .await
             .check(move |transport, seen, _| async move {
                 let mut pty = transport
-                    .open_attach_controlled("fixture", "tail", 80, 24, OperationControl::new(END))
+                    .open_attach_controlled(
+                        fixture_socket(),
+                        "tail",
+                        80,
+                        24,
+                        OperationControl::new(END),
+                    )
                     .await
                     .unwrap();
                 pty.write(b"trigger").await.unwrap();
@@ -1638,7 +1689,7 @@ async fn operation_natural_transport_end_keeps_preceding_binary_output() {
         .check(|transport, _, _| async move {
             let mut pty = transport
                 .open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     "transport-tail",
                     80,
                     24,
@@ -1665,7 +1716,7 @@ async fn operation_exit_without_fifo_boundary_records_one_drain_timeout_and_keep
         .check(|transport, seen, _| async move {
             let mut pty = transport
                 .open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     "drain-timeout",
                     80,
                     24,
@@ -1781,7 +1832,7 @@ async fn operation_pending_writer_drop_deadline_and_local_stop_never_poll_a_late
             .check(move |transport, seen, _| async move {
                 let pty = transport
                     .open_attach_controlled(
-                        "fixture",
+                        fixture_socket(),
                         "pending-input",
                         80,
                         24,
@@ -1832,7 +1883,7 @@ async fn operation_pending_writer_drop_deadline_and_local_stop_never_poll_a_late
                 // The same terminal transport still serves a distinct PTY.
                 let mut sibling = transport
                     .open_attach_controlled(
-                        "fixture",
+                        fixture_socket(),
                         "sibling",
                         80,
                         24,
@@ -1862,7 +1913,7 @@ async fn operation_input_deadline_covers_serializer_and_expiry_before_first_poll
         .check(|transport, _, _| async move {
             let pty = transport
                 .open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     "input-deadline",
                     80,
                     24,
@@ -1914,7 +1965,7 @@ async fn operation_zero_remote_window_input_is_cancellable_without_aborting_tran
         .check(|transport, seen, _| async move {
             let pty = transport
                 .open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     "zero-window",
                     80,
                     24,
@@ -1946,7 +1997,7 @@ async fn operation_four_unpublished_late_opens_keep_capacity_until_owned_cleanup
                 let control = OperationControl::new(END);
                 let name = format!("unpublished-{index}");
                 let mut opening = Box::pin(transport.open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     &name,
                     80,
                     24,
@@ -1965,7 +2016,7 @@ async fn operation_four_unpublished_late_opens_keep_capacity_until_owned_cleanup
             let start = Instant::now();
             let fifth = pty_error(
                 transport
-                    .open_attach_controlled("fixture", "fifth", 80, 24, OperationControl::new(END))
+                    .open_attach_controlled(fixture_socket(), "fifth", 80, 24, OperationControl::new(END))
                     .await,
             );
             assert!(
@@ -1982,7 +2033,7 @@ async fn operation_four_unpublished_late_opens_keep_capacity_until_owned_cleanup
             // Kanaele gibt die Erlaubnisse frei; dann sendet es sein Open,
             // ohne neuen Versuch.
             let mut opening = Box::pin(transport.open_attach_controlled(
-                "fixture",
+                fixture_socket(),
                 "after-cleanup",
                 80,
                 24,
@@ -2021,7 +2072,7 @@ async fn operation_pending_pty_holds_unpublished_permit_until_drop() {
                 pending.push(
                     transport
                         .open_attach_pending_controlled(
-                            "fixture",
+                            fixture_socket(),
                             &format!("pending-{index}"),
                             80,
                             24,
@@ -2035,7 +2086,7 @@ async fn operation_pending_pty_holds_unpublished_permit_until_drop() {
             // Erlaubnis, statt abgewiesen zu werden. Fallenlassen eines
             // unveroeffentlichten gibt seine sofort frei, vor dem Close.
             let mut fifth = Box::pin(transport.open_attach_pending_controlled(
-                "fixture",
+                fixture_socket(),
                 "fifth",
                 80,
                 24,
@@ -2073,7 +2124,7 @@ async fn operation_waiting_open_ends_on_cancel_or_transport_end_without_open() {
                     ptys.push(
                         transport
                             .open_attach_controlled(
-                                "fixture",
+                                fixture_socket(),
                                 &format!("own-{index}"),
                                 80,
                                 24,
@@ -2088,7 +2139,7 @@ async fn operation_waiting_open_ends_on_cancel_or_transport_end_without_open() {
                 // `SLOT_WAIT`, laege `elapsed` darueber.
                 let start = Instant::now();
                 let mut ninth = Box::pin(transport.open_attach_controlled(
-                    "fixture",
+                    fixture_socket(),
                     "ninth",
                     80,
                     24,
@@ -2124,7 +2175,7 @@ async fn operation_waiting_open_ends_on_cancel_or_transport_end_without_open() {
                     drop(ptys.pop());
                     let tenth = transport
                         .open_attach_controlled(
-                            "fixture",
+                            fixture_socket(),
                             "tenth",
                             80,
                             24,
@@ -2150,7 +2201,7 @@ async fn operation_pending_wrapper_strips_first_w_and_keeps_later_bytes() {
         .check(|transport, _, _| async move {
             let pending = transport
                 .open_attach_pending(
-                    super::attach_command_line("fixture", "wrap"),
+                    super::attach_command_line(fixture_socket(), "wrap"),
                     80,
                     24,
                     OperationControl::new(END),
@@ -2179,7 +2230,7 @@ async fn operation_pending_wrapper_wait_ends_with_the_operation_deadline() {
         .check(|transport, _, _| async move {
             let pending = transport
                 .open_attach_pending(
-                    super::attach_command_line("fixture", "silent"),
+                    super::attach_command_line(fixture_socket(), "silent"),
                     80,
                     24,
                     OperationControl::new(Duration::from_millis(300)),
@@ -2207,7 +2258,7 @@ async fn operation_real_full_outbound_queue_drops_reserved_write_without_late_se
             .check(move |transport, seen, _| async move {
                 let pty = transport
                     .open_attach_controlled(
-                        "fixture",
+                        fixture_socket(),
                         "queue-owner",
                         80,
                         24,

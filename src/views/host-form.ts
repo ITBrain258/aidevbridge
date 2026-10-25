@@ -49,6 +49,9 @@ export interface HostFormValue {
   user: string;
   port: number;
   auth: AuthChoice;
+  /** Schalter "Show tmux sessions" (Spec 2026-10-25 §10.1). Die Reparatur
+   * der Steuerung zeigt ihn nicht und laesst das Feld weg. */
+  showDefaultSocket?: boolean;
 }
 
 /** Deckungsgleich mit `ssh::keys::SshKeyDto` (`serde::Serialize`) --
@@ -290,10 +293,23 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   // Knopf direkt darin rendert volle Breite -- derselbe Container wie bei
   // `.host-key-prompt-actions`/`.session-dialog-actions` (siehe dortige
   // Regel weiter unten in styles.css).
+  // Spec 2026-10-25 §10.1: ob die App die Sessions auf tmux' Standard-Socket
+  // dieses Hosts zeigt. Vorgabe an, auch fuer bestehende Hosts.
+  const showDefaultLabel = document.createElement("label");
+  showDefaultLabel.className = "host-form-check";
+  const showDefaultBox = document.createElement("input");
+  showDefaultBox.type = "checkbox";
+  showDefaultBox.name = "showDefaultSocket";
+  showDefaultBox.checked = opts.initial?.showDefaultSocket !== false;
+  showDefaultLabel.append(showDefaultBox, document.createTextNode(t("hostForm.showDefaultSocket")));
+  if (opts.mode !== "control-repair") form.appendChild(showDefaultLabel);
+
   const actions = document.createElement("div");
   actions.className = "host-form-actions";
   actions.appendChild(submitButton);
   form.appendChild(actions);
+  // Die Felder der Anmeldeart kommen vor den Schalter.
+  const fieldsEnd = opts.mode === "control-repair" ? actions : showDefaultLabel;
 
   root.appendChild(form);
 
@@ -334,13 +350,13 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     // `submitButton` waere hier kein gueltiger Referenzknoten von `form`
     // mehr.
     if (isKey) {
-      if (!passphraseLabel.isConnected) form.insertBefore(passphraseLabel, actions);
+      if (!passphraseLabel.isConnected) form.insertBefore(passphraseLabel, fieldsEnd);
     } else {
       passphraseLabel.remove();
     }
 
     if (isPassword) {
-      if (!passwordLabel.isConnected) form.insertBefore(passwordLabel, actions);
+      if (!passwordLabel.isConnected) form.insertBefore(passwordLabel, fieldsEnd);
     } else {
       passwordLabel.remove();
     }
@@ -588,7 +604,8 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     // UX-Spec §7.7: der eingetragene Name, sonst der Hostname. Die
     // Reparatur der Steuerung zeigt das Feld nicht und behaelt den Namen.
     const label = opts.mode === "control-repair" ? (opts.initial?.label ?? hostname) : nameInput.value.trim() || hostname;
-    opts.onSubmit({ label, hostname, user, port, auth });
+    const showDefault = opts.mode === "control-repair" ? {} : { showDefaultSocket: showDefaultBox.checked };
+    opts.onSubmit({ label, hostname, user, port, auth, ...showDefault });
   });
 
   return {

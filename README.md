@@ -53,7 +53,7 @@ xterm.js.
   yourself. There is no exception for a single app.
 - **Check the file.** Every release lists the SHA-256 of each package, taken
   from the `release-manifest.json` of its build. In PowerShell,
-  `Get-FileHash .\aidevbridge-0.2.1-windows-x64-setup.exe -Algorithm SHA256`
+  `Get-FileHash .\aidevbridge-0.2.2-windows-x64-setup.exe -Algorithm SHA256`
   (or the name of the file you downloaded) must print the same value. It prints upper-case letters where the release
   lists lower-case ones; letter case does not matter.
 - **Or build it yourself**, see [Build from source](#build-from-source).
@@ -91,15 +91,15 @@ see [Supported agents and detected states](#supported-agents-and-detected-states
 
 ## Install
 
-aidevbridge runs on Windows 10 and 11 (x64). Release 0.2.1 comes in three
+aidevbridge runs on Windows 10 and 11 (x64). Release 0.2.2 comes in three
 forms with the same program; pick one:
 
-- `aidevbridge-0.2.1-windows-x64-setup.exe`: the setup program. It installs
+- `aidevbridge-0.2.2-windows-x64-setup.exe`: the setup program. It installs
   for your Windows account and needs no administrator rights.
-- `aidevbridge-0.2.1-windows-x64.msi`: the Windows Installer package, for
-  example for `msiexec /i aidevbridge-0.2.1-windows-x64.msi`. It installs for
+- `aidevbridge-0.2.2-windows-x64.msi`: the Windows Installer package, for
+  example for `msiexec /i aidevbridge-0.2.2-windows-x64.msi`. It installs for
   all users and asks for administrator rights.
-- `aidevbridge-0.2.1-windows-x64.zip`: no installation. Extract the whole ZIP
+- `aidevbridge-0.2.2-windows-x64.zip`: no installation. Extract the whole ZIP
   into a folder and start `aidevbridge.exe`.
 
 The window is drawn by Microsoft Edge WebView2, which current Windows 10 and
@@ -144,7 +144,39 @@ delete the app data; see [Privacy](#privacy) for where they are.
 
 The sidebar lists the sessions on the app's own tmux socket, `agentbridge`.
 To start one from an SSH shell instead, run `tmux -L agentbridge new -s work`
-on the host. Sessions on tmux's default socket do not appear.
+on the host. Sessions you started with plain `tmux` appear below them as
+**tmux sessions**.
+
+## Sessions on tmux's default socket
+
+Sessions on tmux's default socket, the ones plain `tmux` and `tmux new`
+create, are listed under each host as **tmux sessions** and marked **tmux**
+in the terminal's head, the waiting lane and quick open. Opening one attaches
+the app as one more client of that session:
+
+- **The app never ends them.** There is no **End session…** for them; end
+  them in tmux.
+- **The app changes nothing on that server.** It sets no option, hook or
+  environment, and it attaches with `attach-session -E`, so your session
+  keeps its `SSH_AUTH_SOCK`, `DISPLAY` and the other variables of
+  `update-environment`. Your configuration applies as it is: prefix, mouse,
+  colours, the status line (the terminal shows it and has one row less) and
+  your hooks, which run when the app attaches, resizes and detaches. With
+  `destroy-unattached`, a session ends when the app was its last client.
+- **Window size:** from tmux 3.1, `window-size` is `latest`. Opening the
+  terminal and every resize give the window the terminal's size, also in
+  your other client; when you use that client again, the window follows it.
+  When another client is already attached, the app says so once per run.
+- **Versions:** the app attaches to servers running tmux 3.3a or 3.6, the
+  versions its checks were measured on. For a server running another version
+  the sidebar names the version and lists nothing. Sessions of a session
+  group (`tmux new -t`) are listed but cannot be opened.
+- **Where the app looks:** where tmux puts the default socket for a
+  non-interactive SSH command, normally `/tmp/tmux-<uid>/default`. A server
+  started with `TMUX_TMPDIR` set only in an interactive shell, or with
+  `-S`, is not found.
+- **Switching it off:** **Edit host** → **Show tmux sessions**. Off, the app
+  does not read the default socket of that host at all.
 
 ## Supported agents and detected states
 
@@ -233,10 +265,16 @@ on the host. Sessions on tmux's default socket do not appear.
   shortcuts (Settings → Shortcuts lists them); `git worktree` when creating a
   session; code signing, automatic updates and winget.
 - **Installers:** `npm run build:windows` builds and checks MSI, setup EXE
-  and ZIP. The installers of 0.2.1 are unsigned, and installing them on a
+  and ZIP. The installers of 0.2.2 are unsigned, and installing them on a
   fresh computer has not been tested yet.
-- **Only the app's own tmux socket** (`agentbridge`) is listed; sessions on
-  tmux's default socket do not appear.
+- **tmux's default socket:** only servers running tmux 3.3a or 3.6 are
+  attached to; sessions of a session group are listed but not opened; a
+  server outside `/tmp/tmux-<uid>` is not found (see
+  [Sessions on tmux's default socket](#sessions-on-tmuxs-default-socket)).
+  The status poll reads the default socket in the form of the tmux on the
+  PATH: if that tmux is not 3.3a, 3.4 or 3.6 while the server is, the
+  sessions are listed but their status stays unknown, and sessions started
+  later appear only after **Reload sessions**.
 - **Authentication:** a key file, the Windows OpenSSH agent (the `ssh-agent`
   service) or a password. No keyboard-interactive or two-factor prompts, no
   Pageant, no jump hosts or proxies. The import from `~/.ssh/config` reads

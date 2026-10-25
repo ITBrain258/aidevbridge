@@ -3,7 +3,7 @@
 // `t.exec(...)` in `history_limit_is_set_before_sessions_exist` nicht
 // sichtbar (E0599, `exec` ist eine Trait-Methode).
 use aidevbridge_lib::remote;
-use aidevbridge_lib::tmux::{CreateOutcome, TmuxClient};
+use aidevbridge_lib::tmux::{CreateOutcome, OwnSocket, OwnTmuxClient};
 use aidevbridge_lib::transport::Transport;
 mod common; // stellt `connect_test_host()` bereit, siehe Task 5
 
@@ -13,7 +13,7 @@ async fn create_list_and_kill_session() {
         return;
     };
     let socket = common::test_socket_for("tmux");
-    let c = TmuxClient::new(&socket);
+    let c = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
     c.prepare_server(&t, 10000).await.unwrap();
 
     let name = "ab_aa11bb";
@@ -60,7 +60,7 @@ async fn kill_session_does_not_hit_a_prefix_sibling() {
         return;
     };
     let socket = common::test_socket_for("b0kill");
-    let c = TmuxClient::new(&socket);
+    let c = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
     c.prepare_server(&t, 10000).await.unwrap();
 
     let sibling = "zz_b0kill2".to_string();
@@ -93,7 +93,7 @@ async fn history_limit_is_set_before_sessions_exist() {
         return;
     };
     let socket = common::test_socket_for("tmux2");
-    let c = TmuxClient::new(&socket);
+    let c = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
     c.prepare_server(&t, 12345).await.unwrap();
     c.create_session(&t, "ab_cc22dd", "/tmp").await.unwrap();
     let r = t
@@ -129,7 +129,7 @@ async fn remain_on_exit_and_terminal_overrides_are_applied() {
         return;
     };
     let socket = common::test_socket_for("tmux3");
-    let c = TmuxClient::new(&socket);
+    let c = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
     c.prepare_server(&t, 5000).await.unwrap();
     c.create_session(&t, "ab_ee33ff", "/tmp").await.unwrap();
 
@@ -212,7 +212,7 @@ async fn kill_session_leaves_no_server_running_behind() {
         return;
     };
     let socket = common::test_socket_for("tmux4");
-    let c = TmuxClient::new(&socket);
+    let c = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
     c.prepare_server(&t, 7000).await.unwrap();
 
     let name = "ab_44dd55";

@@ -24,7 +24,7 @@
 //
 // Ohne gelesenen Stand schreibt es nie: ein fluechtiger Lesefehler darf den
 // gespeicherten Arbeitsplatz nicht mit einem leeren ueberschreiben.
-import { sessionKey, type AppState, type Host } from "./app-state";
+import { sessionKey, sessionKeyOf, socketOf, type AppState, type Host, type SessionSocket } from "./app-state";
 import { MAX_TILES } from "./tile-assignment";
 import type { HostDirsDto, TileEntryDto, WorkspaceDto } from "../views/types";
 
@@ -92,11 +92,14 @@ function readTiles(raw: unknown, known: ReadonlySet<string>): TileEntryDto[] {
   const tiles: TileEntryDto[] = [];
   for (const entry of raw) {
     if (!isRecord(entry)) continue;
-    const { slot, host_id: hostId, session } = entry;
+    const { slot, host_id: hostId } = entry;
     if (typeof slot !== "number" || !Number.isInteger(slot) || slot < 0 || slot >= TILE_SLOTS) continue;
-    if (typeof hostId !== "string" || !known.has(hostId) || typeof session !== "string" || session === "") continue;
-    if (tiles.some((tile) => tile.slot === slot || (tile.host_id === hostId && tile.session === session))) continue;
-    tiles.push({ slot, host_id: hostId, session });
+    if (typeof hostId !== "string" || !known.has(hostId)) continue;
+    const target = storedSession(entry);
+    if (target === null) continue;
+    const key = sessionKey(hostId, target.name, target.socket);
+    if (tiles.some((tile) => tile.slot === slot || tileSessionKey(tile) === key)) continue;
+    tiles.push(tileEntry(slot, hostId, target.name, target.socket));
   }
   return tiles.sort((a, b) => a.slot - b.slot);
 }
@@ -163,12 +166,49 @@ export function readWorkspace(raw: unknown, hostIds: readonly string[]): Workspa
   };
 }
 
+/** Name und Socket einer gespeicherten Kachel (Spec 2026-10-25 §5): eine
+ * fremde traegt ihren Namen in `foreign_session`, `session` ist leer. */
+function tileSession(tile: TileEntryDto): { name: string; socket: SessionSocket } {
+  return tile.socket === "default" && tile.foreign_session
+    ? { name: tile.foreign_session, socket: "default" }
+    : { name: tile.session, socket: "app" };
+}
+
+function tileSessionKey(tile: TileEntryDto): string {
+  const { name, socket } = tileSession(tile);
+  return sessionKey(tile.host_id, name, socket);
+}
+
+/** Die gespeicherte Form: die eigene wie bisher, die fremde in der Form, die
+ * 0.2.x an ihrem leeren `session` verwirft. */
+function tileEntry(slot: number, hostId: string, name: string, socket: SessionSocket): TileEntryDto {
+  return socket === "default"
+    ? { slot, host_id: hostId, session: "", foreign_session: name, socket: "default" }
+    : { slot, host_id: hostId, session: name };
+}
+
+/** Was eine gelesene Kachel nennt; jede gemischte Form ist keine (wie
+ * `settings::TileEntry::is_valid`). */
+function storedSession(entry: Record<string, unknown>): { name: string; socket: SessionSocket } | null {
+  const { session, foreign_session: foreign, socket } = entry;
+  if (foreign == null && socket == null) {
+    return typeof session === "string" && session !== "" ? { name: session, socket: "app" } : null;
+  }
+  const empty = session === undefined || session === "";
+  return empty && socket === "default" && typeof foreign === "string" && foreign !== ""
+    ? { name: foreign, socket: "default" }
+    : null;
+}
+
 /** Host und Session hinter einem Kachelschluessel -- ueber `sessionKey`
  * verglichen, nicht zerlegt (ausserhalb von `app-state.ts` ist er opak). */
-function tileOwner(hosts: readonly Host[], key: string): { hostId: string; name: string } | null {
+function tileOwner(
+  hosts: readonly Host[],
+  key: string,
+): { hostId: string; name: string; socket: SessionSocket } | null {
   for (const host of hosts) {
-    const session = host.sessions.find((candidate) => sessionKey(host.id, candidate.name) === key);
-    if (session) return { hostId: host.id, name: session.name };
+    const session = host.sessions.find((candidate) => sessionKeyOf(candidate) === key);
+    if (session) return { hostId: host.id, name: session.name, socket: socketOf(session) };
   }
   return null;
 }
@@ -197,11 +237,16 @@ export interface WorkspaceExtras {
  * unbekannten Hosts; alles als Kopie. */
 export function workspaceFromState(state: AppState, extras: WorkspaceExtras): WorkspaceDto {
   const known = new Set(state.hosts.map((host) => host.id));
-  const rows: Array<{ anchor: number | null; host_id: string; session: string }> = [];
+  const rows: Array<{ anchor: number | null; host_id: string; name: string; socket: SessionSocket }> = [];
   for (const tile of state.tiles) {
     const owner = tileOwner(state.hosts, tile.sessionKey);
     if (owner) {
-      rows.push({ anchor: extras.restoredSlots?.get(tile.id) ?? null, host_id: owner.hostId, session: owner.name });
+      rows.push({
+        anchor: extras.restoredSlots?.get(tile.id) ?? null,
+        host_id: owner.hostId,
+        name: owner.name,
+        socket: owner.socket,
+      });
     }
   }
   const shown = new Set(state.tiles.map((tile) => tile.sessionKey));
@@ -210,14 +255,15 @@ export function workspaceFromState(state: AppState, extras: WorkspaceExtras): Wo
     // aus der Datei; sie selbst koennte `restoreTiles` an der Gesamtgrenze
     // ohnehin nicht mehr anlegen.
     if (rows.length >= TILE_SLOTS) break;
-    const key = sessionKey(tile.host_id, tile.session);
+    const key = tileSessionKey(tile);
     if (!known.has(tile.host_id) || shown.has(key)) continue;
     shown.add(key);
     const at = insertionIndex(rows.map((row) => row.anchor), tile.slot);
-    rows.splice(at, 0, { anchor: tile.slot, host_id: tile.host_id, session: tile.session });
+    const { name, socket } = tileSession(tile);
+    rows.splice(at, 0, { anchor: tile.slot, host_id: tile.host_id, name, socket });
   }
   // `slice` bleibt als Wache: `state.tiles` haelt die Gesamtgrenze selbst ein.
-  const tiles = rows.slice(0, TILE_SLOTS).map((row, slot) => ({ slot, host_id: row.host_id, session: row.session }));
+  const tiles = rows.slice(0, TILE_SLOTS).map((row, slot) => tileEntry(slot, row.host_id, row.name, row.socket));
   return {
     layout: layoutFor(tiles.length),
     tiles_version: TILES_VERSION,
@@ -248,7 +294,7 @@ function sameDirs(a: Record<string, HostDirsDto>, b: Record<string, HostDirsDto>
 }
 
 function tileKey(tile: TileEntryDto): string {
-  return JSON.stringify([tile.slot, tile.host_id, tile.session]);
+  return JSON.stringify([tile.slot, tile.host_id, tile.session, tile.foreign_session ?? null, tile.socket ?? null]);
 }
 
 /** Gleich, wenn jedes gespeicherte Feld gleich ist. Die Reihenfolge in
@@ -495,26 +541,32 @@ export function createWorkspaceSync(deps: WorkspaceSyncDeps): WorkspaceSync {
     // Ein wartender Eintrag verfaellt erst, wenn seine Session in einer
     // Kachel steht -- etwa weil der Nutzer sie selbst geoeffnet hat. Andere
     // Kacheln nehmen ihm nichts mehr weg (Spec 2026-10-19 §4.6).
-    pending = pending.filter((tile) => state.tileForSession(sessionKey(tile.host_id, tile.session)) === null);
+    pending = pending.filter((tile) => state.tileForSession(tileSessionKey(tile)) === null);
     writer.schedule(snapshot());
   }
 
   /** Legt die wartenden Kacheln dieser Hosts an, in Platzreihenfolge. */
   function restoreHosts(hostIds: readonly string[]): void {
-    const mine = pending.filter((tile) => hostIds.includes(tile.host_id)).sort((a, b) => a.slot - b.slot);
+    // Spec 2026-10-25 §7: eine Kachel kommt erst, wenn die Liste IHRES Sockets
+    // da ist; eine fremde wartet sonst weiter, etwa bei ausgeschaltetem
+    // Schalter oder einem Fehler nur des Standard-Sockets.
+    const listed = (tile: TileEntryDto): boolean =>
+      hostIds.includes(tile.host_id) &&
+      state.sessionListForHost(tile.host_id, tileSession(tile).socket).status === "current";
+    const mine = pending.filter(listed).sort((a, b) => a.slot - b.slot);
     if (mine.length === 0) return;
     // Nur einmal: aus der Warteliste, bevor `restoreTiles` benachrichtigt. Was
     // nicht passt (Session fort, Grenze erreicht), entfaellt.
-    pending = pending.filter((tile) => !hostIds.includes(tile.host_id));
+    pending = pending.filter((tile) => !listed(tile));
     // Alle in einem Zug mit einer Benachrichtigung: jede Kachel montiert mit
     // ihrer Endgeometrie (Spec 2026-10-19 §4.5). Die Position jeder richtet
     // sich nach den schon angelegten; ihr Anker steht darum, bevor die naechste
     // gefragt wird.
-    const slots = new Map(mine.map((tile) => [sessionKey(tile.host_id, tile.session), tile.slot]));
+    const slots = new Map(mine.map((tile) => [tileSessionKey(tile), tile.slot]));
     state.restoreTiles(
-      mine.map((tile) => ({ hostId: tile.host_id, name: tile.session })),
-      ({ hostId, name }, id) => {
-        const slot = slots.get(sessionKey(hostId, name))!;
+      mine.map((tile) => ({ hostId: tile.host_id, ...tileSession(tile) })),
+      ({ hostId, name, socket }, id) => {
+        const slot = slots.get(sessionKey(hostId, name, socket))!;
         const at = insertionIndex(state.tiles.map((open) => restoredSlots.get(open.id) ?? null), slot);
         restoredSlots.set(id, slot);
         return at;

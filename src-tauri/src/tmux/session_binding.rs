@@ -58,7 +58,7 @@ impl BindingQuery {
     /// Builds the measured atomic server/session guard and numeric kill.
     /// The caller must still enforce current host/socket ownership and verify
     /// the outcome. In particular, the rejection marker also exits with zero.
-    pub fn guarded_kill_command(
+    pub(in crate::tmux) fn guarded_kill_command(
         &self,
         server: ServerIdentity,
         session: SessionId,
@@ -76,11 +76,12 @@ impl BindingQuery {
     /// measured guard. No detach, selection repair or name fallback occurs.
     /// An exec ACK is not attachment evidence; W/J confirmation and the final
     /// PTY publication gate are separate obligations of the future caller.
-    pub fn guarded_attach_command(
+    #[cfg(test)]
+    pub(in crate::tmux) fn guarded_attach_command(
         &self,
         binding: PaneIdentity,
     ) -> Result<String, InvalidGuardBinding> {
-        self.attach_guard(&[], binding)
+        self.attach_guard(&[], binding, "attach-session")
     }
 
     /// Wie [`Self::guarded_attach_command`], nur schaltet derselbe tmux-Aufruf
@@ -88,17 +89,32 @@ impl BindingQuery {
     /// dahinter bleibt Byte fuer Byte der gemessene; die Option beruehrt keine
     /// der Identitaeten, die er prueft. Lehnt er ab, ist die Zeile trotzdem
     /// aus, sonst geschieht nichts.
-    pub fn guarded_attach_command_without_status(
+    pub(in crate::tmux) fn guarded_attach_command_without_status(
         &self,
         binding: PaneIdentity,
     ) -> Result<String, InvalidGuardBinding> {
-        self.attach_guard(&super::HIDE_STATUS, binding)
+        self.attach_guard(&super::HIDE_STATUS, binding, "attach-session")
+    }
+
+    /// Der Waechter fuer eine Session auf dem Standard-Socket des Nutzers
+    /// (Spec 2026-10-25 §3, §6.4): derselbe gemessene Test, aber
+    /// `attach-session -E`, damit das Anhaengen `update-environment` nicht
+    /// anwendet, und ohne `set -g status off` davor. Gemessen am 25.10. auf
+    /// 3.3a und 3.6 (`messung-2026-10-25-standard-socket.md`): haengt bei
+    /// passender Bindung an, lehnt sonst ab, startet ohne Server nichts und
+    /// laesst die Umgebung der Session unveraendert.
+    pub(in crate::tmux) fn guarded_attach_command_foreign(
+        &self,
+        binding: PaneIdentity,
+    ) -> Result<String, InvalidGuardBinding> {
+        self.attach_guard(&[], binding, "attach-session -E")
     }
 
     fn attach_guard(
         &self,
         prefix: &[&str],
         binding: PaneIdentity,
+        action: &str,
     ) -> Result<String, InvalidGuardBinding> {
         validate_guard_server(binding.server)?;
         if binding.pane_pid == 0 {
@@ -110,7 +126,7 @@ impl BindingQuery {
             binding.server.pid, binding.server.start_time,
             binding.window_id.0, binding.pane_id.0, binding.pane_pid
         );
-        Ok(self.guard_command(prefix, &target, &test, "attach-session"))
+        Ok(self.guard_command(prefix, &target, &test, action))
     }
 
     fn guard_command(&self, prefix: &[&str], target: &str, test: &str, action: &str) -> String {
@@ -127,7 +143,11 @@ impl BindingQuery {
     /// Keeps the existing product creation policy and the user's locale. This
     /// builder does not execute a mutation, retry or interpret a failed result.
     /// Untrusted listed display names must never be supplied as creation names.
-    pub fn create_command(&self, name: &str, cwd: &str) -> Result<String, InvalidCreateArguments> {
+    pub(in crate::tmux) fn create_command(
+        &self,
+        name: &str,
+        cwd: &str,
+    ) -> Result<String, InvalidCreateArguments> {
         if !super::session_name_is_acceptable(name) {
             return Err(InvalidCreateArguments::Name);
         }
@@ -407,6 +427,8 @@ pub enum UnverifiedReason {
     PaneInventoryMismatch,
     #[error("the originally created object is not confirmed")]
     CreationMismatch,
+    #[error("the session shares windows with another session")]
+    LinkedWindows,
 }
 
 /// Validates the shared list envelope, including an empty live-server snapshot.
@@ -419,9 +441,15 @@ pub fn confirm_listed_inventory(
     if before != after {
         return Err(UnverifiedReason::ListingChanged);
     }
+    // Sessions einer Sitzungsgruppe stehen nur in `linked`, nie zugleich im
+    // Inventar; zusammen ergeben beide genau die Liste.
     let inventory_ids: BTreeSet<_> = inventory.sessions.iter().map(|s| s.id).collect();
+    let linked: BTreeSet<_> = inventory.linked.iter().copied().collect();
     if inventory_ids.len() != inventory.sessions.len()
-        || before.sessions.keys().copied().collect::<BTreeSet<_>>() != inventory_ids
+        || linked.len() != inventory.linked.len()
+        || !inventory_ids.is_disjoint(&linked)
+        || before.sessions.keys().copied().collect::<BTreeSet<_>>()
+            != inventory_ids.union(&linked).copied().collect()
         || before
             .server
             .is_some_and(|server| server != inventory.server)
@@ -473,6 +501,9 @@ pub fn correlate(
     created: Option<&CreatedRecord>,
 ) -> Result<BoundObservation, UnverifiedReason> {
     confirm_listed_inventory(list_before, inventory, list_after)?;
+    if inventory.linked.contains(&session_id) {
+        return Err(UnverifiedReason::LinkedWindows);
+    }
     if before != after || before.session_id != session_id {
         return Err(UnverifiedReason::ResolutionChanged);
     }
@@ -856,6 +887,61 @@ mod tests {
         }
     }
 
+    /// Spec 2026-10-25 §6.2: Eine Session der Gruppe bindet nicht und nennt den
+    /// Grund; eine Session ausserhalb bindet wie sonst. Die Liste muss die
+    /// Gruppe trotzdem vollstaendig enthalten.
+    #[test]
+    fn linked_sessions_stay_unbound_while_the_rest_of_the_list_binds() {
+        let l = parse_list(&output(
+            "L|100|1000|$0|dev
+L|100|1000|$1|peer
+L|100|1000|$2|solo
+",
+        ))
+        .unwrap();
+        let tolerant = query().tolerating_linked_windows();
+        let InventoryOutcome::Snapshot(inv) = tolerant.classify(&output(
+            "B|100|1000
+Q|$0|1
+Q|$1|1
+Q|$2|1
+P|$0|@0|%0|10|1|1|0|0|0|1|0|1
+P|$1|@0|%0|10|1|1|0|0|0|1|0|1
+P|$2|@1|%1|11|1|1|0|0|1|2|0|1
+E|100|1000
+",
+        )) else {
+            panic!()
+        };
+        let linked = parse_resolved(&output(R)).unwrap();
+        assert_eq!(
+            correlate(&l, &linked, &inv, &linked, &l, SessionId(0), None),
+            Err(UnverifiedReason::LinkedWindows)
+        );
+        let solo = parse_resolved(&output(
+            "R|100|1000|$2|@1|%1|11|1|1
+",
+        ))
+        .unwrap();
+        assert_eq!(
+            correlate(&l, &solo, &inv, &solo, &l, SessionId(2), None)
+                .unwrap()
+                .selected
+                .pane_pid,
+            11
+        );
+        let without_peer = parse_list(&output(
+            "L|100|1000|$0|dev
+L|100|1000|$2|solo
+",
+        ))
+        .unwrap();
+        assert_eq!(
+            confirm_listed_inventory(&without_peer, &inv, &without_peer),
+            Err(UnverifiedReason::ListingInventoryMismatch)
+        );
+    }
+
     #[test]
     fn full_list_id_sets_prevent_framed_extra_names_or_missing_sessions_from_binding() {
         let l = parse_list(&output(L)).unwrap();
@@ -1068,6 +1154,50 @@ mod tests {
         assert_eq!(&hidden[11..], &guarded[6..]);
         assert_eq!(
             q.guarded_attach_command_without_status(PaneIdentity {
+                pane_pid: 0,
+                ..identity
+            }),
+            Err(InvalidGuardBinding::PanePid)
+        );
+    }
+
+    /// Auf dem Standard-Socket haengt derselbe gemessene Waechter an, nur mit
+    /// `attach-session -E` und ohne Befehl davor: Vorne steht `if-shell`,
+    /// das ohne Server keinen startet; nichts setzt eine Option oder
+    /// Umgebung, beendet oder trennt einen anderen Client ab (Spec 2026-10-25
+    /// §3, §6.4).
+    #[test]
+    fn foreign_attach_is_the_measured_guard_with_e_and_nothing_before_it() {
+        let q = BindingQuery::new(query());
+        let identity = parse_created(&output(C)).unwrap().identity();
+        let guarded = decoded_argv(&q.guarded_attach_command(identity).unwrap());
+        let foreign = decoded_argv(&q.guarded_attach_command_foreign(identity).unwrap());
+        let action = guarded.len() - 2;
+        assert_eq!(foreign.len(), guarded.len());
+        assert_eq!(foreign[6], "if-shell");
+        assert_eq!(&foreign[..action], &guarded[..action]);
+        assert_eq!(guarded[action], "attach-session -t '$0'");
+        assert_eq!(foreign[action], "attach-session -E -t '$0'");
+        assert_eq!(foreign[action + 1], guarded[action + 1]);
+        let words: Vec<&str> = foreign.iter().flat_map(|a| a.split_whitespace()).collect();
+        for forbidden in [
+            "-d",
+            "set",
+            "set-option",
+            "setw",
+            "set-window-option",
+            "set-environment",
+            "set-hook",
+            "start-server",
+            "new-session",
+            "kill-session",
+            "kill-server",
+            "detach-client",
+        ] {
+            assert!(!words.contains(&forbidden), "{forbidden}");
+        }
+        assert_eq!(
+            q.guarded_attach_command_foreign(PaneIdentity {
                 pane_pid: 0,
                 ..identity
             }),

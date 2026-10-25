@@ -40,12 +40,16 @@ import { getCurrentWindow, UserAttentionType } from "@tauri-apps/api/window";
 import en from "./i18n/en.json";
 import {
   AppState,
+  isOpenable,
   sessionKey,
+  sessionKeyOf,
+  socketOf,
   type Host,
   type HostSettings,
   type OpenResult,
   type Session,
   type SessionListError,
+  type SessionSocket,
 } from "./state/app-state";
 import { MAX_TILES, MAX_TILES_PER_HOST } from "./state/tile-assignment";
 import {
@@ -74,7 +78,17 @@ import {
   type SessionDialogHandle,
 } from "./views/session-dialog";
 import { mountHostKeyPrompt } from "./views/host-key-prompt";
-import type { HostEntry, SessionListErrorDto, SessionListItemDto, StatusPollDto, ControlStateEventDto } from "./views/types";
+import type {
+  ControlStateEventDto,
+  HostEntry,
+  SessionListDto,
+  SessionListErrorDto,
+  SessionListItemDto,
+  SocketPollDto,
+  SocketSessionsDto,
+  StatusPollDto,
+  StatusPollsDto,
+} from "./views/types";
 import { applyTheme, currentTheme, isThemeId, normalizeTheme, onThemeApplied, readCachedTheme, type ThemeId } from "./theme";
 import type { FontSizeChange } from "./keymap";
 import { DEFAULT_TERMINAL_FONT_SIZE, onTerminalPrefsChanged, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
@@ -172,6 +186,7 @@ function settingsFromEntry(entry: HostEntry): HostSettings {
     authKind: entry.auth_kind,
     tmuxSocket: entry.tmux_socket,
     historyLimit: entry.history_limit,
+    showDefaultSocket: entry.show_default_socket ?? true,
   };
 }
 
@@ -231,7 +246,8 @@ export function main(): void {
    * ersten Beobachtung in diesem Lauf. Die Wartet-Spur zeigt daraus die
    * Wartezeit und ordnet die aelteste nach oben. */
   let waitingSince = new Map<string, number>();
-  const statusCurrent = (host: Host, session: Session): boolean => state.isSessionStatusCurrent(host.id, session.name);
+  const statusCurrent = (host: Host, session: Session): boolean =>
+    state.isSessionStatusCurrent(host.id, session.name, socketOf(session));
   const attentionLive = document.createElement("div");
   attentionLive.className = "ab-visually-hidden";
   attentionLive.setAttribute("aria-live", "polite");
@@ -264,7 +280,7 @@ export function main(): void {
     waitingSince = updateWaitingSince(waitingSince, episodes.seen, Date.now());
     const newcomers = episodes.newcomers.filter((key) => {
       const session = waiting.find((row) => waitingKey(row) === key);
-      return session !== undefined && sessionKey(session.hostId, session.name) !== focusedKey;
+      return session !== undefined && sessionKeyOf(session) !== focusedKey;
     });
     if (newcomers.length > 0) {
       attentionLive.textContent = t("attention.waiting", { count: String(waiting.length) });
@@ -811,12 +827,12 @@ export function main(): void {
         // der haeufigste Grund ist "diese tmux-Session gibt es nicht mehr",
         // und der Host antwortet dabei tadellos. Eine Probe wuerde eine
         // Sessionliste holen, die alles bestaetigt, und nichts aendern.
-        onTerminalOpenFailed: (hostId, name) => state.lockInput(hostId, name),
-        onTerminalCapacity: (hostId, name, detail) => {
+        onTerminalOpenFailed: (hostId, name, socket) => state.lockInput(hostId, name, socket),
+        onTerminalCapacity: (hostId, name, detail, socket) => {
           // Spec 2026-10-19 §8.3: die Kachel bekam nie einen Kanal. Sie geht,
           // statt als "Disconnected" stehen zu bleiben; ein neuer Klick auf die
           // Session versucht es wieder. Der Rohtext steht hinter "Copy details".
-          closeSessionTile(hostId, name);
+          closeSessionTile(hostId, name, socket);
           const host = state.hosts.find((candidate) => candidate.id === hostId);
           showGlobalError(t("terminal.capacity", { host: host?.label ?? hostId }), detail);
         },
@@ -973,27 +989,14 @@ export function main(): void {
   /** Membership, numeric identity and status in ONE state write: attention
    * and a tile that mounts on this notification must already see the ids and
    * the status, not the name-only intermediate state. */
-  function writeSessionRecords(hostId: string, items: SessionListItemDto[]): void {
+  function writeSessionRecords(hostId: string, listed: SessionListDto): void {
     const host = state.hosts.find((candidate) => candidate.id === hostId);
     if (!host) return;
     // Jeder Aufrufer schreibt nur unter der Generation, unter der er fragte.
     listedGenerations.set(hostId, { runtimeId: host.runtimeId, generation: state.controlForHost(hostId).generation });
     sessionListVersionByHostId.set(hostId, (sessionListVersionByHostId.get(hostId) ?? 0) + 1);
-    state.setSessionRecords(
-      hostId,
-      items.map((item) => ({
-        name: item.display_name,
-        sessionId: item.session_id,
-        serverPid: item.server_pid,
-        serverStartTime: item.server_start_time,
-        windowId: item.window_id,
-        paneId: item.pane_id,
-        panePid: item.pane_pid,
-        status: item.status,
-        statusReason: item.status_reason,
-      })),
-      Date.now(),
-    );
+    state.setSessionRecords(hostId, sessionRecords(listed.own.sessions), Date.now());
+    writeDefaultSessions(hostId, listed.default);
     // Jede angenommene Liste landet hier, gleich auf welchem Weg. Erst jetzt
     // gibt es die Sessions: die gespeicherten Kacheln dieses Hosts belegen ihre
     // Plaetze (UX-Spec §7.2), und eine per Klick gewuenschte Session oeffnet
@@ -1001,6 +1004,50 @@ export function main(): void {
     // Platz, die Wahl des Nutzers nimmt danach den naechsten freien.
     workspaceSync.hostListed(hostId);
     openSessionAfterConnect(hostId);
+  }
+
+  function sessionRecords(items: SessionListItemDto[]): Parameters<AppState["setSessionRecords"]>[1] {
+    return items.map((item) => ({
+      name: item.display_name,
+      sessionId: item.session_id,
+      serverPid: item.server_pid,
+      serverStartTime: item.server_start_time,
+      windowId: item.window_id,
+      paneId: item.pane_id,
+      panePid: item.pane_pid,
+      status: item.status,
+      statusReason: item.status_reason,
+      unverified: item.unverified,
+      attached: item.session_attached ?? null,
+    }));
+  }
+
+  /** Die Liste des Standard-Sockets (Spec 2026-10-25 §6.2, §7): ihr Fehler
+   * gilt nur fuer sie; ist der Schalter aus, hat der Host dort keine Sessions.
+   * Ohne Teil trotz Verlangen (die Antwortform vor dem Standard-Socket) bleibt
+   * sein Stand, wie er war. Eine Serverversion ohne Messung ergibt eine leere
+   * Gruppe. */
+  function writeDefaultSessions(hostId: string, listed: SocketSessionsDto | null): void {
+    if (listed === null) {
+      if (!showsDefaultSocket(hostId)) {
+        state.setUnsupportedDefaultVersion(hostId, null);
+        state.clearSocket(hostId, "default");
+      }
+      return;
+    }
+    if (listed.error) {
+      state.setSessionListError(hostId, sessionListError(listed.error), "default");
+      return;
+    }
+    state.setUnsupportedDefaultVersion(hostId, listed.unsupported_version);
+    // `attached` zaehlt fuer den Hinweis zur Fenstergroesse nur ANDERE Clients:
+    // zeigt die App die Session gerade, ist einer davon ihr eigener.
+    const records = sessionRecords(listed.sessions).map((record) => {
+      const shown = state.tileForSession(sessionKey(hostId, record.name, "default")) !== null;
+      const attached = record.attached == null ? null : Math.max(0, record.attached - (shown ? 1 : 0));
+      return { ...record, attached };
+    });
+    state.setSessionRecords(hostId, records, Date.now(), "default");
   }
 
   function asSessionItems(items: Array<SessionListItemDto | string>): SessionListItemDto[] {
@@ -1029,12 +1076,47 @@ export function main(): void {
             unverified: item.unverified ?? null,
             status: item.status ?? "unknown",
             status_reason: item.status_reason ?? null,
+            session_attached: item.session_attached ?? null,
           },
     );
   }
 
+  /** Die Antwort von `list_sessions` je Socket (Spec 2026-10-25 §6.2). Ein
+   * blosses Array, die Form vor dem Standard-Socket, ist die Liste des
+   * eigenen Sockets allein. */
+  function asSessionList(value: unknown): SessionListDto {
+    const socket = (part: Partial<SocketSessionsDto>): SocketSessionsDto => ({
+      sessions: asSessionItems(part.sessions ?? []),
+      error: part.error ?? null,
+      unsupported_version: part.unsupported_version ?? null,
+    });
+    if (Array.isArray(value)) return { own: socket({ sessions: value }), default: null };
+    const dto = (value ?? {}) as Partial<SessionListDto>;
+    return { own: socket(dto.own ?? {}), default: dto.default ? socket(dto.default) : null };
+  }
+
+  /** Die Antwort von `poll_status` je Socket (Spec 2026-10-25 §6.3). Ein
+   * einzelnes Ergebnis, die Form vor dem Standard-Socket, ist das des eigenen. */
+  function asStatusPolls(value: unknown): StatusPollsDto {
+    const dto = (value ?? {}) as Partial<StatusPollsDto> & Partial<StatusPollDto>;
+    if (typeof dto.complete === "boolean") return { own: { poll: value as StatusPollDto, error: null }, default: null };
+    return { own: dto.own ?? { poll: null, error: null }, default: dto.default ?? null };
+  }
+
+  /** Schalter "Show tmux sessions" (Spec 2026-10-25 §10.1): ist er aus, liest
+   * die App den Standard-Socket dieses Hosts gar nicht. Fehlt er, gilt an. */
+  function showsDefaultSocket(hostId: string): boolean {
+    return state.hosts.find((host) => host.id === hostId)?.showDefaultSocket !== false;
+  }
+
+  function includeDefaultArg(hostId: string): { includeDefault?: true } {
+    return showsDefaultSocket(hostId) ? { includeDefault: true } : {};
+  }
+
   /** Status overlay only, via the slim poll_status query; membership of
-   * the sidebar list stays with writeSessionRecords (connect/create/kill/reload). */
+   * the sidebar list stays with writeSessionRecords (connect/create/kill/reload).
+   * Je Socket (Spec 2026-10-25 §6.3): ein Ausfall des Standard-Sockets macht
+   * nur dessen Sessions veraltet. */
   async function overlaySessionStatus(hostId: string): Promise<void> {
     if (!document.getElementById("app")) return;
     const connection = sessionConnection(hostId);
@@ -1046,41 +1128,92 @@ export function main(): void {
     const controlGeneration = state.controlForHost(hostId).generation;
     const version = sessionListVersionByHostId.get(hostId) ?? 0;
     try {
-      const poll = await invoke<StatusPollDto>("poll_status", { hostId: connection.runtimeId });
+      const polls = asStatusPolls(
+        await invoke<unknown>("poll_status", { hostId: connection.runtimeId, ...includeDefaultArg(hostId) }),
+      );
       if (!document.getElementById("app")) return;
       if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration) return;
       if ((sessionListVersionByHostId.get(hostId) ?? 0) !== version) return;
       const mutationAfter = sessionMutations.get(hostId);
       if (mutationAfter && isCurrentConnection(mutationAfter.connection)) return;
-      if (!poll.complete) {
-        // An unmeasured tmux version answers without numeric rows: nothing
-        // is observed, so shown live values become history, not guesses.
-        state.markStatusStale(hostId);
-        return;
+      applyStatusPoll(hostId, polls.own, "app");
+      if (polls.default) {
+        applyStatusPoll(hostId, polls.default, "default");
+        const poll = polls.default.poll;
+        if (poll?.complete) reloadDefaultListOnNews(hostId, poll);
       }
-      state.patchSessionStatus(
-        hostId,
-        poll.sessions.map((row) => ({
-          // Numeric rows never bind by name (patchSessionStatus).
-          name: "",
-          sessionId: row.session_id,
-          serverPid: poll.server_pid,
-          serverStartTime: poll.server_start_time,
-          status: row.status,
-          statusReason: row.status_reason,
-        })),
-        Date.now(),
-        // UX-Spec §5.2: fiel eine Quelle aus, ueberschreibt ihr "unknown"
-        // keinen Live-Wert; der alte Wert bleibt, als veraltet markiert.
-        { keepUnknown: !poll.agents_ok || !poll.titles_ok },
-      );
     } catch {
       // A failed poll must not rewrite the list or invent ended. It does make
       // the shown values history until a later query succeeds (spec 4.6).
-      if (isCurrentConnection(connection)) state.markStatusStale(hostId);
+      if (isCurrentConnection(connection)) {
+        state.markStatusStale(hostId);
+        state.markStatusStale(hostId, "default");
+      }
     } finally {
       overlayStatusInFlight.delete(hostId);
     }
+  }
+
+  function applyStatusPoll(hostId: string, result: SocketPollDto, socket: SessionSocket): void {
+    const poll = result.poll;
+    if (!poll?.complete) {
+      // A failed socket, or an unmeasured tmux version that answers without
+      // numeric rows: nothing is observed, so shown live values become
+      // history, not guesses.
+      state.markStatusStale(hostId, socket);
+      return;
+    }
+    state.patchSessionStatus(
+      hostId,
+      poll.sessions.map((row) => ({
+        // Numeric rows never bind by name (patchSessionStatus).
+        name: "",
+        sessionId: row.session_id,
+        serverPid: poll.server_pid,
+        serverStartTime: poll.server_start_time,
+        status: row.status,
+        statusReason: row.status_reason,
+      })),
+      Date.now(),
+      // UX-Spec §5.2: fiel eine Quelle aus, ueberschreibt ihr "unknown"
+      // keinen Live-Wert; der alte Wert bleibt, als veraltet markiert.
+      { keepUnknown: !poll.agents_ok || !poll.titles_ok, ...(socket === "default" ? { socket } : {}) },
+    );
+  }
+
+  /** Spec 2026-10-25 §6.3: Sessions des Standard-Sockets entstehen ausserhalb
+   * der App. Zeigt seine Abfrage eine unbekannte Session-ID oder einen neuen
+   * Server, laedt die App die Liste neu, hoechstens alle 10 s je Host. Laeuft
+   * dort ein Server, an dem die App nicht anhaengt, sind seine Sessions nie
+   * in der Liste; dann laedt nur ein neuer Server neu, sonst liefe das
+   * Neuladen ohne Ende. */
+  const DEFAULT_LIST_RELOAD_MS = 10_000;
+  const defaultListReloads = new Map<string, number>();
+  /** Der Server der letzten vollstaendigen Abfrage des Standard-Sockets. */
+  const defaultPollServers = new Map<string, string>();
+
+  function reloadDefaultListOnNews(hostId: string, poll: StatusPollDto): void {
+    const host = state.hosts.find((candidate) => candidate.id === hostId);
+    if (!host) return;
+    const polled = poll.server_pid === null ? null : `${poll.server_pid}:${poll.server_start_time}`;
+    const previous = defaultPollServers.get(hostId);
+    if (polled === null) defaultPollServers.delete(hostId);
+    else defaultPollServers.set(hostId, polled);
+    const known = host.sessions.filter((session) => socketOf(session) === "default");
+    const ids = new Set(known.map((session) => session.sessionId).filter((id) => id != null));
+    const server = known.find((session) => session.serverPid != null && session.serverStartTime != null);
+    const listedServer = server === undefined ? undefined : `${server.serverPid}:${server.serverStartTime}`;
+    const newServer =
+      polled !== null &&
+      ((listedServer !== undefined && listedServer !== polled) || (previous !== undefined && previous !== polled));
+    const unknownSession =
+      state.unsupportedDefaultVersion(hostId) === null && poll.sessions.some((row) => !ids.has(row.session_id));
+    if (!newServer && !unknownSession) return;
+    const now = Date.now();
+    const last = defaultListReloads.get(hostId);
+    if (last !== undefined && now - last < DEFAULT_LIST_RELOAD_MS) return;
+    defaultListReloads.set(hostId, now);
+    void refreshSessions(hostId);
   }
 
   // Polltakt je Host (UX-Spec §5.2): der naechste Poll beginnt fruehestens
@@ -1112,13 +1245,25 @@ export function main(): void {
     const timer = pollTimers.get(hostId);
     if (timer !== undefined) clearTimeout(timer);
     pollTimers.delete(hostId);
+    // Der Server einer frueheren Verbindung ist kein "neuer" fuer die naechste.
+    defaultPollServers.delete(hostId);
+    defaultListReloads.delete(hostId);
   }
 
   /** `list_sessions` auf der lebenden Verbindung; waehrenddessen pausiert der Poll. */
-  async function listSessions(hostId: string, runtimeId: string): Promise<SessionListItemDto[]> {
+  async function listSessions(hostId: string, runtimeId: string): Promise<SessionListDto> {
     listsInFlight.set(hostId, (listsInFlight.get(hostId) ?? 0) + 1);
     try {
-      return asSessionItems(await invoke<SessionListItemDto[]>("list_sessions", { hostId: runtimeId }));
+      const listed = asSessionList(
+        await invoke<unknown>("list_sessions", { hostId: runtimeId, ...includeDefaultArg(hostId) }),
+      );
+      // Ob die Liste gelang, entscheidet der eigene Socket (Spec 2026-10-25
+      // §7): sein Fehler nimmt den Weg jedes gescheiterten Aufrufs, und die
+      // Liste des Standard-Sockets bleibt dann, wie sie war.
+      // Die Liste des Standard-Sockets geht mit, damit der Fehlerweg sie
+      // trotzdem schreiben kann (Spec 2026-10-25 §6.2, "und umgekehrt").
+      if (listed.own.error) throw { ...listed.own.error, defaultPart: listed.default };
+      return listed;
     } finally {
       const left = (listsInFlight.get(hostId) ?? 1) - 1;
       if (left > 0) listsInFlight.set(hostId, left);
@@ -1145,7 +1290,7 @@ export function main(): void {
     const lastSuccess = successfulSessionLists.get(connection.host) ?? 0;
     const controlGeneration = state.controlForHost(hostId).generation;
     try {
-      const items = await listSessions(hostId, runtimeId);
+      const listed = await listSessions(hostId, runtimeId);
       if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration) return { ok: true };
       // Ein aktueller Erfolg bestaetigt die Verbindung auch dann, wenn eine
       // laufende Mutation oder juengere Liste das Inventarschreiben sperrt.
@@ -1161,7 +1306,7 @@ export function main(): void {
       if (
         !(mutation && isCurrentConnection(mutation.connection)) &&
         (sessionListVersionByHostId.get(hostId) ?? 0) === version
-      ) writeSessionRecords(hostId, items);
+      ) writeSessionRecords(hostId, listed);
       return { ok: true };
     } catch (error) {
       if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration) return { ok: true };
@@ -1171,6 +1316,8 @@ export function main(): void {
       if (mutation && isCurrentConnection(mutation.connection)) return { ok: true };
       const failure = sessionListError(error);
       if (failure.controlGeneration !== undefined && failure.controlGeneration !== controlGeneration) return { ok: true };
+      const defaultPart = (error as { defaultPart?: SocketSessionsDto | null } | null)?.defaultPart;
+      if (defaultPart !== undefined) writeDefaultSessions(hostId, defaultPart);
       state.setSessionListError(hostId, failure);
       return { ok: false, error: failure.message };
     }
@@ -1184,8 +1331,13 @@ export function main(): void {
   // Keep the affected tile locked; the probe only updates the inventory notice.
   // UX-Spec §5.5: a tile that reattaches quietly shows "Reconnecting…" and
   // stays unlocked; the grid reports a failed series via onTerminalOpenFailed.
-  function onTerminalConnectionLost(hostId: string, name: string, reattaching: boolean): void {
-    if (!reattaching) state.lockInput(hostId, name);
+  function onTerminalConnectionLost(
+    hostId: string,
+    name: string,
+    reattaching: boolean,
+    socket: SessionSocket = "app",
+  ): void {
+    if (!reattaching) state.lockInput(hostId, name, socket);
     void probeHost(hostId);
   }
 
@@ -1204,8 +1356,8 @@ export function main(): void {
     }
   }
 
-  function closeSessionTile(hostId: string, name: string): void {
-    const tile = state.tileForSession(sessionKey(hostId, name));
+  function closeSessionTile(hostId: string, name: string, socket: SessionSocket = "app"): void {
+    const tile = state.tileForSession(sessionKey(hostId, name, socket));
     if (tile) state.closeTile(tile.id);
   }
 
@@ -1221,7 +1373,10 @@ export function main(): void {
    * aus der Seitenleiste. Bewusst ueber `writeSessions` mit erhoehter
    * Frischewache, wie in `createSession`: dieses Schreiben ist per Bauart
    * das juengste. */
-  async function killSession(hostId: string, name: string): Promise<void> {
+  async function killSession(hostId: string, name: string, socket: SessionSocket = "app"): Promise<void> {
+    // Spec 2026-10-25 §3: Sessions des Standard-Sockets beendet die App nie;
+    // die Seitenleiste bietet es dort nicht an, und das Backend lehnt ab.
+    if (socket === "default") return;
     const connection = sessionConnection(hostId);
     if (!connection) {
       const label = state.hosts.find((h) => h.id === hostId)?.label ?? hostId;
@@ -1236,7 +1391,9 @@ export function main(): void {
       // session" -- ueber eine Sitzung, die sehr wohl beendet wurde. Der
       // Nutzer suchte dann nach einem Problem, das es nicht gibt.
       try {
-        const row = state.hosts.find((h) => h.id === hostId)?.sessions.find((s) => s.name === name);
+        const row = state.hosts
+          .find((h) => h.id === hostId)
+          ?.sessions.find((s) => s.name === name && socketOf(s) === "app");
         await invoke("kill_session", {
           hostId: runtimeId,
           session: name,
@@ -1261,10 +1418,10 @@ export function main(): void {
       const controlGeneration = state.controlForHost(hostId).generation;
       const lastSuccess = successfulSessionLists.get(connection.host) ?? 0;
       try {
-        const items = await listSessions(hostId, runtimeId);
+        const listed = await listSessions(hostId, runtimeId);
         if (isCurrentConnection(connection) && state.controlForHost(hostId).generation === controlGeneration) {
           recordSessionListSuccess(connection.host);
-          writeSessionRecords(hostId, items);
+          writeSessionRecords(hostId, listed);
         }
       } catch (error) {
         if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration ||
@@ -1824,11 +1981,11 @@ export function main(): void {
         // (`grid.ts`) faende die frisch angelegte Session sonst nicht, und
         // `reconcile()` mountete still gar kein Terminal -- eine Kachel mit
         // gesetztem `sessionKey`, aber ohne sichtbaren Inhalt.
-        let items: SessionListItemDto[];
+        let listed: SessionListDto;
         const controlGeneration = state.controlForHost(hostId).generation;
         const lastSuccess = successfulSessionLists.get(connection.host) ?? 0;
         try {
-          items = await listSessions(hostId, runtimeId);
+          listed = await listSessions(hostId, runtimeId);
         } catch (error) {
           if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration ||
             (successfulSessionLists.get(connection.host) ?? 0) !== lastSuccess) return;
@@ -1842,7 +1999,7 @@ export function main(): void {
         recordSessionListSuccess(connection.host);
         // Diese Liste ist der Abschluss der aktuellen Mutation. Schreiben
         // entwertet noch offene Refreshes, bevor die neue Kachel erscheint.
-        writeSessionRecords(hostId, items);
+        writeSessionRecords(hostId, listed);
         workspaceSync.beforeUserOpen();
         const opened = state.openSession(hostId, session);
         if (opened.kind === "limit") {
@@ -1892,6 +2049,7 @@ export function main(): void {
       hostname: host.hostname,
       user: host.user,
       port: host.port,
+      showDefaultSocket: host.showDefaultSocket !== false,
     };
     // Task 8 (Spec §4.8): vorher NUR fuer `host.keyPath` gesetzt -- ein per
     // Passwort oder ausdruecklich per ssh-agent gespeicherter Host liess
@@ -1993,6 +2151,7 @@ export function main(): void {
       return { saved: false, error: t("hostForm.editFailed", { label: host.label, message: t("hostForm.editBusy") }) };
     }
     const connectionChanged = changesConnection(host, values);
+    const showedDefault = host.showDefaultSocket !== false;
     hostChangesInFlight.set(host.id, { keepsConnection: true });
     try {
       const saved = await editHost(host, values);
@@ -2005,6 +2164,12 @@ export function main(): void {
       // (Escape, dann "Disconnect"), bleibt es beim Speichern.
       const reconnect = connectionChanged && host.state !== "disconnected";
       if (reconnect) onDisconnectHost(host.id, true);
+      // Spec 2026-10-25 §10.1: der Schalter gilt sofort. Ein verbundener Host
+      // laedt seine Liste neu; aus, verschwinden dabei die Sessions des
+      // Standard-Sockets samt ihren Kacheln.
+      else if (showedDefault !== (host.showDefaultSocket !== false) && host.state === "connected") {
+        void refreshSessions(host.id);
+      }
       return { saved: true, reconnect };
     } catch (error) {
       // Der Satz nennt den Grund, denn er steht auch im Dialog, der kein
@@ -2057,8 +2222,8 @@ export function main(): void {
    * Kachelkopf standen Titel und Hostname ueber einem leeren Rechteck.
    * `!host.runtimeId` gehoert in dieselbe Bedingung: ohne lebende Verbindung
    * montiert `grid.ts::reconcile` ohnehin nichts. */
-  function canOpenSession(host: Host, name: string): boolean {
-    const shown = state.tileForSession(sessionKey(host.id, name)) !== null;
+  function canOpenSession(host: Host, name: string, socket: SessionSocket = "app"): boolean {
+    const shown = state.tileForSession(sessionKey(host.id, name, socket)) !== null;
     return shown || (host.state === "connected" && host.runtimeId !== null);
   }
 
@@ -2076,10 +2241,29 @@ export function main(): void {
     );
   }
 
+  /** Spec 2026-10-25 §10 Nr. 2: oeffnet eine Session des Standard-Sockets in
+   * einer neuen Kachel, waehrend schon ein anderer Client an ihr haengt, sagt
+   * der neutrale Hinweis, dass tmux das Fenster jetzt nach dieser Kachel
+   * bemisst. Hoechstens einmal je Lauf, nichts davon wird gespeichert. */
+  let foreignSizeHintShown = false;
+
+  function noteForeignOpen(hostId: string, name: string, socket: SessionSocket, result: OpenResult): void {
+    if (socket !== "default" || foreignSizeHintShown) return;
+    if (result.kind !== "added" && result.kind !== "replaced") return;
+    const session = state.hosts
+      .find((host) => host.id === hostId)
+      ?.sessions.find((candidate) => candidate.name === name && socketOf(candidate) === "default");
+    if ((session?.attached ?? 0) === 0) return;
+    foreignSizeHintShown = true;
+    showGlobalError(t("tile.foreign.sizeHint"), undefined, "neutral");
+  }
+
   /** Wie die Wahl ausgeloest wurde: Strg+Klick und Strg+Enter ersetzen die
    * fokussierte Kachel (Spec 2026-10-19 §5.2). */
   interface OpenRequest {
     replace?: boolean;
+    /** Spec 2026-10-25 §5: fehlt er, ist es der eigene Socket. */
+    socket?: SessionSocket;
   }
 
   /** Der Weg, auf dem eine Session auf WUNSCH DES NUTZERS in eine Kachel
@@ -2099,16 +2283,29 @@ export function main(): void {
   function openSessionByUser(hostId: string, name: string, request: OpenRequest = {}): void {
     const host = state.hosts.find((h) => h.id === hostId);
     if (!host) return;
-    if (!canOpenSession(host, name)) {
+    const socket = request.socket ?? "app";
+    const session = host.sessions.find((candidate) => candidate.name === name && socketOf(candidate) === socket);
+    if (session && !isOpenable(session)) {
+      showGlobalError(
+        t("sidebar.session.foreignUnbound", { reason: session.unverified ?? t("sidebar.session.unbound") }),
+        undefined,
+        "neutral",
+      );
+      return;
+    }
+    if (!canOpenSession(host, name, socket)) {
       showGlobalError(t("session.hostNotConnected", { host: host.label }));
       return;
     }
     workspaceSync.beforeUserOpen();
-    const result = request.replace ? state.replaceFocusedTile(hostId, name) : state.openSession(hostId, name);
+    const result = request.replace
+      ? state.replaceFocusedTile(hostId, name, socket)
+      : state.openSession(hostId, name, socket);
     if (result.kind === "limit") {
       showTileLimit(result);
       return;
     }
+    noteForeignOpen(hostId, name, socket, result);
     // Designsystem §7.5 und Spec 2026-10-19 §6.2: der Tastaturfokus folgt
     // der Kachel, und sie leuchtet auf. Hier und nicht in `grid.ts`s
     // `render()`: DIES ist die Benutzerabsicht (siehe
@@ -2118,13 +2315,13 @@ export function main(): void {
   }
 
   function openSidebarSession(session: Session): void {
-    openSessionByUser(session.hostId, session.name);
+    openSessionByUser(session.hostId, session.name, socketOf(session) === "default" ? { socket: "default" } : {});
   }
 
   /** UX-Spec §7.3: je Host die Session, die ein Klick auf ihre Zeile oeffnen
    * will, sobald der Host verbunden und seine Liste da ist -- und ob sie die
    * fokussierte Kachel ersetzen soll (Strg+Klick, Spec 2026-10-19 §5.2). */
-  const sessionsAfterConnect = new Map<string, { name: string; replace: boolean }>();
+  const sessionsAfterConnect = new Map<string, { name: string; replace: boolean; socket: SessionSocket }>();
 
   /** Klick auf eine Sessionzeile der Seitenleiste. Ist der Host nicht verbunden
    * und die Session nicht schon sichtbar, verbindet der Klick ihn wie "Connect"
@@ -2138,7 +2335,8 @@ export function main(): void {
   function openSessionFromSidebar(hostId: string, name: string, request: OpenRequest = {}): void {
     const host = state.hosts.find((h) => h.id === hostId);
     if (!host) return;
-    if (canOpenSession(host, name)) {
+    const socket = request.socket ?? "app";
+    if (canOpenSession(host, name, socket)) {
       openSessionByUser(hostId, name, request);
       return;
     }
@@ -2149,13 +2347,13 @@ export function main(): void {
     // `planOpen`). Ersetzen (Strg+Klick) aendert die Zahl der Kacheln nicht;
     // seine Grenze prueft `openSessionAfterConnect` nach dem Verbinden.
     if (!request.replace) {
-      const limit = state.openLimit(hostId, name);
+      const limit = state.openLimit(hostId, name, socket);
       if (limit) {
         showTileLimit(limit);
         return;
       }
     }
-    sessionsAfterConnect.set(hostId, { name, replace: request.replace === true });
+    sessionsAfterConnect.set(hostId, { name, replace: request.replace === true, socket });
     // Verbindet der Host gerade (etwa ein Versuch des Neuverbindens aus §5.4),
     // bringt der laufende Aufbau die Liste. "Connect" kaeme hier ohnehin nicht
     // durch (`connectHost` kehrt bei "connecting" um) und beendete nur die Reihe.
@@ -2165,7 +2363,8 @@ export function main(): void {
       // gespeichert wird) und laeuft auch keiner, bringt keiner die Liste:
       // dann wartet auch nichts darauf.
       const current = state.hosts.find((candidate) => candidate.id === hostId);
-      if (result.kind === "superseded" && current?.state !== "connecting" && sessionsAfterConnect.get(hostId)?.name === name) {
+      const pending = sessionsAfterConnect.get(hostId);
+      if (result.kind === "superseded" && current?.state !== "connecting" && pending?.name === name && pending.socket === socket) {
         sessionsAfterConnect.delete(hostId);
       }
     });
@@ -2180,15 +2379,17 @@ export function main(): void {
     if (wanted === undefined) return;
     sessionsAfterConnect.delete(hostId);
     const host = state.hosts.find((h) => h.id === hostId);
-    if (!host?.sessions.some((session) => session.name === wanted.name)) return;
+    const session = host?.sessions.find((candidate) => candidate.name === wanted.name && socketOf(candidate) === wanted.socket);
+    if (!session || !isOpenable(session)) return;
     workspaceSync.beforeUserOpen();
     const result = wanted.replace
-      ? state.replaceFocusedTile(hostId, wanted.name)
-      : state.openSession(hostId, wanted.name);
+      ? state.replaceFocusedTile(hostId, wanted.name, wanted.socket)
+      : state.openSession(hostId, wanted.name, wanted.socket);
     if (result.kind === "limit") {
       showTileLimit(result);
       return;
     }
+    noteForeignOpen(hostId, wanted.name, wanted.socket, result);
     gridHandle?.revealTile(result.tileId);
     const active = document.activeElement;
     const focusFree = active === null || active === document.body || elements.sidebar.contains(active);
@@ -2220,7 +2421,7 @@ export function main(): void {
   function hostIdOfTile(id: number | null): string | null {
     const key = state.tileById(id)?.sessionKey;
     if (!key) return null;
-    return state.hosts.find((h) => h.sessions.some((s) => sessionKey(h.id, s.name) === key))?.id ?? null;
+    return state.hosts.find((h) => h.sessions.some((s) => sessionKeyOf(s) === key))?.id ?? null;
   }
 
   /** Der Zielhost von Strg+Umschalt+N (UX-Spec §7.9), der erste zutreffende:
@@ -2342,7 +2543,7 @@ export function main(): void {
     const next = nextWaitingSession(state.hosts, focusedKey, statusCurrent, (key) => waitingSince.get(key), Date.now());
     if (!next) return;
     const host = state.hosts.find((candidate) => candidate.id === next.hostId);
-    if (host && canOpenSession(host, next.name)) openSidebarSession(next);
+    if (host && canOpenSession(host, next.name, socketOf(next))) openSidebarSession(next);
   }
 
   function toggleMaximizeFocusedTile(): void {
@@ -2402,7 +2603,7 @@ export function main(): void {
   function runQuickOpenItem(item: QuickOpenItem, request: { replace: boolean }): void {
     switch (item.kind) {
       case "session":
-        openSessionFromSidebar(item.hostId, item.name, request);
+        openSessionFromSidebar(item.hostId, item.name, item.socket ? { ...request, socket: item.socket } : request);
         return;
       case "connect": {
         // Die Liste stammt vom Oeffnen. Ist der Host inzwischen verbunden (etwa

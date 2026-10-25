@@ -135,7 +135,7 @@ compare their SHA-256 checksum with the value listed in the release notes
 (the release build records it in `release-manifest.json`). In PowerShell:
 
 ```powershell
-Get-FileHash .\aidevbridge-0.2.1-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\aidevbridge-0.2.2-windows-x64.zip -Algorithm SHA256
 ```
 
 The `Hash` it prints must match the release notes exactly; upper or lower

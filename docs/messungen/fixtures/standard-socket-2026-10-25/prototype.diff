@@ -1,0 +1,22 @@
+diff --git a/src-tauri/src/commands.rs b/src-tauri/src/commands.rs
+index 08b4398..e7abb12 100644
+--- a/src-tauri/src/commands.rs
++++ b/src-tauri/src/commands.rs
+@@ -3803,6 +3803,17 @@ async fn poll_status_with(
+         deadline,
+     )
+     .await;
++    // MESSPROTOTYP (Plan M3.1, Schritt 1b), nicht fuer main: ein zweites
++    // Inventar samt Titeln, Ergebnis verworfen.
++    if let Ok(second) = std::env::var("AIDEVBRIDGE_MEASURE_SECOND_SOCKET") {
++        if let Ok(query2) = InventoryQuery::named(version, &second) {
++            if let Ok(result2) = transport.exec_with_deadline(&query2.command(), remaining()).await {
++                if let InventoryOutcome::Snapshot(inventory2) = query2.classify(&result2) {
++                    let _ = read_pane_details(transport, &second, &crate::status::title_panes(&inventory2), deadline).await;
++                }
++            }
++        }
++    }
+     let (agents, parents, agents_ok) = read_claude_agents(transport, deadline).await;
+     Ok(StatusPollDto {
+         complete: true,

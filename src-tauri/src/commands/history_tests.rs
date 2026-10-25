@@ -10,6 +10,10 @@ use crate::tmux::history::{history_command, prepare_history};
 use crate::tmux::inventory::{PaneId, ServerIdentity, SessionId, WindowId};
 use tokio::time::timeout;
 
+fn state_socket() -> TmuxSocket {
+    TmuxSocket::own(&OwnSocket::new("hermetic_socket").unwrap())
+}
+
 const END: Duration = Duration::from_secs(8);
 const HOST: &str = "hermetic-h0";
 const SESSION: &str = "same-session";
@@ -66,7 +70,7 @@ impl Recorded {
 async fn connected() -> (Fixture, Arc<AppState>) {
     let fixture = Fixture::start(2, false, false, false).await;
     let host = fixture.connect().await.unwrap();
-    let state = Arc::new(AppState::with_default_socket("hermetic_socket".into()));
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
     host.start_monitor();
     state
         .hosts
@@ -95,6 +99,7 @@ async fn open(
             state,
             sink.clone(),
             HOST.into(),
+            SocketKind::App,
             SESSION.into(),
             80,
             rows,
@@ -114,7 +119,7 @@ fn in_flight(state: &Arc<AppState>) -> u64 {
         .terminals
         .lock()
         .unwrap()
-        .get(&session_key(HOST, SESSION))
+        .get(&session_key(HOST, SocketKind::App, SESSION))
         .expect("published terminal")
         .ack
         .clone();
@@ -126,6 +131,7 @@ fn ack(state: &Arc<AppState>, bytes: usize) {
     ack_output_tagged_impl(
         state,
         HOST.into(),
+        SocketKind::App,
         SESSION.into(),
         u32::try_from(bytes).unwrap(),
         Some(OPENING.into()),
@@ -224,7 +230,7 @@ async fn the_history_is_the_first_output_and_counts_into_the_ack_window() {
     );
     assert_eq!(
         crate::remote::command::decoded_argv(&commands[0]),
-        history_command("hermetic_socket", PANE)
+        history_command(&state_socket(), PANE)
     );
     // Erst der Attach (Leg 1), dann die Erfassung (Leg 0): nach dem Attach
     // hat tmux das Fenster schon auf die Kachelgroesse gebracht.
@@ -290,7 +296,14 @@ async fn closing_while_the_history_waits_for_credit_ends_the_pump_quietly() {
         .unwrap();
     let window = usize::try_from(ACK_WINDOW_BYTES).unwrap() / HISTORY_CHUNK_BYTES;
     sink.wait_events(window).await;
-    close_terminal_tagged_impl(&state, HOST.into(), SESSION.into(), Some(OPENING.into())).unwrap();
+    close_terminal_tagged_impl(
+        &state,
+        HOST.into(),
+        SocketKind::App,
+        SESSION.into(),
+        Some(OPENING.into()),
+    )
+    .unwrap();
     assert!(!state.has_terminal(HOST, SESSION).await);
     tokio::time::sleep(Duration::from_millis(200)).await;
     assert_eq!(sink.events().len(), window);
@@ -368,7 +381,14 @@ async fn closing_during_the_capture_publishes_nothing_and_closes_the_attach() {
     .await
     .expect("capture in flight");
     let closed_at = tokio::time::Instant::now();
-    close_terminal_tagged_impl(&state, HOST.into(), SESSION.into(), Some(OPENING.into())).unwrap();
+    close_terminal_tagged_impl(
+        &state,
+        HOST.into(),
+        SocketKind::App,
+        SESSION.into(),
+        Some(OPENING.into()),
+    )
+    .unwrap();
     let result = timeout(END, opening).await.unwrap().unwrap();
     assert!(result.is_err(), "a cancelled open must not publish");
     assert!(
@@ -405,6 +425,7 @@ async fn without_a_binding_there_is_no_capture() {
             &state,
             sink.clone(),
             HOST.into(),
+            SocketKind::App,
             SESSION.into(),
             80,
             3,
@@ -457,6 +478,7 @@ async fn a_bound_open_that_fails_its_confirmation_captures_nothing() {
             &state,
             sink.clone(),
             HOST.into(),
+            SocketKind::App,
             SESSION.into(),
             80,
             24,
@@ -467,7 +489,7 @@ async fn a_bound_open_that_fails_its_confirmation_captures_nothing() {
     .await
     .unwrap();
     assert!(result.is_err(), "the fixture cannot confirm a bound attach");
-    let history = history_command("hermetic_socket", 9);
+    let history = history_command(&state_socket(), 9);
     let commands = fixture.control_commands();
     assert!(!commands.is_empty(), "the confirmation ran");
     assert!(commands

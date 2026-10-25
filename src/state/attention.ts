@@ -1,4 +1,4 @@
-import { sessionKey, type Host, type Session } from "./app-state";
+import { sessionKeyOf, type Host, type Session } from "./app-state";
 
 /** Whether a session's agent status is a current observation. The rule lives
  * in `AppState.isSessionStatusCurrent`; callers pass it in. The last value of
@@ -17,7 +17,7 @@ export function waitingSessions(hosts: Host[], isCurrent: StatusCurrent): Sessio
 }
 
 export function waitingKey(session: Session): string {
-  return `${sessionKey(session.hostId, session.name)}\0${session.sessionId ?? ""}`;
+  return `${sessionKeyOf(session)}\0${session.sessionId ?? ""}`;
 }
 
 /** Keys that start a new waiting episode. A key stays seen while its session
@@ -92,7 +92,7 @@ export function nextWaitingSession(
   if (waiting.length === 0) return null;
   if (currentKey === null) return waiting[0];
   const index = waiting.findIndex(
-    (session) => sessionKey(session.hostId, session.name) === currentKey,
+    (session) => sessionKeyOf(session) === currentKey,
   );
   return waiting[(index + 1) % waiting.length];
 }

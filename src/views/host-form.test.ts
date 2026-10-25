@@ -324,3 +324,46 @@ describe("mountHostForm: Feldfehler (UX-Spec §11)", () => {
     expect(el.querySelector("[aria-invalid]")).toBeNull();
   });
 });
+
+describe("mountHostForm: Schalter Show tmux sessions (Spec 2026-10-25 §10.1)", () => {
+  const box = (el: HTMLElement) => el.querySelector<HTMLInputElement>("input[name=showDefaultSocket]");
+
+  it("steht an, auch fuer einen Host ohne gespeicherten Wert, und geht mit dem Absenden", async () => {
+    const { el, form, onSubmit } = await mount();
+    expect(box(el)?.checked).toBe(true);
+    expect(box(el)?.parentElement?.textContent).toBe("Show tmux sessions");
+    fill(el, "10.0.0.9", "u", "22");
+    submit(form);
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ showDefaultSocket: true }));
+  });
+
+  it("uebernimmt einen ausgeschalteten Wert und gibt die Aenderung weiter", async () => {
+    const { el, form, onSubmit } = await mount([], { label: "h", hostname: "10.0.0.9", user: "u", port: 22, showDefaultSocket: false }, "edit");
+    expect(box(el)?.checked).toBe(false);
+    box(el)!.checked = true;
+    submit(form);
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ showDefaultSocket: true }));
+  });
+
+  it("fehlt bei der Reparatur der Steuerung", () => {
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    mountHostForm(el, { existing: [], initial: { hostname: "10.0.0.9", user: "u", port: 22 }, onSubmit: vi.fn(), mode: "control-repair" });
+    expect(box(el)).toBeNull();
+  });
+});
+
+describe("mountHostForm: Reihenfolge der Felder (Spec 2026-10-25 §10.1)", () => {
+  it("setzt die Felder der Anmeldeart vor den Schalter", async () => {
+    const { el, auth } = await mount();
+    auth.value = "password";
+    auth.dispatchEvent(new Event("change", { bubbles: true }));
+    const names = Array.from(el.querySelectorAll("form input, form select")).map((input) => input.getAttribute("name"));
+    expect(names.indexOf("password")).toBeGreaterThan(names.indexOf("auth"));
+    expect(names.indexOf("password")).toBeLessThan(names.indexOf("showDefaultSocket"));
+    auth.value = "key:C:\Users\U\.ssh\id_ed25519";
+    auth.dispatchEvent(new Event("change", { bubbles: true }));
+    const again = Array.from(el.querySelectorAll("form input, form select")).map((input) => input.getAttribute("name"));
+    expect(again.indexOf("passphrase")).toBeLessThan(again.indexOf("showDefaultSocket"));
+  });
+});

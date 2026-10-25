@@ -2,6 +2,8 @@
 //! Verlauf einer Pane liest, und die Aufbereitung seiner Antwort fuer
 //! xterm.js. Auslieferung und Frist liegen in `commands.rs`.
 
+use super::socket::TmuxSocket;
+
 /// Erste Antwortzeile (Spec §5.6): `1` heisst "nichts wiederherzustellen",
 /// also Vollbildprogramm (`alternate_on`) ODER leerer Verlauf. Ohne die
 /// Pruefung von `history_size` klemmt tmux `-E -1` bei leerem Verlauf auf
@@ -16,15 +18,16 @@ const FIRST_LINE_FORMAT: &str = "#{?history_size,#{alternate_on},1}";
 /// `-J` fuegt umbrochene Zeilen zusammen, xterm.js bricht sie in der eigenen
 /// Breite neu um. Gebaut wie `query_command`: rein lesend, startet keinen
 /// Server, und `-u` laesst Nicht-ASCII-Text unangetastet.
-pub fn history_command(socket: &str, pane_id: u32) -> Vec<String> {
+pub fn history_command(socket: &TmuxSocket, pane_id: u32) -> Vec<String> {
+    let [flag, name] = socket.args();
     let pane = format!("%{pane_id}");
     [
         "env",
         "LC_ALL=C",
         "tmux",
         "-u",
-        "-L",
-        socket,
+        flag,
+        name,
         "display-message",
         "-p",
         "-t",
@@ -104,8 +107,13 @@ pub fn prepare_history(raw: &str, rows: u16, max_bytes: usize) -> Option<Vec<u8>
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tmux::OwnSocket;
 
     const TWO_MIB: usize = 2 * 1024 * 1024;
+
+    fn own(name: &str) -> TmuxSocket {
+        TmuxSocket::own(&OwnSocket::new(name).unwrap())
+    }
 
     fn pad(rows: usize) -> Vec<u8> {
         b"\r\n".repeat(rows)
@@ -208,7 +216,7 @@ mod tests {
     #[test]
     fn the_command_is_one_read_only_tmux_call_for_the_numeric_pane() {
         assert_eq!(
-            history_command("own_socket", 7),
+            history_command(&own("own_socket"), 7),
             [
                 "env",
                 "LC_ALL=C",
@@ -240,7 +248,7 @@ mod tests {
     /// Ziels und die Formatklammern kommen unveraendert an.
     #[test]
     fn the_command_survives_remote_build_unchanged() {
-        let argv = history_command("own_socket", 4_294_967_295);
+        let argv = history_command(&own("own_socket"), 4_294_967_295);
         let refs: Vec<&str> = argv.iter().map(String::as_str).collect();
         let line = crate::remote::build(&refs);
         assert!(line.starts_with("set -eu;"));

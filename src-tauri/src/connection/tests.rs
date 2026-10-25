@@ -476,7 +476,12 @@ async fn pair_prompts_once_routes_commands_and_terminal_separately_and_disposes_
     );
     let mut pty = host
         .terminal()
-        .open_attach("fixture_socket", "fixture_session", 80, 24)
+        .open_attach(
+            &crate::tmux::OwnSocket::new("fixture_socket").unwrap(),
+            "fixture_session",
+            80,
+            24,
+        )
         .await
         .unwrap();
     assert_eq!(

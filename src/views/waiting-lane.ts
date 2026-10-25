@@ -9,7 +9,7 @@
 // ist darum eine Bauanleitung (`build`) mit eigenem Gedaechtnis fuer
 // Reihenfolge, Aufklappen und den Minutentakt der Wartezeit.
 
-import { sessionKey, type AppState, type Session } from "../state/app-state";
+import { sessionKeyOf, socketOf, type AppState, type Session, type SessionSocket } from "../state/app-state";
 import { waitingByAge, waitingKey, type StatusCurrent } from "../state/attention";
 import { DEFAULT_KEYMAP } from "../keymap";
 import { hostInitials } from "./initials";
@@ -41,7 +41,8 @@ export interface WaitingLaneOptions {
   isCurrent: StatusCurrent;
   /** Beginn der Warte-Episode je `waitingKey`, `undefined` ohne. */
   waitingSince(key: string): number | undefined;
-  onOpenSession(hostId: string, name: string, options: { replace: boolean }): void;
+  /** `socket` nur bei einer Session des Standard-Sockets (Spec 2026-10-25 §7). */
+  onOpenSession(hostId: string, name: string, options: { replace: boolean; socket?: SessionSocket }): void;
   /** Die Liste muss neu gebaut werden: Minutentakt, Ende des Festhaltens,
    * Auf- und Zuklappen. */
   requestRender(): void;
@@ -118,7 +119,7 @@ export function createWaitingLane(list: HTMLElement, opts: WaitingLaneOptions): 
   }
 
   function keyOf(session: Session): string {
-    return sessionKey(session.hostId, session.name);
+    return sessionKeyOf(session);
   }
 
   function buildRow(session: Session, now: number): HTMLElement {
@@ -154,6 +155,8 @@ export function createWaitingLane(list: HTMLElement, opts: WaitingLaneOptions): 
     avatar.setAttribute("aria-hidden", "true");
     avatar.textContent = host ? hostInitials(host.label, host.hostname) : "";
     main.appendChild(avatar);
+    // Spec 2026-10-25 §7: eine Session des Standard-Sockets traegt "tmux".
+    if (socketOf(session) === "default") main.appendChild(tmuxMark());
     const label = document.createElement("span");
     label.className = "row-label";
     label.textContent = session.name;
@@ -173,7 +176,7 @@ export function createWaitingLane(list: HTMLElement, opts: WaitingLaneOptions): 
     }
 
     row.addEventListener("click", (event) => {
-      if (!disposed) opts.onOpenSession(session.hostId, session.name, { replace: event.ctrlKey });
+      if (!disposed) opts.onOpenSession(session.hostId, session.name, openOptions(event.ctrlKey, session));
     });
     return row;
   }
@@ -271,4 +274,23 @@ export function createWaitingLane(list: HTMLElement, opts: WaitingLaneOptions): 
       list.removeEventListener("focusout", onFocusOut);
     },
   };
+}
+
+/** Die Optionen einer Wahl: `socket` nur beim Standard-Socket, damit eine
+ * eigene Session dieselben Argumente behaelt wie vor ihm. */
+export function openOptions(
+  replace: boolean,
+  session: Pick<Session, "socket">,
+): { replace: boolean; socket?: SessionSocket } {
+  return socketOf(session) === "default" ? { replace, socket: "default" } : { replace };
+}
+
+/** Das Kennzeichen einer Session des Standard-Sockets in Spur und
+ * Schnelloeffnen (Spec 2026-10-25 §7). */
+export function tmuxMark(): HTMLElement {
+  const mark = document.createElement("span");
+  mark.className = "tmux-mark";
+  mark.textContent = t("tile.tmux");
+  mark.title = t("tile.tmux.title");
+  return mark;
 }

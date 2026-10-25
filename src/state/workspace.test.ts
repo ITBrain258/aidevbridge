@@ -1250,3 +1250,78 @@ describe("createWorkspaceSync: gespeicherter Arbeitsplatz im laufenden Betrieb",
     expect(written().map((ws) => ws.dirs)).toEqual([{ a: { last: "/opt", recent: ["/opt", "/srv"] } }]);
   });
 });
+
+describe("Arbeitsplatz: Kacheln des Standard-Sockets (Spec 2026-10-25 §5, §7)", () => {
+  const FOREIGN = { slot: 1, host_id: "a", session: "", foreign_session: "main", socket: "default" as const };
+
+  it("liest die fremde Form und verwirft jede gemischte", () => {
+    const read = readWorkspace(
+      workspace({
+        tiles: [
+          { slot: 0, host_id: "a", session: "main" },
+          FOREIGN,
+          { slot: 2, host_id: "a", session: "own", foreign_session: "both", socket: "default" },
+          { slot: 3, host_id: "a", session: "", foreign_session: "no-socket" } as never,
+          { slot: 4, host_id: "a", session: "", foreign_session: "main", socket: "default" },
+        ],
+      }),
+      ["a"],
+    );
+    expect(read?.tiles).toEqual([{ slot: 0, host_id: "a", session: "main" }, FOREIGN]);
+  });
+
+  it("speichert gleichnamige Kacheln beider Sockets nebeneinander, die fremde in ihrer Form", () => {
+    const state = new AppState();
+    state.upsertHost(host("a", { state: "connected", runtimeId: "r-a" }));
+    state.setSessionRecords("a", [{ name: "main" }]);
+    state.setSessionRecords("a", [{ name: "main" }], undefined, "default");
+    state.openSession("a", "main");
+    state.openSession("a", "main", "default");
+    expect(workspaceFromState(state, extras()).tiles).toEqual([{ slot: 0, host_id: "a", session: "main" }, FOREIGN]);
+  });
+
+  it("stellt eine fremde Kachel erst her, wenn die Liste des Standard-Sockets da ist", () => {
+    vi.useFakeTimers();
+    const state = new AppState();
+    state.upsertHost(host("a", { authKind: "agent" }));
+    const sync = createWorkspaceSync({
+      state,
+      write: vi.fn().mockResolvedValue(undefined),
+      sidebarCollapsed: () => false,
+      setSidebarCollapsed: () => {},
+    });
+    sync.start(workspace({ tiles: [{ slot: 0, host_id: "a", session: "main" }, FOREIGN] }), true);
+    listHost(state, "a", ["main"]);
+    sync.hostListed("a");
+    expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/main"]);
+    state.setSessionRecords(
+      "a",
+      [{ name: "main", sessionId: 1, serverPid: 2, serverStartTime: 3, windowId: 4, paneId: 5, panePid: 6 }],
+      undefined,
+      "default",
+    );
+    sync.hostListed("a");
+    expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/main", "a/default:main"]);
+    sync.dispose();
+    vi.useRealTimers();
+  });
+});
+
+describe("Arbeitsplatz: fremde Kacheln bei ausgeschaltetem Schalter (Review von PR #5)", () => {
+  it("laesst sie warten, statt sie zu verwerfen", () => {
+    vi.useFakeTimers();
+    const state = new AppState();
+    state.upsertHost(host("a", { authKind: "agent" }));
+    const write = vi.fn().mockResolvedValue(undefined);
+    const sync = createWorkspaceSync({ state, write, sidebarCollapsed: () => false, setSidebarCollapsed: () => {} });
+    const foreign = { slot: 1, host_id: "a", session: "", foreign_session: "main", socket: "default" as const };
+    sync.start(workspace({ tiles: [{ slot: 0, host_id: "a", session: "own" }, foreign] }), true);
+    listHost(state, "a", ["own"]);
+    state.clearSocket("a", "default");
+    sync.hostListed("a");
+    expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/own"]);
+    expect(workspaceFromState(state, extras({ pendingTiles: [foreign] })).tiles).toContainEqual(foreign);
+    sync.dispose();
+    vi.useRealTimers();
+  });
+});

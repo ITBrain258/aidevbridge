@@ -5,6 +5,7 @@ use super::inventory::{
     MAX_INVENTORY_BYTES,
 };
 use super::session_binding::{self, BindingQuery, PaneIdentity};
+use super::socket::SocketKind;
 use crate::{remote, transport::ExecResult};
 use std::collections::BTreeSet;
 
@@ -180,27 +181,38 @@ pub(crate) struct ClientRecord {
     uid: Option<u32>,
     flags: BTreeSet<String>,
 }
-pub(crate) fn parse_clients(result: &ExecResult) -> Result<Vec<ClientRecord>, Unverified> {
+/// Streng nur die Zeile des eigenen Wrappers (`own_pid`): `list-clients` nennt
+/// alle Clients des Servers, und fremde (Kontrollmodus mit `pause-after`, eine
+/// Konsole ohne `/dev/pts/N`, Flags spaeterer Versionen) lassen die
+/// Bestaetigung nicht scheitern (Spec 2026-10-25 §6.2). Die ganze Ausgabe
+/// bleibt druckbares ASCII in Zeilen; die eigene Zeile kommt hoechstens
+/// einmal vor.
+pub(crate) fn parse_clients(
+    result: &ExecResult,
+    own_pid: u32,
+) -> Result<Vec<ClientRecord>, Unverified> {
     let text = complete(result)?;
     if !text.bytes().all(|b| (32..=126).contains(&b) || b == b'\n') {
         return Err(Unverified::Frame);
     }
+    let own = own_pid.to_string();
     let mut records = Vec::new();
-    let mut pids = BTreeSet::new();
     for line in text
         .strip_suffix('\n')
         .into_iter()
         .flat_map(|s| s.split('\n'))
     {
         let f: Vec<_> = line.split('|').collect();
-        if f.len() != 17 || f[0] != "J" || records.len() == 32 {
+        if f.get(3) != Some(&own.as_str()) {
+            continue;
+        }
+        if f.len() != 17 || f[0] != "J" || !records.is_empty() {
             return Err(Unverified::Frame);
         }
         tty(f[14])?;
         let mut flags = BTreeSet::new();
         for flag in f[16].split(',').filter(|s| !s.is_empty()) {
-            // `list-clients` names every client of the server, foreign ones
-            // too: one unknown flag of any of them fails the whole listing.
+            // Only the own wrapper's row reaches this check.
             // `no-detach-on-destroy` is tmux 3.6's (only on explicit request,
             // e.g. `attach -f`); our own wrapper never sets it.
             if !matches!(
@@ -254,13 +266,6 @@ pub(crate) fn parse_clients(result: &ExecResult) -> Result<Vec<ClientRecord>, Un
             },
             flags,
         };
-        if !pids.insert(r.pid)
-            || records
-                .first()
-                .is_some_and(|first: &ClientRecord| first.binding.server != r.binding.server)
-        {
-            return Err(Unverified::Changed);
-        }
         records.push(r);
     }
     Ok(records)
@@ -429,6 +434,10 @@ pub(crate) fn verify_process(result: &ExecResult, w: &WrapperIdentity) -> Result
 pub(crate) struct SocketBinding {
     query: BindingQuery,
     selected: PaneIdentity,
+    /// Welcher Waechter anhaengt: auf dem eigenen Socket mit ausgeschalteter
+    /// Statuszeile, auf dem Standard-Socket mit `-E` und ohne Option
+    /// (Spec 2026-10-25 §6.4).
+    kind: SocketKind,
 }
 pub(crate) fn named_probe(socket: &str, selected: PaneIdentity) -> Result<String, Unverified> {
     let q = InventoryQuery::conservatively_guarded_named(socket).map_err(|_| Unverified::Frame)?;
@@ -480,18 +489,28 @@ impl SocketBinding {
         named: &ExecResult,
         absolute: &ExecResult,
         selected: PaneIdentity,
+        kind: SocketKind,
     ) -> Result<Self, Unverified> {
         let path = socket_response(named, selected)?;
         if socket_response(absolute, selected)? != path {
             return Err(Unverified::Changed);
         }
         // Conservatively guarded B/E envelope only. It is neither a version
-        // whitelist nor evidence of client-format capabilities.
-        let query = BindingQuery::new(
-            InventoryQuery::conservatively_guarded_absolute(&path)
-                .map_err(|_| Unverified::Frame)?,
-        );
-        Ok(Self { query, selected })
+        // whitelist nor evidence of client-format capabilities. On the default
+        // socket a session group must not fail the check after the attach
+        // either (spec 2026-10-25 §6.2): its sessions stay unbound, the
+        // selected one binds as usual.
+        let inventory = InventoryQuery::conservatively_guarded_absolute(&path)
+            .map_err(|_| Unverified::Frame)?;
+        let query = BindingQuery::new(match kind {
+            SocketKind::App => inventory,
+            SocketKind::Default => inventory.tolerating_linked_windows(),
+        });
+        Ok(Self {
+            query,
+            selected,
+            kind,
+        })
     }
     #[cfg(test)]
     pub(crate) fn selected(&self) -> PaneIdentity {
@@ -520,11 +539,15 @@ impl SocketBinding {
         }
         // Reuse the accepted numeric builder, executing its fixed shell program
         // in the wrapper's own process; no display name enters this command.
-        // The same tmux client first turns the status line off.
-        let guard = self
-            .query
-            .guarded_attach_command_without_status(self.selected)
-            .map_err(|_| Unverified::Frame)?;
+        // On the own socket the same tmux client first turns the status line
+        // off; on the default socket it attaches with -E and changes nothing.
+        let guard = match self.kind {
+            SocketKind::App => self
+                .query
+                .guarded_attach_command_without_status(self.selected),
+            SocketKind::Default => self.query.guarded_attach_command_foreign(self.selected),
+        }
+        .map_err(|_| Unverified::Frame)?;
         Ok(remote::build(&[
             "sh",
             "-c",

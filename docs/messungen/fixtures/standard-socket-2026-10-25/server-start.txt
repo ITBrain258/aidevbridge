@@ -1,0 +1,25 @@
+Messung 2026-10-25, Plan M3.1 Schritt 1, Abschnitt 1 des Berichts.
+Testsocket abtest_20261025_start ohne Server, Konfiguration /tmp/abtest_20261025.conf
+mit: run-shell "touch /tmp/abtest_20261025_marker". Ausgabe des Laufs, Adressen
+durch Platzhalter ersetzt.
+
+== 192.0.2.10
+--- attach -t =x (kein Server):
+no sessions
+exit=1 marker=ANGELEGT
+--- if-shell-Waechter (kein Server):
+no server running on /tmp/tmux-1000/abtest_20261025_start
+exit=1 marker=fehlt
+--- list-sessions (kein Server):
+no server running on /tmp/tmux-1000/abtest_20261025_start
+exit=1 marker=fehlt
+== 192.0.2.20
+--- attach -t =x (kein Server):
+no sessions
+exit=1 marker=ANGELEGT
+--- if-shell-Waechter (kein Server):
+no server running on /tmp/tmux-1000/abtest_20261025_start
+exit=1 marker=fehlt
+--- list-sessions (kein Server):
+no server running on /tmp/tmux-1000/abtest_20261025_start
+exit=1 marker=fehlt

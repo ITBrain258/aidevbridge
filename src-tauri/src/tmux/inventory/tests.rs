@@ -528,6 +528,46 @@ fn linked_windows_are_explicitly_unsupported_not_absent() {
     );
 }
 
+/// Spec 2026-10-25 §6.2: Auf dem Standard-Socket fallen nur die Sessions
+/// einer Gruppe heraus; die uebrigen bleiben ein vollstaendiges Inventar. Die
+/// verworfenen Zeilen werden trotzdem geprueft, und der Befehl bleibt gleich.
+#[test]
+fn a_tolerant_query_drops_only_the_sessions_that_share_windows() {
+    let data = "B|100|1000
+Q|$0|1
+Q|$1|1
+Q|$2|1
+P|$0|@0|%0|10|1|1|0|0|0|1|0|1
+P|$1|@0|%0|10|1|1|0|0|0|1|0|1
+P|$2|@1|%1|11|1|1|0|0|1|2|0|1
+E|100|1000
+";
+    let tolerant = query().tolerating_linked_windows();
+    assert_eq!(tolerant.command(), query().command());
+    let InventoryOutcome::Snapshot(s) = tolerant.classify(&output(0, data, "")) else {
+        panic!()
+    };
+    assert_eq!(s.linked, [SessionId(0), SessionId(1)]);
+    assert_eq!(
+        s.sessions.iter().map(|s| s.id).collect::<Vec<_>>(),
+        [SessionId(2)]
+    );
+    assert_eq!(s.panes.len(), 1);
+    assert_eq!(s.panes[0].session_id, SessionId(2));
+    assert_eq!(
+        tolerant.classify(&output(
+            0,
+            &data.replace("P|$1|@0|%0|10|", "P|$1|@0|%0|010|"),
+            ""
+        )),
+        InventoryOutcome::Incomplete(IncompleteReason::InvalidNumber)
+    );
+    let InventoryOutcome::Snapshot(plain) = tolerant.classify(&output(0, ONE, "")) else {
+        panic!()
+    };
+    assert!(plain.linked.is_empty());
+}
+
 #[test]
 fn multiple_sessions_windows_and_dead_panes_are_numeric_evidence_only() {
     let data = "B|100|1000\nQ|$0|2\nQ|$1|1\nP|$0|@0|%0|10|1|1|1|0|2|1|1|1\nP|$0|@1|%1|11|0|1|0|1|2|4|0|1\nP|$1|@2|%2|12|1|1|0|0|0|6|0|1\nE|100|1000\n";
@@ -539,4 +579,35 @@ fn multiple_sessions_windows_and_dead_panes_are_numeric_evidence_only() {
     assert!(s.panes[0].pane_dead && s.panes[0].window_bell);
     incomplete(&data.replace("11|0|1", "11|1|1"));
     incomplete(&data.replace("11|0|1|0|1|2", "11|0|1|0|1|3"));
+}
+
+/// Spec 2026-10-25 §6.2: Die Serverversion gilt genau wie `tmux -V`, und auf
+/// dem Standard-Socket nur dort, wo Bindung, Bestaetigung und Waechter mit
+/// `-E` gemessen sind.
+#[test]
+fn server_versions_are_exact_and_only_measured_ones_serve_the_default_socket() {
+    assert_eq!(
+        MeasuredVersion::from_server_version("3.3a"),
+        Some(MeasuredVersion::V3_3A)
+    );
+    assert_eq!(
+        MeasuredVersion::from_server_version("3.6"),
+        Some(MeasuredVersion::V3_6)
+    );
+    for text in [
+        "3.6a", "3.5", "tmux 3.6", "3.6
+", "",
+    ] {
+        assert_eq!(MeasuredVersion::from_server_version(text), None, "{text:?}");
+    }
+    let supported: Vec<_> = [
+        MeasuredVersion::V3_0,
+        MeasuredVersion::V3_3A,
+        MeasuredVersion::V3_4,
+        MeasuredVersion::V3_6,
+    ]
+    .into_iter()
+    .filter(|version| version.supports_default_socket())
+    .collect();
+    assert_eq!(supported, [MeasuredVersion::V3_3A, MeasuredVersion::V3_6]);
 }

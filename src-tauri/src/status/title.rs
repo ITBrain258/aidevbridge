@@ -12,6 +12,7 @@
 
 use crate::status::StatusKind;
 use crate::tmux::inventory::PaneId;
+use crate::tmux::TmuxSocket;
 use std::collections::BTreeMap;
 
 /// What one read-only exec saw for one pane.
@@ -107,7 +108,7 @@ fi
 exit 0"#;
 
 /// One read-only exec for the given panes (id, pane start process).
-pub fn details_command(socket: &str, panes: &[(PaneId, u32)]) -> Option<String> {
+pub fn details_command(socket: &TmuxSocket, panes: &[(PaneId, u32)]) -> Option<String> {
     if panes.is_empty() {
         return None;
     }
@@ -116,7 +117,7 @@ pub fn details_command(socket: &str, panes: &[(PaneId, u32)]) -> Option<String> 
         "-c".to_owned(),
         DETAILS_SCRIPT.to_owned(),
         "aidevbridge-panes".to_owned(),
-        socket.to_owned(),
+        socket.name().to_owned(),
     ];
     for (pane, pid) in panes {
         argv.push(format!("%{}", pane.0));
@@ -436,6 +437,11 @@ pub fn details_line(kind: char, pane: u32, text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tmux::OwnSocket;
+
+    fn agentbridge() -> TmuxSocket {
+        TmuxSocket::own(&OwnSocket::new("agentbridge").unwrap())
+    }
 
     // Executables as measured on 2026-10-23; Grok's and agy's as installed
     // on the test hosts, OpenCode's an assumed install path.
@@ -852,8 +858,11 @@ mod tests {
 
     #[test]
     fn details_command_reads_titles_and_program_names_only() {
-        let command =
-            details_command("agentbridge", &[(PaneId(5), 1054885), (PaneId(4), 1051105)]).unwrap();
+        let command = details_command(
+            &agentbridge(),
+            &[(PaneId(5), 1054885), (PaneId(4), 1051105)],
+        )
+        .unwrap();
         let args = crate::remote::command::decoded_argv(&command);
         assert_eq!(&args[..2], ["sh", "-c"]);
         assert_eq!(
@@ -888,6 +897,6 @@ mod tests {
         assert!(
             script.contains("/etc/codex/config.toml \"${CODEX_HOME:-$HOME/.codex}/config.toml\"")
         );
-        assert!(details_command("agentbridge", &[]).is_none());
+        assert!(details_command(&agentbridge(), &[]).is_none());
     }
 }

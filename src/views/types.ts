@@ -39,6 +39,9 @@ export interface HostEntry {
    * (`settings.rs`, `#[serde(rename_all = "lowercase")]`) und mit
    * `AuthChoice.kind` (`host-form.ts`). */
   auth_kind: "key" | "agent" | "password";
+  /** Schalter "Show tmux sessions" (Spec 2026-10-25 §10.1); fehlt er, gilt
+   * an. */
+  show_default_socket?: boolean;
 }
 
 /** Ein belegter Kachelplatz im gespeicherten Arbeitsplatz (UX-Spec §7.1);
@@ -47,6 +50,10 @@ export interface TileEntryDto {
   slot: number;
   host_id: string;
   session: string;
+  /** Eine Kachel des Standard-Sockets (Spec 2026-10-25 §5): `session` ist
+   * leer, der Name steht hier, `socket` ist "default". 0.2.x verwirft sie. */
+  foreign_session?: string;
+  socket?: "default";
 }
 
 /** Die Verzeichnisse eines Hosts (UX-Spec §7.6): das zuletzt genutzte und die
@@ -105,6 +112,8 @@ export interface SessionListItemDto {
   unverified: string | null;
   status: string | null;
   status_reason: string | null;
+  /** Angehaengte Clients laut Inventar; fehlt ohne Inventar. */
+  session_attached?: number | null;
 }
 
 /** One `poll_status` answer. Rows carry numeric identity only; `complete` is
@@ -129,6 +138,35 @@ export interface SessionListErrorDto {
   code: string;
   message: string;
   control_generation: number;
+}
+
+/** Ein Socket aus `list_sessions` (Spec 2026-10-25 §6.2): seine Zeilen, sein
+ * Fehler oder die Version eines Servers, an dem die App nicht anhaengt.
+ * Rust `commands::SocketSessionsDto`. */
+export interface SocketSessionsDto {
+  sessions: SessionListItemDto[];
+  error: SessionListErrorDto | null;
+  unsupported_version: string | null;
+}
+
+/** `list_sessions` je Socket; `default` fehlt, wenn er nicht verlangt war.
+ * Rust `commands::SessionListDto`. */
+export interface SessionListDto {
+  own: SocketSessionsDto;
+  default: SocketSessionsDto | null;
+}
+
+/** Ein Socket aus `poll_status`: sein Ergebnis oder sein Fehler. */
+export interface SocketPollDto {
+  poll: StatusPollDto | null;
+  error: SessionListErrorDto | null;
+}
+
+/** `poll_status` je Socket (Spec 2026-10-25 §6.3). Rust
+ * `commands::StatusPollsDto`. */
+export interface StatusPollsDto {
+  own: SocketPollDto;
+  default: SocketPollDto | null;
 }
 
 export interface ControlStateEventDto {

@@ -694,6 +694,29 @@ describe("mountTerminal: open_terminal erst nach Listener-Registrierung", () => 
     });
   });
 
+  // Spec 2026-10-25 §6.4: eine Session des Standard-Sockets nennt ihren Socket
+  // in jedem Aufruf; die eigene laesst ihn weg (oben, unveraendert).
+  it("nennt den Standard-Socket in open_terminal und close_terminal", async () => {
+    listenMock.mockImplementation(() => Promise.resolve(vi.fn()));
+    const handle = mount(document.createElement("div"), "host-1", "main", undefined, {
+      socket: "default",
+      sessionId: 1,
+      serverPid: 2,
+      serverStartTime: 3,
+      windowId: 4,
+      paneId: 5,
+      panePid: 6,
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    const open = invokeMock.mock.calls.find(([command]) => command === "open_terminal");
+    expect(open?.[1]).toMatchObject({ hostId: "host-1", session: "main", socket: "default", sessionId: 1 });
+    handle.dispose();
+    await Promise.resolve();
+    const close = invokeMock.mock.calls.find(([command]) => command === "close_terminal");
+    expect(close?.[1]).toMatchObject({ hostId: "host-1", session: "main", socket: "default" });
+  });
+
   // Paket 2.5, Aufgabe 5: die `disposed`-Wache in derselben Fortsetzung hatte
   // keinen Test. Alle bestehenden Faelle, die vor dem Aufloesen der
   // `listen()`-Zusagen entsorgen, pruefen SYNCHRON und sehen den

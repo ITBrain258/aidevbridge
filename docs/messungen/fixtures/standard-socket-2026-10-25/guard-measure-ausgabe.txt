@@ -1,0 +1,18 @@
+== 192.0.2.10
+tmux 3.3a
+vorher:            env=[DISPLAY=:9 SSH_AUTH_SOCK=/tmp/server-sock SSH_CONNECTION=server conn ]
+mit -E, passend:   clients=1 sessions=[g1 ] env=[DISPLAY=:9 SSH_AUTH_SOCK=/tmp/server-sock SSH_CONNECTION=server conn ]
+mit -E, falsch:    clients=0 sessions=[g1 ] env=[DISPLAY=:9 SSH_AUTH_SOCK=/tmp/server-sock SSH_CONNECTION=server conn ]
+ohne -E, passend:  clients=1 sessions=[g1 ] env=[-DISPLAY SSH_AUTH_SOCK=/tmp/client-sock SSH_CONNECTION=client conn ]
+socket vorher: fehlt
+mit -E, kein Server: exit=1 out=[error connecting to /tmp/tmux-1000/abtest_20261025_guard (No such file or direct] marker=fehlt socket=fehlt
+aufgeraeumt: 
+== 192.0.2.20
+tmux 3.6
+vorher:            env=[DISPLAY=:9 SSH_AUTH_SOCK=/tmp/server-sock SSH_CONNECTION=server conn ]
+mit -E, passend:   clients=1 sessions=[g1 ] env=[DISPLAY=:9 SSH_AUTH_SOCK=/tmp/server-sock SSH_CONNECTION=server conn ]
+mit -E, falsch:    clients=0 sessions=[g1 ] env=[DISPLAY=:9 SSH_AUTH_SOCK=/tmp/server-sock SSH_CONNECTION=server conn ]
+ohne -E, passend:  clients=1 sessions=[g1 ] env=[-DISPLAY SSH_AUTH_SOCK=/tmp/client-sock SSH_CONNECTION=client conn ]
+socket vorher: fehlt
+mit -E, kein Server: exit=1 out=[error connecting to /tmp/tmux-1000/abtest_20261025_guard (No such file or direct] marker=fehlt socket=fehlt
+aufgeraeumt: agentbridge 

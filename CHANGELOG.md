@@ -4,6 +4,20 @@ Format nach Keep a Changelog, Versionen nach SemVer. Vor 1.0 kann jede
 Minor-Version brechen. 0.1.1 und 0.1.2 erschienen nur privat und noch unter
 dem Namen agentbridge.
 
+## [0.2.2] - 2026-10-25
+
+### Added
+
+- Sessions auf tmux' Standard-Socket, also die von einem einfachen `tmux` oder `tmux new`: Sie stehen unter jedem Host unter den eigenen als Gruppe "tmux sessions" und tragen in Kachelkopf, Wartet-Spur und Schnelloeffnen das Kennzeichen "tmux". Oeffnen haengt die App als weiteren Client an, ueber denselben geprueften Waechter wie bei eigenen Sessions und mit `attach-session -E`, damit `SSH_AUTH_SOCK`, `DISPLAY` und die uebrigen Namen aus `update-environment` der Session bleiben. Die App setzt dort keine Option, keinen Hook und keine Umgebung und beendet keine Session; "End session…" gibt es fuer sie nicht. Bedient werden Server mit tmux 3.3a und 3.6; fuer einen anderen nennt die Seitenleiste die Version. Sessions einer Sitzungsgruppe (`tmux new -t`) stehen in der Liste, lassen sich aber nicht oeffnen. Neue Sessions des Standard-Sockets erscheinen nach der naechsten Statusabfrage, hoechstens alle 10 s je Host.
+- Schalter "Show tmux sessions" im Host-Dialog, Vorgabe an, auch fuer bestehende Hosts (`show_default_socket` in `settings.toml`). Aus, liest die App den Standard-Socket dieses Hosts gar nicht.
+- Haengt an einer Session des Standard-Sockets schon ein anderer Client, sagt ein neutraler Hinweis beim Oeffnen einmal je Lauf, dass tmux das Fenster jetzt nach der Kachel bemisst.
+- Gespeicherte Kacheln von Sessions des Standard-Sockets kommen nach einem Neustart zurueck, sobald die Liste ihres Hosts da ist. 0.2.1 verwirft solche Kacheln beim Lesen.
+
+### Changed
+
+- Liste und Statusabfrage lesen beide Sockets getrennt: Ein Fehler des Standard-Sockets laesst die eigenen Sessions aktuell, und sein Status veraltet allein.
+- Die Bestaetigung nach dem Anhaengen prueft nur noch die Zeile des eigenen Clients streng. Ein anderer Client am selben Server, etwa im Kontrollmodus oder an einer Konsole ohne `/dev/pts/N`, laesst das Oeffnen nicht mehr scheitern.
+
 ## [0.2.1] - 2026-10-25
 
 ### Changed

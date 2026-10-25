@@ -86,7 +86,7 @@ use aidevbridge_lib::commands::{
 };
 use aidevbridge_lib::remote;
 use aidevbridge_lib::settings;
-use aidevbridge_lib::tmux::TmuxClient;
+use aidevbridge_lib::tmux::{OwnSocket, OwnTmuxClient};
 use aidevbridge_lib::transport::{HostSpec, RusshTransport, Transport};
 use std::collections::BTreeSet;
 use std::path::PathBuf;
@@ -239,7 +239,7 @@ fn unique_temp_path(tag: &str) -> PathBuf {
 fn bootstrap_known_hosts_line(host: &str) -> String {
     static LINE: OnceLock<String> = OnceLock::new();
     LINE.get_or_init(|| {
-        let state = Arc::new(commands::AppState::with_default_socket(
+        let state = Arc::new(commands::AppState::with_own_socket(
             common::test_socket(),
         ));
         let path = unique_temp_path("bootstrap_known_hosts");
@@ -415,9 +415,7 @@ fn independent_connection(host: &str) -> RusshTransport {
 // =======================================================================
 
 vm_test!(connect_succeeds_via_stored_key, |host: String| {
-    let state = Arc::new(commands::AppState::with_default_socket(
-        common::test_socket(),
-    ));
+    let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
     let app = app_with_state(state.clone());
     let wv = webview(&app);
 
@@ -448,9 +446,7 @@ vm_test!(
         // Adaptiv (siehe Modulkommentar): ssh-agent ist Umgebungszustand, nicht
         // vom Test steuerbar. Ein unerreichbarer/leerer Agent ist hier kein
         // Testfehlschlag, sondern ein uebersprungener Zweig mit sichtbarem Grund.
-        let state = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app = app_with_state(state.clone());
         let wv = webview(&app);
 
@@ -498,9 +494,7 @@ vm_test!(
             return;
         };
 
-        let state = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app = app_with_state(state.clone());
         let wv = webview(&app);
 
@@ -542,9 +536,7 @@ vm_test!(
 vm_test!(
     seven_failure_branches_are_pairwise_distinguishable,
     |host: String| {
-        let state = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let mut messages: BTreeSet<String> = BTreeSet::new();
         let mut ran: Vec<&str> = Vec::new();
         let mut skipped: Vec<(&str, String)> = Vec::new();
@@ -879,9 +871,7 @@ vm_test!(
         // tatsaechlich praesentierte Zeile an. Diese Zeile ist die
         // Grundwahrheit fuer den Byteidentitaets-Beweis unten -- sie kommt
         // aus `append_entry` selbst, nicht aus einer separaten Quelle.
-        let state_a = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state_a = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app_a = app_with_state(state_a.clone());
         let wv_a = webview(&app_a);
 
@@ -929,9 +919,7 @@ vm_test!(
         let filler = "192.0.2.1 ssh-ed25519 AAAAFILLERFILLERFILLERFILLERFILLERFILLERFILLERFILLER\n";
 
         // B1: respond_host_key(false) -- Ablehnung, Datei unveraendert.
-        let state_b1 = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state_b1 = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app_b1 = app_with_state(state_b1.clone());
         let wv_b1 = webview(&app_b1);
         let path_b1 = unique_temp_path("tofu_reject");
@@ -971,9 +959,7 @@ vm_test!(
         let _ = std::fs::remove_file(&path_b1);
 
         // B2: respond_host_key(true) -- Annahme, byteidentische Zeile.
-        let state_b2 = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state_b2 = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app_b2 = app_with_state(state_b2.clone());
         let wv_b2 = webview(&app_b2);
         let path_b2 = unique_temp_path("tofu_accept_second");
@@ -1052,7 +1038,7 @@ vm_test!(
         // `list_sessions` die ganze Liste, wenn parallel laufende Tests
         // derselben Datei gleichzeitig Sessions anlegen.
         let socket = common::test_socket_for("life");
-        let state = Arc::new(commands::AppState::with_default_socket(socket.clone()));
+        let state = Arc::new(commands::AppState::with_own_socket(socket.clone()));
         let app = app_with_state(state.clone());
         let wv = webview(&app);
 
@@ -1243,7 +1229,7 @@ vm_test!(
 
         // Aufraeumen: NUR die eigene, per create_session (ab_-Praefix)
         // angelegte Session -- per exaktem Namen, niemals kill-server.
-        let tmux = TmuxClient::new(&socket);
+        let tmux = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
         tauri::async_runtime::block_on(tmux.kill_session(&verify, &session))
             .unwrap_or_else(|e| panic!("Aufraeumen von {session} muss gelingen: {e:#}"));
         tauri::async_runtime::block_on(verify.dispose());
@@ -1293,9 +1279,7 @@ vm_test!(
     two_terminals_on_one_host_survive_beyond_the_stall_timeout,
     |host: String| {
         let socket = common::test_socket();
-        let state = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app = app_with_state(state.clone());
         let wv = webview(&app);
 
@@ -1377,7 +1361,7 @@ vm_test!(
         // Aufraeumen VOR den Zusicherungen: ein Fehlschlag darf keine
         // Sitzungen auf der VM zuruecklassen.
         let verify = independent_connection(&host);
-        let tmux = TmuxClient::new(&socket);
+        let tmux = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
         for session in [&first, &second] {
             let _: Result<(), String> = invoke_raw(
                 &wv,
@@ -1464,9 +1448,7 @@ rm -rf -- "${d}"
 vm_test!(
     list_directories_sees_a_symlinked_directory_and_distinguishes_denied_from_notfound,
     |host: String| {
-        let state = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app = app_with_state(state.clone());
         let wv = webview(&app);
 
@@ -1633,9 +1615,7 @@ vm_test!(
 vm_test!(
     editing_a_connected_host_disconnects_removes_and_readds,
     |host: String| {
-        let state = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app = app_with_state(state.clone());
         let wv = webview(&app);
 
@@ -1664,6 +1644,7 @@ vm_test!(
                 history_limit: None,
                 key_path: Some(vm_key_path().display().to_string()),
                 auth_kind: None,
+                show_default_socket: None,
             },
         )
         .expect("add_host_impl (Fixtur) darf nicht fehlschlagen");
@@ -1691,6 +1672,7 @@ vm_test!(
                 history_limit: None,
                 key_path: Some(vm_key_path().display().to_string()),
                 auth_kind: None,
+                show_default_socket: None,
             },
         )
         .unwrap();
@@ -1717,9 +1699,7 @@ vm_test!(
 vm_test!(
     removing_a_connected_host_disconnects_and_removes_from_settings,
     |host: String| {
-        let state = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app = app_with_state(state.clone());
         let wv = webview(&app);
 
@@ -1747,6 +1727,7 @@ vm_test!(
                 history_limit: None,
                 key_path: Some(vm_key_path().display().to_string()),
                 auth_kind: None,
+                show_default_socket: None,
             },
         )
         .expect("add_host_impl (Fixtur) darf nicht fehlschlagen");
@@ -1790,9 +1771,7 @@ vm_test!(
 vm_test!(
     disconnecting_a_not_yet_assigned_host_id_is_a_harmless_noop_while_connect_is_in_flight,
     |host: String| {
-        let state = Arc::new(commands::AppState::with_default_socket(
-            common::test_socket(),
-        ));
+        let state = Arc::new(commands::AppState::with_own_socket(common::test_socket()));
         let app = app_with_state(state.clone());
         let wv = webview(&app);
 

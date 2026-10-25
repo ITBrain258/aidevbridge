@@ -193,6 +193,15 @@ pub struct TileEntry {
     pub host_id: String,
     #[serde(default)]
     pub session: String,
+    /// Name einer Session auf dem Standard-Socket (Spec 2026-10-25 §5). Dann
+    /// ist `session` leer und `socket` gleich `default`: 0.2.x verwirft so eine
+    /// Kachel, statt eine eigene Session gleichen Namens zu oeffnen.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub foreign_session: Option<String>,
+    /// `default` fuer eine fremde Kachel, sonst fehlend. Als Text gelesen,
+    /// damit ein von Hand verdorbener Wert nur die Kachel verwirft.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub socket: Option<String>,
 }
 
 /// Platz einer Kachel ohne `slot`: derselbe ungueltige Wert, den [`Narrow`] fuer
@@ -203,11 +212,22 @@ fn missing_slot() -> u8 {
 }
 
 impl TileEntry {
-    /// Platz 0..=8, und die Kachel nennt einen Host und eine Session. Mehr
-    /// prueft das Laden nicht: ob der Host existiert, weiss erst `Settings`
-    /// (beim Speichern), ob die Session noch laeuft, erst der Start.
+    /// Platz 0..=8, und die Kachel nennt einen Host und eine Session: eine
+    /// eigene in `session` oder eine fremde in `foreign_session` mit `socket =
+    /// "default"`, nie beides. Mehr prueft das Laden nicht: ob der Host
+    /// existiert, weiss erst `Settings` (beim Speichern), ob die Session noch
+    /// laeuft, erst der Start.
     fn is_valid(&self) -> bool {
-        self.slot <= MAX_TILE_SLOT && !self.host_id.is_empty() && !self.session.is_empty()
+        let names_a_session = match (&self.foreign_session, self.socket.as_deref()) {
+            (None, None) => !self.session.is_empty(),
+            (Some(name), Some(socket)) => {
+                socket == crate::tmux::SocketKind::Default.as_str()
+                    && self.session.is_empty()
+                    && !name.is_empty()
+            }
+            _ => false,
+        };
+        self.slot <= MAX_TILE_SLOT && !self.host_id.is_empty() && names_a_session
     }
 }
 
@@ -419,6 +439,15 @@ pub struct HostEntry {
     // in diesem Fall aus `key_path` ab, statt sie hier zu erraten.
     #[serde(default)]
     pub auth_kind: Option<AuthKind>,
+    /// Schalter "Show tmux sessions" (Spec 2026-10-25 §10.1): Ist er aus,
+    /// liest die App den Standard-Socket dieses Hosts gar nicht. Fehlt das
+    /// Feld, wie in jeder Datei von 0.2.x, gilt an.
+    #[serde(default = "default_show_default_socket")]
+    pub show_default_socket: bool,
+}
+
+fn default_show_default_socket() -> bool {
+    true
 }
 
 impl HostEntry {
@@ -507,6 +536,11 @@ pub fn parse_settings(text: &str) -> anyhow::Result<Settings> {
 
 /// Ersetzt im Debug-Bau den Socket `agentbridge`.
 pub const TMUX_SOCKET_ENV: &str = "AIDEVBRIDGE_TMUX_SOCKET";
+/// Ersetzt im Debug-Bau den Namen von tmux' Standard-Socket (Spec 2026-10-25
+/// §6.1): So prueft eine Testinstanz die Sessions des Standard-Sockets an
+/// einem Testsocket, ohne den echten zu beruehren. Die Regeln haengen an der
+/// Art, nicht am Namen.
+pub const TMUX_DEFAULT_SOCKET_ENV: &str = "AIDEVBRIDGE_TMUX_DEFAULT_SOCKET";
 /// Ersetzt im Debug-Bau den Ordner von `settings.toml`.
 pub const SETTINGS_DIR_ENV: &str = "AIDEVBRIDGE_SETTINGS_DIR";
 /// Nennt im Debug-Bau, zusammen mit `AIDEVBRIDGE_SETTINGS_DIR`, den alten
@@ -552,6 +586,27 @@ pub fn settings_dir_override(raw: Option<&str>) -> Option<PathBuf> {
 /// `AIDEVBRIDGE_TMUX_SOCKET`. Gesetzt, aber ungueltig, ist ein Fehler.
 pub fn app_socket() -> Result<String, String> {
     app_socket_from(test_env(TMUX_SOCKET_ENV).as_deref())
+}
+
+/// Der Name des Standard-Sockets: `default`, im Debug-Bau ggf. aus
+/// `AIDEVBRIDGE_TMUX_DEFAULT_SOCKET`. Gesetzt, aber ungueltig, ist ein Fehler.
+pub fn default_socket_name() -> Result<String, String> {
+    default_socket_name_from(test_env(TMUX_DEFAULT_SOCKET_ENV).as_deref())
+}
+
+/// Testbarer Kern von `default_socket_name()`, mit denselben Regeln wie fuer
+/// den eigenen Socket: ein gesetzter, aber ungueltiger Wert faellt nicht still
+/// auf den echten Standard-Socket zurueck.
+fn default_socket_name_from(raw: Option<&str>) -> Result<String, String> {
+    match (raw, socket_override(raw)) {
+        (_, Some(socket)) => Ok(socket),
+        (Some(raw), None) if cfg!(debug_assertions) => Err(format!(
+            "{TMUX_DEFAULT_SOCKET_ENV} must have 1-48 characters from A-Z, a-z, 0-9, _ and - \
+             and must not be 'default' or '{}': {raw:?}",
+            default_socket()
+        )),
+        _ => Ok(crate::tmux::DEFAULT_SOCKET_NAME.into()),
+    }
 }
 
 /// Testbarer Kern von `app_socket()`. Ein gesetzter, aber ungueltiger Wert
@@ -921,6 +976,7 @@ user = \"u\"
                     history_limit: 10_000,
                     key_path: None,
                     auth_kind: Some(AuthKind::Agent),
+                    show_default_socket: true,
                 },
                 HostEntry {
                     id: "h2".into(),
@@ -932,6 +988,7 @@ user = \"u\"
                     history_limit: 10_000,
                     key_path: Some("~/.ssh/id_ed25519".into()),
                     auth_kind: Some(AuthKind::Key),
+                    show_default_socket: true,
                 },
             ],
             ui: UiSettings::default(),
@@ -1057,6 +1114,7 @@ user = "u"
             history_limit: default_history(),
             key_path: None,
             auth_kind: Some(AuthKind::Agent),
+            show_default_socket: true,
         }
     }
 
@@ -1086,11 +1144,15 @@ user = "u"
                         slot: 0,
                         host_id: "host_a".into(),
                         session: "work".into(),
+                        foreign_session: None,
+                        socket: None,
                     },
                     TileEntry {
                         slot: 3,
                         host_id: "host_b".into(),
                         session: "build".into(),
+                        foreign_session: None,
+                        socket: None,
                     },
                 ],
                 dirs: BTreeMap::from([
@@ -1349,6 +1411,8 @@ theme = "slate"
                 slot,
                 host_id: "host_a".into(),
                 session: format!("s{slot}"),
+                foreign_session: None,
+                socket: None,
             })
             .collect();
         save_to(&path, &settings).unwrap();
@@ -1392,6 +1456,8 @@ theme = "slate"
                 slot: 0,
                 host_id: "h".into(),
                 session: "s".into(),
+                foreign_session: None,
+                socket: None,
             }]
         );
         assert!(s.workspace.dirs.contains_key("h"));
@@ -1536,6 +1602,8 @@ theme = "slate"
                 slot: 1,
                 host_id: "h1".into(),
                 session: "work".into(),
+                foreign_session: None,
+                socket: None,
             }]
         );
     }
@@ -1583,6 +1651,94 @@ theme = "slate"
         assert_eq!(sessions, ["a", "b", "c", "d", "e", "f", "g", "i", "j"]);
     }
 
+    /// Spec 2026-10-25 §10.1: Ein Host ohne das Feld, wie in jeder Datei von
+    /// 0.2.x, zeigt den Standard-Socket; ein ausgeschalteter bleibt aus.
+    #[test]
+    fn the_default_socket_switch_is_on_unless_saved_off() {
+        assert!(parse_settings(OLD_FILE).unwrap().hosts[0].show_default_socket);
+        let path = unique_temp_path("default-socket-switch");
+        let mut s = full_settings();
+        s.hosts[0].show_default_socket = false;
+        save_to(&path, &s).unwrap();
+        let text = std::fs::read_to_string(&path).unwrap();
+        assert!(text.contains("show_default_socket = false"), "{text}");
+        let reloaded = parse_settings(&text).unwrap();
+        assert!(!reloaded.hosts[0].show_default_socket);
+        assert!(reloaded.hosts[1..]
+            .iter()
+            .all(|host| host.show_default_socket));
+        let _ = std::fs::remove_file(&path);
+        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
+    }
+
+    /// Spec 2026-10-25 §5: Eine fremde Kachel hat ein leeres `session`, ihren
+    /// Namen in `foreign_session` und `socket = "default"`; jede gemischte
+    /// Form faellt beim Laden weg. Gespeichert behaelt sie das leere
+    /// `session`, an dem 0.2.x sie verwirft, und eigene Kacheln bleiben ohne
+    /// die neuen Schluessel.
+    #[test]
+    fn a_foreign_tile_survives_only_in_its_one_form() {
+        let workspace = parse_workspace(
+            r#"tiles = [
+                { slot = 0, host_id = "h", session = "", foreign_session = "main", socket = "default" },
+                { slot = 1, host_id = "h", foreign_session = "no-session-key", socket = "default" },
+                { slot = 2, host_id = "h", session = "own", foreign_session = "both", socket = "default" },
+                { slot = 3, host_id = "h", session = "", foreign_session = "no-socket" },
+                { slot = 4, host_id = "h", session = "", foreign_session = "", socket = "default" },
+                { slot = 5, host_id = "h", session = "", foreign_session = "app", socket = "app" },
+                { slot = 6, host_id = "h", session = "own-with-socket", socket = "default" },
+                { slot = 7, host_id = "h", session = "kept" },
+            ]"#,
+        );
+        let kept: Vec<_> = workspace
+            .tiles
+            .iter()
+            .map(|t| (t.slot, t.session.as_str(), t.foreign_session.as_deref()))
+            .collect();
+        assert_eq!(
+            kept,
+            [
+                (0, "", Some("main")),
+                (1, "", Some("no-session-key")),
+                (7, "kept", None)
+            ]
+        );
+
+        let path = unique_temp_path("foreign-tile");
+        let mut s = full_settings();
+        s.workspace.tiles = vec![
+            TileEntry {
+                slot: 0,
+                host_id: "host_a".into(),
+                session: String::new(),
+                foreign_session: Some("main".into()),
+                socket: Some("default".into()),
+            },
+            TileEntry {
+                slot: 1,
+                host_id: "host_a".into(),
+                session: "work".into(),
+                foreign_session: None,
+                socket: None,
+            },
+        ];
+        save_to(&path, &s).unwrap();
+        let text = std::fs::read_to_string(&path).unwrap();
+        assert_eq!(text.matches("foreign_session").count(), 1, "{text}");
+        assert_eq!(text.matches("socket = \"default\"").count(), 1, "{text}");
+        let old: previous_release::Settings = toml::from_str(&text).unwrap();
+        assert_eq!(
+            old.workspace.tiles[0].session, "",
+            "0.2.x drops an empty session"
+        );
+        assert_eq!(
+            parse_settings(&text).unwrap().workspace.tiles,
+            s.workspace.tiles
+        );
+        let _ = std::fs::remove_file(&path);
+        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
+    }
+
     #[test]
     fn saving_drops_a_tile_with_an_empty_session() {
         let path = unique_temp_path("save-drops-damaged-tiles");
@@ -1593,6 +1749,8 @@ theme = "slate"
             slot: 2,
             host_id: "host_a".into(),
             session: String::new(),
+            foreign_session: None,
+            socket: None,
         });
         save_to(&path, &s).unwrap();
         // Absichtlich ohne `parse_settings`: die Datei selbst haelt nur die
@@ -1647,6 +1805,8 @@ last = "/x"
             slot: 9,
             host_id: "host_a".into(),
             session: "high".into(),
+            foreign_session: None,
+            socket: None,
         });
         s.workspace.dirs.get_mut("host_a").unwrap().recent =
             (0..8).map(|i| format!("/d{i}")).collect();
@@ -1833,6 +1993,22 @@ last = "/x"
             .unwrap_err()
             .to_string();
         assert!(error.contains(SETTINGS_DIR_ENV), "{error}");
+    }
+
+    /// Spec 2026-10-25 §6.1: der Standard-Socket nach denselben Regeln; ein
+    /// ungueltiger Name faellt nicht still auf den echten zurueck.
+    #[test]
+    #[cfg(debug_assertions)]
+    fn default_socket_name_uses_the_override_and_refuses_an_invalid_one() {
+        assert_eq!(default_socket_name_from(None), Ok("default".to_string()));
+        assert_eq!(
+            default_socket_name_from(Some("abtest_dflt_1")),
+            Ok("abtest_dflt_1".to_string())
+        );
+        for raw in ["agentbridge", "default", "a b", ""] {
+            let error = default_socket_name_from(Some(raw)).unwrap_err();
+            assert!(error.contains(TMUX_DEFAULT_SOCKET_ENV), "{raw:?}: {error}");
+        }
     }
 
     /// Wie oben: ein gesetzter, aber ungueltiger Socketname faellt nicht still
