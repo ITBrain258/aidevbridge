@@ -3312,6 +3312,22 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   background-color: revert;
 }
 
+/* Spec 2026-10-25 §10.1: der Schalter "Show tmux sessions" im Host-Dialog,
+   wie `.dir-tree-hidden` ein Kaestchen NEBEN seinem Text. */
+.host-form-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ab-space-4);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-secondary);
+}
+
+.host-form-check input[type="checkbox"] {
+  margin: 0;
+}
+
 /* Warnfarbe, nicht Gefahrfarbe: ein Arbeitsverzeichnis, das zwischen zwei
    Sitzungen verschwindet, ist kein Fehler des Nutzers (Entwurf §5) -- aber
    der Baum steht danach woanders, als das Feld sagt, und das muss auffallen. */

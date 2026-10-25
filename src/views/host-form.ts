@@ -309,7 +309,7 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   actions.appendChild(submitButton);
   form.appendChild(actions);
   // Die Felder der Anmeldeart kommen vor den Schalter.
-  const fieldsEnd = showDefaultLabel.isConnected ? showDefaultLabel : actions;
+  const fieldsEnd = opts.mode === "control-repair" ? actions : showDefaultLabel;
 
   root.appendChild(form);
 

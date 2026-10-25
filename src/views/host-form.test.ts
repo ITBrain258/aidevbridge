@@ -352,3 +352,18 @@ describe("mountHostForm: Schalter Show tmux sessions (Spec 2026-10-25 §10.1)", 
     expect(box(el)).toBeNull();
   });
 });
+
+describe("mountHostForm: Reihenfolge der Felder (Spec 2026-10-25 §10.1)", () => {
+  it("setzt die Felder der Anmeldeart vor den Schalter", async () => {
+    const { el, auth } = await mount();
+    auth.value = "password";
+    auth.dispatchEvent(new Event("change", { bubbles: true }));
+    const names = Array.from(el.querySelectorAll("form input, form select")).map((input) => input.getAttribute("name"));
+    expect(names.indexOf("password")).toBeGreaterThan(names.indexOf("auth"));
+    expect(names.indexOf("password")).toBeLessThan(names.indexOf("showDefaultSocket"));
+    auth.value = "key:C:\Users\U\.ssh\id_ed25519";
+    auth.dispatchEvent(new Event("change", { bubbles: true }));
+    const again = Array.from(el.querySelectorAll("form input, form select")).map((input) => input.getAttribute("name"));
+    expect(again.indexOf("passphrase")).toBeLessThan(again.indexOf("showDefaultSocket"));
+  });
+});
