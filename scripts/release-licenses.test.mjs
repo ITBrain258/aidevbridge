@@ -78,6 +78,23 @@ test('prepare/check preserve exact bytes and shared component attribution, repea
   assert.equal(fs.statSync(path.join(f.root, outputPath, 'index.html')).mtimeMs, originalStat.mtimeMs);
 });
 
+test('the macOS profile reads its own selection, writes its own folder and refuses a Windows scope', t => {
+  const f = fixture(t);
+  const macSelection = 'docs/release/license-selection.macos-universal.json', macOutput = 'out/release-notices-macos';
+  const run = (mode, metadata = f.metadata) => releaseLicenses(mode, { root: f.root, metadata, platform: 'macos-universal' });
+  f.write(macSelection, JSON.stringify(f.selection));
+  assert.throws(() => run('prepare'), /do not match this macOS application \(Apple silicon and Intel\) license selection/);
+  f.write(macSelection, JSON.stringify({ ...f.selection, scope: { ...f.selection.scope, target: 'universal-apple-darwin', cargo_targets: ['aarch64-apple-darwin'] } }));
+  assert.throws(() => run('prepare'), /do not match/);
+  f.write(macSelection, JSON.stringify({ ...f.selection, scope: { ...f.selection.scope, target: 'universal-apple-darwin', cargo_targets: ['aarch64-apple-darwin', 'x86_64-apple-darwin'] } }));
+  assert.equal(fs.existsSync(path.join(f.root, macOutput)), false);
+  assert.equal(run('prepare').directory, macOutput);
+  assert.equal(fs.existsSync(path.join(f.root, outputPath)), false);
+  assert.match(f.read(`${macOutput}/index.html`).toString(), /texts for the macOS application \(Apple silicon and Intel\) and disclosed/);
+  assert.equal(run('check').mode, 'check');
+  assert.throws(() => releaseLicenses('check', { root: f.root, metadata: f.metadata, platform: 'linux' }), /Usage/);
+});
+
 test('explicit historical blob selection works without interpreting inventory status as approval', t => {
   const f = fixture(t, { blob: true });
   f.run('prepare');
