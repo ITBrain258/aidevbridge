@@ -1,6 +1,6 @@
 # Standard-Socket (M3.1): Design
 
-Stand 2026-10-25, nach der Kritikrunde (§11). Auftrag: Roadmap S3.1
+Stand 2026-10-25, nach der Kritikrunde (§11) und den Entscheidungen (§10). Auftrag: Roadmap S3.1
 (`docs/plans/2026-09-05-roadmap-bis-release.md`), MVP-Spec §2, Zeile
 „Fremde Sessions“, und §3.1 Nr. 5 (Kritikrunde mit Widerlegern für den
 Standard-Socket). Diese Spec löst die Regel der Gesamtspec §6.0 ab, nach der
@@ -238,6 +238,8 @@ vom 13.09.).
 - **Grenzen:** 8 je Host und 9 insgesamt zählen über beide Sockets (heute schon
   über das Hostpräfix des Schlüssels).
 - **„New session“:** unverändert, eigener Socket.
+- **Schalter und Hinweis:** „Show tmux sessions“ im Host-Dialog; beim ersten
+  Öffnen einer fremden Kachel einmal der Hinweis zur Fenstergröße (§10).
 - **Arbeitsplatz:** Eine gespeicherte fremde Kachel wartet, bis die Liste des
   Standard-Sockets ihres Hosts da ist; die Frist des Starts (Raster-Spec §4.6,
   Nachtrag vom 24.10.) wartet auf die Listen beider Sockets.
@@ -276,24 +278,30 @@ vom 13.09.).
 | 2 | `TmuxSocket`/`OwnSocket` durch Client, Inventar, Bindung, Verlauf, Titel, Anhängen; Tests der Bauer | 1 |
 | 3 | Liste und Abfrage je Socket, Sitzungsgruppen, Bestätigung, Terminalbefehle und Kill mit Socket; Backend-Tests | 1,5 |
 | 4 | Frontend: `Session.socket`, Schlüssel, Liste und Frische je Socket, Neuladen, Arbeitsplatz | 1,5 |
-| 5 | Seitenleiste, Kennzeichen, Texte, README | 0,5 |
+| 5 | Seitenleiste, Kennzeichen, Schalter je Host, einmaliger Hinweis, Texte, README | 0,75 |
 | 6 | Live-Test, Lauf am Fenster, Doku | 0,5 |
-| **Zusammen** | | **5,5** |
+| **Zusammen** | | **5,75** |
 
 Die Roadmap rechnete 3,5 d unter der Annahme, der Socket stehe schon an jeder
 Session (S1.6); das ist nicht so.
 
-## 10. Entscheidungen vor dem Plan
+## 10. Entscheidungen vom 25.10.
 
-1. **Schalter je Host:** „tmux sessions anzeigen“, Vorgabe an. Vorschlag: ja,
-   weil das Anhängen Fenstergröße und Hooks des Nutzers berührt (§4) und ein
-   Host den Standard-Socket mit vielen Werkzeugen teilen kann.
-2. **Hinweis zur Fenstergröße:** Vorschlag: einmaliger, schließbarer Satz beim
-   ersten Öffnen einer fremden Kachel, dazu README.
-3. **`TMUX_TMPDIR`:** Setzt der Nutzer es nur in einer interaktiven
-   Startdatei, sucht die App an anderer Stelle und zeigt eine leere Gruppe.
-   Vorschlag für M3.1: Satz im README; ein Hinweis aus `/proc/net/unix`
-   (lauschende tmux-Sockets anderswo) gehört in die Diagnose (M3, S3.2).
+Mit dem Maintainer nach der Kritikrunde:
+
+1. **Schalter je Host:** „Show tmux sessions“ im Host-Dialog, Vorgabe an, auch
+   für bestehende Hosts. In `settings.toml` als `show_default_socket` am
+   Host-Eintrag; fehlt das Feld, gilt an. Ist er aus, liest die App den
+   Standard-Socket dieses Hosts gar nicht, weder Liste noch Abfrage.
+   Grund: Das Anhängen berührt Fenstergröße und Hooks des Nutzers (§4), und
+   ein Host kann den Standard-Socket mit vielen Werkzeugen teilen.
+2. **Hinweis zur Fenstergröße:** beim ersten Öffnen einer fremden Kachel
+   einmal der neutrale Hinweis (Raster-Spec §5.3) „tmux sessions take your tmux
+   window size while they are open here, also in your other terminal.“ Danach
+   nie wieder (`[ui] foreign_size_hint_seen`); dazu das README.
+3. **`TMUX_TMPDIR`:** in M3.1 ein Satz im README. Einen Hinweis auf
+   lauschende tmux-Sockets an anderer Stelle (`/proc/net/unix`) bekommt die
+   Diagnose in S3.2.
 
 ## 11. Kritikrunde vom 25.10.
 
@@ -316,4 +324,4 @@ den Entwurf vom selben Tag. Ihre Befunde und was daraus wurde:
 | Statuslatenz liegt unter Last schon nahe 4 s | Messung als Schritt 1, Rückfall jede zweite Abfrage (§6.3, §9) |
 | Rückweg: `tiles_version` 3 schützt nicht, 0.2.x schreibt fremde Kacheln als eigene zurück | für 0.2.x ungültige Form (§5) |
 | Sessionzeilen haben kein Menü, ein ausgegrauter Knopf hat keinen Tooltip; im schmalen Kopf fehlte das Kennzeichen | §7 |
-| Schätzung 3,5 d zu niedrig | 5,5 d (§9) |
+| Schätzung 3,5 d zu niedrig | 5,5 d, mit den Entscheidungen aus §10 5,75 d (§9) |
