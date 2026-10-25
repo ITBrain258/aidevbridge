@@ -99,6 +99,7 @@ async fn open(
             state,
             sink.clone(),
             HOST.into(),
+            SocketKind::App,
             SESSION.into(),
             80,
             rows,
@@ -118,7 +119,7 @@ fn in_flight(state: &Arc<AppState>) -> u64 {
         .terminals
         .lock()
         .unwrap()
-        .get(&session_key(HOST, SESSION))
+        .get(&session_key(HOST, SocketKind::App, SESSION))
         .expect("published terminal")
         .ack
         .clone();
@@ -130,6 +131,7 @@ fn ack(state: &Arc<AppState>, bytes: usize) {
     ack_output_tagged_impl(
         state,
         HOST.into(),
+        SocketKind::App,
         SESSION.into(),
         u32::try_from(bytes).unwrap(),
         Some(OPENING.into()),
@@ -294,7 +296,14 @@ async fn closing_while_the_history_waits_for_credit_ends_the_pump_quietly() {
         .unwrap();
     let window = usize::try_from(ACK_WINDOW_BYTES).unwrap() / HISTORY_CHUNK_BYTES;
     sink.wait_events(window).await;
-    close_terminal_tagged_impl(&state, HOST.into(), SESSION.into(), Some(OPENING.into())).unwrap();
+    close_terminal_tagged_impl(
+        &state,
+        HOST.into(),
+        SocketKind::App,
+        SESSION.into(),
+        Some(OPENING.into()),
+    )
+    .unwrap();
     assert!(!state.has_terminal(HOST, SESSION).await);
     tokio::time::sleep(Duration::from_millis(200)).await;
     assert_eq!(sink.events().len(), window);
@@ -372,7 +381,14 @@ async fn closing_during_the_capture_publishes_nothing_and_closes_the_attach() {
     .await
     .expect("capture in flight");
     let closed_at = tokio::time::Instant::now();
-    close_terminal_tagged_impl(&state, HOST.into(), SESSION.into(), Some(OPENING.into())).unwrap();
+    close_terminal_tagged_impl(
+        &state,
+        HOST.into(),
+        SocketKind::App,
+        SESSION.into(),
+        Some(OPENING.into()),
+    )
+    .unwrap();
     let result = timeout(END, opening).await.unwrap().unwrap();
     assert!(result.is_err(), "a cancelled open must not publish");
     assert!(
@@ -409,6 +425,7 @@ async fn without_a_binding_there_is_no_capture() {
             &state,
             sink.clone(),
             HOST.into(),
+            SocketKind::App,
             SESSION.into(),
             80,
             3,
@@ -461,6 +478,7 @@ async fn a_bound_open_that_fails_its_confirmation_captures_nothing() {
             &state,
             sink.clone(),
             HOST.into(),
+            SocketKind::App,
             SESSION.into(),
             80,
             24,

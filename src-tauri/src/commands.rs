@@ -29,7 +29,7 @@ use crate::tmux::inventory::{
 };
 use crate::tmux::session_binding::PaneIdentity;
 use crate::tmux::{
-    CreateOutcome, OwnSocket, OwnTmuxClient, ServerAbsent, TmuxClient, TmuxSocket,
+    CreateOutcome, OwnSocket, OwnTmuxClient, ServerAbsent, SocketKind, TmuxClient, TmuxSocket,
     DEFAULT_SOCKET_NAME,
 };
 use crate::transport::connect_control::{
@@ -235,6 +235,14 @@ impl AppState {
         TmuxSocket::own(&self.own_socket)
     }
 
+    /// Der Socket zum Lesen fuer `kind`.
+    pub fn tmux_socket(&self, kind: SocketKind) -> TmuxSocket {
+        match kind {
+            SocketKind::App => self.own_tmux_socket(),
+            SocketKind::Default => self.default_socket.clone(),
+        }
+    }
+
     /// Nur fuer Tests/Diagnose: ob fuer `host_id` eine Verbindung gefuehrt
     /// wird.
     pub async fn has_host(&self, host_id: &str) -> bool {
@@ -252,7 +260,7 @@ impl AppState {
         self.terminals
             .lock()
             .unwrap()
-            .contains_key(&session_key(host_id, session))
+            .contains_key(&session_key(host_id, SocketKind::App, session))
     }
 
     /// Registers the response channel awaited asynchronously by the policy.
@@ -522,11 +530,12 @@ impl TerminalAttempt {
     fn reserve(
         state: &Arc<AppState>,
         host_id: &str,
+        socket: SocketKind,
         session: &str,
         open_id: &str,
         host: &Arc<HostConnection>,
     ) -> Result<Self, String> {
-        let key = session_key(host_id, session);
+        let key = session_key(host_id, socket, session);
         let generation = state.next_generation.fetch_add(1, Ordering::Relaxed);
         let control = OperationControl::new(COMMAND_TIMEOUT);
         {
@@ -668,8 +677,13 @@ async fn wait_for_room_cancel_or_stall(
 /// Der Trenner selbst ist das, was zwei UNTERSCHIEDLICHE Paare vor einer
 /// Kollision unter naiver Verkettung schuetzt, z. B. ("1", "23") und
 /// ("12", "3").
-fn session_key(host_id: &str, session: &str) -> String {
-    format!("{host_id}:{session}")
+///
+/// Der Socket steht zwischen Host und Name (Spec 2026-10-25 §5): Dieselbe
+/// Session kann auf dem eigenen und dem Standard-Socket heissen. Seine
+/// Kennung (`app`/`default`) enthaelt keinen Trenner, der Name bleibt der
+/// Rest.
+fn session_key(host_id: &str, socket: SocketKind, session: &str) -> String {
+    format!("{host_id}:{}:{session}", socket.as_str())
 }
 
 /// Ob `key` (wie von `session_key` erzeugt) zu `host_id` gehoert --
@@ -1896,7 +1910,18 @@ pub async fn open_terminal_impl<S: OutputSink>(
         "internal-{}",
         state.next_generation.fetch_add(1, Ordering::Relaxed)
     );
-    open_terminal_tagged_impl(state, sink, host_id, session, cols, rows, open_id, None).await
+    open_terminal_tagged_impl(
+        state,
+        sink,
+        host_id,
+        SocketKind::App,
+        session,
+        cols,
+        rows,
+        open_id,
+        None,
+    )
+    .await
 }
 
 fn fresh_attach_nonce() -> String {
@@ -2039,6 +2064,15 @@ fn history_budget(remaining: Duration, timeout: Duration) -> Option<Duration> {
     (remaining > timeout.saturating_add(HISTORY_RESERVE)).then_some(timeout)
 }
 
+/// Antwort von `kill_session` auf dem Standard-Socket: Die App beendet dort
+/// nichts (Spec 2026-10-25 §3, §6.5).
+pub const FOREIGN_SESSION: &str = "foreign_session";
+
+/// Antwort von `open_terminal` auf dem Standard-Socket ohne numerische
+/// Bindung: Dort haengt die App nur ueber den Waechter an (Spec 2026-10-25
+/// §6.4).
+pub const FOREIGN_UNBOUND: &str = "foreign_unbound";
+
 /// Spec §5.6: Verlauf nur mit der Pane-Id aus der Sessionbindung.
 fn history_request_for(selected: Option<PaneIdentity>) -> Option<HistoryRequest> {
     selected.map(|selected| HistoryRequest {
@@ -2056,6 +2090,7 @@ pub async fn open_terminal_tagged_impl<S: OutputSink>(
     state: &Arc<AppState>,
     sink: S,
     host_id: String,
+    socket: SocketKind,
     session: String,
     cols: u16,
     rows: u16,
@@ -2064,7 +2099,7 @@ pub async fn open_terminal_tagged_impl<S: OutputSink>(
 ) -> Result<(), String> {
     let history = history_request_for(selected);
     open_terminal_with_history(
-        state, sink, host_id, session, cols, rows, open_id, selected, history,
+        state, sink, host_id, socket, session, cols, rows, open_id, selected, history,
     )
     .await
 }
@@ -2109,6 +2144,7 @@ async fn open_terminal_with_history<S: OutputSink>(
     state: &Arc<AppState>,
     sink: S,
     host_id: String,
+    socket: SocketKind,
     session: String,
     cols: u16,
     rows: u16,
@@ -2127,6 +2163,12 @@ async fn open_terminal_with_history<S: OutputSink>(
     {
         return Err("invalid terminal opening identifier".into());
     }
+    // Auf dem Standard-Socket nur ueber den Waechter, also nur mit Bindung;
+    // ueber den Namen haengt die App nur am eigenen Socket an.
+    if socket == SocketKind::Default && selected.is_none() {
+        return Err(FOREIGN_UNBOUND.into());
+    }
+    let tmux_socket = state.tmux_socket(socket);
     let host = state
         .hosts
         .lock()
@@ -2134,11 +2176,11 @@ async fn open_terminal_with_history<S: OutputSink>(
         .get(&host_id)
         .and_then(HostSlot::ready)
         .ok_or_else(|| "host not connected".to_string())?;
-    let attempt = TerminalAttempt::reserve(state, &host_id, &session, &open_id, &host)?;
+    let attempt = TerminalAttempt::reserve(state, &host_id, socket, &session, &open_id, &host)?;
     let mut pty = if let Some(selected) = selected {
         open_confirmed_pty(
             &host,
-            &state.own_tmux_socket(),
+            &tmux_socket,
             selected,
             cols,
             rows,
@@ -2172,14 +2214,7 @@ async fn open_terminal_with_history<S: OutputSink>(
     });
     let history = match history {
         Some(request) => {
-            capture_history(
-                &host,
-                &state.own_tmux_socket(),
-                request,
-                rows,
-                attempt.control.clone(),
-            )
-            .await
+            capture_history(&host, &tmux_socket, request, rows, attempt.control.clone()).await
         }
         None => None,
     };
@@ -2378,17 +2413,18 @@ pub async fn send_input_impl(
     session: String,
     bytes: Vec<u8>,
 ) -> Result<(), String> {
-    send_input_tagged_impl(state, host_id, session, bytes, None).await
+    send_input_tagged_impl(state, host_id, SocketKind::App, session, bytes, None).await
 }
 
 async fn send_input_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
+    socket: SocketKind,
     session: String,
     bytes: Vec<u8>,
     open_id: Option<String>,
 ) -> Result<(), String> {
-    let key = session_key(&host_id, &session);
+    let key = session_key(&host_id, socket, &session);
     let pty = {
         let terms = state.terminals.lock().unwrap();
         terms
@@ -2409,18 +2445,19 @@ pub async fn resize_terminal_impl(
     cols: u16,
     rows: u16,
 ) -> Result<(), String> {
-    resize_terminal_tagged_impl(state, host_id, session, cols, rows, None).await
+    resize_terminal_tagged_impl(state, host_id, SocketKind::App, session, cols, rows, None).await
 }
 
 async fn resize_terminal_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
+    socket: SocketKind,
     session: String,
     cols: u16,
     rows: u16,
     open_id: Option<String>,
 ) -> Result<(), String> {
-    let key = session_key(&host_id, &session);
+    let key = session_key(&host_id, socket, &session);
     let pty = {
         let terms = state.terminals.lock().unwrap();
         terms
@@ -2447,17 +2484,18 @@ pub async fn ack_output_impl(
     session: String,
     byte_count: u32,
 ) -> Result<(), String> {
-    ack_output_tagged_impl(state, host_id, session, byte_count, None)
+    ack_output_tagged_impl(state, host_id, SocketKind::App, session, byte_count, None)
 }
 
 fn ack_output_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
+    socket: SocketKind,
     session: String,
     byte_count: u32,
     open_id: Option<String>,
 ) -> Result<(), String> {
-    let key = session_key(&host_id, &session);
+    let key = session_key(&host_id, socket, &session);
     let terms = state.terminals.lock().unwrap();
     // Kein Eintrag: der Kanal wurde bereits abgebaut (Pumpe, close, disconnect).
     // Ein Ack, das aus dem write()-Callback des WebView nachlaeuft, ist dann
@@ -2479,16 +2517,17 @@ pub async fn close_terminal_impl(
     host_id: String,
     session: String,
 ) -> Result<(), String> {
-    close_terminal_tagged_impl(state, host_id, session, None)
+    close_terminal_tagged_impl(state, host_id, SocketKind::App, session, None)
 }
 
 fn close_terminal_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
+    socket: SocketKind,
     session: String,
     open_id: Option<String>,
 ) -> Result<(), String> {
-    let key = session_key(&host_id, &session);
+    let key = session_key(&host_id, socket, &session);
     invalidate_terminal(
         &mut state.terminals.lock().unwrap(),
         &key,
@@ -2514,11 +2553,17 @@ fn close_terminal_tagged_impl(
 pub async fn kill_session_impl(
     state: &Arc<AppState>,
     host_id: String,
+    socket: SocketKind,
     session: String,
     session_id: Option<u32>,
     server_pid: Option<u32>,
     server_start_time: Option<u64>,
 ) -> Result<(), String> {
+    // Vor allem anderen: Kein Terminaleintrag und kein tmux-Aufruf fuer eine
+    // Session des Standard-Sockets (Spec 2026-10-25 §6.5).
+    if socket == SocketKind::Default {
+        return Err(FOREIGN_SESSION.into());
+    }
     let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
     // H6/H9, dieselbe Ausnahme von der Allowlist wie in `open_terminal_impl`
     // -- Begruendung dort: von Hand angelegte Sessions duerfen Punkte und
@@ -2538,7 +2583,7 @@ pub async fn kill_session_impl(
 
     // VOR dem Toeten, siehe Doc-Kommentar. Dasselbe Muster wie
     // `close_terminal_impl` -- erst binden, damit der Guard am `;` faellt.
-    let key = session_key(&host_id, &session);
+    let key = session_key(&host_id, socket, &session);
     invalidate_terminal(&mut state.terminals.lock().unwrap(), &key, None);
 
     let transport = transport.command(deadline);
@@ -2811,6 +2856,7 @@ pub async fn open_terminal(
     window_id: Option<u32>,
     pane_id: Option<u32>,
     pane_pid: Option<u32>,
+    socket: Option<SocketKind>,
 ) -> Result<(), String> {
     let selected = match (
         session_id,
@@ -2843,6 +2889,7 @@ pub async fn open_terminal(
         state.inner(),
         app,
         host_id,
+        socket.unwrap_or(SocketKind::App),
         session,
         cols,
         rows,
@@ -2859,8 +2906,10 @@ pub async fn send_input(
     session: String,
     bytes: Vec<u8>,
     open_id: Option<String>,
+    socket: Option<SocketKind>,
 ) -> Result<(), String> {
-    send_input_tagged_impl(state.inner(), host_id, session, bytes, open_id).await
+    let socket = socket.unwrap_or(SocketKind::App);
+    send_input_tagged_impl(state.inner(), host_id, socket, session, bytes, open_id).await
 }
 
 #[tauri::command]
@@ -2871,8 +2920,10 @@ pub async fn resize_terminal(
     cols: u16,
     rows: u16,
     open_id: Option<String>,
+    socket: Option<SocketKind>,
 ) -> Result<(), String> {
-    resize_terminal_tagged_impl(state.inner(), host_id, session, cols, rows, open_id).await
+    let socket = socket.unwrap_or(SocketKind::App);
+    resize_terminal_tagged_impl(state.inner(), host_id, socket, session, cols, rows, open_id).await
 }
 
 #[tauri::command]
@@ -2882,8 +2933,10 @@ pub async fn ack_output(
     session: String,
     byte_count: u32,
     open_id: Option<String>,
+    socket: Option<SocketKind>,
 ) -> Result<(), String> {
-    ack_output_tagged_impl(state.inner(), host_id, session, byte_count, open_id)
+    let socket = socket.unwrap_or(SocketKind::App);
+    ack_output_tagged_impl(state.inner(), host_id, socket, session, byte_count, open_id)
 }
 
 #[tauri::command]
@@ -2892,8 +2945,10 @@ pub async fn close_terminal(
     host_id: String,
     session: String,
     open_id: Option<String>,
+    socket: Option<SocketKind>,
 ) -> Result<(), String> {
-    close_terminal_tagged_impl(state.inner(), host_id, session, open_id)
+    let socket = socket.unwrap_or(SocketKind::App);
+    close_terminal_tagged_impl(state.inner(), host_id, socket, session, open_id)
 }
 
 #[tauri::command]
@@ -2904,10 +2959,12 @@ pub async fn kill_session(
     session_id: Option<u32>,
     server_pid: Option<u32>,
     server_start_time: Option<u64>,
+    socket: Option<SocketKind>,
 ) -> Result<(), String> {
     kill_session_impl(
         state.inner(),
         host_id,
+        socket.unwrap_or(SocketKind::App),
         session,
         session_id,
         server_pid,
@@ -4718,7 +4775,18 @@ mod tests {
 
     #[test]
     fn session_key_distinguishes_pairs_that_would_collide_under_naive_concatenation() {
-        assert_ne!(session_key("1", "23"), session_key("12", "3"));
+        assert_ne!(
+            session_key("1", SocketKind::App, "23"),
+            session_key("12", SocketKind::App, "3")
+        );
+        assert_ne!(
+            session_key("h1", SocketKind::App, "x"),
+            session_key("h1", SocketKind::Default, "x")
+        );
+        assert!(belongs_to_host(
+            &session_key("h1", SocketKind::Default, "x"),
+            "h1"
+        ));
     }
 
     #[test]
@@ -6469,6 +6537,7 @@ mod tests {
         let r = kill_session_impl(
             &state,
             "no-such-host".into(),
+            SocketKind::App,
             "a\x1bb".into(),
             None,
             None,
@@ -6486,6 +6555,7 @@ mod tests {
         let r = kill_session_impl(
             &state,
             "no-such-host".into(),
+            SocketKind::App,
             "Projekt-Ä".into(),
             None,
             None,

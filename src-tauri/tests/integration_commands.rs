@@ -9,7 +9,7 @@ use aidevbridge_lib::commands::{
 use aidevbridge_lib::remote;
 use aidevbridge_lib::tmux::inventory::{PaneId, ServerIdentity, SessionId, WindowId};
 use aidevbridge_lib::tmux::session_binding::PaneIdentity;
-use aidevbridge_lib::tmux::{OwnSocket, OwnTmuxClient};
+use aidevbridge_lib::tmux::{OwnSocket, OwnTmuxClient, SocketKind};
 use aidevbridge_lib::transport::Transport;
 use common::{NeverAnswersSink, PanicIfAskedSink};
 use std::path::PathBuf;
@@ -1426,9 +1426,17 @@ async fn killing_a_session_deliberately_emits_no_connection_lost_event() {
         return;
     };
 
-    kill_session_impl(&state, host_id.clone(), session.clone(), None, None, None)
-        .await
-        .expect("das Beenden der eigenen Session muss gelingen");
+    kill_session_impl(
+        &state,
+        host_id.clone(),
+        SocketKind::App,
+        session.clone(),
+        None,
+        None,
+        None,
+    )
+    .await
+    .expect("das Beenden der eigenen Session muss gelingen");
 
     // Test 6 nebenbei, mit derselben Verbindung: die Session ist wirklich
     // weg. Ohne diese Zusicherung waere der Test auch dann gruen, wenn
@@ -1508,6 +1516,7 @@ async fn killing_an_absent_session_is_success_not_a_failed_exit_code() {
     kill_session_impl(
         &state,
         host_id.clone(),
+        SocketKind::App,
         absent.to_string(),
         None,
         None,
@@ -1586,6 +1595,7 @@ async fn ending_the_last_session_by_its_numeric_identity_succeeds_and_lists_noth
     kill_session_impl(
         &state,
         host_id.clone(),
+        SocketKind::App,
         session.clone(),
         row.session_id,
         row.server_pid,
@@ -1776,6 +1786,7 @@ async fn a_bound_open_restores_the_pane_history_before_live_output() {
         &state,
         ChannelSink(tx),
         host_id.clone(),
+        SocketKind::App,
         session.clone(),
         80,
         24,
@@ -1842,6 +1853,7 @@ async fn a_bound_open_at_another_size_restores_every_line_exactly_once() {
             &state,
             ChannelSink(tx),
             host_id.clone(),
+            SocketKind::App,
             session.clone(),
             80,
             rows,
@@ -1920,6 +1932,7 @@ async fn a_bound_open_of_a_fresh_session_sends_no_history() {
         &state,
         ChannelSink(tx),
         host_id.clone(),
+        SocketKind::App,
         session.clone(),
         80,
         24,
