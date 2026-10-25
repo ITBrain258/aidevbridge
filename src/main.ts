@@ -1175,21 +1175,31 @@ export function main(): void {
 
   /** Spec 2026-10-25 §6.3: Sessions des Standard-Sockets entstehen ausserhalb
    * der App. Zeigt seine Abfrage eine unbekannte Session-ID oder einen neuen
-   * Server, laedt die App die Liste neu, hoechstens alle 10 s je Host. */
+   * Server, laedt die App die Liste neu, hoechstens alle 10 s je Host. Laeuft
+   * dort ein Server, an dem die App nicht anhaengt, sind seine Sessions nie
+   * in der Liste; dann laedt nur ein neuer Server neu, sonst liefe das
+   * Neuladen ohne Ende. */
   const DEFAULT_LIST_RELOAD_MS = 10_000;
   const defaultListReloads = new Map<string, number>();
+  /** Der Server der letzten vollstaendigen Abfrage des Standard-Sockets. */
+  const defaultPollServers = new Map<string, string>();
 
   function reloadDefaultListOnNews(hostId: string, poll: StatusPollDto): void {
     const host = state.hosts.find((candidate) => candidate.id === hostId);
     if (!host) return;
+    const polled = poll.server_pid === null ? null : `${poll.server_pid}:${poll.server_start_time}`;
+    const previous = defaultPollServers.get(hostId);
+    if (polled === null) defaultPollServers.delete(hostId);
+    else defaultPollServers.set(hostId, polled);
     const known = host.sessions.filter((session) => socketOf(session) === "default");
     const ids = new Set(known.map((session) => session.sessionId).filter((id) => id != null));
     const server = known.find((session) => session.serverPid != null && session.serverStartTime != null);
+    const listedServer = server === undefined ? undefined : `${server.serverPid}:${server.serverStartTime}`;
     const newServer =
-      poll.server_pid !== null &&
-      server !== undefined &&
-      (server.serverPid !== poll.server_pid || server.serverStartTime !== poll.server_start_time);
-    const unknownSession = poll.sessions.some((row) => !ids.has(row.session_id));
+      polled !== null &&
+      ((listedServer !== undefined && listedServer !== polled) || (previous !== undefined && previous !== polled));
+    const unknownSession =
+      state.unsupportedDefaultVersion(hostId) === null && poll.sessions.some((row) => !ids.has(row.session_id));
     if (!newServer && !unknownSession) return;
     const now = Date.now();
     const last = defaultListReloads.get(hostId);

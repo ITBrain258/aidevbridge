@@ -8687,6 +8687,26 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
     expect(banner().hidden).toBe(true);
   });
 
+  it("laedt bei einem Server ohne Unterstuetzung nur neu, wenn der Server wechselt", async () => {
+    let server = { pid: 60, start: 2000 };
+    await connect(
+      {},
+      { own: socket(["main"]), default: { sessions: [], error: null, unsupported_version: "3.4" } },
+      () => ({
+        own: { poll: statusPoll([]), error: null },
+        default: { poll: statusPoll([{ session_id: 7, status: "idle" }], server), error: null },
+      }),
+    );
+    const listedAtConnect = lists();
+    await vi.advanceTimersByTimeAsync(24000);
+    await flush(20);
+    expect(lists()).toBe(listedAtConnect);
+    server = { pid: 61, start: 3000 };
+    await vi.advanceTimersByTimeAsync(2000);
+    await flush(20);
+    expect(lists()).toBe(listedAtConnect + 1);
+  });
+
   it("laedt die Liste des Standard-Sockets bei einer unbekannten Session neu, hoechstens alle 10 s", async () => {
     let defaultPoll: unknown = { poll: null, error: failure };
     await connect({}, { own: socket(["main"]), default: socket([]) }, () => ({
