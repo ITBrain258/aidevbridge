@@ -1,7 +1,9 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.1`, Release am 25.10.2026 mit MSI, Setup-EXE und
-ZIP, unsigniert. Das erste Release, `0.2.0`, erschien am 22.10. auf
+**Stand:** Version `0.2.2`, Release am 25.10.2026 mit MSI, Setup-EXE und
+ZIP, unsigniert. Es bringt die Sessions auf tmux' Standard-Socket (M3.1);
+ihre Abnahme am Fenster macht der Maintainer an diesem Release. `0.2.1`
+erschien am selben Tag. Das erste Release, `0.2.0`, erschien am 22.10. auf
 Entscheidung des Maintainers vor dem M1-Tor und vor der Installerabnahme;
 Installerabnahme, M1- und M2-Tor sind seitdem bestanden (gemeldet am 24.10.).
 Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
@@ -49,9 +51,26 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 | M1 Statuspunkt | abgeschlossen, Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel. Seit 23.10. gemessen gegen Claude Code 2.1.309 und Codex 0.163.0/0.164.0 ([Messung](messungen/messung-2026-10-23-agentversionen.md)), Agent über `/proc/<pid>/exe`, Codex-Einstellungen gelesen, Größengrenzen, VM-Test mit Attrappen |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Steuerzustand nur bei echtem Verlust, Selbstheilung für Schlüssel- und Agent-Hosts und Verlauf beim Anhängen; Arbeitsplatz, Schnellöffnen, Namensvorschlag, Anzeigename, ziehbare Seitenleiste; fünf Einstellungsbereiche; tmux 3.6 |
 | Dynamisches Raster | Schritt 0, 1 und 3 abgeschlossen nach der [Spec vom 19.10.](specs/2026-10-19-dynamisches-raster-design.md): bis zu 9 Kacheln, höchstens 8 je Host, je Host höchstens 4 Öffnungen zugleich („Opening…“), Tauschen per Zug am Kopf, Größe per Spalt, Maximieren verbirgt die übrigen Kacheln statt sie zu schließen, Wartet-Spur mit Wartezeit, Kachelnummer in Liste und Spur |
-| Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger Lauf für 0.2.0 nach dem Neubinden der Lizenzauswahl |
+| M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme am Fenster offen |
+| Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger Lauf für 0.2.2 nach dem Neubinden der Lizenzauswahl |
 
 ## Letzte Prüfung
+
+Am 25.10.2026 für 0.2.2, auf dem Rechner mit 8 GB Arbeitsspeicher: 2691
+Frontend-Tests in 49 Dateien, TypeScript- und Vite-Build und 76 Skripttests
+grün; Rust fmt, Clippy mit `-D warnings` und `cargo test --all --no-fail-fast`
+mit `-j 2` grün, 607 Bibliothekstests; `node scripts/release-licenses.mjs
+check` nach `prepare` grün. Live gegen beide Test-VMs auf eigenen Testsockets
+(tmux 3.3a und 3.6) mit `--test-threads=4` grün, darunter
+`integration_default_socket.rs` mit einem Testsocket anstelle von `default`.
+Eine Code-Review von PR #5 fand 15 Punkte; die neun Verhaltensfehler sind
+behoben. Am Fenster einer abgeschotteten Testinstanz, deren Standard-Socket auf
+einen Testsocket umgelenkt war (`AIDEVBRIDGE_TMUX_DEFAULT_SOCKET`): Gruppe,
+Öffnen, Eingabe, Kennzeichen, Hinweis zur Fenstergröße, gesperrte
+Gruppensessions, Wiederherstellen nach Neustart und der Schalter gingen; zwei
+Optikfehler am Schalter sind behoben. Der volle Lauf stand zuerst still, weil
+C: voll war (LNK1318 beim Linken); die inkrementellen Zwischenstände der beiden
+Build-Ordner sind gelöscht.
 
 Am 24.10.2026 nach den Korrekturen der bekannten Rasterfehler, auf dem
 Rechner mit 8 GB Arbeitsspeicher: 2659 Frontend-Tests in 49 Dateien,
@@ -185,8 +204,13 @@ In dieser Reihenfolge:
    Kritikrunde und Entscheidungen, [Plan](plans/2026-10-25-standard-socket.md)
    vom selben Tag; Schritt 1, die [Messung](messungen/messung-2026-10-25-standard-socket.md),
    und die Schritte 2 bis 5 (Socket als Typ, Backend je Socket,
-   Frontend-Zustand, Oberfläche) sind erledigt, als Nächstes Schritt 6 mit dem
-   Lauf am Fenster); die übrige Windows-Politur nach S3.2 (Protokolldatei, globaler
+   Frontend-Zustand, Oberfläche) sind erledigt und mit 0.2.2 ausgeliefert;
+   offen ist Schritt 6, die Abnahme am Fenster an 0.2.2, Tor §1 Punkt 1 bis
+   6). Bekannte Grenzen: Die Statusabfrage liest den Standard-Socket in der
+   Form des tmux im `PATH` (README); mit der Thread-Zahl, die CONTRIBUTING
+   vorgibt, scheitern zwölf Live-Befehlstests an der Zulassung der
+   Schlüsselvorbereitung (acht Plätze je Prozess), mit `--test-threads=4`
+   laufen alle; die übrige Windows-Politur nach S3.2 (Protokolldatei, globaler
    Diagnosetext; Mindestgröße, Fensterlage und Icon sind erledigt), dazu ein
    neues Logozeichen für den Erststart (Entscheidung vom 21.10.); die
    Rust-Meldung RUSTSEC-2023-0071 zu `rsa`, eingeordnet in
@@ -217,7 +241,13 @@ In dieser Reihenfolge:
    `npm run build:windows` seines eigenen Commits (dem, der das CHANGELOG
    datiert), `verify` grün, unsigniert; ihre SHA-256-Werte stehen in den
    Release-Notes. Die Probeläufe vom 24.10. aus `cb59da2`, `5cabf45` und
-   `1da8da2` sind damit überholt. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
+   `1da8da2` sind damit überholt. Für 0.2.2 sind am 25.10. die 39 seit 0.2.1
+   geänderten gebundenen Eingänge neu gebunden (eigene Quellen, beide
+   Manifeste, beide Lockfiles, `tauri.conf.json`; kein neues Fremdmaterial)
+   und `src-tauri/src/tmux/socket.rs` in den Baum aufgenommen; die Version des
+   eigenen Pakets steht von Hand auf 0.2.2. Das Release `v0.2.2` vom 25.10.
+   trägt MSI, Setup-EXE und ZIP aus `npm run build:windows` seines eigenen
+   Commits, unsigniert; ihre SHA-256-Werte stehen in den Release-Notes. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
    auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
    `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
    aus `npm run build:app` bleibt auf dem eigenen Rechner. Ändert sich ein
