@@ -363,7 +363,8 @@ async function build(root, { preview }) {
       node: process.version, npm: await command(root, run, 'npm-version', process.execPath, [npmCli(), '--version'], env, true),
       rustc: await command(root, run, 'rustc-version', 'rustup', ['run', TOOLCHAIN, 'rustc', '-Vv'], env, true), cargo: await command(root, run, 'cargo-version', 'rustup', ['run', TOOLCHAIN, 'cargo', '-Vv'], env, true),
       tauri: await command(root, run, 'tauri-version', process.execPath, ['node_modules/@tauri-apps/cli/tauri.js', '--version'], env, true),
-      macos: await command(root, run, 'sw-vers', 'sw_vers', [], env, true), xcode: await command(root, run, 'xcode-version', 'xcodebuild', ['-version'], env, true),
+      // xcrun and clang answer with the Command Line Tools alone; xcodebuild needs Xcode.
+      macos: await command(root, run, 'sw-vers', 'sw_vers', [], env, true), sdk: await command(root, run, 'sdk-version', 'xcrun', ['--show-sdk-version'], env, true), clang: await command(root, run, 'clang-version', 'xcrun', ['clang', '--version'], env, true),
     };
     write(root, `${run.relative}/versions.json`, json(versions));
     const configs = ['--config', CONFIG];
