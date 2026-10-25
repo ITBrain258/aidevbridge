@@ -79,6 +79,28 @@ dieser Schritt ändert den Verbindungsweg nicht.
 
 ## Schritt 3: Backend je Socket (1,5 d)
 
+**Erledigt am 25.10.** Terminals stehen unter Host, Socket und Name; die
+Befehle nehmen einen optionalen `socket` (fehlt er, gilt `app`). Auf dem
+Standard-Socket antwortet `open_terminal` ohne Bindung mit `foreign_unbound`
+und `kill_session` immer mit `foreign_session`, beides vor allem anderen.
+`list_sockets_impl` und `poll_sockets_impl` liefern je Socket Zeilen oder
+einen Fehler; der Standard-Socket nach der Version seines laufenden Servers
+(`list-sessions -F '#{version}'`), bedient nur 3.3a und 3.6. Sitzungsgruppen
+dort lassen Liste, Abfrage und die Prüfung nach dem Anhängen nicht scheitern;
+ihre Sessions bleiben ungebunden und gelten in der Abfrage als unbekannt.
+`parse_clients` prüft streng nur die eigene J-Zeile. `HostEntry` hat
+`show_default_socket`, `TileEntry` die fremde Form. Der Live-Test
+`integration_default_socket.rs` lief auf 3.3a und 3.6 grün und fand dabei die
+strenge Prüfung nach dem Anhängen, die jede Sitzungsgruppe scheitern ließ.
+
+Abweichungen von der Liste unten: Die Befehle `list_sessions` und
+`poll_status` liefern bis Schritt 4 weiter das Ergebnis des eigenen Sockets;
+die Ergebnisse je Socket (mit `include_default` aus dem Schalter) übernimmt
+Schritt 4 zusammen mit dem Frontend. Die Ereignisse tragen keinen Socket, die
+Öffnungs-ID unterscheidet sie schon. Die Abfrage baut die Inventarabfrage des
+Standard-Sockets nach dem `tmux` im `PATH`; für 3.3a, 3.4 und 3.6 ist ihr
+Rahmen derselbe, welche Sessions binden, entscheidet die Liste.
+
 - `session_key` mit Socket; `TerminalAttempt`, Terminaltabelle, Ereignisse.
 - Befehle mit Socket-Parameter: `open_terminal`, `send_input`,
   `resize_terminal`, `ack_output`, `close_terminal`, `kill_session`. ACL und

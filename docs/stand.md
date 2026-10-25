@@ -184,7 +184,8 @@ In dieser Reihenfolge:
    S3.1; [Design](specs/2026-10-25-standard-socket-design.md) vom 25.10. nach
    Kritikrunde und Entscheidungen, [Plan](plans/2026-10-25-standard-socket.md)
    vom selben Tag; Schritt 1, die [Messung](messungen/messung-2026-10-25-standard-socket.md),
-   und Schritt 2, der Socket als Typ, sind erledigt, als Nächstes Schritt 3); die übrige Windows-Politur nach S3.2 (Protokolldatei, globaler
+   Schritt 2, der Socket als Typ, und Schritt 3, das Backend je Socket, sind
+   erledigt, als Nächstes Schritt 4); die übrige Windows-Politur nach S3.2 (Protokolldatei, globaler
    Diagnosetext; Mindestgröße, Fensterlage und Icon sind erledigt), dazu ein
    neues Logozeichen für den Erststart (Entscheidung vom 21.10.); die
    Rust-Meldung RUSTSEC-2023-0071 zu `rsa`, eingeordnet in
