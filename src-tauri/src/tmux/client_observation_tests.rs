@@ -537,3 +537,95 @@ async fn a_failed_prediction_transport_stops_the_observation() {
     assert_eq!(error.downcast_ref::<ExecError>(), Some(&expected));
     assert_eq!(transport.calls(), 2);
 }
+
+fn default_reader() -> TmuxClient {
+    TmuxClient::new(&TmuxSocket::default_named("default"))
+}
+
+/// Spec 2026-10-25 §6.2: Die Version stammt vom laufenden Server und ist fuer
+/// alle Sessions dieselbe; `list-sessions` startet keinen Server.
+#[tokio::test(start_paused = true)]
+async fn the_server_version_comes_from_the_running_server() {
+    let transport = ScriptedTransport::new(vec![output("3.6\n3.6\n")], Duration::ZERO);
+    assert_eq!(
+        default_reader()
+            .server_version(&transport, end())
+            .await
+            .unwrap(),
+        Some("3.6".to_string())
+    );
+    assert_eq!(
+        transport.calls.lock().unwrap()[0].argv,
+        [
+            "env",
+            "LC_ALL=C",
+            "tmux",
+            "-u",
+            "-L",
+            "default",
+            "list-sessions",
+            "-F",
+            "#{version}"
+        ]
+    );
+    let transport = ScriptedTransport::new(vec![output("")], Duration::ZERO);
+    assert_eq!(
+        default_reader()
+            .server_version(&transport, end())
+            .await
+            .unwrap(),
+        None
+    );
+    for answer in ["3.6\n3.4\n", "3.6", "3.6 \n", "\n"] {
+        let transport = ScriptedTransport::new(vec![output(answer)], Duration::ZERO);
+        assert!(
+            default_reader()
+                .server_version(&transport, end())
+                .await
+                .is_err(),
+            "{answer:?}"
+        );
+    }
+}
+
+/// Ohne Server ist die Liste leer, bewiesen wie in `observe_sessions`: tmux
+/// nennt genau den vorhergesagten Pfad. Sonst bleibt es ein Fehler.
+#[tokio::test(start_paused = true)]
+async fn a_missing_default_server_is_proven_like_a_missing_own_server() {
+    let diagnosis = "no server running on /tmp/tmux-1000/default\n";
+    let transport = ScriptedTransport::new(
+        vec![
+            absent(diagnosis),
+            output("tmux 3.6\n"),
+            predicted("/tmp/tmux-1000/default"),
+        ],
+        Duration::ZERO,
+    );
+    assert_eq!(
+        default_reader()
+            .server_version(&transport, end())
+            .await
+            .unwrap(),
+        None
+    );
+    for script in [
+        vec![
+            absent(diagnosis),
+            output("tmux 3.6\n"),
+            predicted("/tmp/tmux-1000/other"),
+        ],
+        vec![absent(diagnosis), output("tmux 3.5\n")],
+        vec![
+            absent("error connecting to /tmp/tmux-1000/default (Permission denied)\n"),
+            output("tmux 3.6\n"),
+        ],
+    ] {
+        let calls = script.len();
+        let transport = ScriptedTransport::new(script, Duration::ZERO);
+        assert!(default_reader()
+            .server_version(&transport, end())
+            .await
+            .is_err());
+        assert_eq!(transport.calls(), calls);
+    }
+}

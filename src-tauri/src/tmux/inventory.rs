@@ -18,6 +18,31 @@ pub enum MeasuredVersion {
 }
 
 impl MeasuredVersion {
+    /// Die Version eines laufenden Servers aus `#{version}` (ohne `tmux `),
+    /// gleich streng wie [`Self::from_response`].
+    pub fn from_server_version(text: &str) -> Option<Self> {
+        match text {
+            "3.0" => Some(Self::V3_0),
+            "3.3a" => Some(Self::V3_3A),
+            "3.4" => Some(Self::V3_4),
+            "3.6" => Some(Self::V3_6),
+            _ => None,
+        }
+    }
+
+    /// Ob die App auf dem Standard-Socket eines Servers dieser Version
+    /// anhaengt (Spec 2026-10-25 §6.2): nur dort, wo Bindung, Bestaetigung und
+    /// der Waechter mit `-E` gemessen sind. 3.4 erst nach einer Messung an
+    /// einem Host mit 3.4; 3.0 kann einen fehlenden Server nicht beweisen und
+    /// hat keine Bestaetigung.
+    pub fn supports_default_socket(self) -> bool {
+        // Exhaustive on purpose: a newly measured version needs its own decision.
+        match self {
+            Self::V3_3A | Self::V3_6 => true,
+            Self::V3_0 | Self::V3_4 => false,
+        }
+    }
+
     /// Accept the complete measured `tmux -V` response, not a version prefix.
     ///
     /// `tmux 3.6\n` is the exact answer of the Ubuntu 26.04 package

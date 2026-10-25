@@ -3633,10 +3633,60 @@ fn session_list_item(
     }
 }
 
+/// Ergebnis von `list_sessions` je Socket (Spec 2026-10-25 §6.2): Ein Fehler
+/// des einen Sockets laesst die Liste des anderen gelten.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct SessionListDto {
+    pub own: SocketSessionsDto,
+    /// `None`, wenn der Standard-Socket nicht verlangt war (Schalter des
+    /// Hosts aus): Dann liest die App ihn gar nicht.
+    pub default: Option<SocketSessionsDto>,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct SocketSessionsDto {
+    pub sessions: Vec<SessionListItemDto>,
+    /// Gesetzt, wenn dieser Socket nicht gelesen werden konnte.
+    pub error: Option<OperationErrorDto>,
+    /// Die Version eines laufenden Servers, an dem die App nicht anhaengt
+    /// (nur Standard-Socket); `sessions` ist dann leer.
+    pub unsupported_version: Option<String>,
+}
+
+/// Was ein Socket fuer die Liste ergab, bevor die gemeinsame claude-Lesung
+/// den Status liefert.
+enum SocketListing {
+    Observed {
+        observed: crate::tmux::client::SessionListObservation,
+        titles: std::collections::BTreeMap<PaneId, crate::status::title::PaneDetails>,
+    },
+    /// Eigener Socket mit ungemessener tmux-Version: nur Namen.
+    Names(Vec<String>),
+    /// Kein Server: eine leere Liste, kein Fehler.
+    Empty,
+    /// Standard-Socket mit einer Serverversion ohne Messung.
+    Unsupported(String),
+}
+
 pub async fn list_sessions_impl(
     state: &Arc<AppState>,
     host_id: String,
 ) -> Result<Vec<SessionListItemDto>, OperationErrorDto> {
+    let listed = list_sockets_impl(state, host_id, false).await?;
+    match listed.own.error {
+        Some(error) => Err(error),
+        None => Ok(listed.own.sessions),
+    }
+}
+
+/// Liest den eigenen Socket und, wenn verlangt, den Standard-Socket; den
+/// eigenen zuerst, beide mit derselben Frist. Ein fehlender Host scheitert
+/// ganz, ein Fehler eines Sockets nur fuer diesen.
+pub async fn list_sockets_impl(
+    state: &Arc<AppState>,
+    host_id: String,
+    include_default: bool,
+) -> Result<SessionListDto, OperationErrorDto> {
     let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
     // Direktzugriff auf das private Feld ist hier zulaessig und richtig:
     // dieselbe Datei, dasselbe Modul. `create_session_impl` macht es
@@ -3653,65 +3703,122 @@ pub async fn list_sessions_impl(
             message: "host not connected".into(),
             control_generation: 0,
         })?;
-
-    // `state.own_socket` und NICHT der per-Host konfigurierte
-    // `HostEntry.tmux_socket`: `create_session_impl` legt Sessions ebenfalls
-    // auf `state.own_socket` an. Eine abweichende Wahl hier wuerde einen
-    // ANDEREN Socket auflisten als den, auf dem die Sessions liegen -- die
-    // Liste bliebe leer, und niemand saehe warum.
-    //
-    // Dass `HostEntry.tmux_socket` insgesamt ungelesen bleibt, ist ein
-    // BESTEHENDER Befund aus Plan 1, kein neuer dieses Tasks. Er wird hier
-    // bewusst nicht behoben: ihn zu beheben hiesse, ihn an BEIDEN Stellen
-    // gleichzeitig zu beheben, und das gehoert nicht in diesen Umbau. Der
-    // Socket kommt jetzt aus `AppState`, nicht mehr aus der freien Funktion
-    // `settings::default_socket()` -- die liefert weiterhin nur den
-    // Produktionsdefault, aus dem `AppState::default()` seinen Wert nimmt.
-    let client = TmuxClient::new(&state.own_tmux_socket());
     let transport = transport.command(deadline);
+    let own = list_own_socket(state, &transport, deadline).await;
+    let default = match include_default {
+        true => Some(list_default_socket(state, &transport, deadline).await),
+        false => None,
+    };
+    let observed = [Some(&own), default.as_ref()]
+        .into_iter()
+        .flatten()
+        .any(|listing| matches!(listing, Ok(SocketListing::Observed { .. })));
+    let (agents, parents) = match observed {
+        true => {
+            let (agents, parents, _) = read_claude_agents(&transport, deadline).await;
+            (agents, parents)
+        }
+        false => Default::default(),
+    };
+    Ok(SessionListDto {
+        own: socket_sessions(own, &agents, &parents),
+        default: default.map(|listing| socket_sessions(listing, &agents, &parents)),
+    })
+}
+
+// `state.own_socket` und NICHT der per-Host konfigurierte
+// `HostEntry.tmux_socket`: `create_session_impl` legt Sessions ebenfalls auf
+// `state.own_socket` an. Eine abweichende Wahl hier wuerde einen ANDEREN
+// Socket auflisten als den, auf dem die Sessions liegen -- die Liste bliebe
+// leer, und niemand saehe warum.
+//
+// Dass `HostEntry.tmux_socket` insgesamt ungelesen bleibt, ist ein
+// BESTEHENDER Befund aus Plan 1, kein neuer dieses Tasks. Er wird hier
+// bewusst nicht behoben: ihn zu beheben hiesse, ihn an BEIDEN Stellen
+// gleichzeitig zu beheben, und das gehoert nicht in diesen Umbau.
+async fn list_own_socket(
+    state: &Arc<AppState>,
+    transport: &CommandTransport,
+    deadline: tokio::time::Instant,
+) -> Result<SocketListing, OperationErrorDto> {
+    let socket = state.own_tmux_socket();
+    let client = TmuxClient::new(&socket);
     let version = transport
         .exec_with_deadline(&client.version_command(), COMMAND_TIMEOUT)
         .await
         .ok()
         .and_then(|result| MeasuredVersion::from_response(&result));
     match version {
-        Some(version) => {
-            let observed = match client.observe_sessions(&transport, version, deadline).await {
-                Ok(observed) => observed,
-                // No server on the app's socket means no sessions: a fresh host,
-                // a rebooted VM or the last session ended.
-                Err(error) if error.is::<ServerAbsent>() => return Ok(Vec::new()),
-                Err(error) => return Err(operation_error(&transport, &error)),
-            };
-            let (titles, _) = read_pane_details(
-                &transport,
-                &state.own_tmux_socket(),
-                &crate::status::listed_title_panes(&observed.sessions),
-                deadline,
-            )
-            .await;
-            let (agents, parents, _) = read_claude_agents(&transport, deadline).await;
-            Ok(observed
-                .sessions
-                .into_iter()
-                .map(|session| {
-                    let status = crate::status::listed_status(
-                        &session,
-                        &observed.inventory,
-                        &agents,
-                        &parents,
-                        &titles,
-                    );
-                    session_list_item(session, status, version)
-                })
-                .collect())
-        }
-        None => {
-            let names = client
-                .list_session_names(&transport)
-                .await
-                .map_err(|e| operation_error(&transport, &e))?;
-            Ok(names
+        Some(version) => observed_listing(&client, &socket, transport, version, deadline).await,
+        None => client
+            .list_session_names(transport)
+            .await
+            .map(SocketListing::Names)
+            .map_err(|e| operation_error(transport, &e)),
+    }
+}
+
+/// Der Standard-Socket mit der Version seines laufenden Servers; an einer
+/// ungemessenen haengt die App nicht an, sie nennt sie nur (Spec 2026-10-25
+/// §6.2).
+async fn list_default_socket(
+    state: &Arc<AppState>,
+    transport: &CommandTransport,
+    deadline: tokio::time::Instant,
+) -> Result<SocketListing, OperationErrorDto> {
+    let socket = state.default_socket.clone();
+    let client = TmuxClient::new(&socket);
+    let version = match client.server_version(transport, deadline).await {
+        Ok(Some(version)) => version,
+        Ok(None) => return Ok(SocketListing::Empty),
+        Err(error) => return Err(operation_error(transport, &error)),
+    };
+    match MeasuredVersion::from_server_version(&version).filter(|v| v.supports_default_socket()) {
+        Some(measured) => observed_listing(&client, &socket, transport, measured, deadline).await,
+        None => Ok(SocketListing::Unsupported(version)),
+    }
+}
+
+async fn observed_listing(
+    client: &TmuxClient,
+    socket: &TmuxSocket,
+    transport: &CommandTransport,
+    version: MeasuredVersion,
+    deadline: tokio::time::Instant,
+) -> Result<SocketListing, OperationErrorDto> {
+    let observed = match client.observe_sessions(transport, version, deadline).await {
+        Ok(observed) => observed,
+        // No server means no sessions: a fresh host, a rebooted VM or the
+        // last session ended.
+        Err(error) if error.is::<ServerAbsent>() => return Ok(SocketListing::Empty),
+        Err(error) => return Err(operation_error(transport, &error)),
+    };
+    let (titles, _) = read_pane_details(
+        transport,
+        socket,
+        &crate::status::listed_title_panes(&observed.sessions),
+        deadline,
+    )
+    .await;
+    Ok(SocketListing::Observed { observed, titles })
+}
+
+fn socket_sessions(
+    listing: Result<SocketListing, OperationErrorDto>,
+    agents: &[crate::status::AgentRow],
+    parents: &std::collections::BTreeMap<u32, u32>,
+) -> SocketSessionsDto {
+    let mut dto = SocketSessionsDto {
+        sessions: Vec::new(),
+        error: None,
+        unsupported_version: None,
+    };
+    match listing {
+        Err(error) => dto.error = Some(error),
+        Ok(SocketListing::Empty) => {}
+        Ok(SocketListing::Unsupported(version)) => dto.unsupported_version = Some(version),
+        Ok(SocketListing::Names(names)) => {
+            dto.sessions = names
                 .into_iter()
                 .map(|display_name| SessionListItemDto {
                     display_name,
@@ -3726,9 +3833,27 @@ pub async fn list_sessions_impl(
                     status_reason: "tmux version is not a measured 3.0/3.3a/3.4/3.6 inventory"
                         .into(),
                 })
-                .collect())
+                .collect();
+        }
+        Ok(SocketListing::Observed { observed, titles }) => {
+            let version = observed.version;
+            dto.sessions = observed
+                .sessions
+                .into_iter()
+                .map(|session| {
+                    let status = crate::status::listed_status(
+                        &session,
+                        &observed.inventory,
+                        agents,
+                        parents,
+                        &titles,
+                    );
+                    session_list_item(session, status, version)
+                })
+                .collect();
         }
     }
+    dto
 }
 
 #[tauri::command]

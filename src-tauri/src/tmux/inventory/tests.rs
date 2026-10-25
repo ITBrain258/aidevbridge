@@ -580,3 +580,34 @@ fn multiple_sessions_windows_and_dead_panes_are_numeric_evidence_only() {
     incomplete(&data.replace("11|0|1", "11|1|1"));
     incomplete(&data.replace("11|0|1|0|1|2", "11|0|1|0|1|3"));
 }
+
+/// Spec 2026-10-25 §6.2: Die Serverversion gilt genau wie `tmux -V`, und auf
+/// dem Standard-Socket nur dort, wo Bindung, Bestaetigung und Waechter mit
+/// `-E` gemessen sind.
+#[test]
+fn server_versions_are_exact_and_only_measured_ones_serve_the_default_socket() {
+    assert_eq!(
+        MeasuredVersion::from_server_version("3.3a"),
+        Some(MeasuredVersion::V3_3A)
+    );
+    assert_eq!(
+        MeasuredVersion::from_server_version("3.6"),
+        Some(MeasuredVersion::V3_6)
+    );
+    for text in [
+        "3.6a", "3.5", "tmux 3.6", "3.6
+", "",
+    ] {
+        assert_eq!(MeasuredVersion::from_server_version(text), None, "{text:?}");
+    }
+    let supported: Vec<_> = [
+        MeasuredVersion::V3_0,
+        MeasuredVersion::V3_3A,
+        MeasuredVersion::V3_4,
+        MeasuredVersion::V3_6,
+    ]
+    .into_iter()
+    .filter(|version| version.supports_default_socket())
+    .collect();
+    assert_eq!(supported, [MeasuredVersion::V3_3A, MeasuredVersion::V3_6]);
+}

@@ -581,6 +581,57 @@ impl OwnTmuxClient {
 }
 
 impl TmuxClient {
+    /// Die Version des laufenden Servers dieses Sockets (`#{version}`), nicht
+    /// die des `tmux` im `PATH`: Den Standard-Socket kann ein anderes tmux
+    /// gestartet haben (Spec 2026-10-25 §6.2). `list-sessions` startet keinen
+    /// Server (Messung vom 25.10., §1). `Ok(None)` heisst kein Server,
+    /// bewiesen wie in [`Self::observe_sessions`], oder ein Server ohne
+    /// Session.
+    pub async fn server_version(
+        &self,
+        transport: &dyn Transport,
+        deadline: Instant,
+    ) -> anyhow::Result<Option<String>> {
+        let r = observation_exec(
+            transport,
+            self.query_command(&["list-sessions", "-F", "#{version}"]),
+            deadline,
+        )
+        .await?;
+        if r.code == 0 && r.stderr.is_empty() && r.utf8_valid {
+            let mut lines = r.stdout.split_terminator('\n');
+            let Some(first) = lines.next() else {
+                return Ok(None);
+            };
+            let plausible = !first.is_empty()
+                && first.len() <= 16
+                && first
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'-'));
+            if r.stdout.ends_with('\n') && plausible && lines.all(|line| line == first) {
+                return Ok(Some(first.to_string()));
+            }
+            anyhow::bail!("unexpected tmux server version response");
+        }
+        let installed = observation_exec(transport, self.version_command(), deadline)
+            .await
+            .ok()
+            .and_then(|result| MeasuredVersion::from_response(&result));
+        if let Some(installed) = installed {
+            if self
+                .server_proven_absent(transport, installed, &r, deadline)
+                .await?
+            {
+                return Ok(None);
+            }
+        }
+        anyhow::bail!(
+            "tmux list-sessions failed (exit {}): {}",
+            r.code,
+            r.stderr.trim()
+        )
+    }
+
     pub fn version_command(&self) -> String {
         self.query_command(&["-V"])
     }
