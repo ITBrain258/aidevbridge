@@ -1993,7 +1993,7 @@ async fn open_confirmed_pty(
             .exec_with_deadline(&binding.clients_command(), leftover)
             .await
             .map_err(|error| error.to_string())?;
-        let rows = parse_clients(&clients).map_err(|error| error.to_string())?;
+        let rows = parse_clients(&clients, wrapper.pid).map_err(|error| error.to_string())?;
         if registration_ready(registered_with_process(&rows, &wrapper, selected, &process))
             .map_err(|error| error.to_string())?
         {

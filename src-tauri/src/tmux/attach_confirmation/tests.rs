@@ -32,6 +32,9 @@ fn pane() -> PaneIdentity {
     }
 }
 
+/// Die PID des eigenen Wrappers in `j_line` und `w_line`.
+const OWN_PID: u32 = 10;
+
 fn j_line(flags: &str, uid: &str) -> String {
     format!("J|50|1000|10|20|$0|@0|%0|10|1|1|0|0|0|/dev/pts/3|{uid}|{flags}\n")
 }
@@ -121,7 +124,7 @@ fn extended_data_before_wrapper_is_unverified_and_afterward_is_kept() {
 
 #[test]
 fn empty_client_flags_are_unverified_not_legacy_safe() {
-    let rows = parse_clients(&exec(&j_line("", "1000"))).unwrap();
+    let rows = parse_clients(&exec(&j_line("", "1000")), OWN_PID).unwrap();
     let w = WrapperIdentity {
         pid: 10,
         start_ticks: 20,
@@ -146,7 +149,7 @@ fn registration_ready_retries_absence_and_empty_flags() {
         registration_ready(Err(Unverified::Changed)),
         Err(Unverified::Changed)
     );
-    let rows = parse_clients(&exec(&j_line("attached,focused,UTF-8", "1000"))).unwrap();
+    let rows = parse_clients(&exec(&j_line("attached,focused,UTF-8", "1000")), OWN_PID).unwrap();
     let w = WrapperIdentity {
         pid: 10,
         start_ticks: 20,
@@ -163,7 +166,7 @@ fn registration_ready_retries_absence_and_empty_flags() {
 
 #[test]
 fn matching_flags_and_uid_register_the_wrapper() {
-    let rows = parse_clients(&exec(&j_line("attached,UTF-8", "1000"))).unwrap();
+    let rows = parse_clients(&exec(&j_line("attached,UTF-8", "1000")), OWN_PID).unwrap();
     let w = WrapperIdentity {
         pid: 10,
         start_ticks: 20,
@@ -185,18 +188,18 @@ fn mismatched_uid_pid_or_mode_is_changed_or_client_mode() {
         tty_nr: 3,
         tty: "/dev/pts/3".into(),
     };
-    let uid = parse_clients(&exec(&j_line("attached", "7"))).unwrap();
+    let uid = parse_clients(&exec(&j_line("attached", "7")), OWN_PID).unwrap();
     assert_eq!(
         registered(&uid, &w, pane()).unwrap_err(),
         Unverified::Changed
     );
-    let control = parse_clients(&exec(&j_line("attached,control-mode", "1000"))).unwrap();
+    let control = parse_clients(&exec(&j_line("attached,control-mode", "1000")), OWN_PID).unwrap();
     assert_eq!(
         registered(&control, &w, pane()).unwrap_err(),
         Unverified::ClientMode
     );
-    let missing = parse_clients(&exec(&j_line("attached", "1000"))).unwrap();
-    let no_uid = parse_clients(&exec(&j_line("attached", ""))).unwrap();
+    let missing = parse_clients(&exec(&j_line("attached", "1000")), OWN_PID).unwrap();
+    let no_uid = parse_clients(&exec(&j_line("attached", "")), OWN_PID).unwrap();
     assert_eq!(
         registered(&no_uid, &w, pane()).unwrap_err(),
         Unverified::Process
@@ -232,8 +235,8 @@ fn a_foreign_client_with_no_detach_on_destroy_does_not_break_the_listing() {
     let own = j_line("attached,focused,UTF-8", "1000");
     let foreign = "J|50|1000|11|21|$0|@0|%0|10|1|1|0|0|0|/dev/pts/4|1000|attached,focused,UTF-8,no-detach-on-destroy\n";
     for listing in [format!("{own}{foreign}"), format!("{foreign}{own}")] {
-        let rows = parse_clients(&exec(&listing)).unwrap();
-        assert_eq!(rows.len(), 2);
+        let rows = parse_clients(&exec(&listing), OWN_PID).unwrap();
+        assert_eq!(rows.len(), 1, "only the own row is kept");
         assert_eq!(
             registered(&rows, &w, pane()).unwrap().map(|row| row.pid),
             Some(10)
@@ -246,8 +249,69 @@ fn a_foreign_client_with_no_detach_on_destroy_does_not_break_the_listing() {
         );
     }
     // Die gemessene tmux-3.6-Zeile des eigenen Clients bleibt unveraendert.
-    let rows = parse_clients(&exec(&j_line("attached,focused,UTF-8", "1000"))).unwrap();
+    let rows = parse_clients(&exec(&j_line("attached,focused,UTF-8", "1000")), OWN_PID).unwrap();
     assert!(registered(&rows, &w, pane()).unwrap().is_some());
+}
+
+/// Spec 2026-10-25 §6.2: Auf dem Standard-Socket haengen fremde Clients jeder
+/// Art. Keiner davon laesst die Bestaetigung scheitern; die eigene Zeile
+/// bleibt streng und darf nur einmal vorkommen.
+#[test]
+fn foreign_clients_of_any_kind_leave_the_own_row_standing() {
+    let own = j_line("attached,focused,UTF-8", "1000");
+    let mut foreign = String::new();
+    for pid in 100..140 {
+        foreign.push_str(&format!(
+            "J|50|1000|{pid}|21|$0|@0|%0|10|1|1|0|0|0|/dev/pts/9|1000|attached,focused
+"
+        ));
+    }
+    foreign.push_str(
+        "J|50|1000|11|21|$0|@0|%0|10|1|1|0|0|0||1000|attached,control-mode,pause-after=5
+",
+    );
+    foreign.push_str(
+        "J|50|1000|12|21|$0|@0|%0|10|1|1|0|0|0|/dev/tty1|0|attached,some-future-flag
+",
+    );
+    foreign.push_str(
+        "J|50|1000|13|21|$0|@0|%0|10|1|1|0|0|0|/dev/pts/5|extra|1000|attached
+",
+    );
+    let rows = parse_clients(&exec(&format!("{foreign}{own}")), OWN_PID).unwrap();
+    assert_eq!(rows.len(), 1);
+    let w = WrapperIdentity {
+        pid: OWN_PID,
+        start_ticks: 20,
+        uid: 1000,
+        tty_nr: 3,
+        tty: "/dev/pts/3".into(),
+    };
+    assert_eq!(
+        registered(&rows, &w, pane()).unwrap().map(|row| row.pid),
+        Some(OWN_PID)
+    );
+    assert!(parse_clients(&exec(&foreign), OWN_PID).unwrap().is_empty());
+    assert_eq!(
+        parse_clients(&exec(&format!("{own}{own}")), OWN_PID).unwrap_err(),
+        Unverified::Frame
+    );
+    assert_eq!(
+        parse_clients(&exec(&own.replace("/dev/pts/3", "/dev/tty1")), OWN_PID).unwrap_err(),
+        Unverified::Frame
+    );
+    assert_eq!(
+        parse_clients(
+            &exec(&format!(
+                "{foreign}
+{own}"
+            )),
+            OWN_PID
+        )
+        .unwrap_err(),
+        Unverified::Frame,
+        "the whole frame stays printable ASCII"
+    );
 }
 
 /// Die Erlaubnisliste wird nur um dieses eine Flag laenger: andere unbekannte
@@ -261,7 +325,7 @@ fn other_unknown_or_repeated_client_flags_still_fail_the_listing() {
         "attached,no-detach-on-destroy,no-detach-on-destroy",
     ] {
         assert_eq!(
-            parse_clients(&exec(&j_line(flags, "1000"))).unwrap_err(),
+            parse_clients(&exec(&j_line(flags, "1000")), OWN_PID).unwrap_err(),
             Unverified::Frame,
             "{flags}"
         );
