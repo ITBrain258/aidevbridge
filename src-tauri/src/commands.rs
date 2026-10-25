@@ -206,7 +206,14 @@ impl AppState {
     /// Bewusst nicht `Default`: die Unit-Tests bauen ihren Zustand ueber
     /// `AppState::default()` und sollen nicht von der Umgebung abhaengen.
     pub fn from_env() -> Self {
-        Self::with_own_socket(settings::app_socket().unwrap_or_else(|error| panic!("{error}")))
+        let own = settings::app_socket().unwrap_or_else(|error| panic!("{error}"));
+        let default = settings::default_socket_name().unwrap_or_else(|error| panic!("{error}"));
+        // Zeigten beide auf denselben Server, stuenden seine Sessions doppelt da.
+        assert_ne!(
+            own, default,
+            "the own and the default tmux socket must differ"
+        );
+        Self::with_own_socket(own).with_default_socket_name(default)
     }
 
     /// Fuer Tests: eigener tmux-Socket, damit Laeufe gegen die VM nicht mit

@@ -536,6 +536,11 @@ pub fn parse_settings(text: &str) -> anyhow::Result<Settings> {
 
 /// Ersetzt im Debug-Bau den Socket `agentbridge`.
 pub const TMUX_SOCKET_ENV: &str = "AIDEVBRIDGE_TMUX_SOCKET";
+/// Ersetzt im Debug-Bau den Namen von tmux' Standard-Socket (Spec 2026-10-25
+/// §6.1): So prueft eine Testinstanz die Sessions des Standard-Sockets an
+/// einem Testsocket, ohne den echten zu beruehren. Die Regeln haengen an der
+/// Art, nicht am Namen.
+pub const TMUX_DEFAULT_SOCKET_ENV: &str = "AIDEVBRIDGE_TMUX_DEFAULT_SOCKET";
 /// Ersetzt im Debug-Bau den Ordner von `settings.toml`.
 pub const SETTINGS_DIR_ENV: &str = "AIDEVBRIDGE_SETTINGS_DIR";
 /// Nennt im Debug-Bau, zusammen mit `AIDEVBRIDGE_SETTINGS_DIR`, den alten
@@ -586,6 +591,27 @@ pub fn app_socket() -> Result<String, String> {
 /// Testbarer Kern von `app_socket()`. Ein gesetzter, aber ungueltiger Wert
 /// faellt im Debug-Bau nicht still auf den Produktionssocket zurueck -- dort
 /// liegen die echten Sessions des Nutzers.
+/// Der Name des Standard-Sockets: `default`, im Debug-Bau ggf. aus
+/// `AIDEVBRIDGE_TMUX_DEFAULT_SOCKET`. Gesetzt, aber ungueltig, ist ein Fehler.
+pub fn default_socket_name() -> Result<String, String> {
+    default_socket_name_from(test_env(TMUX_DEFAULT_SOCKET_ENV).as_deref())
+}
+
+/// Testbarer Kern von `default_socket_name()`, mit denselben Regeln wie fuer
+/// den eigenen Socket: ein gesetzter, aber ungueltiger Wert faellt nicht still
+/// auf den echten Standard-Socket zurueck.
+fn default_socket_name_from(raw: Option<&str>) -> Result<String, String> {
+    match (raw, socket_override(raw)) {
+        (_, Some(socket)) => Ok(socket),
+        (Some(raw), None) if cfg!(debug_assertions) => Err(format!(
+            "{TMUX_DEFAULT_SOCKET_ENV} must have 1-48 characters from A-Z, a-z, 0-9, _ and - \
+             and must not be 'default' or '{}': {raw:?}",
+            default_socket()
+        )),
+        _ => Ok(crate::tmux::DEFAULT_SOCKET_NAME.into()),
+    }
+}
+
 fn app_socket_from(raw: Option<&str>) -> Result<String, String> {
     match (raw, socket_override(raw)) {
         (_, Some(socket)) => Ok(socket),
@@ -1967,6 +1993,22 @@ last = "/x"
             .unwrap_err()
             .to_string();
         assert!(error.contains(SETTINGS_DIR_ENV), "{error}");
+    }
+
+    /// Spec 2026-10-25 §6.1: der Standard-Socket nach denselben Regeln; ein
+    /// ungueltiger Name faellt nicht still auf den echten zurueck.
+    #[test]
+    #[cfg(debug_assertions)]
+    fn default_socket_name_uses_the_override_and_refuses_an_invalid_one() {
+        assert_eq!(default_socket_name_from(None), Ok("default".to_string()));
+        assert_eq!(
+            default_socket_name_from(Some("abtest_dflt_1")),
+            Ok("abtest_dflt_1".to_string())
+        );
+        for raw in ["agentbridge", "default", "a b", ""] {
+            let error = default_socket_name_from(Some(raw)).unwrap_err();
+            assert!(error.contains(TMUX_DEFAULT_SOCKET_ENV), "{raw:?}: {error}");
+        }
     }
 
     /// Wie oben: ein gesetzter, aber ungueltiger Socketname faellt nicht still
