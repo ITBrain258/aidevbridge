@@ -1644,6 +1644,7 @@ vm_test!(
                 history_limit: None,
                 key_path: Some(vm_key_path().display().to_string()),
                 auth_kind: None,
+                show_default_socket: None,
             },
         )
         .expect("add_host_impl (Fixtur) darf nicht fehlschlagen");
@@ -1671,6 +1672,7 @@ vm_test!(
                 history_limit: None,
                 key_path: Some(vm_key_path().display().to_string()),
                 auth_kind: None,
+                show_default_socket: None,
             },
         )
         .unwrap();
@@ -1725,6 +1727,7 @@ vm_test!(
                 history_limit: None,
                 key_path: Some(vm_key_path().display().to_string()),
                 auth_kind: None,
+                show_default_socket: None,
             },
         )
         .expect("add_host_impl (Fixtur) darf nicht fehlschlagen");

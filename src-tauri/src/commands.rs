@@ -3074,6 +3074,10 @@ pub struct NewHostEntryDto {
     // `settings.toml` tut.
     #[serde(default)]
     pub auth_kind: Option<AuthKind>,
+    /// Fehlt es, behaelt `update_host` den gespeicherten Wert, und `add_host`
+    /// schaltet an (Spec 2026-10-25 §10.1).
+    #[serde(default)]
+    pub show_default_socket: Option<bool>,
 }
 
 fn default_port_dto() -> u16 {
@@ -3120,6 +3124,7 @@ pub fn add_host_impl(settings_path: &Path, entry: NewHostEntryDto) -> Result<Hos
             .unwrap_or_else(settings::default_history),
         key_path: entry.key_path,
         auth_kind: entry.auth_kind,
+        show_default_socket: entry.show_default_socket.unwrap_or(true),
     };
     // Task 8 (Spec §4.8): IMMER ein konkretes `Some(..)` speichern (und damit
     // auch zurueckgeben, siehe `first-run.ts::finishAndPersist`/
@@ -3170,6 +3175,9 @@ pub fn update_host_impl(
     }
     host.key_path = entry.key_path;
     host.auth_kind = entry.auth_kind;
+    if let Some(show) = entry.show_default_socket {
+        host.show_default_socket = show;
+    }
     host.auth_kind = Some(host.effective_auth_kind());
     let saved = host.clone();
     settings::save_to(settings_path, &current).map_err(settings_error)?;
@@ -3189,6 +3197,11 @@ pub struct TileEntryDto {
     pub slot: u8,
     pub host_id: String,
     pub session: String,
+    /// Fremde Kachel (`settings::TileEntry::foreign_session`); fehlt sonst.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub foreign_session: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub socket: Option<String>,
 }
 
 /// Verzeichnisse eines Hosts auf dem Draht (`settings::HostDirs`). `last` ist
@@ -3232,6 +3245,8 @@ impl From<&settings::Workspace> for WorkspaceDto {
                     slot: tile.slot,
                     host_id: tile.host_id.clone(),
                     session: tile.session.clone(),
+                    foreign_session: tile.foreign_session.clone(),
+                    socket: tile.socket.clone(),
                 })
                 .collect(),
             dirs: workspace
@@ -3266,6 +3281,8 @@ impl From<WorkspaceDto> for settings::Workspace {
                     slot: tile.slot,
                     host_id: tile.host_id,
                     session: tile.session,
+                    foreign_session: tile.foreign_session,
+                    socket: tile.socket,
                 })
                 .collect(),
             dirs: dto
@@ -5770,6 +5787,7 @@ mod tests {
             history_limit: None,
             key_path: None,
             auth_kind: None,
+            show_default_socket: None,
         }
     }
 
@@ -5862,6 +5880,8 @@ mod tests {
             slot,
             host_id: host_id.into(),
             session: session.into(),
+            foreign_session: None,
+            socket: None,
         }
     }
 
