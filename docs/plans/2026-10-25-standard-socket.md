@@ -183,6 +183,16 @@ die Optik der Gruppe, des Kennzeichens und des schmalen Kopfs.
 
 ## Schritt 6: Abnahme und Doku (0,5 d)
 
+**Vorlauf am 25.10.** In der Testinstanz (Debug-Bau, `AIDEVBRIDGE_TMUX_DEFAULT_SOCKET`
+auf einen Testsocket auf 192.0.2.10) mit `main`, `work` samt zweitem Client
+und einer Sitzungsgruppe: Gruppe, Tooltips, gesperrte Gruppensessions,
+Oeffnen, Eingabe, Kennzeichen, Hinweis zur Fenstergroesse, Wiederherstellen
+nach Neustart und der Schalter an und aus gingen. Gefunden und behoben: Der
+Schalter im Host-Dialog stand vor den Feldern der Anmeldeart und ueber seinem
+Text. Nach dem Schliessen hing am Testserver nur der zweite Client; `status`
+blieb an. Offen bleibt der Lauf am Fenster mit dem Maintainer auf dem echten
+Standard-Socket (Tor §1 Punkt 1 bis 6).
+
 - Live-Test aus Schritt 3 gegen beide VMs.
 - Lauf am Fenster mit dem Maintainer (Spec §8, Tor §1 Punkt 1 bis 6), mit dem
   Vergleich von `show -g`, `-gw`, `-s`, `-t`, `show-hooks -g` und
