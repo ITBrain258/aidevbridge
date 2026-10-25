@@ -4,9 +4,11 @@ pub mod history;
 pub mod inventory;
 pub mod names;
 pub mod session_binding;
+pub mod socket;
 
-pub use client::{CreateOutcome, ServerAbsent, TmuxClient};
+pub use client::{CreateOutcome, OwnTmuxClient, ServerAbsent, TmuxClient};
 pub use names::{new_session_name, session_name_is_acceptable, SESSION_NAME_RULE};
+pub use socket::{OwnSocket, SocketKind, TmuxSocket, DEFAULT_SOCKET_NAME};
 
 /// Steht im selben tmux-Aufruf vor jedem Anhaengen: schaltet die
 /// Statuszeile auf dem App-Socket aus. Sessionname, Host und Status zeigt der

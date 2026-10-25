@@ -10,6 +10,10 @@ use crate::tmux::history::{history_command, prepare_history};
 use crate::tmux::inventory::{PaneId, ServerIdentity, SessionId, WindowId};
 use tokio::time::timeout;
 
+fn state_socket() -> TmuxSocket {
+    TmuxSocket::own(&OwnSocket::new("hermetic_socket").unwrap())
+}
+
 const END: Duration = Duration::from_secs(8);
 const HOST: &str = "hermetic-h0";
 const SESSION: &str = "same-session";
@@ -66,7 +70,7 @@ impl Recorded {
 async fn connected() -> (Fixture, Arc<AppState>) {
     let fixture = Fixture::start(2, false, false, false).await;
     let host = fixture.connect().await.unwrap();
-    let state = Arc::new(AppState::with_default_socket("hermetic_socket".into()));
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
     host.start_monitor();
     state
         .hosts
@@ -224,7 +228,7 @@ async fn the_history_is_the_first_output_and_counts_into_the_ack_window() {
     );
     assert_eq!(
         crate::remote::command::decoded_argv(&commands[0]),
-        history_command("hermetic_socket", PANE)
+        history_command(&state_socket(), PANE)
     );
     // Erst der Attach (Leg 1), dann die Erfassung (Leg 0): nach dem Attach
     // hat tmux das Fenster schon auf die Kachelgroesse gebracht.
@@ -467,7 +471,7 @@ async fn a_bound_open_that_fails_its_confirmation_captures_nothing() {
     .await
     .unwrap();
     assert!(result.is_err(), "the fixture cannot confirm a bound attach");
-    let history = history_command("hermetic_socket", 9);
+    let history = history_command(&state_socket(), 9);
     let commands = fixture.control_commands();
     assert!(!commands.is_empty(), "the confirmation ran");
     assert!(commands

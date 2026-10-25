@@ -28,7 +28,10 @@ use crate::tmux::inventory::{
     InventoryOutcome, InventoryQuery, MeasuredVersion, PaneId, ServerIdentity, SessionId, WindowId,
 };
 use crate::tmux::session_binding::PaneIdentity;
-use crate::tmux::{CreateOutcome, ServerAbsent, TmuxClient};
+use crate::tmux::{
+    CreateOutcome, OwnSocket, OwnTmuxClient, ServerAbsent, TmuxClient, TmuxSocket,
+    DEFAULT_SOCKET_NAME,
+};
 use crate::transport::connect_control::{
     ConnectControl, ConnectError as ConnectFailure, ConnectLimits,
 };
@@ -163,12 +166,18 @@ const HISTORY_CHUNK_BYTES: usize = 32 * 1024;
 /// `_impl`-Funktionen Tauri-frei und damit ausserhalb einer laufenden
 /// Anwendung testbar.
 pub struct AppState {
-    /// Socket fuer alle tmux-Aufrufe dieses Zustands. Produktiv
-    /// `settings::default_socket()`, im Debug-Bau ersetzbar (siehe
-    /// `from_env`); Tests setzen ueber `with_default_socket` einen eigenen
+    /// Der eigene Socket der App fuer alle tmux-Aufrufe dieses Zustands.
+    /// Produktiv `settings::default_socket()`, im Debug-Bau ersetzbar (siehe
+    /// `from_env`); Tests setzen ueber `with_own_socket` einen eigenen
     /// Socket, damit ein Testlauf gegen dieselbe VM nicht mit den Sessions
-    /// eines anderen Nutzers auf dem Produktionssocket kollidiert.
-    pub default_socket: String,
+    /// eines anderen Nutzers auf dem Produktionssocket kollidiert. Als
+    /// `OwnSocket` nie der Standard-Socket (Spec 2026-10-25 §6.1).
+    pub own_socket: OwnSocket,
+    /// Der Standard-Socket des Nutzers: nur gelesen und nur ueber den
+    /// Waechter angehaengt. Im Produkt `default`; Tests lenken ihn ueber
+    /// `with_default_socket_name` auf einen Testsocket um, damit kein
+    /// automatischer Test den echten beruehrt (Spec 2026-10-25 §6.1).
+    pub default_socket: TmuxSocket,
     // The same short synchronous lock reserves, publishes and removes attempts.
     // No network, channel cleanup or file IO is awaited while it is held.
     hosts: std::sync::Mutex<HashMap<String, HostSlot>>,
@@ -183,7 +192,7 @@ pub struct AppState {
 
 impl Default for AppState {
     fn default() -> Self {
-        Self::with_default_socket(settings::default_socket())
+        Self::with_own_socket(settings::default_socket())
     }
 }
 
@@ -197,14 +206,15 @@ impl AppState {
     /// Bewusst nicht `Default`: die Unit-Tests bauen ihren Zustand ueber
     /// `AppState::default()` und sollen nicht von der Umgebung abhaengen.
     pub fn from_env() -> Self {
-        Self::with_default_socket(settings::app_socket().unwrap_or_else(|error| panic!("{error}")))
+        Self::with_own_socket(settings::app_socket().unwrap_or_else(|error| panic!("{error}")))
     }
 
     /// Fuer Tests: eigener tmux-Socket, damit Laeufe gegen die VM nicht mit
     /// den Sessions eines Nutzers auf derselben Maschine kollidieren.
-    pub fn with_default_socket(default_socket: String) -> Self {
+    pub fn with_own_socket(own_socket: String) -> Self {
         Self {
-            default_socket,
+            own_socket: OwnSocket::new(own_socket).unwrap_or_else(|error| panic!("{error}")),
+            default_socket: TmuxSocket::default_named(DEFAULT_SOCKET_NAME),
             hosts: std::sync::Mutex::new(HashMap::new()),
             terminals: std::sync::Mutex::new(TerminalRegistry::default()),
             next_host_id: AtomicU64::new(0),
@@ -212,6 +222,17 @@ impl AppState {
             pending_host_key: std::sync::Mutex::new(HashMap::new()),
             next_request_id: AtomicU64::new(0),
         }
+    }
+
+    /// Fuer Tests: der Standard-Socket unter einem Testnamen.
+    pub fn with_default_socket_name(mut self, name: String) -> Self {
+        self.default_socket = TmuxSocket::default_named(name);
+        self
+    }
+
+    /// Der eigene Socket als Socket zum Lesen.
+    pub fn own_tmux_socket(&self) -> TmuxSocket {
+        TmuxSocket::own(&self.own_socket)
     }
 
     /// Nur fuer Tests/Diagnose: ob fuer `host_id` eine Verbindung gefuehrt
@@ -1451,7 +1472,7 @@ fn seed_rng() -> rand::rngs::StdRng {
 /// Fehlschlag dort waere von einer Namenskollision nicht mehr zu
 /// unterscheiden.
 async fn create_session_with_retry(
-    client: &TmuxClient,
+    client: &OwnTmuxClient,
     t: &dyn Transport,
     rng: &mut impl rand::Rng,
     cwd: &str,
@@ -1787,7 +1808,7 @@ pub async fn create_session_impl(
         .and_then(HostSlot::ready)
         .ok_or_else(|| SessionError::other("host not connected"))?;
 
-    let client = TmuxClient::new(&state.default_socket);
+    let client = OwnTmuxClient::new(&state.own_socket);
     let transport = transport.command(deadline);
     // Jedes Mal, nicht einmalig gecacht: robuster gegen einen tmux-Server,
     // der zwischen zwei `create_session`-Aufrufen gestorben ist (V21b), auf
@@ -1836,7 +1857,7 @@ pub async fn create_session_impl(
         // dieser Block ersatzlos entfernt macht KEINEN Test rot -- gemessen,
         // nicht vermutet. Der Grund ist strukturell, nicht Nachlaessigkeit:
         // die Wirkung ist eine GLOBALE Serveroption, `create_session_impl`
-        // legt fest auf `state.default_socket` an, und `state.hosts`
+        // legt fest auf `state.own_socket` an, und `state.hosts`
         // haelt einen konkreten `Arc<RusshTransport>` -- ein abgespielter
         // Transport laesst sich hier nicht einsetzen. Ein VM-Test darauf
         // kippte unter der parallelen Suite (siehe
@@ -1894,7 +1915,7 @@ fn remaining_control(control: &OperationControl) -> Duration {
 
 async fn open_confirmed_pty(
     host: &Arc<HostConnection>,
-    socket: &str,
+    socket: &TmuxSocket,
     selected: PaneIdentity,
     cols: u16,
     rows: u16,
@@ -1903,7 +1924,7 @@ async fn open_confirmed_pty(
     let commands = host.command_sharing(control.clone());
     let named = commands
         .exec_with_deadline(
-            &named_probe(socket, selected).map_err(|error| error.to_string())?,
+            &named_probe(socket.name(), selected).map_err(|error| error.to_string())?,
             remaining_control(&control),
         )
         .await
@@ -1915,7 +1936,7 @@ async fn open_confirmed_pty(
         )
         .await
         .map_err(|error| error.to_string())?;
-    let binding = SocketBinding::from_responses(&named, &absolute, selected)
+    let binding = SocketBinding::from_responses(&named, &absolute, selected, socket.kind())
         .map_err(|error| error.to_string())?;
     let nonce = fresh_attach_nonce();
     let attach = binding
@@ -2065,7 +2086,7 @@ pub async fn open_terminal_tagged_impl<S: OutputSink>(
 /// GANZEN Verlauf, statt wie `prepare_history` die neuesten 2 MiB zu behalten.
 async fn capture_history(
     host: &Arc<HostConnection>,
-    socket: &str,
+    socket: &TmuxSocket,
     request: HistoryRequest,
     rows: u16,
     control: OperationControl,
@@ -2117,7 +2138,7 @@ async fn open_terminal_with_history<S: OutputSink>(
     let mut pty = if let Some(selected) = selected {
         open_confirmed_pty(
             &host,
-            &state.default_socket,
+            &state.own_tmux_socket(),
             selected,
             cols,
             rows,
@@ -2127,7 +2148,7 @@ async fn open_terminal_with_history<S: OutputSink>(
     } else {
         host.terminal()
             .open_attach_controlled(
-                &state.default_socket,
+                &state.own_socket,
                 &session,
                 cols,
                 rows,
@@ -2153,7 +2174,7 @@ async fn open_terminal_with_history<S: OutputSink>(
         Some(request) => {
             capture_history(
                 &host,
-                &state.default_socket,
+                &state.own_tmux_socket(),
                 request,
                 rows,
                 attempt.control.clone(),
@@ -2522,7 +2543,7 @@ pub async fn kill_session_impl(
 
     let transport = transport.command(deadline);
 
-    let client = TmuxClient::new(&state.default_socket);
+    let client = OwnTmuxClient::new(&state.own_socket);
     match (session_id, server_pid, server_start_time) {
         (Some(session_id), Some(server_pid), Some(server_start_time)) => {
             kill_session_bound_and_verify(
@@ -2547,7 +2568,7 @@ pub async fn kill_session_impl(
 /// Keep the mutation and its verification together, with an injectable
 /// transport so false-success cases are covered without a live host.
 async fn kill_session_and_verify(
-    client: &TmuxClient,
+    client: &OwnTmuxClient,
     transport: &dyn Transport,
     session: &str,
 ) -> anyhow::Result<()> {
@@ -2562,7 +2583,7 @@ async fn kill_session_and_verify(
 }
 
 async fn kill_session_bound_and_verify(
-    client: &TmuxClient,
+    client: &OwnTmuxClient,
     transport: &dyn Transport,
     server: crate::tmux::inventory::ServerIdentity,
     session: crate::tmux::inventory::SessionId,
@@ -3576,9 +3597,9 @@ pub async fn list_sessions_impl(
             control_generation: 0,
         })?;
 
-    // `state.default_socket` und NICHT der per-Host konfigurierte
+    // `state.own_socket` und NICHT der per-Host konfigurierte
     // `HostEntry.tmux_socket`: `create_session_impl` legt Sessions ebenfalls
-    // auf `state.default_socket` an. Eine abweichende Wahl hier wuerde einen
+    // auf `state.own_socket` an. Eine abweichende Wahl hier wuerde einen
     // ANDEREN Socket auflisten als den, auf dem die Sessions liegen -- die
     // Liste bliebe leer, und niemand saehe warum.
     //
@@ -3589,7 +3610,7 @@ pub async fn list_sessions_impl(
     // Socket kommt jetzt aus `AppState`, nicht mehr aus der freien Funktion
     // `settings::default_socket()` -- die liefert weiterhin nur den
     // Produktionsdefault, aus dem `AppState::default()` seinen Wert nimmt.
-    let client = TmuxClient::new(&state.default_socket);
+    let client = TmuxClient::new(&state.own_tmux_socket());
     let transport = transport.command(deadline);
     let version = transport
         .exec_with_deadline(&client.version_command(), COMMAND_TIMEOUT)
@@ -3607,7 +3628,7 @@ pub async fn list_sessions_impl(
             };
             let (titles, _) = read_pane_details(
                 &transport,
-                &state.default_socket,
+                &state.own_tmux_socket(),
                 &crate::status::listed_title_panes(&observed.sessions),
                 deadline,
             )
@@ -3733,7 +3754,7 @@ async fn read_claude_agents(
 /// gescheiterte Liste oder Abfrage.
 async fn read_pane_details(
     transport: &dyn Transport,
-    socket: &str,
+    socket: &TmuxSocket,
     panes: &[(crate::tmux::inventory::PaneId, u32)],
     deadline: tokio::time::Instant,
 ) -> (
@@ -3766,7 +3787,7 @@ async fn read_pane_details(
 /// judged by its active pane (`status::statuses_from_inventory`).
 async fn poll_status_with(
     transport: &dyn Transport,
-    socket: &str,
+    socket: &TmuxSocket,
     deadline: tokio::time::Instant,
 ) -> anyhow::Result<StatusPollDto> {
     let remaining = || deadline.saturating_duration_since(tokio::time::Instant::now());
@@ -3784,7 +3805,7 @@ async fn poll_status_with(
             titles_ok: false,
         });
     };
-    let query = InventoryQuery::named(version, socket)?;
+    let query = InventoryQuery::named(version, socket.name())?;
     let result = transport
         .exec_with_deadline(&query.command(), remaining())
         .await?;
@@ -3839,7 +3860,7 @@ pub async fn poll_status_impl(
             control_generation: 0,
         })?;
     let transport = transport.command(deadline);
-    poll_status_with(&transport, &state.default_socket, deadline)
+    poll_status_with(&transport, &state.own_tmux_socket(), deadline)
         .await
         .map_err(|e| operation_error(&transport, &e))
 }
@@ -4024,6 +4045,10 @@ pub async fn open_link(url: String) -> Result<(), String> {
 mod tests {
     use super::*;
 
+    fn sock() -> TmuxSocket {
+        TmuxSocket::own(&OwnSocket::new("sock").unwrap())
+    }
+
     fn bound_listing(id: u32) -> crate::tmux::client::ListedSessionObservation {
         crate::tmux::client::ListedSessionObservation {
             session_id: SessionId(id),
@@ -4112,7 +4137,7 @@ mod tests {
             ),
             poll_exec("11 10\n"),
         ]);
-        let poll = poll_status_with(&t, "sock", tokio::time::Instant::now() + COMMAND_TIMEOUT)
+        let poll = poll_status_with(&t, &sock(), tokio::time::Instant::now() + COMMAND_TIMEOUT)
             .await
             .unwrap();
         assert_eq!(*t.calls.lock().unwrap(), 5);
@@ -4157,7 +4182,7 @@ mod tests {
             poll_exec(r#"[{"kind":"interactive","pid":10,"status":"busy"}]"#),
             poll_exec("10 1\n"),
         ]);
-        let poll = poll_status_with(&t, "sock", tokio::time::Instant::now() + COMMAND_TIMEOUT)
+        let poll = poll_status_with(&t, &sock(), tokio::time::Instant::now() + COMMAND_TIMEOUT)
             .await
             .unwrap();
         assert_eq!(*t.calls.lock().unwrap(), 5);
@@ -4190,7 +4215,7 @@ mod tests {
                 poll_exec(""),
                 poll_exec("[]"),
             ]);
-            let poll = poll_status_with(&t, "sock", tokio::time::Instant::now() + COMMAND_TIMEOUT)
+            let poll = poll_status_with(&t, &sock(), tokio::time::Instant::now() + COMMAND_TIMEOUT)
                 .await
                 .unwrap();
             assert_eq!(*t.calls.lock().unwrap(), 4, "{version:?}");
@@ -4208,7 +4233,7 @@ mod tests {
         // gemessen; `tmux 3.6\r\n` ist nicht die gemessene Antwort.
         for version in ["tmux 3.5a\n", "tmux 3.5\n", "tmux 3.6a\n", "tmux 3.6\r\n"] {
             let t = ScriptedTransport::new(vec![poll_exec(version)]);
-            let poll = poll_status_with(&t, "sock", tokio::time::Instant::now() + COMMAND_TIMEOUT)
+            let poll = poll_status_with(&t, &sock(), tokio::time::Instant::now() + COMMAND_TIMEOUT)
                 .await
                 .unwrap();
             assert_eq!(*t.calls.lock().unwrap(), 1, "{version:?}");
@@ -4236,7 +4261,7 @@ mod tests {
         failed.stderr = "no server running on /tmp/tmux-1000/sock\n".into();
         let t = ScriptedTransport::new(vec![poll_exec("tmux 3.4\n"), failed]);
         assert!(
-            poll_status_with(&t, "sock", tokio::time::Instant::now() + COMMAND_TIMEOUT)
+            poll_status_with(&t, &sock(), tokio::time::Instant::now() + COMMAND_TIMEOUT)
                 .await
                 .is_err()
         );
@@ -4310,7 +4335,7 @@ mod tests {
 
     /// Titelbefehl fuer die beiden aktiven Panes aus `POLL_INVENTORY`.
     fn title_line() -> String {
-        crate::status::title::details_command("sock", &[(PaneId(0), 10), (PaneId(1), 20)]).unwrap()
+        crate::status::title::details_command(&sock(), &[(PaneId(0), 10), (PaneId(1), 20)]).unwrap()
     }
 
     /// Poll mit 5 s Gesamtfrist; Version sofort, das Inventar verbraucht
@@ -4327,7 +4352,7 @@ mod tests {
             calls: StdMutex::new(Vec::new()),
         };
         let deadline = tokio::time::Instant::now() + STATUS_POLL_TIMEOUT;
-        let poll = poll_status_with(&t, "sock", deadline).await.unwrap();
+        let poll = poll_status_with(&t, &sock(), deadline).await.unwrap();
         assert!(
             t.steps.lock().unwrap().is_empty(),
             "Antwort nicht abgerufen"
@@ -6107,9 +6132,13 @@ mod tests {
             ..created()
         };
         let t = ScriptedTransport::new(vec![created(), verification_failure]);
-        let error = kill_session_and_verify(&TmuxClient::new("sock"), &t, "dev")
-            .await
-            .unwrap_err();
+        let error = kill_session_and_verify(
+            &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
+            &t,
+            "dev",
+        )
+        .await
+        .unwrap_err();
         assert!(error.to_string().contains("Permission denied"));
         assert_eq!(*t.calls.lock().unwrap(), 2);
     }
@@ -6123,9 +6152,13 @@ mod tests {
             ..created()
         };
         let t = ScriptedTransport::new(vec![kill_failure, created()]);
-        let error = kill_session_and_verify(&TmuxClient::new("sock"), &t, "dev")
-            .await
-            .unwrap_err();
+        let error = kill_session_and_verify(
+            &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
+            &t,
+            "dev",
+        )
+        .await
+        .unwrap_err();
         assert!(error.to_string().contains("tmux: not found"));
         assert_eq!(*t.calls.lock().unwrap(), 1);
     }
@@ -6147,9 +6180,13 @@ mod tests {
                 ..created()
             };
             let t = ScriptedTransport::new(vec![kill_result, listing]);
-            let error = kill_session_and_verify(&TmuxClient::new("sock"), &t, "dev")
-                .await
-                .unwrap_err();
+            let error = kill_session_and_verify(
+                &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
+                &t,
+                "dev",
+            )
+            .await
+            .unwrap_err();
             assert!(error.to_string().contains("still running"));
             assert_eq!(*t.calls.lock().unwrap(), 2);
         }
@@ -6169,9 +6206,13 @@ mod tests {
             ..created()
         };
         let t = ScriptedTransport::new(vec![already_missing, listing]);
-        kill_session_and_verify(&TmuxClient::new("sock"), &t, "dev")
-            .await
-            .unwrap();
+        kill_session_and_verify(
+            &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
+            &t,
+            "dev",
+        )
+        .await
+        .unwrap();
         assert_eq!(*t.calls.lock().unwrap(), 2);
     }
 
@@ -6184,9 +6225,13 @@ mod tests {
             ..created()
         };
         let t = ScriptedTransport::new(vec![created(), no_server]);
-        kill_session_and_verify(&TmuxClient::new("sock"), &t, "dev")
-            .await
-            .unwrap();
+        kill_session_and_verify(
+            &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
+            &t,
+            "dev",
+        )
+        .await
+        .unwrap();
         assert_eq!(*t.calls.lock().unwrap(), 2);
     }
 
@@ -6212,7 +6257,7 @@ mod tests {
         };
         let t = ScriptedTransport::new(vec![created(), version, no_server, prediction]);
         let result = kill_session_bound_and_verify(
-            &TmuxClient::new("sock"),
+            &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
             &t,
             crate::tmux::inventory::ServerIdentity {
                 pid: 50,
@@ -6247,7 +6292,7 @@ mod tests {
     #[tokio::test]
     async fn retries_past_duplicate_names_and_succeeds() {
         let t = ScriptedTransport::new(vec![duplicate(), duplicate(), created_session()]);
-        let client = TmuxClient::new("irrelevant");
+        let client = OwnTmuxClient::new(&OwnSocket::new("irrelevant").unwrap());
         let mut rng = rand::rngs::StdRng::seed_from_u64(42);
         let name = create_session_with_retry(&client, &t, &mut rng, "/tmp", MAX_NAME_ATTEMPTS)
             .await
@@ -6259,7 +6304,7 @@ mod tests {
     #[tokio::test]
     async fn gives_up_after_max_attempts_consecutive_collisions() {
         let t = ScriptedTransport::new((0..MAX_NAME_ATTEMPTS).map(|_| duplicate()).collect());
-        let client = TmuxClient::new("irrelevant");
+        let client = OwnTmuxClient::new(&OwnSocket::new("irrelevant").unwrap());
         let mut rng = rand::rngs::StdRng::seed_from_u64(42);
         let err = create_session_with_retry(&client, &t, &mut rng, "/tmp", MAX_NAME_ATTEMPTS)
             .await
@@ -6278,7 +6323,7 @@ mod tests {
         // KEINE Namenskollision -- die Schleife darf nicht weiterwuerfeln,
         // sie muss sofort mit dem echten Fehler abbrechen.
         let t = ScriptedTransport::new(vec![real_failure()]);
-        let client = TmuxClient::new("irrelevant");
+        let client = OwnTmuxClient::new(&OwnSocket::new("irrelevant").unwrap());
         let mut rng = rand::rngs::StdRng::seed_from_u64(42);
         let err = create_session_with_retry(&client, &t, &mut rng, "/tmp", MAX_NAME_ATTEMPTS)
             .await

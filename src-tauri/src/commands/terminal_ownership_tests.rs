@@ -46,7 +46,7 @@ impl Recorded {
 async fn connected() -> (Fixture, Arc<AppState>) {
     let fixture = Fixture::start(2, false, false, false).await;
     let host = fixture.connect().await.unwrap();
-    let state = Arc::new(AppState::with_default_socket("hermetic_socket".into()));
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
     host.start_monitor();
     state
         .hosts

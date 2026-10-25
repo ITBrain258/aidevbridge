@@ -58,7 +58,7 @@ impl BindingQuery {
     /// Builds the measured atomic server/session guard and numeric kill.
     /// The caller must still enforce current host/socket ownership and verify
     /// the outcome. In particular, the rejection marker also exits with zero.
-    pub fn guarded_kill_command(
+    pub(in crate::tmux) fn guarded_kill_command(
         &self,
         server: ServerIdentity,
         session: SessionId,
@@ -76,11 +76,12 @@ impl BindingQuery {
     /// measured guard. No detach, selection repair or name fallback occurs.
     /// An exec ACK is not attachment evidence; W/J confirmation and the final
     /// PTY publication gate are separate obligations of the future caller.
-    pub fn guarded_attach_command(
+    #[cfg(test)]
+    pub(in crate::tmux) fn guarded_attach_command(
         &self,
         binding: PaneIdentity,
     ) -> Result<String, InvalidGuardBinding> {
-        self.attach_guard(&[], binding)
+        self.attach_guard(&[], binding, "attach-session")
     }
 
     /// Wie [`Self::guarded_attach_command`], nur schaltet derselbe tmux-Aufruf
@@ -88,17 +89,32 @@ impl BindingQuery {
     /// dahinter bleibt Byte fuer Byte der gemessene; die Option beruehrt keine
     /// der Identitaeten, die er prueft. Lehnt er ab, ist die Zeile trotzdem
     /// aus, sonst geschieht nichts.
-    pub fn guarded_attach_command_without_status(
+    pub(in crate::tmux) fn guarded_attach_command_without_status(
         &self,
         binding: PaneIdentity,
     ) -> Result<String, InvalidGuardBinding> {
-        self.attach_guard(&super::HIDE_STATUS, binding)
+        self.attach_guard(&super::HIDE_STATUS, binding, "attach-session")
+    }
+
+    /// Der Waechter fuer eine Session auf dem Standard-Socket des Nutzers
+    /// (Spec 2026-10-25 §3, §6.4): derselbe gemessene Test, aber
+    /// `attach-session -E`, damit das Anhaengen `update-environment` nicht
+    /// anwendet, und ohne `set -g status off` davor. Gemessen am 25.10. auf
+    /// 3.3a und 3.6 (`messung-2026-10-25-standard-socket.md`): haengt bei
+    /// passender Bindung an, lehnt sonst ab, startet ohne Server nichts und
+    /// laesst die Umgebung der Session unveraendert.
+    pub(in crate::tmux) fn guarded_attach_command_foreign(
+        &self,
+        binding: PaneIdentity,
+    ) -> Result<String, InvalidGuardBinding> {
+        self.attach_guard(&[], binding, "attach-session -E")
     }
 
     fn attach_guard(
         &self,
         prefix: &[&str],
         binding: PaneIdentity,
+        action: &str,
     ) -> Result<String, InvalidGuardBinding> {
         validate_guard_server(binding.server)?;
         if binding.pane_pid == 0 {
@@ -110,7 +126,7 @@ impl BindingQuery {
             binding.server.pid, binding.server.start_time,
             binding.window_id.0, binding.pane_id.0, binding.pane_pid
         );
-        Ok(self.guard_command(prefix, &target, &test, "attach-session"))
+        Ok(self.guard_command(prefix, &target, &test, action))
     }
 
     fn guard_command(&self, prefix: &[&str], target: &str, test: &str, action: &str) -> String {
@@ -127,7 +143,11 @@ impl BindingQuery {
     /// Keeps the existing product creation policy and the user's locale. This
     /// builder does not execute a mutation, retry or interpret a failed result.
     /// Untrusted listed display names must never be supplied as creation names.
-    pub fn create_command(&self, name: &str, cwd: &str) -> Result<String, InvalidCreateArguments> {
+    pub(in crate::tmux) fn create_command(
+        &self,
+        name: &str,
+        cwd: &str,
+    ) -> Result<String, InvalidCreateArguments> {
         if !super::session_name_is_acceptable(name) {
             return Err(InvalidCreateArguments::Name);
         }
@@ -1068,6 +1088,50 @@ mod tests {
         assert_eq!(&hidden[11..], &guarded[6..]);
         assert_eq!(
             q.guarded_attach_command_without_status(PaneIdentity {
+                pane_pid: 0,
+                ..identity
+            }),
+            Err(InvalidGuardBinding::PanePid)
+        );
+    }
+
+    /// Auf dem Standard-Socket haengt derselbe gemessene Waechter an, nur mit
+    /// `attach-session -E` und ohne Befehl davor: Vorne steht `if-shell`,
+    /// das ohne Server keinen startet; nichts setzt eine Option oder
+    /// Umgebung, beendet oder trennt einen anderen Client ab (Spec 2026-10-25
+    /// §3, §6.4).
+    #[test]
+    fn foreign_attach_is_the_measured_guard_with_e_and_nothing_before_it() {
+        let q = BindingQuery::new(query());
+        let identity = parse_created(&output(C)).unwrap().identity();
+        let guarded = decoded_argv(&q.guarded_attach_command(identity).unwrap());
+        let foreign = decoded_argv(&q.guarded_attach_command_foreign(identity).unwrap());
+        let action = guarded.len() - 2;
+        assert_eq!(foreign.len(), guarded.len());
+        assert_eq!(foreign[6], "if-shell");
+        assert_eq!(&foreign[..action], &guarded[..action]);
+        assert_eq!(guarded[action], "attach-session -t '$0'");
+        assert_eq!(foreign[action], "attach-session -E -t '$0'");
+        assert_eq!(foreign[action + 1], guarded[action + 1]);
+        let words: Vec<&str> = foreign.iter().flat_map(|a| a.split_whitespace()).collect();
+        for forbidden in [
+            "-d",
+            "set",
+            "set-option",
+            "setw",
+            "set-window-option",
+            "set-environment",
+            "set-hook",
+            "start-server",
+            "new-session",
+            "kill-session",
+            "kill-server",
+            "detach-client",
+        ] {
+            assert!(!words.contains(&forbidden), "{forbidden}");
+        }
+        assert_eq!(
+            q.guarded_attach_command_foreign(PaneIdentity {
                 pane_pid: 0,
                 ..identity
             }),

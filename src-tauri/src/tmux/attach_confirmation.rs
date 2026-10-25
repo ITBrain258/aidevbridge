@@ -5,6 +5,7 @@ use super::inventory::{
     MAX_INVENTORY_BYTES,
 };
 use super::session_binding::{self, BindingQuery, PaneIdentity};
+use super::socket::SocketKind;
 use crate::{remote, transport::ExecResult};
 use std::collections::BTreeSet;
 
@@ -429,6 +430,10 @@ pub(crate) fn verify_process(result: &ExecResult, w: &WrapperIdentity) -> Result
 pub(crate) struct SocketBinding {
     query: BindingQuery,
     selected: PaneIdentity,
+    /// Welcher Waechter anhaengt: auf dem eigenen Socket mit ausgeschalteter
+    /// Statuszeile, auf dem Standard-Socket mit `-E` und ohne Option
+    /// (Spec 2026-10-25 §6.4).
+    kind: SocketKind,
 }
 pub(crate) fn named_probe(socket: &str, selected: PaneIdentity) -> Result<String, Unverified> {
     let q = InventoryQuery::conservatively_guarded_named(socket).map_err(|_| Unverified::Frame)?;
@@ -480,6 +485,7 @@ impl SocketBinding {
         named: &ExecResult,
         absolute: &ExecResult,
         selected: PaneIdentity,
+        kind: SocketKind,
     ) -> Result<Self, Unverified> {
         let path = socket_response(named, selected)?;
         if socket_response(absolute, selected)? != path {
@@ -491,7 +497,11 @@ impl SocketBinding {
             InventoryQuery::conservatively_guarded_absolute(&path)
                 .map_err(|_| Unverified::Frame)?,
         );
-        Ok(Self { query, selected })
+        Ok(Self {
+            query,
+            selected,
+            kind,
+        })
     }
     #[cfg(test)]
     pub(crate) fn selected(&self) -> PaneIdentity {
@@ -520,11 +530,15 @@ impl SocketBinding {
         }
         // Reuse the accepted numeric builder, executing its fixed shell program
         // in the wrapper's own process; no display name enters this command.
-        // The same tmux client first turns the status line off.
-        let guard = self
-            .query
-            .guarded_attach_command_without_status(self.selected)
-            .map_err(|_| Unverified::Frame)?;
+        // On the own socket the same tmux client first turns the status line
+        // off; on the default socket it attaches with -E and changes nothing.
+        let guard = match self.kind {
+            SocketKind::App => self
+                .query
+                .guarded_attach_command_without_status(self.selected),
+            SocketKind::Default => self.query.guarded_attach_command_foreign(self.selected),
+        }
+        .map_err(|_| Unverified::Frame)?;
         Ok(remote::build(&[
             "sh",
             "-c",

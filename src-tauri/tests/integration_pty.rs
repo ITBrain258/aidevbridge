@@ -1,7 +1,7 @@
 // Crate-Name `aidevbridge_lib` statt `aidevbridge` (siehe common/mod.rs,
 // [lib] name = "aidevbridge_lib" in Cargo.toml seit Task 1).
 use aidevbridge_lib::remote;
-use aidevbridge_lib::tmux::TmuxClient;
+use aidevbridge_lib::tmux::{OwnSocket, OwnTmuxClient};
 use aidevbridge_lib::transport::Transport;
 mod common;
 
@@ -11,11 +11,12 @@ async fn attach_yields_a_working_terminal() {
         return;
     };
     let socket = common::test_socket_for("pty");
-    let c = TmuxClient::new(&socket);
+    let own = OwnSocket::new(socket.clone()).unwrap();
+    let c = OwnTmuxClient::new(&own);
     c.prepare_server(&t, 10000).await.unwrap();
     c.create_session(&t, "ab_dd33ee", "/tmp").await.unwrap();
 
-    let mut h = t.open_attach(&socket, "ab_dd33ee", 120, 30).await.unwrap();
+    let mut h = t.open_attach(&own, "ab_dd33ee", 120, 30).await.unwrap();
 
     // Der Attach-Strom beginnt mit einem absoluten Repaint (Spec V7). Erste
     // paar Chunks einsammeln statt nur den allerersten zu pruefen: die
@@ -86,10 +87,11 @@ async fn resize_reaches_the_remote_pane() {
         return;
     };
     let socket = common::test_socket_for("pty2");
-    let c = TmuxClient::new(&socket);
+    let own = OwnSocket::new(socket.clone()).unwrap();
+    let c = OwnTmuxClient::new(&own);
     c.prepare_server(&t, 10000).await.unwrap();
     c.create_session(&t, "ab_ff44aa", "/tmp").await.unwrap();
-    let h = t.open_attach(&socket, "ab_ff44aa", 80, 24).await.unwrap();
+    let h = t.open_attach(&own, "ab_ff44aa", 80, 24).await.unwrap();
     h.resize(200, 50).await.unwrap();
     tokio::time::sleep(std::time::Duration::from_millis(500)).await;
     // Ueber remote::build statt eines rohen String-Literals -- jede
@@ -141,13 +143,14 @@ async fn closing_frees_the_channel_slot() {
         return;
     };
     let socket = common::test_socket_for("pty3");
-    let c = TmuxClient::new(&socket);
+    let own = OwnSocket::new(socket.clone()).unwrap();
+    let c = OwnTmuxClient::new(&own);
     c.prepare_server(&t, 10000).await.unwrap();
     let name = "ab_leaktest01";
     c.create_session(&t, name, "/tmp").await.unwrap();
 
     for _ in 0..CYCLES {
-        let h = t.open_attach(&socket, name, 80, 24).await.unwrap();
+        let h = t.open_attach(&own, name, 80, 24).await.unwrap();
         h.close().await;
     }
 
@@ -164,7 +167,7 @@ async fn closing_frees_the_channel_slot() {
     // Anfragen laufen so in jedem Fall durch), dann mit der
     // aussagekraeftigen Meldung asserten.
     let exec_outcome = t.exec(&remote::build(&["echo", "still_alive"])).await;
-    let reattach_outcome = t.open_attach(&socket, name, 80, 24).await;
+    let reattach_outcome = t.open_attach(&own, name, 80, 24).await;
 
     match &exec_outcome {
         Ok(r) => assert_eq!(
@@ -205,7 +208,8 @@ async fn open_attach_does_not_hit_a_prefix_sibling() {
         return;
     };
     let socket = common::test_socket_for("b0attach");
-    let c = TmuxClient::new(&socket);
+    let own = OwnSocket::new(socket.clone()).unwrap();
+    let c = OwnTmuxClient::new(&own);
     c.prepare_server(&t, 10000).await.unwrap();
 
     // `zz_b0attach` (ohne die 2) entsteht absichtlich NIE -- der Schaden
@@ -242,7 +246,7 @@ async fn open_attach_does_not_hit_a_prefix_sibling() {
             .unwrap_or_else(|_| panic!("Sonde lieferte keine Zahl: {:?}", out.stdout))
     }
 
-    let stray = t.open_attach(&socket, "zz_b0attach", 80, 24).await;
+    let stray = t.open_attach(&own, "zz_b0attach", 80, 24).await;
     let mut attached = 0;
     for _ in 0..6 {
         tokio::time::sleep(std::time::Duration::from_millis(200)).await;
@@ -263,7 +267,7 @@ async fn open_attach_does_not_hit_a_prefix_sibling() {
 
     // Positivkontrolle: dieselbe Sonde MUSS 1 sehen koennen.
     let real = t
-        .open_attach(&socket, &sibling, 80, 24)
+        .open_attach(&own, &sibling, 80, 24)
         .await
         .expect("attach auf den exakten Namen muss gehen");
     let mut seen = 0;

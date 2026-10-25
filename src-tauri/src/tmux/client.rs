@@ -2,6 +2,7 @@ use super::inventory::{
     InventoryOutcome, InventoryQuery, InventorySnapshot, MeasuredVersion, ServerIdentity, SessionId,
 };
 use super::session_binding::{self, BindingQuery, BoundObservation, ParseError, UnverifiedReason};
+use super::socket::{OwnSocket, TmuxSocket};
 use crate::remote;
 use crate::transport::{ExecError, ExecPhase, ExecReason, ExecResult, Submission, Transport};
 use std::collections::BTreeMap;
@@ -97,18 +98,18 @@ pub enum CreateOutcome {
     DuplicateName,
 }
 
-/// Eigener tmux-Socket (siehe `-L`). Isoliert aidevbridge-Sessions vom
-/// Standard-Socket und von anderen Werkzeugketten auf derselben Maschine --
-/// mehrere `TmuxClient`s mit unterschiedlichem Socketnamen teilen sich
-/// weder Server noch Sessions.
+/// Liest einen tmux-Socket (siehe `-L`): den eigenen oder den
+/// Standard-Socket. Mehrere `TmuxClient`s mit unterschiedlichem Socketnamen
+/// teilen sich weder Server noch Sessions. Befehle, die einen Server
+/// veraendern, hat nur [`OwnTmuxClient`].
 pub struct TmuxClient {
-    socket: String,
+    socket: TmuxSocket,
 }
 
 impl TmuxClient {
-    pub fn new(socket: &str) -> Self {
+    pub fn new(socket: &TmuxSocket) -> Self {
         Self {
-            socket: socket.to_string(),
+            socket: socket.clone(),
         }
     }
 
@@ -128,7 +129,7 @@ impl TmuxClient {
         version: MeasuredVersion,
         deadline: Instant,
     ) -> anyhow::Result<SessionListObservation> {
-        let query = BindingQuery::new(InventoryQuery::named(version, &self.socket)?);
+        let query = BindingQuery::new(InventoryQuery::named(version, self.socket.name())?);
         let first = observation_exec(transport, query.list_command(), deadline).await?;
         let listed_before = match session_binding::parse_list(&first) {
             Ok(listed) => listed,
@@ -204,7 +205,7 @@ impl TmuxClient {
         }
         Ok(SessionListObservation {
             version,
-            socket_name: self.socket.clone(),
+            socket_name: self.socket.name().to_string(),
             inventory,
             sessions,
         })
@@ -252,7 +253,7 @@ impl TmuxClient {
             "-c",
             SOCKET_PATH_SCRIPT,
             "aidevbridge-socket",
-            &self.socket,
+            self.socket.name(),
         ])
     }
 
@@ -269,7 +270,7 @@ impl TmuxClient {
         path.starts_with('/')
             && !path.chars().any(char::is_control)
             && path
-                .strip_suffix(self.socket.as_str())
+                .strip_suffix(self.socket.name())
                 .is_some_and(|dir| dir.ends_with('/'))
     }
 
@@ -277,7 +278,8 @@ impl TmuxClient {
     /// Kommandozeile geht danach durch `remote::build` -- kein `format!`
     /// auf einen SSH-Befehl (Randbedingung des Tasks).
     fn tmux<'a>(&'a self, args: &[&'a str]) -> Vec<&'a str> {
-        let mut v = vec!["tmux", "-L", self.socket.as_str()];
+        let mut v = vec!["tmux"];
+        v.extend_from_slice(&self.socket.args());
         v.extend_from_slice(args);
         v
     }
@@ -313,13 +315,39 @@ impl TmuxClient {
         path.is_some_and(|path| {
             path.starts_with('/')
                 && !path.chars().any(char::is_control)
-                && path.rsplit('/').next() == Some(self.socket.as_str())
+                && path.rsplit('/').next() == Some(self.socket.name())
         })
+    }
+}
+
+/// Der Client des eigenen Sockets: liest wie [`TmuxClient`] und darf als
+/// einziger einen Server veraendern -- Optionen setzen, Sessions anlegen und
+/// beenden (Spec 2026-10-25 §3, §6.1). Es gibt ihn nur fuer einen
+/// [`OwnSocket`]; der Standard-Socket des Nutzers bekommt nie einen.
+pub struct OwnTmuxClient {
+    reader: TmuxClient,
+}
+
+impl std::ops::Deref for OwnTmuxClient {
+    type Target = TmuxClient;
+
+    fn deref(&self) -> &TmuxClient {
+        &self.reader
+    }
+}
+
+impl OwnTmuxClient {
+    pub fn new(socket: &OwnSocket) -> Self {
+        Self {
+            reader: TmuxClient::new(&TmuxSocket::own(socket)),
+        }
     }
 
     /// Checks remote exit codes as well as transport failures.
     async fn run_checked(&self, t: &dyn Transport, args: &[&str]) -> anyhow::Result<()> {
-        let r = t.exec_mutation(&remote::build(&self.tmux(args))).await?;
+        let r = t
+            .exec_mutation(&remote::build(&self.reader.tmux(args)))
+            .await?;
         if r.code != 0 {
             anyhow::bail!(
                 "tmux {} failed (exit {}): {}",
@@ -420,7 +448,9 @@ impl TmuxClient {
         name: &str,
         cwd: &str,
     ) -> anyhow::Result<CreateOutcome> {
-        let query = BindingQuery::new(InventoryQuery::conservatively_guarded_named(&self.socket)?);
+        let query = BindingQuery::new(InventoryQuery::conservatively_guarded_named(
+            self.reader.socket.name(),
+        )?);
         let line = query.create_command(name, cwd)?;
         let r = t.exec_mutation(&line).await?;
         if r.code == 0 {
@@ -447,7 +477,7 @@ impl TmuxClient {
     /// Called after failed preparation and creation. Callers retain their
     /// original error if this best-effort cleanup also fails.
     pub async fn restore_exit_empty(&self, t: &dyn Transport) -> anyhow::Result<()> {
-        t.exec_mutation(&remote::build(&self.tmux(&[
+        t.exec_mutation(&remote::build(&self.reader.tmux(&[
             "set",
             "-g",
             "exit-empty",
@@ -492,14 +522,14 @@ impl TmuxClient {
     pub async fn kill_session(&self, t: &dyn Transport, name: &str) -> anyhow::Result<()> {
         let target = format!("={name}");
         let r = t
-            .exec_mutation(&self.query_command(&["kill-session", "-t", &target]))
+            .exec_mutation(&self.reader.query_command(&["kill-session", "-t", &target]))
             .await?;
         // tmux strips the exact-match '=' before reporting a missing session
         // (cmd-find.c). Do not accept an error naming a different session.
         let missing_session = r.code == 1
             && r.stdout.is_empty()
             && r.stderr.trim_end_matches(['\r', '\n']) == format!("can't find session: {name}");
-        if r.code == 0 || self.server_absent(&r) || missing_session {
+        if r.code == 0 || self.reader.server_absent(&r) || missing_session {
             return Ok(());
         }
         anyhow::bail!(
@@ -517,13 +547,15 @@ impl TmuxClient {
         server: ServerIdentity,
         session: SessionId,
     ) -> anyhow::Result<()> {
-        let query = BindingQuery::new(InventoryQuery::conservatively_guarded_named(&self.socket)?);
+        let query = BindingQuery::new(InventoryQuery::conservatively_guarded_named(
+            self.reader.socket.name(),
+        )?);
         let line = query.guarded_kill_command(server, session)?;
         let r = t.exec_mutation(&line).await?;
         if r.stdout.trim_end_matches(['\r', '\n']) == "AB_M1_REJECT" {
             anyhow::bail!("the selected session identity was rejected; this is not a kill");
         }
-        if r.code == 0 || self.server_absent(&r) {
+        if r.code == 0 || self.reader.server_absent(&r) {
             return Ok(());
         }
         anyhow::bail!(
@@ -532,7 +564,9 @@ impl TmuxClient {
             r.stderr.trim()
         )
     }
+}
 
+impl TmuxClient {
     pub fn version_command(&self) -> String {
         self.query_command(&["-V"])
     }
@@ -575,6 +609,13 @@ mod tests {
     use async_trait::async_trait;
     use std::collections::VecDeque;
     use std::sync::Mutex;
+
+    /// Die Tests dieses Moduls pruefen lesende und veraendernde Befehle des
+    /// eigenen Sockets; ein `OwnTmuxClient` liest ueber `Deref` wie ein
+    /// `TmuxClient`.
+    fn own_client(name: &str) -> OwnTmuxClient {
+        OwnTmuxClient::new(&OwnSocket::new(name).unwrap())
+    }
 
     struct ScriptedTransport {
         responses: Mutex<VecDeque<ExecResult>>,
@@ -645,7 +686,7 @@ mod tests {
         // start-server ok, aber "set -g history-limit" (zweiter Aufruf)
         // schlaegt fehl.
         let t = ScriptedTransport::new(vec![ok(), failed("history-limit failed"), ok()]);
-        let c = TmuxClient::new("irrelevant");
+        let c = own_client("irrelevant");
         let err = c
             .prepare_server(&t, 12345)
             .await
@@ -670,7 +711,7 @@ mod tests {
             failed("original preparation failure"),
             failed("cleanup failure"),
         ]);
-        let error = TmuxClient::new("sock")
+        let error = own_client("sock")
             .prepare_server(&t, 100)
             .await
             .unwrap_err();
@@ -687,7 +728,7 @@ mod tests {
             "no sessions\n",
         ] {
             let t = ScriptedTransport::new(vec![failed(message)]);
-            assert!(TmuxClient::new("sock")
+            assert!(own_client("sock")
                 .list_session_names(&t)
                 .await
                 .unwrap()
@@ -703,7 +744,7 @@ mod tests {
         let mut populated = ok();
         populated.stdout = "dev\nsecond session\n".into();
         let t = ScriptedTransport::new(vec![ok(), populated]);
-        let client = TmuxClient::new("sock");
+        let client = own_client("sock");
         assert!(client.list_session_names(&t).await.unwrap().is_empty());
         assert_eq!(
             client.list_session_names(&t).await.unwrap(),
@@ -720,7 +761,7 @@ mod tests {
             listed,
             failed(&format!("can't find session: {name}\n")),
         ]);
-        let client = TmuxClient::new("sock");
+        let client = own_client("sock");
         assert_eq!(client.list_session_names(&t).await.unwrap(), vec![name]);
         client.kill_session(&t, name).await.unwrap();
         let calls = t.calls.lock().unwrap();
@@ -747,10 +788,7 @@ mod tests {
         ] {
             let t = ScriptedTransport::new(vec![failed(message)]);
             assert!(
-                TmuxClient::new("sock")
-                    .list_session_names(&t)
-                    .await
-                    .is_err(),
+                own_client("sock").list_session_names(&t).await.is_err(),
                 "{message:?}"
             );
         }
@@ -764,10 +802,7 @@ mod tests {
         wrong_exit.code = 127;
         for result in [partial, wrong_exit] {
             let t = ScriptedTransport::new(vec![result]);
-            assert!(TmuxClient::new("sock")
-                .list_session_names(&t)
-                .await
-                .is_err());
+            assert!(own_client("sock").list_session_names(&t).await.is_err());
         }
     }
 
@@ -779,10 +814,7 @@ mod tests {
             "error connecting to /tmp/tmux-1000/sock (No such file or directory)\n",
         ] {
             let t = ScriptedTransport::new(vec![failed(message)]);
-            TmuxClient::new("sock")
-                .kill_session(&t, "dev")
-                .await
-                .unwrap();
+            own_client("sock").kill_session(&t, "dev").await.unwrap();
         }
         for message in [
             "can't find session: different\n",
@@ -794,10 +826,7 @@ mod tests {
         ] {
             let t = ScriptedTransport::new(vec![failed(message)]);
             assert!(
-                TmuxClient::new("sock")
-                    .kill_session(&t, "dev")
-                    .await
-                    .is_err(),
+                own_client("sock").kill_session(&t, "dev").await.is_err(),
                 "{message:?}"
             );
         }
@@ -806,7 +835,7 @@ mod tests {
     #[tokio::test]
     async fn prepare_server_succeeds_when_all_four_commands_report_exit_zero() {
         let t = ScriptedTransport::new(vec![ok(), ok(), ok(), ok()]);
-        let c = TmuxClient::new("irrelevant");
+        let c = own_client("irrelevant");
         c.prepare_server(&t, 12345).await.unwrap();
         let argv: Vec<Vec<String>> = t
             .calls
@@ -841,7 +870,7 @@ mod tests {
     #[tokio::test]
     async fn every_emitted_line_is_built_via_remote_build() {
         let t = ScriptedTransport::new(vec![ok(), ok(), ok(), ok(), created(), ok(), ok()]);
-        let c = TmuxClient::new("irrelevant");
+        let c = own_client("irrelevant");
         c.prepare_server(&t, 12345).await.unwrap();
         c.create_session(&t, "ab_000000", "/tmp").await.unwrap();
         c.kill_session(&t, "ab_000000").await.unwrap();
@@ -872,7 +901,7 @@ mod tests {
     #[tokio::test]
     async fn restore_exit_empty_sets_the_option_back_to_on() {
         let t = ScriptedTransport::new(vec![ok()]);
-        let c = TmuxClient::new("sock");
+        let c = own_client("sock");
         c.restore_exit_empty(&t).await.unwrap();
         let calls = t.calls.lock().unwrap();
         assert_eq!(
@@ -884,7 +913,7 @@ mod tests {
     #[tokio::test]
     async fn create_session_requires_the_c_record_and_prints_numeric_identity() {
         let t = ScriptedTransport::new(vec![created()]);
-        let c = TmuxClient::new("sock");
+        let c = own_client("sock");
         assert_eq!(
             c.create_session(&t, "ab_000000", "/tmp").await.unwrap(),
             CreateOutcome::Created
@@ -919,7 +948,7 @@ mod tests {
         );
         let empty = ScriptedTransport::new(vec![ok()]);
         assert!(
-            TmuxClient::new("sock")
+            own_client("sock")
                 .create_session(&empty, "ab_000000", "/tmp")
                 .await
                 .is_err(),
@@ -927,7 +956,7 @@ mod tests {
         );
         let dup = ScriptedTransport::new(vec![failed("duplicate session: ab_000000")]);
         assert_eq!(
-            TmuxClient::new("sock")
+            own_client("sock")
                 .create_session(&dup, "ab_000000", "/tmp")
                 .await
                 .unwrap(),
@@ -938,7 +967,7 @@ mod tests {
     #[tokio::test]
     async fn kill_session_targets_the_name_exactly_and_not_by_prefix() {
         let t = ScriptedTransport::new(vec![ok()]);
-        let c = TmuxClient::new("sock");
+        let c = own_client("sock");
         c.kill_session(&t, "zz_x").await.unwrap();
         let calls = t.calls.lock().unwrap();
         assert_eq!(

@@ -292,7 +292,8 @@ fn socket_binding_requires_matching_named_and_absolute_responses() {
     let selected = pane();
     let named = exec("S|50|1000|$0|/tmp/ab/tmux.sock\n");
     let absolute = exec("S|50|1000|$0|/tmp/ab/tmux.sock\n");
-    let binding = SocketBinding::from_responses(&named, &absolute, selected).unwrap();
+    let binding =
+        SocketBinding::from_responses(&named, &absolute, selected, SocketKind::App).unwrap();
     assert_eq!(binding.selected(), selected);
     let _ = binding.query();
     let clients = decoded_argv(&binding.clients_command());
@@ -310,11 +311,33 @@ fn socket_binding_requires_matching_named_and_absolute_responses() {
     assert_eq!(tmux[11], "if-shell");
     let changed = exec("S|50|1000|$0|/tmp/ab/other.sock\n");
     assert_eq!(
-        match SocketBinding::from_responses(&named, &changed, selected) {
+        match SocketBinding::from_responses(&named, &changed, selected, SocketKind::App) {
             Err(error) => error,
             Ok(_) => panic!("mismatched sockets must not bind"),
         },
         Unverified::Changed
+    );
+}
+
+/// Auf dem Standard-Socket haengt die Bindung mit `-E` an und laesst die
+/// Statuszeile des Nutzers stehen (Spec 2026-10-25 §6.4).
+#[test]
+fn a_binding_on_the_default_socket_attaches_with_e_and_keeps_the_status_line() {
+    let selected = pane();
+    let named = exec("S|50|1000|$0|/tmp/ab/tmux.sock\n");
+    let binding =
+        SocketBinding::from_responses(&named, &named, selected, SocketKind::Default).unwrap();
+    let attach = decoded_argv(&binding.attach_command(NONCE).unwrap());
+    let tmux = decoded_argv(attach.last().unwrap());
+    assert_eq!(
+        &tmux[..6],
+        ["env", "LC_ALL=C", "tmux", "-u", "-S", "/tmp/ab/tmux.sock"]
+    );
+    assert_eq!(tmux[6], "if-shell");
+    assert!(!tmux.iter().any(|a| a == "status"));
+    assert_eq!(
+        tmux[tmux.len() - 2],
+        format!("attach-session -E -t '${}'", selected.session_id.0)
     );
 }
 

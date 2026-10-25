@@ -40,6 +40,24 @@ Ziel: die zwei Annahmen der Spec belegen, die Code und Frist bestimmen.
 
 ## Schritt 2: Socket als Typ (1 d)
 
+**Erledigt am 25.10.** `tmux/socket.rs` führt `OwnSocket` (lehnt `default` ab),
+`TmuxSocket` mit der Art `app`/`default` und `args()` für `-L <name>`. Anlegen,
+Beenden und Serveroptionen hat nur noch `OwnTmuxClient`, gebaut aus einem
+`OwnSocket`; die verändernden Bauer in `session_binding` sind auf `crate::tmux`
+beschränkt. `SocketBinding` wählt den Wächter nach der Art: eigener Socket wie
+bisher mit `HIDE_STATUS`, Standard-Socket mit `attach-session -E` ohne
+Präfix. `TmuxClient`, `history_command`, `details_command` und die Wege in
+`commands.rs` nehmen `&TmuxSocket`; `AppState` hat `own_socket` und
+`default_socket` (umlenkbar über `with_default_socket_name`). Abweichung von
+der Liste unten: `InventoryQuery::named` und `named_probe` behalten den
+geprüften Namen, weil beide Sockets lesen dürfen und der Typ dort nichts
+sperren würde. Tests: alle bestehenden grün (eigener Socket bytegleich), neue
+für den Wächter mit `-E`; die Live-Tests liefen gegen 192.0.2.10 auf eigenen
+Testsockets mit `--test-threads=4` grün. Mit der Vorgabe der Thread-Zahl
+scheitern zwölf der Befehlstests an der Zulassung der Schlüsselvorbereitung
+(acht Plätze je Prozess, „Too many key preparations are already pending“);
+dieser Schritt ändert den Verbindungsweg nicht.
+
 - `tmux/socket.rs` (neu): `TmuxSocket { Own(String), Default }`, `OwnSocket`,
   `socket_args()` (beide `-L <name>`), Kennung `app`/`default` für Schlüssel
   und DTOs, Testumlenkung des Namens `default`.
