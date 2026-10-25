@@ -163,6 +163,16 @@ export function socketOf(session: { socket?: SessionSocket }): SessionSocket {
   return session.socket ?? "app";
 }
 
+/** Eine Session des Standard-Sockets oeffnet nur mit ihrer vollstaendigen
+ * Bindung (Spec 2026-10-25 §6.4); ohne sie lehnte das Backend ab. Die EINE
+ * Regel fuer jeden Weg in eine Kachel: Seitenleiste, Schnelloeffnen, Spur,
+ * Strg+Umschalt+A, das Oeffnen nach dem Verbinden und der Arbeitsplatz. */
+export function isOpenable(session: Session): boolean {
+  if (socketOf(session) === "app") return true;
+  return [session.sessionId, session.serverPid, session.serverStartTime, session.windowId, session.paneId, session.panePid]
+    .every((value) => value != null);
+}
+
 /** `sessionKey` einer Session, mit ihrem Socket. */
 export function sessionKeyOf(session: Pick<Session, "hostId" | "name" | "socket">): string {
   return sessionKey(session.hostId, session.name, socketOf(session));
@@ -708,6 +718,28 @@ export class AppState {
     if (changed) this.#notify();
   }
 
+  /** Der Schalter "Show tmux sessions" ist aus (Spec 2026-10-25 §10.1): die
+   * Sessions dieses Sockets fallen weg samt ihren Kacheln, und sein
+   * Listenzustand gilt wieder als nie geladen. Gespeicherte Kacheln warten
+   * dann weiter, statt als gelistet und fehlend verworfen zu werden.
+   * Benachrichtigt nur, wenn es Sessions gab. */
+  clearSocket(hostId: string, socket: SessionSocket): void {
+    const host = this.hosts.find((h) => h.id === hostId);
+    if (!host) return;
+    const gone = host.sessions.filter((s) => socketOf(s) === socket);
+    for (const session of gone) {
+      const tile = this.tileForSession(sessionKeyOf(session));
+      if (tile) this.closeTile(tile.id);
+    }
+    const scope = this.#scope(hostId, socket);
+    this.#sessionLists.delete(scope);
+    this.#statusFreshness.delete(scope);
+    this.#keptStatus.delete(scope);
+    if (gone.length === 0) return;
+    host.sessions = host.sessions.filter((s) => socketOf(s) !== socket);
+    this.#notify();
+  }
+
   setSessions(hostId: string, names: string[]): void {
     this.setSessionRecords(hostId, names.map((name) => ({ name })));
   }
@@ -911,7 +943,7 @@ export class AppState {
       const { hostId, name } = entry;
       const socket = socketOf(entry);
       const session = this.#session(hostId, name, socket);
-      if (!session) continue;
+      if (!session || !isOpenable(session)) continue;
       const key = sessionKey(hostId, name, socket);
       const plan = planOpen(this.tiles, key, hostId, (other) => this.#hostOfKey(other));
       if (plan.kind !== "add") continue;

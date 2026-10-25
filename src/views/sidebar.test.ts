@@ -3981,3 +3981,20 @@ describe("mountSidebar: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §
     expect(rows(el).map((row) => row.dataset.sessionKey)).toEqual(["h1/main"]);
   });
 });
+
+describe("mountSidebar: eigene Liste neben der Gruppe tmux sessions (Review von PR #5)", () => {
+  it("zeigt fuer eine leere eigene Liste weiter No sessions", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [], 1);
+    s.setSessionRecords(
+      "h1",
+      [{ name: "main", sessionId: 1, serverPid: 2, serverStartTime: 3, windowId: 4, paneId: 5, panePid: 6 }],
+      1,
+      "default",
+    );
+    const { el } = mount(s);
+    expect(el.querySelector(".session-list-hint")?.textContent).toBe("No sessions");
+    expect(el.querySelector(".sb-group-label")?.textContent).toBe("tmux sessions");
+  });
+});

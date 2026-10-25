@@ -1294,9 +1294,33 @@ describe("Arbeitsplatz: Kacheln des Standard-Sockets (Spec 2026-10-25 §5, §7)"
     listHost(state, "a", ["main"]);
     sync.hostListed("a");
     expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/main"]);
-    state.setSessionRecords("a", [{ name: "main" }], undefined, "default");
+    state.setSessionRecords(
+      "a",
+      [{ name: "main", sessionId: 1, serverPid: 2, serverStartTime: 3, windowId: 4, paneId: 5, panePid: 6 }],
+      undefined,
+      "default",
+    );
     sync.hostListed("a");
     expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/main", "a/default:main"]);
+    sync.dispose();
+    vi.useRealTimers();
+  });
+});
+
+describe("Arbeitsplatz: fremde Kacheln bei ausgeschaltetem Schalter (Review von PR #5)", () => {
+  it("laesst sie warten, statt sie zu verwerfen", () => {
+    vi.useFakeTimers();
+    const state = new AppState();
+    state.upsertHost(host("a", { authKind: "agent" }));
+    const write = vi.fn().mockResolvedValue(undefined);
+    const sync = createWorkspaceSync({ state, write, sidebarCollapsed: () => false, setSidebarCollapsed: () => {} });
+    const foreign = { slot: 1, host_id: "a", session: "", foreign_session: "main", socket: "default" as const };
+    sync.start(workspace({ tiles: [{ slot: 0, host_id: "a", session: "own" }, foreign] }), true);
+    listHost(state, "a", ["own"]);
+    state.clearSocket("a", "default");
+    sync.hostListed("a");
+    expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/own"]);
+    expect(workspaceFromState(state, extras({ pendingTiles: [foreign] })).tiles).toContainEqual(foreign);
     sync.dispose();
     vi.useRealTimers();
   });

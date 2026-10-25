@@ -19,7 +19,7 @@
 // die Tastaturpflicht dieser Aufgabe. Gleiche Klasse (`host-notice-link`),
 // damit das Aussehen erhalten bleibt.
 
-import { AppState, sessionKeyOf, socketOf, type Host, type HostState, type Session, type SessionSocket } from "../state/app-state";
+import { AppState, isOpenable, sessionKeyOf, socketOf, type Host, type HostState, type Session, type SessionSocket } from "../state/app-state";
 import { waitingSessions } from "../state/attention";
 import { computeMenuPosition } from "./menu-position";
 import { buildCredentialField, type CredentialField } from "./credential-field";
@@ -111,13 +111,6 @@ export interface SidebarHandle {
  * "Connect" oder "Disconnect", und genau ueber diesen Wechsel (via
  * `setHostState(..., "connecting")`) muss der Fokus hinweg erhalten
  * bleiben. Deshalb `toggle`, nicht `connect`. */
-/** Eine Session des Standard-Sockets oeffnet nur mit ihrer vollstaendigen
- * Bindung (Spec 2026-10-25 §6.4); ohne sie lehnte das Backend ab. */
-function foreignBound(session: Session): boolean {
-  return [session.sessionId, session.serverPid, session.serverStartTime, session.windowId, session.paneId, session.panePid]
-    .every((value) => value != null);
-}
-
 function focusKey(scope: string, id: string, part: string): string {
   return `${scope}:${id}:${part}`;
 }
@@ -1275,7 +1268,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       state.controlForHost(host.id).state !== "ready" ? null : observation.error;
     if (!error) {
       if (socket === "default") return null;
-      if (!host.expanded || (observation.status === "current" && host.sessions.length > 0)) return null;
+      const own = host.sessions.some((session) => socketOf(session) === "app");
+      if (!host.expanded || (observation.status === "current" && own)) return null;
       // Waehrend der Selbstreparatur und einer laufenden Reparatur traegt die
       // Steuerzeile den Zustand allein. Der Satz "...for this connection" passte
       // ohnehin nicht: die Verbindung ist dieselbe, nur die Steuerung fehlt.
@@ -1369,7 +1363,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // Spec 2026-10-25 §7: eine fremde Session sagt dazu, woher sie kommt; ohne
     // Bindung ist sie nicht waehlbar und nennt den Grund.
     const foreign = socketOf(session) === "default";
-    const openable = !foreign || foreignBound(session);
+    const openable = isOpenable(session);
     const action = t(tile ? "sidebar.session.hintOpen" : "sidebar.session.hintClosed");
     const hint = !foreign
       ? action

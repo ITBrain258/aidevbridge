@@ -1390,6 +1390,7 @@ describe("AppState: Arbeitsplatz (UX-Spec §7.1, §7.2)", () => {
 });
 
 describe("AppState: Sessions des Standard-Sockets (Spec 2026-10-25 §5, §6.3, §7)", () => {
+  const binding = { sessionId: 1, serverPid: 10, serverStartTime: 20, windowId: 1, paneId: 1, panePid: 100 };
   const bound = (name: string, sessionId: number) => ({
     name,
     sessionId,
@@ -1467,12 +1468,45 @@ describe("AppState: Sessions des Standard-Sockets (Spec 2026-10-25 §5, §6.3, �
     const s = new AppState();
     s.upsertHost(host("h1"));
     s.setSessionRecords("h1", [{ name: "main" }], 1);
-    s.setSessionRecords("h1", [{ name: "main" }], 1, "default");
+    s.setSessionRecords("h1", [{ name: "main", ...binding }], 1, "default");
     s.restoreTiles([{ hostId: "h1", name: "main", socket: "default" as const }], () => 0);
     expect(s.tiles.map((t) => t.sessionKey)).toEqual(["h1/default:main"]);
     s.lockInput("h1", "main", "default");
     const [own, foreign] = s.hosts[0].sessions;
     expect([own.inputLocked, foreign.inputLocked]).toEqual([false, true]);
     expect([own.open, foreign.open]).toEqual([false, true]);
+  });
+});
+
+describe("AppState: ungebundene Sessions und der Schalter (Review von PR #5)", () => {
+  it("stellt eine fremde Kachel ohne Bindung nicht her", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [{ name: "grouped", sessionId: 3 }], 1, "default");
+    s.restoreTiles([{ hostId: "h1", name: "grouped", socket: "default" as const }], () => 0);
+    expect(s.tiles).toEqual([]);
+  });
+
+  it("nimmt mit dem Schalter aus die Sessions des Standard-Sockets weg, ohne seine Liste als geladen zu zaehlen", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [{ name: "own" }], 1);
+    s.setSessionRecords(
+      "h1",
+      [{ name: "main", sessionId: 1, serverPid: 2, serverStartTime: 3, windowId: 4, paneId: 5, panePid: 6 }],
+      1,
+      "default",
+    );
+    s.openSession("h1", "main", "default");
+    const notified = vi.fn();
+    s.subscribe(notified);
+    s.clearSocket("h1", "default");
+    expect(s.hosts[0].sessions.map((x) => x.name)).toEqual(["own"]);
+    expect(s.tiles).toEqual([]);
+    expect(s.sessionListForHost("h1", "default").status).toBe("never_loaded");
+    expect(s.sessionListForHost("h1").status).toBe("current");
+    notified.mockClear();
+    s.clearSocket("h1", "default");
+    expect(notified).not.toHaveBeenCalled();
   });
 });

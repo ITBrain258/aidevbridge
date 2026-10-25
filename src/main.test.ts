@@ -8687,6 +8687,67 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
     expect(banner().hidden).toBe(true);
   });
 
+  it("oeffnet eine ungebundene fremde Session auf keinem Weg", async () => {
+    await connect({}, {
+      own: socket([]),
+      default: socket([
+        {
+          ...sessionItem({ display_name: "grouped", session_id: 3 }),
+          server_pid: null,
+          server_start_time: null,
+          window_id: null,
+          pane_id: null,
+          pane_pid: null,
+          unverified: "the session shares windows with another session",
+        },
+      ]),
+    });
+    // Ueber das Schnelloeffnen: die Seitenleiste sperrt die Zeile ohnehin.
+    chord("p");
+    runQuickOpenOption("grouped");
+    await vi.advanceTimersByTimeAsync(200);
+    await flush(20);
+    expect(globalErrorText()).toContain("This tmux session cannot be opened here: the session shares windows");
+    expect(document.querySelectorAll("#grid .tile")).toHaveLength(0);
+    expect(invokeMock.mock.calls.some(([command]) => command === "open_terminal")).toBe(false);
+  });
+
+  it("zaehlt den eigenen Client nicht als anderen fuer den Hinweis zur Fenstergroesse", async () => {
+    const bound = {
+      ...sessionItem({ display_name: "main", session_id: 1 }),
+      server_pid: 60,
+      server_start_time: 2000,
+      window_id: 1,
+      pane_id: 1,
+      pane_pid: 101,
+    };
+    let attached = 0;
+    invokeMock.mockClear();
+    await connect({}, { own: socket([]), default: socket([{ ...bound, session_attached: attached }]) });
+    openViaSidebar("h1", "main");
+    await flush(20);
+    const hint = "This tmux session is also open elsewhere.";
+    expect(globalErrorText()).not.toContain(hint);
+    // Eine Liste, waehrend die Kachel offen ist, zaehlt den Client der App mit.
+    attached = 1;
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "list_sessions") {
+        return Promise.resolve({ own: socket([]), default: socket([{ ...bound, session_attached: attached }]) });
+      }
+      if (command === "poll_status") return Promise.resolve({ own: { poll: statusPoll([]), error: null }, default: null });
+      return Promise.resolve(undefined);
+    });
+    hostActionButton("h1", "Reload sessions").click();
+    await flush(20);
+    document.querySelector<HTMLButtonElement>("#grid .tile .tile-btn[aria-label='Close terminal']")?.click();
+    await flush(20);
+    expect(document.querySelectorAll("#grid .tile")).toHaveLength(0);
+    openViaSidebar("h1", "main");
+    await flush(20);
+    expect(document.querySelectorAll("#grid .tile")).toHaveLength(1);
+    expect(globalErrorText()).not.toContain(hint);
+  });
+
   it("laedt bei einem Server ohne Unterstuetzung nur neu, wenn der Server wechselt", async () => {
     let server = { pid: 60, start: 2000 };
     await connect(

@@ -40,6 +40,7 @@ import { getCurrentWindow, UserAttentionType } from "@tauri-apps/api/window";
 import en from "./i18n/en.json";
 import {
   AppState,
+  isOpenable,
   sessionKey,
   sessionKeyOf,
   socketOf,
@@ -1030,7 +1031,7 @@ export function main(): void {
     if (listed === null) {
       if (!showsDefaultSocket(hostId)) {
         state.setUnsupportedDefaultVersion(hostId, null);
-        state.setSessionRecords(hostId, [], Date.now(), "default");
+        state.clearSocket(hostId, "default");
       }
       return;
     }
@@ -1039,7 +1040,14 @@ export function main(): void {
       return;
     }
     state.setUnsupportedDefaultVersion(hostId, listed.unsupported_version);
-    state.setSessionRecords(hostId, sessionRecords(listed.sessions), Date.now(), "default");
+    // `attached` zaehlt fuer den Hinweis zur Fenstergroesse nur ANDERE Clients:
+    // zeigt die App die Session gerade, ist einer davon ihr eigener.
+    const records = sessionRecords(listed.sessions).map((record) => {
+      const shown = state.tileForSession(sessionKey(hostId, record.name, "default")) !== null;
+      const attached = record.attached == null ? null : Math.max(0, record.attached - (shown ? 1 : 0));
+      return { ...record, attached };
+    });
+    state.setSessionRecords(hostId, records, Date.now(), "default");
   }
 
   function asSessionItems(items: Array<SessionListItemDto | string>): SessionListItemDto[] {
@@ -1237,6 +1245,9 @@ export function main(): void {
     const timer = pollTimers.get(hostId);
     if (timer !== undefined) clearTimeout(timer);
     pollTimers.delete(hostId);
+    // Der Server einer frueheren Verbindung ist kein "neuer" fuer die naechste.
+    defaultPollServers.delete(hostId);
+    defaultListReloads.delete(hostId);
   }
 
   /** `list_sessions` auf der lebenden Verbindung; waehrenddessen pausiert der Poll. */
@@ -1249,7 +1260,9 @@ export function main(): void {
       // Ob die Liste gelang, entscheidet der eigene Socket (Spec 2026-10-25
       // §7): sein Fehler nimmt den Weg jedes gescheiterten Aufrufs, und die
       // Liste des Standard-Sockets bleibt dann, wie sie war.
-      if (listed.own.error) throw listed.own.error;
+      // Die Liste des Standard-Sockets geht mit, damit der Fehlerweg sie
+      // trotzdem schreiben kann (Spec 2026-10-25 §6.2, "und umgekehrt").
+      if (listed.own.error) throw { ...listed.own.error, defaultPart: listed.default };
       return listed;
     } finally {
       const left = (listsInFlight.get(hostId) ?? 1) - 1;
@@ -1303,6 +1316,8 @@ export function main(): void {
       if (mutation && isCurrentConnection(mutation.connection)) return { ok: true };
       const failure = sessionListError(error);
       if (failure.controlGeneration !== undefined && failure.controlGeneration !== controlGeneration) return { ok: true };
+      const defaultPart = (error as { defaultPart?: SocketSessionsDto | null } | null)?.defaultPart;
+      if (defaultPart !== undefined) writeDefaultSessions(hostId, defaultPart);
       state.setSessionListError(hostId, failure);
       return { ok: false, error: failure.message };
     }
@@ -2269,6 +2284,15 @@ export function main(): void {
     const host = state.hosts.find((h) => h.id === hostId);
     if (!host) return;
     const socket = request.socket ?? "app";
+    const session = host.sessions.find((candidate) => candidate.name === name && socketOf(candidate) === socket);
+    if (session && !isOpenable(session)) {
+      showGlobalError(
+        t("sidebar.session.foreignUnbound", { reason: session.unverified ?? t("sidebar.session.unbound") }),
+        undefined,
+        "neutral",
+      );
+      return;
+    }
     if (!canOpenSession(host, name, socket)) {
       showGlobalError(t("session.hostNotConnected", { host: host.label }));
       return;
@@ -2339,7 +2363,8 @@ export function main(): void {
       // gespeichert wird) und laeuft auch keiner, bringt keiner die Liste:
       // dann wartet auch nichts darauf.
       const current = state.hosts.find((candidate) => candidate.id === hostId);
-      if (result.kind === "superseded" && current?.state !== "connecting" && sessionsAfterConnect.get(hostId)?.name === name) {
+      const pending = sessionsAfterConnect.get(hostId);
+      if (result.kind === "superseded" && current?.state !== "connecting" && pending?.name === name && pending.socket === socket) {
         sessionsAfterConnect.delete(hostId);
       }
     });
@@ -2354,7 +2379,8 @@ export function main(): void {
     if (wanted === undefined) return;
     sessionsAfterConnect.delete(hostId);
     const host = state.hosts.find((h) => h.id === hostId);
-    if (!host?.sessions.some((session) => session.name === wanted.name && socketOf(session) === wanted.socket)) return;
+    const session = host?.sessions.find((candidate) => candidate.name === wanted.name && socketOf(candidate) === wanted.socket);
+    if (!session || !isOpenable(session)) return;
     workspaceSync.beforeUserOpen();
     const result = wanted.replace
       ? state.replaceFocusedTile(hostId, wanted.name, wanted.socket)

@@ -271,6 +271,10 @@ the app as one more client of that session:
   attached to; sessions of a session group are listed but not opened; a
   server outside `/tmp/tmux-<uid>` is not found (see
   [Sessions on tmux's default socket](#sessions-on-tmuxs-default-socket)).
+  The status poll reads the default socket in the form of the tmux on the
+  PATH: if that tmux is not 3.3a, 3.4 or 3.6 while the server is, the
+  sessions are listed but their status stays unknown, and sessions started
+  later appear only after **Reload sessions**.
 - **Authentication:** a key file, the Windows OpenSSH agent (the `ssh-agent`
   service) or a password. No keyboard-interactive or two-factor prompts, no
   Pageant, no jump hosts or proxies. The import from `~/.ssh/config` reads
