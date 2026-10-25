@@ -125,6 +125,21 @@ Rahmen derselbe, welche Sessions binden, entscheidet die Liste.
 
 ## Schritt 4: Frontend-Zustand (1,5 d)
 
+**Erledigt am 25.10.** `Session.socket` (fehlt er, ist es der eigene),
+`sessionKey(host, name, socket)`: eigen `host/name` wie bisher, fremd
+`host/default:name`. `AppState` fuehrt Listenzustand, Frische und gehaltenen
+Status je (Host, Socket); `setSessionRecords` und `patchSessionStatus` treffen
+nur ihren Socket. Raster, Seitenleiste, Wartet-Spur, Schnelloeffnen und
+Terminal reichen den Socket weiter; das Terminal nennt ihn nur beim
+Standard-Socket. `list_sessions` und `poll_status` liefern jetzt je Socket
+(`includeDefault` aus dem Schalter); ein Fehler des eigenen Sockets nimmt den
+alten Fehlerweg und laesst die fremde Liste stehen. Neuladen der fremden Liste
+bei unbekannter Session-ID oder neuem Server, hoechstens alle 10 s je Host.
+Fremde Kacheln werden in ihrer Form gespeichert und erst mit der Liste ihres
+Sockets hergestellt. Eine Antwort in der alten Form (ein Array, ein einzelnes
+Ergebnis) gilt als die des eigenen Sockets; daran haengen die bestehenden
+Tests.
+
 - `Session.socket`, `sessionKey(hostId, socket, name)`; alle Stellen aus
   Spec §5 (gehaltener Status, Sperren, Öffnen, Raster- und Seitenleisten-
   Rückrufe, `closeSessionTile`, `openSessionByUser`,
@@ -142,6 +157,16 @@ Rahmen derselbe, welche Sessions binden, entscheidet die Liste.
   gleichnamigen Sessions auf beiden Sockets.
 
 ## Schritt 5: Oberfläche (0,75 d)
+
+**Erledigt am 25.10.** Gruppe „tmux sessions“ unter den eigenen Sessions, nur
+mit Sessions, Fehlerkasten oder nicht unterstuetzter Version; fremde Zeilen
+ohne „End session…“, mit Herkunft im Tooltip; ungebundene nicht waehlbar, mit
+Grund. Kennzeichen „tmux“ in Kachelkopf (schmal nur das Symbol), Wartet-Spur
+und Schnelloeffnen. Schalter im Host-Dialog (Vorgabe an); eine Aenderung an
+einem verbundenen Host laedt die Liste sofort. Hinweis zur Fenstergroesse
+einmal je Lauf, `session_attached` kommt dafuer mit der Liste. README-Abschnitt
+„Sessions on tmux’s default socket“. Was am Fenster noch niemand gesehen hat:
+die Optik der Gruppe, des Kennzeichens und des schmalen Kopfs.
 
 - Seitenleiste: Gruppe „tmux sessions“, fremde Zeilen ohne „End session…“, mit
   Tooltip; ungebundene Zeilen nicht wählbar, mit Grund; Hostzeile nennt eine
