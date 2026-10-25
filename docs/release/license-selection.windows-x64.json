@@ -1179,8 +1179,8 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 24481,
-            "sha256": "c041a3c5efac87ced6287cb6b19dc0fc87cc0ce3e859f4a3ffe530662a12bfa3"
+            "bytes": 24795,
+            "sha256": "7be33470c8d3405a899a72ffc017bc03745e172b3889849cad39e600492f5b29"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
