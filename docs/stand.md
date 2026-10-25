@@ -41,6 +41,20 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 - **Grok vorerst nicht:** Messungen und M1-Tor nur mit Claude Code und Codex.
   Die Titelregeln für Grok bleiben im Code, sind aber nicht erneut gemessen.
 
+## Entscheidungen vom 25.10.2026 (macOS)
+
+Nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md):
+
+- **macOS kommt dazu:** ein Universal-DMG für Apple silicon und Intel,
+  macOS 11 und neuer.
+- **Ad-hoc signiert:** Developer ID und Notarisierung sind im Workflow
+  vorbereitet und greifen, sobald die Apple-Secrets im Repository liegen.
+- **Lizenzbeigaben gleichwertig:** eigene, gebundene macOS-Auswahl, aus der
+  Windows-Auswahl abgeleitet.
+- **Release automatisch:** Ein Tag baut das DMG in der CI und hängt es an das
+  Release des Tags; gibt es keins, legt der Workflow es veröffentlicht an.
+  Der Maintainer lädt für macOS nichts von Hand hoch.
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -53,6 +67,7 @@ steht im [README](../README.md#what-it-is), die Änderungen im
 | Dynamisches Raster | Schritt 0, 1 und 3 abgeschlossen nach der [Spec vom 19.10.](specs/2026-10-19-dynamisches-raster-design.md): bis zu 9 Kacheln, höchstens 8 je Host, je Host höchstens 4 Öffnungen zugleich („Opening…“), Tauschen per Zug am Kopf, Größe per Spalt, Maximieren verbirgt die übrigen Kacheln statt sie zu schließen, Wartet-Spur mit Wartezeit, Kachelnummer in Liste und Spur |
 | M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme am Fenster offen |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger Lauf für 0.2.2 nach dem Neubinden der Lizenzauswahl |
+| macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md), noch nicht ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 400 Komponenten, `prepare`/`check` grün; Workflow `macos.yml` mit Testinstallation auf Apple silicon und Intel und Veröffentlichen am Tag. Ein erster Lauf auf echten macOS-Runnern steht aus |
 
 ## Letzte Prüfung
 
@@ -328,6 +343,14 @@ In dieser Reihenfolge:
      Backend bediente die anderen Kanäle dabei weiter. Seitdem geht Eingabe
      über 64 KiB in Teilen hinaus. Der tmux-Server nimmt die Einfügung in ein
      Programm, das stdin nicht liest, ganz an und puffert sie selbst.
+9. **macOS:** Der Workflow `macos.yml` muss einmal auf echten Runnern grün
+   laufen (Bau, Testinstallation auf Apple silicon und Intel); danach die
+   Abnahme am Fenster eines Macs nach
+   [Spec §9](specs/2026-10-25-macos-lieferung-design.md#9-offen):
+   Verbinden mit Schlüssel, ssh-agent und Passwort, Abfrage zum lokalen
+   Netz, Kopieren und Einfügen, Schriften, Fensterlage, Neustart. Offen
+   bleiben Mac-Kürzel mit ⌘ und, sobald Secrets da sind, ein Lauf mit
+   Developer ID und Notarisierung.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 
@@ -401,6 +424,11 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   Die datierten Berichte und Inventare vom 12.09., die Lizenzauswahl und die
   Inventarskripte unter `scripts/` nennen als Herkunft Commits der privaten
   Entwicklungshistorie; sie sind hash-gebunden und bleiben, wie sie sind.
+- macOS-Lieferung: [Spec](specs/2026-10-25-macos-lieferung-design.md), die
+  [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit
+  [Bericht](release/license-macos-universal-2026-10-25.json) und Inventar
+  vom 25.10., erzeugt von `scripts/release-license-select-macos.mjs`; Bau mit
+  `scripts/release-macos-artifacts.mjs`, CI in `.github/workflows/macos.yml`.
 - russh-Patch: [Herkunft, Umfang und Lizenz](../vendor/russh/AGENTBRIDGE-PATCH.md)
   und der [Patchbericht](reviews/2026-09-11-neutral/russh-channel-close-patch.md)
   zum Kanalschluss.

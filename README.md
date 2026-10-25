@@ -2,14 +2,15 @@
 
 ![aidevbridge: hosts and sessions in the sidebar, terminals in a grid](docs/images/screenshot.png)
 
-aidevbridge is a Windows desktop app for coding agents that run in tmux
-sessions on your own Linux machines. It connects over SSH, shows the
+aidevbridge is a desktop app for Windows and macOS for coding agents that run
+in tmux sessions on your own Linux machines. It connects over SSH, shows the
 sessions of several hosts in one window and tells you which agent is waiting
 for you. Nothing is installed on the hosts.
 
 The project is in early development. Releases appear on the
 [Releases page](https://github.com/ITBrain258/aidevbridge/releases); the
-Windows packages are not code-signed. [docs/stand.md](docs/stand.md) tracks
+Windows packages are not code-signed, and the macOS disk image, new with the
+release after 0.2.2, is signed ad-hoc only. [docs/stand.md](docs/stand.md) tracks
 the status and the open items, [CHANGELOG.md](CHANGELOG.md) the changes (both
 in German).
 
@@ -56,6 +57,12 @@ xterm.js.
   `Get-FileHash .\aidevbridge-0.2.2-windows-x64-setup.exe -Algorithm SHA256`
   (or the name of the file you downloaded) must print the same value. It prints upper-case letters where the release
   lists lower-case ones; letter case does not matter.
+- **macOS: not notarized yet.** macOS refuses the first start ("Apple could
+  not verify …"). After checking the file with
+  `shasum -a 256 ~/Downloads/aidevbridge-<version>-macos-universal.dmg`,
+  choose **Open Anyway** for aidevbridge under System Settings → Privacy &
+  Security. The macOS app has passed an automated installation and start
+  test, not yet a test by hand on a Mac.
 - **Or build it yourself**, see [Build from source](#build-from-source).
 
 ## Host requirements
@@ -107,6 +114,15 @@ The window is drawn by Microsoft Edge WebView2, which current Windows 10 and
 missing; the ZIP expects it to be installed. Every form carries the license
 texts in a `licenses` folder (`licenses/index.html`) next to the program; keep
 it there.
+
+**macOS** 11 or newer, Apple silicon and Intel, gets one disk image from the
+release after 0.2.2 on: `aidevbridge-<version>-macos-universal.dmg`. Open
+it and drag **aidevbridge** onto **Applications**. The window is drawn by
+WebKit, which is part of macOS. The license texts are inside the app
+(`aidevbridge.app/Contents/Resources/licenses/index.html`). From macOS 15 on,
+the app asks once for access to the local network when it connects to a host
+there; allow it, or hosts on your network stay unreachable. To remove the app,
+move it to the Trash.
 
 There is no automatic update. To hear about new versions, watch the
 repository's releases on GitHub (Watch → Custom → Releases).
@@ -230,7 +246,8 @@ the app as one more client of that session:
 - **Only SSH.** The app connects to your hosts over SSH and to nothing else:
   no telemetry, no update check, no account. Its window is drawn by
   Microsoft Edge WebView2, a Windows component with its own updates and data
-  practices; the app loads no remote content into it.
+  practices, or on macOS by the system's WebKit; the app loads no remote
+  content into it.
 - **Links.** A plain click on a link in a terminal does nothing. Ctrl+click
   opens http and https links in your default browser. A link whose text
   doesn't show its address (OSC 8) names the address in its tooltip, and
@@ -252,6 +269,11 @@ the app as one more client of that session:
   - `%USERPROFILE%\.ssh\known_hosts`: the host keys you accepted. The file is
     shared with OpenSSH; the app only appends to it.
   - `%LOCALAPPDATA%\io.github.itbrain258.aidevbridge\`: WebView2 data.
+  - On macOS, `settings.toml` and the window position are in
+    `~/Library/Application Support/io.github.itbrain258.aidevbridge/`, the
+    host keys in `~/.ssh/known_hosts` and the WebKit data under
+    `~/Library/WebKit/io.github.itbrain258.aidevbridge/` and
+    `~/Library/Caches/io.github.itbrain258.aidevbridge/`.
 - **Passwords and key passphrases are never stored.** The app asks again
   when it needs them.
 - Removing the app keeps `known_hosts` and `settings.toml`; only the
@@ -275,8 +297,11 @@ the app as one more client of that session:
   PATH: if that tmux is not 3.3a, 3.4 or 3.6 while the server is, the
   sessions are listed but their status stays unknown, and sessions started
   later appear only after **Reload sessions**.
+- **macOS:** the shortcuts are those of Windows (Ctrl, Ctrl+Shift); ⌘C, ⌘V,
+  ⌘W and ⌘Q work through the app menu. Shortcuts with ⌘ and a check by hand
+  on a Mac (copy and paste, the local-network prompt, fonts) are still open.
 - **Authentication:** a key file, the Windows OpenSSH agent (the `ssh-agent`
-  service) or a password. No keyboard-interactive or two-factor prompts, no
+  service; on macOS the agent of `SSH_AUTH_SOCK`) or a password. No keyboard-interactive or two-factor prompts, no
   Pageant, no jump hosts or proxies. The import from `~/.ssh/config` reads
   `Host`, `HostName`, `User`, `Port` and `IdentityFile`; other keywords such
   as `ProxyJump`, `Include` and `Match`, and wildcard defaults, are ignored.
@@ -324,11 +349,12 @@ the app as one more client of that session:
 
 ## Build from source
 
-You need Windows 10 or 11 (x64) with:
+You need Windows 10 or 11 (x64), or macOS 11 or newer, with:
 
 - Rust 1.97.1. `rust-toolchain.toml` pins it, and `rustup` installs it on
   first use.
-- Microsoft C++ Build Tools (MSVC) and the WebView2 Runtime.
+- On Windows the Microsoft C++ Build Tools (MSVC) and the WebView2 Runtime,
+  on macOS the Xcode Command Line Tools (`xcode-select --install`).
 - Node.js 24 or newer.
 
 ```sh
@@ -372,8 +398,11 @@ count as passed. To run them against a test host, set `AIDEVBRIDGE_TEST_HOST`,
 and the same test socket.
 [CONTRIBUTING.md](CONTRIBUTING.md#live-tests-against-a-test-host) explains
 each of them and the rules for the socket name. `.github/workflows/ci.yml`
-runs the frontend tests and build on Linux, the Rust checks on Windows and
-Linux and the script tests on Windows, also without an SSH host.
+runs the frontend tests and build on Linux, the Rust checks on Windows, Linux
+and macOS and the script tests on Windows, also without an SSH host.
+`.github/workflows/macos.yml` builds the macOS disk image, installs it on an
+Apple silicon and an Intel Mac and starts the app until its window appears;
+see [macOS disk image](#macos-disk-image).
 
 ### Release build
 
@@ -417,6 +446,38 @@ shows which records the named files would change and writes them with
 `--third-party` after reviewing its new version. It never adds or changes a
 license decision. `node scripts/release-licenses.mjs check` confirms the
 result. The pipeline does not sign, install or publish anything.
+
+### macOS disk image
+
+```sh
+npm run build:macos
+```
+
+This needs macOS on Apple silicon, the Xcode Command Line Tools, Node.js 24
+or newer, the pinned Rust toolchain with both Apple targets
+(`rustup target add --toolchain 1.97.1 aarch64-apple-darwin x86_64-apple-darwin`)
+and a clean, committed Git checkout. It builds one universal binary for Apple
+silicon and Intel, packs the app and its DMG, signs them ad-hoc and checks
+the result: both architectures, only system libraries linked, nothing in the
+bundle but the program, its icon, the `licenses` folder and the signature,
+and the same app inside the DMG. `release-manifest.json` with the SHA-256 of
+the DMG lands in `out/release-macos/<run-id>/artifacts/`. When the Apple
+secrets named in
+[the design](docs/specs/2026-10-25-macos-lieferung-design.md) are set, it
+signs with a Developer ID and notarizes instead.
+
+The macOS license selection
+`docs/release/license-selection.macos-universal.json` is derived from the
+Windows one by `node scripts/release-license-select-macos.mjs --write`; check
+it with `node scripts/release-licenses.mjs check macos-universal`. The rebind
+helper updates both selections at once. `npm run build:macos -- --preview`
+builds any clean commit without the bound selection: such a disk image
+carries a note instead of the license texts and is not for passing on.
+
+`.github/workflows/macos.yml` makes a preview build of every push and pull
+request and installs and starts it on both kinds of Mac. A tag `v<version>`
+makes the release build and attaches the DMG and its `.sha256` to the
+release of that tag, creating the release if there is none.
 
 ### Why not `cargo build --release`
 
@@ -469,8 +530,8 @@ in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md), the patched `russh` in
 keys in `src-tauri/tests/fixtures/rsa-signing/` (see
 [SOURCES.md](src-tauri/tests/fixtures/rsa-signing/SOURCES.md)) and the
 license texts and installer sources under `docs/release/licenses/` and
-`docs/release/sources/`. The Windows packages carry these notices in their
-`licenses` folder.
+`docs/release/sources/`. The Windows packages and the macOS app carry the
+notices selected for their platform in their `licenses` folder.
 
 Unless you explicitly state otherwise, any contribution intentionally
 submitted for inclusion in this work by you, as defined in the Apache-2.0

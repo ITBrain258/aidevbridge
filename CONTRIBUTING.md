@@ -96,10 +96,29 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
 - Say in the description what you changed, why, and how you tested it. Review
   aims for one round.
 - All text of the user interface lives in `src/i18n/en.json`.
-- The release license selection
-  (`docs/release/license-selection.windows-x64.json`) binds the app's sources
-  by hash. You do not need to update it; the maintainer reviews and rebinds it
-  before a release.
+- The release license selections
+  (`docs/release/license-selection.windows-x64.json` and
+  `docs/release/license-selection.macos-universal.json`) bind the app's
+  sources by hash. You do not need to update them; the maintainer reviews and
+  rebinds them before a release. The macOS workflow builds a preview disk
+  image of your pull request, which does not need them.
+
+## Releases
+
+1. `npm run bump <version>` and a CHANGELOG entry.
+2. Rebind the Windows selection with `node scripts/release-license-rebind.mjs
+   <path>... --write` and set the version at its places by hand.
+3. Derive the macOS selection again with
+   `node scripts/release-license-select-macos.mjs --write` (Linux or macOS,
+   with `rust-src` and both Apple targets installed for Rust 1.97.1), then
+   run `node scripts/release-licenses.mjs prepare` and
+   `node scripts/release-licenses.mjs prepare macos-universal`.
+4. Optionally start the macOS workflow by hand with **release** on: it makes
+   the release build without publishing it.
+5. Push the tag `v<version>`. The macOS workflow attaches the disk image and
+   its `.sha256` to the release of the tag, creating it if needed. Add the
+   Windows packages to that release; do not create a second one, and do not
+   use a draft, which the workflow cannot find.
 
 ## Language
 

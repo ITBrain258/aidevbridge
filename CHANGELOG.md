@@ -4,6 +4,14 @@ Format nach Keep a Changelog, Versionen nach SemVer. Vor 1.0 kann jede
 Minor-Version brechen. 0.1.1 und 0.1.2 erschienen nur privat und noch unter
 dem Namen agentbridge.
 
+## [Unreleased]
+
+### Added
+
+- macOS: ein Disk-Image fuer macOS 11 und neuer, ein Universal-Binary fuer Apple silicon und Intel, vorerst nur ad-hoc signiert. `npm run build:macos` baut es und prueft Architekturen, gelinkte Systembibliotheken, Inhalt des Bundles, Signatur und Inhalt des DMG; die Lizenztexte liegen in der App unter `Contents/Resources/licenses`. Die App fragt unter macOS 15 einmal nach dem Zugriff auf das lokale Netz, wenn sie einen Host dort erreicht. Signatur mit Developer ID und Notarisierung schalten sich ein, sobald die Apple-Secrets im Repository liegen.
+- CI: Der Workflow `macos.yml` baut bei jedem Push und Pull Request ein Vorschau-DMG, installiert es auf einem Apple-silicon- und einem Intel-Runner und startet die App, bis ihr Fenster erscheint. Ein Tag `v*` baut das Release-DMG und haengt es samt `.sha256` an das Release des Tags, ohne Release legt er es an. Die Rust-Pruefungen laufen auch auf macOS.
+- Eigene Lizenzauswahl fuer macOS (`docs/release/license-selection.macos-universal.json`), abgeleitet aus der Windows-Auswahl; `release-licenses.mjs` und `release-license-rebind.mjs` kennen die Profile `windows-x64` und `macos-universal`.
+
 ## [0.2.2] - 2026-10-25
 
 ### Added
