@@ -64,8 +64,8 @@
       },
       {
         "path": "THIRD_PARTY_LICENSES.md",
-        "bytes": 12875,
-        "sha256": "4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "bytes": 13275,
+        "sha256": "71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       },
       {
         "path": "docs/release/license-and-unicode-2026-09-12.json",
@@ -95,7 +95,7 @@
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
         "bytes": 107056,
-        "sha256": "78a45b4f4b258310d3fe58ad12aefb5226d1d0048719bb8ba179ba61b080d42c"
+        "sha256": "8e8945a450ff6101f635b73439effb451a6fc49c7cb74d2c703524eb0fa6ba94"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -474,8 +474,8 @@
       },
       {
         "path": "scripts/release-macos-artifacts.mjs",
-        "bytes": 29158,
-        "sha256": "f866dac7131618b7d33eb31b0f3b08b49f9097fb3e497ae3548cba264d8fe02a"
+        "bytes": 29344,
+        "sha256": "38c35065a8a344e186ba9047f5c0e8cc652d0efd8802379256c09ad4fcdb216e"
       },
       {
         "path": "src-tauri/Cargo.toml",
@@ -22191,7 +22191,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices. For the window-title and attention calls the bundle also contains window.js, dpi.js and image.js; they carry the same Commons Conservancy header, which THIRD_PARTY_LICENSES.md lists.",
       "decision_basis": [
@@ -22209,7 +22209,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22243,7 +22243,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22261,7 +22261,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22279,7 +22279,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22297,7 +22297,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22315,7 +22315,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Bundled for Ctrl+click links. Its MIT text and copyright line (identical bytes to addon-search) and the two module headers shared with the other xterm packages are retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -22334,7 +22334,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22352,7 +22352,7 @@
       "selected_license": "ISC AND MIT (Feather)",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Icon geometries copied into src/icons.ts (ICON_NAMES, generated by scripts/gen-icons.mjs) and the triangle-alert geometry inlined as a CSS mask in src/styles.css; the full ISC and Feather MIT texts are retained.",
       "decision_basis": [
@@ -22370,7 +22370,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Only the emitted modulepreload polyfill; no wholesale Vite build dependency payload.",
       "decision_basis": [
@@ -22439,7 +22439,7 @@
       "selected_license": "0BSD",
       "disposition": "include",
       "documents": [
-        "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6"
+        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
       ],
       "reason": "Re-decided on 2026-10-20: the production JS contains __classPrivateFieldGet and __classPrivateFieldSet, reached through @tauri-apps/api/window -> image.js (Image extends Resource from core.js); the earlier exclusion no longer holds. The verbatim Microsoft notice of the vendored file (0BSD terms, no attribution duty) is retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -22743,7 +22743,7 @@
       "selected_license": null,
       "disposition": "exclude",
       "documents": [],
-      "reason": "The image holds the .app, a link to /Applications and the volume icon made from the app's own icon; scripts/release-macos-artifacts.mjs refuses any other entry. hdiutil and the Tauri bundler script only build the image; no third-party installer code, graphics or license agreement is delivered.",
+      "reason": "The image holds the .app, a link to /Applications and at most the volume icon made from the app's own icon and file-system metadata macOS writes itself (.DS_Store, .fseventsd, .Trashes); scripts/release-macos-artifacts.mjs refuses any other entry. hdiutil and the Tauri bundler script only build the image; no third-party installer code, graphics or license agreement is delivered.",
       "decision_basis": [
         "docs/release/license-macos-universal-2026-10-25.json",
         "scripts/release-macos-artifacts.mjs"
@@ -26987,10 +26987,10 @@
       ]
     },
     {
-      "id": "sha256:4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6",
+      "id": "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6",
       "file_name": "THIRD_PARTY_LICENSES.md",
-      "bytes": 12875,
-      "sha256": "4a7ed913e0f1da54c82a4b23a03b63bb3d109fd8953dd0ac8629eeb61e49c8a6",
+      "bytes": 13275,
+      "sha256": "71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6",
       "sources": [
         {
           "kind": "file",
