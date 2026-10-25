@@ -1,11 +1,9 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.0`, erstes Release am 22.10.2026 mit MSI, Setup-EXE
-und ZIP, unsigniert (Entscheidung des Maintainers vom 22.10., vor dem M1-Tor
-und vor der Installerabnahme). Installerabnahme, M1- und M2-Tor sind
-seitdem bestanden (gemeldet am 24.10.). `0.2.1` ist vorbereitet: Version,
-CHANGELOG, Lizenzauswahl und ein Lieferlauf aus `1da8da2`; Tag und Release
-stehen aus.
+**Stand:** Version `0.2.1`, Release am 25.10.2026 mit MSI, Setup-EXE und
+ZIP, unsigniert. Das erste Release, `0.2.0`, erschien am 22.10. auf
+Entscheidung des Maintainers vor dem M1-Tor und vor der Installerabnahme;
+Installerabnahme, M1- und M2-Tor sind seitdem bestanden (gemeldet am 24.10.).
 Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
 einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
 privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
@@ -210,12 +208,11 @@ In dieser Reihenfolge:
    samt Manifest-Hash, die Komponente und vier Dokumente unter
    `tests/fixtures/rsa-signing/`); das Rebind-Werkzeug ändert keine
    Versionen, sie sind von Hand gesetzt. Nach den Korrekturen der bekannten Rasterfehler sind am 24.10. neun
-   weitere eigene Quellen neu gebunden. `npm run build:windows` lief für
-   0.2.1 am 24.10. aus `1da8da2` vollständig durch (Lauf
-   `20261024T145315967-feb4ea376d18`, `verify` grün, unsigniert); SHA-256: MSI
-   `8a8179e7…afb5c4`, Setup-EXE `197bba28…4bd388`, ZIP `c3fd2847…51666d`,
-   vollständig in `release-manifest.json` des Laufs. Die früheren Läufe aus
-   `cb59da2` und `5cabf45` sind damit überholt. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
+   weitere eigene Quellen neu gebunden. Das Release `v0.2.1` vom 25.10. trägt MSI, Setup-EXE und ZIP aus
+   `npm run build:windows` seines eigenen Commits (dem, der das CHANGELOG
+   datiert), `verify` grün, unsigniert; ihre SHA-256-Werte stehen in den
+   Release-Notes. Die Probeläufe vom 24.10. aus `cb59da2`, `5cabf45` und
+   `1da8da2` sind damit überholt. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
    auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
    `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
    aus `npm run build:app` bleibt auf dem eigenen Rechner. Ändert sich ein
