@@ -1,6 +1,6 @@
 [package]
 name = "aidevbridge"
-version = "0.2.1"
+version = "0.2.2"
 description = "aidevbridge desktop client for remote coding agents"
 authors = ["Lukas Hellbach"]
 edition = "2021"
