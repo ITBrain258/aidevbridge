@@ -1,0 +1,225 @@
+name: macOS
+# Builds the universal DMG, installs and starts it on Apple silicon and on
+# Intel, and on a tag v* publishes it with the GitHub release of that tag.
+# Pushes and pull requests make preview builds (no license texts, never
+# published); a tag or a manual run with "release" makes the release build,
+# which needs the bound macOS license selection.
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Release build (checks the bound license selection; publishes nothing)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+jobs:
+  package:
+    name: Build DMG
+    runs-on: macos-latest
+    timeout-minutes: 60
+    outputs:
+      dmg: ${{ steps.artifact.outputs.dmg }}
+      signing: ${{ steps.artifact.outputs.signing }}
+    env:
+      RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || inputs.release == true }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+      - uses: actions/setup-node@v7
+        with: { node-version: 24 }
+      - name: Tag and version agree
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $version"
+            exit 1
+          fi
+      - name: Build and check the disk image
+        env:
+          # Developer ID signing and notarization only for tags and only with
+          # complete secrets; otherwise the build is signed ad-hoc.
+          APPLE_CERTIFICATE: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          APPLE_API_ISSUER: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPLE_API_ISSUER || '' }}
+          APPLE_API_KEY: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPLE_API_KEY || '' }}
+          APPLE_API_KEY_P8: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPLE_API_KEY_P8 || '' }}
+        run: |
+          set -euo pipefail
+          if [ -n "$APPLE_API_KEY_P8" ]; then
+            printf '%s\n' "$APPLE_API_KEY_P8" > "$RUNNER_TEMP/AuthKey.p8"
+            export APPLE_API_KEY_PATH="$RUNNER_TEMP/AuthKey.p8"
+          fi
+          unset APPLE_API_KEY_P8
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_API_ISSUER APPLE_API_KEY; do
+            if [ -z "${!name}" ]; then unset "$name"; fi
+          done
+          if [ "$RELEASE" = true ]; then npm run build:macos; else npm run build:macos -- --preview; fi
+      - name: Collect the disk image
+        id: artifact
+        run: |
+          set -euo pipefail
+          run=$(ls -d out/release-macos/*/ | tail -n 1)
+          mkdir dmg
+          cp "$run"artifacts/*.dmg "$run"artifacts/release-manifest.json dmg/
+          cd dmg
+          dmg=$(ls *.dmg)
+          node -e '
+            const fs = require("fs"), [file] = process.argv.slice(1);
+            const manifest = JSON.parse(fs.readFileSync("release-manifest.json"));
+            const item = manifest.artifacts.find(a => a.path === file);
+            fs.writeFileSync(`${file}.sha256`, `${item.sha256}  ${file}\n`);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `signing=${manifest.contract.signing.mode}\n`);
+          ' "$dmg"
+          shasum -a 256 -c "$dmg.sha256"
+          echo "dmg=$dmg" >> "$GITHUB_OUTPUT"
+          echo "### $dmg" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$(cat "$dmg.sha256")\`" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos-dmg
+          path: dmg/
+          if-no-files-found: error
+      - name: Keep the build logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-build-logs
+          path: |
+            out/release-macos/*/*.json
+            out/release-macos/*/logs/
+          if-no-files-found: ignore
+
+  install-test:
+    name: Install and start (${{ matrix.arch }})
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-latest
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    env:
+      APP: /Applications/aidevbridge.app
+    steps:
+      - uses: actions/download-artifact@v8
+        with: { name: macos-dmg }
+      - name: Install from the disk image
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = "${{ matrix.arch }}"
+          dmg="${{ needs.package.outputs.dmg }}"
+          shasum -a 256 -c "$dmg.sha256"
+          mount=$(mktemp -d)
+          hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$mount" "$dmg"
+          ls -la "$mount"
+          ditto "$mount/aidevbridge.app" "$APP"
+          hdiutil detach "$mount"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          lipo -archs "$APP/Contents/MacOS/aidevbridge"
+          if ! spctl --assess --type execute --verbose=2 "$APP"; then
+            if [ "${{ needs.package.outputs.signing }}" = developer-id ]; then
+              echo "::error::Gatekeeper rejects the notarized app"
+              exit 1
+            fi
+            echo "Gatekeeper rejects the ad-hoc signed app, as expected without notarization."
+          fi
+      - name: Start the app and find its window
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/aidevbridge.log"
+          "$APP/Contents/MacOS/aidevbridge" > "$log" 2>&1 &
+          pid=$!
+          cat > "$RUNNER_TEMP/windows.swift" <<'SWIFT'
+          import CoreGraphics
+          import Foundation
+          let pid = Int32(CommandLine.arguments[1])!
+          let all = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
+          let mine = all.filter { ($0[kCGWindowOwnerPID as String] as? Int32) == pid && ($0[kCGWindowLayer as String] as? Int) == 0 }
+          for window in mine { print(window[kCGWindowBounds as String] ?? "") }
+          exit(mine.isEmpty ? 1 : 0)
+          SWIFT
+          swiftc -O -o "$RUNNER_TEMP/windows" "$RUNNER_TEMP/windows.swift"
+          found=false
+          for attempt in $(seq 1 30); do
+            if ! kill -0 "$pid" 2>/dev/null; then
+              cat "$log"
+              echo "::error::aidevbridge exited during start"
+              exit 1
+            fi
+            if "$RUNNER_TEMP/windows" "$pid"; then found=true; break; fi
+            sleep 2
+          done
+          screencapture -x "$RUNNER_TEMP/aidevbridge.png" || true
+          # Still running a while after the window appeared?
+          sleep 5
+          kill -0 "$pid"
+          kill -TERM "$pid"
+          for attempt in $(seq 1 10); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
+          if kill -0 "$pid" 2>/dev/null; then kill -KILL "$pid"; fi
+          cat "$log"
+          if [ "$found" != true ]; then
+            echo "::error::aidevbridge started but showed no window"
+            exit 1
+          fi
+      - name: Keep the screenshot and log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-start-${{ matrix.arch }}
+          path: |
+            ${{ runner.temp }}/aidevbridge.png
+            ${{ runner.temp }}/aidevbridge.log
+          if-no-files-found: ignore
+      - name: Uninstall
+        if: always()
+        run: rm -rf "$APP" "$HOME/Library/Application Support/io.github.itbrain258.aidevbridge"
+
+  publish:
+    name: Publish with the release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [package, install-test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 24 }
+      - uses: actions/download-artifact@v8
+        with: { name: macos-dmg, path: dmg }
+      - name: Attach the disk image, or create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DMG: ${{ needs.package.outputs.dmg }}
+          SIGNING: ${{ needs.package.outputs.signing }}
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          test "$DMG" = "aidevbridge-$version-macos-universal.dmg"
+          sha=$(cut -d ' ' -f 1 "dmg/$DMG.sha256")
+          if gh release view "$GITHUB_REF_NAME" --json body --jq .body > "$RUNNER_TEMP/body.md"; then
+            node scripts/release-macos-notes.mjs "$version" "$DMG" "$sha" "$SIGNING" "$RUNNER_TEMP/body.md" > "$RUNNER_TEMP/notes.md"
+            gh release upload "$GITHUB_REF_NAME" "dmg/$DMG" "dmg/$DMG.sha256" --clobber
+            gh release edit "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            node scripts/release-macos-notes.mjs "$version" "$DMG" "$sha" "$SIGNING" > "$RUNNER_TEMP/notes.md"
+            gh release create "$GITHUB_REF_NAME" "dmg/$DMG" "dmg/$DMG.sha256" --verify-tag --title "aidevbridge $version" --notes-file "$RUNNER_TEMP/notes.md"
+          fi
+          echo "Published $DMG with release $GITHUB_REF_NAME" >> "$GITHUB_STEP_SUMMARY"
