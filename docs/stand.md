@@ -1,7 +1,11 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.2`, Release am 25.10.2026 mit MSI, Setup-EXE und
-ZIP, unsigniert. Es bringt die Sessions auf tmux' Standard-Socket (M3.1);
+**Stand:** Version `0.2.3` ist vorbereitet: Sie bringt die macOS-Lieferung
+(Universal-DMG, ad-hoc signiert), die der Workflow `macos.yml` am Tag `v0.2.3`
+baut, testet und an das Release hängt; die App selbst ist unverändert. Die
+Windows-Pakete für 0.2.3 baut der Maintainer wie bisher mit
+`npm run build:windows`. Davor: Version `0.2.2`, Release am 25.10.2026 mit
+MSI, Setup-EXE und ZIP, unsigniert. Es bringt die Sessions auf tmux' Standard-Socket (M3.1);
 ihre Abnahme am Fenster macht der Maintainer an diesem Release. `0.2.1`
 erschien am selben Tag. Das erste Release, `0.2.0`, erschien am 22.10. auf
 Entscheidung des Maintainers vor dem M1-Tor und vor der Installerabnahme;

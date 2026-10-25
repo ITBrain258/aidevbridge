@@ -13,7 +13,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.2.2",
+    "product_version": "0.2.3",
     "bundle_targets": [
       "app",
       "dmg"
@@ -45,7 +45,7 @@
       {
         "path": "Cargo.lock",
         "bytes": 153541,
-        "sha256": "364e7dff16bde006de18ec8ee158a5fe73d56d908860fbfebacf9c452ed1d2fc"
+        "sha256": "fcc126d58d59450f2553cb3655d0958178dffd95bfa2f8f85165397e9b0bcce3"
       },
       {
         "path": "Cargo.toml",
@@ -90,12 +90,12 @@
       {
         "path": "docs/release/license-inventory-2026-10-25-macos-rust.json",
         "bytes": 187441,
-        "sha256": "17e5eeea40e52ce03a7c3674ddbc2ac1964b134ea7bb6741fd3fe8b3304ef475"
+        "sha256": "96736e66c66b97ca17a9dca4efc70927a46291693b686ec37efe21669c5bf60e"
       },
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
         "bytes": 107056,
-        "sha256": "8e8945a450ff6101f635b73439effb451a6fc49c7cb74d2c703524eb0fa6ba94"
+        "sha256": "c5915d63cafbcd9e96e0e203b0ff99ea99391887be8fb2485506c556ef25607c"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -450,12 +450,12 @@
       {
         "path": "package-lock.json",
         "bytes": 78998,
-        "sha256": "4ff4cf54eb35e1b02bb4bc82f93dbd3b29e332751cc5c48eafa54f6467691a38"
+        "sha256": "c3100180d9dffe6c7d68f0cf06fd018c390a29f290737454a470bc2982e49aad"
       },
       {
         "path": "package.json",
         "bytes": 1342,
-        "sha256": "0f18cddfd646d1a05ea69414cf3c3dcca390a12b721ba5d2d528c7284c4ccb4c"
+        "sha256": "3578e69a25bb1ccf652167858fd36c62c072a2d01bdb72db79dc1ff38879d2e3"
       },
       {
         "path": "rust-toolchain.toml",
@@ -480,7 +480,7 @@
       {
         "path": "src-tauri/Cargo.toml",
         "bytes": 5397,
-        "sha256": "4370f912ffabb09c12f7a4b04c0f980b112ec05c335b9829550ed3056d5abf89"
+        "sha256": "8c6a2d1aa2825998a52eb0fffb6da3ac68d706072a61e26f189d3b9d43284939"
       },
       {
         "path": "src-tauri/Info.plist",
@@ -495,7 +495,7 @@
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1460,
-        "sha256": "e8487d4a77220e5ed0d8a06003a9901fdd1ab712c06a51d1ab264992c08ffafc"
+        "sha256": "1015817b1838c8108a98e1c98bf1dc3264ed83ea6d371ed157f626646a16ff1a"
       },
       {
         "path": "src-tauri/tauri.release.macos.json",
@@ -1905,11 +1905,11 @@
         "declared_license": "Unlicense OR MIT"
       },
       {
-        "package": "aidevbridge@0.2.2",
+        "package": "aidevbridge@0.2.3",
         "source": null,
         "manifest": {
           "bytes": 5397,
-          "sha256": "4370f912ffabb09c12f7a4b04c0f980b112ec05c335b9829550ed3056d5abf89"
+          "sha256": "8c6a2d1aa2825998a52eb0fffb6da3ac68d706072a61e26f189d3b9d43284939"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5246,25 +5246,25 @@
         "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
       },
       {
-        "package": "aidevbridge@0.2.2",
+        "package": "aidevbridge@0.2.3",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.2.2",
+        "package": "aidevbridge@0.2.3",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.2.2",
+        "package": "aidevbridge@0.2.3",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.2.2",
+        "package": "aidevbridge@0.2.3",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11353,9 +11353,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.2.2",
+      "id": "cargo:aidevbridge@0.2.3",
       "name": "aidevbridge",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",
