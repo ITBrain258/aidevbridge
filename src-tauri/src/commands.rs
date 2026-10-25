@@ -3874,11 +3874,14 @@ fn socket_sessions(
 }
 
 #[tauri::command]
+/// Liste je Socket (Spec 2026-10-25 §6.2). Den Standard-Socket liest es nur,
+/// wenn das Frontend ihn verlangt: der Schalter des Hosts lebt dort.
 pub async fn list_sessions(
     state: State<'_, Arc<AppState>>,
     host_id: String,
-) -> Result<Vec<SessionListItemDto>, OperationErrorDto> {
-    list_sessions_impl(state.inner(), host_id).await
+    include_default: Option<bool>,
+) -> Result<SessionListDto, OperationErrorDto> {
+    list_sockets_impl(state.inner(), host_id, include_default.unwrap_or(false)).await
 }
 
 /// Spec 4.1: the poll has five seconds, channel setup included.
@@ -4232,11 +4235,14 @@ pub async fn poll_sockets_impl(
 }
 
 #[tauri::command]
+/// Status je Socket (Spec 2026-10-25 §6.3), der Standard-Socket wie bei
+/// `list_sessions` nur auf Verlangen.
 pub async fn poll_status(
     state: State<'_, Arc<AppState>>,
     host_id: String,
-) -> Result<StatusPollDto, OperationErrorDto> {
-    poll_status_impl(state.inner(), host_id).await
+    include_default: Option<bool>,
+) -> Result<StatusPollsDto, OperationErrorDto> {
+    poll_sockets_impl(state.inner(), host_id, include_default.unwrap_or(false)).await
 }
 
 // ---------------------------------------------------------------------

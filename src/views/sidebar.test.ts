@@ -1889,7 +1889,7 @@ describe("mountSidebar: die Liste als ein Tabstopp", () => {
       ".session-confirm-kill .host-confirm-btn-danger",
     )!;
     confirm.click();
-    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a");
+    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a", "app");
     expect(el.querySelector(".session-confirm-kill")).toBeNull();
   });
 
@@ -2460,7 +2460,7 @@ describe("mountSidebar: die Beenden-Rueckfrage haelt ihre Zusage", () => {
     el.querySelector<HTMLButtonElement>(
       ".session-confirm-kill .host-confirm-btn-danger",
     )!.click();
-    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a");
+    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a", "app");
 
     // Der Aufruf ist in der Anwendung ASYNCHRON: die Sessionzeile
     // verschwindet erst, wenn die frische Liste eintrifft. Genau das hier

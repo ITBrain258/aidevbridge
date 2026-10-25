@@ -1388,3 +1388,91 @@ describe("AppState: Arbeitsplatz (UX-Spec §7.1, §7.2)", () => {
     expect(fn).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("AppState: Sessions des Standard-Sockets (Spec 2026-10-25 §5, §6.3, §7)", () => {
+  const bound = (name: string, sessionId: number) => ({
+    name,
+    sessionId,
+    serverPid: 10,
+    serverStartTime: 20,
+    status: "idle",
+    statusReason: null,
+  });
+
+  it("trennt gleichnamige Sessions beider Sockets im Schluessel", () => {
+    expect(sessionKey("h1", "main", "default")).toBe("h1/default:main");
+    expect(sessionKey("h1", "main", "default")).not.toBe(sessionKey("h1", "main"));
+    expect(sessionKey("h1", "main", "app")).toBe(sessionKey("h1", "main"));
+  });
+
+  it("ersetzt mit der Liste eines Sockets nur dessen Sessions und schliesst nur dessen Kacheln", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [{ name: "main" }], 1);
+    s.setSessionRecords("h1", [{ name: "main" }, { name: "other" }], 1, "default");
+    expect(s.hosts[0].sessions.map((x) => [x.name, x.socket ?? "app"])).toEqual([
+      ["main", "app"],
+      ["main", "default"],
+      ["other", "default"],
+    ]);
+    s.openSession("h1", "main");
+    s.openSession("h1", "main", "default");
+    expect(s.tiles.map((t) => t.sessionKey)).toEqual(["h1/main", "h1/default:main"]);
+
+    s.setSessionRecords("h1", [{ name: "other" }], 2, "default");
+    expect(s.tiles.map((t) => t.sessionKey)).toEqual(["h1/main"]);
+    expect(s.hosts[0].sessions.map((x) => [x.name, x.socket ?? "app"])).toEqual([
+      ["main", "app"],
+      ["other", "default"],
+    ]);
+    s.setSessionRecords("h1", [], 3);
+    expect(s.tiles).toEqual([]);
+    expect(s.hosts[0].sessions.map((x) => x.name)).toEqual(["other"]);
+  });
+
+  it("fuehrt Listenzustand und Frische je Socket", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [{ name: "main" }], 1);
+    s.setSessionListError("h1", { message: "default failed" }, "default");
+    expect(s.sessionListForHost("h1").status).toBe("current");
+    expect(s.sessionListForHost("h1", "default").error?.message).toBe("default failed");
+
+    s.markStatusStale("h1", "default");
+    expect(s.isStatusCurrent("h1")).toBe(true);
+    expect(s.isStatusCurrent("h1", "default")).toBe(false);
+
+    s.setControlState("h1", { generation: 1, state: "degraded", message: null });
+    expect(s.isStatusCurrent("h1")).toBe(false);
+    expect(s.sessionListForHost("h1").status).toBe("stale");
+  });
+
+  it("laesst eine Abfrage des Standard-Sockets keine eigene Session beenden", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [bound("main", 1)], 1);
+    s.setSessionRecords("h1", [bound("main", 1)], 1, "default");
+    // Eine vollstaendige Abfrage des Standard-Sockets ohne Session 1 beendet
+    // nur dessen "main".
+    s.patchSessionStatus("h1", [], 2, { socket: "default" });
+    const [own, foreign] = s.hosts[0].sessions;
+    expect(own.status).toBe("idle");
+    expect(foreign.status).toBe("ended");
+    s.patchSessionStatus("h1", [{ ...bound("", 1), status: "waiting" }], 3);
+    expect(own.status).toBe("waiting");
+    expect(foreign.status).toBe("ended");
+  });
+
+  it("sperrt und stellt Kacheln her je Socket", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [{ name: "main" }], 1);
+    s.setSessionRecords("h1", [{ name: "main" }], 1, "default");
+    s.restoreTiles([{ hostId: "h1", name: "main", socket: "default" as const }], () => 0);
+    expect(s.tiles.map((t) => t.sessionKey)).toEqual(["h1/default:main"]);
+    s.lockInput("h1", "main", "default");
+    const [own, foreign] = s.hosts[0].sessions;
+    expect([own.inputLocked, foreign.inputLocked]).toEqual([false, true]);
+    expect([own.open, foreign.open]).toEqual([false, true]);
+  });
+});

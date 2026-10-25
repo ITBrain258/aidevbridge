@@ -2514,7 +2514,7 @@ describe("mountGrid: Verbindungsverlust", () => {
 
     // Der Host lebt: die Kachel haengt sich still neu an (UX-Spec §5.5) und
     // sagt das mit dem dritten Argument dazu.
-    expect(onConnectionLost).toHaveBeenCalledWith("h1", "s1", true);
+    expect(onConnectionLost).toHaveBeenCalledWith("h1", "s1", true, "app");
     // Die Ansicht darf die Sperre NICHT mehr selbst setzen. Taete sie es
     // zusaetzlich, gaebe es zwei Wege zum selben Zustand -- und main.ts's
     // Probe haenge nur an einem davon.
@@ -2607,7 +2607,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
 
     lastOpts().onConnectionLost();
 
-    expect(options.onConnectionLost).toHaveBeenCalledWith("h1", "s1", true);
+    expect(options.onConnectionLost).toHaveBeenCalledWith("h1", "s1", true, "app");
     expect(quiet(el).hidden).toBe(false);
     expect(quiet(el).textContent).toBe("Reconnecting…");
     expect(quiet(el).querySelector(".ind-connecting")).not.toBeNull();
@@ -2671,7 +2671,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
     expect(warn).toHaveBeenCalledTimes(1);
     expect(String(warn.mock.calls[0][0])).toContain("attempt 3: tmux binding query failed (exit 1)");
     expect(options.onTerminalOpenFailed).toHaveBeenCalledTimes(1);
-    expect(options.onTerminalOpenFailed).toHaveBeenCalledWith("h1", "s1");
+    expect(options.onTerminalOpenFailed).toHaveBeenCalledWith("h1", "s1", "app");
     expect(state.hosts[0].sessions[0].inputLocked).toBe(true);
     expect(quiet(el).hidden).toBe(true);
     expect(strip(el).hidden).toBe(false);
@@ -2696,7 +2696,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
       detail,
     );
     expect(options.onTerminalCapacity).not.toHaveBeenCalled();
-    expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+    expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
     expect(state.hosts[0].sessions[0].inputLocked).toBe(true);
     expect(strip(el).hidden).toBe(false);
     // Der Grund steht im Banner; die Konsole bleibt still.
@@ -2713,7 +2713,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
     state.setSessionRecords("h1", [{ name: "s1", status: "ended", statusReason: "tmux server was replaced" }]);
     vi.advanceTimersByTime(2000);
     expect(options.onTerminalError).not.toHaveBeenCalled();
-    expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+    expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
     // Die Sperrleiste nennt den Grund; die Konsole bleibt still.
     expect(strip(el).textContent).toContain("This session has ended on the host.");
     expect(warn).not.toHaveBeenCalled();
@@ -2743,7 +2743,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
     vi.advanceTimersByTime(2000);
     // Kein zweiter Versuch: die Sperrleiste nennt den Grund, ohne "Reconnect".
     expect(mounts()).toBe(2);
-    expect(options.onTerminalOpenFailed).toHaveBeenCalledWith("h1", "s1");
+    expect(options.onTerminalOpenFailed).toHaveBeenCalledWith("h1", "s1", "app");
     expect(quiet(el).hidden).toBe(true);
     expect(strip(el).hidden).toBe(false);
     expect(strip(el).textContent).toContain("This session has ended on the host.");
@@ -2780,7 +2780,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
       ]);
       vi.advanceTimersByTime(60_000);
       expect(mounts()).toBe(1);
-      expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+      expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
       expectEnded(el);
       expect(warn).not.toHaveBeenCalled();
     });
@@ -2796,7 +2796,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
       state.setSessionRecords("h1", [{ ...bound, sessionId: 9 }]);
       vi.advanceTimersByTime(60_000);
       expect(mounts()).toBe(2);
-      expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+      expect(options.onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
       expectEnded(el);
     });
 
@@ -2836,7 +2836,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
     const { state, el, options } = setup();
     state.setHostState("h1", "failed", "gone");
     lastOpts().onConnectionLost();
-    expect(options.onConnectionLost).toHaveBeenCalledWith("h1", "s1", false);
+    expect(options.onConnectionLost).toHaveBeenCalledWith("h1", "s1", false, "app");
     expect(quiet(el).hidden).toBe(true);
     vi.advanceTimersByTime(60_000);
     expect(mounts()).toBe(1);
@@ -2894,7 +2894,7 @@ describe("mountGrid: stilles Wiederanhaengen (UX-Spec §5.5)", () => {
 
     (hoisted.mountTerminalSpy.mock.calls[0][4] as MountOptionsLike).onConnectionLost();
 
-    expect(onConnectionLost).toHaveBeenCalledWith("h1", "s1", true);
+    expect(onConnectionLost).toHaveBeenCalledWith("h1", "s1", true, "app");
     expect(state.hosts[0].sessions[0].inputLocked).toBe(false);
     expect(quiet(el).hidden).toBe(false);
     expect(quiet(el).textContent).toBe("Reconnecting…");
@@ -3729,7 +3729,7 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
     const detail = "Terminal operation failed during Admission: Capacity";
     onError({ kind: "open", detail });
     options.onOpenFailed();
-    expect(onTerminalCapacity).toHaveBeenCalledExactlyOnceWith("h1", "s1", detail);
+    expect(onTerminalCapacity).toHaveBeenCalledExactlyOnceWith("h1", "s1", detail, "app");
     expect(onTerminalError).not.toHaveBeenCalled();
     expect(onTerminalOpenFailed).not.toHaveBeenCalled();
   });
@@ -3750,7 +3750,7 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
     options.onOpenFailed();
     expect(onTerminalCapacity).not.toHaveBeenCalled();
     expect(onTerminalError).toHaveBeenCalledTimes(1);
-    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
   });
 
   /** Wie nach dem Neustart: die Liste meldet die tote Pane schon als beendet,
@@ -3782,7 +3782,7 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
     options.onOpenFailed();
     expect(onTerminalError).not.toHaveBeenCalled();
     expect(onTerminalCapacity).not.toHaveBeenCalled();
-    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
     const strip = el.querySelector<HTMLElement>(".tile-lock")!;
     expect(strip.hidden).toBe(false);
     expect(strip.textContent).toContain("This session has ended on the host.");
@@ -3827,7 +3827,7 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
       "vm-1 has no free terminal channel right now. Close a terminal and try again.",
       detail,
     );
-    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
     expect(state.tiles.map((tile) => tile.sessionKey)).toEqual(["h1/s1"]);
     expect(el.querySelector<HTMLElement>(".tile-lock")!.hidden).toBe(false);
   });
@@ -3872,7 +3872,7 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
       "vm-1 has no free terminal channel right now. Close a terminal and try again.",
       detail,
     );
-    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s3");
+    expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s3", "app");
     expect(state.tiles.map((tile) => tile.sessionKey)).toEqual(["h1/s3", "h1/s2"]);
   });
 
@@ -3909,7 +3909,7 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
       second.options.onOpenFailed();
       expect(onTerminalCapacity).not.toHaveBeenCalled();
       expect(onTerminalError).toHaveBeenCalledExactlyOnceWith(sentence, detail);
-      expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+      expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
       expect(state.tiles.map((tile) => tile.sessionKey)).toEqual(["h1/s1"]);
       expect(el.querySelector<HTMLElement>(".tile-lock")!.hidden).toBe(false);
     });
@@ -3931,7 +3931,7 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
       second.options.onOpenFailed();
       expect(onTerminalCapacity).not.toHaveBeenCalled();
       expect(onTerminalError).toHaveBeenCalledExactlyOnceWith(sentence, detail);
-      expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+      expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
       expect(state.tiles.map((tile) => tile.sessionKey)).toEqual(["h1/s1"]);
       expect(el.querySelector<HTMLElement>(".tile-lock")!.hidden).toBe(false);
     });
@@ -3952,7 +3952,7 @@ describe("mountGrid: Kanalgrenze beim Oeffnen (Spec 2026-10-19 §8.3)", () => {
       second.options.onOpenFailed();
       expect(onTerminalCapacity).not.toHaveBeenCalled();
       expect(onTerminalError).toHaveBeenCalledExactlyOnceWith(sentence, detail);
-      expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1");
+      expect(onTerminalOpenFailed).toHaveBeenCalledExactlyOnceWith("h1", "s1", "app");
       expect(state.tiles.map((tile) => tile.sessionKey)).toEqual(["h1/s1"]);
       expect(el.querySelector<HTMLElement>(".tile-lock")!.hidden).toBe(false);
     });
@@ -4345,5 +4345,34 @@ describe("UI v2: Kacheln und Leerzustand (Spec 8, 10)", () => {
     const pill = el.querySelector<HTMLElement>(".tile-head .tile-agent .st")!;
     expect(pill.querySelector(".st-word")?.textContent).toBe("Waiting");
     expect(pill.title).toBe("Waiting · permission prompt");
+  });
+});
+
+describe("mountGrid: Sessions des Standard-Sockets (Spec 2026-10-25 §5, §6.4)", () => {
+  it("montiert die fremde Kachel mit ihrem Socket und meldet ihn in jedem Rueckruf", () => {
+    const state = new AppState();
+    state.upsertHost(makeHost("h1", "vm-1"));
+    state.setSessionRecords("h1", [{ name: "main" }]);
+    state.setSessionRecords(
+      "h1",
+      [{ name: "main", sessionId: 1, serverPid: 2, serverStartTime: 3, windowId: 4, paneId: 5, panePid: 6 }],
+      undefined,
+      "default",
+    );
+    state.openSession("h1", "main");
+    state.openSession("h1", "main", "default");
+    const onCloseTerminal = vi.fn();
+    const onTerminalOpenFailed = vi.fn();
+    mount(document.createElement("div"), state, { onCloseTerminal, onTerminalOpenFailed });
+    expect(hoisted.mountTerminalSpy).toHaveBeenCalledTimes(2);
+    const [own, foreign] = hoisted.mountTerminalSpy.mock.calls as Array<
+      [HTMLElement, string, string, unknown, { socket?: string; sessionId?: number | null; onCloseTerminal?: () => void; onOpenFailed?: () => void }]
+    >;
+    expect([own[1], own[2], own[4].socket]).toEqual(["r-h1", "main", undefined]);
+    expect([foreign[1], foreign[2], foreign[4].socket, foreign[4].sessionId]).toEqual(["r-h1", "main", "default", 1]);
+    foreign[4].onCloseTerminal?.();
+    expect(onCloseTerminal).toHaveBeenCalledWith("h1", "main", "default");
+    own[4].onOpenFailed?.();
+    expect(onTerminalOpenFailed).toHaveBeenCalledWith("h1", "main", "app");
   });
 });

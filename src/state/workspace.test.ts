@@ -1250,3 +1250,54 @@ describe("createWorkspaceSync: gespeicherter Arbeitsplatz im laufenden Betrieb",
     expect(written().map((ws) => ws.dirs)).toEqual([{ a: { last: "/opt", recent: ["/opt", "/srv"] } }]);
   });
 });
+
+describe("Arbeitsplatz: Kacheln des Standard-Sockets (Spec 2026-10-25 §5, §7)", () => {
+  const FOREIGN = { slot: 1, host_id: "a", session: "", foreign_session: "main", socket: "default" as const };
+
+  it("liest die fremde Form und verwirft jede gemischte", () => {
+    const read = readWorkspace(
+      workspace({
+        tiles: [
+          { slot: 0, host_id: "a", session: "main" },
+          FOREIGN,
+          { slot: 2, host_id: "a", session: "own", foreign_session: "both", socket: "default" },
+          { slot: 3, host_id: "a", session: "", foreign_session: "no-socket" } as never,
+          { slot: 4, host_id: "a", session: "", foreign_session: "main", socket: "default" },
+        ],
+      }),
+      ["a"],
+    );
+    expect(read?.tiles).toEqual([{ slot: 0, host_id: "a", session: "main" }, FOREIGN]);
+  });
+
+  it("speichert gleichnamige Kacheln beider Sockets nebeneinander, die fremde in ihrer Form", () => {
+    const state = new AppState();
+    state.upsertHost(host("a", { state: "connected", runtimeId: "r-a" }));
+    state.setSessionRecords("a", [{ name: "main" }]);
+    state.setSessionRecords("a", [{ name: "main" }], undefined, "default");
+    state.openSession("a", "main");
+    state.openSession("a", "main", "default");
+    expect(workspaceFromState(state, extras()).tiles).toEqual([{ slot: 0, host_id: "a", session: "main" }, FOREIGN]);
+  });
+
+  it("stellt eine fremde Kachel erst her, wenn die Liste des Standard-Sockets da ist", () => {
+    vi.useFakeTimers();
+    const state = new AppState();
+    state.upsertHost(host("a", { authKind: "agent" }));
+    const sync = createWorkspaceSync({
+      state,
+      write: vi.fn().mockResolvedValue(undefined),
+      sidebarCollapsed: () => false,
+      setSidebarCollapsed: () => {},
+    });
+    sync.start(workspace({ tiles: [{ slot: 0, host_id: "a", session: "main" }, FOREIGN] }), true);
+    listHost(state, "a", ["main"]);
+    sync.hostListed("a");
+    expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/main"]);
+    state.setSessionRecords("a", [{ name: "main" }], undefined, "default");
+    sync.hostListed("a");
+    expect(state.tiles.map((t) => t.sessionKey)).toEqual(["a/main", "a/default:main"]);
+    sync.dispose();
+    vi.useRealTimers();
+  });
+});

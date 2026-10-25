@@ -5,7 +5,7 @@
 // darum kommt `openDialog` herein (kein Modulzustand, siehe `views/dialog.ts`).
 // Was ein Eintrag bewirkt, entscheidet `main.ts` ueber `onRun`: dieselben Wege
 // wie Seitenleiste und Tastatur, kein zweiter.
-import type { AppState } from "../state/app-state";
+import { socketOf, type AppState, type SessionSocket } from "../state/app-state";
 import { DEFAULT_KEYMAP, type KeymapAction } from "../keymap";
 import type { DialogShell } from "./dialog";
 import { agentStatusView, buildStatusPill, type AgentStatusView } from "./status-pill";
@@ -41,6 +41,8 @@ export type QuickOpenItem =
       kind: "session";
       hostId: string;
       name: string;
+      /** Nur bei einer Session des Standard-Sockets (Spec 2026-10-25 §7). */
+      socket?: SessionSocket;
       hostLabel: string;
       hostname: string;
       status: string | null;
@@ -88,10 +90,13 @@ export function quickOpenItems(state: AppState, labels: QuickOpenLabels): QuickO
     const base = { hostId: host.id, hostLabel: host.label, hostname: host.hostname };
     if (host.state === "connected") {
       for (const session of host.sessions) {
-        const current = state.isSessionStatusCurrent(host.id, session.name);
+        const socket = socketOf(session);
+        const current = state.isSessionStatusCurrent(host.id, session.name, socket);
         const status = session.status ?? null;
-        const pill = agentStatusView(status, session.statusReason, current, state.sessionStatusObservedAt(host.id, session.name));
-        (status === "waiting" && current ? waiting : others).push({ kind: "session", ...base, name: session.name, status, pill });
+        const observedAt = state.sessionStatusObservedAt(host.id, session.name, socket);
+        const pill = agentStatusView(status, session.statusReason, current, observedAt);
+        const which = socket === "default" ? { socket } : {};
+        (status === "waiting" && current ? waiting : others).push({ kind: "session", ...base, name: session.name, ...which, status, pill });
       }
       hosts.push({ kind: "newSession", ...base });
     } else if (host.state !== "connecting") {

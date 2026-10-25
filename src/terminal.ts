@@ -184,6 +184,10 @@ export interface MountOptions {
    * freigibt, noch dem Oeffnen dieser Ansicht; bei `true` weder dem Mounten
    * noch dem eingereihten Ticket. */
   onQueued?: (queued: boolean) => void;
+  /** Spec 2026-10-25 §6.4: Sessions des Standard-Sockets haengen nur ueber
+   * die Bindung an. Fehlt der Socket, ist es der eigene; dann bleibt er auch
+   * aus jedem Aufruf heraus, wie vor dem Standard-Socket. */
+  socket?: "app" | "default";
   sessionId?: number | null;
   serverPid?: number | null;
   serverStartTime?: number | null;
@@ -367,6 +371,7 @@ export function mountTerminal(
   onError?: (error: TerminalError) => void,
   options?: MountOptions,
 ): TerminalHandle {
+  const socketArg = options?.socket === "default" ? { socket: "default" } : {};
   const term = new Terminal({
     allowProposedApi: true,
     scrollback: 5000,
@@ -1005,7 +1010,7 @@ export function mountTerminal(
 
   function sendInput(bytes: Uint8Array, burst: { failed: boolean }): Promise<void> {
     if (burst.failed || disposed || channelClosed) return Promise.resolve();
-    return invoke("send_input", { hostId, session, openId, bytes: Array.from(bytes) }).then(
+    return invoke("send_input", { hostId, session, openId, bytes: Array.from(bytes), ...socketArg }).then(
       () => {},
       (error: unknown) => {
         burst.failed = true;
@@ -1107,6 +1112,7 @@ export function mountTerminal(
           session,
           openId,
           byteCount: chunk.length,
+          ...socketArg,
         }).catch((error: unknown) => {
           if (unpublishedOpenError(error)) return;
           // UX-Spec §6.9: nur die Konsole. Ein Ack betrifft die Flusskontrolle,
@@ -1199,6 +1205,7 @@ export function mountTerminal(
       hostId,
       session,
       openId,
+      ...socketArg,
       cols: lastSentCols,
       rows: lastSentRows,
       sessionId: options?.sessionId ?? null,
@@ -1282,6 +1289,7 @@ export function mountTerminal(
       openId,
       cols: term.cols,
       rows: term.rows,
+      ...socketArg,
     }).catch((error: unknown) => {
       // Ohne diesen Pfad bleibt das entfernte PTY lautlos in falscher
       // Groesse haengen -- kein sichtbares Signal ausser einem
@@ -1413,7 +1421,7 @@ export function mountTerminal(
       if (pendingAckBytes > 0) {
         const byteCount = pendingAckBytes;
         pendingAckBytes = 0;
-        void invoke("ack_output", { hostId, session, openId, byteCount }).catch(() => {});
+        void invoke("ack_output", { hostId, session, openId, byteCount, ...socketArg }).catch(() => {});
       }
       // Reihenfolge der INVOKE-Aufrufe: erst nachbestaetigen (Block oben),
       // dann schliessen. `ack_output_impl` liefert fuer einen fehlenden
@@ -1448,7 +1456,7 @@ export function mountTerminal(
       // Schliessen. Eine Ansicht, die nie gesendet hat -- etwa eine wartende,
       // die vor ihrer Zuteilung entsorgt wird --, hat dort nichts zu schliessen.
       // Nach dem Senden schliesst jede, auch solange die Antwort aussteht.
-      if (openSent) void invoke("close_terminal", { hostId, session, openId }).catch(() => {});
+      if (openSent) void invoke("close_terminal", { hostId, session, openId, ...socketArg }).catch(() => {});
       // Vor `term.dispose()`: der Renderer nimmt das Canvas dabei aus dem DOM.
       releaseWebglContext(el);
       term.dispose();

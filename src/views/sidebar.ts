@@ -19,7 +19,7 @@
 // die Tastaturpflicht dieser Aufgabe. Gleiche Klasse (`host-notice-link`),
 // damit das Aussehen erhalten bleibt.
 
-import { AppState, sessionKey, type Host, type HostState, type Session } from "../state/app-state";
+import { AppState, sessionKeyOf, socketOf, type Host, type HostState, type Session, type SessionSocket } from "../state/app-state";
 import { waitingSessions } from "../state/attention";
 import { computeMenuPosition } from "./menu-position";
 import { buildCredentialField, type CredentialField } from "./credential-field";
@@ -30,7 +30,7 @@ import { icon, type IconName } from "../icons";
 import { titleWithShortcut } from "./shortcut-title";
 import { agentStatusView, buildStatusPill } from "./status-pill";
 import { buildTileNumber } from "./tile-number";
-import { createWaitingLane } from "./waiting-lane";
+import { createWaitingLane, openOptions } from "./waiting-lane";
 import en from "../i18n/en.json";
 
 type TranslationKey = keyof typeof en;
@@ -62,13 +62,14 @@ export interface SidebarOptions {
   onNewSession: (hostId: string) => void;
   /** Klick auf eine Session: oeffnen nach Spec 2026-10-19 §5.1; mit Strg die
    * fokussierte Kachel ersetzen (§5.2). */
-  onOpenSession: (hostId: string, name: string, options: { replace: boolean }) => void;
-  onCloseSession: (hostId: string, name: string) => void;
+  onOpenSession: (hostId: string, name: string, options: { replace: boolean; socket?: SessionSocket }) => void;
+  /** Wie alle Rueckrufe zu einer Session mit ihrem Socket (Spec 2026-10-25 §5). */
+  onCloseSession: (hostId: string, name: string, socket: SessionSocket) => void;
   /** Beendet die tmux-Session auf dem Host -- die Sitzung selbst und alles,
    * was darin laeuft. Bewusst NICHT dasselbe wie `onCloseSession`, das
    * ausdruecklich nur die Ansicht schliesst und die Sitzung weiterlaufen
    * laesst. Diese Datei ruft ihn erst nach einer Rueckfrage. */
-  onKillSession: (hostId: string, name: string) => void;
+  onKillSession: (hostId: string, name: string, socket: SessionSocket) => void;
   onAddHost: () => void;
   /** UI v2 §7.2: Zahnrad im Kopf oeffnet den Einstellungsdialog (main.ts). */
   onOpenSettings: () => void;
@@ -276,7 +277,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   // sie bei jedem Neuzeichnen aus `lane.build`.
   const lane = createWaitingLane(list, {
     state,
-    isCurrent: (h, s) => state.isSessionStatusCurrent(h.id, s.name),
+    isCurrent: (h, s) => state.isSessionStatusCurrent(h.id, s.name, socketOf(s)),
     waitingSince: (key) => opts.waitingSince?.(key),
     onOpenSession: (hostId, name, options) => {
       if (!disposed) opts.onOpenSession(hostId, name, options);
@@ -1324,7 +1325,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // Zwei Schreiber desselben Attributs waeren eine Frage der
     // Aufrufreihenfolge, und die verliert man.
     row.tabIndex = -1;
-    const key = sessionKey(host.id, session.name);
+    const key = sessionKeyOf(session);
     row.dataset.sessionKey = key;
     row.dataset.focusKey = focusKey("session", key, "row");
 
@@ -1372,8 +1373,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const view = agentStatusView(
       session.status,
       session.statusReason,
-      state.isSessionStatusCurrent(host.id, session.name),
-      state.sessionStatusObservedAt(host.id, session.name),
+      state.isSessionStatusCurrent(host.id, session.name, socketOf(session)),
+      state.sessionStatusObservedAt(host.id, session.name, socketOf(session)),
     );
     if (view) meta.appendChild(buildStatusPill(view));
     const word = document.createElement("span");
@@ -1395,7 +1396,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // ueber die Kachelzuordnung, ob das eine neue Zuweisung, ein Ersetzen oder
     // ein blosser Fokuswechsel ist.
     row.addEventListener("click", (event) => {
-      if (!disposed) opts.onOpenSession(host.id, session.name, { replace: event.ctrlKey });
+      if (!disposed) opts.onOpenSession(host.id, session.name, openOptions(event.ctrlKey, session));
     });
     wrap.appendChild(row);
 
@@ -1413,7 +1414,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       const closeButton = buildActionButton(
         t("sidebar.action.closeSession"),
         focusKey("session", key, "close"),
-        () => opts.onCloseSession(host.id, session.name),
+        () => opts.onCloseSession(host.id, session.name, socketOf(session)),
         // `session-close-btn` bleibt der Vertrag der Tastaturverdrahtung und
         // der Tests; die Rolle aus dem Knopfsystem setzt `buildActionButton`
         // fuer Icon-Knoepfe selbst (`btn btn--text btn--row`).
@@ -1484,7 +1485,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * ausdruecklich nur die Ansicht -- stuenden beide Aktionen mit aehnlichem
    * Text nebeneinander, waere die zerstoererische die missverstaendliche. */
   function buildKillConfirm(host: Host, session: Session): HTMLElement {
-    const key = sessionKey(host.id, session.name);
+    const key = sessionKeyOf(session);
     const bar = document.createElement("div");
     bar.className = "host-confirm-remove session-confirm-kill";
 
@@ -1541,7 +1542,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     confirmButton.addEventListener("click", () => {
       if (disposed) return;
       pendingKillKey = null;
-      opts.onKillSession(host.id, session.name);
+      opts.onKillSession(host.id, session.name, socketOf(session));
       // Der Fokus geht gleich auf die HOSTZEILE, nicht auf die Sessionzeile.
       // Die waere zwar im Moment der Rueckkehr noch da -- `onKillSession` ist
       // asynchron --, verschwindet aber, sobald die frische Sessionliste
@@ -1657,7 +1658,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const count = host.sessions.length;
     const waiting = host.expanded
       ? 0
-      : waitingSessions([host], (h, s) => state.isSessionStatusCurrent(h.id, s.name)).length;
+      : waitingSessions([host], (h, s) => state.isSessionStatusCurrent(h.id, s.name, socketOf(s))).length;
     const reconnecting = isReconnecting(host);
     if (waiting > 0) {
       // Aufgabe 19, Fixrunde 1: die Waiting-Pille tritt
@@ -1990,7 +1991,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   function hostOfFocusedTile(): string | null {
     const key = state.focusedSessionKey();
     if (key === null) return null;
-    return state.hosts.find((h) => h.sessions.some((s) => sessionKey(h.id, s.name) === key))?.id ?? null;
+    return state.hosts.find((h) => h.sessions.some((s) => sessionKeyOf(s) === key))?.id ?? null;
   }
 
   /** Spec 7.3: der aktive Host. Steht der Fokus im offenen `⋯`-Menue, ist das
@@ -2359,7 +2360,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // "This cannot be undone", nach der niemand gefragt hat.
     if (
       pendingKillKey !== null &&
-      !state.hosts.some((h) => h.sessions.some((s) => sessionKey(h.id, s.name) === pendingKillKey))
+      !state.hosts.some((h) => h.sessions.some((s) => sessionKeyOf(s) === pendingKillKey))
     ) {
       pendingKillKey = null;
     }

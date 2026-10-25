@@ -27,7 +27,10 @@
 import {
   AppState,
   sessionKey,
+  sessionKeyOf,
+  socketOf,
   type HostState,
+  type SessionSocket,
 } from "../state/app-state";
 import { mountTerminal, type TerminalErrorKind, type TerminalHandle } from "../terminal";
 import { createOpenQueue } from "../terminal-open-queue";
@@ -70,7 +73,9 @@ export interface GridOptions {
   /** Ein Fehler eines Terminals: `text` ist der Satz fuer seine Art (UX-Spec
    * §6.9, §10), `detail` der Rohtext der Ursache fuer "Copy details". */
   onTerminalError: (text: string, detail: string) => void;
-  onCloseTerminal: (hostId: string, name: string) => void;
+  /** Alle Rueckrufe zu einer Session nennen zuletzt ihren Socket (Spec
+   * 2026-10-25 §5): gleichnamige Sessions beider Sockets sind verschiedene. */
+  onCloseTerminal: (hostId: string, name: string, socket: SessionSocket) => void;
   /** Eine ausgefallene Hostverbindung wieder aufbauen; Anmeldung lebt in main.ts. */
   onReconnectHost: (hostId: string) => void;
   /** Nachtrag B, Punkt 2 (Design §11.2): "New session" aus dem Leerzustand
@@ -88,7 +93,7 @@ export interface GridOptions {
    * still neu an (UX-Spec §5.5). Dann zeigt sie "Reconnecting…" und darf
    * nicht gesperrt werden; scheitert die Reihe, meldet sie das ueber
    * `onTerminalOpenFailed`. */
-  onConnectionLost: (hostId: string, name: string, reattaching: boolean) => void;
+  onConnectionLost: (hostId: string, name: string, reattaching: boolean, socket: SessionSocket) => void;
   /** `open_terminal` wurde abgelehnt -- dieser Kanal ist gar nicht erst
    * entstanden. Getrennt von `onTerminalError`, weil dort auch eine
    * abgelehnte Zwischenablage und ein fehlgeschlagenes `resize_terminal`
@@ -96,7 +101,7 @@ export interface GridOptions {
    * die Eingabe, und das darf ein Ctrl+Shift+V nicht ausloesen. Diese Datei
    * entscheidet daraus wieder NICHTS -- sie meldet es, wie bei
    * `onConnectionLost`. */
-  onTerminalOpenFailed: (hostId: string, name: string) => void;
+  onTerminalOpenFailed: (hostId: string, name: string, socket: SessionSocket) => void;
   /** Spec 2026-10-19 §8.3: das allererste `open_terminal` einer frisch
    * geoeffneten Kachel scheiterte an einer Kanalgrenze. Statt `onTerminalError`
    * und `onTerminalOpenFailed`; `detail` ist der Rohtext fuer "Copy details".
@@ -105,7 +110,7 @@ export interface GridOptions {
    * Montieren schon gesperrt war oder die der Nutzer mit "Reconnect" neu
    * anhaengen liess. Ein stilles Wiederanhaengen meldet das nicht (seine Reihe
    * entscheidet). */
-  onTerminalCapacity: (hostId: string, name: string, detail: string) => void;
+  onTerminalCapacity: (hostId: string, name: string, detail: string, socket: SessionSocket) => void;
 }
 
 export interface GridHandle {
@@ -291,6 +296,8 @@ interface ResolvedSession {
    * dann "Reconnecting…" statt der Sperrleiste. */
   hostReconnecting: boolean;
   name: string;
+  /** Spec 2026-10-25 §5: der Socket der Session, fuer Montage und Rueckrufe. */
+  socket: SessionSocket;
   hostLabel: string;
   /** Nachtrag B, Punkt 3: `updateTileHead` braucht dieses Feld, um die
    * Sperrleiste zu zeigen -- ueber denselben Aufloeser wie Titel/Hostname,
@@ -339,7 +346,7 @@ function replacedSince(identity: BoundIdentity | null, now: ResolvedSession): bo
  * Muster wie `AppState.closeTile`). */
 function resolveSession(state: AppState, key: string): ResolvedSession | null {
   for (const host of state.hosts) {
-    const session = host.sessions.find((s) => sessionKey(host.id, s.name) === key);
+    const session = host.sessions.find((s) => sessionKeyOf(s) === key);
     if (session) {
       return {
         hostId: host.id,
@@ -347,6 +354,7 @@ function resolveSession(state: AppState, key: string): ResolvedSession | null {
         hostState: host.state,
         hostReconnecting: host.state !== "connected" && state.isHostReconnecting(host.id),
         name: session.name,
+        socket: socketOf(session),
         hostLabel: host.label,
         inputLocked: session.inputLocked,
         sessionId: session.sessionId ?? null,
@@ -577,6 +585,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     key: string;
     hostId: string;
     name: string;
+    socket: SessionSocket;
     /** Die Verbindung, auf der der Kanal verloren ging. */
     runtimeId: string;
     /** Die Session, an der der verlorene Kanal hing. Haengt unter dem Namen
@@ -840,7 +849,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       // `TerminalHandle` laeuft trotzdem ueber `render()`: sobald der
       // Aufrufer die Kachel schliesst, sieht die naechste
       // Zustandsbenachrichtigung das und entsorgt hier (`syncViews`).
-      if (resolved) opts.onCloseTerminal(resolved.hostId, resolved.name);
+      if (resolved) opts.onCloseTerminal(resolved.hostId, resolved.name, resolved.socket);
     }
 
     /** Lebender Host: den Kanal an Ort und Stelle ersetzen. Ausgefallener
@@ -1112,14 +1121,14 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
   /** `terminal://connection-lost` einer Kachel. */
   function onTerminalLost(view: TileView, mounted: ResolvedSession, runtimeId: string): void {
     if (!isLive(view)) return;
-    const key = sessionKey(mounted.hostId, mounted.name);
+    const key = sessionKey(mounted.hostId, mounted.name, mounted.socket);
     const host = state.hosts.find((candidate) => candidate.id === mounted.hostId);
     const alive = host?.state === "connected" && host.runtimeId === runtimeId;
     let entry = view.reattach;
     if (alive && (!entry || entry.key !== key || entry.runtimeId !== runtimeId)) {
       entry?.series.cancel();
       entry = {
-        key, hostId: mounted.hostId, name: mounted.name, runtimeId, lastError: null,
+        key, hostId: mounted.hostId, name: mounted.name, socket: mounted.socket, runtimeId, lastError: null,
         identity: boundIdentity(mounted),
         series: createTileReattach({
           attach: () => attemptReattach(view),
@@ -1133,7 +1142,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     }
     const reattaching = alive && entry !== null && entry.series.lost();
     if (!reattaching) cancelReattach(view);
-    opts.onConnectionLost(mounted.hostId, mounted.name, reattaching);
+    opts.onConnectionLost(mounted.hostId, mounted.name, reattaching, mounted.socket);
     // Der Hinweis erscheint ohne Zustandsaenderung in `AppState`.
     render();
   }
@@ -1192,7 +1201,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     } else if (!ended) {
       console.warn(`[terminal] reattaching '${entry.name}' failed three times: ${entry.lastError ?? "no error reported"}`);
     }
-    opts.onTerminalOpenFailed(entry.hostId, entry.name);
+    opts.onTerminalOpenFailed(entry.hostId, entry.name, entry.socket);
     render();
   }
 
@@ -1399,7 +1408,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
             menuTexts: terminalMenuTexts(),
             onCopied: () => showCopied(view),
             onSize: (cols, rows) => updateNarrow(view, cols, rows),
-            onCloseTerminal: () => opts.onCloseTerminal(resolved.hostId, resolved.name),
+            onCloseTerminal: () => opts.onCloseTerminal(resolved.hostId, resolved.name, resolved.socket),
             onMoveTile: (delta) => moveTileByUser(view.id, delta),
             canMoveTile: (delta) => {
               const position = state.tilePosition(view.id);
@@ -1434,6 +1443,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
               if (!isLive(view) || (own !== null && view.handle !== own)) return;
               setQueued(view, queued);
             },
+            ...(resolved.socket === "default" ? { socket: "default" as const } : {}),
             sessionId: resolved.sessionId,
             serverPid: resolved.serverPid,
             serverStartTime: resolved.serverStartTime,
@@ -1449,15 +1459,15 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
               const entry = ownAttempt();
               if (entry) onReattachFailed(view, entry);
               else if (capacityDetail !== null && closesOnCapacity(view, resolved.inputLocked)) {
-                opts.onTerminalCapacity(resolved.hostId, resolved.name, capacityDetail);
+                opts.onTerminalCapacity(resolved.hostId, resolved.name, capacityDetail, resolved.socket);
               } else if (capacityDetail !== null) {
                 // Spec 2026-10-19 §1 Nr. 1, §5.8: keine frische Kachel (siehe
                 // `closesOnCapacity`) geht. Sie bleibt -- mit Sperrleiste und
                 // "Reconnect"; das Banner nennt die Kanalgrenze, der Rohtext
                 // steht hinter "Copy details".
                 opts.onTerminalError(t("terminal.capacity", { host: resolved.hostLabel }), capacityDetail);
-                opts.onTerminalOpenFailed(resolved.hostId, resolved.name);
-              } else opts.onTerminalOpenFailed(resolved.hostId, resolved.name);
+                opts.onTerminalOpenFailed(resolved.hostId, resolved.name, resolved.socket);
+              } else opts.onTerminalOpenFailed(resolved.hostId, resolved.name, resolved.socket);
             },
           },
         );
@@ -1917,8 +1927,8 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
         : agentStatusView(
             resolved.status,
             resolved.statusReason,
-            state.isSessionStatusCurrent(resolved.hostId, resolved.name),
-            state.sessionStatusObservedAt(resolved.hostId, resolved.name),
+            state.isSessionStatusCurrent(resolved.hostId, resolved.name, resolved.socket),
+            state.sessionStatusObservedAt(resolved.hostId, resolved.name, resolved.socket),
           );
     refs.agentSlot.hidden = pill === null;
     if (pill) {
