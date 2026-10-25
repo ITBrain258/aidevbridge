@@ -393,6 +393,14 @@ pub fn statuses_from_inventory(
                 reason: status.reason,
             }
         })
+        // Sessions einer Gruppe stehen nicht im Inventar, leben aber: Fehlten
+        // sie in einer vollstaendigen Abfrage, hielte das Frontend sie fuer
+        // beendet (Spec 2026-10-25 §6.2).
+        .chain(inventory.linked.iter().map(|&id| PolledStatus {
+            session_id: id,
+            kind: StatusKind::Unknown,
+            reason: "the session shares windows with another session".into(),
+        }))
         .collect()
 }
 
@@ -773,6 +781,7 @@ mod tests {
                 })
                 .collect(),
             panes,
+            linked: Vec::new(),
         }
     }
 
@@ -861,6 +870,29 @@ mod tests {
                 kind: StatusKind::Unknown,
                 reason: "no agent source is attached yet".into(),
             }]
+        );
+    }
+
+    /// Spec 2026-10-25 §6.2: Eine Session der Gruppe fehlt nie in der Abfrage.
+    #[test]
+    fn a_linked_session_is_polled_as_unknown_not_left_out() {
+        let mut snapshot = inventory(&[0], vec![pane(0, 0, 0, 10, true, false)]);
+        snapshot.linked = vec![SessionId(4), SessionId(5)];
+        let polled = statuses_from_inventory(&snapshot, &[], &BTreeMap::new(), &BTreeMap::new());
+        assert_eq!(
+            polled
+                .iter()
+                .map(|row| (row.session_id, row.kind))
+                .collect::<Vec<_>>(),
+            [
+                (SessionId(0), StatusKind::Unknown),
+                (SessionId(4), StatusKind::Unknown),
+                (SessionId(5), StatusKind::Unknown),
+            ]
+        );
+        assert_eq!(
+            polled[1].reason,
+            "the session shares windows with another session"
         );
     }
 

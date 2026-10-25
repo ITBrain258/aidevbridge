@@ -427,6 +427,8 @@ pub enum UnverifiedReason {
     PaneInventoryMismatch,
     #[error("the originally created object is not confirmed")]
     CreationMismatch,
+    #[error("the session shares windows with another session")]
+    LinkedWindows,
 }
 
 /// Validates the shared list envelope, including an empty live-server snapshot.
@@ -439,9 +441,15 @@ pub fn confirm_listed_inventory(
     if before != after {
         return Err(UnverifiedReason::ListingChanged);
     }
+    // Sessions einer Sitzungsgruppe stehen nur in `linked`, nie zugleich im
+    // Inventar; zusammen ergeben beide genau die Liste.
     let inventory_ids: BTreeSet<_> = inventory.sessions.iter().map(|s| s.id).collect();
+    let linked: BTreeSet<_> = inventory.linked.iter().copied().collect();
     if inventory_ids.len() != inventory.sessions.len()
-        || before.sessions.keys().copied().collect::<BTreeSet<_>>() != inventory_ids
+        || linked.len() != inventory.linked.len()
+        || !inventory_ids.is_disjoint(&linked)
+        || before.sessions.keys().copied().collect::<BTreeSet<_>>()
+            != inventory_ids.union(&linked).copied().collect()
         || before
             .server
             .is_some_and(|server| server != inventory.server)
@@ -493,6 +501,9 @@ pub fn correlate(
     created: Option<&CreatedRecord>,
 ) -> Result<BoundObservation, UnverifiedReason> {
     confirm_listed_inventory(list_before, inventory, list_after)?;
+    if inventory.linked.contains(&session_id) {
+        return Err(UnverifiedReason::LinkedWindows);
+    }
     if before != after || before.session_id != session_id {
         return Err(UnverifiedReason::ResolutionChanged);
     }
@@ -874,6 +885,61 @@ mod tests {
                 Err(UnverifiedReason::CreationMismatch)
             );
         }
+    }
+
+    /// Spec 2026-10-25 §6.2: Eine Session der Gruppe bindet nicht und nennt den
+    /// Grund; eine Session ausserhalb bindet wie sonst. Die Liste muss die
+    /// Gruppe trotzdem vollstaendig enthalten.
+    #[test]
+    fn linked_sessions_stay_unbound_while_the_rest_of_the_list_binds() {
+        let l = parse_list(&output(
+            "L|100|1000|$0|dev
+L|100|1000|$1|peer
+L|100|1000|$2|solo
+",
+        ))
+        .unwrap();
+        let tolerant = query().tolerating_linked_windows();
+        let InventoryOutcome::Snapshot(inv) = tolerant.classify(&output(
+            "B|100|1000
+Q|$0|1
+Q|$1|1
+Q|$2|1
+P|$0|@0|%0|10|1|1|0|0|0|1|0|1
+P|$1|@0|%0|10|1|1|0|0|0|1|0|1
+P|$2|@1|%1|11|1|1|0|0|1|2|0|1
+E|100|1000
+",
+        )) else {
+            panic!()
+        };
+        let linked = parse_resolved(&output(R)).unwrap();
+        assert_eq!(
+            correlate(&l, &linked, &inv, &linked, &l, SessionId(0), None),
+            Err(UnverifiedReason::LinkedWindows)
+        );
+        let solo = parse_resolved(&output(
+            "R|100|1000|$2|@1|%1|11|1|1
+",
+        ))
+        .unwrap();
+        assert_eq!(
+            correlate(&l, &solo, &inv, &solo, &l, SessionId(2), None)
+                .unwrap()
+                .selected
+                .pane_pid,
+            11
+        );
+        let without_peer = parse_list(&output(
+            "L|100|1000|$0|dev
+L|100|1000|$2|solo
+",
+        ))
+        .unwrap();
+        assert_eq!(
+            confirm_listed_inventory(&without_peer, &inv, &without_peer),
+            Err(UnverifiedReason::ListingInventoryMismatch)
+        );
     }
 
     #[test]

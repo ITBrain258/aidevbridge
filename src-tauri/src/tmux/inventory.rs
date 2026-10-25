@@ -69,6 +69,11 @@ impl MeasuredVersion {
 pub struct InventoryQuery {
     envelope: CommandEnvelope,
     socket: Socket,
+    /// Sessions, die Fenster teilen (Sitzungsgruppen, `new -t`), lassen das
+    /// Inventar nicht scheitern, sondern fallen aus ihm heraus
+    /// ([`InventorySnapshot::linked`]). Nur fuer den Standard-Socket
+    /// (Spec 2026-10-25 §6.2); der eigene Socket bleibt streng.
+    tolerate_linked_windows: bool,
 }
 
 impl InventoryQuery {
@@ -88,6 +93,7 @@ impl InventoryQuery {
         Ok(Self {
             envelope: version.envelope(),
             socket: Socket::Named(name.into()),
+            tolerate_linked_windows: false,
         })
     }
 
@@ -101,7 +107,18 @@ impl InventoryQuery {
         Ok(Self {
             envelope: version.envelope(),
             socket: Socket::Absolute(path.into()),
+            tolerate_linked_windows: false,
         })
+    }
+
+    /// Dieselbe Abfrage, deren Antwort Sitzungsgruppen duldet: Sessions mit
+    /// geteilten Fenstern stehen danach in [`InventorySnapshot::linked`],
+    /// nicht in `sessions` und `panes`. Der Befehl bleibt bytegleich.
+    pub fn tolerating_linked_windows(self) -> Self {
+        Self {
+            tolerate_linked_windows: true,
+            ..self
+        }
     }
 
     /// Conservatively guarded B/E envelope (`if-shell` + list-commands).
@@ -113,6 +130,7 @@ impl InventoryQuery {
         Ok(Self {
             envelope: CommandEnvelope::ConservativelyGuarded,
             socket: Socket::Named(name.into()),
+            tolerate_linked_windows: false,
         })
     }
 
@@ -127,6 +145,7 @@ impl InventoryQuery {
         Ok(Self {
             envelope: CommandEnvelope::ConservativelyGuarded,
             socket: Socket::Absolute(path.into()),
+            tolerate_linked_windows: false,
         })
     }
 
@@ -183,7 +202,7 @@ impl InventoryQuery {
             }
             return InventoryOutcome::TmuxError { code: result.code };
         }
-        match parse_numeric(&result.stdout) {
+        match parse_numeric(&result.stdout, self.tolerate_linked_windows) {
             Ok(snapshot) => InventoryOutcome::Snapshot(snapshot),
             Err(reason) => InventoryOutcome::Incomplete(reason),
         }
@@ -248,6 +267,11 @@ pub struct InventorySnapshot {
     pub server: ServerIdentity,
     pub sessions: Vec<SessionInventory>,
     pub panes: Vec<PaneInventory>,
+    /// Sessions, die mit einer anderen Session Fenster teilen, aufsteigend;
+    /// weder sie noch ihre Panes stehen in `sessions` und `panes`. Leer,
+    /// ausser die Abfrage duldet Sitzungsgruppen
+    /// ([`InventoryQuery::tolerating_linked_windows`]).
+    pub linked: Vec<SessionId>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -320,7 +344,7 @@ fn server(line: &str, marker: &str) -> Result<ServerIdentity, IncompleteReason> 
     Ok(ServerIdentity { pid, start_time })
 }
 
-fn parse_numeric(data: &str) -> Result<InventorySnapshot, IncompleteReason> {
+fn parse_numeric(data: &str, tolerate_linked: bool) -> Result<InventorySnapshot, IncompleteReason> {
     if !data.ends_with('\n')
         || !data
             .bytes()
@@ -334,6 +358,7 @@ fn parse_numeric(data: &str) -> Result<InventorySnapshot, IncompleteReason> {
     let mut panes = Vec::new();
     let mut pane_ids = BTreeSet::new();
     let mut window_owners = BTreeMap::new();
+    let mut linked = BTreeSet::new();
     let mut ended = false;
     while let Some(line) = lines.next() {
         if lines.peek().is_none() {
@@ -361,7 +386,22 @@ fn parse_numeric(data: &str) -> Result<InventorySnapshot, IncompleteReason> {
                 }
                 if let Some(owner) = window_owners.insert(window_id, session_id) {
                     if owner != session_id {
-                        return Err(IncompleteReason::UnsupportedLinkedWindows);
+                        if !tolerate_linked {
+                            return Err(IncompleteReason::UnsupportedLinkedWindows);
+                        }
+                        // Dieselbe Pane erscheint unter jeder Session der
+                        // Gruppe; die Zeile wird geprueft und verworfen.
+                        window_owners.insert(window_id, owner);
+                        linked.insert(owner);
+                        linked.insert(session_id);
+                        for value in [process, attached, count] {
+                            number32(value, false)?;
+                        }
+                        for value in [wa, pa, dead, alternate, bell] {
+                            flag(value)?;
+                        }
+                        number(activity)?;
+                        continue;
                     }
                 }
                 if !pane_ids.insert(pane_id) {
@@ -388,6 +428,8 @@ fn parse_numeric(data: &str) -> Result<InventorySnapshot, IncompleteReason> {
     if !ended {
         return Err(IncompleteReason::InvalidFrame);
     }
+    sessions.retain(|id, _| !linked.contains(id));
+    panes.retain(|pane| !linked.contains(&pane.session_id));
     validate_inventory(&sessions, &panes)?;
     Ok(InventorySnapshot {
         server: beginning,
@@ -396,6 +438,7 @@ fn parse_numeric(data: &str) -> Result<InventorySnapshot, IncompleteReason> {
             .map(|(id, window_count)| SessionInventory { id, window_count })
             .collect(),
         panes,
+        linked: linked.into_iter().collect(),
     })
 }
 

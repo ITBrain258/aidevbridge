@@ -2,7 +2,7 @@ use super::inventory::{
     InventoryOutcome, InventoryQuery, InventorySnapshot, MeasuredVersion, ServerIdentity, SessionId,
 };
 use super::session_binding::{self, BindingQuery, BoundObservation, ParseError, UnverifiedReason};
-use super::socket::{OwnSocket, TmuxSocket};
+use super::socket::{OwnSocket, SocketKind, TmuxSocket};
 use crate::remote;
 use crate::transport::{ExecError, ExecPhase, ExecReason, ExecResult, Submission, Transport};
 use std::collections::BTreeMap;
@@ -129,7 +129,7 @@ impl TmuxClient {
         version: MeasuredVersion,
         deadline: Instant,
     ) -> anyhow::Result<SessionListObservation> {
-        let query = BindingQuery::new(InventoryQuery::named(version, self.socket.name())?);
+        let query = BindingQuery::new(self.inventory_query(version)?);
         let first = observation_exec(transport, query.list_command(), deadline).await?;
         let listed_before = match session_binding::parse_list(&first) {
             Ok(listed) => listed,
@@ -208,6 +208,20 @@ impl TmuxClient {
             socket_name: self.socket.name().to_string(),
             inventory,
             sessions,
+        })
+    }
+
+    /// Die Inventarabfrage dieses Sockets. Auf dem Standard-Socket duldet sie
+    /// Sitzungsgruppen (Spec 2026-10-25 §6.2): Deren Sessions bleiben
+    /// ungebunden, das uebrige Inventar gilt.
+    pub fn inventory_query(
+        &self,
+        version: MeasuredVersion,
+    ) -> Result<InventoryQuery, super::inventory::InvalidSocket> {
+        let query = InventoryQuery::named(version, self.socket.name())?;
+        Ok(match self.socket.kind() {
+            SocketKind::App => query,
+            SocketKind::Default => query.tolerating_linked_windows(),
         })
     }
 
@@ -615,6 +629,24 @@ mod tests {
     /// `TmuxClient`.
     fn own_client(name: &str) -> OwnTmuxClient {
         OwnTmuxClient::new(&OwnSocket::new(name).unwrap())
+    }
+
+    /// Nur der Standard-Socket duldet Sitzungsgruppen (Spec 2026-10-25 §6.2).
+    #[test]
+    fn only_the_default_socket_tolerates_linked_windows() {
+        let strict = InventoryQuery::named(MeasuredVersion::V3_6, "sock").unwrap();
+        assert_eq!(
+            own_client("sock")
+                .inventory_query(MeasuredVersion::V3_6)
+                .unwrap(),
+            strict
+        );
+        assert_eq!(
+            TmuxClient::new(&TmuxSocket::default_named("sock"))
+                .inventory_query(MeasuredVersion::V3_6)
+                .unwrap(),
+            strict.tolerating_linked_windows()
+        );
     }
 
     struct ScriptedTransport {
