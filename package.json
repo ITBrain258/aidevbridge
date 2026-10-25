@@ -16,6 +16,7 @@
     "build": "tsc && vite build",
     "build:app": "tauri build --no-bundle",
     "build:windows": "pwsh -NoProfile -File scripts/release-windows.ps1",
+    "build:macos": "node scripts/release-macos-artifacts.mjs build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:scripts": "node --test \"scripts/*.test.mjs\"",
