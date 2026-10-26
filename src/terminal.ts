@@ -1,4 +1,4 @@
-// TerminalView (Task 11): xterm.js im WebView, Flow Control und entprelltes
+// TerminalView: xterm.js im WebView, Flow Control und entprelltes
 // Resize. Siehe Spec §9.1 (Flow Control), §6.4 (Resize/V12), §11.1 (xterm 6:
 // kein Canvas-Renderer mehr, Fallback ist der DOM-Renderer).
 
@@ -28,7 +28,7 @@ import "@xterm/xterm/css/xterm.css";
  * (Codex) sendet bei jedem Resize `ESC[3J` und loescht damit den
  * SERVERSEITIGEN tmux-Scrollback unwiderruflich. Umgestellt wird deshalb
  * nur bei einer echten Fenstergroessenaenderung, nie beim Wechsel zwischen
- * Terminals -- diese Datei haengt `onResize` bewusst nur an
+ * Terminals -- diese Datei haengt `scheduleRefit` bewusst nur an
  * `window.addEventListener('resize', ...)`, niemals an einen
  * `ResizeObserver` auf dem Container: Letzterer feuert genau beim
  * Terminalwechsel (Ein-/Ausblenden des Containers aendert dessen Groesse),
@@ -46,7 +46,7 @@ export const INPUT_CHUNK_BYTES = 64 * 1024;
 
 export interface TerminalHandle {
   dispose(): void;
-  /** Task 10 (Kachelraster): startet/verlaengert denselben entprellten
+  /** Startet/verlaengert denselben entprellten
    * `RESIZE_DEBOUNCE_MS`-Timer, den auch ein echtes `window`-Resize-Event
    * ausloest -- derselbe Pfad, nicht ein zweiter (Designsystem §5.5). Der
    * Kachelcontroller ruft dies nach jeder Aenderung auf, die die Pixelgroesse
@@ -97,7 +97,7 @@ export interface TerminalError {
   detail: string;
 }
 
-/** Task 12 (`Keymap`, Spec §7.4): Aktionen fuer die drei Ctrl+Shift-Akkorde,
+/** `Keymap` (Spec §7.4): Aktionen fuer die drei Ctrl+Shift-Akkorde,
  * die keinen Griff auf `term`/das Suchaddon selbst brauchen und deshalb dem
  * Aufrufer gehoeren, nicht `terminal.ts`. Kopieren und Suchen bleiben
  * dagegen HIER verdrahtet (siehe `attachCustomKeyEventHandler` unten), weil
@@ -120,7 +120,7 @@ export interface MountOptions {
   canMoveTile?: (delta: 1 | -1) => boolean;
   /** UX-Spec §6.6: Beschriftungen der Suchleiste (Ctrl+Shift+F): Platzhalter,
    * Zaehler, Namen und Tooltips der Knoepfe. Kommen vom Aufrufer statt hier
-   * literal zu stehen -- Spec §7.7/Task-11-Konvention: kein Text im Code, alle
+   * literal zu stehen -- Spec §7.7: kein Text im Code, alle
    * Zeichenketten in `en.json`. Ohne Texte geht die Leiste trotzdem auf, mit
    * leeren Beschriftungen. */
   searchTexts?: TerminalSearchTexts;
@@ -140,7 +140,7 @@ export interface MountOptions {
    * `searchTexts`. Ohne Texte oeffnet der Rechtsklick kein Menue; das
    * Browsermenue bleibt trotzdem aus. */
   menuTexts?: TerminalMenuTexts;
-  /** M-C (Abschlussreview): die SSH-Verbindung dieser Session endete, OHNE
+  /** Die SSH-Verbindung dieser Session endete, OHNE
    * dass diese Ansicht selbst geschlossen wurde (`terminal://connection-
    * lost`, siehe Backend-Doc-Kommentar an `OutputSink::connection_lost`).
    * `mountTerminal` sperrt die Eingabe selbst (`term.options.disableStdin =
@@ -168,7 +168,7 @@ export interface MountOptions {
    * schmal ist; verkleinert wird nie. */
   onSize?: (cols: number, rows: number) => void;
   /** Spec 2026-10-19 §8.1 (Schritt 3): hoechstens 4 `open_terminal` je Host
-   * zugleich. Ohne Schlange oeffnet die Ansicht sofort, wie bisher. Schluessel
+   * zugleich. Ohne Schlange oeffnet die Ansicht sofort. Schluessel
    * ist das `hostId` dieses Aufrufs (die Laufzeit-ID). Die Ansicht reiht sich
    * beim Mounten ein und sendet, sobald ihr Platz zugeteilt ist und beide
    * Listener stehen; frei wird der Platz mit der Antwort auf `open_terminal`,
@@ -186,7 +186,7 @@ export interface MountOptions {
   onQueued?: (queued: boolean) => void;
   /** Spec 2026-10-25 §6.4: Sessions des Standard-Sockets haengen nur ueber
    * die Bindung an. Fehlt der Socket, ist es der eigene; dann bleibt er auch
-   * aus jedem Aufruf heraus, wie vor dem Standard-Socket. */
+   * aus jedem Aufruf heraus. */
   socket?: "app" | "default";
   sessionId?: number | null;
   serverPid?: number | null;
@@ -203,7 +203,7 @@ interface OutputEventPayload {
   bytes: number[];
 }
 
-/** Nutzlast von `terminal://connection-lost` (M-C, Abschlussreview). */
+/** Nutzlast von `terminal://connection-lost`. */
 interface ConnectionLostEventPayload {
   host_id: string;
   session: string;
@@ -211,7 +211,7 @@ interface ConnectionLostEventPayload {
 }
 
 /** Vordergrund, Auswahlvordergrund und die 16 ANSI-Farben: in allen Themen
- * gleich (Spec §5.5), unveraendert die heutigen Werte. Die Flaeche dagegen
+ * gleich (Spec §5.5). Die Flaeche dagegen
  * ist JE THEMA `--ab-term-bg` (siehe `TERMINAL_SURFACES` unten), nicht
  * identisch mit `--ab-bg-canvas` -- ohne gesetztes `theme.background` naehme
  * xterm sonst `#000` und die Kachel haette zwei verschiedene Schwarztoene. */
@@ -308,8 +308,8 @@ export function searchDecorations(theme: ITheme): SearchDecorations {
  * frei. xterm tut das beim Entsorgen nicht (`WebglRenderer.ts:144-150`), und
  * Chromium haelt hoechstens 16 Kontexte -- mit neun Kacheln und jedem
  * Ersetzen, Reconnect oder Wiederanhaengen zaehlten tote bis zur
- * Speicherbereinigung mit (Maximieren verbirgt seit Schritt 3 nur und
- * entsorgt nichts mehr, Spec 2026-10-19 §8.1). Das GL-Canvas
+ * Speicherbereinigung mit (Maximieren verbirgt nach Schritt 3 nur und
+ * entsorgt nichts, Spec 2026-10-19 §8.1). Das GL-Canvas
  * ist das Canvas ohne Klasse unter `.xterm-screen` (die Ebenen tragen
  * Klassen); ohne WebGL gibt es keins, und nichts geschieht. */
 export function releaseWebglContext(container: HTMLElement): void {
@@ -335,23 +335,21 @@ export function releaseWebglContext(container: HTMLElement): void {
  * das nicht als fehlender Bildschirm, sondern als dauerhaft totes
  * Terminal.
  *
- * `dispose()` schliesst den PTY-Kanal per `close_terminal` -- und das ist
- * eine bewusste UMKEHR der urspruenglichen Plan-1-Entscheidung. Spec
- * §4.2/§6.8 verlangen, dass Kanaele nach einem Tab-Wechsel offen bleiben,
- * damit ein Rueckwechsel sofort ist und kein Resize ausgeloest wird. Diese
- * Eigenschaft liefert der Code hier aber NICHT: ein Wiedereroeffnen mountet
- * neu, `mountTerminal` ruft `open_terminal`, und `open_terminal_impl`
- * verdraengt den alten Eintrag und schliesst ihn -- ein frisches
- * `tmux attach` mit vollem Repaint findet ohnehin statt. Das Offenhalten
- * brachte also nichts und kostete den Freeze: der abgemeldete
- * `terminal://output`-Listener liess die Ausgabe unbestaetigt, das Ack-
- * Fenster lief voll, und ueber russhs GEMEINSAMEN Dispatch-Loop stand die
- * ganze Host-Verbindung (gemessen).
+ * `dispose()` schliesst den PTY-Kanal per `close_terminal`, bewusst
+ * abweichend von Spec §4.2/§6.8: dort bleiben Kanaele nach einem
+ * Tab-Wechsel offen, damit ein Rueckwechsel sofort ist und kein Resize
+ * ausgeloest wird. Diese Eigenschaft liefert ein offener Kanal hier aber
+ * NICHT: ein Wiedereroeffnen mountet neu, `mountTerminal` ruft
+ * `open_terminal`, und `open_terminal_impl` verdraengt den alten Eintrag
+ * und schliesst ihn -- ein frisches `tmux attach` mit vollem Repaint findet
+ * ohnehin statt. Das Offenhalten braechte also nichts und kostete den
+ * Freeze: der abgemeldete `terminal://output`-Listener liesse die Ausgabe
+ * unbestaetigt, das Ack-Fenster liefe voll, und ueber russhs GEMEINSAMEN
+ * Dispatch-Loop stuende die ganze Host-Verbindung (gemessen).
  *
- * Plan 2 holt die Eigenschaft ueber den Detached-Drain zurueck (Backend
- * bestaetigt selbst, wenn keine Ansicht haengt, plus `capture-pane`-Restore
- * nach Spec §6.2) -- NICHT durch Zurueckdrehen dieser Zeile. Ohne den
- * Restore waere verworfene Ausgabe echt verloren.
+ * Den Verlauf beim Wiederanhaengen bringt nicht ein offener Kanal, sondern
+ * der `capture-pane`-Restore nach Spec §6.2, den `open_terminal` mitliefert
+ * (UX-Spec §5.6); diese Zeile bleibt deshalb, wie sie ist.
  *
  * `onError`, falls angegeben, wird mit der Art des Fehlers und seinem Rohtext
  * aufgerufen (`TerminalError`, UX-Spec §6.9), wenn einer der fire-and-forget
@@ -375,7 +373,7 @@ export function mountTerminal(
   const term = new Terminal({
     allowProposedApi: true,
     scrollback: 5000,
-    // M-Doc-2 (Abschlussreview): Terminal-Ausgabe ist angreiferbeeinflussbar
+    // Terminal-Ausgabe ist angreiferbeeinflussbar
     // (Repo-Inhalte, Werkzeug-Output, Spec §8.3). Ohne eigenen `linkHandler`
     // faellt xterm.js bei OSC-8-Hyperlinks auf `defaultActivate` zurueck,
     // das KEIN Schema filtert -- ein `file://`- oder `javascript:`-Link
@@ -507,8 +505,7 @@ export function mountTerminal(
   // kennt nur OSC 8). Sein Klick-Rueckruf ist derselbe `openLink`.
   term.loadAddon(new WebLinksAddon(openLink, { hover: showLinkHint, leave: hideLinkHint }));
 
-  // Das Such-Addon war bis Task 12 installiert, aber nicht geladen (kein
-  // Konsument): jetzt gibt es einen, Ctrl+Shift+F unten.
+  // Das Such-Addon fuer die Suchleiste (Ctrl+Shift+F, unten).
   const search = new SearchAddon();
   term.loadAddon(search);
 
@@ -534,7 +531,7 @@ export function mountTerminal(
   fit.fit();
   options?.onSize?.(term.cols, term.rows);
 
-  // Task 12 (`Keymap`, Spec §7.4) und UX-Spec §6.6: Ctrl+Shift+F oeffnet die
+  // `Keymap` (Spec §7.4) und UX-Spec §6.6: Ctrl+Shift+F oeffnet die
   // Suchleiste oben rechts in der Kachel (`views/terminal-search.ts`). Sie
   // entsteht mit jedem Oeffnen neu und haengt als Geschwister von xterms
   // Element im Container -- kein statisches Markup in `index.html`, weil sie an
@@ -677,7 +674,7 @@ export function mountTerminal(
           options?.onCloseTerminal?.();
           break;
         default:
-          // "clipboard.copy"/"clipboard.paste" kommen hier nicht mehr an:
+          // "clipboard.copy"/"clipboard.paste" kommen hier nicht an:
           // `clipboardKeyAction` nimmt Ctrl+Shift+C/V oben ab.
           //
           // "session.new" (siehe unten), "session.prev"/"session.next"/
@@ -685,20 +682,20 @@ export function mountTerminal(
           // "sidebar.toggle"/"sidebar.focus", "quickOpen"
           // und jeder unbelegte Ctrl+Shift-Akkord: kein Ziel HIER -- diese
           // Aktionen brauchen `AppState`/DOM-Zugriff (Sidebar, Kachelraster),
-          // den dieses Modul bewusst nicht hat (Kopfkommentar: "Consumes:
-          // nichts"). `event.preventDefault()` oben verhindert nur, dass
+          // den dieses Modul bewusst nicht hat. `event.preventDefault()` oben
+          // verhindert nur, dass
           // xterm.js die Taste als Terminal-Eingabe verarbeitet -- es
           // stoppt NICHT die Ereignis-Ausbreitung (`stopPropagation()`
           // faellt hier nirgends), das `keydown` erreicht darum trotzdem
-          // `document`, wo `keyboard.ts`s eigener Akkord-Handler (Task 12)
+          // `document`, wo `keyboard.ts`s eigener Akkord-Handler
           // dieselbe `matchAction`-Zuordnung ein zweites Mal auswertet und
           // genau diese Aktionen tatsaechlich ausfuehrt. Trotzdem `false`
           // oben, auch fuer einen unbelegten Akkord: der gesamte
           // Ctrl+Shift-Raum gehoert der App, nie dem Terminal.
           //
-          // Abschlussreview (Important 5): `session.new` ist hier BEWUSST
-          // ohne eigenen Zweig, und `MountOptions` hat kein
-          // `onNewSession` mehr. Der Akkord legt eine Session auf dem
+          // `session.new` ist hier BEWUSST ohne eigenen Zweig, und
+          // `MountOptions` hat kein `onNewSession`. Der Akkord legt eine
+          // Session auf dem
           // Zielhost aus UX-Spec §7.9 an (zuerst der Host der fokussierten
           // Kachel, dann der zuletzt fokussierten belegten, der aktive Host
           // der Seitenleiste, der einzige verbundene, sonst das
@@ -962,12 +959,13 @@ export function mountTerminal(
   );
 
   // Die Groesse, die das Backend zuletzt bekommen hat -- Wachhund gegen
-  // Befund 1 (siehe `sendSizeIfChanged` unten). `open_terminal` setzt sie
+  // einen Resize auf dieselbe Groesse (siehe `sendSizeIfChanged` unten).
+  // `open_terminal` setzt sie
   // beim Absenden auf genau die Groesse, die es mitschickt: ein Refit
   // zwischen dem Mounten und dem Absenden kann `term.cols`/`term.rows` schon
   // veraendert haben. Bis dahin steht hier die beim Mounten gefittete Groesse;
-  // gelesen wird sie erst, wenn der Kanal angehaengt ist (`attached`,
-  // Abnahme B1). Damit ist schon der ERSTE `resize`-Event nach dem Anhaengen
+  // gelesen wird sie erst, wenn der Kanal angehaengt ist (`attached`).
+  // Damit ist schon der ERSTE `resize`-Event nach dem Anhaengen
   // geschuetzt -- etwa "DevTools auf und zu" direkt
   // nach dem Verbinden, auf einer frisch angehaengten Session mit vollem
   // Scrollback.
@@ -1027,7 +1025,7 @@ export function mountTerminal(
    * dann, bis sie angekommen ist. */
   function enqueueInput(encoded: Uint8Array, forceChain: boolean): void {
     const burst = { failed: false };
-    // Der gewoehnliche Tastendruck: sofort, wie bisher.
+    // Der gewoehnliche Tastendruck: sofort.
     if (!forceChain && inputTail === null && encoded.length <= INPUT_CHUNK_BYTES) {
       void sendInput(encoded, burst);
       return;
@@ -1072,15 +1070,16 @@ export function mountTerminal(
   });
 
   let disposed = false;
-  // Befund 9 (Abschlussbewertung 2026-09-04): sobald `terminal://connection-lost`
-  // fuer DIESE Kachel eintrifft, hat die Pumpaufgabe im Backend den
-  // Terminaleintrag bereits entfernt. Ein Ack aus dem `write()`-Callback, das
-  // gerade noch unterwegs war, oder ein `resize_terminal` aus einem
-  // entprellten Refit (Sperrleiste loest den Refit aus) traefe dann auf einen
-  // bereits entfernten Eintrag -- frueher ein rotes Fehlerbanner fuer einen
-  // vollkommen normalen Kanalabbau. Das Backend ist inzwischen idempotent
-  // (`ack_output_impl`), aber der Aufruf lohnt sich hier ohnehin nicht mehr:
-  // dieses Flag haelt beide Aufrufe still.
+  // MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04: sobald
+  // `terminal://connection-lost` fuer DIESE Kachel eintrifft, hat die
+  // Pumpaufgabe im Backend den Terminaleintrag bereits entfernt. Ein Ack aus
+  // dem `write()`-Callback, das gerade noch unterwegs war, oder ein
+  // `resize_terminal` aus einem entprellten Refit (Sperrleiste loest den
+  // Refit aus) traefe dann auf einen bereits entfernten Eintrag. Das Ack ist
+  // dort kein Fehler, aber ohne Wirkung (`ack_output_tagged_impl`); das
+  // `resize_terminal` scheiterte und braechte ein rotes Fehlerbanner fuer
+  // einen vollkommen normalen Kanalabbau. Dieses Flag haelt beide Aufrufe
+  // still.
   let channelClosed = false;
   /** Sperre des Aufrufers (`setInputLocked`, UX-Spec §5.4/§5.5). */
   let inputLockedByCaller = false;
@@ -1111,9 +1110,9 @@ export function mountTerminal(
       if (disposed) return;
       // Zwei Hosts duerfen gleichnamige tmux-Sessions haben (Spec §4.3) --
       // derselbe Grund, aus dem der connection-lost-Listener unten den
-      // Host vergleicht (Befund 2 der Bewertung 2026-09-04: hier fehlte
-      // dieser Vergleich bislang, Ausgabe eines fremden Hosts landete in
-      // dieser Kachel).
+      // Host vergleicht (MVP-Spec M0.1, Befund 2 der Bewertung 2026-09-04:
+      // ohne diesen Vergleich landete Ausgabe eines fremden Hosts in dieser
+      // Kachel).
       if (event.payload.host_id !== hostId) return;
       if (event.payload.session !== session || event.payload.open_id !== openId) return;
       const chunk = new Uint8Array(event.payload.bytes);
@@ -1127,10 +1126,10 @@ export function mountTerminal(
         // bestaetigen.
         if (disposed) return;
         pendingAckBytes -= chunk.length;
-        // Befund 9: nach connection-lost ist der Terminaleintrag im Backend
-        // bereits entfernt (Pumpaufgabe). `ack_output_impl` ist zwar
-        // inzwischen idempotent, aber dieser Aufruf haette ohnehin keine
-        // Wirkung mehr -- er bleibt hier still.
+        // MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04 (siehe
+        // `channelClosed`): nach connection-lost ist der Terminaleintrag im
+        // Backend bereits entfernt (Pumpaufgabe). Ein Ack waere dort kein
+        // Fehler, haette aber keine Wirkung -- er bleibt hier still.
         if (channelClosed) return;
         // Ack ERST im write()-Callback, nicht davor: das ist die Bremse,
         // die verhindert, dass xterm.js oberhalb von 50 MB Ausgabe still
@@ -1155,7 +1154,7 @@ export function mountTerminal(
     },
   );
 
-  // M-C (Abschlussreview): zweiter Listener, registriert VOR `open_terminal`
+  // Zweiter Listener, registriert VOR `open_terminal`
   // aus demselben Grund wie `unlistenPromise` oben -- sonst koennte ein
   // Verbindungsverlust unmittelbar nach dem Attach eintreffen, bevor dieser
   // Listener existiert, und bliebe fuer diese Ansicht unsichtbar (Status
@@ -1187,8 +1186,7 @@ export function mountTerminal(
   // in der Schlange dieses Hosts, beide Listener oben und eine noch nicht
   // entsorgte Ansicht. Eingereiht wird hier, synchron beim Mounten: so ist die
   // Reihenfolge der Schlange die des Aufrufers. Ohne Schlange gibt es kein
-  // Ticket, und das Oeffnen folgt wie bisher im selben Mikrotask auf die
-  // Listener.
+  // Ticket, und das Oeffnen folgt im selben Mikrotask auf die Listener.
   let listenersReady = false;
   let openSent = false;
   const ticket =
@@ -1232,7 +1230,7 @@ export function mountTerminal(
     if (ticket !== null && !ticket.granted) return;
     openSent = true;
     // Mit dieser Groesse startet das PTY; gegen sie vergleicht das Nachholen
-    // nach dem Anhaengen (Abnahme B1). Gelesen beim Absenden, nicht beim
+    // nach dem Anhaengen. Gelesen beim Absenden, nicht beim
     // Mounten: ein Refit in der Wartezeit hat nur gefittet und gemeldet.
     lastSentCols = term.cols;
     lastSentRows = term.rows;
@@ -1258,7 +1256,7 @@ export function mountTerminal(
         ticket?.release();
         if (disposed) return;
         attached = true;
-        // Abnahme B1: ein Refit waehrend des Oeffnens hat nur gefittet und
+        // Ein Refit waehrend des Oeffnens hat nur gefittet und
         // gemeldet. Hat er die Groesse geaendert, geht sie jetzt hinaus, genau
         // einmal. Steht noch ein Refit aus, bleibt das ihm: sein Fit misst
         // gleich neu und vergleicht dann selbst -- hier zusaetzlich zu senden
@@ -1320,16 +1318,17 @@ export function mountTerminal(
   // deklariert und geseedet.
   //
   // Der EINE Sendeweg fuer `resize_terminal`: nach dem entprellten Refit und
-  // beim Nachholen nach dem Anhaengen (Abnahme B1). Vor dem Anhaengen gibt es
-  // im Backend keinen Eintrag -- der Aufruf wurde abgewiesen, und die Groesse
-  // galt trotzdem als gesendet; das PTY blieb in der Zwischengroesse stehen.
+  // beim Nachholen nach dem Anhaengen. Vor dem Anhaengen gibt es im Backend
+  // keinen Eintrag -- der Aufruf wuerde abgewiesen, und die Groesse galte
+  // trotzdem als gesendet; das PTY bliebe in der Zwischengroesse stehen.
   // Ein gescheitertes Oeffnen haengt nie an und sendet darum nie.
   function sendSizeIfChanged(): void {
     if (!attached) return;
     if (term.cols === lastSentCols && term.rows === lastSentRows) return;
     lastSentCols = term.cols;
     lastSentRows = term.rows;
-    // Befund 9: die Sperrleiste loest nach connection-lost oft einen
+    // MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04 (siehe
+    // `channelClosed`): die Sperrleiste loest nach connection-lost oft einen
     // Refit aus (Layoutwechsel um die Sperranzeige herum) -- der
     // Terminaleintrag im Backend ist dann schon weg, ein `resize_terminal`
     // traefe also ohnehin ins Leere.
@@ -1356,9 +1355,8 @@ export function mountTerminal(
    * tut `fit()` nichts), mit einer festen Hoehe im CSS kaeme 2 x 1 heraus.
    * Darum die ausdrueckliche Marke statt eines Verlasses auf die Berechnung. */
   let hidden = false;
-  // Umbenannt von `onResize` zu `scheduleRefit` (Task 10, Kachelraster):
-  // dieselbe Funktion ist jetzt AUCH das Ziel von `refit()` unten, nicht nur
-  // des `window`-Listeners. Beide Aufrufer teilen sich denselben Timer --
+  // `scheduleRefit` ist das Ziel von `refit()` unten UND des
+  // `window`-Listeners. Beide Aufrufer teilen sich denselben Timer --
   // genau die Bedingung aus Designsystem §5.5 ("laeuft durch denselben
   // entprellten Pfad wie window.resize"). Gesendet wird ueber
   // `sendSizeIfChanged`.
@@ -1368,7 +1366,7 @@ export function mountTerminal(
       // Ab hier steht kein Refit mehr aus (das Anhaengen oben fragt danach).
       resizeTimer = undefined;
       // Erst NACH dem Leeren von `resizeTimer`: sonst unterbliebe das
-      // Nachholen beim Anhaengen (Abnahme B1) fuer eine Groesse, die die
+      // Nachholen beim Anhaengen fuer eine Groesse, die die
       // Kachel noch sichtbar gemessen hat. Verborgen kein Fit, keine Meldung,
       // kein `resize_terminal`; gemessen wird beim Zurueckholen, dessen Refit
       // das Raster ausloest. Das deckt `refit()`, den `window`-Lauscher und
@@ -1385,7 +1383,7 @@ export function mountTerminal(
   window.addEventListener("resize", scheduleRefit);
 
   return {
-    // Task 10 (Kachelraster): der Kachelcontroller darf Layoutwechsel,
+    // Der Kachelcontroller darf Layoutwechsel,
     // Maximieren und Seitenleisten-Ziehen NIE ueber einen eigenen zweiten
     // Entpreller fuehren (Designsystem §5.5, "nie ein direkter
     // resize_terminal-Aufruf aus dem Layout-Code") -- das wuerde das V12-
@@ -1406,8 +1404,7 @@ export function mountTerminal(
     },
     setTheme(theme) {
       // Wache wie bei `focus()`: nach `dispose()` ist `term` bereits
-      // entsorgt, ein Themenwechsel danach darf ihn nicht mehr anfassen
-      // (Review zu Aufgabe 3).
+      // entsorgt, ein Themenwechsel danach darf ihn nicht mehr anfassen.
       if (disposed) return;
       term.options.theme = terminalTheme(theme);
     },
@@ -1467,26 +1464,22 @@ export function mountTerminal(
       // garantiert kein Nachfeuern haengender Callbacks. Ein `write()`,
       // das kurz vor `dispose()` abgesetzt wurde, koennte seinen Callback
       // also nie ausloesen -- dann wird `ack_output` fuer diese Bytes nie
-      // gesendet, und der `AckGate` dieser Session bleibt mit
-      // ausstehenden Bytes haengen. In Task 11 heilt das ein sofortiges
-      // `disconnect_host` unmittelbar nach `dispose()` selbst (das
-      // entsperrt den Gate ohnehin). Sobald `dispose()` in Task 12 ohne
-      // sofortiges Close zum Normalfall wird (Tab-Wechsel), stuende ein
-      // weggeschaltetes Terminal mit ausstehender Bestaetigung bis zum
-      // Wiederoeffnen still. Deshalb: die Summe der noch ausstehenden,
-      // nie bestaetigten Bytes hier einmalig nachbestaetigen.
+      // gesendet. Deshalb: die Summe der noch ausstehenden, nie bestaetigten
+      // Bytes hier einmalig nachbestaetigen. Ueberlebt der Eintrag das
+      // Schliessen unten (etwa weil `close_terminal` scheitert), bleibt sein
+      // `AckGate` so nicht mit ausstehenden Bytes haengen.
       if (pendingAckBytes > 0) {
         const byteCount = pendingAckBytes;
         pendingAckBytes = 0;
         void invoke("ack_output", { hostId, session, openId, byteCount, ...socketArg }).catch(() => {});
       }
-      // Reihenfolge der INVOKE-Aufrufe: erst nachbestaetigen (Block oben),
-      // dann schliessen -- die Sammel-Bestaetigung gilt dem Eintrag, den
-      // `close_terminal` entfernt. Die Ausfuehrung im Backend ordnet das
-      // nicht: beide Aufrufe laufen dort als eigenstaendige Aufgaben, und
-      // nichts ordnet ihren Zugriff auf `state.terminals`. Drehen sie sich,
-      // findet das Ack keinen Eintrag mehr und bleibt ohne Wirkung
-      // (`ack_output_tagged_impl`); nach dem Schliessen ist das gleichgueltig.
+      // Erst nachbestaetigen (Block oben), dann schliessen: die
+      // Sammel-Bestaetigung gilt dem Eintrag, den `close_terminal` entfernt.
+      // Eine Reihenfolge im Backend folgt daraus nicht -- beide Aufrufe laufen
+      // dort als eigenstaendige Aufgaben, und nichts ordnet ihren Zugriff auf
+      // `state.terminals`. Kommt das Ack nach dem Schliessen an, findet es
+      // keinen Eintrag; das ist dort kein Fehler und bleibt ohne Wirkung
+      // (`ack_output_tagged_impl`), der Eintrag samt `AckGate` ist dann fort.
       //
       // BEIDE Aufrufe schlucken ihren Fehler, statt ihn an `onError` zu
       // reichen: `onError` landet im globalen Hinweisbanner, und ein voellig
