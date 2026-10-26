@@ -42,6 +42,17 @@ They need no SSH host. Tests that would need one return early, print a line
 starting with `SKIP` (visible with `-- --nocapture`) and still count as
 passed, so a green run does not prove a real SSH connection.
 
+`.github/workflows/audit.yml` checks `Cargo.lock` with `cargo audit` and the
+runtime packages in `package-lock.json` with `npm audit --omit=dev` against
+known security advisories: weekly, on every change of either lockfile and
+when started by hand. It is not part of the checks above, which `ci.yml` runs
+(see [Tests](README.md#tests)), and a new advisory can turn it red without
+any change here. It does not cover path dependencies such as the vendored
+russh in `vendor/russh`, which no advisory database records;
+[SECURITY.md](SECURITY.md) lists the advisories known for it. It ignores
+RUSTSEC-2023-0071 (`rsa`), which has no fixed version; SECURITY.md explains
+why the app accepts it.
+
 ## Live tests against a test host
 
 Some integration tests and the VM acceptance suite
