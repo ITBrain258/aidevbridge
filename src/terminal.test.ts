@@ -853,6 +853,57 @@ describe("mountTerminal: jeder Fehlerpfad meldet seine Art (UX-Spec §6.9)", () 
       warn.mockRestore();
     }
   });
+
+  // Der Wortlaut des Backends fuer einen fehlenden Kanal ist kein Sonderfall:
+  // Eingabe geht erst nach dem Anhaengen hinaus, ihr Fehlschlag ist dann ein
+  // echter. Der Text steht hier woertlich, damit keine Konstante ihn mit dem
+  // Produktivcode koppelt.
+  it("meldet ein send_input, das mit 'no terminal open for this session' scheitert, als Art input", async () => {
+    invokeMock.mockImplementation((command: string) =>
+      command === "send_input" ? Promise.reject("no terminal open for this session") : Promise.resolve(undefined));
+    const onError = vi.fn();
+    mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush(); // open_terminal hat geantwortet: angehaengt
+
+    hoisted.dataListener?.("a");
+    await flush();
+
+    expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "input", detail: "no terminal open for this session" });
+  });
+
+  it("schreibt ein ack_output vor dem Anhaengen, das mit 'no terminal open for this session' scheitert, in die Konsole", async () => {
+    let capturedListener: Listener | undefined;
+    listenMock.mockImplementation((event, handler) => {
+      if (event === "terminal://output") capturedListener = handler as Listener;
+      return Promise.resolve(vi.fn());
+    });
+    const opening = deferred<void>();
+    invokeMock.mockImplementation((command: string) =>
+      command === "open_terminal"
+        ? opening.promise
+        : command === "ack_output"
+          ? Promise.reject("no terminal open for this session")
+          : Promise.resolve(undefined));
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const onError = vi.fn();
+      mount(document.createElement("div"), "host-1", "sess-1", onError);
+      await flush(); // open_terminal ist hinaus, seine Antwort steht aus
+
+      capturedListener?.({ payload: { open_id: FIXED_OPEN_ID, host_id: "host-1", session: "sess-1", bytes: [1, 2] } });
+      hoisted.writeCalls[0].callback?.();
+      await flush();
+
+      expect(invokeMock.mock.calls.some(([command]) => command === "ack_output")).toBe(true);
+      expect(onError).not.toHaveBeenCalled();
+      expect(warn).toHaveBeenCalledOnce();
+      expect(String(warn.mock.calls[0][0])).toContain("no terminal open for this session");
+      opening.resolve();
+      await flush();
+    } finally {
+      warn.mockRestore();
+    }
+  });
 });
 
 // Bekannte Fehler des Rasters, behoben am 24.10.: eine grosse Einfuegung ging
@@ -1511,13 +1562,11 @@ describe("mountTerminal: Ack-Nachbestaetigung bei dispose()", () => {
     });
   });
 
-  // Die Reihenfolge ist Teil der Zusicherung, nicht nur der Aufruf:
-  // `ack_output_impl` liefert fuer einen fehlenden Map-Eintrag
-  // `Err("no terminal open for this session")`. Kaeme `close_terminal`
-  // ZUERST, wuerde die Sammel-Bestaetigung fehlschlagen und ueber `onError`
-  // eine irrefuehrende Meldung erzeugen -- fuer einen Vorgang, der voellig
-  // in Ordnung war. Ein Test, der nur "close_terminal wurde gerufen" prueft,
-  // bliebe bei genau dieser Vertauschung gruen.
+  // Die Reihenfolge ist Teil der Zusicherung, nicht nur der Aufruf: die
+  // Sammel-Bestaetigung gilt dem Eintrag, den `close_terminal` entfernt.
+  // Kaeme `close_terminal` ZUERST, faende sie keinen Eintrag mehr. Ein Test,
+  // der nur "close_terminal wurde gerufen" prueft, bliebe bei genau dieser
+  // Vertauschung gruen.
   it("bestaetigt ausstehende Bytes VOR dem close_terminal", async () => {
     let capturedListener: Listener | undefined;
     listenMock.mockImplementation((event, handler) => {

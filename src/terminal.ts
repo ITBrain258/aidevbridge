@@ -976,23 +976,6 @@ export function mountTerminal(
   let lastSentRows = term.rows;
   let attached = false;
 
-  /** Solange `open_terminal` aussteht, kennt das Backend diesen Kanal noch
-   * nicht: Eingabe und Acks aus diesem Fenster scheitern mit genau diesem Text,
-   * ohne dass etwas kaputt ist. `resize_terminal` faellt in dieses Fenster gar
-   * nicht erst (`sendSizeIfChanged`). */
-  function unpublishedOpenError(error: unknown): boolean {
-    const text =
-      typeof error === "string"
-        ? error
-        : error &&
-            typeof error === "object" &&
-            "message" in error &&
-            typeof (error as { message: unknown }).message === "string"
-          ? (error as { message: string }).message
-          : String(error);
-    return !attached && text === "no terminal open for this session";
-  }
-
   // Eingabe geht roh ans PTY -- keine Interpretation im Frontend.
   //
   // Eine grosse Einfuegung ging als EIN `send_input` mit einem Zahlenfeld
@@ -1024,13 +1007,14 @@ export function mountTerminal(
    * hinaus, nach einem gescheiterten Oeffnen nirgends hin. */
   let pendingInput: Uint8Array[] | null = [];
 
+  /** Laeuft erst nach dem Anhaengen (`term.onData` puffert davor): das Backend
+   * kennt den Kanal dann, jeder Fehlschlag ist ein echter. */
   function sendInput(bytes: Uint8Array, burst: { failed: boolean }): Promise<void> {
     if (burst.failed || disposed || channelClosed) return Promise.resolve();
     return invoke("send_input", { hostId, session, openId, bytes: Array.from(bytes), ...socketArg }).then(
       () => {},
       (error: unknown) => {
         burst.failed = true;
-        if (unpublishedOpenError(error)) return;
         // Ohne diesen Pfad bliebe ein fehlgeschlagener Tastendruck
         // unsichtbar verworfen -- kein Fehler, aber auch keine Wirkung.
         onError?.({ kind: "input", detail: String(error) });
@@ -1152,7 +1136,10 @@ export function mountTerminal(
         // die verhindert, dass xterm.js oberhalb von 50 MB Ausgabe still
         // verwirft (Spec V31). `byteCount` ist die Groesse DIESES Pakets
         // (inkrementell), nicht die kumulative Summe -- siehe
-        // `ack_output_impl` im Backend.
+        // `ack_output_impl` im Backend. Ausgabe kann schon vor der Antwort auf
+        // `open_terminal` eintreffen; ein Ack fuer einen Kanal, den das
+        // Backend nicht (mehr) kennt, ist dort kein Fehler
+        // (`ack_output_tagged_impl`).
         void invoke("ack_output", {
           hostId,
           session,
@@ -1160,7 +1147,6 @@ export function mountTerminal(
           byteCount: chunk.length,
           ...socketArg,
         }).catch((error: unknown) => {
-          if (unpublishedOpenError(error)) return;
           // UX-Spec §6.9: nur die Konsole. Ein Ack betrifft die Flusskontrolle,
           // der Nutzer koennte mit einem Hinweis darauf nichts anfangen.
           console.warn(`[terminal] ack_output failed: ${String(error)}`);
@@ -1495,32 +1481,22 @@ export function mountTerminal(
         void invoke("ack_output", { hostId, session, openId, byteCount, ...socketArg }).catch(() => {});
       }
       // Reihenfolge der INVOKE-Aufrufe: erst nachbestaetigen (Block oben),
-      // dann schliessen. `ack_output_impl` liefert fuer einen fehlenden
-      // Map-Eintrag einen Fehler, in der anderen Reihenfolge waere die
-      // Sammel-Bestaetigung also der wahrscheinliche Verlierer.
+      // dann schliessen -- die Sammel-Bestaetigung gilt dem Eintrag, den
+      // `close_terminal` entfernt. Die Ausfuehrung im Backend ordnet das
+      // nicht: beide Aufrufe laufen dort als eigenstaendige Aufgaben, und
+      // nichts ordnet ihren Zugriff auf `state.terminals`. Drehen sie sich,
+      // findet das Ack keinen Eintrag mehr und bleibt ohne Wirkung
+      // (`ack_output_tagged_impl`); nach dem Schliessen ist das gleichgueltig.
       //
-      // Was diese Reihenfolge NICHT garantiert: die Ausfuehrung im Backend.
-      // Beide Aufrufe werden dort als eigenstaendige Aufgaben gestartet, und
-      // nichts ordnet ihren Zugriff auf `state.terminals` -- in der Praxis
-      // folgt das Backend der Aufrufreihenfolge, zugesagt ist sie nicht.
-      // Drehen sie sich doch, liefert `ack_output_impl` "no terminal open for
-      // this session".
-      //
-      // Genau deshalb schlucken BEIDE Aufrufe hier ihren Fehler, statt ihn an
-      // `onError` zu reichen. Der alte Kommentar begruendete das Weiterreichen
-      // damit, die Meldung lande ohnehin im Nichts, weil `closeTerminalView`
-      // (main.ts) den Terminal-Bereich unmittelbar danach ausblende -- diese
-      // Funktion gibt es seit Shell-Task 11 nicht mehr. Heute landet `onError`
-      // im globalen Hinweisbanner, und ein voellig gewoehnliches Schliessen
-      // erzeugte dort ein rot stehen bleibendes "Could not open the terminal:
-      // no terminal open for this session". Ein Fehlschlag auf DIESEM Weg ist
-      // gegenstandslos: die Ansicht ist bereits entsorgt, die Bestaetigung
-      // betrifft einen Eintrag, den es nicht mehr gibt, und der Kanal wird so
-      // oder so mit dem naechsten `disconnect_host` abgeraeumt. Fehler VOR dem
-      // Entsorgen gehen unveraendert an `onError` -- `open_terminal`,
-      // `send_input` und `resize_terminal`; dort kann der Nutzer noch etwas
-      // damit anfangen. Das laufende `ack_output` aus dem Write-Callback oben
-      // geht nur in die Konsole (UX-Spec §6.9).
+      // BEIDE Aufrufe schlucken ihren Fehler, statt ihn an `onError` zu
+      // reichen: `onError` landet im globalen Hinweisbanner, und ein voellig
+      // gewoehnliches Schliessen liesse dort eine rote Meldung stehen. Ein
+      // Fehlschlag auf DIESEM Weg ist gegenstandslos: die Ansicht ist bereits
+      // entsorgt, und der Kanal wird so oder so mit dem naechsten
+      // `disconnect_host` abgeraeumt. Fehler VOR dem Entsorgen gehen an
+      // `onError` -- `open_terminal`, `send_input` und `resize_terminal`; dort
+      // kann der Nutzer noch etwas damit anfangen. Das laufende `ack_output`
+      // aus dem Write-Callback oben geht nur in die Konsole (UX-Spec §6.9).
       //
       // Spec 2026-10-19 §8.1: das Backend lernt die openId erst mit dem
       // `open_terminal` dieser Ansicht kennen und vergleicht sie beim
