@@ -4897,6 +4897,120 @@ describe("main: B3 -- was passiert, wenn das Beenden schiefgeht", () => {
   });
 });
 
+// Wann der Fehlschlag einer Liste noch zaehlt: nach Create und Kill zeigt er
+// den Hinweis und setzt den Listenfehler, beim Neuladen nur den Listenfehler.
+// Ueberholt ist er nach einem Wechsel der Verbindung oder der
+// Kontrollgeneration, nach einer neueren gelungenen Liste und wenn er selbst
+// eine andere Kontrollgeneration traegt.
+describe("main: ueberholte Listenlesungen", () => {
+  function deferred<T>() {
+    let resolve!: (value: T) => void;
+    let reject!: (reason: unknown) => void;
+    const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; });
+    return { promise, resolve, reject };
+  }
+  function listCalls(): number {
+    return invokeMock.mock.calls.filter(([command]) => command === "list_sessions").length;
+  }
+  function sessionListNotice(): HTMLElement | null {
+    return hostRow("h1").parentElement!.querySelector<HTMLElement>(".session-list-notice");
+  }
+  function bannerText(): string | undefined {
+    return document.querySelector(".global-error-banner > span")?.textContent ?? undefined;
+  }
+  /** `list_sessions`, `kill_session` und `create_session` nach Vorgabe, alles
+   * uebrige wie in `setupTwoHostsThreeSessions`. */
+  function answer(list: () => Promise<SessionListDto>): void {
+    const previous = invokeMock.getMockImplementation();
+    invokeMock.mockImplementation(((command: string, args: never) => {
+      if (command === "list_sessions") return list();
+      if (command === "kill_session") return Promise.resolve(undefined);
+      if (command === "create_session") return Promise.resolve("fresh");
+      return previous?.(command, args) ?? Promise.resolve(undefined);
+    }) as typeof invoke);
+  }
+  async function killFirstSession(): Promise<void> {
+    const row = () => sessionButton("h1", "s1").closest(".sb-session-row") as HTMLElement;
+    row().querySelector<HTMLButtonElement>(".session-kill-btn")!.click();
+    row().querySelector<HTMLButtonElement>(".session-confirm-kill .host-confirm-btn-danger")!.click();
+    await flush();
+  }
+  async function createFreshSession(): Promise<void> {
+    hostActionButton("h1", "New session").click();
+    await flush();
+    const panel = document.querySelector(".dialog-panel")!;
+    panel.querySelector<HTMLInputElement>("input[name=sessionName]")!.value = "fresh";
+    Array.from(panel.querySelectorAll("button")).find((button) => button.textContent === "Create session")!.click();
+    await flush();
+  }
+
+  it("zeigt nach einem Kill keinen Hinweis, wenn die Liste erst nach einem Wechsel der Kontrollgeneration scheitert", async () => {
+    await setupTwoHostsThreeSessions();
+    expandHost("h1");
+    const listed = deferred<SessionListDto>();
+    answer(() => listed.promise);
+    const before = listCalls();
+    await killFirstSession();
+    expect(listCalls()).toBe(before + 1);
+
+    emitControlState("r-h1", 1, "reconnecting");
+    await flush();
+    listed.reject("network hiccup");
+    await flush();
+
+    expect(globalErrorText()).not.toContain("was ended");
+    expect(sessionListNotice()).toBeNull();
+  });
+
+  it("zeigt nach einem Kill den Hinweis und setzt den Listenfehler, wenn die aktuelle Liste scheitert", async () => {
+    await setupTwoHostsThreeSessions();
+    expandHost("h1");
+    answer(() => Promise.reject({ code: "other", message: "list failed", control_generation: 0 }));
+    await killFirstSession();
+
+    expect(bannerText()).toBe(
+      "The session 's1' was ended, but the session list could not be re-read. Use 'Reload sessions' to refresh it.",
+    );
+    expect(sessionListNotice()).not.toBeNull();
+  });
+
+  it("zeigt nach einem Create keinen Hinweis, wenn die Liste erst nach einer neueren gelungenen Liste scheitert", async () => {
+    await setupTwoHostsThreeSessions();
+    expandHost("h1");
+    const createList = deferred<SessionListDto>();
+    let lists = 0;
+    answer(() => ++lists === 1 ? createList.promise : Promise.resolve(sessionList(["s1", "s2", "fresh"])));
+    await createFreshSession();
+    expect(lists).toBe(1);
+
+    // Neuladen gelingt, waehrend die Liste des Create noch aussteht.
+    hostActionButton("h1", "Reload sessions").click();
+    await flush();
+    expect(lists).toBe(2);
+    createList.reject("network hiccup");
+    await flush();
+
+    expect(globalErrorText()).not.toContain("was created");
+    expect(sessionListNotice()).toBeNull();
+  });
+
+  it.each([
+    { generation: 0, shown: true },
+    { generation: 3, shown: false },
+  ])("setzt beim Neuladen den Listenfehler nur fuer die eigene Kontrollgeneration (Fehler aus Generation $generation)", async ({ generation, shown }) => {
+    await setupTwoHostsThreeSessions();
+    expandHost("h1");
+    answer(() => Promise.reject({ code: "other", message: "list failed", control_generation: generation }));
+    const before = listCalls();
+    hostActionButton("h1", "Reload sessions").click();
+    await flush();
+
+    expect(listCalls()).toBe(before + 1);
+    expect(sessionListNotice() !== null).toBe(shown);
+    expect(globalErrorText()).not.toContain("list failed");
+  });
+});
+
 // =====================================================================
 // Task 8 (Spec §4.8): `HostEntry.auth_kind` unterscheidet seit diesem Task
 // einen per Passwort gespeicherten Host von einem ssh-agent-Host -- vorher
@@ -8911,6 +9025,14 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
     await connect({}, sessionList(["main"], { default: socketSessions([], { error: failure }) }));
     expect(names()).toEqual(["main"]);
     expect(hostIndicatorClass("h1")).toContain("ind-on");
+  });
+
+  // Und umgekehrt (§6.2): scheitert der eigene Socket, schreibt der Fehlerweg
+  // die mitgelieferte Liste des Standard-Sockets trotzdem.
+  it("schreibt die Sessions des Standard-Sockets auch, wenn der eigene Socket scheitert", async () => {
+    await connect({}, { own: socketSessions([], { error: failure }), default: socketSessions(["tmux-main"]) });
+    expect(names()).toEqual(["tmux-main"]);
+    expect(hostRow("h1").parentElement!.querySelector(".session-list-notice")).not.toBeNull();
   });
 
   it("fragt den Standard-Socket nicht, wenn der Schalter des Hosts aus ist", async () => {
