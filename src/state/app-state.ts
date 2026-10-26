@@ -430,8 +430,25 @@ export class AppState {
     return () => this.#subscribers.delete(fn);
   }
 
+  /** Jeder Abonnent fuer sich: ein werfender haelt weder die uebrigen noch den
+   * Aufrufer der Aenderung an, dessen Zustand schon geaendert ist. Es bleibt
+   * die Iteration ueber das Set selbst, mit dessen Regeln: wer sich waehrend
+   * der Benachrichtigung abmeldet, wird danach nicht mehr gerufen. */
   #notify(): void {
-    for (const fn of this.#subscribers) fn();
+    for (const fn of this.#subscribers) {
+      try {
+        fn();
+      } catch (error: unknown) {
+        // Nicht verschluckt: in einer eigenen Mikroaufgabe neu geworfen, damit
+        // er als unbehandelter Fehler in der Konsole steht. Bewusst das blosse
+        // globale `queueMicrotask`: in der WebView ist es das des Fensters,
+        // unter vitest das von Node, und dort laesst ein so geworfener Fehler
+        // den Testlauf scheitern, statt nur in einer Konsole zu landen.
+        queueMicrotask(() => {
+          throw error;
+        });
+      }
+    }
   }
 
   /** Welche Kacheln der Nutzer gerade SIEHT: bei einer maximierten Kachel nur

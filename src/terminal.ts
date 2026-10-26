@@ -1305,10 +1305,22 @@ export function mountTerminal(
     );
   }
 
-  void Promise.all([unlistenPromise, unlistenLostPromise]).then(() => {
-    listenersReady = true;
-    startOpen();
-  });
+  void Promise.all([unlistenPromise, unlistenLostPromise]).then(
+    () => {
+      listenersReady = true;
+      startOpen();
+    },
+    (error: unknown) => {
+      // Ohne beide Listener geht `open_terminal` nie hinaus (siehe oben): die
+      // Kachel wartete sonst still fuer immer, und ihr Platz in der Schlange
+      // des Hosts bliebe belegt. Dieselbe Lage wie ein abgelehntes Oeffnen.
+      if (!openSent) ticket?.release();
+      pendingInput = null;
+      if (disposed) return;
+      onError?.({ kind: "open", detail: String(error) });
+      options?.onOpenFailed?.();
+    },
+  );
 
   // Ohne den Vergleich unten loest JEDER `resize`-Event (Pixel-Ruckler,
   // Zoom hin und zurueck, DevTools auf/zu) nach der Entprellung einen
@@ -1460,8 +1472,10 @@ export function mountTerminal(
       // Geschwisterelement, das sonst haengen bliebe. Ohne Rueckruf, ohne
       // Fokus: das Terminal ist weg.
       searchUi.dispose();
-      void unlistenPromise.then((unlisten) => unlisten());
-      void unlistenLostPromise.then((unlisten) => unlisten());
+      // Ein Listener, der nie stand, hat nichts abzumelden; seine Ablehnung hat
+      // das Oeffnen schon gemeldet.
+      void unlistenPromise.then((unlisten) => unlisten()).catch(() => {});
+      void unlistenLostPromise.then((unlisten) => unlisten()).catch(() => {});
       // xterm.js' `WriteBuffer.write()` plant die Verarbeitung ueber
       // `setTimeout`; `term.dispose()` storniert diese Timer NICHT und
       // garantiert kein Nachfeuern haengender Callbacks. Ein `write()`,

@@ -1136,6 +1136,65 @@ describe("mountTerminal: Eingabe vor dem Anhaengen geht nicht verloren", () => {
   });
 });
 
+/** Nodes `process`, unter dem vitest laeuft -- ohne `@types/node` nur so weit
+ * getippt, wie die Probe auf unbehandelte Ablehnungen ihn braucht. */
+const nodeProcess = (
+  globalThis as unknown as {
+    process: {
+      on(event: "unhandledRejection", listener: (reason: unknown) => void): void;
+      off(event: "unhandledRejection", listener: (reason: unknown) => void): void;
+    };
+  }
+).process;
+
+// Ohne beide Listener darf `open_terminal` nie hinaus (Kopfkommentar von
+// `mountTerminal`). Scheitert einer, wartete die Kachel sonst still fuer immer,
+// und ihr Platz in der Schlange des Hosts bliebe belegt.
+describe("mountTerminal: ein scheiterndes listen() ist ein Oeffnungsfehler", () => {
+  it.each(["terminal://connection-lost", "terminal://output"])(
+    "meldet das Scheitern fuer %s, gibt den Platz frei und meldet sich sauber ab",
+    async (failing) => {
+      const unhandled: unknown[] = [];
+      const probe = (reason: unknown): void => {
+        unhandled.push(reason);
+      };
+      nodeProcess.on("unhandledRejection", probe);
+      try {
+        const unlisten = vi.fn();
+        listenMock.mockImplementation((event) =>
+          event === failing ? Promise.reject(new Error("event plugin gone")) : Promise.resolve(unlisten));
+        const queue = createOpenQueue();
+        const onError = vi.fn();
+        const onOpenFailed = vi.fn();
+        const handle = mount(document.createElement("div"), "host-1", "sess-1", onError, {
+          openQueue: queue,
+          onOpenFailed,
+        });
+        // Vorbedingung: der Platz ist beim Mounten belegt.
+        expect(queue.inFlight("host-1")).toBe(1);
+        await flush();
+
+        expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "open", detail: "Error: event plugin gone" });
+        expect(onOpenFailed).toHaveBeenCalledTimes(1);
+        expect(invokedOpenTerminal()).toBe(false);
+        expect(queue.inFlight("host-1")).toBe(0);
+
+        handle.dispose();
+        // Eine Makroaufgabe: erst danach meldet Node unbehandelte Ablehnungen.
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Der Listener, der stand, wird trotzdem abgemeldet.
+        expect(unlisten).toHaveBeenCalledTimes(1);
+        expect(invokeMock.mock.calls.some(([command]) => command === "close_terminal")).toBe(false);
+        expect(onOpenFailed).toHaveBeenCalledTimes(1);
+        expect(unhandled).toEqual([]);
+      } finally {
+        nodeProcess.off("unhandledRejection", probe);
+      }
+    },
+  );
+});
+
 // UX-Spec §5.4, §5.5: die Kachel haengt sich nach einem Kanalverlust still neu
 // an. Sie muss wissen, wann der frische Kanal steht (dann verschwindet der
 // Hinweis "Reconnecting…"), und solange sie den Hinweis zeigt, sperrt sie die

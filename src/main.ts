@@ -267,13 +267,28 @@ export function main(): void {
     liveShowsWaiting = false;
   }
 
+  /** Der Titel, der zuletzt an das native Fenster ging; `null`, solange keiner
+   * sicher steht. Jede Benachrichtigung von AppState laeuft hier durch, ein
+   * IPC-Aufruf je Benachrichtigung waere fast immer derselbe Titel. */
+  let nativeTitle: string | null = null;
+
   function applyWaitingAttention(): void {
     const waiting = waitingSessions(state.hosts, statusCurrent);
     const title = windowTitle(t("app.title"), waiting.length);
     if (document.title !== title) document.title = title;
-    void getCurrentWindow()
-      .setTitle(title)
-      .catch(() => {});
+    if (nativeTitle !== title) {
+      // Vor dem Aufruf gesetzt: Benachrichtigungen, solange er unterwegs ist,
+      // senden denselben Titel nicht noch einmal.
+      nativeTitle = title;
+      void getCurrentWindow()
+        .setTitle(title)
+        .catch(() => {
+          // Die naechste Benachrichtigung versucht es erneut. Steht inzwischen
+          // ein neuerer Titel im Merker, gehoert der zu einem eigenen Aufruf;
+          // diese alte Ablehnung darf ihn nicht loeschen.
+          if (nativeTitle === title) nativeTitle = null;
+        });
+    }
     const focusedKey = state.focusedSessionKey();
     const episodes = updateSeenWaiting(seenWaiting, state.hosts, statusCurrent);
     seenWaiting = episodes.seen;

@@ -6127,6 +6127,81 @@ describe("main: session status overlay poll", () => {
     expect(document.title).toBe("(1) aidevbridge");
   });
 
+  // Das native Fenster bekommt seinen Titel nur, wenn er sich aendert: sonst
+  // ginge mit jeder Benachrichtigung von AppState ein IPC-Aufruf hinaus.
+  describe("nativer Fenstertitel", () => {
+    function pollWith(status: "idle" | "waiting"): void {
+      invokeMock.mockImplementation((command: string) =>
+        Promise.resolve(
+          command === "poll_status"
+            ? statusPoll([{ session_id: 1, status, status_reason: status === "waiting" ? "permission prompt" : "agent is idle" }])
+            : undefined,
+        ),
+      );
+    }
+
+    async function bootIdle(): Promise<void> {
+      await connectWithItems([
+        sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" }),
+      ]);
+      windowHoisted.setTitle.mockClear();
+    }
+
+    it("setzt ihn nicht erneut, solange die Zahl der Wartenden bleibt, und einmal, wenn eine Session wartet", async () => {
+      await bootIdle();
+      // Auf- und Zuklappen benachrichtigt, aendert die Zahl aber nicht.
+      expandHost("h1");
+      expandHost("h1");
+      await flush(20);
+      expect(windowHoisted.setTitle).not.toHaveBeenCalled();
+
+      pollWith("waiting");
+      await vi.advanceTimersByTimeAsync(2000);
+      await flush(20);
+      expect(windowHoisted.setTitle.mock.calls).toEqual([["(1) aidevbridge"]]);
+    });
+
+    it("versucht einen abgelehnten Titel bei einer spaeteren Benachrichtigung erneut, genau einmal", async () => {
+      await bootIdle();
+      windowHoisted.setTitle.mockRejectedValueOnce(new Error("window gone"));
+      pollWith("waiting");
+      await vi.advanceTimersByTimeAsync(2000);
+      await flush(20);
+      expandHost("h1");
+      await flush(20);
+      // Der abgelehnte Aufruf und genau ein neuer -- danach steht der Titel.
+      expect(windowHoisted.setTitle.mock.calls).toEqual([["(1) aidevbridge"], ["(1) aidevbridge"]]);
+
+      expandHost("h1");
+      await flush(20);
+      expect(windowHoisted.setTitle).toHaveBeenCalledTimes(2);
+    });
+
+    it("eine alte Ablehnung, die nach einem neueren Titel ankommt, setzt diesen nicht zurueck", async () => {
+      await bootIdle();
+      let rejectOld!: (error: unknown) => void;
+      windowHoisted.setTitle.mockImplementationOnce(
+        () => new Promise<void>((_resolve, reject) => {
+          rejectOld = reject;
+        }),
+      );
+      pollWith("waiting");
+      await vi.advanceTimersByTimeAsync(2000);
+      await flush(20);
+      pollWith("idle");
+      await vi.advanceTimersByTimeAsync(2000);
+      await flush(20);
+      expect(document.title).toBe("aidevbridge");
+
+      rejectOld(new Error("window gone"));
+      await flush(20);
+      expandHost("h1");
+      await flush(20);
+
+      expect(windowHoisted.setTitle.mock.calls).toEqual([["(1) aidevbridge"], ["aidevbridge"]]);
+    });
+  });
+
   it("Strg+Umschalt+A und die Wartet-Spur nehmen die zuerst wartende Session (Spec 2026-10-19 §7)", async () => {
     await connectWithItems([
       sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" }),
