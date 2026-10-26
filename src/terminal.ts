@@ -41,7 +41,7 @@ const RESIZE_DEBOUNCE_MS = 300;
 const WHEEL_UNITS_PER_STEP = 100;
 
 /** Groesser geht Eingabe in Teilen dieser Groesse hinaus, der Reihe nach
- * (`term.onData` unten). */
+ * (`enqueueInput` unten). */
 export const INPUT_CHUNK_BYTES = 64 * 1024;
 
 export interface TerminalHandle {
@@ -1008,6 +1008,22 @@ export function mountTerminal(
   // einer Meldung statt einer je Teil.
   let inputTail: Promise<void> | null = null;
 
+  /** Eingabe, die vor dem Anhaengen ankommt: Tastendruecke, Einfuegungen und
+   * die Antworten, die xterm selbst erzeugt (auf DA-, XTVERSION- oder
+   * OSC-10/11-Anfragen, die tmux beim Anhaengen schickt). Das Backend kennt
+   * diesen Kanal erst nach seiner Antwort auf `open_terminal`; ein
+   * `send_input` davor scheiterte, und die Eingabe waere still verloren. Nach
+   * dem Anhaengen geht der Puffer einmal hinaus, in Tipp-Reihenfolge und vor
+   * allem Spaeteren (`flushPendingInput`). Er lebt nur bis zur Antwort auf
+   * `open_terminal` oder bis zum Entsorgen; eine Obergrenze gibt es bewusst
+   * nicht, sie fuehrte nur einen Modus ein, in dem ein Teil verloren geht.
+   * Verworfen, ohne Senden und ohne Meldung, wird er bei abgelehntem Oeffnen,
+   * beim Entsorgen, bei einer Sperre des Aufrufers vor dem Anhaengen (auch die
+   * Antworten von xterm) und bei einem Kanalverlust vor der Antwort. `null`,
+   * sobald nichts mehr gepuffert wird: nach dem Anhaengen geht Eingabe direkt
+   * hinaus, nach einem gescheiterten Oeffnen nirgends hin. */
+  let pendingInput: Uint8Array[] | null = [];
+
   function sendInput(bytes: Uint8Array, burst: { failed: boolean }): Promise<void> {
     if (burst.failed || disposed || channelClosed) return Promise.resolve();
     return invoke("send_input", { hostId, session, openId, bytes: Array.from(bytes), ...socketArg }).then(
@@ -1022,12 +1038,13 @@ export function mountTerminal(
     );
   }
 
-  term.onData((data) => {
-    if (disposed || channelClosed) return;
-    const encoded = new TextEncoder().encode(data);
+  /** Schickt Eingabe ab, die ein angehaengter Kanal annimmt. `forceChain`
+   * schickt sie auch klein ueber die Kette: was danach getippt wird, wartet
+   * dann, bis sie angekommen ist. */
+  function enqueueInput(encoded: Uint8Array, forceChain: boolean): void {
     const burst = { failed: false };
     // Der gewoehnliche Tastendruck: sofort, wie bisher.
-    if (inputTail === null && encoded.length <= INPUT_CHUNK_BYTES) {
+    if (!forceChain && inputTail === null && encoded.length <= INPUT_CHUNK_BYTES) {
       void sendInput(encoded, burst);
       return;
     }
@@ -1039,6 +1056,35 @@ export function mountTerminal(
         if (inputTail === tail) inputTail = null;
       });
     }
+  }
+
+  /** Nach dem Anhaengen: der Puffer geht als eine Eingabe hinaus, ueber die
+   * Kette, damit spaetere Tastendruecke sich dahinter einreihen. Danach puffert
+   * nichts mehr. Ist die Eingabe gesperrt oder der Kanal schon zu, wird er
+   * verworfen. */
+  function flushPendingInput(): void {
+    const parts = pendingInput ?? [];
+    pendingInput = null;
+    if (parts.length === 0 || inputLockedByCaller || channelClosed) return;
+    const bytes = new Uint8Array(parts.reduce((sum, part) => sum + part.length, 0));
+    let offset = 0;
+    for (const part of parts) {
+      bytes.set(part, offset);
+      offset += part.length;
+    }
+    enqueueInput(bytes, true);
+  }
+
+  // Jede Eingabe kommt hier an, auch `term.paste` und xterms eigene Antworten
+  // auf Anfragen des Programms.
+  term.onData((data) => {
+    if (disposed || channelClosed) return;
+    const encoded = new TextEncoder().encode(data);
+    if (!attached) {
+      pendingInput?.push(encoded);
+      return;
+    }
+    enqueueInput(encoded, false);
   });
 
   let disposed = false;
@@ -1138,6 +1184,9 @@ export function mountTerminal(
       if (event.payload.host_id !== hostId) return;
       if (event.payload.session !== session || event.payload.open_id !== openId) return;
       channelClosed = true;
+      // Vor der Antwort auf `open_terminal`: der Kanal haengt nie an, der
+      // Puffer hat kein Ziel mehr.
+      pendingInput = null;
       // Eingabe sperren gehoert HIER hin (nicht in `options.onConnectionLost`):
       // nur `mountTerminal` haelt `term`. Der Aufrufer bekommt ueber den
       // Callback lediglich Gelegenheit, den sichtbaren Zustand zu aendern
@@ -1229,11 +1278,15 @@ export function mountTerminal(
         // gleich neu und vergleicht dann selbst -- hier zusaetzlich zu senden
         // ergaebe zwei Aufrufe, sobald sein Fit die Groesse weiter aendert.
         if (resizeTimer === undefined) sendSizeIfChanged();
+        flushPendingInput();
         options?.onOpened?.();
       },
       (error: unknown) => {
         // Wie oben: auch eine Ablehnung beendet die Einrichtung im Backend.
         ticket?.release();
+        // Der Kanal entsteht nie; was vorher getippt wurde, hat kein Ziel. Die
+        // Meldung unten nennt das Oeffnen, nicht die Eingabe.
+        pendingInput = null;
         // Fire-and-forget bis hierher waere ein leeres Terminal ohne jede
         // Erklaerung: Kanal-Limit, Session bereits verschwunden usw. bleiben
         // sonst unsichtbar (siehe `onError`-Kommentar oben).
@@ -1374,6 +1427,9 @@ export function mountTerminal(
       // Wache wie bei `setTheme`.
       if (disposed) return;
       inputLockedByCaller = locked;
+      // Eine Sperre vor dem Anhaengen verwirft, was bis dahin gepuffert ist;
+      // das Freigeben laesst nur neue Eingabe durch.
+      if (locked) pendingInput?.splice(0);
       applyInputLock();
     },
     setHidden(value) {
@@ -1385,6 +1441,7 @@ export function mountTerminal(
     },
     dispose() {
       disposed = true;
+      pendingInput = null;
       // Spec 2026-10-19 §8.1: noch nicht gesendet, verlaesst die Ansicht die
       // Schlange oder gibt ihren schon zugeteilten Platz sofort weiter; nach
       // dem Senden gibt erst die Antwort ihn frei (`startOpen`). Zuerst: das

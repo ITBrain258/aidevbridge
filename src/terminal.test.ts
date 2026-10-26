@@ -783,13 +783,24 @@ describe("mountTerminal: Fehlerpfad fuer open_terminal", () => {
 // Art und den Rohtext der Ursache, der nur in "Copy details" erscheint.
 // Ack-Fehler gehen nur in die Konsole.
 describe("mountTerminal: jeder Fehlerpfad meldet seine Art (UX-Spec §6.9)", () => {
-  it("meldet ein abgelehntes send_input als Art input", async () => {
+  it("meldet ein abgelehntes send_input als Art input, erst nach dem Anhaengen", async () => {
+    const opening = deferred<void>();
     invokeMock.mockImplementation((command: string) =>
-      command === "send_input" ? Promise.reject("channel closed") : Promise.resolve(undefined));
+      command === "open_terminal"
+        ? opening.promise
+        : command === "send_input"
+          ? Promise.reject("channel closed")
+          : Promise.resolve(undefined));
     const onError = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush();
 
     hoisted.dataListener?.("a");
+    await flush();
+    // Vor dem Anhaengen geht nichts hinaus, also scheitert auch nichts.
+    expect(onError).not.toHaveBeenCalled();
+
+    opening.resolve();
     await flush();
 
     expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "input", detail: "channel closed" });
@@ -871,6 +882,7 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
   it("schickt den naechsten Teil erst, wenn der vorige angekommen ist, und nichts geht verloren", async () => {
     const sends = heldSends();
     mount(document.createElement("div"), "host-1", "sess-1");
+    await flush(); // angehaengt: davor puffert die Kachel nur
     const text = "ab".repeat(INPUT_CHUNK_BYTES + 5);
 
     hoisted.dataListener?.(text);
@@ -887,6 +899,7 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
   it("was waehrenddessen getippt wird, kommt nach der Einfuegung", async () => {
     const sends = heldSends();
     mount(document.createElement("div"), "host-1", "sess-1");
+    await flush(); // angehaengt: davor puffert die Kachel nur
 
     hoisted.dataListener?.("x".repeat(INPUT_CHUNK_BYTES + 1));
     await flush();
@@ -907,6 +920,7 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
     const sends = heldSends();
     const onError = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush(); // angehaengt: davor puffert die Kachel nur
 
     hoisted.dataListener?.("x".repeat(3 * INPUT_CHUNK_BYTES));
     await flush();
@@ -915,6 +929,210 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
 
     expect(sends.bytes()).toHaveLength(1);
     expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "input", detail: "input timed out" });
+  });
+});
+
+// Zwischen dem Mounten und dem Anhaengen liegen mehrere SSH-Runden. Was der
+// Nutzer darin tippt oder einfuegt und was xterm selbst auf Anfragen von tmux
+// antwortet, ging frueher als `send_input` an einen Kanal, den das Backend noch
+// nicht kannte, und verschwand still. Die Kachel puffert es und sendet es nach
+// dem Anhaengen einmal, in derselben Reihenfolge, vor allem Spaeteren.
+describe("mountTerminal: Eingabe vor dem Anhaengen geht nicht verloren", () => {
+  /** `open_terminal` und jeder `send_input` warten, bis der Test sie
+   * beantwortet. */
+  function holdOpenAndInput() {
+    let answerOpen!: { resolve: () => void; reject: (error: unknown) => void };
+    const opening = new Promise<void>((resolve, reject) => {
+      answerOpen = { resolve, reject };
+    });
+    const pendingSends: Array<() => void> = [];
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "open_terminal") return opening;
+      if (command === "send_input") return new Promise<void>((resolve) => pendingSends.push(resolve));
+      return Promise.resolve(undefined);
+    });
+    return {
+      open: answerOpen,
+      sent: () =>
+        invokeMock.mock.calls
+          .filter(([command]) => command === "send_input")
+          .map(([, args]) => (args as { bytes: number[] }).bytes),
+      answerSend: async () => {
+        pendingSends.shift()!();
+        await flush();
+      },
+    };
+  }
+
+  function bytesOf(text: string): number[] {
+    return Array.from(new TextEncoder().encode(text));
+  }
+
+  it("sendet vor der Antwort auf open_terminal nichts und danach die Eingabe genau einmal", async () => {
+    const io = holdOpenAndInput();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    // Vorbedingung: das Oeffnen ist unterwegs, die Antwort steht aus.
+    expect(invokedOpenTerminal()).toBe(true);
+
+    hoisted.dataListener?.("ab");
+    await flush();
+    expect(io.sent()).toEqual([]);
+
+    io.open.resolve();
+    await flush();
+    expect(io.sent()).toEqual([[97, 98]]);
+    expect(invokeMock).toHaveBeenCalledWith("send_input", {
+      hostId: "host-1",
+      session: "sess-1",
+      openId: FIXED_OPEN_ID,
+      bytes: [97, 98],
+    });
+  });
+
+  it("schickt die gepufferte Eingabe vor allem, was nach dem Anhaengen getippt wird", async () => {
+    const io = holdOpenAndInput();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    hoisted.dataListener?.("a");
+    hoisted.dataListener?.("b");
+    io.open.resolve();
+    await flush();
+    hoisted.dataListener?.("c");
+    await flush();
+    // "c" reiht sich hinter die gepufferte Eingabe, solange die unterwegs ist.
+    expect(io.sent()).toEqual([[97, 98]]);
+
+    await io.answerSend();
+    expect(io.sent()).toEqual([[97, 98], [99]]);
+  });
+
+  it("schickt eine grosse gepufferte Einfuegung nach dem Anhaengen in Teilen der Reihe nach", async () => {
+    const io = holdOpenAndInput();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    const text = "ab".repeat(INPUT_CHUNK_BYTES / 2 + 5);
+
+    hoisted.dataListener?.(text);
+    await flush();
+    expect(io.sent()).toEqual([]);
+
+    io.open.resolve();
+    await flush();
+    expect(io.sent().map((part) => part.length)).toEqual([INPUT_CHUNK_BYTES]);
+    await io.answerSend();
+    expect(io.sent().map((part) => part.length)).toEqual([INPUT_CHUNK_BYTES, 10]);
+    await io.answerSend();
+    expect(new TextDecoder().decode(Uint8Array.from(io.sent().flat()))).toBe(text);
+  });
+
+  it("verwirft die Eingabe, wenn open_terminal abgelehnt wird, und meldet nur das Oeffnen", async () => {
+    const io = holdOpenAndInput();
+    const onError = vi.fn();
+    mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush();
+
+    hoisted.dataListener?.("ab");
+    io.open.reject("session not found");
+    await flush();
+    hoisted.dataListener?.("c");
+    await flush();
+
+    expect(io.sent()).toEqual([]);
+    expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "open", detail: "session not found" });
+  });
+
+  it("verwirft die Eingabe, wenn die Ansicht vor dem Anhaengen entsorgt wird", async () => {
+    const io = holdOpenAndInput();
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    hoisted.dataListener?.("ab");
+    handle.dispose();
+    io.open.resolve();
+    await flush();
+
+    expect(io.sent()).toEqual([]);
+  });
+
+  it("verwirft die Eingabe, wenn der Aufrufer vor dem Anhaengen sperrt", async () => {
+    const io = holdOpenAndInput();
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    hoisted.dataListener?.("ab");
+    handle.setInputLocked(true);
+    io.open.resolve();
+    await flush();
+
+    expect(io.sent()).toEqual([]);
+  });
+
+  it("nach Sperren und Freigeben vor dem Anhaengen geht nur die spaetere Eingabe hinaus", async () => {
+    const io = holdOpenAndInput();
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    hoisted.dataListener?.("a");
+    handle.setInputLocked(true);
+    handle.setInputLocked(false);
+    hoisted.dataListener?.("b");
+    io.open.resolve();
+    await flush();
+
+    expect(io.sent()).toEqual([[98]]);
+  });
+
+  it("verwirft die Eingabe, wenn der Kanal vor der Antwort verloren geht, ohne Meldung", async () => {
+    const losses: LostListener[] = [];
+    listenMock.mockImplementation((event, handler) => {
+      if (event === "terminal://connection-lost") losses.push(handler as LostListener);
+      return Promise.resolve(vi.fn());
+    });
+    const io = holdOpenAndInput();
+    const onError = vi.fn();
+    mount(document.createElement("div"), "host-1", "sess-1", onError, { onConnectionLost: vi.fn() });
+    await flush();
+
+    hoisted.dataListener?.("ab");
+    losses[0]({ payload: { host_id: "host-1", session: "sess-1", open_id: FIXED_OPEN_ID } });
+    io.open.resolve();
+    await flush();
+
+    expect(io.sent()).toEqual([]);
+    expect(onError).not.toHaveBeenCalledWith(expect.objectContaining({ kind: "input" }));
+  });
+
+  // tmux fragt beim Anhaengen nach dem Terminal (DA, XTVERSION, OSC 10/11),
+  // und xterm antwortet ueber denselben Weg wie eine Taste. Die Ausgabe kann
+  // vor der Antwort auf `open_terminal` ankommen.
+  it("puffert xterms eigene Antwort auf eine Anfrage vor der Antwort und sendet sie danach einmal, vor spaeterer Eingabe", async () => {
+    const outputs: Listener[] = [];
+    listenMock.mockImplementation((event, handler) => {
+      if (event === "terminal://output") outputs.push(handler as Listener);
+      return Promise.resolve(vi.fn());
+    });
+    const io = holdOpenAndInput();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    const term = hoisted.terminals[0] as unknown as { input(data: string): void };
+    const reply = "\x1b[>0;276;0c";
+
+    outputs[0]({ payload: { host_id: "host-1", session: "sess-1", open_id: FIXED_OPEN_ID, bytes: bytesOf("\x1b[>c") } });
+    expect(hoisted.writeCalls).toHaveLength(1);
+    term.input(reply);
+    await flush();
+    expect(io.sent()).toEqual([]);
+
+    io.open.resolve();
+    await flush();
+    hoisted.dataListener?.("x");
+    await flush();
+    expect(io.sent()).toEqual([bytesOf(reply)]);
+
+    await io.answerSend();
+    expect(io.sent()).toEqual([bytesOf(reply), [120]]);
   });
 });
 
@@ -2894,8 +3112,9 @@ describe("mountTerminal: Zwischenablage wie Windows Terminal (Spec §6.1, §6.2)
 
   // Kontrolle fuer jede Zusicherung "nichts gesendet" in diesem Block: ohne
   // sie koennte `sentInput()` gar nicht wahr werden.
-  it("Eingabe, die xterm meldet, geht roh als send_input ans PTY", () => {
+  it("Eingabe, die xterm meldet, geht roh als send_input ans PTY", async () => {
     mount(document.createElement("div"), "host-1", "sess-1");
+    await flush(); // angehaengt: davor puffert die Kachel nur
 
     hoisted.dataListener?.("ab");
 
@@ -3135,6 +3354,9 @@ describe("mountTerminal: Zwischenablage wie Windows Terminal (Spec §6.1, §6.2)
   it("OSC 52 mit ? wird nie beantwortet: nichts geschrieben, nichts gesendet", async () => {
     const onCopied = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onCopied });
+    // Erst angehaengt: davor ginge auch eine Antwort noch nicht hinaus, und
+    // `sentInput()` bliebe aus dem falschen Grund falsch.
+    await flush();
 
     expect(hoisted.oscHandlers.get(52)?.("c;?")).toBe(true);
     await Promise.resolve();
