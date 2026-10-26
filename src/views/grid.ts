@@ -202,8 +202,9 @@ function terminalErrorText(kind: TerminalErrorKind, session: string): string {
  * (owned_operations.rs). Backend-Tests legen den Wortlaut aller vier fest
  * (`terminal_ownership_tests.rs`, `connection/tests.rs`, `operation_control.rs`,
  * `operation_tests.rs`); aendert er sich trotzdem, faellt die Meldung auf den
- * allgemeinen Satz zurueck. */
-const CAPACITY_ERRORS = [
+ * allgemeinen Satz zurueck. Dass jeder Eintrag dort woertlich steht, prueft
+ * `capacity-errors.contract.test.ts`. */
+export const CAPACITY_ERRORS: readonly string[] = [
   "too many terminal setups are already pending for this host",
   "too many terminal output tasks are still closing",
   "The SSH command failed (admission, capacity).",
