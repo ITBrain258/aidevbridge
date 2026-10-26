@@ -212,6 +212,19 @@ let stopBackgroundWork: (() => void) | null = null;
  * bevor er sich selbst schliesst (`mountGlobalErrorBanner`). */
 export const NEUTRAL_NOTICE_MS = 6000;
 
+/** Ein `list_sessions`, dessen eigener Socket scheiterte (Spec 2026-10-25 §7):
+ * der Fehler des Backends und die Liste des Standard-Sockets aus derselben
+ * Antwort, die der Fehlerweg trotzdem schreibt (§6.2). */
+class SessionListFailure {
+  readonly dto: SessionListErrorDto;
+  readonly defaultPart: SocketSessionsDto | null;
+
+  constructor(dto: SessionListErrorDto, defaultPart: SocketSessionsDto | null) {
+    this.dto = dto;
+    this.defaultPart = defaultPart;
+  }
+}
+
 /** Stops the per-host status polls, the self-repair and reconnect timers with
  * their window listeners, disposes the grid (its quiet reattach timers), and
  * removes the keyboard listeners. `main()` calls this on re-entry so tests do
@@ -906,9 +919,10 @@ export function main(): void {
   type SessionRefresh = { ok: true } | { ok: false; error: string };
 
   function sessionListError(error: unknown): SessionListError {
-    const dto = error as Partial<SessionListErrorDto> | null;
+    const raw = error instanceof SessionListFailure ? error.dto : error;
+    const dto = raw as Partial<SessionListErrorDto> | null;
     return {
-      message: typeof dto?.message === "string" ? dto.message : String(error),
+      message: typeof dto?.message === "string" ? dto.message : String(raw),
       ...(typeof dto?.code === "string" ? { code: dto.code } : {}),
       ...(typeof dto?.control_generation === "number" && Number.isSafeInteger(dto.control_generation)
         ? { controlGeneration: dto.control_generation } : {}),
@@ -949,6 +963,35 @@ export function main(): void {
       host.runtimeId === runtimeId &&
       (connectGenerationByHostId.get(host.id) ?? 0) === generation
     );
+  }
+
+  /** Die Lage, unter der ein Lesen der Sessionliste begann. */
+  interface ListRead {
+    controlGeneration: number;
+    /** Die Verbindung ist nicht mehr dieselbe oder die Kontrollgeneration hat
+     * gewechselt: die Antwort gehoert nicht mehr zum aktuellen Stand. */
+    superseded(): boolean;
+    /** Wie `superseded()`, zusaetzlich nach einer inzwischen gelungenen Liste
+     * oder fuer einen Fehler einer anderen Kontrollgeneration. Ein solcher
+     * Fehlschlag sagt nichts mehr ueber die aktuelle Liste. */
+    failureSuperseded(failure: SessionListError): boolean;
+  }
+
+  /** Unmittelbar vor `list_sessions` oder `poll_status` zu nehmen: beide
+   * Pruefungen vergleichen mit dem Stand dieses Moments. */
+  function beginListRead(hostId: string, connection: SessionConnection): ListRead {
+    const controlGeneration = state.controlForHost(hostId).generation;
+    const lastSuccess = successfulSessionLists.get(connection.host) ?? 0;
+    const superseded = (): boolean =>
+      !isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration;
+    return {
+      controlGeneration,
+      superseded,
+      failureSuperseded: (failure) =>
+        superseded() ||
+        (successfulSessionLists.get(connection.host) ?? 0) !== lastSuccess ||
+        (failure.controlGeneration !== undefined && failure.controlGeneration !== controlGeneration),
+    };
   }
 
   const sessionMutations = new Map<string, { connection: SessionConnection; tail: Promise<void> }>();
@@ -1077,12 +1120,12 @@ export function main(): void {
     const mutation = sessionMutations.get(hostId);
     if (mutation && isCurrentConnection(mutation.connection)) return;
     overlayStatusInFlight.add(hostId);
-    const controlGeneration = state.controlForHost(hostId).generation;
+    const read = beginListRead(hostId, connection);
     const version = sessionListVersionByHostId.get(hostId) ?? 0;
     try {
       const polls = await invoke<StatusPollsDto>("poll_status", { hostId: connection.runtimeId, ...includeDefaultArg(hostId) });
       if (!document.getElementById("app")) return;
-      if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration) return;
+      if (read.superseded()) return;
       if ((sessionListVersionByHostId.get(hostId) ?? 0) !== version) return;
       const mutationAfter = sessionMutations.get(hostId);
       if (mutationAfter && isCurrentConnection(mutationAfter.connection)) return;
@@ -1212,7 +1255,7 @@ export function main(): void {
       // Liste des Standard-Sockets bleibt dann, wie sie war.
       // Die Liste des Standard-Sockets geht mit, damit der Fehlerweg sie
       // trotzdem schreiben kann (Spec 2026-10-25 §6.2, "und umgekehrt").
-      if (listed.own.error) throw { ...listed.own.error, defaultPart: listed.default };
+      if (listed.own.error) throw new SessionListFailure(listed.own.error, listed.default);
       return listed;
     } finally {
       const left = (listsInFlight.get(hostId) ?? 1) - 1;
@@ -1237,11 +1280,10 @@ export function main(): void {
     if (!connection) return { ok: false, error: "host not connected" };
     const { runtimeId } = connection;
     const version = sessionListVersionByHostId.get(hostId) ?? 0;
-    const lastSuccess = successfulSessionLists.get(connection.host) ?? 0;
-    const controlGeneration = state.controlForHost(hostId).generation;
+    const read = beginListRead(hostId, connection);
     try {
       const listed = await listSessions(hostId, runtimeId);
-      if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration) return { ok: true };
+      if (read.superseded()) return { ok: true };
       // Ein aktueller Erfolg bestaetigt die Verbindung auch dann, wenn eine
       // laufende Mutation oder juengere Liste das Inventarschreiben sperrt.
       recordSessionListSuccess(connection.host);
@@ -1259,15 +1301,12 @@ export function main(): void {
       ) writeSessionRecords(hostId, listed);
       return { ok: true };
     } catch (error) {
-      if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration) return { ok: true };
-      if ((successfulSessionLists.get(connection.host) ?? 0) !== lastSuccess) return { ok: true };
+      const failure = sessionListError(error);
+      if (read.failureSuperseded(failure)) return { ok: true };
       if ((sessionListVersionByHostId.get(hostId) ?? 0) !== version) return { ok: true };
       const mutation = sessionMutations.get(hostId);
       if (mutation && isCurrentConnection(mutation.connection)) return { ok: true };
-      const failure = sessionListError(error);
-      if (failure.controlGeneration !== undefined && failure.controlGeneration !== controlGeneration) return { ok: true };
-      const defaultPart = (error as { defaultPart?: SocketSessionsDto | null } | null)?.defaultPart;
-      if (defaultPart !== undefined) writeDefaultSessions(hostId, defaultPart);
+      if (error instanceof SessionListFailure) writeDefaultSessions(hostId, error.defaultPart);
       state.setSessionListError(hostId, failure);
       return { ok: false, error: failure.message };
     }
@@ -1365,19 +1404,16 @@ export function main(): void {
         return;
       }
       if (!isCurrentConnection(connection)) return;
-      const controlGeneration = state.controlForHost(hostId).generation;
-      const lastSuccess = successfulSessionLists.get(connection.host) ?? 0;
+      const read = beginListRead(hostId, connection);
       try {
         const listed = await listSessions(hostId, runtimeId);
-        if (isCurrentConnection(connection) && state.controlForHost(hostId).generation === controlGeneration) {
+        if (!read.superseded()) {
           recordSessionListSuccess(connection.host);
           writeSessionRecords(hostId, listed);
         }
       } catch (error) {
-        if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration ||
-          (successfulSessionLists.get(connection.host) ?? 0) !== lastSuccess) return;
         const failure = sessionListError(error);
-        if (failure.controlGeneration !== undefined && failure.controlGeneration !== controlGeneration) return;
+        if (read.failureSuperseded(failure)) return;
         state.setSessionListError(hostId, failure);
         showGlobalError(t("session.killedListStale", { name }), failure.message);
       }
@@ -1932,20 +1968,17 @@ export function main(): void {
         // `reconcile()` mountete still gar kein Terminal -- eine Kachel mit
         // gesetztem `sessionKey`, aber ohne sichtbaren Inhalt.
         let listed: SessionListDto;
-        const controlGeneration = state.controlForHost(hostId).generation;
-        const lastSuccess = successfulSessionLists.get(connection.host) ?? 0;
+        const read = beginListRead(hostId, connection);
         try {
           listed = await listSessions(hostId, runtimeId);
         } catch (error) {
-          if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration ||
-            (successfulSessionLists.get(connection.host) ?? 0) !== lastSuccess) return;
           const failure = sessionListError(error);
-          if (failure.controlGeneration !== undefined && failure.controlGeneration !== controlGeneration) return;
+          if (read.failureSuperseded(failure)) return;
           state.setSessionListError(hostId, failure);
           showGlobalError(t("session.createdListStale", { name: session }), failure.message);
           return;
         }
-        if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration) return;
+        if (read.superseded()) return;
         recordSessionListSuccess(connection.host);
         // Diese Liste ist der Abschluss der aktuellen Mutation. Schreiben
         // entwertet noch offene Refreshes, bevor die neue Kachel erscheint.
