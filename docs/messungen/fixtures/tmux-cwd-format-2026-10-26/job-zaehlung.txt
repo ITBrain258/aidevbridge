@@ -1,0 +1,12 @@
+version: tmux 3.0a
+#(touch MARK)	roh	MARK in 1 von 10 Laeufen
+#(touch MARK)	app	MARK in 0 von 10 Laeufen
+version: tmux 3.3a
+#(touch MARK)	roh	MARK in 5 von 10 Laeufen
+#(touch MARK)	app	MARK in 0 von 10 Laeufen
+version: tmux 3.4
+#(touch MARK)	roh	MARK in 9 von 10 Laeufen
+#(touch MARK)	app	MARK in 0 von 10 Laeufen
+version: tmux 3.6
+#(touch MARK)	roh	MARK in 7 von 10 Laeufen
+#(touch MARK)	app	MARK in 0 von 10 Laeufen

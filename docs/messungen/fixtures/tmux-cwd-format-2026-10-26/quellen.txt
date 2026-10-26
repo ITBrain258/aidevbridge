@@ -1,5 +1,5 @@
 # Quelltextstellen aus den Release-Tarballs (https://github.com/tmux/tmux/releases/download/<v>/tmux-<v>.tar.gz)
-# grep -n; nur gelesen, nicht gebaut
+# grep -n; gelesen, gebaut (./configure, CFLAGS='-O0 -g0') und gemessen, siehe ausgabe-<v>.txt
 # sha256 4ad1df28b4afa969e59c08061b45082fdc49ff512f30fc8e43217d7b0e5f8db9  tmux-3.0a.tar.gz
 # sha256 e4fd347843bd0772c4f48d6dde625b0b109b7a380ff15db21e97c11a4dcdf93f  tmux-3.3a.tar.gz
 # sha256 136db80cfbfba617a103401f52874e7c64927986b65b1b700350b6058ad69607  tmux-3.6.tar.gz
@@ -15,6 +15,10 @@
 1956:		case '#':
 1963:			buf[off++] = ch;
 1977:				buf[off++] = ch;
+== tmux 3.0a format.c (Format-Jobs enden mit ihrem Client; session_path fehlt)
+401:format_lost_client(struct client *c)
+404:		format_job_tidy(c->jobs, 1);
+# grep -c session_path format.c: 0
 
 == tmux 3.3a cmd-new-session.c (Ordner der Session, rohes -c fuer die Pane)
 166:	if ((tmp = args_get(args, 'c')) != NULL)
@@ -28,6 +32,12 @@
 4703:			 * If ##[ (with two or more #s), then it is a style and
 4731:			buf[off++] = ch;
 4745:				buf[off++] = ch;
+== tmux 3.3a format.c (Format-Jobs enden mit ihrem Client)
+456:format_lost_client(struct client *c)
+459:		format_job_tidy(c->jobs, 1);
+== tmux 3.3a spawn.c (Rueckfall der Pane: '||' statt '&&', chdir auf HOME laeuft nie)
+390:	if (chdir(new_wp->cwd) == 0)
+392:	else if ((tmp = find_home()) != NULL || chdir(tmp) == 0)
 
 == tmux 3.6 cmd-new-session.c (Ordner der Session, rohes -c fuer die Pane)
 166:	if ((tmp = args_get(args, 'c')) != NULL)
@@ -42,5 +52,8 @@
 5603:			 * If ##[ (with two or more #s), then it is a style and
 5632:			buf[off++] = ch;
 5648:				buf[off++] = ch;
+== tmux 3.6 format.c (Format-Jobs enden mit ihrem Client)
+472:format_lost_client(struct client *c)
+475:		format_job_tidy(c->jobs, 1);
 
-== tmux 3.4: /usr/bin/tmux (Ubuntu-Paket), nur gemessen, siehe ausgabe-3.4.txt
+== tmux 3.4: /usr/bin/tmux (Ubuntu-Paket), nur gemessen, siehe ausgabe-3.4.txt und job-zaehlung.txt

@@ -184,15 +184,14 @@ impl BindingQuery {
 /// Session (`cmd-new-session.c`) und fuer den der ersten Pane (`spawn.c`,
 /// wieder aus dem rohen Argument). Deshalb ist genau eine Verdopplung
 /// richtig, nie zwei. Unverdoppelt fuehrt ein Ordner `#(befehl)` den Befehl
-/// auf dem Host aus, und `C#Project` startet still im Home-Ordner.
+/// auf dem Host aus, und `C#Project` startet still in einem anderen Ordner.
 ///
-/// `##` ergibt ein `#` (gemessen auf 3.4; `format_expand1` von 3.0a, 3.3a
-/// und 3.6 hat dieselbe Regel). Ausnahme in 3.3a, 3.4 und 3.6: Eine Folge
-/// aus mindestens zwei `#` direkt vor `[` ist eine Stilmarke und bleibt
-/// woertlich stehen; ein einzelnes `#` vor `[` bleibt in allen Versionen ein
-/// `#`. Eine `#`-Folge direkt vor `[` bleibt deshalb unveraendert. Nur 3.0a
-/// halbiert eine solche Folge aus mindestens zwei `#`; die Session startet
-/// dann im Home-Ordner.
+/// `##` ergibt ein `#` (gemessen auf 3.0a, 3.3a, 3.4 und 3.6). Ausnahme ab
+/// 3.3a: Eine Folge aus mindestens zwei `#` direkt vor `[` ist eine
+/// Stilmarke und bleibt woertlich stehen; ein einzelnes `#` vor `[` bleibt in
+/// allen Versionen ein `#`. Eine `#`-Folge direkt vor `[` bleibt deshalb
+/// unveraendert. Nur 3.0a halbiert eine solche Folge aus mindestens zwei
+/// `#`; die Pane startet dann im Home-Ordner, wie ohne Verdopplung auch.
 ///
 /// Ausgefuehrt wird so in keiner Version etwas: Jede andere `#`-Folge hat
 /// danach gerade Laenge und ergibt nur `#`, und eine Folge vor `[` bildet
@@ -715,7 +714,8 @@ mod tests {
     }
 
     /// Links der Ordner, rechts das `-c`-Argument, das tmux zu genau diesem
-    /// Ordner auswertet; die Regel ist auf tmux 3.4 gemessen
+    /// Ordner auswertet, gemessen auf tmux 3.3a, 3.4 und 3.6; auf 3.0a gilt
+    /// das bis auf die Faelle mit `##[`
     /// (docs/messungen/messung-2026-10-26-tmux-cwd-format.md). Ein Ordner
     /// ohne `#` geht unveraendert durch.
     #[test]
