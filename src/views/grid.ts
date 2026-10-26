@@ -1266,14 +1266,14 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
    * Sonst bleibt der bestehende Handle unangetastet, sichtbar oder verborgen
    * (Anforderung 1 und 2).
    *
-   * Ehrlich dazugesagt: der `resolveSession`-Suchlauf steht VOR dem
-   * Abkuerzen und laeuft damit auch fuer unveraenderte Kacheln, bei jeder
-   * Benachrichtigung. Bewusst hingenommen: der Lauf geht ueber eine Handvoll Hosts mal eine Handvoll
-   * Sessions, einmal je Kachel und Neuzeichnen. Die Alternative waere ein drittes
-   * Buchhaltungsfeld (die settings.toml-ID je Kachel, um den Host ohne
-   * Sessionsuche zu finden); das kostet mehr Verstaendlichkeit, als es an
-   * Arbeit spart. Wer das spaeter misst und anders entscheidet, findet hier
-   * die Begruendung, die er umstossen muss. */
+   * Ehrlich dazugesagt: der `resolveSession`-Suchlauf steht VOR dem Abkuerzen
+   * und laeuft damit auch fuer unveraenderte Kacheln, bei jeder
+   * Benachrichtigung. Bewusst hingenommen: der Lauf geht ueber eine Handvoll
+   * Hosts mal eine Handvoll Sessions, einmal je Kachel und Neuzeichnen. Die
+   * Alternative waere ein drittes Buchhaltungsfeld (die settings.toml-ID je
+   * Kachel, um den Host ohne Sessionsuche zu finden); das kostet mehr
+   * Verstaendlichkeit, als es an Arbeit spart. Wer das spaeter misst und anders
+   * entscheidet, findet hier die Begruendung, die er umstossen muss. */
   function reconcile(): { lock: string[]; release: string[]; mounted: Set<number> } {
     const lock: string[] = [];
     const release: string[] = [];
