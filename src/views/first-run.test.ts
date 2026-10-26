@@ -69,8 +69,18 @@ function submitForm(container: HTMLElement) {
   form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 }
 
-async function flush(times = 5) {
-  for (let i = 0; i < times; i++) {
+/** Tiefe von `flush()`: weit mehr Stufen, als eine await-Kette des
+ * Produktivcodes je braucht. Eine feste Tiefe statt einer Zahl je Aufruf, damit
+ * ein zusaetzliches `await` im Produktivcode keinen Test bricht und keine
+ * Negativpruefung zu frueh durchlaesst. */
+const MICROTASK_DRAIN_DEPTH = 300;
+
+/** Laesst wartende Mikroaufgaben (Promise-Fortsetzungen) bis zur Tiefe
+ * `MICROTASK_DRAIN_DEPTH` laufen. Timer und Makroaufgaben bleiben stehen: unter
+ * falschen Timern rueckt sie nur `vi.advanceTimersByTimeAsync` vor, unter
+ * echten laufen sie erst nach diesem Aufruf. */
+async function flush(): Promise<void> {
+  for (let i = 0; i < MICROTASK_DRAIN_DEPTH; i++) {
     await Promise.resolve();
   }
 }
@@ -238,9 +248,9 @@ describe("mountFirstRun: Feld 'Name' im Anlegen-Formular (UX-Spec §7.7)", () =>
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
     Array.from(container.querySelectorAll("button")).find((b) => b.textContent === "Continue")!.click();
-    await flush(3);
+    await flush();
     const call = invokeMock.mock.calls.find(([command]) => command === "add_host")!;
     return (call[1] as { entry: { label: unknown } }).entry;
   }
@@ -265,7 +275,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     expect(container.textContent).toContain("✓ base64");
     expect(container.textContent).toContain("✓ tmux (>= 3.0)");
@@ -277,7 +287,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     expect(continueButton.hidden).toBe(false);
 
     continueButton.click();
-    await flush(3);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith(
       "add_host",
@@ -310,13 +320,13 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     // Aufruf noetig.
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent === "Continue",
     ) as HTMLButtonElement;
     continueButton.click();
-    await flush(3);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith(
       "add_host",
@@ -337,13 +347,13 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent === "Continue",
     ) as HTMLButtonElement;
     continueButton.click();
-    await flush(3);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith(
       "add_host",
@@ -370,7 +380,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     expect(container.textContent).toContain(
       "Cannot continue: tmux is not installed on this host (need >= 3.0)",
@@ -395,7 +405,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     // UX-Spec §10: ein Fehler ohne eigenen Code (wie `other`) nennt den Host
     // und haengt die Meldung des Backends an.
@@ -427,7 +437,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     // ersten `await` kommt.
     submitForm(container);
     submitForm(container);
-    await flush(6);
+    await flush();
 
     expect(
       invokeMock.mock.calls.filter(([command]) => command === "connect_host"),
@@ -499,7 +509,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     expect(invokeMock.mock.calls.filter(([command]) => command === "connect_host")).toHaveLength(1);
   });
@@ -515,7 +525,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     const submitButton = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent === "Connect",
@@ -540,7 +550,7 @@ describe("mountFirstRun: Passwort und Passphrase ueber das Anmeldungsmenue", () 
     fillForm(container, "192.0.2.10", "u", "22");
     (container.querySelector("input[name=passphrase]") as HTMLInputElement).value = "hunter2";
     submitForm(container);
-    await flush(6);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith(
       "connect_host",
@@ -571,9 +581,9 @@ describe("mountFirstRun: Passwort und Passphrase ueber das Anmeldungsmenue", () 
     fillForm(container, "192.0.2.10", "u", "22");
     (container.querySelector("input[name=passphrase]") as HTMLInputElement).value = passphrase;
     submitForm(container);
-    await flush(6);
+    await flush();
     Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Continue")!.click();
-    await flush(3);
+    await flush();
 
     expect(onHostReady).toHaveBeenCalledWith("h0", expect.objectContaining({ id: "host_1" }), usedSecret);
   });
@@ -587,7 +597,7 @@ describe("mountFirstRun: Passwort und Passphrase ueber das Anmeldungsmenue", () 
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith(
       "connect_host",
@@ -607,7 +617,7 @@ describe("mountFirstRun: Passwort und Passphrase ueber das Anmeldungsmenue", () 
     fillForm(container, "192.0.2.10", "u", "22");
     (container.querySelector("input[name=password]") as HTMLInputElement).value = "hunter2";
     submitForm(container);
-    await flush(6);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith(
       "connect_host",
@@ -638,7 +648,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     const hostFormContainer = container.querySelector(".first-run-host-form") as HTMLElement;
     const preflightSection = container.querySelector("section") as HTMLElement;
@@ -650,7 +660,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     ) as HTMLButtonElement;
     expect(backButton).toBeDefined();
     backButton.click();
-    await flush(3);
+    await flush();
 
     expect(hostFormContainer.hidden).toBe(false);
     expect(preflightSection.hidden).toBe(true);
@@ -670,7 +680,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     const hostFormContainer = container.querySelector(".first-run-host-form") as HTMLElement;
     const preflightSection = container.querySelector("section") as HTMLElement;
@@ -683,7 +693,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     ) as HTMLButtonElement;
     expect(backButton).toBeDefined();
     backButton.click();
-    await flush(3);
+    await flush();
 
     expect(hostFormContainer.hidden).toBe(false);
     expect(preflightSection.hidden).toBe(true);
@@ -717,7 +727,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     expect(suggestedList.hidden).toBe(true);
 
@@ -726,7 +736,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     ) as HTMLButtonElement;
     expect(backButton).toBeDefined();
     backButton.click();
-    await flush(3);
+    await flush();
 
     expect(suggestedList.hidden).toBe(false);
     expect(suggestedList.textContent).toContain("No hosts found");
@@ -748,7 +758,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     // Vorbedingung ausdruecklich gepruefte: es GIBT hier eine offene
     // Verbindung, sonst pruefte die Zusicherung unten nichts.
@@ -757,7 +767,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
 
     // Genau das, was Escape/Schliessen in `main.ts` ausloesen.
     handle.dispose();
-    await flush(3);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith("disconnect_host", { hostId: "h0" });
     expect(onHostReady).not.toHaveBeenCalled();
@@ -785,13 +795,13 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent === "Continue",
     ) as HTMLButtonElement;
     continueButton.click();
-    await flush(3);
+    await flush();
 
     expect(onHostReady).toHaveBeenCalledWith("h0", expect.objectContaining({ id: "host_1" }), false);
     expect(invokeMock).not.toHaveBeenCalledWith("disconnect_host", expect.anything());
@@ -826,7 +836,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     // Vorbedingung, ausdruecklich geprueft: `connect_host` haengt tatsaechlich
     // noch (kein `disconnect_host` bislang) -- sonst pruefte die Zusicherung
@@ -837,12 +847,12 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     // Genau das, was Escape in main.ts waehrend eines haengenden connect_host
     // ausloest.
     handle.dispose();
-    await flush(3);
+    await flush();
     expect(invokeMock).toHaveBeenCalledWith("disconnect_host", { hostId: "h0" });
 
     // `connect_host` loest ERST JETZT auf -- nach `dispose()`.
     resolveConnect("h0");
-    await flush(6);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith("disconnect_host", { hostId: "h0" });
     expect(onHostReady).not.toHaveBeenCalled();
@@ -864,17 +874,17 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(6);
+    await flush();
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent === "Continue",
     ) as HTMLButtonElement;
     continueButton.click();
-    await flush(3);
+    await flush();
 
     expect(onHostReady).not.toHaveBeenCalled();
     handle.dispose();
-    await flush(3);
+    await flush();
 
     expect(invokeMock).toHaveBeenCalledWith("disconnect_host", { hostId: "h0" });
   });
@@ -1428,7 +1438,7 @@ describe("mountFirstRun: reservation ownership", () => {
     chooseAuth(container, "agent");
     fillForm(container, "test-host", "test-user", "22");
     submitForm(container);
-    await flush(12);
+    await flush();
     expect(invokeMock).toHaveBeenCalledWith("connect_host", expect.objectContaining({ hostId: "h0" }));
     expect(invokeMock).toHaveBeenCalledWith("disconnect_host", { hostId: "h0" });
     expect(invokeMock).not.toHaveBeenCalledWith("run_preflight", expect.anything());
@@ -1465,7 +1475,7 @@ describe("UX-Spec §10: Texte beim Verbinden, Pruefen und Speichern", () => {
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
-    await flush(8);
+    await flush();
     return container;
   }
 
@@ -1499,7 +1509,7 @@ describe("UX-Spec §10: Texte beim Verbinden, Pruefen und Speichern", () => {
     const sentence = "could not write C:\\Users\\x\\settings.toml.tmp: Access is denied. (os error 5)";
     const container = await submitWith({ add_host: Promise.reject(sentence) });
     Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Continue")!.click();
-    await flush(6);
+    await flush();
     expect(errorText(container)).toBe(sentence);
   });
 

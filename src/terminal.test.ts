@@ -1201,20 +1201,16 @@ describe("mountTerminal: ein scheiterndes listen() ist ein Oeffnungsfehler", () 
 // Eingabe selbst -- unabhaengig davon, ob der Kanal seinen Verlust schon
 // gemeldet hat.
 describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
-  async function settle(): Promise<void> {
-    for (let i = 0; i < 4; i++) await Promise.resolve();
-  }
-
   it("meldet onOpened, sobald open_terminal angehaengt hat", async () => {
     const opening = deferred<void>();
     invokeMock.mockImplementation((command: string) => command === "open_terminal" ? opening.promise : Promise.resolve());
     const onOpened = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onOpened });
-    await settle();
+    await flush();
     expect(invokedOpenTerminal()).toBe(true);
     expect(onOpened).not.toHaveBeenCalled();
     opening.resolve();
-    await settle();
+    await flush();
     expect(onOpened).toHaveBeenCalledTimes(1);
   });
 
@@ -1224,7 +1220,7 @@ describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
     const onOpened = vi.fn();
     const onOpenFailed = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onOpened, onOpenFailed });
-    await settle();
+    await flush();
     expect(onOpenFailed).toHaveBeenCalledTimes(1);
     expect(onOpened).not.toHaveBeenCalled();
   });
@@ -1234,10 +1230,10 @@ describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
     invokeMock.mockImplementation((command: string) => command === "open_terminal" ? opening.promise : Promise.resolve());
     const onOpened = vi.fn();
     const handle = mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onOpened });
-    await settle();
+    await flush();
     handle.dispose();
     opening.resolve();
-    await settle();
+    await flush();
     expect(onOpened).not.toHaveBeenCalled();
   });
 
@@ -1254,7 +1250,7 @@ describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
     expect(hoisted.lastOptions?.disableStdin).toBe(true);
     // Das Anhaengen allein hebt die Sperre des Aufrufers nicht auf.
     opening.resolve();
-    await settle();
+    await flush();
     expect(hoisted.lastOptions?.disableStdin).toBe(true);
     handle.setInputLocked(false);
     expect(hoisted.lastOptions?.disableStdin).toBe(false);
@@ -1267,7 +1263,7 @@ describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
       return Promise.resolve(vi.fn());
     });
     const handle = mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onConnectionLost: vi.fn() });
-    await settle();
+    await flush();
     handle.setInputLocked(true);
     losses[0]({ payload: { host_id: "host-1", session: "sess-1", open_id: FIXED_OPEN_ID } });
     handle.setInputLocked(false);
@@ -3458,9 +3454,18 @@ const MENU_TEXTS: TerminalMenuTexts = {
   mouseHint: en["terminalMenu.mouseHint"],
 };
 
-/** Genug Mikroaufgaben fuer `readText().then(...)` bzw. `writeText().then(...)`. */
+/** Tiefe von `flush()`: weit mehr Stufen, als eine await-Kette des
+ * Produktivcodes je braucht. Eine feste Tiefe statt einer knapp abgezaehlten,
+ * damit ein zusaetzliches `await` im Produktivcode keinen Test bricht und keine
+ * Negativpruefung zu frueh durchlaesst. */
+const MICROTASK_DRAIN_DEPTH = 300;
+
+/** Laesst wartende Mikroaufgaben (Promise-Fortsetzungen) bis zur Tiefe
+ * `MICROTASK_DRAIN_DEPTH` laufen. Timer und Makroaufgaben bleiben stehen: unter
+ * falschen Timern rueckt sie nur `vi.advanceTimersByTimeAsync` vor, unter
+ * echten laufen sie erst nach diesem Aufruf. */
 async function flush(): Promise<void> {
-  for (let i = 0; i < 4; i++) await Promise.resolve();
+  for (let i = 0; i < MICROTASK_DRAIN_DEPTH; i++) await Promise.resolve();
 }
 
 /** Ein eingehaengter Container mit einem Platzhalter fuer das Element, das
