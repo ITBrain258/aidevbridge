@@ -1,7 +1,7 @@
 {
   "name": "aidevbridge",
   "private": true,
-  "version": "0.2.2",
+  "version": "0.2.3",
   "license": "MIT OR Apache-2.0",
   "repository": {
     "type": "git",
@@ -16,6 +16,7 @@
     "build": "tsc && vite build",
     "build:app": "tauri build --no-bundle",
     "build:windows": "pwsh -NoProfile -File scripts/release-windows.ps1",
+    "build:macos": "node scripts/release-macos-artifacts.mjs build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:scripts": "node --test \"scripts/*.test.mjs\"",

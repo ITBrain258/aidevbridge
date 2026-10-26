@@ -6,8 +6,15 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const selectionPath = 'docs/release/license-selection.windows-x64.json';
-const outputPath = 'out/release-notices';
+// One selection per delivered platform. `cargo_targets` are the triples whose
+// union `cargo metadata --filter-platform` must reproduce; `label` names the
+// application in the generated index. Windows stays the default.
+export const PLATFORMS = Object.freeze({
+  'windows-x64': Object.freeze({ selection: 'docs/release/license-selection.windows-x64.json', output: 'out/release-notices', target: 'x86_64-pc-windows-msvc', cargo_targets: Object.freeze(['x86_64-pc-windows-msvc']), label: 'Windows x64 application' }),
+  'macos-universal': Object.freeze({ selection: 'docs/release/license-selection.macos-universal.json', output: 'out/release-notices-macos', target: 'universal-apple-darwin', cargo_targets: Object.freeze(['aarch64-apple-darwin', 'x86_64-apple-darwin']), label: 'macOS application (Apple silicon and Intel)' }),
+});
+export const DEFAULT_PLATFORM = 'windows-x64';
+const usage = `Usage: node scripts/release-licenses.mjs prepare|check [${Object.keys(PLATFORMS).join('|')}]`;
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const encode = value => Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
 const ordered = values => [...values].sort();
@@ -74,8 +81,10 @@ function unique(items, key, label) {
   requireValue(new Set(keys).size === keys.length, `Duplicate ${label}`);
 }
 
-function cargoMetadata(root, scope) {
-  const args = ['run', scope.rust_toolchain, 'cargo', 'metadata', '--locked', '--offline', '--format-version', '1', '--filter-platform', scope.target, '--features', scope.cargo_features.join(',')];
+function cargoMetadata(root, scope, profile) {
+  // Several --filter-platform flags yield the union of their package sets.
+  const platforms = profile.cargo_targets.flatMap(target => ['--filter-platform', target]);
+  const args = ['run', scope.rust_toolchain, 'cargo', 'metadata', '--locked', '--offline', '--format-version', '1', ...platforms, '--features', scope.cargo_features.join(',')];
   // rustup run (without --install) requires an already installed toolchain.
   const raw = execFileSync('rustup', args, { cwd: root, encoding: 'utf8', timeout: 60000, maxBuffer: 32 * 1024 * 1024, windowsHide: true });
   return JSON.parse(raw).packages;
@@ -87,10 +96,11 @@ function cargoRead(packageRoots, record) {
   return readFile(root, record.path);
 }
 
-function materialize(root, selection, { metadata, requireGenerated = false } = {}) {
+function materialize(root, selection, profile, { metadata, requireGenerated = false } = {}) {
   requireValue(selection.schema_version === 1, 'Unsupported license selection schema');
   const scope = selection.scope;
-  requireValue(scope?.target === 'x86_64-pc-windows-msvc' && scope.default_features === true && JSON.stringify(scope.cargo_features) === '["tauri/custom-protocol"]' && scope.rust_toolchain === '1.97.1', 'Target/features/toolchain do not match this Windows license selection');
+  const targets = scope?.cargo_targets ?? [scope?.target];
+  requireValue(scope?.target === profile.target && JSON.stringify(targets) === JSON.stringify(profile.cargo_targets) && scope.default_features === true && JSON.stringify(scope.cargo_features) === '["tauri/custom-protocol"]' && scope.rust_toolchain === '1.97.1', `Target/features/toolchain do not match this ${profile.label} license selection`);
   requireValue(selection.components?.length > 0 && Array.isArray(selection.documents), 'Empty license selection');
   unique(selection.components, x => x.id, 'component');
   unique(selection.documents, x => x.id, 'document');
@@ -120,7 +130,7 @@ function materialize(root, selection, { metadata, requireGenerated = false } = {
   }
   const packageRoots = new Map();
   if (selection.inputs.cargo_packages.length > 0) {
-    const packages = metadata ?? cargoMetadata(root, scope);
+    const packages = metadata ?? cargoMetadata(root, scope, profile);
     const identity = p => `${p.package ?? `${p.name}@${p.version}`}|${p.source ?? 'workspace'}`;
     requireValue(JSON.stringify(ordered(packages.map(identity))) === JSON.stringify(ordered(selection.inputs.cargo_packages.map(identity))), 'Cargo package set changed');
     for (const expected of selection.inputs.cargo_packages) {
@@ -216,7 +226,7 @@ function materialize(root, selection, { metadata, requireGenerated = false } = {
   return { docs, archives, sourceReadme };
 }
 
-function outputFiles(selection, selectionBytes, { docs, archives, sourceReadme }) {
+function outputFiles(selection, selectionBytes, profile, { docs, archives, sourceReadme }) {
   const selectionHash = digest(selectionBytes);
   const archiveRecords = [...archives.values()].map(item => ({ id: item.id, kind: item.kind, path: `sources/${item.file_name}`, bytes: item.bytes, sha256: item.sha256, source_url: item.source_url, commit: item.commit, archive_root: item.archive_root, components: item.components }));
   const archiveLinks = ids => ids.map(id => {
@@ -232,7 +242,7 @@ function outputFiles(selection, selectionBytes, { docs, archives, sourceReadme }
   const manifest = { schema_version: 1, status: 'notice_directory_only_not_a_release_approval', selection_id: selection.selection_id, selection_sha256: selectionHash, scope: selection.scope, pending_delivery: selection.pending_delivery, components, documents: records, ...sourceRecords };
   const rows = components.map(c => `<tr><td>${html(c.name)} ${html(c.version ?? '')}</td><td>${html(c.disposition)}</td><td>${html(c.selected_license ?? 'Not included')}</td><td>${c.documents.map(d => `<a href="${html(d.path)}">${html(d.path.slice(6))}</a>`).join('<br>')}${(c.source_archives ?? []).map(a => `<br>Source: <a href="${html(a.path)}">${html(a.path.slice(8))}</a>`).join('')}</td><td>${html(c.reason)}${(c.copyright_notices ?? []).map(n => `<p style="white-space:pre-wrap">${html(n.text)} (${html(n.path)}:${html(n.line)})</p>`).join('')}${(c.source_urls ?? []).map(u => `<br><a href="${html(u)}">${html(u)}</a>`).join('')}</td></tr>`).join('\n');
   const sourceSection = archives.size ? `<h2>Offline source archives</h2><p>The following unchanged source ZIPs accompany the explicitly mapped installer components. <a href="sources/README.txt">Offline source guide, provenance and build entry points</a>. These sources do not imply that the upstream binaries have been rebuilt.</p><ul>${archiveRecords.map(a => `<li><a href="${html(a.path)}">${html(a.path.slice(8))}</a> (${html(a.commit)}; SHA-256 ${html(a.sha256)})</li>`).join('')}</ul>` : '';
-  const index = `<!doctype html>\n<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>aidevbridge license texts</title>\n<style>body{font:16px system-ui,sans-serif;line-height:1.5;margin:2rem;max-width:110rem}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:.6rem;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eee}a{color:#0645ad}</style>\n<h1>aidevbridge license texts and notices</h1><p>This folder contains the explicitly selected texts for the Windows x64 application and disclosed build/source families. A listed family is not a claim that every part is present in the executable. Original text bytes are preserved; files with identical hashes are shared without removing component or copyright associations.</p><p>Open the linked local files to read the complete texts offline. External source links are provenance references and are not needed to read these texts. <a href="manifest.json">Machine-readable mapping and SHA-256 values</a>.</p><p><strong>This folder does not prove that an installer, binary release, required terms agreement or source repository has passed release acceptance.</strong></p><h2>Delivery work still pending</h2><ul>${selection.pending_delivery.map(x => `<li>${html(x)}</li>`).join('')}</ul>${sourceSection}<h2>Component mapping</h2><table><thead><tr><th>Component</th><th>Decision</th><th>Selected terms</th><th>Local full texts and notices</th><th>Scope and original sources</th></tr></thead><tbody>\n${rows}\n</tbody></table></html>\n`;
+  const index = `<!doctype html>\n<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>aidevbridge license texts</title>\n<style>body{font:16px system-ui,sans-serif;line-height:1.5;margin:2rem;max-width:110rem}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:.6rem;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eee}a{color:#0645ad}</style>\n<h1>aidevbridge license texts and notices</h1><p>This folder contains the explicitly selected texts for the ${html(profile.label)} and disclosed build/source families. A listed family is not a claim that every part is present in the executable. Original text bytes are preserved; files with identical hashes are shared without removing component or copyright associations.</p><p>Open the linked local files to read the complete texts offline. External source links are provenance references and are not needed to read these texts. <a href="manifest.json">Machine-readable mapping and SHA-256 values</a>.</p><p><strong>This folder does not prove that an installer, binary release, required terms agreement or source repository has passed release acceptance.</strong></p><h2>Delivery work still pending</h2><ul>${selection.pending_delivery.map(x => `<li>${html(x)}</li>`).join('')}</ul>${sourceSection}<h2>Component mapping</h2><table><thead><tr><th>Component</th><th>Decision</th><th>Selected terms</th><th>Local full texts and notices</th><th>Scope and original sources</th></tr></thead><tbody>\n${rows}\n</tbody></table></html>\n`;
   const files = new Map([
     ['.aidevbridge-release-notices.json', encode({ schema_version: 1, owner: 'aidevbridge-release-licenses', selection_sha256: selectionHash })],
     ['index.html', Buffer.from(index)],
@@ -244,7 +254,7 @@ function outputFiles(selection, selectionBytes, { docs, archives, sourceReadme }
   return files;
 }
 
-function compareOutput(root, files) {
+function compareOutput(root, files, outputPath) {
   const actual = walk(root, outputPath).map(p => p.slice(outputPath.length + 1));
   requireValue(JSON.stringify(actual) === JSON.stringify(ordered(files.keys())), 'Output contains missing, additional or stale files; retained without modification');
   for (const [name, bytes] of files) requireValue(readFile(root, `${outputPath}/${name}`).equals(bytes), `Output differs: ${name}; retained without modification`);
@@ -254,20 +264,23 @@ function compareOutput(root, files) {
   requireValue(JSON.stringify(dirs) === JSON.stringify(expectedDirs) && expectedDirs.every(dir => fs.readdirSync(within(root, `${outputPath}/${dir}`), { withFileTypes: true }).every(x => x.isFile())), 'Output contains unexpected directories');
 }
 
-export function releaseLicenses(mode, { root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), metadata, requireGenerated = false } = {}) {
-  requireValue(mode === 'prepare' || mode === 'check', 'Usage: node scripts/release-licenses.mjs prepare|check');
+export function releaseLicenses(mode, { root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), metadata, requireGenerated = false, platform = DEFAULT_PLATFORM } = {}) {
+  requireValue(mode === 'prepare' || mode === 'check', usage);
+  requireValue(Object.hasOwn(PLATFORMS, platform), usage);
   requireValue(typeof requireGenerated === 'boolean', 'requireGenerated must be boolean');
+  const profile = PLATFORMS[platform];
+  const { selection: selectionPath, output: outputPath } = profile;
   root = fs.realpathSync(root);
   const selectionBytes = readFile(root, selectionPath);
   const selection = JSON.parse(selectionBytes);
-  const materialized = materialize(root, selection, { metadata, requireGenerated });
-  const files = outputFiles(selection, selectionBytes, materialized);
+  const materialized = materialize(root, selection, profile, { metadata, requireGenerated });
+  const files = outputFiles(selection, selectionBytes, profile, materialized);
   const destination = within(root, outputPath, { missing: true });
   if (fs.existsSync(destination)) {
     // Refuse unowned, damaged or old contents. No recursive delete/overwrite.
     const owner = JSON.parse(readFile(root, `${outputPath}/.aidevbridge-release-notices.json`));
     requireValue(owner.owner === 'aidevbridge-release-licenses' && owner.schema_version === 1, 'Output directory is not owned by this helper');
-    compareOutput(root, files);
+    compareOutput(root, files, outputPath);
   } else {
     requireValue(mode === 'prepare', 'Notice directory does not exist; run prepare first');
     const parent = within(root, 'out', { missing: true });
@@ -280,14 +293,14 @@ export function releaseLicenses(mode, { root = path.resolve(path.dirname(fileURL
       const filename = within(root, `${outputPath}/${name}`, { missing: true });
       fs.writeFileSync(filename, bytes, { flag: 'wx' });
     }
-    compareOutput(root, files);
+    compareOutput(root, files, outputPath);
   }
   return { status: 'notice_directory_verified_not_release_approved', directory: outputPath, components: selection.components.length, texts: materialized.docs.size, source_archives: materialized.archives.size, files: files.size, selection_sha256: digest(selectionBytes), mode };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
-    requireValue(process.argv.length === 3, 'Usage: node scripts/release-licenses.mjs prepare|check');
-    console.log(JSON.stringify(releaseLicenses(process.argv[2])));
+    requireValue(process.argv.length === 3 || process.argv.length === 4, usage);
+    console.log(JSON.stringify(releaseLicenses(process.argv[2], { platform: process.argv[3] ?? DEFAULT_PLATFORM })));
   } catch (error) { console.error(`release-licenses: ${error.message}`); process.exitCode = 1; }
 }

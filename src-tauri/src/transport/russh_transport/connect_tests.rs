@@ -631,9 +631,15 @@ async fn controlled_ip_literals_bypass_resolver_admission_entirely() {
 async fn controlled_resolver_preserves_address_order_and_connects_fallback() {
     // A bound but non-listening socket reserves a guaranteed refused first
     // destination, rather than guessing a supposedly unused global port.
+    // macOS silently drops a SYN to such a socket, so the connect would run
+    // into the deadline instead; there the port is released again, and the
+    // kernel refuses it with RST unless another process takes exactly this
+    // ephemeral port in between.
     let refused = tokio::net::TcpSocket::new_v4().unwrap();
     refused.bind("127.0.0.1:0".parse().unwrap()).unwrap();
     let first = refused.local_addr().unwrap();
+    #[cfg(target_os = "macos")]
+    drop(refused);
     let (listener, mut spec) = listener().await;
     let second = listener.local_addr().unwrap();
     spec.hostname = "ordered-resolver.fixture.invalid".into();

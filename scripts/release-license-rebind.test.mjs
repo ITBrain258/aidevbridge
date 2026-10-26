@@ -92,3 +92,42 @@ test('--add binds a new input file in path order', t => {
   rebind(['docs/report.json'], { root: f.root, write: true, add: true });
   assert.deepEqual(f.selection().inputs.files.map(x => x.path), ['NOTICES.md', 'docs/report.json', 'lock.json', 'node_modules/dep/package.json']);
 });
+
+const macSelectionPath = 'docs/release/license-selection.macos-universal.json';
+function withMacSelection(f, edit = selection => selection) {
+  const selection = f.selection();
+  selection.scope = { ...selection.scope, target: 'universal-apple-darwin', cargo_targets: ['aarch64-apple-darwin', 'x86_64-apple-darwin'] };
+  f.write(macSelectionPath, `${JSON.stringify(edit(selection), null, 2)}\n`);
+  return () => JSON.parse(f.read(macSelectionPath));
+}
+
+test('every selection that binds a path is rebound, and a path bound by one selection only is enough', t => {
+  const f = fixture(t);
+  const mac = withMacSelection(f, selection => {
+    selection.inputs.files.push({ path: 'Info.plist', bytes: 0, sha256: '' });
+    return selection;
+  });
+  f.write('Info.plist', '<plist/>\n');
+  f.write('lock.json', 'locked dependency 2\n');
+  const result = rebind(['lock.json', 'Info.plist'], { root: f.root, write: true });
+  assert.deepEqual(result.changes.map(c => [c.platform, c.path]), [['windows-x64', 'lock.json'], ['macos-universal', 'lock.json'], ['macos-universal', 'Info.plist']]);
+  assert.equal(f.selection().inputs.files.find(x => x.path === 'lock.json').sha256, digest(Buffer.from('locked dependency 2\n')));
+  assert.equal(mac().inputs.files.find(x => x.path === 'lock.json').sha256, digest(Buffer.from('locked dependency 2\n')));
+  assert.equal(mac().inputs.files.find(x => x.path === 'Info.plist').sha256, digest(Buffer.from('<plist/>\n')));
+  assert.equal(releaseLicenses('prepare', { root: f.root, metadata: [], platform: 'macos-universal' }).directory, 'out/release-notices-macos');
+});
+
+test('--platform limits rebinding to one selection, and --add needs it once two selections exist', t => {
+  const f = fixture(t);
+  const mac = withMacSelection(f);
+  const macBefore = f.read(macSelectionPath);
+  f.write('lock.json', 'locked dependency 3\n');
+  rebind(['lock.json'], { root: f.root, write: true, platform: 'windows-x64' });
+  assert.deepEqual(f.read(macSelectionPath), macBefore);
+  f.write('docs/report.json', '{"decision":"fixture"}\n');
+  assert.throws(() => rebind(['docs/report.json'], { root: f.root, add: true }), /--add needs --platform/);
+  rebind(['docs/report.json'], { root: f.root, write: true, add: true, platform: 'macos-universal' });
+  assert.ok(mac().inputs.files.some(x => x.path === 'docs/report.json'));
+  assert.ok(!f.selection().inputs.files.some(x => x.path === 'docs/report.json'));
+  assert.throws(() => rebind(['lock.json'], { root: f.root, platform: 'linux' }), /Usage/);
+});
