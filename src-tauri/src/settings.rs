@@ -556,16 +556,15 @@ fn test_env(name: &str) -> Option<String> {
 
 /// Ein Testsocket nach den Regeln aus `tests/common/mod.rs`: 1-48 Zeichen
 /// `[A-Za-z0-9_-]`, weder `default` noch der Produktionssocket. Im
-/// Release-Bau immer `None`.
+/// Release-Bau immer `None`. Die Zeichen prueft dieselbe Regel wie
+/// `OwnSocket::new`; die Laengengrenze gilt nur fuer diese Variable.
 pub fn socket_override(raw: Option<&str>) -> Option<String> {
     if !cfg!(debug_assertions) {
         return None;
     }
     let raw = raw?;
     let valid = (1..=48).contains(&raw.len())
-        && raw
-            .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
+        && crate::tmux::socket::is_plain_socket_name(raw)
         && !raw.eq_ignore_ascii_case("default")
         && !raw.eq_ignore_ascii_case(&default_socket());
     valid.then(|| raw.to_string())
