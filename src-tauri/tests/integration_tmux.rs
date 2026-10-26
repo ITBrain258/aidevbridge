@@ -256,3 +256,83 @@ async fn kill_session_leaves_no_server_running_behind() {
         after.stderr
     );
 }
+
+/// Ein `#` im Startordner bleibt woertlich: tmux wertet das Argument von
+/// `new-session -c` als Format aus. Ohne Verdopplung startete `C#Project`
+/// still im Home-Ordner, und ein Ordner `#(...)` fuehrte seinen Befehl auf dem
+/// Host aus (gemessen, docs/messungen/messung-2026-10-26-tmux-cwd-format.md).
+///
+/// Der Befehl im Ordnernamen legt die Marke per `cd` immer im Home-Ordner
+/// an, gleich in welchem Ordner tmux den Format-Job startet. Format-Jobs
+/// laufen asynchron; die Pause vor der Pruefung laesst einem faelschlich
+/// gestarteten Job Zeit.
+#[tokio::test]
+async fn a_hash_in_the_start_directory_stays_literal() {
+    let Some(t) = common::connect_test_host().await else {
+        return;
+    };
+    let socket = common::test_socket_for("cwdhash");
+    let c = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
+    let base = t
+        .exec(&remote::build(&["mktemp", "-d", "/tmp/zz_cwdhash.XXXXXX"]))
+        .await
+        .unwrap();
+    assert_eq!(base.code, 0, "mktemp: {}", base.stderr);
+    let base = base.stdout.trim().to_string();
+    let marker = format!("zz_cwdhash_marker_{}", std::process::id());
+    let cases = [
+        ("zz_cwdhash_c", format!("{base}/C#Project")),
+        ("zz_cwdhash_job", format!("{base}/#(cd;touch {marker})")),
+    ];
+    for (_, dir) in &cases {
+        let made = t.exec(&remote::build(&["mkdir", dir])).await.unwrap();
+        assert_eq!(made.code, 0, "mkdir {dir:?}: {}", made.stderr);
+    }
+
+    c.prepare_server(&t, 2000).await.unwrap();
+    for (name, dir) in &cases {
+        assert!(matches!(
+            c.create_session(&t, name, dir).await.unwrap(),
+            CreateOutcome::Created
+        ));
+    }
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
+    for (name, dir) in &cases {
+        for format in ["#{pane_current_path}", "#{session_path}"] {
+            let r = t
+                .exec(&remote::build(&[
+                    "tmux", "-L", &socket, "display", "-p", "-t", name, format,
+                ]))
+                .await
+                .unwrap();
+            assert_eq!(
+                (r.code, r.stdout.trim_end_matches('\n')),
+                (0, dir.as_str()),
+                "{format} von {name}: {}",
+                r.stderr
+            );
+        }
+    }
+    let probe = t
+        .exec(&remote::build(&[
+            "sh",
+            "-c",
+            "if test -e \"$HOME/$1\"; then echo present; else echo absent; fi",
+            "sh",
+            &marker,
+        ]))
+        .await
+        .unwrap();
+    assert_eq!(
+        probe.stdout.trim(),
+        "absent",
+        "der Befehl im Ordnernamen lief auf dem Host: {}",
+        probe.stderr
+    );
+
+    for (name, _) in &cases {
+        c.kill_session(&t, name).await.unwrap();
+    }
+    t.exec(&remote::build(&["rm", "-rf", &base])).await.unwrap();
+}

@@ -1050,6 +1050,35 @@ mod tests {
         );
     }
 
+    /// Der Ordner geht mit verdoppeltem `#` an `-c`, sonst unveraendert; die
+    /// Regel selbst pinnt `session_binding.rs`.
+    #[tokio::test]
+    async fn create_session_keeps_hash_in_the_start_directory_literal() {
+        let t = ScriptedTransport::new(vec![created()]);
+        assert_eq!(
+            own_client("sock")
+                .create_session(&t, "ab_000000", "/srv/C#Project/#(id)")
+                .await
+                .unwrap(),
+            CreateOutcome::Created
+        );
+        let args = crate::remote::command::decoded_argv(&t.calls.lock().unwrap()[0]);
+        assert_eq!(
+            &args[8..],
+            [
+                "-s",
+                "ab_000000",
+                "-c",
+                "/srv/C##Project/##(id)",
+                ";",
+                "set",
+                "-g",
+                "exit-empty",
+                "on"
+            ]
+        );
+    }
+
     #[tokio::test]
     async fn kill_session_targets_the_name_exactly_and_not_by_prefix() {
         let t = ScriptedTransport::new(vec![ok()]);

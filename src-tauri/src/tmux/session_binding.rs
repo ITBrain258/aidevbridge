@@ -154,6 +154,7 @@ impl BindingQuery {
         if !cwd.starts_with('/') || cwd.chars().any(char::is_control) {
             return Err(InvalidCreateArguments::Directory);
         }
+        let cwd = escape_cwd_format(cwd);
         let [flag, socket] = self.inventory.socket_args();
         Ok(remote::build(&[
             "tmux",
@@ -167,7 +168,7 @@ impl BindingQuery {
             "-s",
             name,
             "-c",
-            cwd,
+            &cwd,
             ";",
             "set",
             "-g",
@@ -175,6 +176,44 @@ impl BindingQuery {
             "on",
         ]))
     }
+}
+
+/// Schreibt den Startordner so, dass tmux ihn als Format zum woertlichen
+/// Ordner auswertet. tmux wertet das rohe Argument von `new-session -c`
+/// zweimal unabhaengig voneinander als Format aus: fuer den Ordner der
+/// Session (`cmd-new-session.c`) und fuer den der ersten Pane (`spawn.c`,
+/// wieder aus dem rohen Argument). Deshalb ist genau eine Verdopplung
+/// richtig, nie zwei. Unverdoppelt fuehrt ein Ordner `#(befehl)` den Befehl
+/// auf dem Host aus, und `C#Project` startet still im Home-Ordner.
+///
+/// `##` ergibt ein `#` (gemessen auf 3.4; `format_expand1` von 3.0a, 3.3a
+/// und 3.6 hat dieselbe Regel). Ausnahme in 3.3a, 3.4 und 3.6: Eine Folge
+/// aus mindestens zwei `#` direkt vor `[` ist eine Stilmarke und bleibt
+/// woertlich stehen; ein einzelnes `#` vor `[` bleibt in allen Versionen ein
+/// `#`. Eine `#`-Folge direkt vor `[` bleibt deshalb unveraendert. Nur 3.0a
+/// halbiert eine solche Folge aus mindestens zwei `#`; die Session startet
+/// dann im Home-Ordner.
+///
+/// Ausgefuehrt wird so in keiner Version etwas: Jede andere `#`-Folge hat
+/// danach gerade Laenge und ergibt nur `#`, und eine Folge vor `[` bildet
+/// nie `#(`, `#{` oder eine Ein-Buchstaben-Variable. `#` abzulehnen
+/// verweigerte dagegen legitime Ordner wie `C#Project`.
+fn escape_cwd_format(cwd: &str) -> String {
+    let mut escaped = String::with_capacity(cwd.len() * 2);
+    let mut rest = cwd;
+    while let Some(start) = rest.find('#') {
+        escaped.push_str(&rest[..start]);
+        let run = &rest[start..];
+        let after = run.trim_start_matches('#');
+        let hashes = &run[..run.len() - after.len()];
+        escaped.push_str(hashes);
+        if !after.starts_with('[') {
+            escaped.push_str(hashes);
+        }
+        rest = after;
+    }
+    escaped.push_str(rest);
+    escaped
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
@@ -672,6 +711,55 @@ mod tests {
                     Err(InvalidCreateArguments::Directory)
                 );
             }
+        }
+    }
+
+    /// Links der Ordner, rechts das `-c`-Argument, das tmux zu genau diesem
+    /// Ordner auswertet; die Regel ist auf tmux 3.4 gemessen
+    /// (docs/messungen/messung-2026-10-26-tmux-cwd-format.md). Ein Ordner
+    /// ohne `#` geht unveraendert durch.
+    #[test]
+    fn create_command_keeps_hash_in_the_start_directory_literal() {
+        let q = BindingQuery::new(query());
+        let [flag, socket] = q.inventory().socket_args();
+        for (cwd, argv_cwd) in [
+            ("/srv/#(touch /tmp/wrong)", "/srv/##(touch /tmp/wrong)"),
+            ("/srv/A#{session_name}B", "/srv/A##{session_name}B"),
+            ("/srv/C#Project", "/srv/C##Project"),
+            ("/srv/#P", "/srv/##P"),
+            ("/srv/##", "/srv/####"),
+            ("/srv/trail#", "/srv/trail##"),
+            ("/srv/D####Q", "/srv/D########Q"),
+            ("/#/x#", "/##/x##"),
+            ("/srv/E#[x]", "/srv/E#[x]"),
+            ("/srv/F##[x]", "/srv/F##[x]"),
+            ("/srv/G#(id)#[y]", "/srv/G##(id)#[y]"),
+            ("/srv/H#a##[b#", "/srv/H##a##[b##"),
+            ("/srv/plain", "/srv/plain"),
+        ] {
+            assert_eq!(
+                decoded_argv(&q.create_command("dev", cwd).unwrap()),
+                [
+                    "tmux",
+                    flag,
+                    socket,
+                    "new-session",
+                    "-d",
+                    "-P",
+                    "-F",
+                    CREATE_FORMAT,
+                    "-s",
+                    "dev",
+                    "-c",
+                    argv_cwd,
+                    ";",
+                    "set",
+                    "-g",
+                    "exit-empty",
+                    "on"
+                ],
+                "{cwd:?}"
+            );
         }
     }
 
