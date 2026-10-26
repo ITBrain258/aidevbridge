@@ -765,46 +765,31 @@ impl HostKeyRequestSink for ChannelAndPersistFailureSink {
     }
 }
 
-/// Haelt eine Datei waehrend des Tests schreibgeschuetzt, damit
-/// `known_hosts::append_entry`s `OpenOptions::append(true).open(..)`
-/// garantiert fehlschlaegt -- EMPIRISCH auf diesem Windows-Rechner
-/// verifiziert (nicht angenommen: ein Scratch-Programm
-/// mit genau diesem Muster lieferte "Access is denied. (os error 5)").
-/// Portabler als ein Unix-Berechtigungsbit, das unter Windows nicht
-/// dieselbe Bedeutung hat. Setzt die Berechtigung im `Drop` zurueck,
-/// damit die anschliessende Aufraeum-Loeschung nicht an derselben Sperre
-/// scheitert wie der Test selbst.
-struct ReadOnlyGuard(PathBuf);
-impl ReadOnlyGuard {
+/// Legt fuer die Dauer des Tests ein leeres Verzeichnis an den
+/// known_hosts-Pfad, damit `known_hosts::append_entry`s
+/// `OpenOptions::create(true).append(true).open(..)` garantiert
+/// fehlschlaegt: unter Linux und macOS mit EISDIR, und zwar auch fuer
+/// root, der ein Schreibschutzbit einfach uebergehen wuerde; unter
+/// Windows mit "Zugriff verweigert", weil sich ein Verzeichnis ohne
+/// `FILE_FLAG_BACKUP_SEMANTICS` nicht oeffnen laesst.
+///
+/// Scheitern darf dabei nur das Oeffnen zum Anhaengen:
+/// `TofuPolicy::decide` entscheidet ueber den uebergebenen
+/// known_hosts-Text im Speicher und fasst den Pfad dafuer nicht an, und
+/// `append_entry` liest den Pfad vor dem Oeffnen mit
+/// `read(..).unwrap_or_default()`, sodass der Lesefehler am Verzeichnis
+/// nur als leere Datei zaehlt. `Drop` entfernt das Verzeichnis mit
+/// `remove_dir`, das ausschliesslich leere Verzeichnisse loescht.
+struct KnownHostsDirectoryGuard(PathBuf);
+impl KnownHostsDirectoryGuard {
     fn new(path: PathBuf) -> Self {
-        std::fs::write(&path, b"").unwrap();
-        let mut perms = std::fs::metadata(&path).unwrap().permissions();
-        perms.set_readonly(true);
-        std::fs::set_permissions(&path, perms).unwrap();
+        std::fs::create_dir(&path).unwrap();
         Self(path)
     }
 }
-impl Drop for ReadOnlyGuard {
-    // `clippy::permissions_set_readonly_false` warnt zurecht VOR EINEM
-    // UNIX-Kontext: dort macht `set_readonly(false)` eine Datei fuer
-    // JEDEN Benutzer beschreibbar (`Permissions` bildet dort den
-    // gesamten `st_mode` ab, nicht nur ein Windows-Attribut). Dieser
-    // Guard ist aber -- wie der Doc-Kommentar an `ReadOnlyGuard` oben
-    // ausdruecklich festhaelt ("Portabler als ein Unix-Berechtigungsbit,
-    // das unter Windows nicht dieselbe Bedeutung hat") -- fuer genau
-    // den Windows-Fall gebaut: `Permissions::readonly` bildet dort nur
-    // das `FILE_ATTRIBUTE_READONLY`-Bit ab, alle anderen (fehlenden)
-    // Unix-Berechtigungsbits bleiben unberuehrt. Kein Sicherheitsrisiko
-    // in diesem Kontext, nur eine plattformunabhaengige Lint-Regel, die
-    // hier nicht zutrifft.
-    #[allow(clippy::permissions_set_readonly_false)]
+impl Drop for KnownHostsDirectoryGuard {
     fn drop(&mut self) {
-        if let Ok(meta) = std::fs::metadata(&self.0) {
-            let mut perms = meta.permissions();
-            perms.set_readonly(false);
-            let _ = std::fs::set_permissions(&self.0, perms);
-        }
-        let _ = std::fs::remove_file(&self.0);
+        let _ = std::fs::remove_dir(&self.0);
     }
 }
 
@@ -815,7 +800,7 @@ impl Drop for ReadOnlyGuard {
 #[tokio::test]
 async fn tofu_policy_notifies_the_sink_when_append_entry_fails_but_still_accepts_the_connection() {
     let known_hosts_path = unique_temp_known_hosts_path("persist_fail");
-    let _guard = ReadOnlyGuard::new(known_hosts_path.clone());
+    let _guard = KnownHostsDirectoryGuard::new(known_hosts_path.clone());
 
     let (req_tx, req_rx) = std::sync::mpsc::channel::<HostKeyRequest>();
     let persist_failures = Arc::new(std::sync::Mutex::new(Vec::new()));
