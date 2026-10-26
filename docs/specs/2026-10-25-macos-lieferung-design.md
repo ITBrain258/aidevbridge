@@ -92,11 +92,15 @@ Bis 26.10. hieß der Workflow `macos.yml` und baute nur das DMG.
 Windows baut `npm run build:windows` auf `windows-latest`, unverändert und
 gegen die gebundene Windows-Auswahl; eine Vorschau ohne Auswahl gibt es dafür
 nicht. Die Testinstallation auf einem frischen `windows-latest` prüft die
-Hashes aus `release-manifest.json`, installiert die Setup-EXE still (`/S`,
-nach `%LOCALAPPDATA%\aidevbridge`), das MSI (`msiexec /qn`, nach
-`%ProgramFiles%\aidevbridge`) und entpackt das ZIP; jedes Mal startet sie die
+Hashes aus `release-manifest.json`, installiert das MSI (`msiexec /qn`, nach
+`%ProgramFiles%\aidevbridge`), dann die Setup-EXE still (`/S`, nach
+`%LOCALAPPDATA%\aidevbridge`) und entpackt das ZIP; jedes Mal startet sie die
 App, wartet auf ihr Hauptfenster, beendet sie und entfernt die Installation
-wieder.
+wieder. Das MSI kommt zuerst: Es übernimmt sein Verzeichnis aus dem Schlüssel
+`HKCU\Software\Lukas Hellbach\aidevbridge`, den die Setup-EXE schreibt und ihr
+Deinstaller stehen lässt. Nach der Setup-EXE landete es deshalb unter
+`%LOCALAPPDATA%`. So verhält sich auch ein Rechner, auf dem vorher die
+Setup-EXE installiert war.
 
 Die Testinstallation läuft auf `macos-latest` (Apple silicon) und
 `macos-15-intel`: Prüfsumme, DMG einhängen, App mit `ditto` nach

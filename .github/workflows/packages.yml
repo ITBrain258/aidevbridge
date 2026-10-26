@@ -280,6 +280,15 @@ jobs:
             if (-not $found) { throw "${label}: aidevbridge started but showed no window" }
             Write-Host "${label}: started, window '$($process.MainWindowTitle)' found"
           }
+          # MSI first: it takes its folder from the registry key the setup EXE
+          # writes and its uninstaller leaves behind, and would otherwise
+          # install below %LOCALAPPDATA% instead of %ProgramFiles%.
+          $msi = & $file msi
+          $install = Start-Process msiexec.exe -ArgumentList '/i', "`"$msi`"", '/qn', '/l*v', "`"$env:RUNNER_TEMP\msi-install.log`"" -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "MSI install failed (exit $($install.ExitCode))" }
+          Test-Start (Join-Path $env:ProgramFiles 'aidevbridge\aidevbridge.exe') 'MSI'
+          $remove = Start-Process msiexec.exe -ArgumentList '/x', "`"$msi`"", '/qn' -Wait -PassThru
+          if ($remove.ExitCode -ne 0) { throw "MSI uninstall failed (exit $($remove.ExitCode))" }
           # Setup EXE: per user, below %LOCALAPPDATA%.
           $setup = Start-Process -FilePath (& $file nsis) -ArgumentList '/S' -Wait -PassThru
           if ($setup.ExitCode -ne 0) { throw "setup EXE failed (exit $($setup.ExitCode))" }
@@ -287,13 +296,6 @@ jobs:
           Test-Start (Join-Path $dir 'aidevbridge.exe') 'setup EXE'
           $uninstall = Start-Process -FilePath (Join-Path $dir 'uninstall.exe') -ArgumentList '/S' -Wait -PassThru
           if ($uninstall.ExitCode -ne 0) { throw "setup EXE uninstall failed (exit $($uninstall.ExitCode))" }
-          # MSI: for all users, below %ProgramFiles%.
-          $msi = & $file msi
-          $install = Start-Process msiexec.exe -ArgumentList '/i', "`"$msi`"", '/qn', '/l*v', "`"$env:RUNNER_TEMP\msi-install.log`"" -Wait -PassThru
-          if ($install.ExitCode -ne 0) { throw "MSI install failed (exit $($install.ExitCode))" }
-          Test-Start (Join-Path $env:ProgramFiles 'aidevbridge\aidevbridge.exe') 'MSI'
-          $remove = Start-Process msiexec.exe -ArgumentList '/x', "`"$msi`"", '/qn' -Wait -PassThru
-          if ($remove.ExitCode -ne 0) { throw "MSI uninstall failed (exit $($remove.ExitCode))" }
           # ZIP: no installation.
           $zipDir = Join-Path $env:RUNNER_TEMP 'aidevbridge-zip'
           Expand-Archive -Path (& $file zip) -DestinationPath $zipDir
