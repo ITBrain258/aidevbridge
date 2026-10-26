@@ -1,38 +1,19 @@
-// Verdrahtung (Shell-Task 11, Spec §4.2): main.ts ist nur noch Klebstoff --
-// `AppState` anlegen, `mountSidebar`/`mountGrid`/`mountHostKeyPrompt`
-// mounten, Ereignisse verbinden. Alle bisherigen Modulvariablen (`hostId`,
-// `terminalHandle`, `currentSession`, `hostChooserHandle`) sind ERSATZLOS
-// entfallen -- `AppState` (`src/state/app-state.ts`) ist die einzige
+// Verdrahtung (Spec §4.2): main.ts ist Klebstoff -- `AppState` anlegen,
+// `mountSidebar`/`mountGrid`/`mountHostKeyPrompt` mounten, Ereignisse
+// verbinden. `AppState` (`src/state/app-state.ts`) ist die einzige
 // Wahrheitsquelle fuer Hosts/Sessions/Kacheln, `sidebar.ts`/`grid.ts` lesen
-// nur noch aus ihr.
+// nur aus ihr. `grid.ts` mountet und entsorgt jeden `TerminalHandle` SELBST,
+// in seinem eigenen `reconcile()`; main.ts ruft `mountTerminal` nirgends auf
+// und haelt keinen `TerminalHandle`.
 //
-// Zwei Waechter aus der Vorgaenger-Fassung dieser Datei (`if (!terminalHandle)
-// return` in `closeTerminalView`, sowie ein Waechter auf
-// `sessionSection.hidden` in `onNewSession`) sind mit diesem Umbau ENTFERNT
-// -- nicht neu geprueft und stehen gelassen, sondern tatsaechlich geloescht,
-// zusammen mit den Funktionen, die sie trugen (`closeTerminalView`,
-// `terminalActions()`, `reopenTerminal`, `createSessionAndOpenTerminal`).
-// Deren Begruendung ("kein Menue kann sie erreichen") ist durch die
-// Seitenleiste nachweislich falsch geworden -- aber genau deshalb existieren
-// die Funktionen selbst in dieser Architektur nicht mehr: `grid.ts` mountet/
-// entsorgt jeden `TerminalHandle` jetzt SELBST, in seinem eigenen
-// `reconcile()` (Shell-Task 10) -- main.ts ruft `mountTerminal` nirgends
-// mehr auf, haelt keinen `TerminalHandle` und keine `sessionSection` mehr.
 // Der Ctrl+Shift+N-Akkord legt eine Session auf dem Zielhost aus UX-Spec §7.9
 // an (zuerst der Host der fokussierten Kachel), verdrahtet in
 // `newSessionOnTargetHost()` unten -- und zwar AUSSCHLIESSLICH dort; der Knopf
 // "New session" im leeren Raster ruft dieselbe Funktion. `terminal.ts`s
-// `MountOptions` hat dafuer kein `onNewSession` mehr (es hatte nie einen
-// Durchreicher in `grid.ts`s `GridOptions`, der Akkord war app-weit tot);
-// zwei Verdrahtungen wuerden die Session doppelt anlegen, weil im Terminal
-// kein `stopPropagation()` faellt. Der zweite, ebenfalls erreichbare Weg zu
-// "Neue Session" ist
-// `sidebar.ts`s
-// `onNewSession(hostId)` -- siehe dessen Verdrahtung unten; die einzige
-// Pruefung, die dafuer noch noetig ist, ist eine simple TypeScript-Verengung
-// (`if (!host) return`, die Seitenleiste liefert nur IDs aus `state.hosts`),
-// keine Reichweiten-Behauptung, die ein kuenftiger Leser erneut pruefen
-// muesste.
+// `MountOptions` hat dafuer kein `onNewSession`: zwei Verdrahtungen wuerden
+// die Session doppelt anlegen, weil im Terminal kein `stopPropagation()`
+// faellt. Der zweite Weg zu "Neue Session" ist `sidebar.ts`s
+// `onNewSession(hostId)` -- siehe dessen Verdrahtung unten.
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -127,10 +108,8 @@ function collectElements(): Elements {
 // von hier pruefen kann (Spec 16.2).
 export { focusableElements };
 
-/** Deckungsgleich mit `HostEntry` (`views/types.ts`, Rust `settings::HostEntry`)
- * -- der Lader, den Shell-Task 3 (`app-state.ts`) noch nicht hatte (siehe
- * dessen Doc-Kommentar an `Host.tmuxSocket`/`.historyLimit`: "Sache von
- * Shell-Task 11"). `tmux_socket`/`history_limit` OHNE Umweg uebernommen --
+/** Deckungsgleich mit `HostEntry` (`views/types.ts`, Rust `settings::HostEntry`).
+ * `tmux_socket`/`history_limit` OHNE Umweg uebernommen --
  * `add_host_impl` ehrt bereits einen gesetzten Wert (`Some`) und faellt nur
  * bei `None` auf die Vorgabe zurueck, ein frisch geladener Host reicht seine
  * gespeicherten Werte also unveraendert durch `editHost` (`session-
@@ -148,9 +127,9 @@ function hostFromEntry(entry: HostEntry): Host {
     expanded: false,
     // Leer heisst "Heimatverzeichnis": das Fernskript setzt bei leerem Pfad
     // `d=$HOME` (`remote/dirs.rs`), und der Baum loest es auf und meldet es
-    // dem Sitzungsdialog zurueck. Frueher stand hier `/tmp` -- eine Vorgabe,
-    // die keine Anmeldung der Welt setzt, welt-schreibbar ist und auf vielen
-    // Systemen beim Neustart geleert wird.
+    // dem Sitzungsdialog zurueck. Nicht `/tmp`: das setzt keine Anmeldung der
+    // Welt, es ist welt-schreibbar und wird auf vielen Systemen beim Neustart
+    // geleert.
     //
     // Nur der STARTWERT: sobald eine Session angelegt wurde, traegt
     // `host.lastCwd` das zuletzt benutzte Verzeichnis dieses Hosts in diesem
@@ -317,10 +296,8 @@ export function main(): void {
   // Der Fensterfokus beendet das Blinken und zieht einen wartenden Versuch der
   // Selbstreparatur vor (`onWindowFocus`, angemeldet unten mit dem Abbau).
 
-  // Laufzeit-Handles der aktuell gemounteten Ueberlagerungen. Kein Ersatz
-  // fuer die entfallenen Modulvariablen aus der Kopfkommentar-Erklaerung
-  // oben (die hielten ANWENDUNGSZUSTAND, den `AppState` jetzt haelt) --
-  // diese drei halten nur, WELCHE ANSICHT gerade gemountet ist, damit sie
+  // Laufzeit-Handle des Rasters. Es haelt keinen ANWENDUNGSZUSTAND (den
+  // haelt `AppState`), nur, WELCHE ANSICHT gerade gemountet ist, damit sie
   // vor der naechsten wieder sauber entsorgt wird. `gridHandle` wird GENAU
   // EINMAL gesetzt (beim ersten Host, der je verbunden ist oder war) und
   // danach nie wieder disposed, solange die App laeuft -- ein Dispose
@@ -523,7 +500,7 @@ export function main(): void {
   // not change underneath an outstanding edit/removal. `keepsConnection`: die
   // Verbindung darf derweil weiterlaufen und auch neu aufgebaut werden -- bei
   // jedem Bearbeiten, denn "Save" speichert zuerst und trennt erst nach dem
-  // Erfolg (UX-Spec §7.7, Aufgabe 18); ein Versuch des
+  // Erfolg (UX-Spec §7.7); ein Versuch des
   // Neuverbindens (§5.4) endete sonst als `superseded`. Nur das Entfernen
   // haelt Verbindungen an.
   const hostChangesInFlight = new Map<string, { keepsConnection: boolean }>();
@@ -701,7 +678,7 @@ export function main(): void {
     if (selfRepairs.get(hostId) !== repair || repair.phase !== "running") return;
     // Nur ein Versuch, der das Backend erreicht hat, verbraucht einen der fuenf.
     if (outcome.started) repair.attempts += 1;
-    // Nie weiter bei einem Hostschluesselfehler (Plan, Review Focus 2): das
+    // Nie weiter bei einem Hostschluesselfehler: das
     // Backend meldet ihn als degraded, er darf aber keinen Versuch mehr ausloesen.
     if (outcome.failure === "host_key_rejected") stopSelfRepair(hostId, repair, false);
     else settleSelfRepair(hostId, repair);
@@ -833,7 +810,7 @@ export function main(): void {
         onTerminalError: (text, detail) => showGlobalError(text, detail),
         onCloseTerminal: closeSessionTile,
         onReconnectHost: (hostId) => void reconnectHostFromTile(hostId),
-        // Nachtrag B, Punkt 2, UX-Spec §7.9: dieselbe Zielhost-Kette wie
+        // UX-Spec §7.9: dieselbe Zielhost-Kette wie
         // Strg+Umschalt+N; mit Host landet sie im selben Dialog wie die
         // Seitenleiste (`onNewSession`, inklusive dessen "nicht
         // verbunden"-Meldung).
@@ -1267,7 +1244,7 @@ export function main(): void {
   /** `hostId` ist die SETTINGS-ID -- die Uebersetzung auf die Laufzeit-ID
    * geschieht hier drinnen und nirgends sonst. Diese Funktion benutzt beide
    * Raeume in einem Atemzug: `list_sessions` meint die lebende Verbindung,
-   * `writeSessions`/`sessionListVersionByHostId` meinen den gespeicherten
+   * `writeSessionRecords`/`sessionListVersionByHostId` meinen den gespeicherten
    * Host. Ein einziger Parameter fuer beides waere die eine Stelle, an der
    * ein Aufrufer den falschen Raum liefern KANN -- deshalb nimmt sie den
    * Raum, in dem der Rest des Programms denkt.
@@ -1292,8 +1269,7 @@ export function main(): void {
       // hat geantwortet, und das ist alles, was `probeHost` unten aus diesem
       // Rueckgabewert liest. Ein `{ ok: false }` (oder ein dritter Zustand,
       // den die Probe als Fehlschlag deutete) waere ein NEUER Weg, einen
-      // lebenden Host anzuschwaerzen -- genau die Fehlerklasse, gegen die
-      // dieses Paket angetreten ist.
+      // lebenden Host anzuschwaerzen.
       const mutation = sessionMutations.get(hostId);
       if (
         !(mutation && isCurrentConnection(mutation.connection)) &&
@@ -1359,7 +1335,7 @@ export function main(): void {
    * nicht mehr gibt.
    *
    * Danach die Liste neu holen -- die beendete Session verschwindet dadurch
-   * aus der Seitenleiste. Bewusst ueber `writeSessions` mit erhoehter
+   * aus der Seitenleiste. Bewusst ueber `writeSessionRecords` mit erhoehter
    * Frischewache, wie in `createSession`: dieses Schreiben ist per Bauart
    * das juengste. */
   async function killSession(hostId: string, name: string, socket: SessionSocket = "app"): Promise<void> {
@@ -1475,17 +1451,16 @@ export function main(): void {
       return { kind: "superseded" };
     }
 
-    // Fix-Runde 1 (Befund 1, Spec §4.8): ein Passwort-Host ohne eingegebenes
-    // Passwort lief bisher trotzdem auf den ersten Versuch -- das Backend
-    // fiel dabei auf ssh-agent zurueck und scheiterte zuverlaessig mit einer
-    // Agent-Fehlermeldung; erst danach erschien das Passwortfeld ueberhaupt.
-    // Spec 4.8 will das Feld VOR dem ersten Versuch. Kein Versuch bedeutet
-    // hier auch: kein Generationssprung und kein Best-effort-`disconnect_host`
-    // fuer eine alte Laufzeit-ID (beides unten) -- deshalb steht diese
-    // Verzweigung VOR beidem, nicht nur vor dem `connect_host`-Aufruf selbst.
-    // Ein `authKind: "key"`-Host bleibt unangetastet: der erste Versuch ohne
-    // Passphrase ist dort weiterhin richtig, weil ein Schluessel keine
-    // Passphrase haben MUSS.
+    // Spec §4.8: ein Passwort-Host ohne eingegebenes Passwort startet keinen
+    // Versuch -- das Backend fiele dabei auf ssh-agent zurueck und scheiterte
+    // zuverlaessig mit einer Agent-Fehlermeldung; erst danach erschiene das
+    // Passwortfeld. Spec 4.8 will das Feld VOR dem ersten Versuch. Kein
+    // Versuch bedeutet hier auch: kein Generationssprung und kein
+    // Best-effort-`disconnect_host` fuer eine alte Laufzeit-ID (beides
+    // unten) -- deshalb steht diese Verzweigung VOR beidem, nicht nur vor dem
+    // `connect_host`-Aufruf selbst. Ein `authKind: "key"`-Host bleibt
+    // unangetastet: der erste Versuch ohne Passphrase ist dort richtig, weil
+    // ein Schluessel keine Passphrase haben MUSS.
     if (host.authKind === "password" && !secret?.password) {
       // Derselbe Code wie ein abgelehntes Passwort: die Hinweisleiste zeigt
       // dann ihr Passwortfeld ("Enter it below and retry").
@@ -1549,9 +1524,8 @@ export function main(): void {
           port: host.port,
           user: host.user,
           key_path: host.keyPath,
-          // Abschlussreview (Important 1): stand hier fest auf `null` und
-          // machte jeden Wiederverbindungsversuch auf einen
-          // passphrasegeschuetzten, gespeicherten Schluessel zur Sackgasse.
+          // Ohne Passphrase waere jeder Wiederverbindungsversuch auf einen
+          // passphrasegeschuetzten, gespeicherten Schluessel eine Sackgasse.
           // Der Wert kommt aus der Hinweisleiste des fehlgeschlagenen Hosts
           // (`sidebar.ts`s `buildHostNotice`) und lebt ausschliesslich im
           // Arbeitsspeicher -- `settings.toml` sieht ihn nie (`add_host`
@@ -1559,27 +1533,23 @@ export function main(): void {
           //
           // `null` statt `undefined` bei leerer Eingabe: `HostSpecDto.
           // passphrase` ist `Option<Zeroizing<String>>` mit
-          // `#[serde(default)]` -- beides ergibt dort `None`, aber `null`
-          // haelt die Nutzlast fuer einen Host ohne Passphrase
-          // byte-identisch zu vorher.
+          // `#[serde(default)]` -- beides ergibt dort `None`; mit `null`
+          // fuehrt die Nutzlast das Feld immer mit.
           passphrase: secret?.passphrase ?? null,
-          // Task 8 (Spec §4.8): traegt jetzt tatsaechlich das Passwort aus
-          // der Hinweisleiste durch -- `HostEntry.auth_kind` unterscheidet
-          // seit diesem Task einen per Passwort gespeicherten Host von einem
-          // Agent-Host (`sidebar.ts`s `buildHostNotice` zeigt das Passwortfeld
-          // entsprechend), die vormalige Sackgasse ("weder gespeichert noch
-          // unterscheidbar") ist damit geschlossen.
+          // Spec §4.8: traegt das Passwort aus der Hinweisleiste durch --
+          // `HostEntry.auth_kind` unterscheidet einen per Passwort
+          // gespeicherten Host von einem Agent-Host (`sidebar.ts`s
+          // `buildHostNotice` zeigt das Passwortfeld entsprechend).
           password: secret?.password ?? null,
         },
       });
 
       if (!isCurrent()) {
-        // Review-Nachtrag (zweite Runde): dieser Versuch ist ueberholt --
-        // entweder durch einen Disconnect waehrend "connecting" (derselbe
-        // Fall wie zuvor) ODER durch einen NEUEN Connect-Versuch, der
-        // inzwischen angelaufen ist (der Fall, den die erste Fassung
-        // uebersah). Die Verbindung ist jetzt tatsaechlich da, gehoert aber
-        // nicht mehr zum aktuellen Versuch -- sofort wieder schliessen,
+        // Dieser Versuch ist ueberholt -- entweder durch einen Disconnect
+        // waehrend "connecting" ODER durch einen NEUEN Connect-Versuch, der
+        // inzwischen angelaufen ist. Die Verbindung ist jetzt tatsaechlich
+        // da, gehoert aber nicht mehr zum aktuellen Versuch -- sofort wieder
+        // schliessen,
         // NIE anzeigen, unabhaengig davon, ob ein juengerer Versuch bereits
         // aufgeloest hat oder noch aussteht.
         void invoke("disconnect_host", { hostId: runtimeId }).catch(() => {});
@@ -1620,11 +1590,10 @@ export function main(): void {
       // den Zustand eines inzwischen neueren, noch laufenden (oder bereits
       // erfolgreichen) Versuchs nicht ueberschreiben.
       if (isCurrent()) {
-        // Task 8 (Spec §4.8): `connect_host` liefert seit diesem Task
-        // `ConnectError { code, message }` statt einer blossen Zeichenkette
-        // -- ein bloßes `String(error)` zeigte dann `"[object Object]"`
-        // statt der Meldung. Dasselbe Muster wie `onNewSession`s
-        // `SessionError`-Auswertung weiter oben in dieser Datei: `message`
+        // Spec §4.8: `connect_host` liefert `ConnectError { code, message }`
+        // statt einer blossen Zeichenkette -- ein blosses `String(error)`
+        // zeigte `"[object Object]"` statt der Meldung. Dasselbe Muster wie
+        // `createSession`s `SessionError`-Auswertung weiter unten: `message`
         // ausgelesen, wenn vorhanden, sonst der Fehler selbst als Text.
         // `code` steht neben der Meldung am Host: OB die Hinweisleiste nach
         // einem Geheimnis fragt, entscheidet er (nur nach Anmeldefehlern),
@@ -1721,8 +1690,8 @@ export function main(): void {
    * "Connect" der Seitenleiste. Braucht der Host danach eine Antwort -- ein
    * Passwort-Host sofort, ein Key-Host nach `passphrase_required`, jeder nach
    * einer abgelehnten Hostschluessel-Rueckfrage --, zeigt die Seitenleiste sie,
-   * auch wenn sie eingeklappt war, und der Fokus geht hinein (Task 15/16
-   * und 18). Ein mitgegebenes Geheimnis aus dem
+   * auch wenn sie eingeklappt war, und der Fokus geht hinein. Ein
+   * mitgegebenes Geheimnis aus dem
    * Bearbeiten-Formular traegt nur diesen Aufbau; verlangt er eine neue
    * Antwort, fragt die Hinweisleiste. */
   async function connectAndFocusNotice(
@@ -1792,8 +1761,8 @@ export function main(): void {
     state.setHostState(hostId, "disconnected");
     if (runtimeId) {
       void invoke("disconnect_host", { hostId: runtimeId }).catch(() => {
-        // Best effort, dasselbe Muster wie die alte `disconnect()`-Funktion:
-        // der Host steht in der Seitenleiste ohnehin schon als getrennt.
+        // Best effort: der Host steht in der Seitenleiste ohnehin schon als
+        // getrennt.
       });
     }
   }
@@ -1829,11 +1798,8 @@ export function main(): void {
 
   function onNewSession(hostId: string): void {
     const host = state.hosts.find((h) => h.id === hostId);
-    // Ersetzt das alte `if (!terminalHandle) return`/`sessionSection.hidden`-
-    // Waechterpaar (siehe Kopfkommentar): dies hier ist die Pruefung fuer den
-    // neuen, tatsaechlich erreichbaren Aufrufer -- eine reine TS-Verengung,
-    // keine Reichweiten-Behauptung, die ein kuenftiger Leser nachpruefen
-    // muesste.
+    // Eine reine TS-Verengung: die Seitenleiste liefert nur IDs aus
+    // `state.hosts`.
     if (!host) return;
 
     // Spec 2026-10-19 §5.1 Nr. 3: an einer Grenze der Hinweis und nichts sonst
@@ -1850,13 +1816,14 @@ export function main(): void {
       return;
     }
 
-    // Review-Nachtrag (Minor): ein Aufruf fuer einen getrennten oder noch
+    // Ein Aufruf fuer einen getrennten oder noch
     // verbindenden Host liefe mit der (moeglicherweise laengst veralteten) ID
     // ins Leere, mit einer fuer den Nutzer nicht deutbaren Backend-Meldung
     // ("host not connected"). Sichtbar erklaeren statt das ins Backend
     // durchreichen.
-    // Seit Task 16, Punkt E deaktiviert `sidebar.ts` den Knopf "New session"
-    // an einem nicht verbundenen Host -- diese Wache bleibt trotzdem: der
+    // `sidebar.ts` deaktiviert den Knopf "New session" an einem nicht
+    // verbundenen Host (UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt E) --
+    // diese Wache bleibt trotzdem: der
     // Akkord `Ctrl+Shift+N` (`newSessionOnTargetHost`, Schritt 1 und 2 der
     // Kette nehmen auch einen getrennten Host) kommt nicht ueber jenen Knopf,
     // und die Verbindung kann zwischen Oeffnen und Absenden des Dialogs fallen
@@ -1935,7 +1902,7 @@ export function main(): void {
 
   /** `hostId` ist die SETTINGS-ID, wie bei `refreshSessions` und aus
    * demselben Grund: `create_session`/`list_sessions` meinen die lebende
-   * Verbindung, `writeSessions`/`openSession` den gespeicherten Host. Die
+   * Verbindung, `writeSessionRecords`/`openSession` den gespeicherten Host. Die
    * Uebersetzung bleibt in dieser Funktion. */
   async function createSession(
     hostId: string,
@@ -1958,7 +1925,7 @@ export function main(): void {
       try {
         const session = await invoke<string>("create_session", { hostId: runtimeId, cwd, name });
         // Vor der Wache: die Session gibt es auf dem Host, auch wenn die
-        // Verbindung inzwischen gewechselt hat (Fix-Runde 1, Minor 4).
+        // Verbindung inzwischen gewechselt hat.
         rememberSessionDir(hostId, cwd);
         if (!isCurrentConnection(connection)) return;
         // Reihenfolge verbindlich: `list_sessions` MUSS vor `openSession`
@@ -2034,14 +2001,11 @@ export function main(): void {
       port: host.port,
       showDefaultSocket: host.showDefaultSocket !== false,
     };
-    // Task 8 (Spec §4.8): vorher NUR fuer `host.keyPath` gesetzt -- ein per
-    // Passwort oder ausdruecklich per ssh-agent gespeicherter Host liess
-    // `initial.auth` unbelegt, und `host-form.ts`s `applyPreselection()`
-    // ratete dann anhand gefundener Schluessel/Platzhalter, statt die
-    // TATSAECHLICH gespeicherte Anmeldeart zu zeigen -- derselbe stille
-    // Verlust wie beim erneuten Verbinden aus der Seitenleiste, nur im
-    // Bearbeiten-Dialog. `host.authKind` ist nie `null`/fehlend (siehe dessen
-    // Kommentar, `app-state.ts`), jeder der drei Zweige greift.
+    // Spec §4.8: `initial.auth` traegt die TATSAECHLICH gespeicherte
+    // Anmeldeart, auch fuer einen Passwort- oder ssh-agent-Host. Ohne sie
+    // riete `host-form.ts`s `applyPreselection()` anhand gefundener
+    // Schluessel/Platzhalter. `host.authKind` ist nie `null`/fehlend (siehe
+    // dessen Kommentar, `app-state.ts`), jeder der drei Zweige greift.
     if (host.authKind === "key" && host.keyPath) {
       initial.auth = { kind: "key", path: host.keyPath, passphrase: "" } satisfies AuthChoice;
     } else if (host.authKind === "password") {
@@ -2084,7 +2048,7 @@ export function main(): void {
               // verbindet ein Host neu, dessen Verbindungsfelder sich
               // geaendert haben, auf dem Weg von "Connect …" -- einmal, mit
               // dem im Formular getippten Passwort oder der Passphrase, wenn
-              // es eins gibt (Aufgabe 18). Braucht er
+              // es eins gibt. Braucht er
               // danach noch eine Antwort, erscheint das Feld, und der Fokus
               // geht hinein (UX-Spec §7.7). Auch dann, wenn Escape
               // den Dialog waehrend des Speicherns schon geschlossen hat --
@@ -2115,7 +2079,7 @@ export function main(): void {
    * danach neu verbunden wird -- oder die Meldung fuer den Dialog. */
   type EditOutcome = { saved: true; reconnect: boolean } | { saved: false; error: string };
 
-  /** UX-Spec §7.7 (Aufgabe 18). Gespeichert
+  /** UX-Spec §7.7. Gespeichert
    * wird ZUERST -- `update_host` schreibt nur settings.toml und beruehrt keine
    * Verbindung. Scheitert es, ist nichts getrennt: Verbindung, Kacheln und ein
    * laufendes Neuverbinden bleiben, und ein neues "Save" verlaeuft wie das
@@ -2182,20 +2146,19 @@ export function main(): void {
     );
   }
 
-  // Tastatur (Task 12, Designsystem §7.5): die Aktionen hinter den
+  // Tastatur (Designsystem §7.5): die Aktionen hinter den
   // Akkorden. Die Lauscher selbst haengt `installKeyboard` (keyboard.ts)
   // weiter unten ans `document`.
   /** Darf diese Session gerade in eine Kachel -- oder ist es ueberhaupt keine
    * Belegung, sondern nur ein Fokuswechsel?
    *
-   * Die Unterscheidung ist der ganze Punkt, und die erste Fassung dieser
-   * Wache hatte sie nicht (Gutachten zu diesem Paket): eine Session, die
+   * Die Unterscheidung ist der ganze Punkt: eine Session, die
    * BEREITS in einer sichtbaren Kachel liegt, wird von `openSession` nur
    * fokussiert -- da ist nichts zu oeffnen, nichts zu verdraengen und kein
    * `open_terminal` im Spiel. Ein Zustandswaechter davor sperrte
    * genau den Fall aus, fuer den Designsystem §7.5 den Tastaturweg
    * verspricht: die Kachel eines FEHLGESCHLAGENEN Hosts bleibt mit
-   * Sperrleiste sichtbar (Zusage aus Paket 1), und der Nutzer muss zu ihr
+   * Sperrleiste sichtbar (siehe `Host.runtimeId`), und der Nutzer muss zu ihr
    * zurueckkommen koennen, um die letzte Ausgabe zu lesen.
    *
    * Fuer alles andere gilt die Wache: die Seitenleiste zeigt Sessionzeilen
@@ -2252,17 +2215,16 @@ export function main(): void {
   /** Der Weg, auf dem eine Session auf WUNSCH DES NUTZERS in eine Kachel
    * kommt: Klick auf die Sidebar-Zeile (ueber `openSessionFromSidebar`).
    *
-   * Die Wache steht HIER und nicht im Rueckruf der Seitenleiste, weil die
-   * Tastaturwege `state.openSession` frueher direkt riefen -- eine Wache im
-   * Rueckruf haette den Mausweg gedeckt und `Ctrl+Shift+1..9` weiterhin
-   * offen gelassen.
+   * Die Wache steht HIER und nicht im Rueckruf der Seitenleiste, damit auch
+   * die Tastaturwege (`openNextWaitingSession`) durch sie gehen -- eine Wache
+   * im Rueckruf deckte nur den Mausweg.
    *
    * Zwei weitere Stellen rufen `state.openSession`, bewusst an dieser Wache
    * vorbei, damit niemand sie fuer vergessen haelt: `createSession` (die
    * Session ist gerade erst auf einem verbundenen Host entstanden) und
    * `openSessionAfterConnect` (der Host ist eben verbunden und gelistet).
    * "Reconnect" in der Sperrleiste (`grid.ts::requestReconnect`) ruft
-   * `openSession` nicht mehr: es ersetzt den Kanal an Ort und Stelle. */
+   * `openSession` nicht: es ersetzt den Kanal an Ort und Stelle. */
   function openSessionByUser(hostId: string, name: string, request: OpenRequest = {}): void {
     const host = state.hosts.find((h) => h.id === hostId);
     if (!host) return;
@@ -2380,7 +2342,7 @@ export function main(): void {
   }
 
   /** Strg+Umschalt+1-9 (Spec 2026-10-19 §5.7): fokussiert die Kachel an
-   * Position N; ein Kachelziel gibt es nicht mehr. Die Kachel leuchtet auf
+   * Position N; ein Kachelziel gibt es nicht. Die Kachel leuchtet auf
    * (§6.2). */
   function focusTileByNumber(n: number): void {
     if (!state.focusTileAt(n - 1)) return;
@@ -2389,8 +2351,8 @@ export function main(): void {
   }
 
   /** Strg+Umschalt+Hoch/Runter (§5.7): Fokus zur vorigen oder naechsten
-   * Kachel. Frueher blaetterten die Tasten durch die Liste; nach §5.1 legte
-   * das je Tastendruck eine Kachel an. Die Kachel leuchtet auf (§6.2). */
+   * Kachel. Die Tasten blaettern nicht durch die Liste: nach §5.1 legte das
+   * je Tastendruck eine Kachel an. Die Kachel leuchtet auf (§6.2). */
   function focusAdjacentTileByUser(delta: 1 | -1): void {
     if (!state.focusAdjacentTile(delta)) return;
     gridHandle?.focusActiveTile();
@@ -2484,10 +2446,10 @@ export function main(): void {
 
   function focusSidebar(): void {
     // UNBEDINGT und ZUERST, nicht nur ueber den Einklappweg unten: bei einer
-    // bereits ausgeklappten Seitenleiste lief `setSidebarCollapsed` gar nicht,
-    // das Menue blieb offen stehen -- und der Fokus sprang darunter auf die
+    // bereits ausgeklappten Seitenleiste laeuft `setSidebarCollapsed` gar nicht,
+    // das Menue bliebe offen stehen -- und der Fokus spraenge darunter auf die
     // erste Hostzeile. Ein folgendes Escape erreichte dann `onMenuKeyDown`
-    // nicht (der haengt am Menue) und lief bis `onMaximizedEscapeKeydown`
+    // nicht (der haengt am Menue) und liefe bis `onMaximizedEscapeKeydown`
     // durch, das die maximierte Kachel zurueckholte. Genau die Regression,
     // gegen die Entwurf §1.5 geschrieben ist.
     //
@@ -2506,11 +2468,10 @@ export function main(): void {
     // von ihr, und der Halt der Liste wandert nicht in die Spur. Die Spur
     // erreicht man mit Pfeil hoch und Pos1.
     // Stehen dort noch keine Hosts, faengt die ganze Seitenleiste den Fokus:
-    // ihr erster Tab-Halt ist seit UI v2 §7.2 der "Add host"-Knopf
+    // ihr erster Tab-Halt ist nach UI v2 §7.2 der "Add host"-Knopf
     // (`.sb-btn`) im Kopf, der dort VOR dem Zahnrad steht -- also genau das
-    // gewuenschte Ziel. Der Fuss traegt seit Aufgabe 8 nur noch die
-    // Versionszeile und damit ueberhaupt keinen Tab-Halt mehr; der Umweg
-    // ueber ihn war ein toter Zweig (Gesamt-Review, Minor 4).
+    // gewuenschte Ziel. Der Fuss traegt nur die Versionszeile und damit
+    // keinen Tab-Halt.
     const list = elements.sidebar.querySelector<HTMLElement>(".sb-list");
     const target =
       (list && focusableElements(list).find((node) => node.closest(".sb-lane") === null)) ??
@@ -2866,14 +2827,14 @@ export function main(): void {
 
 /** Startet `main()` und macht ein Scheitern SICHTBAR.
  *
- * Zwei Fehler steckten hier, beide unsichtbar fuer die Testsuite, weil
- * `main.test.ts` `main()` direkt aufruft und diese Zeilen nie ausfuehrt:
+ * Beides hier ist unsichtbar fuer die Testsuite, weil `main.test.ts`
+ * `main()` direkt aufruft und diese Zeilen nie ausfuehrt:
  *
  * 1. `addEventListener("DOMContentLoaded", main)` allein genuegt nicht.
  *    Laeuft das Modul erst, NACHDEM das Ereignis gefeuert hat -- was bei
  *    Vite passiert, sobald es Abhaengigkeiten neu buendelt und die Seite
- *    dabei neu laedt --, wird `main` nie gerufen. `index.html` traegt seit
- *    dem Umbau keine statischen Kindelemente mehr, also bleibt exakt ein
+ *    dabei neu laedt --, wird `main` nie gerufen. `index.html` traegt keine
+ *    statischen Kindelemente, also bliebe exakt ein
  *    schwarzes Fenster zurueck: kein Fehler, kein Inhalt, angewandtes CSS.
  *    `document.readyState` deckt beide Reihenfolgen ab.
  *
