@@ -298,8 +298,30 @@ async fn a_hash_in_the_start_directory_stays_literal() {
     }
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
+    // tmux 3.0 kennt `#{session_path}` nicht und gibt dafuer eine leere Zeile
+    // aus; dort bleibt nur der Ordner der Pane zu pruefen.
+    let version = t
+        .exec(&remote::build(&[
+            "tmux",
+            "-L",
+            &socket,
+            "display",
+            "-p",
+            "-t",
+            cases[0].0,
+            "#{version}",
+        ]))
+        .await
+        .unwrap();
+    assert_eq!(version.code, 0, "version: {}", version.stderr);
+    let formats: &[&str] = if version.stdout.trim().starts_with("3.0") {
+        &["#{pane_current_path}"]
+    } else {
+        &["#{pane_current_path}", "#{session_path}"]
+    };
+
     for (name, dir) in &cases {
-        for format in ["#{pane_current_path}", "#{session_path}"] {
+        for &format in formats {
             let r = t
                 .exec(&remote::build(&[
                     "tmux", "-L", &socket, "display", "-p", "-t", name, format,
