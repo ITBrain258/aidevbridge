@@ -36,6 +36,36 @@ pub fn format_entry(host: &str, port: u16, key_type: &str, key_b64: &str) -> Str
     format!("{} {} {}", host_token(host, port), key_type, key_b64)
 }
 
+/// Zeichen, die in keinem Hostnamen und keiner Adresse vorkommen. In einer
+/// `known_hosts`-Zeile haben die meisten eine eigene Bedeutung: `*` und `?`
+/// sind Muster, `!` verneint, `,` trennt Aliasse, `[` `]` umschliessen die
+/// Portform, `|` leitet einen gehashten Namen ein, `#` einen Kommentar und
+/// `@` einen Marker. `@` ist ausserdem der haeufigste Tippfehler
+/// (`user@host`); `/` und `\` stehen in keinem Namen.
+const NEVER_IN_A_HOSTNAME: &[char] = &[',', '*', '?', '!', '[', ']', '|', '@', '#', '/', '\\'];
+
+/// Ob `host` ueberhaupt ein Hostname oder eine Adresse sein kann. Die App
+/// prueft das, bevor sie verbindet oder einen Host speichert, denn
+/// `format_entry` schreibt den Namen roh in `known_hosts`. Fuehrte der
+/// Resolver einen solchen Namen doch zu einem Server, stuende nach der
+/// Bestaetigung eine Zeile darin, die OpenSSH als Muster oder Liste liest,
+/// mit `*` fuer jeden Host. Ob er das tut, haengt von der Plattform ab (glibc
+/// liest `*` als leeren Namen und liefert Loopback, sobald ein Dienst
+/// mitgegeben wird); die Pruefung haengt nicht davon ab.
+///
+/// Bewusst nur eine Sperrliste fuer Werte, die nie gueltig sein koennen:
+/// leer, mit Leerraum (er trennt die Felder einer Zeile, ein Zeilenumbruch
+/// die Zeilen), mit Steuerzeichen oder mit einem Zeichen aus
+/// `NEVER_IN_A_HOSTNAME`. Alles andere bleibt erlaubt, damit keine
+/// funktionierende Einrichtung wegfaellt: internationalisierte Namen, `_`,
+/// ein Punkt am Ende, `:` fuer IPv6 und `%` fuer die Zonen-ID.
+pub(crate) fn is_acceptable_hostname(host: &str) -> bool {
+    !host.is_empty()
+        && !host
+            .chars()
+            .any(|c| c.is_whitespace() || c.is_control() || NEVER_IN_A_HOSTNAME.contains(&c))
+}
+
 /// Haengt `line` an die Datei unter `path` an (TOFU-Nachtrag, Task 13:
 /// Eigenschaft 4). Erstellt Datei und Elternverzeichnis, falls sie noch
 /// nicht existieren.
@@ -372,6 +402,45 @@ mod tests {
         // Dasselbe Token steht vorn in der Zeile, die `format_entry` schreibt.
         assert!(format_entry("192.0.2.10", 2222, "ssh-ed25519", "KEY")
             .starts_with("[192.0.2.10]:2222 "));
+    }
+
+    /// Die Sperrliste trifft nur Werte, die nie ein Hostname sein koennen;
+    /// jede Form, unter der heute eine Verbindung gelingt, bleibt erlaubt.
+    #[test]
+    fn only_values_that_can_never_be_a_hostname_are_refused() {
+        for host in [
+            "localhost",
+            "localhost.",
+            "example.com",
+            "192.0.2.10",
+            "::1",
+            "fe80::1%eth0",
+            "my_host",
+            "bücher.example",
+        ] {
+            assert!(is_acceptable_hostname(host), "refused {host:?}");
+        }
+        for host in [
+            "",
+            "*",
+            "a,b",
+            "a b",
+            "h\nx",
+            "|1|x",
+            "@x",
+            "[::1]",
+            "user@host",
+            "a/b",
+            "a\\b",
+            "#x",
+            "!x",
+            "?",
+            "a\tb",
+            "a\u{0}b",
+            "a\u{a0}b",
+        ] {
+            assert!(!is_acceptable_hostname(host), "accepted {host:?}");
+        }
     }
 
     #[test]

@@ -1553,6 +1553,21 @@ async fn read_known_hosts_text(path: &Path) -> Result<String, String> {
     }
 }
 
+/// Die Meldung zu einem Hostnamen, den `known_hosts::is_acceptable_hostname`
+/// abweist. Sie wiederholt den Wert nicht: er kann Zeilenumbrueche oder
+/// Steuerzeichen enthalten, und der Nutzer sieht ihn ohnehin im Dialog. Sie
+/// nennt dafuer den haeufigsten Grund, einen mitgetippten Benutzernamen.
+const HOSTNAME_REFUSED: &str = "This host name can't be used. Enter only the host name or \
+     address, without a user name, spaces or any of , * ? ! [ ] | @ # / or backslash.";
+
+fn usable_hostname(hostname: &str) -> Result<(), &'static str> {
+    if known_hosts::is_acceptable_hostname(hostname) {
+        Ok(())
+    } else {
+        Err(HOSTNAME_REFUSED)
+    }
+}
+
 pub async fn connect_host_impl(
     state: &Arc<AppState>,
     sink: Arc<dyn HostKeyRequestSink>,
@@ -1620,6 +1635,12 @@ async fn connect_host_core(
     sink: Arc<dyn HostKeyRequestSink>,
     prompt_timeout: Duration,
 ) -> Result<String, ConnectError> {
+    // Vor jeder Namensaufloesung und jedem TCP-Aufbau: ein Name, der nie ein
+    // Hostname sein kann, darf weder den Resolver noch die TOFU-Rueckfrage
+    // erreichen, nach der `format_entry` ihn roh in `known_hosts` schriebe.
+    // Alle Verbindungswege laufen hier durch; eine Reparatur nutzt die Spec
+    // der schon bestehenden Verbindung.
+    usable_hostname(&spec.hostname).map_err(ConnectError::other)?;
     // Vor dem Zerlegen von `spec`: die Meldung zu einem geaenderten
     // Hostschluessel nennt den Host unter seinem Namen in `known_hosts`.
     let host = known_hosts::host_token(&spec.hostname, spec.port);
@@ -3118,6 +3139,8 @@ fn new_host_id() -> String {
 /// `settings_path` explizit als Parameter (siehe `list_hosts_impl`s
 /// Kommentar zur selben Entscheidung).
 pub fn add_host_impl(settings_path: &Path, entry: NewHostEntryDto) -> Result<HostEntry, String> {
+    // Ein Host, der nie verbinden koennte, wird gar nicht erst gespeichert.
+    usable_hostname(&entry.hostname)?;
     let mut current = settings::load_from(settings_path).map_err(settings_error)?;
     let mut host_entry = HostEntry {
         id: new_host_id(),
@@ -3164,6 +3187,9 @@ pub fn update_host_impl(
     id: &str,
     entry: NewHostEntryDto,
 ) -> Result<HostEntry, String> {
+    // Gilt auch fuer einen unveraendert uebernommenen Namen: mit ihm koennte
+    // der Host nie verbinden, und erst ein gueltiger Name repariert ihn.
+    usable_hostname(&entry.hostname)?;
     let mut current = settings::load_from(settings_path).map_err(settings_error)?;
     let host = current
         .hosts
@@ -6493,6 +6519,49 @@ mod tests {
         assert!(result.unwrap_err().contains("could not write"));
         assert_eq!(std::fs::read(&path).unwrap(), before);
         assert_eq!(list_hosts_impl(&path).unwrap(), vec![original]);
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn add_host_impl_refuses_an_impossible_host_name_without_writing() {
+        let path = unique_temp_settings_path("add_refused_name");
+        add_host_impl(&path, new_host_dto("192.0.2.57")).unwrap();
+        let before = std::fs::read(&path).unwrap();
+        for hostname in ["*", "a b"] {
+            assert_eq!(
+                add_host_impl(&path, new_host_dto(hostname)).unwrap_err(),
+                HOSTNAME_REFUSED
+            );
+            assert_eq!(std::fs::read(&path).unwrap(), before);
+            assert!(!path.with_extension("toml.tmp").exists());
+        }
+        std::fs::remove_file(path).unwrap();
+    }
+
+    /// Auch ein unveraendert uebernommener, schon gespeicherter Name wird
+    /// abgewiesen: mit ihm koennte der Host nie verbinden. Ein gueltiger
+    /// Name repariert denselben Eintrag.
+    #[test]
+    fn update_host_impl_refuses_an_impossible_host_name_even_when_it_is_unchanged() {
+        let path = unique_temp_settings_path("update_refused_name");
+        let valid = add_host_impl(&path, new_host_dto("old.example.test")).unwrap();
+        let stored = add_host_impl(&path, new_host_dto("other.example.test")).unwrap();
+        let mut current = settings::load_from(&path).unwrap();
+        current.hosts[1].hostname = "a b".into();
+        settings::save_to(&path, &current).unwrap();
+        let before = std::fs::read(&path).unwrap();
+
+        let changed = update_host_impl(&path, &valid.id, new_host_dto("user@host"));
+        assert_eq!(changed.unwrap_err(), HOSTNAME_REFUSED);
+        let mut unchanged = new_host_dto("a b");
+        unchanged.label = "Renamed".into();
+        let unchanged = update_host_impl(&path, &stored.id, unchanged);
+        assert_eq!(unchanged.unwrap_err(), HOSTNAME_REFUSED);
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+        assert!(!path.with_extension("toml.tmp").exists());
+
+        let repaired = update_host_impl(&path, &stored.id, new_host_dto("fixed.example.test"));
+        assert_eq!(repaired.unwrap().hostname, "fixed.example.test");
         std::fs::remove_file(path).unwrap();
     }
 
