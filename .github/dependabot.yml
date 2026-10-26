@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # Nur die Actions: Sie sind per Commit gepinnt, und Dependabot zieht Commit
+  # und Versionskommentar nach. Cargo und npm bleiben aussen vor, weil die
+  # Lizenzauswahlen unter docs/release/ Cargo.lock und package-lock.json per
+  # Hash binden und jedes Update dort erst neu gebunden werden muss.
+  # Sicherheitsmeldungen zu Cargo und npm kommen weiter ueber die
+  # Dependabot-Alerts.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
