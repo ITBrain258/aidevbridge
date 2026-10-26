@@ -1054,59 +1054,6 @@ export function main(): void {
     state.setSessionRecords(hostId, records, Date.now(), "default");
   }
 
-  function asSessionItems(items: Array<SessionListItemDto | string>): SessionListItemDto[] {
-    return items.map((item) =>
-      typeof item === "string"
-        ? {
-            display_name: item,
-            session_id: null,
-            server_pid: null,
-            server_start_time: null,
-            window_id: null,
-            pane_id: null,
-            pane_pid: null,
-            unverified: null,
-            status: "unknown",
-            status_reason: null,
-          }
-        : {
-            display_name: item.display_name,
-            session_id: item.session_id ?? null,
-            server_pid: item.server_pid ?? null,
-            server_start_time: item.server_start_time ?? null,
-            window_id: item.window_id ?? null,
-            pane_id: item.pane_id ?? null,
-            pane_pid: item.pane_pid ?? null,
-            unverified: item.unverified ?? null,
-            status: item.status ?? "unknown",
-            status_reason: item.status_reason ?? null,
-            session_attached: item.session_attached ?? null,
-          },
-    );
-  }
-
-  /** Die Antwort von `list_sessions` je Socket (Spec 2026-10-25 §6.2). Ein
-   * blosses Array, die Form vor dem Standard-Socket, ist die Liste des
-   * eigenen Sockets allein. */
-  function asSessionList(value: unknown): SessionListDto {
-    const socket = (part: Partial<SocketSessionsDto>): SocketSessionsDto => ({
-      sessions: asSessionItems(part.sessions ?? []),
-      error: part.error ?? null,
-      unsupported_version: part.unsupported_version ?? null,
-    });
-    if (Array.isArray(value)) return { own: socket({ sessions: value }), default: null };
-    const dto = (value ?? {}) as Partial<SessionListDto>;
-    return { own: socket(dto.own ?? {}), default: dto.default ? socket(dto.default) : null };
-  }
-
-  /** Die Antwort von `poll_status` je Socket (Spec 2026-10-25 §6.3). Ein
-   * einzelnes Ergebnis, die Form vor dem Standard-Socket, ist das des eigenen. */
-  function asStatusPolls(value: unknown): StatusPollsDto {
-    const dto = (value ?? {}) as Partial<StatusPollsDto> & Partial<StatusPollDto>;
-    if (typeof dto.complete === "boolean") return { own: { poll: value as StatusPollDto, error: null }, default: null };
-    return { own: dto.own ?? { poll: null, error: null }, default: dto.default ?? null };
-  }
-
   /** Schalter "Show tmux sessions" (Spec 2026-10-25 §10.1): ist er aus, liest
    * die App den Standard-Socket dieses Hosts gar nicht. Fehlt er, gilt an. */
   function showsDefaultSocket(hostId: string): boolean {
@@ -1120,7 +1067,8 @@ export function main(): void {
   /** Status overlay only, via the slim poll_status query; membership of
    * the sidebar list stays with writeSessionRecords (connect/create/kill/reload).
    * Je Socket (Spec 2026-10-25 §6.3): ein Ausfall des Standard-Sockets macht
-   * nur dessen Sessions veraltet. */
+   * nur dessen Sessions veraltet. Die Antwort ist immer Rust
+   * `commands::StatusPollsDto` mit `own` und `default`. */
   async function overlaySessionStatus(hostId: string): Promise<void> {
     if (!document.getElementById("app")) return;
     const connection = sessionConnection(hostId);
@@ -1132,9 +1080,7 @@ export function main(): void {
     const controlGeneration = state.controlForHost(hostId).generation;
     const version = sessionListVersionByHostId.get(hostId) ?? 0;
     try {
-      const polls = asStatusPolls(
-        await invoke<unknown>("poll_status", { hostId: connection.runtimeId, ...includeDefaultArg(hostId) }),
-      );
+      const polls = await invoke<StatusPollsDto>("poll_status", { hostId: connection.runtimeId, ...includeDefaultArg(hostId) });
       if (!document.getElementById("app")) return;
       if (!isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration) return;
       if ((sessionListVersionByHostId.get(hostId) ?? 0) !== version) return;
@@ -1254,13 +1200,13 @@ export function main(): void {
     defaultListReloads.delete(hostId);
   }
 
-  /** `list_sessions` auf der lebenden Verbindung; waehrenddessen pausiert der Poll. */
+  /** `list_sessions` auf der lebenden Verbindung; waehrenddessen pausiert der Poll.
+   * Die Antwort ist immer Rust `commands::SessionListDto` (Spec 2026-10-25
+   * §6.2), jede Zeile mit allen Feldern. */
   async function listSessions(hostId: string, runtimeId: string): Promise<SessionListDto> {
     listsInFlight.set(hostId, (listsInFlight.get(hostId) ?? 0) + 1);
     try {
-      const listed = asSessionList(
-        await invoke<unknown>("list_sessions", { hostId: runtimeId, ...includeDefaultArg(hostId) }),
-      );
+      const listed = await invoke<SessionListDto>("list_sessions", { hostId: runtimeId, ...includeDefaultArg(hostId) });
       // Ob die Liste gelang, entscheidet der eigene Socket (Spec 2026-10-25
       // §7): sein Fehler nimmt den Weg jedes gescheiterten Aufrufs, und die
       // Liste des Standard-Sockets bleibt dann, wie sie war.

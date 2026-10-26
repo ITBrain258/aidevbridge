@@ -23,7 +23,82 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
+// Formwache fuer `list_sessions` und `poll_status`: main.ts nimmt nur die Formen
+// an, die Rust sendet (`commands::SessionListDto`, `commands::StatusPollsDto`,
+// jedes Feld serialisiert). Ein Mock mit einer anderen Form pruefte einen Weg,
+// den es im echten Programm nicht gibt. Deshalb laeuft jede aufgeloeste Antwort
+// dieser beiden Befehle durch `record`, und `afterEach` verlangt eine leere
+// Liste `violations`.
+const ipcShapes = vi.hoisted(() => {
+  const LIST_ITEM_KEYS = [
+    "display_name",
+    "session_id",
+    "server_pid",
+    "server_start_time",
+    "window_id",
+    "pane_id",
+    "pane_pid",
+    "unverified",
+    "status",
+    "status_reason",
+    "session_attached",
+  ];
+  const POLL_KEYS = ["complete", "server_pid", "server_start_time", "sessions", "agents_ok", "titles_ok"];
+  const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === "object" && value !== null && !Array.isArray(value);
+  /** Was `value` gegenueber einem Objekt mit diesen Feldern fehlt. */
+  const missing = (value: unknown, keys: string[], where: string): string[] => {
+    if (!isRecord(value)) {
+      return [`${where} is ${Array.isArray(value) ? "an array" : (JSON.stringify(value) ?? String(value))}, not an object`];
+    }
+    return keys.filter((key) => !(key in value)).map((key) => `${where}.${key} is missing`);
+  };
+  const socketSessions = (value: unknown, where: string): string[] => {
+    const problems = missing(value, ["sessions", "error", "unsupported_version"], where);
+    if (problems.length > 0) return problems;
+    const sessions = (value as Record<string, unknown>).sessions;
+    if (!Array.isArray(sessions)) return [`${where}.sessions is not an array`];
+    return sessions.flatMap((item, index) => missing(item, LIST_ITEM_KEYS, `${where}.sessions[${index}]`));
+  };
+  const socketPoll = (value: unknown, where: string): string[] => {
+    const problems = missing(value, ["poll", "error"], where);
+    if (problems.length > 0) return problems;
+    const poll = (value as Record<string, unknown>).poll;
+    return poll === null ? [] : missing(poll, POLL_KEYS, `${where}.poll`);
+  };
+  const problemsOf = (command: string, value: unknown): string[] => {
+    const part = command === "list_sessions" ? socketSessions : socketPoll;
+    const problems = missing(value, ["own", "default"], command);
+    if (problems.length > 0) return problems;
+    const dto = value as Record<string, unknown>;
+    return [
+      ...part(dto.own, `${command}.own`),
+      ...(dto.default === null ? [] : part(dto.default, `${command}.default`)),
+    ];
+  };
+  const violations: string[] = [];
+  return {
+    /** Der Mock, den die Tests steuern (`invokeMock`); main.ts ruft ihn ueber
+     * die Huelle in `vi.mock` unten. */
+    invoke: vi.fn(),
+    violations,
+    record(command: string, value: unknown): void {
+      for (const problem of problemsOf(command, value)) violations.push(`${problem}: ${JSON.stringify(value)}`);
+    },
+  };
+});
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: (...args: unknown[]) => {
+    const result = ipcShapes.invoke(...args);
+    const command = args[0];
+    if (command === "list_sessions" || command === "poll_status") {
+      // Nur beobachten: main.ts erhaelt dieselbe Zusage, eine Ablehnung
+      // behandelt es selbst.
+      void Promise.resolve(result).then((value) => ipcShapes.record(command, value), () => {});
+    }
+    return result;
+  },
+}));
 vi.mock("@tauri-apps/api/event", () => ({ listen: vi.fn() }));
 // EIN geteiltes Fensterobjekt statt eines frischen je Aufruf: sonst waeren die
 // Aufrufe von `requestUserAttention` (Taskleiste blinkt) nicht zaehlbar.
@@ -143,9 +218,19 @@ import { focusableElements, main, NEUTRAL_NOTICE_MS, stopSessionStatusPoll } fro
 import { MAX_TILES_PER_HOST } from "./state/tile-assignment";
 import { DEFAULT_TERMINAL_PREFS, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { appVersionLine } from "./version";
-import type { UiSettingsDto, WorkspaceDto } from "./views/types";
+import type {
+  SessionListDto,
+  SessionListErrorDto,
+  SessionListItemDto,
+  SocketPollDto,
+  SocketSessionsDto,
+  StatusPollDto,
+  StatusPollsDto,
+  UiSettingsDto,
+  WorkspaceDto,
+} from "./views/types";
 
-const invokeMock = vi.mocked(invoke);
+const invokeMock = vi.mocked(ipcShapes.invoke as unknown as typeof invoke);
 const listenMock = vi.mocked(listen);
 
 interface HostEntryLike {
@@ -321,6 +406,8 @@ afterEach(() => {
   localStorage.clear();
   delete document.documentElement.dataset.accent;
   delete document.documentElement.dataset.base;
+  // Zuletzt, damit ein Befund die Aufraeumarbeit oben nicht abbricht.
+  expect(ipcShapes.violations.splice(0)).toEqual([]);
 });
 
 // --- DOM-Helfer, dieselbe Abfragestruktur wie sidebar.ts/host-form.ts sie
@@ -432,8 +519,8 @@ describe("main: getrennte Kontrollgesundheit und Inventar", () => {
     "ignoriert eine alte Listenablehnung nach Controlwechsel vor der frischen Antwort (%j)", async (failure) => {
       await setupTwoHostsThreeSessions();
       expandHost("h1");
-      const old = deferred<string[]>();
-      const current = deferred<string[]>();
+      const old = deferred<SessionListDto>();
+      const current = deferred<SessionListDto>();
       const previous = invokeMock.getMockImplementation();
       let lists = 0;
       invokeMock.mockImplementation(((command: string, args: never) => {
@@ -449,7 +536,7 @@ describe("main: getrennte Kontrollgesundheit und Inventar", () => {
       await flush();
       expect(document.querySelector(".session-list-notice")).toBeNull();
       expect(() => sessionButton("h1", "s1")).not.toThrow();
-      current.resolve(["s1", "new-current"]);
+      current.resolve(sessionList(["s1", "new-current"]));
       await flush();
       expect(() => sessionButton("h1", "new-current")).not.toThrow();
       expect(hostIndicatorClass("h1")).toContain("ind-on");
@@ -459,11 +546,11 @@ describe("main: getrennte Kontrollgesundheit und Inventar", () => {
   it.each(["create", "kill"] as const)("holt nach einem durch Reparatur ueberholten %s-Listenabschluss einmal lesend nach", async (mutation) => {
     await setupTwoHostsThreeSessions();
     expandHost("h1");
-    const oldTail = deferred<string[]>();
+    const oldTail = deferred<SessionListDto>();
     const previous = invokeMock.getMockImplementation();
     let lists = 0;
     invokeMock.mockImplementation(((command: string, args: never) => {
-      if (command === "list_sessions") return ++lists === 1 ? oldTail.promise : Promise.resolve(["s2", "fresh"]);
+      if (command === "list_sessions") return ++lists === 1 ? oldTail.promise : Promise.resolve(sessionList(["s2", "fresh"]));
       if (command === "create_session") return Promise.resolve("fresh");
       if (command === "kill_session") return Promise.resolve();
       return previous?.(command, args) ?? Promise.resolve();
@@ -486,7 +573,7 @@ describe("main: getrennte Kontrollgesundheit und Inventar", () => {
     await flush();
     expect(lists).toBe(2);
     expect(() => sessionButton("h1", "fresh")).toThrow();
-    oldTail.resolve(["s1", "obsolete"]);
+    oldTail.resolve(sessionList(["s1", "obsolete"]));
     await flush();
     expect(lists).toBe(3);
     expect(() => sessionButton("h1", "fresh")).not.toThrow();
@@ -663,7 +750,7 @@ describe("main: getrennte Kontrollgesundheit und Inventar", () => {
       if (command === "begin_connect" || command === "connect_host") return Promise.resolve("r-first");
       if (command === "run_preflight") return Promise.resolve({ tmux_version: "3.4", has_base64: true, socket_dir_writable: true, blocking_problem: null });
       if (command === "add_host") return saved.promise;
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       return Promise.resolve();
     });
     main();
@@ -771,7 +858,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     // Der Testhost liefert sonst nur Listen fuer r-h1. Die neue Verbindung
     // muss sowohl neue Kanaele als auch eine passende Sessionliste bekommen.
     invokeMock.mockImplementation(((command: string, args: never) => {
-      if (command === "list_sessions") return Promise.resolve(["s1", "s2"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1", "s2"]));
       return previous?.(command, args) ?? Promise.resolve(undefined);
     }) as typeof invoke);
     connect.resolve("r-new");
@@ -806,7 +893,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
       if (command === "connect_host") return networkFailed
         ? Promise.reject({ code: "auth_rejected", message: "Enter the key passphrase." })
         : Promise.resolve("r-h1");
-      if (command === "list_sessions") return networkFailed ? Promise.reject("network down") : Promise.resolve(["s1"]);
+      if (command === "list_sessions") return networkFailed ? Promise.reject("network down") : Promise.resolve(sessionList(["s1"]));
       return Promise.resolve(undefined);
     });
     main();
@@ -843,11 +930,11 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     await setupTwoHostsThreeSessions();
     expandHost("h1");
     openViaSidebar("h1", "s1");
-    const probe = deferred<string[]>();
+    const probe = deferred<SessionListDto>();
     const previous = invokeMock.getMockImplementation();
     let lists = 0;
     invokeMock.mockImplementation(((command: string, args: never) => {
-      if (command === "list_sessions") return ++lists === 1 ? probe.promise : Promise.resolve(["s1", "s2", "fresh"]);
+      if (command === "list_sessions") return ++lists === 1 ? probe.promise : Promise.resolve(sessionList(["s1", "s2", "fresh"]));
       if (command === "create_session") return Promise.resolve("fresh");
       return previous?.(command, args) ?? Promise.resolve(undefined);
     }) as typeof invoke);
@@ -866,15 +953,15 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     await setupTwoHostsThreeSessions();
     expandHost("h1");
     openViaSidebar("h1", "s1");
-    const oldProbe = deferred<string[]>();
+    const oldProbe = deferred<SessionListDto>();
     const create = deferred<string>();
     const previous = invokeMock.getMockImplementation();
     let lists = 0;
     invokeMock.mockImplementation(((command: string, args: never) => {
       if (command === "list_sessions") {
         if (++lists === 1) return oldProbe.promise;
-        if (lists === 2) return Promise.resolve(["s1", "s2", "uncommitted"]);
-        return Promise.resolve(["s1", "s2", "fresh"]);
+        if (lists === 2) return Promise.resolve(sessionList(["s1", "s2", "uncommitted"]));
+        return Promise.resolve(sessionList(["s1", "s2", "fresh"]));
       }
       if (command === "create_session") return create.promise;
       return previous?.(command, args) ?? Promise.resolve(undefined);
@@ -900,14 +987,14 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     await setupTwoHostsThreeSessions();
     expandHost("h1");
     openViaSidebar("h1", "s1");
-    const oldProbe = deferred<string[]>();
-    const newProbe = deferred<string[]>();
+    const oldProbe = deferred<SessionListDto>();
+    const newProbe = deferred<SessionListDto>();
     const previous = invokeMock.getMockImplementation();
     let lists = 0;
     invokeMock.mockImplementation(((command: string, args: never) => {
       if (command === "list_sessions") {
         if (++lists === 1) return oldProbe.promise;
-        if (lists === 2) return Promise.resolve(["s1", "s2"]);
+        if (lists === 2) return Promise.resolve(sessionList(["s1", "s2"]));
         return newProbe.promise;
       }
       return previous?.(command, args) ?? Promise.resolve(undefined);
@@ -922,7 +1009,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     await flush();
     expect(lists).toBe(3);
 
-    oldProbe.resolve(["obsolete"]);
+    oldProbe.resolve(sessionList(["obsolete"]));
     await flush();
     // Das finally der alten Probe darf die laufende neue Probe nicht aus
     // der Deduplizierung loeschen; ein weiterer Kanalverlust teilt sie.
@@ -943,7 +1030,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     const previous = invokeMock.getMockImplementation();
     let recovering = false;
     invokeMock.mockImplementation(((command: string, args: never) => {
-      if (command === "list_sessions") return recovering ? Promise.resolve(["s1", "s2"]) : Promise.reject("network down");
+      if (command === "list_sessions") return recovering ? Promise.resolve(sessionList(["s1", "s2"])) : Promise.reject("network down");
       if (command === "begin_connect") return Promise.resolve(recovering ? "r-new" : "r-rejected");
       if (command === "connect_host") {
         return recovering ? connect.promise : Promise.reject({ code: "auth_rejected", message: "h2 needs a password" });
@@ -976,7 +1063,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
   it.each(["disconnect", "remove"] as const)("ignoriert eine Create-Listenantwort nach %s", async (action) => {
     await setupTwoHostsThreeSessions();
     expandHost("h1");
-    const list = deferred<string[]>();
+    const list = deferred<SessionListDto>();
     const previous = invokeMock.getMockImplementation();
     invokeMock.mockImplementation(((command: string, args: never) => {
       if (command === "create_session") return Promise.resolve("new-session");
@@ -986,7 +1073,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     await createNamed("new-session");
     expect(invokeMock.mock.calls.some(([command]) => command === "create_session")).toBe(true);
     await disconnectOrRemove(action);
-    list.resolve(["s1", "s2", "new-session"]);
+    list.resolve(sessionList(["s1", "s2", "new-session"]));
     await flush();
     expect(tileTitles()).not.toContain("new-session");
     expect(document.querySelectorAll('.tile:not(.tile-empty)')).toHaveLength(0);
@@ -1013,8 +1100,8 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
   it.each(["refresh", "create", "kill"] as const)("laesst eine alte %s-Liste keine neue Verbindung ueberschreiben", async (action) => {
     await setupTwoHostsThreeSessions();
     expandHost("h1");
-    const oldList = deferred<string[]>();
-    const freshList = deferred<string[]>();
+    const oldList = deferred<SessionListDto>();
+    const freshList = deferred<SessionListDto>();
     const previous = invokeMock.getMockImplementation();
     let lists = 0;
     invokeMock.mockImplementation(((command: string, args: never) => {
@@ -1033,9 +1120,9 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     expect(lists).toBe(2);
     // Absichtlich zuerst die alte Antwort: ohne Generationswache wuerde
     // sie auch den Versionszaehler erhoehen und die frische Liste entwerten.
-    oldList.resolve(["old-created"]);
+    oldList.resolve(sessionList(["old-created"]));
     await flush();
-    freshList.resolve(["fresh"]);
+    freshList.resolve(sessionList(["fresh"]));
     await flush();
     expect(() => sessionButton("h1", "fresh")).not.toThrow();
     expect(() => sessionButton("h1", "old-created")).toThrow();
@@ -1068,7 +1155,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     let creates = 0;
     invokeMock.mockImplementation(((command: string, args: never) => {
       if (command === "create_session") return ++creates === 1 ? oldCreate.promise : Promise.resolve("fresh");
-      if (command === "list_sessions") return Promise.resolve(creates >= 2 ? ["s1", "s2", "fresh"] : ["s1", "s2"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(creates >= 2 ? ["s1", "s2", "fresh"] : ["s1", "s2"]));
       return previous?.(command, args) ?? Promise.resolve(undefined);
     }) as typeof invoke);
     await createNamed("old-pending");
@@ -1093,7 +1180,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
   it("ordnet konkurrierende Create/Kill-Auftraege samt Liste und verwirft Refreshes dazwischen", async () => {
     await setupTwoHostsThreeSessions();
     expandHost("h1");
-    const createList = deferred<string[]>();
+    const createList = deferred<SessionListDto>();
     const previous = invokeMock.getMockImplementation();
     let lists = 0;
     invokeMock.mockImplementation(((command: string, args: never) => {
@@ -1102,8 +1189,8 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
       if (command === "list_sessions") {
         if (++lists === 1) return createList.promise;
         // Ein manuell angeforderter Refresh sieht noch den alten Stand.
-        if (lists === 2) return Promise.resolve(["s1", "s2"]);
-        return Promise.resolve(["s2", "new-session"]);
+        if (lists === 2) return Promise.resolve(sessionList(["s1", "s2"]));
+        return Promise.resolve(sessionList(["s2", "new-session"]));
       }
       return previous?.(command, args) ?? Promise.resolve(undefined);
     }) as typeof invoke);
@@ -1112,7 +1199,7 @@ describe("main: Recovery und Verbindungslebensdauer", () => {
     expect(invokeMock.mock.calls.filter(([command]) => command === "kill_session")).toHaveLength(0);
     hostActionButton("h1", "Reload sessions").click();
     await flush();
-    createList.resolve(["s1", "s2", "new-session"]);
+    createList.resolve(sessionList(["s1", "s2", "new-session"]));
     await flush();
     expect(invokeMock.mock.calls.filter(([command]) => command === "kill_session")).toHaveLength(1);
     expect(tileTitles()).toContain("new-session");
@@ -1242,7 +1329,7 @@ describe("main: atomic host persistence", () => {
       if (command === "list_hosts") return Promise.resolve([hostEntry()]);
       if (command === "begin_connect") return Promise.resolve("r1");
       if (command === "connect_host") return Promise.resolve("r1");
-      if (command === "list_sessions") return Promise.resolve(["s1"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
       if (command === "remove_host") return ++removes === 1 ? pendingRemove : Promise.resolve();
       return Promise.resolve(undefined);
     });
@@ -1292,7 +1379,7 @@ describe("main: atomic host persistence", () => {
       if (command === "list_hosts") return Promise.resolve([hostEntry()]);
       if (command === "begin_connect") return Promise.resolve(connects === 0 ? "old-runtime" : "new-runtime");
       if (command === "connect_host") return ++connects === 1 ? oldConnect : Promise.resolve("new-runtime");
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       if (command === "remove_host") return Promise.reject("cannot replace settings");
       return Promise.resolve(undefined);
     });
@@ -1397,7 +1484,7 @@ describe("main: Review-Runde 2 -- Generationszaehler statt einer ID-Menge (ueber
         return connectCalls === 1 ? promiseA : promiseB;
       }
       if (command === "disconnect_host") return Promise.resolve(undefined);
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       return Promise.resolve(undefined);
     });
 
@@ -1494,9 +1581,8 @@ describe("main: gemeinsame Dialoghuelle (Spec 11.1)", () => {
     invokeMock.mockImplementation((command: string, rawArgs?: unknown) => {
       const args = rawArgs as Record<string, unknown> | undefined;
       if (command === "list_hosts") return Promise.resolve([entry]);
-      if (command === "list_ssh_keys" || command === "suggest_hosts" || command === "list_sessions") {
-        return Promise.resolve([]);
-      }
+      if (command === "list_ssh_keys" || command === "suggest_hosts") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       if (command === "begin_connect") return Promise.resolve("r1");
       if (command === "connect_host") return Promise.resolve("r1");
       // Der Sitzungsdialog bindet den Verzeichnisbaum ein, der beim Oeffnen
@@ -1838,6 +1924,7 @@ describe("main: Validierung Important 1 -- 'Edit' waehrend 'connecting' darf kei
       if (command === "list_ssh_keys") return Promise.resolve([]);
       if (command === "begin_connect") return Promise.resolve("r1");
       if (command === "connect_host") return connectPromise;
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       if (command === "update_host") {
         saved = true;
         return Promise.resolve(renamed);
@@ -1898,7 +1985,7 @@ describe("main: Validierung Important 3 -- Remove/Edit treffen nach erfolgreiche
       if (command === "list_ssh_keys") return Promise.resolve([]);
       if (command === "begin_connect") return Promise.resolve("r1");
       if (command === "connect_host") return Promise.resolve("r1");
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       // Was `update_host_impl` zurueckgibt: seit "zuerst speichern" (Aufgabe 18)
       // trennt "Save" erst nach einem gelungenen Speichern.
       if (command === "update_host") return Promise.resolve(hostEntry({ hostname: "10.0.0.9" }));
@@ -2071,9 +2158,9 @@ async function setupTwoHostsThreeSessions(
     }
     if (command === "list_sessions") {
       const hostId = args?.hostId as string;
-      if (hostId === "r-h1") return Promise.resolve(h1Sessions);
-      if (hostId === "r-h2") return Promise.resolve(["s3"]);
-      return Promise.resolve([]);
+      if (hostId === "r-h1") return Promise.resolve(sessionList(h1Sessions));
+      if (hostId === "r-h2") return Promise.resolve(sessionList(["s3"]));
+      return Promise.resolve(sessionList([]));
     }
     if (command === "disconnect_host") return Promise.resolve(undefined);
     // Der Sitzungsdialog bindet seit der Verzeichnisauswahl einen
@@ -2467,7 +2554,7 @@ describe("main: Ersetzen, Grenze und Wiederfinden (Spec 2026-10-19 §5.2, §5.3,
     invokeMock.mockImplementation(async (command: string, rawArgs?: unknown) => {
       const args = rawArgs as Record<string, unknown> | undefined;
       if (command === "create_session") return "s9";
-      if (command === "list_sessions") return args?.hostId === "r-h1" ? ["s1", "s2", "s9"] : ["s3"];
+      if (command === "list_sessions") return sessionList(args?.hostId === "r-h1" ? ["s1", "s2", "s9"] : ["s3"]);
       if (command === "list_directories") return { path: "/tmp", entries: [] };
       return undefined;
     });
@@ -2980,7 +3067,7 @@ describe("main: Strg+Umschalt+N findet einen Zielhost (UX-Spec §7.9)", () => {
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_hosts") return Promise.resolve(entries);
       if (command === "begin_connect") return Promise.resolve(`r${++reservations}`);
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       if (command === "list_ssh_keys" || command === "suggest_hosts") return Promise.resolve([]);
       return Promise.resolve(undefined);
     });
@@ -3121,7 +3208,7 @@ describe("main: globaler Fehlerhinweis ist im Ausgangszustand nicht sichtbar (Na
       if (command === "list_hosts") return Promise.resolve([entry]);
       if (command === "begin_connect") return Promise.resolve("r1");
       if (command === "connect_host") return Promise.resolve("r1");
-      if (command === "list_sessions") return Promise.resolve(["s1"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
       return Promise.resolve(undefined);
     });
 
@@ -3296,7 +3383,7 @@ describe("main: Probe nach einem verlorenen Terminal", () => {
     invokeMock.mockImplementation((command: string, rawArgs?: unknown) => {
       const args = rawArgs as Record<string, unknown> | undefined;
       if (command === "list_sessions") {
-        if (++sessionCalls > 1) return Promise.resolve(["s1", "s2"]);
+        if (++sessionCalls > 1) return Promise.resolve(sessionList(["s1", "s2"]));
         return new Promise((_resolve, reject) => {
           rejectProbe = reject;
         });
@@ -3357,7 +3444,7 @@ describe("main: Probe nach einem verlorenen Terminal", () => {
     let sessionCalls = 0;
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_sessions") {
-        if (++sessionCalls > 1) return Promise.resolve(["s1", "s2"]);
+        if (++sessionCalls > 1) return Promise.resolve(sessionList(["s1", "s2"]));
         return new Promise((_resolve, reject) => {
           rejectProbe = reject;
         });
@@ -3405,12 +3492,12 @@ describe("main: Frischewache der Sessionliste (Abschlussreview Important 1)", ()
     // neu gelegter Fangarm zeigte am Ende auf die Zusage eines SPAETEREN
     // Aufrufs). Dieser erste ist der AELTERE Refresh, und er antwortet mit
     // der kuerzeren Liste -- dem Stand VOR `s2`.
-    let resolveStale!: (names: string[]) => void;
+    let resolveStale!: (listed: SessionListDto) => void;
     let sessionCalls = 0;
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_sessions") {
-        if (++sessionCalls > 1) return Promise.resolve(["s1", "s2"]);
-        return new Promise<string[]>((resolve) => {
+        if (++sessionCalls > 1) return Promise.resolve(sessionList(["s1", "s2"]));
+        return new Promise<SessionListDto>((resolve) => {
           resolveStale = resolve;
         });
       }
@@ -3430,7 +3517,7 @@ describe("main: Frischewache der Sessionliste (Abschlussreview Important 1)", ()
     await flush();
     expect(sessionCalls).toBe(2);
 
-    resolveStale(["s1"]);
+    resolveStale(sessionList(["s1"]));
     await flush();
 
     // Ohne die Wache schreibt die alte Antwort jetzt `["s1"]`: `s2` gilt als
@@ -3448,12 +3535,12 @@ describe("main: Frischewache der Sessionliste (Abschlussreview Important 1)", ()
     openViaSidebar("h1", "s1");
     await flush();
 
-    let resolveStale!: (names: string[]) => void;
+    let resolveStale!: (listed: SessionListDto) => void;
     let sessionCalls = 0;
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_sessions") {
-        if (++sessionCalls > 1) return Promise.resolve(["s1", "s2"]);
-        return new Promise<string[]>((resolve) => {
+        if (++sessionCalls > 1) return Promise.resolve(sessionList(["s1", "s2"]));
+        return new Promise<SessionListDto>((resolve) => {
           resolveStale = resolve;
         });
       }
@@ -3474,7 +3561,7 @@ describe("main: Frischewache der Sessionliste (Abschlussreview Important 1)", ()
 
     // ... und dann antwortet der Host der Probe doch noch: ERFOLGREICH, nur
     // veraltet.
-    resolveStale(["s1"]);
+    resolveStale(sessionList(["s1"]));
     await flush();
 
     // Der Host HAT geantwortet, er lebt. Meldete die Frischewache ihren
@@ -3498,13 +3585,13 @@ describe("main: Frischewache der Sessionliste (Abschlussreview Important 1)", ()
     // SCHREIBVORGAENGE und nicht abgesetzte Abfragen -- ein Zaehler, den nur
     // `refreshSessions` erhoeht, liefe an diesem Ablauf vorbei, und der Test
     // darueber (zwei Refreshes) wuerde das nicht merken.
-    let resolveStale!: (names: string[]) => void;
+    let resolveStale!: (listed: SessionListDto) => void;
     let sessionCalls = 0;
     invokeMock.mockImplementation((command: string, rawArgs?: unknown) => {
       const args = rawArgs as Record<string, unknown> | undefined;
       if (command === "list_sessions") {
-        if (++sessionCalls > 1) return Promise.resolve(["s1", "s2", "s3new"]);
-        return new Promise<string[]>((resolve) => {
+        if (++sessionCalls > 1) return Promise.resolve(sessionList(["s1", "s2", "s3new"]));
+        return new Promise<SessionListDto>((resolve) => {
           resolveStale = resolve;
         });
       }
@@ -3540,7 +3627,7 @@ describe("main: Frischewache der Sessionliste (Abschlussreview Important 1)", ()
     expect(tileTitles()).toContain("s3new");
 
     // Jetzt landet die Antwort von vorher -- ohne `s3new`.
-    resolveStale(["s1", "s2"]);
+    resolveStale(sessionList(["s1", "s2"]));
     await flush();
 
     expect(tileTitles()).toContain("s3new");
@@ -3700,7 +3787,7 @@ function setupSavedHost(
     }
     if (command === "list_sessions") {
       if (++sessionCalls === opts.failSessionCall) return Promise.reject(new Error("connection is dead"));
-      return Promise.resolve(["s1"]);
+      return Promise.resolve(sessionList(["s1"]));
     }
     if (command === "create_session") return Promise.resolve("s2new");
     // Siehe `setupTwoHostsThreeSessions`: der Verzeichnisbaum des Dialogs
@@ -3901,7 +3988,7 @@ describe("main: A1 -- die Host-Identitaet steht still", () => {
       // `add_host` liefert den gespeicherten Eintrag MIT der
       // settings.toml-ID zurueck -- und die ist eine andere als "r1".
       if (command === "add_host") return Promise.resolve(hostEntry({ id: "s1", label: "h1" }));
-      if (command === "list_sessions") return Promise.resolve(["s1"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
       return Promise.resolve(undefined);
     });
 
@@ -4035,7 +4122,7 @@ describe("main: A3 -- ein gescheitertes 'Edit' laesst keinen scheinbar verbunden
       if (command === "list_ssh_keys") return Promise.resolve([]);
       if (command === "begin_connect") return Promise.resolve(`r${connects + 1}`);
       if (command === "connect_host") return Promise.resolve(`r${++connects}`);
-      if (command === "list_sessions") return Promise.resolve(["s1"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
       // A failed atomic update leaves the original saved host intact.
       if (command === "update_host") return Promise.reject(new Error("read-only file system"));
       if (command === "list_directories") {
@@ -4170,10 +4257,10 @@ describe("main: A2 -- der Tastaturfokus folgt der Kachel", () => {
     // erst ein, wenn er dort steht. (Ein Klick auf "Reload sessions" nach dem
     // Fokussieren bewegte den Fokus im Fenster selbst; er taugt hier deshalb
     // nicht als Ausloeser.)
-    let resolveList!: (names: string[]) => void;
+    let resolveList!: (listed: SessionListDto) => void;
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_sessions") {
-        return new Promise<string[]>((resolve) => {
+        return new Promise<SessionListDto>((resolve) => {
           resolveList = resolve;
         });
       }
@@ -4195,7 +4282,7 @@ describe("main: A2 -- der Tastaturfokus folgt der Kachel", () => {
 
     // Jetzt landet die Liste: ein vollstaendiges Neuzeichnen, ohne dass der
     // Nutzer irgendetwas getan haette.
-    resolveList(["s1", "s2"]);
+    resolveList(sessionList(["s1", "s2"]));
     await flush();
 
     // Der Fokuswunsch reist mit der AKTION, nicht mit dem Zustand. Ein
@@ -4919,7 +5006,7 @@ describe("main: Task 8 -- Anmeldeart speichern, Passwort-Hosts verbinden nach Ne
       if (command === "list_ssh_keys") return Promise.resolve([]);
       if (command === "begin_connect") return Promise.resolve("r1");
       if (command === "connect_host") return Promise.resolve("r1");
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       return Promise.resolve(undefined);
     });
 
@@ -5774,7 +5861,7 @@ describe("main: Breite der Seitenleiste (UX-Spec §7.8)", () => {
       if (command === "list_hosts") return Promise.resolve([hostEntry()]);
       if (command === "list_ssh_keys" || command === "suggest_hosts") return Promise.resolve([]);
       if (command === "begin_connect" || command === "connect_host") return Promise.resolve("r1");
-      if (command === "list_sessions") return Promise.resolve(["s1"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
       if (command === "ui_settings" && (args as { patch: unknown }).patch === null) {
         return new Promise<UiSettingsDto>((resolve) => (answer = resolve));
       }
@@ -5913,7 +6000,7 @@ describe("main: reserved connection attempts", () => {
       if (command === "list_hosts") return Promise.resolve([hostEntry()]);
       if (command === "begin_connect") return ++begins === 1 ? oldBegin.promise : Promise.resolve("new-reservation");
       if (command === "connect_host") return Promise.resolve("new-reservation");
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       return Promise.resolve(undefined);
     });
     main();
@@ -5942,7 +6029,7 @@ describe("main: reserved connection attempts", () => {
       if (command === "list_hosts") return Promise.resolve([hostEntry()]);
       if (command === "begin_connect") return Promise.resolve(++begins === 1 ? "old-runtime" : "new-runtime");
       if (command === "connect_host") return (args as {hostId: string}).hostId === "old-runtime" ? oldConnect.promise : Promise.resolve("new-runtime");
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       return Promise.resolve(undefined);
     });
     main(); await flush();
@@ -5996,12 +6083,13 @@ describe("main: reserved connection attempts", () => {
   });
 });
 
+/** Eine Zeile aus `list_sessions` mit jedem Feld, das Rust serialisiert. */
 function sessionItem(overrides: {
   display_name: string;
   session_id?: number | null;
   status?: string | null;
   status_reason?: string | null;
-}): Record<string, unknown> {
+}): SessionListItemDto {
   return {
     display_name: overrides.display_name,
     session_id: overrides.session_id ?? null,
@@ -6013,7 +6101,31 @@ function sessionItem(overrides: {
     unverified: overrides.session_id == null ? "unmeasured_tmux_version" : null,
     status: overrides.status ?? "unknown",
     status_reason: overrides.status_reason ?? null,
+    session_attached: null,
   };
+}
+
+/** Ein Socket aus `list_sessions` (Rust `commands::SocketSessionsDto`). Ein
+ * blosser Name steht fuer `sessionItem({ display_name })`. */
+function socketSessions(
+  sessions: Array<SessionListItemDto | string>,
+  part: { error?: SessionListErrorDto | null; unsupported_version?: string | null } = {},
+): SocketSessionsDto {
+  return {
+    sessions: sessions.map((item) => (typeof item === "string" ? sessionItem({ display_name: item }) : item)),
+    error: part.error ?? null,
+    unsupported_version: part.unsupported_version ?? null,
+  };
+}
+
+/** `list_sessions`-Antwort (Rust `commands::SessionListDto`): `own` sind die
+ * Sessions des eigenen Sockets; der Standard-Socket fehlt (`null`), solange
+ * `opts.default` ihn nicht nennt. */
+function sessionList(
+  own: Array<SessionListItemDto | string>,
+  opts: { default?: SocketSessionsDto | null } = {},
+): SessionListDto {
+  return { own: socketSessions(own), default: opts.default ?? null };
 }
 
 /** `poll_status` answer: one complete numeric inventory of one tmux server.
@@ -6023,7 +6135,7 @@ function statusPoll(
   rows: Array<{ session_id: number; status: string; status_reason?: string }>,
   server: { pid: number; start: number } = { pid: 50, start: 1000 },
   sources: { agents_ok?: boolean; titles_ok?: boolean } = {},
-): Record<string, unknown> {
+): StatusPollDto {
   return {
     complete: true,
     server_pid: server.pid,
@@ -6038,6 +6150,20 @@ function statusPoll(
   };
 }
 
+/** `poll_status`-Antwort eines Servers ohne vollstaendiges numerisches
+ * Inventar, etwa einer ungemessenen tmux-Version, deren Liste nur Namen
+ * traegt: sie beobachtet nichts, gezeigte Werte werden Geschichte. */
+function incompletePoll(): StatusPollDto {
+  return { complete: false, server_pid: null, server_start_time: null, sessions: [], agents_ok: false, titles_ok: false };
+}
+
+/** `poll_status`-Antwort (Rust `commands::StatusPollsDto`): `poll` ist das
+ * Ergebnis des eigenen Sockets; der Standard-Socket fehlt (`null`), solange
+ * `defaultPoll` ihn nicht nennt. */
+function statusPolls(poll: StatusPollDto, defaultPoll: SocketPollDto | null = null): StatusPollsDto {
+  return { own: { poll, error: null }, default: defaultPoll };
+}
+
 describe("main: session status overlay poll", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -6047,13 +6173,13 @@ describe("main: session status overlay poll", () => {
     vi.useRealTimers();
   });
 
-  async function connectWithItems(items: Array<Record<string, unknown> | string>): Promise<void> {
+  async function connectWithItems(items: Array<SessionListItemDto | string>): Promise<void> {
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_hosts") return Promise.resolve([hostEntry()]);
       if (command === "list_ssh_keys") return Promise.resolve([]);
       if (command === "begin_connect") return Promise.resolve("r1");
       if (command === "connect_host") return Promise.resolve("r1");
-      if (command === "list_sessions") return Promise.resolve(items);
+      if (command === "list_sessions") return Promise.resolve(sessionList(items));
       return Promise.resolve(undefined);
     });
     main();
@@ -6075,10 +6201,10 @@ describe("main: session status overlay poll", () => {
     invokeMock.mockImplementation((command: string) => {
       if (command === "poll_status") {
         return Promise.resolve(
-          statusPoll([
+          statusPolls(statusPoll([
             { session_id: 1, status: "idle", status_reason: "agent is idle" },
             { session_id: 2, status: "busy", status_reason: "agent is busy" },
-          ]),
+          ])),
         );
       }
       return Promise.resolve(undefined);
@@ -6101,7 +6227,7 @@ describe("main: session status overlay poll", () => {
     await flush();
     expect(tileTitles()).toContain("s1");
     invokeMock.mockImplementation((command: string) => {
-      if (command === "poll_status") return Promise.resolve(statusPoll([]));
+      if (command === "poll_status") return Promise.resolve(statusPolls(statusPoll([])));
       return Promise.resolve(undefined);
     });
     await vi.advanceTimersByTimeAsync(2000);
@@ -6141,7 +6267,7 @@ describe("main: session status overlay poll", () => {
     invokeMock.mockImplementation((command: string) =>
       Promise.resolve(
         command === "poll_status"
-          ? statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }])
+          ? statusPolls(statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }]))
           : undefined,
       ),
     );
@@ -6175,7 +6301,7 @@ describe("main: session status overlay poll", () => {
     ]);
     invokeMock.mockImplementation((command: string) => {
       if (command === "poll_status") {
-        return Promise.resolve(statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }]));
+        return Promise.resolve(statusPolls(statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }])));
       }
       return Promise.resolve(undefined);
     });
@@ -6191,7 +6317,7 @@ describe("main: session status overlay poll", () => {
       invokeMock.mockImplementation((command: string) =>
         Promise.resolve(
           command === "poll_status"
-            ? statusPoll([{ session_id: 1, status, status_reason: status === "waiting" ? "permission prompt" : "agent is idle" }])
+            ? statusPolls(statusPoll([{ session_id: 1, status, status_reason: status === "waiting" ? "permission prompt" : "agent is idle" }]))
             : undefined,
         ),
       );
@@ -6266,7 +6392,7 @@ describe("main: session status overlay poll", () => {
     ]);
     const poll = (rows: Array<{ session_id: number; status: string; status_reason?: string }>): void => {
       invokeMock.mockImplementation((command: string) =>
-        Promise.resolve(command === "poll_status" ? statusPoll(rows) : undefined),
+        Promise.resolve(command === "poll_status" ? statusPolls(statusPoll(rows)) : undefined),
       );
     };
     // Erst wartet s3, einen Poll spaeter auch s1.
@@ -6333,7 +6459,7 @@ describe("main: session status overlay poll", () => {
     ]);
     invokeMock.mockImplementation((command: string) => {
       if (command === "poll_status") {
-        return Promise.resolve(statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }]));
+        return Promise.resolve(statusPolls(statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }])));
       }
       return Promise.resolve(undefined);
     });
@@ -6355,7 +6481,7 @@ describe("main: session status overlay poll", () => {
     invokeMock.mockImplementation((command: string) => {
       if (command === "poll_status") {
         return Promise.resolve(
-          statusPoll([{ session_id: 1, status: "busy", status_reason: "agent is busy" }], { pid: 77, start: 2000 }),
+          statusPolls(statusPoll([{ session_id: 1, status: "busy", status_reason: "agent is busy" }], { pid: 77, start: 2000 })),
         );
       }
       return Promise.resolve(undefined);
@@ -6374,9 +6500,7 @@ describe("main: session status overlay poll", () => {
     await flush();
     invokeMock.mockImplementation((command: string) => {
       if (command === "poll_status") {
-        return Promise.resolve({
-          complete: false, server_pid: null, server_start_time: null, sessions: [], agents_ok: false, titles_ok: false,
-        });
+        return Promise.resolve(statusPolls(incompletePoll()));
       }
       return Promise.resolve(undefined);
     });
@@ -6407,9 +6531,9 @@ describe("main: session status overlay poll", () => {
     ]);
     expandHost("h1");
     const polls = [
-      statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }]),
-      statusPoll([{ session_id: 1, status: "unknown", status_reason: "no agent source is attached yet" }], undefined, { agents_ok: false }),
-      statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }]),
+      statusPolls(statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }])),
+      statusPolls(statusPoll([{ session_id: 1, status: "unknown", status_reason: "no agent source is attached yet" }], undefined, { agents_ok: false })),
+      statusPolls(statusPoll([{ session_id: 1, status: "waiting", status_reason: "permission prompt" }])),
     ];
     invokeMock.mockImplementation((command: string) =>
       Promise.resolve(command === "poll_status" ? polls.shift() : undefined));
@@ -6445,7 +6569,7 @@ describe("main: session status overlay poll", () => {
     openViaSidebar("h1", "s1");
     await flush();
     invokeMock.mockImplementation((command: string) => Promise.resolve(command === "poll_status"
-      ? statusPoll([{ session_id: 1, status: "unknown", status_reason: "" }], undefined, { titles_ok: false })
+      ? statusPolls(statusPoll([{ session_id: 1, status: "unknown", status_reason: "" }], undefined, { titles_ok: false }))
       : undefined));
     await vi.advanceTimersByTimeAsync(2000);
     await flush();
@@ -6460,7 +6584,7 @@ describe("main: session status overlay poll", () => {
     ]);
     expandHost("h1");
     invokeMock.mockImplementation((command: string) => Promise.resolve(command === "poll_status"
-      ? statusPoll([{ session_id: 1, status: "unknown", status_reason: "no agent source is attached yet" }])
+      ? statusPolls(statusPoll([{ session_id: 1, status: "unknown", status_reason: "no agent source is attached yet" }]))
       : undefined));
     await vi.advanceTimersByTimeAsync(2000);
     await flush();
@@ -6471,11 +6595,11 @@ describe("main: session status overlay poll", () => {
     await connectWithItems([
       sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" }),
     ]);
-    const list = deferred<unknown>();
-    const polls: Array<(value: unknown) => void> = [];
+    const list = deferred<SessionListDto>();
+    const polls: Array<(value: StatusPollsDto) => void> = [];
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_sessions") return list.promise;
-      if (command === "poll_status") return new Promise((resolve) => { polls.push(resolve); });
+      if (command === "poll_status") return new Promise<StatusPollsDto>((resolve) => { polls.push(resolve); });
       return Promise.resolve(undefined);
     });
     const listsBefore = calls("list_sessions").length;
@@ -6485,7 +6609,7 @@ describe("main: session status overlay poll", () => {
     await vi.advanceTimersByTimeAsync(10_000);
     expect(calls("poll_status")).toHaveLength(0);
 
-    list.resolve([sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" })]);
+    list.resolve(sessionList([sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" })]));
     await flush();
     await vi.advanceTimersByTimeAsync(2000);
     expect(calls("poll_status")).toHaveLength(1);
@@ -6493,7 +6617,7 @@ describe("main: session status overlay poll", () => {
     await vi.advanceTimersByTimeAsync(5000);
     expect(calls("poll_status")).toHaveLength(1);
     // ... und der naechste erst 2 s nach seinem Ende.
-    polls[0](statusPoll([{ session_id: 1, status: "idle", status_reason: "agent is idle" }]));
+    polls[0](statusPolls(statusPoll([{ session_id: 1, status: "idle", status_reason: "agent is idle" }])));
     await flush();
     await vi.advanceTimersByTimeAsync(1999);
     expect(calls("poll_status")).toHaveLength(1);
@@ -6567,7 +6691,9 @@ describe("main: Selbstreparatur der Steuerung (UX-Spec §5.3)", () => {
       if (command === "list_hosts") return Promise.resolve([hostEntry(entry)]);
       if (command === "list_ssh_keys") return Promise.resolve([]);
       if (command === "begin_connect" || command === "connect_host") return Promise.resolve("r1");
-      if (command === "list_sessions") return Promise.resolve(["s1"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
+      // Die Liste traegt nur Namen, also ist auch die Abfrage unvollstaendig.
+      if (command === "poll_status") return Promise.resolve(statusPolls(incompletePoll()));
       if (command === "begin_control_repair") return Promise.resolve(++generation);
       if (command === "repair_control") return repair();
       return Promise.resolve(undefined);
@@ -6916,7 +7042,9 @@ describe("main: Neuverbinden nach Verlust der Terminalverbindung (UX-Spec §5.4)
       if (command === "list_ssh_keys") return Promise.resolve([]);
       if (command === "begin_connect") return Promise.resolve(`r${++reservations}`);
       if (command === "connect_host") return ++connects === 1 ? Promise.resolve("ok") : reconnect(connects - 1);
-      if (command === "list_sessions") return Promise.resolve(["s1"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
+      // Die Liste traegt nur Namen, also ist auch die Abfrage unvollstaendig.
+      if (command === "poll_status") return Promise.resolve(statusPolls(incompletePoll()));
       return Promise.resolve(undefined);
     });
     main();
@@ -7084,7 +7212,7 @@ describe("main: Neuverbinden nach Verlust der Terminalverbindung (UX-Spec §5.4)
           ? Promise.resolve("ok")
           : Promise.reject({ code: "passphrase_required", message: "The key needs its passphrase." });
       }
-      if (command === "list_sessions") return Promise.resolve(["s1"]);
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
       return Promise.resolve(undefined);
     });
     main();
@@ -7242,7 +7370,7 @@ describe("main: Neuverbinden nach Verlust der Terminalverbindung (UX-Spec §5.4)
     expect(quietLine()?.textContent).toBe("Reconnecting…");
     expect(failedNotice()).toBeNull();
     expect(calls("connect_host")).toHaveLength(2);
-    list.resolve(["s1"]);
+    list.resolve(sessionList(["s1"]));
     await flush();
     expect(quietLine()).not.toBeNull();
     expect(failedNotice()).toBeNull();
@@ -7306,7 +7434,7 @@ describe("main: Arbeitsplatz merken und wiederherstellen (UX-Spec §7.1-§7.3)",
     workspace?: Partial<WorkspaceDto>;
     restore?: boolean;
     /** Antwort von `list_sessions` je Hostname. */
-    sessions?: Record<string, Array<string | Record<string, unknown>>>;
+    sessions?: Record<string, Array<string | SessionListItemDto>>;
     /** Antwort auf `connect_host` je Versuch; Standard: verbunden. */
     connect?: (hostname: string) => Promise<unknown>;
     /** Antwort auf das lesende `ui_settings`; Standard: der gespeicherte Stand. */
@@ -7315,7 +7443,7 @@ describe("main: Arbeitsplatz merken und wiederherstellen (UX-Spec §7.1-§7.3)",
     write?: () => Promise<unknown>;
     /** Antwort auf `remove_host`; Standard: entfernt. */
     remove?: () => Promise<unknown>;
-    poll?: () => Promise<unknown>;
+    poll?: () => Promise<StatusPollsDto>;
     /** Antwort auf `create_session`; Standard: angelegt unter dem gewuenschten Namen. */
     create?: () => Promise<unknown>;
     /** Antwort auf `update_host`; Standard: gespeichert, wie geschickt (`saved`). */
@@ -7350,9 +7478,9 @@ describe("main: Arbeitsplatz merken und wiederherstellen (UX-Spec §7.1-§7.3)",
         return world.connect?.(hostname) ?? Promise.resolve("ok");
       }
       if (command === "list_sessions") {
-        return Promise.resolve(world.sessions?.[hostnameByRuntime.get(args?.hostId as string) ?? ""] ?? []);
+        return Promise.resolve(sessionList(world.sessions?.[hostnameByRuntime.get(args?.hostId as string) ?? ""] ?? []));
       }
-      if (command === "poll_status") return world.poll?.() ?? Promise.resolve(statusPoll([]));
+      if (command === "poll_status") return world.poll?.() ?? Promise.resolve(statusPolls(statusPoll([])));
       if (command === "list_ssh_keys" || command === "suggest_hosts") return Promise.resolve([]);
       // Der Baum im Sitzungsdialog; sein Inhalt ist hier gleichgueltig.
       if (command === "list_directories") return Promise.resolve({ path: (args?.path as string) || "/home/m", entries: [] });
@@ -7523,7 +7651,7 @@ describe("main: Arbeitsplatz merken und wiederherstellen (UX-Spec §7.1-§7.3)",
       // Jeder Poll aendert den Status: AppState meldet sich jedes Mal.
       poll: () => {
         busy = !busy;
-        return Promise.resolve(statusPoll([{ session_id: 1, status: busy ? "busy" : "idle" }]));
+        return Promise.resolve(statusPolls(statusPoll([{ session_id: 1, status: busy ? "busy" : "idle" }])));
       },
     });
     expect(slots()[0]).toBe("c1");
@@ -7970,7 +8098,7 @@ describe("main: Arbeitsplatz merken und wiederherstellen (UX-Spec §7.1-§7.3)",
         return Promise.resolve({ tmux_version: "3.4", has_base64: true, socket_dir_writable: true, blocking_problem: null });
       }
       if (command === "add_host") return Promise.resolve(hostEntry({ id: "host_new", label: "new" }));
-      if (command === "list_sessions") return Promise.resolve([]);
+      if (command === "list_sessions") return Promise.resolve(sessionList([]));
       return Promise.resolve(undefined);
     });
     main();
@@ -8080,7 +8208,7 @@ describe("main: Arbeitsplatz merken und wiederherstellen (UX-Spec §7.1-§7.3)",
       sessions: { "10.0.0.3": [sessionItem({ display_name: "c1", session_id: 1, status: "idle" })] },
       poll: () => {
         busy = !busy;
-        return Promise.resolve(statusPoll([{ session_id: 1, status: busy ? "busy" : "idle" }]));
+        return Promise.resolve(statusPolls(statusPoll([{ session_id: 1, status: busy ? "busy" : "idle" }])));
       },
       write: () => Promise.reject("settings.toml is read-only"),
     });
@@ -8746,13 +8874,12 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
   const names = () =>
     Array.from(document.querySelectorAll("#sidebar .row-session .row-label")).map((el) => el.textContent);
   const lists = () => invokeMock.mock.calls.filter(([command]) => command === "list_sessions").length;
-  const socket = (sessions: unknown[]) => ({ sessions, error: null, unsupported_version: null });
-  const failure = { code: "other", message: "boom", control_generation: 0 };
+  const failure: SessionListErrorDto = { code: "other", message: "boom", control_generation: 0 };
 
   async function connect(
     entry: Record<string, unknown>,
-    listed: unknown,
-    poll: () => unknown = () => ({ own: { poll: statusPoll([]), error: null }, default: null }),
+    listed: SessionListDto,
+    poll: () => StatusPollsDto = () => statusPolls(statusPoll([])),
   ): Promise<void> {
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_hosts") return Promise.resolve([{ ...hostEntry(), ...entry }]);
@@ -8773,22 +8900,21 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
   it("listet gleichnamige Sessions beider Sockets nebeneinander", async () => {
     await connect(
       {},
-      {
-        own: socket([sessionItem({ display_name: "main", session_id: 1 })]),
-        default: socket([sessionItem({ display_name: "main", session_id: 1 })]),
-      },
+      sessionList([sessionItem({ display_name: "main", session_id: 1 })], {
+        default: socketSessions([sessionItem({ display_name: "main", session_id: 1 })]),
+      }),
     );
     expect(names()).toEqual(["main", "main"]);
   });
 
   it("laesst einen Fehler des Standard-Sockets die eigene Liste stehen", async () => {
-    await connect({}, { own: socket(["main"]), default: { sessions: [], error: failure, unsupported_version: null } });
+    await connect({}, sessionList(["main"], { default: socketSessions([], { error: failure }) }));
     expect(names()).toEqual(["main"]);
     expect(hostIndicatorClass("h1")).toContain("ind-on");
   });
 
   it("fragt den Standard-Socket nicht, wenn der Schalter des Hosts aus ist", async () => {
-    await connect({ show_default_socket: false }, ["main"]);
+    await connect({ show_default_socket: false }, sessionList(["main"]));
     expect(invokeMock).toHaveBeenCalledWith("list_sessions", { hostId: "r1" });
     expect(names()).toEqual(["main"]);
   });
@@ -8803,7 +8929,7 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
       pane_pid: 100 + id,
       session_attached: 1,
     });
-    await connect({}, { own: socket([]), default: socket([foreign("main", 1), foreign("other", 2)]) });
+    await connect({}, sessionList([], { default: socketSessions([foreign("main", 1), foreign("other", 2)]) }));
     const hint = "This tmux session is also open elsewhere. While it is open here, tmux sizes its window to this terminal.";
     openViaSidebar("h1", "main");
     await flush();
@@ -8820,9 +8946,8 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
   });
 
   it("oeffnet eine ungebundene fremde Session auf keinem Weg", async () => {
-    await connect({}, {
-      own: socket([]),
-      default: socket([
+    await connect({}, sessionList([], {
+      default: socketSessions([
         {
           ...sessionItem({ display_name: "grouped", session_id: 3 }),
           server_pid: null,
@@ -8833,7 +8958,7 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
           unverified: "the session shares windows with another session",
         },
       ]),
-    });
+    }));
     // Ueber das Schnelloeffnen: die Seitenleiste sperrt die Zeile ohnehin.
     chord("p");
     runQuickOpenOption("grouped");
@@ -8855,7 +8980,7 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
     };
     let attached = 0;
     invokeMock.mockClear();
-    await connect({}, { own: socket([]), default: socket([{ ...bound, session_attached: attached }]) });
+    await connect({}, sessionList([], { default: socketSessions([{ ...bound, session_attached: attached }]) }));
     openViaSidebar("h1", "main");
     await flush();
     const hint = "This tmux session is also open elsewhere.";
@@ -8864,9 +8989,9 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
     attached = 1;
     invokeMock.mockImplementation((command: string) => {
       if (command === "list_sessions") {
-        return Promise.resolve({ own: socket([]), default: socket([{ ...bound, session_attached: attached }]) });
+        return Promise.resolve(sessionList([], { default: socketSessions([{ ...bound, session_attached: attached }]) }));
       }
-      if (command === "poll_status") return Promise.resolve({ own: { poll: statusPoll([]), error: null }, default: null });
+      if (command === "poll_status") return Promise.resolve(statusPolls(statusPoll([])));
       return Promise.resolve(undefined);
     });
     hostActionButton("h1", "Reload sessions").click();
@@ -8884,11 +9009,8 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
     let server = { pid: 60, start: 2000 };
     await connect(
       {},
-      { own: socket(["main"]), default: { sessions: [], error: null, unsupported_version: "3.4" } },
-      () => ({
-        own: { poll: statusPoll([]), error: null },
-        default: { poll: statusPoll([{ session_id: 7, status: "idle" }], server), error: null },
-      }),
+      sessionList(["main"], { default: socketSessions([], { unsupported_version: "3.4" }) }),
+      () => statusPolls(statusPoll([]), { poll: statusPoll([{ session_id: 7, status: "idle" }], server), error: null }),
     );
     const listedAtConnect = lists();
     await vi.advanceTimersByTimeAsync(24000);
@@ -8901,11 +9023,10 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
   });
 
   it("laedt die Liste des Standard-Sockets bei einer unbekannten Session neu, hoechstens alle 10 s", async () => {
-    let defaultPoll: unknown = { poll: null, error: failure };
-    await connect({}, { own: socket(["main"]), default: socket([]) }, () => ({
-      own: { poll: statusPoll([]), error: null },
-      default: defaultPoll,
-    }));
+    let defaultPoll: SocketPollDto = { poll: null, error: failure };
+    await connect({}, sessionList(["main"], { default: socketSessions([]) }), () =>
+      statusPolls(statusPoll([]), defaultPoll),
+    );
     const listedAtConnect = lists();
     await vi.advanceTimersByTimeAsync(2000);
     await flush();
