@@ -5,8 +5,10 @@ macOS-Lieferung (Universal-DMG, ad-hoc signiert); die App selbst ist
 unverändert. Der Tag `v0.2.3` steht auf `95b17ae`; der Workflow hat das DMG
 gebaut, auf Apple silicon und Intel installiert und gestartet und an das
 Release gehängt. Seit dem 26.10. baut der Workflow `packages.yml` bei jedem
-Tag alle Installer, auch MSI, Setup-EXE und ZIP; die Windows-Pakete für 0.2.3
-hängt ein Handlauf mit dem Tag an. Davor: Version `0.2.2`, Release am 25.10.2026 mit
+Tag alle Installer, auch MSI, Setup-EXE und ZIP. Für 0.2.3 hat ein Handlauf
+mit dem Tag sie am 26.10. gebaut, auf einem frischen Windows-Runner
+installiert und gestartet und an das Release gehängt; es trägt damit alle
+vier Pakete. Davor: Version `0.2.2`, Release am 25.10.2026 mit
 MSI, Setup-EXE und ZIP, unsigniert. Es bringt die Sessions auf tmux' Standard-Socket (M3.1);
 ihre Abnahme ist bestanden, die Statuslatenz erst mit den Korrekturen vom
 27.10., die noch in keinem Release sind. `0.2.1`
