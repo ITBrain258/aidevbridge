@@ -141,3 +141,31 @@ Get-FileHash .\aidevbridge-0.2.2-windows-x64.zip -Algorithm SHA256
 The `Hash` it prints must match the release notes exactly; upper or lower
 case doesn't matter. If it doesn't match, don't run the file, and report it
 through the private form.
+
+The checksum comes from the same release as the file. An optional, stronger
+check doesn't rely on the release: from the release after 0.2.3 on, the workflow
+`.github/workflows/packages.yml` records a build provenance
+(`actions/attest-build-provenance`) for each file that the run of the
+release's tag attaches. The provenance is signed through the public Sigstore
+instance, kept by GitHub apart from the release files and notes, and ties
+the file's SHA-256 to this repository, the workflow, the tag and its commit.
+Check it with the
+[GitHub CLI](https://cli.github.com/manual/gh_attestation_verify):
+
+```sh
+gh attestation verify aidevbridge-<version>-windows-x64.zip --repo ITBrain258/aidevbridge --source-ref refs/tags/v<version>
+```
+
+It must print `Verification succeeded!` and name
+`.github/workflows/packages.yml@refs/tags/v<version>` as the build workflow.
+`--source-ref` is optional; it also requires the tag of that release, so a
+file built for another version doesn't pass. The command fetches the
+provenance from the GitHub API and therefore needs the GitHub CLI signed in
+to a GitHub account (`gh auth login`, or a token in `GH_TOKEN`); any account
+will do. A manual run that names a tag but starts from another ref, such as
+a branch, attaches the files the release still lacks without a provenance,
+because the provenance would name that ref as the source. For such a file,
+and for every file of 0.2.3 and earlier, the command reports
+`No attestations found`, and only the checksum check above applies. A build
+provenance is not a code signature: Windows and macOS still treat the files
+as unsigned.

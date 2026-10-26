@@ -57,6 +57,19 @@ xterm.js.
   `Get-FileHash .\aidevbridge-0.2.2-windows-x64-setup.exe -Algorithm SHA256`
   (or the name of the file you downloaded) must print the same value. It prints upper-case letters where the release
   lists lower-case ones; letter case does not matter.
+- **Optional, stronger: check the build provenance.** From the release after
+  0.2.3 on, each file that the run of the release's tag attaches has a build
+  provenance: a record, signed through Sigstore and kept by GitHub apart from
+  the release, that ties the file's SHA-256 to this repository's workflow
+  `packages.yml`, the tag and its commit. With the
+  [GitHub CLI](https://cli.github.com/), signed in to any GitHub account
+  (`gh auth login`), run
+  `gh attestation verify <file> --repo ITBrain258/aidevbridge`; add
+  `--source-ref refs/tags/v<version>` to also require that release's tag. It
+  must print `Verification succeeded!`. A file that a manual run attached
+  later has no provenance (`No attestations found`); for it, only the
+  SHA-256 check above applies. Details in
+  [SECURITY.md](SECURITY.md#unsigned-binaries-and-checking-a-download).
 - **macOS: not notarized yet.** macOS refuses the first start ("Apple could
   not verify …"). After checking the file with
   `shasum -a 256 ~/Downloads/aidevbridge-<version>-macos-universal.dmg`,
@@ -492,7 +505,12 @@ published file is never replaced by different content: a platform whose files
 are all attached stays as it is, and if a platform is only partly attached, an
 attached file whose digest differs from the new build, or that has no digest,
 stops the run before anything is attached. To rebuild such a file on purpose,
-delete it from the release by hand and run the workflow again.
+delete it from the release by hand and run the workflow again. Only the run
+of the tag itself records a build provenance for the files it attaches
+(`actions/attest-build-provenance`, see
+[Before you download](#before-you-download)); a manual run that names a tag
+but starts from another ref, such as a branch, would record that ref as the
+source, so it attaches without provenance and says so in a warning.
 
 ### Why not `cargo build --release`
 
