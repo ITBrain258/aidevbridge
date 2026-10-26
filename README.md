@@ -66,9 +66,11 @@ xterm.js.
   (`gh auth login`), run
   `gh attestation verify <file> --repo ITBrain258/aidevbridge`; add
   `--source-ref refs/tags/v<version>` to also require that release's tag. It
-  must print `Verification succeeded!`. A file that a manual run attached
-  later has no provenance (`No attestations found`); for it, only the
-  SHA-256 check above applies. Details in
+  must print `Verification succeeded!`. A file that a manual run from another
+  ref (such as a branch) attached later has no provenance, and the command
+  fails for it (current versions of the GitHub CLI report
+  `HTTP 404: Not Found`); for it, only the SHA-256 check above applies.
+  Details in
   [SECURITY.md](SECURITY.md#unsigned-binaries-and-checking-a-download).
 - **macOS: not notarized yet.** macOS refuses the first start ("Apple could
   not verify …"). After checking the file with

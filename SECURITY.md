@@ -165,7 +165,8 @@ to a GitHub account (`gh auth login`, or a token in `GH_TOKEN`); any account
 will do. A manual run that names a tag but starts from another ref, such as
 a branch, attaches the files the release still lacks without a provenance,
 because the provenance would name that ref as the source. For such a file,
-and for every file of 0.2.3 and earlier, the command reports
-`No attestations found`, and only the checksum check above applies. A build
-provenance is not a code signature: Windows and macOS still treat the files
-as unsigned.
+and for every file of 0.2.3 and earlier, the command fails, because GitHub
+keeps no provenance for its SHA-256 (current versions of the GitHub CLI
+report `HTTP 404: Not Found`), and only the checksum check above applies.
+A build provenance is not a code signature: Windows and macOS still treat
+the files as unsigned.
