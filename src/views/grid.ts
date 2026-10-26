@@ -68,7 +68,7 @@ export interface GridOptions {
   onCloseTerminal: (hostId: string, name: string, socket: SessionSocket) => void;
   /** Eine ausgefallene Hostverbindung wieder aufbauen; Anmeldung lebt in main.ts. */
   onReconnectHost: (hostId: string) => void;
-  /** Nachtrag B, Punkt 2 (Design §11.2): "New session" aus dem Leerzustand
+  /** Design §11.2: "New session" aus dem Leerzustand
    * der Rasterflaeche. Den Host waehlt main.ts mit derselben Zielhost-Kette
    * wie Strg+Umschalt+N (UX-Spec §7.9) -- sonst stimmte der Tooltip "New
    * session (Ctrl+Shift+N)" am Knopf nicht. Diese Datei entscheidet weder den
@@ -106,8 +106,8 @@ export interface GridOptions {
 export interface GridHandle {
   dispose(): void;
   /** Der EINE entprellte Refit-Pfad (Designsystem §5.5) fuer alles, was diese
-   * Datei selbst nicht ausloest -- vor allem das Ziehen der Seitenleiste
-   * (Shell-Task 11): der Ziehgriff committet auf `pointerup`, ruft danach
+   * Datei selbst nicht ausloest -- vor allem das Ziehen der Seitenleiste:
+   * der Ziehgriff committet auf `pointerup`, ruft danach
    * dies hier. Ruft die Lage neu und `TerminalHandle.refit()` auf jeder
    * sichtbaren Kachel auf -- der eigentliche Entpreller lebt in `terminal.ts`,
    * nicht hier (ein zweiter eigener Timer waere der zweite Pfad, den §5.5
@@ -269,8 +269,8 @@ interface ResolvedSession {
    * kein zweiter Suchlauf.
    *
    * `reconcile` montiert nur bei `connected`. Eine Laufzeit-ID allein reicht
-   * nicht: bei `failed` bleibt die alte ID ABSICHTLICH stehen (Zusage aus
-   * Paket 1, siehe `Host.runtimeId`), eine Kachel ohne Terminal -- etwa eine
+   * nicht: bei `failed` bleibt die alte ID ABSICHTLICH stehen (siehe
+   * `Host.runtimeId`), eine Kachel ohne Terminal -- etwa eine
    * verborgene, deren Kanal mit der vorigen Verbindung ging -- montierte beim
    * Zurueckholen sonst gegen eine TOTE Verbindung.
    *
@@ -290,7 +290,7 @@ interface ResolvedSession {
   /** Spec 2026-10-25 §5: der Socket der Session, fuer Montage und Rueckrufe. */
   socket: SessionSocket;
   hostLabel: string;
-  /** Nachtrag B, Punkt 3: `updateTileHead` braucht dieses Feld, um die
+  /** `updateTileHead` braucht dieses Feld, um die
    * Sperrleiste zu zeigen -- ueber denselben Aufloeser wie Titel/Hostname,
    * statt eines zweiten Suchlaufs durch `state.hosts`. */
   inputLocked: boolean;
@@ -372,7 +372,7 @@ interface TileRefs {
   /** Spec 2026-10-25 §7: "tmux" neben dem Host bei einer Session des
    * Standard-Sockets; im schmalen Kopf bleibt nur das Symbol. */
   tmuxMark: HTMLSpanElement;
-  /** Nachtrag B, Punkt 3 (Designsystem §8.3, Punkt 1): Warndreieck + Text
+  /** Designsystem §8.3, Punkt 1: Warndreieck + Text
    * rechts im Kachelkopf, neben den Kopf-Schaltflaechen. */
   lockChip: HTMLSpanElement;
   /** UX-Spec §5.4, §5.5: der ruhige Hinweis "Reconnecting…" mit Drehsymbol,
@@ -396,16 +396,16 @@ interface TileRefs {
   agentSlot: HTMLSpanElement;
   maximizeBtn: HTMLButtonElement;
   /** Spec 8.2: der Icon-Kasten, dessen Inhalt zwischen `maximize-2` und
-   * `minimize-2` wechselt (`swapIcon`) -- frueher eine Textglyphe. */
+   * `minimize-2` wechselt (`swapIcon`). */
   maximizeIcon: HTMLSpanElement;
   maximizeLabel: Text;
   closeBtn: HTMLButtonElement;
-  /** Nachtrag B, Punkt 3 (Designsystem §8.3, Punkt 2): der 32-px-Streifen
+  /** Designsystem §8.3, Punkt 2: der 32-px-Streifen
    * zwischen Kopf und Terminal-Viewport. */
   lockStrip: HTMLDivElement;
   /** Die Meldungszeile der Leiste: fettes "Disconnected" plus `lockMessage`.
    * Sie kuerzt in einer schmalen Kachel und traegt dafuer ihren vollen Text
-   * als Tooltip (Abnahme B5). */
+   * als Tooltip. */
   lockText: HTMLSpanElement;
   lockMessage: Text;
   /** Fehlt bei einer beendeten Session: dort gibt es nichts mehr anzuhaengen
@@ -437,7 +437,7 @@ function keyHint(
   return wrap;
 }
 
-/** Der Text eines Kopfchips (Abnahme B4): in eigenem Element, denn
+/** Der Text eines Kopfchips: in eigenem Element, denn
  * `text-overflow` wirkt nur in einem Blockcontainer. Direkt im Flex-Chip waere
  * der Text ein anonymes Element und wuerde in einer schmalen Kachel bloss
  * abgeschnitten statt mit Ellipse gekuerzt (styles.css, `.tile-chip-text`). */
@@ -477,15 +477,15 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
   gridEl.className = "grid";
   root.appendChild(gridEl);
 
-  // Nachtrag B, Punkt 2 (Design §11.2, Designsystem §5.6): "Host verbunden,
-  // keine Session" zeigte bislang eine schwarze, leere Rasterflaeche -- kein
-  // Text, keine Aktion. §5.6 verbietet ausdruecklich leere Kachelrahmen in
+  // Design §11.2, Designsystem §5.6: "Host verbunden, keine Session" zeigt
+  // keine schwarze, leere Rasterflaeche ohne Text und Aktion, sondern diese
+  // Karte. §5.6 verbietet ausdruecklich leere Kachelrahmen in
   // diesem Zustand ("Die Grid-Flaeche zeigt KEINE leeren Kachelrahmen"), also
   // ersetzt diese Karte das GANZE Raster, nicht nur eine einzelne Kachel.
   // `.grid-empty[hidden]` (styles.css) sorgt dafuer, dass `hidden` hier
   // tatsaechlich greift -- eine Autoren-`display`-Regel wuerde die
-  // UA-`[hidden]`-Regel sonst ueberstimmen (derselbe Befund wie beim globalen
-  // Fehlerbanner, siehe dessen Kommentar). `.grid` hat keine eigene
+  // UA-`[hidden]`-Regel sonst ueberstimmen (siehe die globale
+  // `[hidden]`-Regel in styles.css). `.grid` hat keine eigene
   // `display`-Regel, dort greift die UA-Regel ohnehin.
   const emptyState = document.createElement("div");
   emptyState.className = "grid-empty";
@@ -767,7 +767,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     tmuxMark.append(icon("terminal", 12), tmuxWord);
     head.appendChild(tmuxMark);
 
-    // Nachtrag B, Punkt 3 (Designsystem §8.3, Punkt 1): "rechts erscheint ein
+    // Designsystem §8.3, Punkt 1: "rechts erscheint ein
     // Chip: Warndreieck + Text 'Input locked'" -- vor den Kopf-Schaltflaechen
     // eingefuegt, damit er wie diese von `.tile-acts`s `margin-left: auto`
     // an den rechten Rand gezogen wird (dasselbe Prinzip wie der
@@ -838,7 +838,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     acts.appendChild(maximizeBtn);
 
     // Gemeinsame Schliessen-Logik fuer die Kopf-Schaltflaeche UND die
-    // Sperrleiste (Nachtrag B, Punkt 3, §8.3 Punkt 2, "Close terminal"
+    // Sperrleiste (Designsystem §8.3 Punkt 2, "Close terminal"
     // sekundaer) -- dieselbe Aufloesung, ein einziger Aufrufer von
     // `opts.onCloseTerminal`.
     function requestClose(): void {
@@ -847,9 +847,8 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       if (!key) return;
       const resolved = resolveSession(state, key);
       // Delegiert an den Aufrufer statt selbst `state.closeTile` zu rufen:
-      // main.ts (Shell-Task 11) entscheidet, was "geschlossen" ausser der
-      // Zustandsaenderung noch bedeutet (z. B. eine Wiedereroeffnen-Anzeige
-      // wie im alten Plan-1-`main.ts`). Die eigentliche Entsorgung des
+      // main.ts entscheidet, was "geschlossen" ausser der
+      // Zustandsaenderung noch bedeutet. Die eigentliche Entsorgung des
       // `TerminalHandle` laeuft trotzdem ueber `render()`: sobald der
       // Aufrufer die Kachel schliesst, sieht die naechste
       // Zustandsbenachrichtigung das und entsorgt hier (`syncViews`).
@@ -884,8 +883,8 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       }
       // Spec 2026-10-19 §5.8: wie das stille Wiederanhaengen -- `reconcile`
       // entsorgt das gesperrte Terminal und montiert in DIESER Kachel ein
-      // frisches. Position, Fokus und Maximieren bleiben; frueher lief das
-      // ueber `closeTile` und `openSession` und konnte die Kachel verschieben.
+      // frisches. Position, Fokus und Maximieren bleiben -- nicht ueber
+      // `closeTile` und `openSession`, das koennte die Kachel verschieben.
       //
       // Die Reihenfolge ist eine Korrektheitsbedingung: erst `mountedKey`
       // leeren, dann die Sperre loesen. Deren Benachrichtigung faehrt das
@@ -918,18 +917,17 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     head.appendChild(acts);
     tileRoot.appendChild(head);
 
-    // Nachtrag C (Befund 2, Designsystem §8.3, Punkt 2): "Reconnect"
+    // Designsystem §8.3, Punkt 2: "Reconnect"
     // (primaer) neben "Close terminal" (sekundaer). Ein `TerminalHandle`
     // laesst sich nicht an Ort und Stelle entsperren -- aber genau dafuer
     // gibt es das Entsorgen-und-neu-Mounten, das `reconcile()` ohnehin
     // ueberall benutzt. Reconnect ersetzt den Kanal an Ort und Stelle
     // (`requestReconnect`, Spec 2026-10-19 §5.8).
     //
-    // Darum laeuft der Knopf nicht ueber `openSession` (Validierung,
-    // Important 2): `openSession` loescht `inputLocked` seit demselben Befund
-    // NICHT mehr fuer eine Session, die schon in einer Kachel steht -- sonst
-    // haette ein blosser Klick auf die Sessionzeile die Sperre optisch
-    // aufgehoben, ohne einen Kanal zu ersetzen. Die Sperre faellt nur, wo
+    // Darum laeuft der Knopf nicht ueber `openSession`: `openSession` loescht
+    // `inputLocked` NICHT fuer eine Session, die schon in einer Kachel steht
+    // -- sonst hoebe ein blosser Klick auf die Sessionzeile die Sperre optisch
+    // auf, ohne einen Kanal zu ersetzen. Die Sperre faellt nur, wo
     // tatsaechlich ein frischer Kanal kommt: hier unmittelbar davor
     // (`requestReconnect`), sonst nach der Montage in `reconcile`.
     //
@@ -1268,10 +1266,9 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
    * Sonst bleibt der bestehende Handle unangetastet, sichtbar oder verborgen
    * (Anforderung 1 und 2).
    *
-   * Ehrlich dazugesagt: der `resolveSession`-Suchlauf steht seit Paket 2.5
-   * VOR dem Abkuerzen und laeuft damit auch fuer unveraenderte Kacheln, bei
-   * jeder Benachrichtigung -- vorher nur im Aenderungsfall. Bewusst
-   * hingenommen: der Lauf geht ueber eine Handvoll Hosts mal eine Handvoll
+   * Ehrlich dazugesagt: der `resolveSession`-Suchlauf steht VOR dem
+   * Abkuerzen und laeuft damit auch fuer unveraenderte Kacheln, bei jeder
+   * Benachrichtigung. Bewusst hingenommen: der Lauf geht ueber eine Handvoll Hosts mal eine Handvoll
    * Sessions, einmal je Kachel und Neuzeichnen. Die Alternative waere ein drittes
    * Buchhaltungsfeld (die settings.toml-ID je Kachel, um den Host ohne
    * Sessionsuche zu finden); das kostet mehr Verstaendlichkeit, als es an
@@ -1337,17 +1334,17 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
 
       // Ohne Laufzeit-ID gibt es nichts zu oeffnen: `open_terminal`
       // scheiterte sicher, und eine Kachel mit einem Handle an einer toten
-      // Verbindung ist genau der Zustand, den dieses Paket beseitigt.
+      // Verbindung ist genau der Zustand, den diese Bedingung ausschliesst.
       //
-      // Der Hostzustand kommt seit B1 dazu: bei `failed` bleibt die
+      // Der Hostzustand kommt dazu: bei `failed` bleibt die
       // Laufzeit-ID absichtlich stehen (siehe `ResolvedSession.hostState`),
       // die ID allein beweist also nichts. Montiert wird nur, wenn ein
       // LEBENDER Kanal moeglich ist.
       const runtimeHostId = resolved?.runtimeHostId;
       const canMount = Boolean(resolved && runtimeHostId && resolved.hostState === "connected");
       if (resolved && !canMount && !resolved.inputLocked) {
-        // Satz 4 des Sperrvertrags: eine Kachel, die gerade nicht montiert
-        // werden kann, traegt die Sperre. Ohne ihn naehme die
+        // Eine Kachel, die gerade nicht montiert
+        // werden kann, traegt die Sperre. Ohne sie naehme die
         // Montagebedingung dem Nutzer den Rueckweg: Sperrleiste und
         // "Reconnect", der einzige Knopf, der zurueckfuehrt, waeren weg, und
         // uebrig blieben Kachelkopf und ein leeres schwarzes Rechteck, ohne
@@ -1442,7 +1439,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
             // Spec 2026-10-19 §8.1 (Schritt 3): dieselbe Schlange fuer jedes
             // Terminal dieses Rasters (`openQueue`). Ob es auf einen Platz
             // wartet, meldet es selbst; ein entsorgtes Terminal meldet nichts
-            // mehr, das diese Kachel angeht (Review Focus 2).
+            // mehr, das diese Kachel angeht.
             openQueue,
             onQueued: (queued) => {
               if (!isLive(view) || (own !== null && view.handle !== own)) return;
@@ -1485,14 +1482,13 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
         const active = document.activeElement;
         if (view.refocus === wantKey && (active === null || active === document.body)) handle.focus();
         view.refocus = null;
-        // Satz 2 des Sperrvertrags: eine frisch montierte xterm-Instanz hat
+        // Eine frisch montierte xterm-Instanz hat
         // `disableStdin` NIE gesetzt -- sie nimmt Eingaben an, ganz gleich,
-        // was am Sessioneintrag steht. Genau daher kam das gemeldete
-        // dauerhafte "Input locked" ueber einem Terminal, in dem der Nutzer
-        // voellig normal tippte: der Handle ging (damals beim Layoutwechsel,
-        // heute etwa mit der alten Verbindung eines neu verbundenen Hosts),
-        // der `sessionKey` (und mit ihm die Sperre) blieb stehen, und
-        // montiert wurde frisch.
+        // was am Sessioneintrag steht. Ohne die Freigabe stuende dauerhaft
+        // "Input locked" ueber einem Terminal, in dem der Nutzer voellig
+        // normal tippt: der Handle geht (etwa mit der alten Verbindung eines
+        // neu verbundenen Hosts), der `sessionKey` (und mit ihm die Sperre)
+        // bleibt stehen, und montiert wird frisch.
         //
         // Gesammelt werden nur die Schluessel, deren Sperre dadurch
         // TATSAECHLICH faellt -- nicht alle frisch montierten. Sonst liefe
@@ -1514,7 +1510,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
    * geschlossenen -- der einzige Ort, an dem Kachelknoten entstehen und
    * vergehen. Neue Knoten haengen hinten an: die DOM-Reihenfolge folgt der
    * Entstehung, nicht der Anzeige (Spec 2026-10-19 §4.3); darum nennt die
-   * Live-Region bei jedem Wechsel Nummer und Session (Task 8). */
+   * Live-Region bei jedem Wechsel Nummer und Session. */
   function syncViews(): void {
     const live = new Set(state.tiles.map((tile) => tile.id));
     for (const [id, view] of views) {
@@ -1576,8 +1572,8 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     if (existing) return existing;
     const el = document.createElement("div");
     el.className = "tile-split";
-    // Nur fuer den Zeiger. Die Tastatur ordnet ueber Strg+Umschalt+Bild auf/ab
-    // (Task 7), die Groesse folgt sonst der Kachelzahl.
+    // Nur fuer den Zeiger. Die Tastatur ordnet ueber Strg+Umschalt+Bild auf/ab,
+    // die Groesse folgt sonst der Kachelzahl.
     el.setAttribute("aria-hidden", "true");
     el.addEventListener("pointerdown", (event) => onSplitPointerDown(event, el));
     el.addEventListener("dblclick", resetFractions);
@@ -1826,7 +1822,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
    * solange ihr Terminal auf einen Platz wartet, "Opening…" (`quiet`) --, und
    * mit welchem `view.queued` das berechnet ist (`queued`: aendert der Abgleich
    * es, zieht `render` den Kopf nach). `render()` sammelt das ueber alle
-   * Kacheln (Nachtrag B, Punkt 3), um danach GENAU die Kacheln zu refitten,
+   * Kacheln, um danach GENAU die Kacheln zu refitten,
    * deren Sperrzustand sich in diesem Render geaendert hat (Designsystem §8.3:
    * der Streifen kostet zwei Terminalzeilen, sein Erscheinen/Verschwinden
    * AENDERT die Kachelgroesse tatsaechlich; der Hinweis im Kopf aendert sie
@@ -1890,13 +1886,12 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       refs.maximizeBtn.title = titleWithShortcut(t("tile.maximize"), "tile.maximize");
     }
 
-    // Nachtrag B, Punkt 3 (Designsystem §8.3): drei Kanaele fuer denselben
+    // Designsystem §8.3: drei Kanaele fuer denselben
     // Zustand -- Kachelkopf-Flaeche (CSS ueber `.tile.locked`), der Chip im
     // Kopf, der Streifen darunter. "Kein Zustand allein ueber Farbe" gilt
     // auch hier: Geometrie (Dreieck statt Quadrat, siehe `.ind-warn`) UND
-    // Text ("Disconnected", UX-Spec §10 -- vorher "Not attached" und davor
-    // "Input locked", was einen MECHANISMUS benannte statt einer Lage) tragen
-    // es zusaetzlich zur `--ab-warn`-Faerbung.
+    // Text ("Disconnected", UX-Spec §10 -- er benennt eine Lage, keinen
+    // MECHANISMUS) tragen es zusaetzlich zur `--ab-warn`-Faerbung.
     //
     // Kanaltrennung (Designsystem §8.3, letzter Absatz): `.locked` faerbt
     // NUR den Kopf um (CSS), nie die Fokuskontur der Kachel -- die bleibt
@@ -1945,11 +1940,11 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       refs.agentSlot.replaceChildren(element);
     } else refs.agentSlot.replaceChildren();
     refs.lockStrip.hidden = !locked;
-    // Ohne `{host}` seit B4, und das ist die Aussage: die Meldung nannte den
-    // Host als Schuldigen ("Connection to {host} was lost"), obwohl im
-    // haeufigen Fall genau EIN Kanal gestorben ist -- der Host antwortet,
-    // die Sessionliste kommt durch, andere Kacheln desselben Hosts arbeiten
-    // weiter. Sie sagt jetzt, was gilt und was zurueckfuehrt.
+    // Ohne `{host}`, und das ist die Aussage: die Meldung nennt den Host
+    // nicht als Schuldigen, denn im haeufigen Fall ist genau EIN Kanal
+    // gestorben -- der Host antwortet, die Sessionliste kommt durch, andere
+    // Kacheln desselben Hosts arbeiten weiter. Sie sagt, was gilt und was
+    // zurueckfuehrt.
     //
     // UX-Spec §5.5: ist die Session auf dem Host beendet (die Statusabfrage
     // fand sie in keiner vollstaendigen Liste mehr), nennt die Leiste diesen
@@ -1958,7 +1953,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     refs.lockMessage.textContent = locked
       ? ` — ${t(ended ? "terminal.sessionEnded" : "terminal.connectionLost")}`
       : "";
-    // Abnahme B5: die Meldung bleibt auf einer Zeile und kuerzt in einer
+    // Die Meldung bleibt auf einer Zeile und kuerzt in einer
     // schmalen Kachel (styles.css); den vollen Text samt "Disconnected" traegt
     // der Tooltip, hier an der einzigen Stelle, die ihn setzt.
     if (locked) refs.lockText.title = refs.lockText.textContent ?? "";
@@ -2017,15 +2012,14 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     dropStaleReattaches();
     syncViews();
 
-    // Nachtrag B, Punkt 2: MUSS vor `updateLayout()` entschieden UND
+    // MUSS vor `updateLayout()` entschieden UND
     // angewendet werden -- dieselbe Korrektheitsbedingung wie der Kommentar
     // darunter beschreibt, nur eine Ebene hoeher. Wechselt dieses Render von
     // leer auf belegt (die erste Session wird angelegt), muss `.grid` schon
     // VOR `updateLayout()`s Messung sichtbar sein -- sonst maesse
     // `updateLayout()` gegen eine per `hidden` kollabierte Box, und
     // `reconcile()`s `mountTerminal` fittete direkt im Anschluss gegen
-    // dieselbe falsche Groesse (der Fall, den `Review-Befund M-1` unten
-    // eigentlich schon einmal geschlossen hat).
+    // dieselbe falsche Groesse (derselbe Fall wie die Reihenfolge unten).
     const gridEmpty = state.tiles.length === 0;
     gridEl.hidden = gridEmpty;
     emptyState.hidden = !gridEmpty;
@@ -2034,13 +2028,14 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     const connected = hasConnectedHost();
     emptyButton.hidden = !connected;
     emptyConnectFirst.hidden = connected;
-    // Task 16, Punkt D: ohne verbundenen Host bleibt EIN Satz stehen. "Pick a
+    // UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt D: ohne verbundenen Host
+    // bleibt EIN Satz stehen. "Pick a
     // session from the sidebar, or start a new one." verweist dann auf zwei
     // Dinge, die es noch gar nicht gibt -- zwei Saetze uebereinander, von
     // denen der erste in die Irre fuehrt.
     emptyBody.hidden = !connected;
 
-    // Reihenfolge ist eine Korrektheitsbedingung (Review-Befund M-1): Lage
+    // Reihenfolge ist eine Korrektheitsbedingung: Lage
     // und Kachelkopf stehen fest, BEVOR `reconcile` montiert. `mountTerminal`
     // misst beim Bau synchron und meldet genau diese Groesse mit
     // `open_terminal` (Spec 2026-10-19 §4.5: eine neue Kachel montiert mit
@@ -2069,7 +2064,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     // Durchgang am Ende (`applyInputLocks`) zieht sie fuer frisch entsperrte
     // Kacheln wieder zurueck. Ebenso bei "Opening…" (`quiet`, Spec 2026-10-19
     // §8.1): das wartende Terminal hat noch keinen Kanal, und solange es
-    // wartet, geht keine Eingabe hinaus (Review Focus 5).
+    // wartet, geht keine Eingabe hinaus.
     for (const view of views.values()) {
       const head = heads.get(view.id);
       view.handle?.setInputLocked(Boolean(head?.locked || head?.quiet));
@@ -2197,7 +2192,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
     applyTerminalTheme(theme) {
       // Wache wie bei `focusActiveTile`: nach dem Entsorgen sind die Handles
       // veraltete Referenzen, ein Themenwechsel danach darf sie nicht mehr
-      // anfassen (Review zu Aufgabe 3).
+      // anfassen.
       if (disposed) return;
       for (const view of views.values()) view.handle?.setTheme(theme);
     },
