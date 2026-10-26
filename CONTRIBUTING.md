@@ -119,8 +119,13 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    packages workflow builds MSI, setup EXE, ZIP and the disk image, installs
    and starts each one, and attaches them to the release of the tag, creating
    it if needed. Do not use a draft, which the workflow cannot find. A manual
-   run of the workflow naming the tag attaches packages the release still
-   lacks.
+   run of the workflow naming the tag attaches only the files the release
+   still lacks. A published file is never replaced by different content: a
+   platform whose files are all attached stays as it is, and if a platform is
+   only partly attached, an attached file whose digest differs from the new
+   build, or that has no digest, stops the run before anything is attached.
+   To rebuild such a file on purpose, delete it from the release by hand and
+   run the workflow again.
 
 ## Language
 

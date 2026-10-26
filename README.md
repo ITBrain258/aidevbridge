@@ -487,7 +487,12 @@ workflow attaches them, with the `.sha256` of the disk image, to the release
 of the tag and writes a Windows and a macOS part into its text, creating the
 release if there is none. A manual run with **release** on makes the release
 builds of a branch without publishing them; a manual run naming an existing
-tag builds that tag and attaches the packages its release still lacks.
+tag builds that tag and attaches only the files its release still lacks. A
+published file is never replaced by different content: a platform whose files
+are all attached stays as it is, and if a platform is only partly attached, an
+attached file whose digest differs from the new build, or that has no digest,
+stops the run before anything is attached. To rebuild such a file on purpose,
+delete it from the release by hand and run the workflow again.
 
 ### Why not `cargo build --release`
 

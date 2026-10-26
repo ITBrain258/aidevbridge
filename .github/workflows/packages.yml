@@ -361,34 +361,55 @@ jobs:
         with: { name: macos-dmg, path: mac }
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with: { name: windows-packages, path: win }
-      - name: Attach the packages the release still lacks, or create the release
+      # Eine veroeffentlichte Datei wird nie ersetzt. Der Plan vergleicht je
+      # Plattform die Dateien am Release (Name und digest aus der API, kein
+      # Herunterladen) mit dem neuen Bau und bricht bei einem Widerspruch ab;
+      # sonst nennt er die fehlenden Dateien, eine je Zeile.
+      - name: Decide what the release still lacks
+        id: plan
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+          if gh api "repos/$GH_REPO/releases/tags/$PUBLISH_TAG" > "$RUNNER_TEMP/release.json" 2> "$RUNNER_TEMP/release.err"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          elif grep -qF '(HTTP 404)' "$RUNNER_TEMP/release.err"; then
+            echo '{"assets": []}' > "$RUNNER_TEMP/release.json"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          else
+            cat "$RUNNER_TEMP/release.err" >&2
+            exit 1
+          fi
+          node scripts/release-attach.mjs --release "$RUNNER_TEMP/release.json" \
+            --windows win/release-manifest.json --macos mac/release-manifest.json \
+            --upload-list "$RUNNER_TEMP/upload.txt" --notes-args "$RUNNER_TEMP/notes-args.txt"
+          {
+            echo 'files<<UPLOAD_LIST_END'
+            cat "$RUNNER_TEMP/upload.txt"
+            echo 'UPLOAD_LIST_END'
+          } >> "$GITHUB_OUTPUT"
+          if [ ! -s "$RUNNER_TEMP/upload.txt" ]; then
+            echo "Nothing to attach to $PUBLISH_TAG." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Attach the packages the release still lacks, or create the release
+        if: steps.plan.outputs.files != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EXISTS: ${{ steps.plan.outputs.exists }}
+        run: |
+          set -euo pipefail
           tag="$PUBLISH_TAG"
           version="${tag#v}"
-          mac=(mac/*.dmg mac/*.dmg.sha256)
-          win=($(node -p "require('./win/release-manifest.json').artifacts.map(a => 'win/' + a.path).join(' ')"))
-          if gh release view "$tag" --json body --jq .body > "$RUNNER_TEMP/body.md"; then
-            exists=true
-            gh release view "$tag" --json assets --jq '.assets[].name' > "$RUNNER_TEMP/assets.txt"
-          else
-            exists=false
-            : > "$RUNNER_TEMP/assets.txt"
-          fi
-          lacks() { for f in "$@"; do grep -qxF "$(basename "$f")" "$RUNNER_TEMP/assets.txt" || return 0; done; return 1; }
-          args=() upload=()
-          if lacks "${win[@]}"; then args+=(--windows win/release-manifest.json); upload+=("${win[@]}"); else echo "The Windows packages are attached already."; fi
-          if lacks "${mac[@]}"; then args+=(--macos mac/release-manifest.json); upload+=("${mac[@]}"); else echo "The macOS disk image is attached already."; fi
-          if [ ${#upload[@]} -eq 0 ]; then
-            echo "Nothing to attach to $tag." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          if [ "$exists" = true ]; then
+          mapfile -t upload < "$RUNNER_TEMP/upload.txt"
+          mapfile -t args < "$RUNNER_TEMP/notes-args.txt"
+          # gh release upload ersetzt hier nichts: Erscheint eine der Dateien
+          # inzwischen doch am Release, bricht der Upload ab.
+          if [ "$EXISTS" = true ]; then
+            node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).body ?? "")' "$RUNNER_TEMP/release.json" > "$RUNNER_TEMP/body.md"
             node scripts/release-notes.mjs "$version" --body "$RUNNER_TEMP/body.md" "${args[@]}" > "$RUNNER_TEMP/notes.md"
-            gh release upload "$tag" "${upload[@]}" --clobber
+            gh release upload "$tag" "${upload[@]}"
             gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md"
           else
             node scripts/release-notes.mjs "$version" "${args[@]}" > "$RUNNER_TEMP/notes.md"
