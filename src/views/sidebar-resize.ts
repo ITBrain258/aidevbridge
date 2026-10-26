@@ -14,13 +14,7 @@
 // Eingeklappt verschwindet der Griff mit `#sidebar` (`display: none` in
 // styles.css); `setHidden` setzt zusaetzlich `hidden`, das auch die Fokus-Falle
 // (`focusableElements`) und die Tests sehen.
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey): string {
-  return en[key];
-}
+import { t } from "../i18n/t";
 
 /** Vorgabe und Grenzen der Breite in px (UX-Spec §7.8). Die Vorgabe ist die
  * von `--ab-sidebar-w` in styles.css (`styles.test.ts` prueft das).

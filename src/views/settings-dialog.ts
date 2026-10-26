@@ -8,6 +8,7 @@
 // Fuenf Bereiche in der Reihenfolge der UX-Spec §9.1: General, Appearance,
 // Terminal, Shortcuts, About. Der Dialog oeffnet auf dem ersten.
 import en from "../i18n/en.json";
+import type { TranslationKey } from "../i18n/t";
 import { DEFAULT_KEYMAP, type KeymapAction } from "../keymap";
 import type { ThemeId } from "../theme";
 import { mountAboutSection } from "./settings-about";
@@ -15,8 +16,6 @@ import { mountAppearanceSection } from "./settings-appearance";
 import { mountGeneralSection } from "./settings-general";
 import { mountShortcutsSection } from "./settings-shortcuts";
 import { mountTerminalSection } from "./settings-terminal";
-
-type TranslationKey = keyof typeof en;
 
 /** Die Werte kommen als Lesefunktionen, gelesen bei jedem Mounten eines
  * Bereichs: ein Wechsel des Bereichs entsorgt den alten und mountet den neuen.

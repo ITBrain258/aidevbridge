@@ -56,18 +56,8 @@ import {
   type TileFractions,
 } from "./tile-layout";
 import { trackPointerDrag } from "./tile-drag";
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
+import { t } from "../i18n/t";
+import type { TranslationKey } from "../i18n/t";
 
 export interface GridOptions {
   /** Ein Fehler eines Terminals: `text` ist der Satz fuer seine Art (UX-Spec

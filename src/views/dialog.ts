@@ -10,14 +10,8 @@
 // in den naechsten hineinwirken. Einzige Ausnahme ist der Zaehler fuer die
 // Kennungen der Ueberschriften (`dialogTitles`): er haelt Kennungen im ganzen
 // Dokument eindeutig und wirkt auf keinen Lauf.
-import en from "../i18n/en.json";
+import { t } from "../i18n/t";
 import { icon } from "../icons";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey): string {
-  return en[key];
-}
 
 /** Alle Elemente in `root`, die per Tastatur einen eigenen Tab-Stopp
  * darstellen -- fuer den Fokus-Falle-Umlauf in `openDialog` unten

@@ -6,7 +6,8 @@
 // jede Aenderung dorthin und folgt Aenderungen von aussen (Strg+Mausrad, Tasten,
 // das Laden beim Start). Was daraus folgt -- die Kacheln, settings.toml --,
 // erledigt main.ts fuer alle Schreiber gleich.
-import en from "../i18n/en.json";
+import { t } from "../i18n/t";
+import type { TranslationKey } from "../i18n/t";
 import {
   DEFAULT_TERMINAL_FONT_SIZE,
   MAX_TERMINAL_FONT_SIZE,
@@ -18,12 +19,6 @@ import {
   type TerminalPrefs,
 } from "../terminal-prefs";
 import { controlRow, settingsCard, settingsId, switchRow } from "./settings-rows";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey): string {
-  return en[key];
-}
 
 const RIGHT_CLICK_LABEL: Record<RightClickMode, TranslationKey> = {
   menu: "settings.terminal.rightClickMenu",

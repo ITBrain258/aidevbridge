@@ -37,7 +37,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow, UserAttentionType } from "@tauri-apps/api/window";
-import en from "./i18n/en.json";
+import { t } from "./i18n/t";
 import {
   AppState,
   isOpenable,
@@ -97,17 +97,6 @@ import { mountSettingsDialog } from "./views/settings-dialog";
 import { openQuickOpen, quickOpenItems, quickOpenLabels, type QuickOpenItem } from "./views/quick-open";
 import type { UiSettingsDto } from "./views/types";
 import { appVersionLine } from "./version";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
 
 function required<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);

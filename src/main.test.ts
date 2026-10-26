@@ -4466,6 +4466,25 @@ describe("main: B4 -- die Meldungen nennen eine Handlung und behalten den Rohtex
     expect(await copyDetails()).toBe(`${appVersionLine()}\n${CAUSE}`);
   });
 
+  // Jeder Platzhalter wird genau einmal ersetzt: ein Label, das selbst wie ein
+  // Platzhalter aussieht, bleibt woertlich stehen und nimmt den Grund des
+  // Backends nicht ein zweites Mal auf.
+  it("sidebar.removeFailed: ein Label mit '{message}' bleibt woertlich stehen", async () => {
+    setupDom();
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "list_hosts") return Promise.resolve([hostEntry({ label: "a{message}" })]);
+      if (command === "remove_host") return Promise.reject("boom");
+      return Promise.resolve(undefined);
+    });
+    main();
+    await flush();
+    hostMenuItem("a{message}", "Remove…").click();
+    document.querySelector<HTMLButtonElement>(".host-confirm-btn-danger")!.click();
+    await flush(20);
+
+    expect(bannerMessage()).toBe("Could not remove 'a{message}': boom. The saved host was kept and is disconnected.");
+  });
+
   // `outcome_unknown`: das Anlegen hat vielleicht gewirkt. "Try again" ohne
   // Blick in die Liste legte eine zweite Session an -- der Satz des Backends
   // sagt, erst die Liste neu zu laden, und steht deshalb ganz da.

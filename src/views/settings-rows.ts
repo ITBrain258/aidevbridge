@@ -1,7 +1,7 @@
 // Bausteine der Einstellungsbereiche mit Bedienelementen (UX-Spec §9.1): eine
 // Karte mit Titel und Zeilen, und die Zeile "links Beschriftung und Hinweis,
-// rechts das Element". General und Terminal bauen daraus; die Texte kommen vom
-// Aufrufer, der seine eigene `t()` hat.
+// rechts das Element". General und Terminal bauen daraus; die Texte kommen
+// fertig uebersetzt vom Aufrufer.
 import { createSwitch, type SwitchHandle } from "./switch";
 
 let lastId = 0;

@@ -14,15 +14,7 @@ import { waitingByAge, waitingKey, type StatusCurrent } from "../state/attention
 import { DEFAULT_KEYMAP } from "../keymap";
 import { hostInitials } from "./initials";
 import { buildTileNumber } from "./tile-number";
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce((result, [name, value]) => result.split(`{${name}}`).join(value), template);
-}
+import { t } from "../i18n/t";
 
 /** Hoechstens so viele Zeilen, bevor "+n more" kommt (§7). */
 export const LANE_VISIBLE_ROWS = 5;

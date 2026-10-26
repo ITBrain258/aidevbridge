@@ -2,14 +2,8 @@
 // Schalter "Restore hosts and terminals" (`ui.restore_workspace`, Standard an).
 // Was der Schalter beim Start bewirkt, regelt UX-Spec §7.2; hier wird er nur
 // angezeigt und gemeldet, main.ts schreibt ihn entprellt (§9.2).
-import en from "../i18n/en.json";
+import { t } from "../i18n/t";
 import { settingsCard, switchRow } from "./settings-rows";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey): string {
-  return en[key];
-}
 
 export interface GeneralOptions {
   /** "Restore hosts and terminals", wie in settings.toml gespeichert. */

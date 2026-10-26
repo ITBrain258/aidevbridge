@@ -45,18 +45,7 @@ import type { HostFormValue } from "./host-form";
 import type { Host } from "../state/app-state";
 import { RECENT_DIRS_LIMIT } from "../state/workspace";
 import type { HostEntry } from "./types";
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
+import { t } from "../i18n/t";
 
 export interface SessionDialogOptions {
   /** Die LAUFZEIT-ID des Hosts (die von `connect_host`), NICHT die in

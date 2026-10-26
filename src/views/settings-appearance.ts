@@ -6,20 +6,10 @@
 // eigenen Element (styles.css) -- keine zweite Kopie der Farbwerte. Die
 // Karte ist ein `div` UM das fieldset: ein fieldset mit eigenem Rahmen
 // setzte die Legende auf die Rahmenlinie.
-import en from "../i18n/en.json";
+import { t } from "../i18n/t";
+import type { TranslationKey } from "../i18n/t";
 import { icon } from "../icons";
 import { ACCENTS, BASES, themeIdOf, themeParts, type AccentId, type BaseId, type ThemeId } from "../theme";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
 
 export interface AppearanceOptions {
   current: ThemeId;
