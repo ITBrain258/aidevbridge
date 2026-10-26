@@ -100,7 +100,7 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
   (`docs/release/license-selection.windows-x64.json` and
   `docs/release/license-selection.macos-universal.json`) bind the app's
   sources by hash. You do not need to update them; the maintainer reviews and
-  rebinds them before a release. The macOS workflow builds a preview disk
+  rebinds them before a release. The packages workflow builds a preview disk
   image of your pull request, which does not need them.
 
 ## Releases
@@ -113,12 +113,14 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    with `rust-src` and both Apple targets installed for Rust 1.97.1), then
    run `node scripts/release-licenses.mjs prepare` and
    `node scripts/release-licenses.mjs prepare macos-universal`.
-4. Optionally start the macOS workflow by hand with **release** on: it makes
-   the release build without publishing it.
-5. Push the tag `v<version>`. The macOS workflow attaches the disk image and
-   its `.sha256` to the release of the tag, creating it if needed. Add the
-   Windows packages to that release; do not create a second one, and do not
-   use a draft, which the workflow cannot find.
+4. Optionally start the packages workflow by hand with **release** on: it
+   makes the release builds for Windows and macOS without publishing them.
+5. Push the tag `v<version>`, or publish a release that creates it. The
+   packages workflow builds MSI, setup EXE, ZIP and the disk image, installs
+   and starts each one, and attaches them to the release of the tag, creating
+   it if needed. Do not use a draft, which the workflow cannot find. A manual
+   run of the workflow naming the tag attaches packages the release still
+   lacks.
 
 ## Language
 

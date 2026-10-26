@@ -287,8 +287,9 @@ the app as one more client of that session:
   shortcuts (Settings → Shortcuts lists them); `git worktree` when creating a
   session; code signing, automatic updates and winget.
 - **Installers:** `npm run build:windows` builds and checks MSI, setup EXE
-  and ZIP. The installers of 0.2.2 are unsigned, and installing them on a
-  fresh computer has not been tested yet.
+  and ZIP, `npm run build:macos` the macOS disk image. They are unsigned (the
+  disk image ad-hoc signed). For every release the packages workflow installs
+  each one on a fresh runner and starts the app.
 - **tmux's default socket:** only servers running tmux 3.3a or 3.6 are
   attached to; sessions of a session group are listed but not opened; a
   server outside `/tmp/tmux-<uid>` is not found (see
@@ -400,9 +401,9 @@ and the same test socket.
 each of them and the rules for the socket name. `.github/workflows/ci.yml`
 runs the frontend tests and build on Linux, the Rust checks on Windows, Linux
 and macOS and the script tests on Windows, also without an SSH host.
-`.github/workflows/macos.yml` builds the macOS disk image, installs it on an
-Apple silicon and an Intel Mac and starts the app until its window appears;
-see [macOS disk image](#macos-disk-image).
+`.github/workflows/packages.yml` builds the installers, installs each one on
+a fresh runner and starts the app until its window appears; see
+[Release packages in CI](#release-packages-in-ci).
 
 ### Release build
 
@@ -474,10 +475,19 @@ helper updates both selections at once. `npm run build:macos -- --preview`
 builds any clean commit without the bound selection: such a disk image
 carries a note instead of the license texts and is not for passing on.
 
-`.github/workflows/macos.yml` makes a preview build of every push and pull
-request and installs and starts it on both kinds of Mac. A tag `v<version>`
-makes the release build and attaches the DMG and its `.sha256` to the
-release of that tag, creating the release if there is none.
+### Release packages in CI
+
+`.github/workflows/packages.yml` makes a preview of the macOS disk image for
+every push and pull request and installs and starts it on an Apple silicon
+and an Intel Mac. A tag `v<version>` makes the release builds of all
+packages: MSI, setup EXE and ZIP with `npm run build:windows` on Windows, the
+disk image with `npm run build:macos` on macOS. Each package is installed on
+a fresh runner and the app started until its window appears; then the
+workflow attaches them, with the `.sha256` of the disk image, to the release
+of the tag and writes a Windows and a macOS part into its text, creating the
+release if there is none. A manual run with **release** on makes the release
+builds of a branch without publishing them; a manual run naming an existing
+tag builds that tag and attaches the packages its release still lacks.
 
 ### Why not `cargo build --release`
 

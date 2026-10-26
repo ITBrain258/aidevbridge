@@ -13,6 +13,7 @@ und Funktionen; gemeint ist der Branch nach `v0.2.2`.
 | Architektur | Ein Universal-DMG für Apple silicon und Intel. |
 | Lizenzbeigaben | Eigene, gebundene macOS-Lizenzauswahl gleich mit, gleichwertig zur Windows-Auswahl. |
 | Release | Vollautomatisch: Am Tag hängt der Workflow das DMG an das Release, gibt es keins, legt er es veröffentlicht an. |
+| Nachtrag 26.10.: alle Installer | Die CI baut, testet und veröffentlicht bei jedem Release alle Pakete, auch MSI, Setup-EXE und ZIP für Windows (§5). |
 
 ## 2. Ziel und Tor
 
@@ -24,8 +25,9 @@ und Funktionen; gemeint ist der Branch nach `v0.2.2`.
    und findet ihr Fenster (§5).
 3. Ein Tag `v<version>` baut das Release-DMG gegen die gebundene Auswahl und
    hängt es mit seiner SHA-256 an das Release dieses Tags (§5).
-4. Die Windows-Lieferung ändert sich nicht: dieselbe Auswahl, derselbe Ordner,
-   dieselben Pakete.
+4. Die Windows-Pakete bleiben, wie `npm run build:windows` sie baut: dieselbe
+   Auswahl, derselbe Ordner, dieselben Pakete. Seit 26.10. baut der Workflow
+   sie am Tag mit und installiert jedes auf einem frischen Runner (§5).
 
 Nicht Teil dieses Schritts: Mac-typische Kürzel (⌘ statt Strg), Anpassungen
 an WKWebView und die Abnahme am Fenster eines echten Macs (§7).
@@ -76,13 +78,25 @@ Lizenztexte liegt eine `README.txt` im Ordner, das DMG heißt
 `aidevbridge-<version>-preview-<commit>-macos-universal.dmg` und ist nicht
 zur Weitergabe.
 
-## 5. CI: `.github/workflows/macos.yml`
+## 5. CI: `.github/workflows/packages.yml`
+
+Bis 26.10. hieß der Workflow `macos.yml` und baute nur das DMG.
 
 | Auslöser | Bau | danach |
 | --- | --- | --- |
-| Push, Pull Request | Vorschau | Testinstallation, Artefakt `macos-dmg` |
-| manuell, `release` an | Release | Testinstallation, nichts veröffentlicht |
-| Tag `v*` | Release, Tag gleich `package.json` | Testinstallation, dann Veröffentlichen |
+| Push, Pull Request | macOS-Vorschau | Testinstallation, Artefakt `macos-dmg` |
+| manuell, `release` an | Release für Windows und macOS | Testinstallationen, nichts veröffentlicht |
+| Tag `v*` | Release für Windows und macOS, Tag gleich `package.json` | Testinstallationen, dann Veröffentlichen |
+| manuell mit `tag` | Release des bestehenden Tags | Testinstallationen, dann Anhängen, was dem Release fehlt |
+
+Windows baut `npm run build:windows` auf `windows-latest`, unverändert und
+gegen die gebundene Windows-Auswahl; eine Vorschau ohne Auswahl gibt es dafür
+nicht. Die Testinstallation auf einem frischen `windows-latest` prüft die
+Hashes aus `release-manifest.json`, installiert die Setup-EXE still (`/S`,
+nach `%LOCALAPPDATA%\aidevbridge`), das MSI (`msiexec /qn`, nach
+`%ProgramFiles%\aidevbridge`) und entpackt das ZIP; jedes Mal startet sie die
+App, wartet auf ihr Hauptfenster, beendet sie und entfernt die Installation
+wieder.
 
 Die Testinstallation läuft auf `macos-latest` (Apple silicon) und
 `macos-15-intel`: Prüfsumme, DMG einhängen, App mit `ditto` nach
@@ -91,13 +105,14 @@ notarisiert muss passen), App starten, ihr Fenster über
 `CGWindowListCopyWindowInfo` finden, beenden, aufräumen. Bildschirmfoto und
 Log bleiben als Artefakt.
 
-Veröffentlichen hängt DMG und `.sha256` an das Release des Tags
-(`gh release upload --clobber`) und setzt den macOS-Teil des Textes zwischen
-die Marken `<!-- aidevbridge:macos:start/end -->`
-(`scripts/release-macos-notes.mjs`); der übrige Text bleibt. Gibt es kein
+Veröffentlichen läuft erst, wenn alle Bauten und Testinstallationen grün
+sind. Es hängt die drei Windows-Pakete, DMG und `.sha256` an das Release des
+Tags, soweit sie dort noch fehlen, und setzt je Plattform einen Teil des
+Textes zwischen die Marken `<!-- aidevbridge:windows:start/end -->` und
+`<!-- aidevbridge:macos:start/end -->` (`scripts/release-notes.mjs`, aus den
+`release-manifest.json` der Bauten); der übrige Text bleibt. Gibt es kein
 Release, legt der Workflow es veröffentlicht an, mit Verweis auf den
-CHANGELOG. Wer danach die Windows-Pakete ergänzt, bearbeitet dieses Release
-und legt kein zweites an; Entwürfe findet der Workflow nicht.
+CHANGELOG. Entwürfe findet er nicht.
 
 `ci.yml` lässt fmt, Clippy und die Rust-Tests zusätzlich auf `macos-latest`
 laufen.
@@ -152,9 +167,9 @@ Profile `windows-x64` (Vorgabe) und `macos-universal`.
    `node scripts/release-license-select-macos.mjs --write` (Linux oder macOS,
    mit `rust-src` und den beiden Apple-Zielen für 1.97.1), dann
    `node scripts/release-licenses.mjs prepare macos-universal`.
-4. Optional: macOS-Workflow manuell mit `release` an starten.
-5. Tag pushen. Der Workflow veröffentlicht das DMG; die Windows-Pakete kommen
-   wie bisher dazu.
+4. Optional: den Workflow `packages.yml` manuell mit `release` an starten.
+5. Tag pushen oder ein Release veröffentlichen, das ihn anlegt. Der Workflow
+   baut und testet alle Pakete und hängt sie an.
 
 ## 9. Offen
 

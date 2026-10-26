@@ -4,6 +4,12 @@ Format nach Keep a Changelog, Versionen nach SemVer. Vor 1.0 kann jede
 Minor-Version brechen. 0.1.1 und 0.1.2 erschienen nur privat und noch unter
 dem Namen agentbridge.
 
+## [Unreleased]
+
+### Changed
+
+- CI: Der Workflow `packages.yml` ersetzt `macos.yml` und baut bei einem Tag `v*` alle Installer: MSI, Setup-EXE und ZIP mit `npm run build:windows` auf Windows und das DMG auf macOS. Jedes Paket wird auf einem frischen Runner installiert und gestartet, bis das Fenster erscheint; danach haengt der Workflow alle an das Release des Tags und schreibt je einen Abschnitt fuer Windows und macOS in dessen Text (`scripts/release-notes.mjs`). Ein Handlauf mit einem bestehenden Tag haengt an, was dessen Release noch fehlt.
+
 ## [0.2.3] - 2026-10-25
 
 An der App selbst aendert sich nichts; neu ist die Lieferung fuer macOS.
