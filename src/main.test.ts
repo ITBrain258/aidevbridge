@@ -9030,9 +9030,39 @@ describe("main: Sessions des Standard-Sockets (Spec 2026-10-25 §6.2, §6.3, §7
   // Und umgekehrt (§6.2): scheitert der eigene Socket, schreibt der Fehlerweg
   // die mitgelieferte Liste des Standard-Sockets trotzdem.
   it("schreibt die Sessions des Standard-Sockets auch, wenn der eigene Socket scheitert", async () => {
-    await connect({}, { own: socketSessions([], { error: failure }), default: socketSessions(["tmux-main"]) });
-    expect(names()).toEqual(["tmux-main"]);
-    expect(hostRow("h1").parentElement!.querySelector(".session-list-notice")).not.toBeNull();
+    const written: string[] = [];
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: (text: string) => { written.push(text); return Promise.resolve(); } },
+      configurable: true,
+      writable: true,
+    });
+    try {
+      await connect({}, { own: socketSessions([], { error: failure }), default: socketSessions(["tmux-main"]) });
+      expect(names()).toEqual(["tmux-main"]);
+      const notice = hostRow("h1").parentElement!.querySelector<HTMLElement>(".session-list-notice");
+      expect(notice).not.toBeNull();
+      // Der Hinweis traegt den Fehler des Backends selbst, nicht die Huelle,
+      // in der er den Fehlerweg erreicht: Satz und Code bleiben erhalten.
+      expect(notice!.querySelector(".host-notice-detail")!.textContent).toBe("boom");
+      const button = (label: string) =>
+        Array.from(notice!.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === label)!;
+      button("Details").click();
+      button("Copy diagnostics").click();
+      await flush();
+      expect(written).toEqual([`${appVersionLine()}\nother\nboom`]);
+    } finally {
+      delete (navigator as { clipboard?: unknown }).clipboard;
+    }
+  });
+
+  // Die Kontrollgeneration des Backends reist mit dem Fehler des eigenen
+  // Sockets: stammt er aus einer anderen Generation, ist er ueberholt.
+  it("verwirft den Fehler des eigenen Sockets aus einer anderen Kontrollgeneration", async () => {
+    await connect({}, {
+      own: socketSessions([], { error: { ...failure, control_generation: 3 } }),
+      default: socketSessions(["tmux-main"]),
+    });
+    expect(hostRow("h1").parentElement!.querySelector(".session-list-notice")).toBeNull();
   });
 
   it("fragt den Standard-Socket nicht, wenn der Schalter des Hosts aus ist", async () => {
