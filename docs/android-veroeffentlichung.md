@@ -112,11 +112,13 @@ einer Vorschau im Browser geprüft. Am echten Telefon:
    - App in den Hintergrund und nach ein paar Minuten zurück: der Host
      verbindet sich neu.
    - Drehen ins Querformat.
-3. Dabei **Bildschirmfotos** (mindestens zwei, besser vier): Hostliste mit
-   Wartet-Spur, offenes Terminal mit Agent, Tastenleiste, Host-Formular.
-   Ablegen als `fastlane/metadata/android/de-DE/images/phoneScreenshots/1.png`
-   usw. und dieselben unter `en-US`. Keine echten Hostnamen oder Inhalte
-   zeigen, die du nicht veröffentlichen willst.
+3. **Bildschirmfotos:** Unter
+   `fastlane/metadata/android/<Sprache>/images/phoneScreenshots/` liegen schon
+   drei vorläufige (Terminal, Hostliste, neuer Schlüssel). Sie zeigen die
+   echte Oberfläche mit Beispieldaten, gerendert im Browser; Schriften und
+   Systemleisten weichen vom Telefon ab. Besser: beim Test eigene vom Telefon
+   machen (Ein/Aus + Leiser) und die Dateien `1.png` usw. ersetzen. Keine
+   echten Hostnamen oder Inhalte zeigen, die du nicht veröffentlichen willst.
 
 Fehler oder Auffälligkeiten bitte notieren; ich behebe sie vor dem Release.
 
@@ -172,7 +174,8 @@ Der Paketname steht ab dem ersten Upload fest:
   (die `<b>`-Auszeichnung übernimmt Play)
 - App-Symbol: `.../en-US/images/icon.png`
 - Feature-Grafik: `.../en-US/images/featureGraphic.png`
-- Screenshots Telefon: die Bilder aus B3 (mindestens 2)
+- Screenshots Telefon: `.../en-US/images/phoneScreenshots/1.png` bis `3.png`
+  oder deine eigenen aus B3 (mindestens 2)
 - Optional Tablet-Screenshots (7 und 10 Zoll), sonst erscheint die App auf
   Tablets mit dem Hinweis, nicht dafür gestaltet zu sein.
 

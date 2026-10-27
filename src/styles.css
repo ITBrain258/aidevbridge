@@ -523,6 +523,12 @@ textarea,
   display: none;
 }
 
+/* Ebenso das Kuerzel im Kopf der Wartet-Spur: Strg+Umschalt+A gibt es auf
+   dem Telefon nur mit einer Hardwaretastatur. */
+#app.compact .sb-lane-head kbd {
+  display: none;
+}
+
 .compact-bar-toggle {
   flex: 0 0 auto;
   gap: var(--ab-space-3);

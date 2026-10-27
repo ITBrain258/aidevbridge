@@ -280,8 +280,9 @@ IzzyOnDroid.
 
 `scripts/android-store-graphics.ps1` rendert aus `fastlane/store-graphics/`
 das Store-Icon (512 × 512, randlos) und die Feature-Grafik (1024 × 500) in
-beide Sprachen. Bildschirmfotos (mindestens zwei, Telefon) entstehen am Gerät
-oder im Emulator; sie fehlen noch (Plan, Schritt 9).
+beide Sprachen. Drei vorläufige Bildschirmfotos (968 × 1920) zeigen die echte
+Oberfläche mit Beispieldaten, gerendert im Browser mit Android-Kennung; echte
+vom Telefon ersetzen sie besser (Plan, Schritt 12).
 
 ### 7.3 Datenschutz und Berechtigungen
 
