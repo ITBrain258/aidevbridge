@@ -325,6 +325,14 @@ the app as one more client of that session:
   (control and terminals) bound to the same host key. An SSH agent that asks
   for approval may therefore ask twice, and again on every automatic
   reconnect attempt.
+- **Several windows:** aidevbridge can run more than once, and all windows
+  share `settings.toml`. A window applies only its own change to what
+  another one saved, so it keeps the other window's hosts; each preference
+  and the workspace (open terminals, layout) are those of the window that
+  saved them last, and hosts added in another window appear after a
+  restart. Two windows on the same session attach to it as two tmux
+  clients. Details in
+  [SECURITY.md](SECURITY.md#several-windows-at-the-same-time).
 - **Automatic recovery** covers hosts with a key file or ssh-agent whose last
   connection needed no passphrase. Password and passphrase hosts reconnect
   by hand; when only the live updates stopped, **Restore updates** in the

@@ -16,9 +16,10 @@ issues and pull requests as time allows; there is no response deadline.
 
 ## Build and test
 
-You need Windows 10 or 11 (x64), the Rust toolchain from
-`rust-toolchain.toml` (installed by `rustup` on first use), the Microsoft C++
-Build Tools (MSVC), the WebView2 Runtime and Node.js 24 or newer; see the
+You need Windows 10 or 11 (x64) or macOS 11 or newer, the Rust toolchain
+from `rust-toolchain.toml` (installed by `rustup` on first use), Node.js 24
+or newer and, on Windows, the Microsoft C++ Build Tools (MSVC) and the
+WebView2 Runtime, on macOS the Xcode Command Line Tools; see the
 [README](README.md#build-from-source).
 
 ```sh
@@ -48,10 +49,12 @@ known security advisories: weekly, on every change of either lockfile and
 when started by hand. It is not part of the checks above, which `ci.yml` runs
 (see [Tests](README.md#tests)), and a new advisory can turn it red without
 any change here. It does not cover path dependencies such as the vendored
-russh in `vendor/russh`, which no advisory database records;
-[SECURITY.md](SECURITY.md) lists the advisories known for it. It ignores
-RUSTSEC-2023-0071 (`rsa`), which has no fixed version; SECURITY.md explains
-why the app accepts it.
+russh in `vendor/russh`: `cargo audit` checks only packages that
+`Cargo.lock` records with a registry source, so it never matches russh's
+advisories against that copy; [SECURITY.md](SECURITY.md) lists the
+advisories known for it. It ignores RUSTSEC-2023-0071 (`rsa`), which has no
+fixed version; SECURITY.md explains why the app accepts it, and also lists
+the warnings `cargo audit` prints without failing.
 
 ## Live tests against a test host
 
@@ -80,11 +83,14 @@ a disposable test host, never a machine with sessions you care about.
   The check cannot tell whether someone else on the host already uses a name.
 - Run with `--no-fail-fast` and `--nocapture` and keep the output: skipped
   branches (RSA key, password, SSH agent) are only visible there.
+- Run with `--test-threads=4`: the key preparation admits eight jobs per
+  test process, and with the default thread count about twelve live
+  command tests fail at that admission.
 
 ```sh
 AIDEVBRIDGE_TEST_HOST=<test host> AIDEVBRIDGE_TEST_USER=<account> \
 AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_run1 \
-  cargo test --locked --manifest-path src-tauri/Cargo.toml --all --no-fail-fast -- --nocapture
+  cargo test --locked --manifest-path src-tauri/Cargo.toml --all --no-fail-fast -- --nocapture --test-threads=4
 ```
 
 - tmux leaves the socket file behind when its server ends. After the run, end
