@@ -213,9 +213,11 @@ function settingsFromEntry(entry: HostEntry): HostSettings {
  * `mountTerminal` die Laufzeit-ID mit -- unterhalb dieser Grenze meint jeder
  * Aufruf eine lebende Verbindung (siehe `ResolvedSession.runtimeHostId`). */
 
-/** Polltakt je Host (UX-Spec §5.2): der naechste Poll beginnt fruehestens so
- * lange nach dem Ende des vorigen. */
+/** Polltakt je Host (UX-Spec §5.2, Nachtrag vom 27.10.): der naechste Poll
+ * beginnt so lange nach dem Beginn des vorigen ... */
 const SESSION_STATUS_POLL_MS = 2000;
+/** ... fruehestens aber so lange nach seinem Ende. */
+const SESSION_STATUS_POLL_GAP_MS = 500;
 /** Raeumt die Hintergrundarbeit des laufenden `main()` ab, gesetzt von dort. */
 let stopBackgroundWork: (() => void) | null = null;
 
@@ -1216,24 +1218,35 @@ export function main(): void {
     void refreshSessions(hostId);
   }
 
-  // Polltakt je Host (UX-Spec §5.2): der naechste Poll beginnt fruehestens
-  // 2 s nach dem Ende des vorigen. Laeuft fuer den Host gerade
-  // `list_sessions`, setzt er aus; die Liste wartet nie auf den Poll. Jede
-  // Verbindung startet die Kette, ohne Verbindung endet sie von selbst.
+  // Polltakt je Host (UX-Spec §5.2, Nachtrag vom 27.10.): der naechste Poll
+  // beginnt 2 s nach dem Beginn des vorigen, fruehestens 0,5 s nach seinem
+  // Ende; zwei Polls eines Hosts laufen nie zugleich. Gemessen ab dem Ende
+  // wuchs der Takt mit jeder Abfragedauer, unter Last auf gut 4 s (Abnahme
+  // vom 25.10.). Laeuft fuer den Host gerade `list_sessions`, setzt er aus;
+  // die Liste wartet nie auf den Poll. Jede Verbindung startet die Kette,
+  // ohne Verbindung endet sie von selbst.
   let backgroundStopped = false;
   const pollTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  const pollStarts = new Map<string, number>();
   const listsInFlight = new Map<string, number>();
 
   function scheduleStatusPoll(hostId: string): void {
     if (backgroundStopped || pollTimers.has(hostId)) return;
+    const started = pollStarts.get(hostId);
+    const delay = started === undefined
+      ? SESSION_STATUS_POLL_MS
+      : Math.max(SESSION_STATUS_POLL_GAP_MS, started + SESSION_STATUS_POLL_MS - Date.now());
     pollTimers.set(hostId, setTimeout(() => {
       pollTimers.delete(hostId);
       void runStatusPoll(hostId);
-    }, SESSION_STATUS_POLL_MS));
+    }, delay));
   }
 
   async function runStatusPoll(hostId: string): Promise<void> {
     if (!sessionConnection(hostId)) return;
+    // Auch ein ausgesetzter Poll zaehlt als Takt: waehrend einer Liste wird
+    // alle 2 s nachgesehen, wie bisher.
+    pollStarts.set(hostId, Date.now());
     try {
       if (!listsInFlight.has(hostId)) await overlaySessionStatus(hostId);
     } finally {
@@ -1245,6 +1258,7 @@ export function main(): void {
     const timer = pollTimers.get(hostId);
     if (timer !== undefined) clearTimeout(timer);
     pollTimers.delete(hostId);
+    pollStarts.delete(hostId);
     // Der Server einer frueheren Verbindung ist kein "neuer" fuer die naechste.
     defaultPollServers.delete(hostId);
     defaultListReloads.delete(hostId);

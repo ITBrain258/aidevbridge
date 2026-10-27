@@ -6335,7 +6335,7 @@ describe("main: session status overlay poll", () => {
     expect(sessionButton("h1", "s1").querySelector(".st")!.textContent).toBe("Unknown");
   });
 
-  it("pollt nicht, solange die Sessionliste laedt, und fruehestens 2 s nach dem Ende des vorigen Polls", async () => {
+  it("pollt nicht, solange die Sessionliste laedt, 2 s nach dem Beginn des vorigen Polls und fruehestens 0,5 s nach seinem Ende", async () => {
     await connectWithItems([
       sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" }),
     ]);
@@ -6360,13 +6360,22 @@ describe("main: session status overlay poll", () => {
     // Kein zweiter Poll, solange der erste laeuft ...
     await vi.advanceTimersByTimeAsync(5000);
     expect(calls("poll_status")).toHaveLength(1);
-    // ... und der naechste erst 2 s nach seinem Ende.
+    // ... und nach einem langen der naechste 0,5 s nach seinem Ende.
     polls[0](statusPoll([{ session_id: 1, status: "idle", status_reason: "agent is idle" }]));
     await flush(20);
-    await vi.advanceTimersByTimeAsync(1999);
+    await vi.advanceTimersByTimeAsync(499);
     expect(calls("poll_status")).toHaveLength(1);
     await vi.advanceTimersByTimeAsync(1);
     expect(calls("poll_status")).toHaveLength(2);
+    // Nach einem kurzen beginnt der naechste 2 s nach seinem Beginn (UX-Spec
+    // §5.2, Nachtrag vom 27.10.): hier 0,3 s Abfrage, dann 1,7 s Pause.
+    await vi.advanceTimersByTimeAsync(300);
+    polls[1](statusPoll([{ session_id: 1, status: "idle", status_reason: "agent is idle" }]));
+    await flush(20);
+    await vi.advanceTimersByTimeAsync(1699);
+    expect(calls("poll_status")).toHaveLength(2);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(calls("poll_status")).toHaveLength(3);
   });
 
   it("laedt die Sessionliste nur bei einer neuen Kontrollgeneration neu", async () => {
