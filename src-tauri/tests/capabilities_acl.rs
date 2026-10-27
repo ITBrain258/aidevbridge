@@ -4,10 +4,9 @@
 //! Die vierte ist das Fenster-Label in `tauri.conf.json`, die fuenfte die
 //! `COMMANDS`-Liste in `acl_runtime.rs`. Dieser Test haelt sie zusammen.
 //!
-//! Er ist die maschinelle Fassung genau der "Checkliste, die nicht veralten
-//! darf", die das Abschlussreview verlangt hat -- dort noch als Kommentar
-//! geloest, was bereits einmal lautlos veraltet ist (eine dort notierte
-//! feste Zahl stimmte laengst nicht mehr).
+//! Er ist die maschinelle Fassung einer "Checkliste, die nicht veralten
+//! darf": als Kommentar ist eine solche Liste bereits einmal lautlos
+//! veraltet (eine dort notierte feste Zahl stimmte laengst nicht mehr).
 //!
 //! Braucht KEINE VM und keine Umgebungsvariable.
 
@@ -53,9 +52,8 @@ fn handler_commands() -> BTreeSet<String> {
         .expect("Ende des generate_handler!-Blocks nicht gefunden");
     block[..end]
         .lines()
-        // Kommentarzeilen ausfiltern: der Block enthaelt einen Task-13-
-        // Kommentar, der selbst "capabilities/default.json" und "allow-"
-        // erwaehnt.
+        // Kommentarzeilen ausfiltern: der Block enthaelt einen Kommentar, der
+        // selbst "capabilities/default.json" und "allow-" erwaehnt.
         .filter(|line| !line.trim_start().starts_with("//"))
         .filter_map(|line| line.trim().strip_prefix("commands::"))
         .map(|rest| rest.trim_end_matches(',').trim().to_string())
@@ -234,7 +232,7 @@ fn all_five_command_lists_agree() {
 /// Eigener Test statt einer weiteren Zusicherung in
 /// `all_three_command_lists_agree`: "ein Eintrag SPERRT einen Command" ist
 /// eine andere Diagnose als "die fuenf Listen laufen auseinander" -- unter
-/// jenem Namen gemeldet wuerde der Befund in die falsche Richtung schicken.
+/// jenem Namen gemeldet wuerde die Diagnose in die falsche Richtung schicken.
 #[test]
 fn no_deny_entry_shadows_a_command() {
     let entries = capability_permission_entries();

@@ -5,7 +5,7 @@
 use aidevbridge_lib::remote;
 use aidevbridge_lib::tmux::{CreateOutcome, OwnSocket, OwnTmuxClient};
 use aidevbridge_lib::transport::Transport;
-mod common; // stellt `connect_test_host()` bereit, siehe Task 5
+mod common; // stellt `connect_test_host()` bereit
 
 #[tokio::test]
 async fn create_list_and_kill_session() {
@@ -41,7 +41,7 @@ async fn create_list_and_kill_session() {
         .contains(&name.to_string()));
 }
 
-/// B0: `kill_session` darf ein Praefixgeschwister nicht erwischen.
+/// `kill_session` darf ein Praefixgeschwister nicht erwischen.
 ///
 /// **Der Schadenszustand ist "Ziel abwesend + Praefixgeschwister
 /// anwesend".** Ein Test, der beide Namen anlegt, kann den Fehler nicht
@@ -117,12 +117,11 @@ async fn history_limit_is_set_before_sessions_exist() {
     c.kill_session(&t, "ab_cc22dd").await.unwrap();
 }
 
-/// Review-Befund: der `exit-empty`-Bug hat beim
-/// ersten Testlauf ALLE VIER `prepare_server`-Kommandos wirkungslos gemacht,
-/// nicht nur `history-limit` -- nur `history-limit` hatte bis dahin eine
-/// eigene Probe. Ohne diesen Test waere `remain-on-exit` (Spec V21) undicht
-/// geblieben: `#{pane_dead}` koennte nie 1 werden, ohne dass irgendein Test
-/// das bemerkt.
+/// Der `exit-empty`-Bug hat beim ersten Testlauf ALLE VIER
+/// `prepare_server`-Kommandos wirkungslos gemacht, nicht nur `history-limit`
+/// -- nur `history-limit` hatte bis dahin eine eigene Probe. Ohne diesen Test
+/// waere `remain-on-exit` (Spec V21) undicht geblieben: `#{pane_dead}` koennte
+/// nie 1 werden, ohne dass irgendein Test das bemerkt.
 #[tokio::test]
 async fn remain_on_exit_and_terminal_overrides_are_applied() {
     let Some(t) = common::connect_test_host().await else {
@@ -171,7 +170,7 @@ async fn remain_on_exit_and_terminal_overrides_are_applied() {
 }
 
 /// Prueft den Rueckweg aus `create_session` (`; set -g exit-empty on`)
-/// direkt, nicht ueber `list_session_names` (Review-Befund).
+/// direkt, nicht ueber `list_session_names`.
 ///
 /// `list_session_names` liefert nach `kill_session` in ZWEI verschiedenen
 /// Situationen eine leere Liste: wenn gar kein Server mehr laeuft (der

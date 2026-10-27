@@ -1,10 +1,9 @@
 #![allow(dead_code)] // nicht jeder Testbinary nutzt jedes Hilfsmittel
 
-// `[lib] name = "aidevbridge_lib"` in Cargo.toml
-// (siehe Task 1) bestimmt, unter welchem Namen Integrationstests die
-// Bibliothek importieren -- nicht der Paketname `aidevbridge`. Mit
-// `use aidevbridge::...` bricht der Compiler mit E0432 ("unresolved
-// import") ab.
+// `[lib] name = "aidevbridge_lib"` in Cargo.toml bestimmt, unter welchem Namen
+// Integrationstests die Bibliothek importieren -- nicht der Paketname
+// `aidevbridge`. Mit `use aidevbridge::...` bricht der Compiler mit E0432
+// ("unresolved import") ab.
 use aidevbridge_lib::commands::{HostKeyRequest, HostKeyRequestSink};
 use aidevbridge_lib::ssh::AuthMethod;
 use aidevbridge_lib::transport::{HostKeyPolicy, HostSpec, RusshTransport};
@@ -49,13 +48,13 @@ impl HostKeyPolicy for RecordingReject {
     }
 }
 
-/// TOFU-Nachtrag (Task 13): meldet eine Host-Key-Rueckfrage als zugestellt,
-/// antwortet aber nie -- fuer Tests, die bewusst einen unbeantworteten
+/// TOFU (Spec §8.1): meldet eine Host-Key-Rueckfrage als zugestellt, antwortet
+/// aber nie -- fuer Tests, die bewusst einen unbeantworteten
 /// `Unknown`-Zeitablauf pruefen wollen (siehe
 /// `connect_rejects_a_host_missing_from_known_hosts` in
-/// `integration_commands.rs`, das seit der TOFU-Verdrahtung selbst den
-/// `Unknown`-Zweig durchlaeuft und deshalb einen KURZEN, injizierten
-/// Timeout braucht statt der vollen Produktions-Wartezeit).
+/// `integration_commands.rs`, das selbst den `Unknown`-Zweig durchlaeuft und
+/// deshalb einen KURZEN, injizierten Timeout braucht statt der vollen
+/// Produktions-Wartezeit).
 pub struct NeverAnswersSink;
 impl HostKeyRequestSink for NeverAnswersSink {
     fn request(&self, _req: &HostKeyRequest) -> bool {
@@ -197,9 +196,9 @@ pub fn spec() -> Option<HostSpec> {
     })
 }
 
-/// Auth-Methode fuer die Testumgebung: Schluessel ohne Passphrase (siehe
-/// Task-Vorgabe). Bewusst von `spec()` getrennt -- seit Task 6 beschreibt
-/// `HostSpec` nur noch das "Wo", `AuthMethod` das "Wie".
+/// Auth-Methode fuer die Testumgebung: Schluessel ohne Passphrase. Bewusst von
+/// `spec()` getrennt -- `HostSpec` beschreibt nur das "Wo", `AuthMethod` das
+/// "Wie".
 pub fn key_auth_method() -> AuthMethod {
     AuthMethod::Key {
         path: dirs::home_dir()
@@ -267,7 +266,7 @@ pub fn wrong_key_same_host() -> String {
     format!("{} ssh-ed25519 {}\n", test_host_name(), WRONG_KEY_B64)
 }
 
-/// RSA-Schluessel fuer den Test gegen OpenSSH >= 8.8 (Task 5a, Befund 3).
+/// RSA-Schluessel fuer den Test gegen OpenSSH >= 8.8.
 /// `None`: Test meldet SKIP.
 ///
 /// `AIDEVBRIDGE_TEST_RSA_KEY` nennt eine private RSA-Schluesseldatei ohne

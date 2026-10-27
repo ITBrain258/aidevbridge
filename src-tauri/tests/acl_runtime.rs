@@ -1,9 +1,9 @@
-//! Die ACL, vom echten Auflöser geprüft -- nicht vom Textvergleich.
+//! Die ACL, vom echten Aufloeser geprueft -- nicht vom Textvergleich.
 //!
 //! `tests/capabilities_acl.rs` haelt die fuenf Listen zusammen -- Handler,
 //! `build.rs`, `capabilities/default.json`, das Fenster-Label und die
 //! `COMMANDS`-Liste weiter unten in DIESER Datei. Es liest Dateien. Es kann NICHT belegen, dass
-//! Tauris Laufzeit-Auflöser diese Namen auch akzeptiert -- ein Tippfehler im
+//! Tauris Laufzeit-Aufloeser diese Namen auch akzeptiert -- ein Tippfehler im
 //! Schema, ein falsch geschriebenes Fenster-Label oder eine kaputte
 //! Manifest-Erzeugung in `build.rs` bleiben dort unsichtbar und schlagen erst
 //! im laufenden Fenster zu.

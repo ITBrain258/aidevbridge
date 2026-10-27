@@ -1,5 +1,5 @@
 // Crate-Name `aidevbridge_lib` statt `aidevbridge` (siehe common/mod.rs,
-// [lib] name = "aidevbridge_lib" in Cargo.toml seit Task 1).
+// [lib] name = "aidevbridge_lib" in Cargo.toml).
 use aidevbridge_lib::remote;
 use aidevbridge_lib::tmux::{OwnSocket, OwnTmuxClient};
 use aidevbridge_lib::transport::Transport;
@@ -55,8 +55,8 @@ async fn attach_yields_a_working_terminal() {
     );
 
     // Ohne terminal-overrides wuerde hier ESC[?1049h stehen (Spec V5/V18) --
-    // Task 8 setzt `terminal-overrides ',*:smcup@:rmcup@'` in prepare_server,
-    // dieser Test ist der Beleg, dass die Option tatsaechlich wirkt.
+    // `prepare_server` setzt `terminal-overrides ',*:smcup@:rmcup@'`, dieser
+    // Test ist der Beleg, dass die Option tatsaechlich wirkt.
     assert!(
         !s.contains("\x1b[?1049h"),
         "Alternate Screen darf nicht aktiviert werden, bekam: {s:?}"
@@ -96,7 +96,7 @@ async fn resize_reaches_the_remote_pane() {
     tokio::time::sleep(std::time::Duration::from_millis(500)).await;
     // Ueber remote::build statt eines rohen String-Literals -- jede
     // Kommandozeile fuer die entfernte Shell muss ausschliesslich
-    // darueber entstehen (globale Randbedingung des Tasks).
+    // darueber entstehen (Spec §8.2).
     let r = t
         .exec(&remote::build(&[
             "tmux",
@@ -115,10 +115,10 @@ async fn resize_reaches_the_remote_pane() {
     c.kill_session(&t, "ab_ff44aa").await.unwrap();
 }
 
-/// Der wichtigste Test des Tasks (Spec V1/V2): oeffnet und schliesst viele
+/// Der wichtigste Kanaltest (Spec V1/V2): oeffnet und schliesst viele
 /// Kanaele; danach muss noch ein weiterer gehen.
 ///
-/// `CYCLES = 20` statt zehn (Review-Befund, Minor):
+/// `CYCLES = 20` statt zehn:
 /// `MaxSessions` auf der VM ist 10, zehn Zyklen feuern also nur, wenn
 /// praktisch JEDER Kanal leckt. Ein Bug, der nur jeden zweiten Kanal
 /// beeintraechtigt, wuerde bei zehn Zyklen fuenf Slots freigeben und der
@@ -158,14 +158,13 @@ async fn closing_frees_the_channel_slot() {
     // weiterer PTY-Kanal (beide sind SSH-"session"-Kanaele und teilen sich
     // denselben `MaxSessions`-Zaehler des sshd).
     //
-    // Bewusst NICHT `.unwrap()` auf dem `exec`-Ergebnis (Review-Befund,
-    // Minor): im Leckfall schlaegt bereits dieser Aufruf fehl, ein
-    // `.unwrap()` wuerde den Test dort mit einer generischen Panic-Meldung
-    // beenden -- BEVOR die zweite Pruefung (`open_attach`) je laeuft und
-    // BEVOR die aussagekraeftige "Spec V2"-Meldung unten je erreicht wird.
-    // Stattdessen beide Ergebnisse zuerst vollstaendig einsammeln (beide
-    // Anfragen laufen so in jedem Fall durch), dann mit der
-    // aussagekraeftigen Meldung asserten.
+    // Bewusst NICHT `.unwrap()` auf dem `exec`-Ergebnis: im Leckfall schlaegt
+    // bereits dieser Aufruf fehl, ein `.unwrap()` wuerde den Test dort mit
+    // einer generischen Panic-Meldung beenden -- BEVOR die zweite Pruefung
+    // (`open_attach`) je laeuft und BEVOR die aussagekraeftige
+    // "Spec V2"-Meldung unten je erreicht wird. Stattdessen beide Ergebnisse
+    // zuerst vollstaendig einsammeln (beide Anfragen laufen so in jedem Fall
+    // durch), dann mit der aussagekraeftigen Meldung asserten.
     let exec_outcome = t.exec(&remote::build(&["echo", "still_alive"])).await;
     let reattach_outcome = t.open_attach(&own, name, 80, 24).await;
 
@@ -190,7 +189,7 @@ async fn closing_frees_the_channel_slot() {
     c.kill_session(&t, name).await.unwrap();
 }
 
-/// B0, Gegenstueck zu `kill_session_does_not_hit_a_prefix_sibling`:
+/// Gegenstueck zu `kill_session_does_not_hit_a_prefix_sibling`:
 /// `open_attach` darf sich nicht an ein Praefixgeschwister haengen.
 ///
 /// Zugesichert wird das ueber `#{session_attached}` des Geschwisters, NICHT
