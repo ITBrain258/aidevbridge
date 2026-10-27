@@ -1,0 +1,19 @@
+aidevbridge verbindet sich per SSH mit deinen eigenen Linux-Rechnern, listet ihre tmux-Sessions und zeigt, welcher Coding-Agent auf dich wartet. Ein Tipp auf eine Session öffnet ein echtes Terminal – dieselbe Session, die du am Desktop verlassen hast.
+
+<b>Was die App kann</b>
+• Hosts und Sessions in einer Liste, mit dem Zustand jedes Agenten: Waiting, Busy, Idle oder Ended. Wartende Sessions stehen oben, die älteste zuerst, mit ihrer Wartezeit.
+• Ein vollwertiges Terminal (xterm.js) mit einer Tastenleiste für Esc, Tab, Strg, Alt, Pfeile, Pos1/Ende und Bild auf/ab, und bis zu 5.000 Zeilen tmux-Verlauf beim Öffnen.
+• Hält Netzwechsel aus: Hosts mit Schlüssel verbinden sich selbst neu und hängen ihre Terminals wieder an.
+• Schlüssel auf dem Gerät: einen ed25519-Schlüssel in der App erzeugen und den öffentlichen Schlüssel auf dem Host eintragen, oder eine vorhandene private Schlüsseldatei importieren. Anmeldung mit Passwort geht auch.
+• Hostschlüssel werden beim ersten Kontakt geprüft (Trust on first use) und gemerkt.
+
+<b>Nichts auf dem Host</b>
+Kein Dienst, kein Hook, keine geänderte Konfiguration: nur SSH, tmux 3.0 oder neuer und der Agent, den du selbst startest. Den Zustand erkennt die App für Claude Code und Codex; jedes andere Programm läuft wie gewohnt im Terminal.
+
+<b>Privat von Grund auf</b>
+Kein Konto, keine Cloud, keine Analyse, keine Werbung. Die App spricht nur mit den Hosts, die du einträgst. Hosts, Schlüssel und bekannte Hostschlüssel bleiben im privaten Speicher der App und sind von Android-Sicherungen ausgenommen. Passwörter und Passphrasen speichert sie nie.
+
+<b>Open Source</b>
+aidevbridge ist freie Software unter der MIT- oder Apache-2.0-Lizenz. Dieselbe App läuft unter Windows und macOS. Quellcode, Fehlermeldungen und Releases: https://github.com/ITBrain258/aidevbridge
+
+Das Projekt ist in früher Entwicklung; Probleme bitte als Issue auf GitHub melden.

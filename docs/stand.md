@@ -26,6 +26,14 @@ bekannten Grenzen und akzeptierten Risiken; beide Lizenzauswahlen sind am
 U4 warten auf den Maintainer; offen sind außerdem die Handabnahme und die
 CI auf drei Systemen (Punkt 10).
 
+Auf dem Branch `feat/android` liegt die Android-App nach der
+[Spec vom 27.10.](specs/2026-10-27-android-design.md), noch ohne Release und
+ohne Abnahme am Gerät: Backend und Oberfläche für Android, Signatur, Workflow
+`android.yml` bis Google Play, Store-Eintrag und
+[Anleitung](android-veroeffentlichung.md). Offen sind die Schritte des
+Maintainers (Play-Konto, Test am Telefon, Bildschirmfotos, Secrets) und die
+Android-Lizenzauswahl ([Plan](plans/2026-10-27-android.md), Phase 6).
+
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
 steht im [README](../README.md#what-it-is), die Änderungen im
 [CHANGELOG](../CHANGELOG.md). Die Doku liegt flach unter `docs/` (`specs/`,
@@ -122,6 +130,7 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger lokaler Lauf für 0.2.2 nach dem Neubinden der Lizenzauswahl. Seit 26.10. baut der Workflow `packages.yml` sie bei jedem Tag, installiert jedes Paket auf einem frischen Runner, startet die App und hängt sie an das Release |
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 400 Komponenten, `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
 | Review vom 26.10. | umgesetzt auf dem Branch `claude/intelligent-rubin-jygw4u` nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Noch kein Release |
+| Android | gebaut auf `feat/android` nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md): Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`. Lokal gebaut und signiert für arm64 und x86_64 am 27.10.; nicht am Gerät abgenommen, kein Release ([Plan](plans/2026-10-27-android.md)) |
 
 ## Letzte Prüfung
 

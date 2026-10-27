@@ -102,6 +102,14 @@ Out of scope:
   and `~/Library/Caches/io.github.itbrain258.aidevbridge/`. Its local
   storage holds only the color theme.
 
+On Android (not yet released, see `docs/specs/2026-10-27-android-design.md`)
+all of this lives in the app's private storage, which other apps cannot
+read: `settings.toml` under `io.github.itbrain258.aidevbridge/` and
+`known_hosts` under `.ssh/`. Keys you generate or import in the app are
+stored there too (`.ssh/aidevbridge_ed25519`, `.ssh/imported_<type>`, each
+with its `.pub`). The app excludes its storage from Google's cloud backup and
+from the transfer to a new device.
+
 The app writes no log files. It talks only SSH, to the hosts you add;
 Ctrl+click on a link opens your default browser. If WebView2 is missing, the
 setup EXE and the MSI download Microsoft's WebView2 bootstrapper and run it,
@@ -315,6 +323,23 @@ lifecycle scripts of the npm dependencies and `tauri build` with the build
 scripts (`build.rs`) and procedural macros of all Rust dependencies. Any of
 that code could read the signing certificate, its password and the
 notarization key from its environment.
+
+### Android: keys generated in the app have no passphrase
+
+A key that "Generate new key…" creates on Android has no passphrase, so that
+a connection needs no input and the app can reconnect by itself. It is
+protected by Android's app sandbox and by the exclusion from backups, not by
+encryption at rest of its own. Someone who can read the app's private
+storage (a rooted device, or a debug build of the app) can read the key.
+Importing a key copies the chosen file as it is, so an encrypted key stays
+encrypted and asks for its passphrase on each connection. What would
+resolve it: wrapping keys with a key from the Android Keystore.
+
+The release signing key of the Android app reaches only the `sign` and
+`play` jobs of `.github/workflows/android.yml`, through the GitHub
+environment `android-release`. The job that builds the app, and with it runs
+npm, Gradle and every Rust build script, gets no secret; the same rule as for
+the planned Developer ID signing on macOS.
 
 ### Several windows at the same time
 
