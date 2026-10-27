@@ -1465,9 +1465,10 @@ export function mountTerminal(
       // das kurz vor `dispose()` abgesetzt wurde, koennte seinen Callback
       // also nie ausloesen -- dann wird `ack_output` fuer diese Bytes nie
       // gesendet. Deshalb: die Summe der noch ausstehenden, nie bestaetigten
-      // Bytes hier einmalig nachbestaetigen. Ueberlebt der Eintrag das
-      // Schliessen unten (etwa weil `close_terminal` scheitert), bleibt sein
-      // `AckGate` so nicht mit ausstehenden Bytes haengen.
+      // Bytes hier einmalig nachbestaetigen. Ueberlebte der Eintrag das
+      // Schliessen unten, weil `close_terminal` wirklich scheitert (etwa an
+      // einem IPC-Fehler), bliebe sein `AckGate` so nicht mit ausstehenden
+      // Bytes haengen.
       if (pendingAckBytes > 0) {
         const byteCount = pendingAckBytes;
         pendingAckBytes = 0;
@@ -1482,8 +1483,10 @@ export function mountTerminal(
       // (`ack_output_tagged_impl`), der Eintrag samt `AckGate` ist dann fort.
       //
       // BEIDE Aufrufe schlucken ihren Fehler, statt ihn an `onError` zu
-      // reichen: `onError` landet im globalen Hinweisbanner, und ein voellig
-      // gewoehnliches Schliessen liesse dort eine rote Meldung stehen. Ein
+      // reichen: `onError` landet im globalen Hinweisbanner. Fuer einen schon
+      // fehlenden Eintrag melden beide Befehle Erfolg; scheitert einer
+      // wirklich (etwa an einem IPC-Fehler), stuende sonst beim blossen
+      // Schliessen einer Ansicht eine rote Meldung im Banner. Ein
       // Fehlschlag auf DIESEM Weg ist gegenstandslos: die Ansicht ist bereits
       // entsorgt, und der Kanal wird so oder so mit dem naechsten
       // `disconnect_host` abgeraeumt. Fehler VOR dem Entsorgen gehen an

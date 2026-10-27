@@ -663,7 +663,8 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
           // kein falscher Treffer: `src-tauri/src/commands.rs::classify_connect_error`
           // bildet `AuthError::PasswordWrong`/`PassphraseWrong` auf
           // `password_required`/`passphrase_required` ab, `auth_rejected`
-          // bleibt fuer `MethodNotOffered`/`KeyUnreadable`/`AgentUnavailable`
+          // bekommen nur die dort aufgezaehlten uebrigen Anmeldefehler (etwa
+          // `MethodNotOffered` oder `AgentUnavailable`)
           // -- ein falsch getipptes Passwort landet also nie in dieser
           // Flaeche, sondern immer im Geheimnisfeld oben.
           (code === "auth_rejected" && value.auth.kind === "agent");
