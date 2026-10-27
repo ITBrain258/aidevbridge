@@ -126,23 +126,26 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
 
 Am 27.10.2026 für den Branch der Review-Umsetzung, in einem Linux-Container
 als root (kein Windows, kein macOS): Rust fmt, Clippy mit `-D warnings` und
-`cargo test --locked --all --no-fail-fast` grün, 640 Bibliothekstests; 2797
+`cargo test --locked --all --no-fail-fast` grün, 642 Bibliothekstests; 2797
 Frontend-Tests in 52 Dateien, `tsc`, Vite-Build und 112 Skripttests grün,
 drei davon nur unter Windows und hier übersprungen. `cargo audit` meldet nur
 RUSTSEC-2023-0071 und die zehn erwarteten Warnungen aus `SECURITY.md`,
 `npm audit` nichts; `vendor/` ist unverändert. Nach dem Neubinden sind
-`prepare` und `check` für beide Lizenzauswahlen grün. Live gegen einen
-lokalen OpenSSH-Host (9.6, tmux 3.4) auf eigenen Testsockets mit
+`prepare` und `check` für beide Lizenzauswahlen grün. Der letzte Live-Lauf
+auf dem Stand `7b961cf` ging gegen einen lokalen Linux-Testhost im
+Container mit OpenSSH 9.6 und tmux 3.4, auf eigenen Testsockets mit
 `--test-threads=4`: `integration_commands` 23, `socket_abort_probe` 13,
 `integration_transport` 8 (mit RSA-Schlüssel), `test_environment` 7,
 `integration_tmux` 6, `capabilities_acl` 6, `acl_runtime` 4,
-`integration_pty` 4, `integration_status_title` und `integration_preflight`
-je 1 grün; in `integration_default_socket.rs` meldet der Listentest, der
-tmux 3.3a oder 3.6 braucht, auf diesem Host ein SKIP (Punkt 10).
-VM-Abnahme 11 von 11, der ssh-agent-Zweig mangels Agent übersprungen; vorher scheiterten unter Linux
-neun der elf, weil der Test die Windows-Herkunft der App fest einsetzte und
-`list_sessions` als bloße Liste las. Offen sind die CI auf Windows und macOS
-und das Fenster.
+`integration_pty` 4, `integration_default_socket` 2,
+`integration_status_title` und `integration_preflight` je 1 grün. Der
+Listentest in `integration_default_socket.rs` braucht tmux 3.3a oder 3.6
+und meldet auf 3.4 wie vorgesehen ein SKIP (Punkt 10). Die VM-Abnahme
+(`acceptance_vm` mit `--include-ignored`) gegen denselben Host: 11 von 11
+grün, der ssh-agent-Zweig mangels Agent übersprungen; vorher scheiterten
+unter Linux neun der elf, weil der Test die Windows-Herkunft der App fest
+einsetzte und `list_sessions` als bloße Liste las. Offen sind die CI auf
+Windows, Ubuntu und macOS und die Handabnahme am Fenster.
 
 Am 25.10.2026 für 0.2.2, auf dem Rechner mit 8 GB Arbeitsspeicher: 2691
 Frontend-Tests in 49 Dateien, TypeScript- und Vite-Build und 76 Skripttests
