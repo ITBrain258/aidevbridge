@@ -728,7 +728,7 @@ fn owns_current_entry(current_generation: Option<u64>, my_generation: u64) -> bo
 /// Der Text, den der WebView bei einem gescheiterten Verbindungsversuch
 /// zeigt.
 ///
-/// `AuthError::user_message()` traegt neun sorgfaeltig formulierte,
+/// `AuthError::user_message()` traegt zehn sorgfaeltig formulierte,
 /// paarweise als verschieden getestete Meldungen -- und hatte bis zu diesem
 /// Punkt KEINEN Produktivaufrufer (Design §4.5): `connect_host_with_known_
 /// hosts` gab `e.to_string()` zurueck, also `anyhow`s knappen Display-Text
@@ -747,7 +747,7 @@ fn owns_current_entry(current_generation: Option<u64>, my_generation: u64) -> bo
 ///
 /// BEWUSSTER TAUSCH, kein Nebeneffekt: `user_message()` liefert `&'static
 /// str`, also geht das mit `KeyUnreadable(detail)`, `AgentUnavailable(detail)`
-/// und `MethodNotOffered(detail)` mitgefuehrte Detail hier VERLOREN -- der
+/// und den uebrigen Varianten mitgefuehrte Detail hier VERLOREN -- der
 /// fehlgeschlagene Pfad, der Betriebssystemfehler, die vom Server angebotene
 /// Methodenliste. Das vorherige `e.to_string()` reichte es durch. Es gibt
 /// keine Logdatei, aus der es sich zurueckholen liesse. Die Meldung ist damit
@@ -869,9 +869,11 @@ fn classify_connect_error(
                 Some(AuthError::PasswordWrong) => "password_required",
                 Some(AuthError::HostUnreachable) => "host_unreachable",
                 Some(AuthError::MethodNotOffered(_))
+                | Some(AuthError::MultiFactorRequired(_))
                 | Some(AuthError::KeyUnreadable(_))
                 | Some(AuthError::SigningFailed)
-                | Some(AuthError::AgentUnavailable(_)) => "auth_rejected",
+                | Some(AuthError::AgentUnavailable(_))
+                | Some(AuthError::AgentNoIdentities(_)) => "auth_rejected",
                 None => "other",
             };
             ConnectError { code, message }
@@ -5398,7 +5400,7 @@ mod tests {
     // --- classify_connect_error (Task 8, Spec §4.8) -- ein ungetesteter
     // Klassifikator waere in dieser Datei ein Fremdkoerper (siehe die
     // Testdichte um `auth_error_message` direkt oberhalb). Deckt die
-    // Abbildungstabelle ab: die neun `AuthError`-Faelle und die beiden
+    // Abbildungstabelle ab: die zehn `AuthError`-Faelle und die beiden
     // Host-Key-Sonderfaelle.
 
     /// Der Host, den `classify_connect_error` in der Hostschluesselmeldung
@@ -5438,8 +5440,10 @@ mod tests {
     ) {
         for variant in [
             AuthError::MethodNotOffered("publickey".into()),
+            AuthError::MultiFactorRequired("publickey".into()),
             AuthError::KeyUnreadable("x".into()),
             AuthError::AgentUnavailable("x".into()),
+            AuthError::AgentNoIdentities("x".into()),
         ] {
             let e = anyhow::Error::from(variant);
             assert_eq!(

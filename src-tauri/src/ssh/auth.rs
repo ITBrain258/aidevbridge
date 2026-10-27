@@ -72,58 +72,33 @@ pub enum AuthError {
     PasswordWrong,
     #[error("agent unavailable: {0}")]
     AgentUnavailable(String),
+    /// Der Agent ist erreichbar, `request_identities()` liefert aber keine
+    /// Identitaet. Getrennt von `AgentUnavailable`, weil die richtige
+    /// Handlung eine andere ist: dort den Dienst starten (Windows:
+    /// `Start-Service ssh-agent`), hier einen Schluessel mit `ssh-add` laden.
+    /// Der Display-Text beginnt wie der von `AgentUnavailable`.
+    #[error("agent unavailable: no identities loaded: {0}")]
+    AgentNoIdentities(String),
     #[error("method not offered: {0}")]
     MethodNotOffered(String),
+    /// `AuthResult::Failure.partial_success`: der Server hat GENAU DEN
+    /// VERSUCHTEN FAKTOR akzeptiert, verlangt aber laut RFC 4252 §5.1
+    /// mindestens einen weiteren (z. B. `AuthenticationMethods
+    /// publickey,password` in `sshd_config`). Der Faktor steht dann u. U.
+    /// nicht mehr in `remaining_methods`; "Methode nicht angeboten" oder
+    /// "falsches Passwort" waere eine Luege. Mehrfaktor-Anmeldung zu
+    /// unterstuetzen ist laut Spec kein Ziel dieser Version -- die Anwendung
+    /// muss das aber SAGEN. Der Display-Text beginnt wie der von
+    /// `MethodNotOffered`.
+    #[error("method not offered: partial-success: {0}")]
+    MultiFactorRequired(String),
     #[error("secure signing failed")]
     SigningFailed,
 }
 
-/// Marker-Praefix im mitgefuehrten Text von `AuthError::MethodNotOffered`,
-/// wenn `AuthResult::Failure.partial_success` gesetzt war.
-///
-/// **Bekannte Grenze (Review-Befund 1, Task 6):** `partial_success == true`
-/// bedeutet laut russh-Doc-Kommentar "though auth method has been accepted,
-/// further authentication is required" -- der Server erzwingt Mehrfaktor-
-/// Authentifizierung (z. B. `AuthenticationMethods publickey,password` in
-/// `sshd_config`) und hat GENAU DEN VERSUCHTEN FAKTOR akzeptiert, verlangt
-/// aber laut RFC 4252 §5.1 mindestens einen weiteren. Ohne diese
-/// Unterscheidung waere der Faktor u.U. nicht mehr in `remaining_methods`
-/// enthalten, und der Code haette faelschlich "Methode nicht angeboten"
-/// gemeldet -- fuer einen Faktor, den der Server bereits akzeptiert hat.
-///
-/// `AuthError` hat fuer Mehrfaktor-Anmeldung keine eigene Variante.
-/// `MethodNotOffered` ist die am wenigsten falsche vorhandene Variante --
-/// aber auch deren generische, feste Meldung ("The server does not offer
-/// this authentication method") waere hier eine Luege: die Methode WURDE
-/// angeboten und akzeptiert. Deshalb traegt der mitgefuehrte Text diesen
-/// Marker, und `user_message()` erkennt ihn und ersetzt die generische
-/// Meldung durch eine ehrliche, auf fehlende Mehrfaktor-Unterstuetzung
-/// hinweisende. Mehrfaktor-Authentifizierung selbst zu unterstuetzen ist
-/// laut Spec kein Ziel dieser Version -- die Anwendung muss das aber
-/// SAGEN, nicht so tun, als waere der Faktor falsch oder unbekannt.
-const PARTIAL_SUCCESS_MARKER: &str = "partial-success: ";
-
-/// Marker-Praefix im mitgefuehrten Text von `AuthError::AgentUnavailable`,
-/// wenn der Agent erreichbar war, `request_identities()` aber eine leere
-/// Liste lieferte.
-///
-/// **Bekannte Grenze (Review-Befund 2, Task 6):** zu unterscheiden von
-/// "Agent nicht erreichbar" (Verbindungsaufbau zur Pipe/zum Socket
-/// schlaegt fehl) -- dort ist "Dienst starten" (Windows:
-/// `Start-Service ssh-agent`) die richtige Handlung. Hier waere sie
-/// irrefuehrend: der Agent LAEUFT, ihm fehlen nur geladene Schluessel, die
-/// richtige Handlung ist `ssh-add`. Gleiche Technik wie bei
-/// `PARTIAL_SUCCESS_MARKER`: keine eigene `AuthError`-Variante, Kontext
-/// ueber den mitgefuehrten Text, ausgewertet in `user_message()`.
-const AGENT_NO_IDENTITIES_MARKER: &str = "no identities loaded: ";
-
 impl AuthError {
     /// Jede Variante braucht eine eigene, handlungsleitende Meldung (Spec §7.5).
-    ///
-    /// Fuer `AgentUnavailable` und `MethodNotOffered` haengt die Meldung
-    /// zusaetzlich vom mitgefuehrten Text ab (siehe `PARTIAL_SUCCESS_MARKER`
-    /// und `AGENT_NO_IDENTITIES_MARKER` oben). Diese beiden Varianten sind
-    /// deshalb nicht auf eine einzige feste Meldung beschraenkt.
+    /// Der mitgefuehrte Text aendert die Meldung nie.
     pub fn user_message(&self) -> &'static str {
         match self {
             Self::HostUnreachable => "Host not reachable. Check hostname, port and network.",
@@ -134,22 +109,18 @@ impl AuthError {
             Self::SigningFailed => {
                 "Secure signing failed. Try again or choose another authentication method."
             }
-            Self::AgentUnavailable(detail) => {
-                if detail.starts_with(AGENT_NO_IDENTITIES_MARKER) {
-                    "ssh-agent is reachable but has no keys loaded. Add one with: ssh-add"
-                } else {
-                    "ssh-agent not reachable. On Windows 11 the service is disabled by default — \
-                     start it with: Set-Service ssh-agent -StartupType Automatic; Start-Service ssh-agent"
-                }
+            Self::AgentUnavailable(_) => {
+                "ssh-agent not reachable. On Windows 11 the service is disabled by default — \
+                 start it with: Set-Service ssh-agent -StartupType Automatic; Start-Service ssh-agent"
             }
-            Self::MethodNotOffered(detail) => {
-                if detail.starts_with(PARTIAL_SUCCESS_MARKER) {
-                    "This account requires more than one authentication factor (e.g. key + \
-                     password). aidevbridge does not support multi-factor authentication in \
-                     this version."
-                } else {
-                    "The server does not offer this authentication method."
-                }
+            Self::AgentNoIdentities(_) => {
+                "ssh-agent is reachable but has no keys loaded. Add one with: ssh-add"
+            }
+            Self::MethodNotOffered(_) => "The server does not offer this authentication method.",
+            Self::MultiFactorRequired(_) => {
+                "This account requires more than one authentication factor (e.g. key + \
+                 password). aidevbridge does not support multi-factor authentication in \
+                 this version."
             }
         }
     }
@@ -193,23 +164,21 @@ pub fn classify_key_error(msg: &str) -> AuthError {
     }
 }
 
-/// Baut die `MethodNotOffered`-Variante fuer den `partial_success`-Fall
-/// (siehe `PARTIAL_SUCCESS_MARKER` oben) -- gemeinsam fuer alle drei
-/// Auth-Wege, damit die Meldung fuer Schluessel-, Agent- und Passwort-Weg
-/// wortgleich aufgebaut ist.
+/// Baut `MultiFactorRequired` fuer den `partial_success`-Fall -- gemeinsam
+/// fuer alle drei Auth-Wege, damit der Text fuer Schluessel-, Agent- und
+/// Passwort-Weg wortgleich aufgebaut ist.
 fn partial_success_error(method_label: &str) -> AuthError {
-    AuthError::MethodNotOffered(format!(
-        "{PARTIAL_SUCCESS_MARKER}{method_label} was accepted by the server, but it requires \
-         an additional authentication factor (multi-factor authentication is not supported)"
+    AuthError::MultiFactorRequired(format!(
+        "{method_label} was accepted by the server, but it requires an additional \
+         authentication factor (multi-factor authentication is not supported)"
     ))
 }
 
 /// Ordnet ein gescheitertes `AuthResult` fuer die beiden Public-Key-Wege
 /// (Schluessel- und Agent-Auth, Spec §8.4) der richtigen Variante zu.
 ///
-/// Prueft `partial_success` ZUERST (Review-Befund 1, Task 6) -- siehe
-/// `PARTIAL_SUCCESS_MARKER` fuer die Begruendung. Ist `partial_success`
-/// falsch, bleibt es beim bisherigen Verhalten: `MethodNotOffered`, ohne
+/// Prueft `partial_success` ZUERST, siehe `AuthError::MultiFactorRequired`.
+/// Ist `partial_success` falsch, bleibt es bei `MethodNotOffered`, ohne
 /// zusaetzliche Auswertung von `remaining_methods`. Anders als beim
 /// Passwort-Weg (`classify_password_failure`) gibt es hier keine
 /// `AuthError`-Variante, die "Schluessel korrekt entschluesselt, aber vom
@@ -228,8 +197,8 @@ fn classify_publickey_failure(partial_success: bool, method_label: &str) -> Auth
 /// Variante zu, statt jeden Fehlschlag pauschal als "falsches Passwort" zu
 /// melden.
 ///
-/// Prueft `partial_success` ZUERST (Review-Befund 1, Task 6) -- siehe
-/// `PARTIAL_SUCCESS_MARKER` fuer die Begruendung: ein akzeptiertes Passwort
+/// Prueft `partial_success` ZUERST, siehe `AuthError::MultiFactorRequired`:
+/// ein akzeptiertes Passwort
 /// bei serverseitig erzwungener Mehrfaktor-Authentifizierung darf weder als
 /// `PasswordWrong` (das Passwort war korrekt) noch als generisches
 /// `MethodNotOffered` (die Methode wurde sehr wohl angeboten und
@@ -276,16 +245,11 @@ fn agent_unavailable(e: impl std::fmt::Display) -> AuthError {
     AuthError::AgentUnavailable(e.to_string())
 }
 
-/// Baut die `AgentUnavailable`-Variante fuer "Agent erreichbar, aber keine
-/// Identitaeten geladen" (Review-Befund 2, Task 6) -- siehe
-/// `AGENT_NO_IDENTITIES_MARKER` fuer die Begruendung, warum das eine
-/// andere Meldung braucht als "Agent nicht erreichbar". Als eigene
-/// Funktion ausgelagert, damit sie ohne echten Agent-Prozess unit-testbar
-/// ist (siehe Testmodul unten).
+/// Baut `AgentNoIdentities` fuer "Agent erreichbar, aber keine Identitaeten
+/// geladen". Als eigene Funktion ausgelagert, damit sie ohne echten
+/// Agent-Prozess unit-testbar ist (siehe Testmodul unten).
 fn agent_has_no_identities_error() -> AuthError {
-    AuthError::AgentUnavailable(format!(
-        "{AGENT_NO_IDENTITIES_MARKER}agent is reachable but has no identities loaded"
-    ))
+    AuthError::AgentNoIdentities("agent is reachable but has no identities loaded".into())
 }
 
 #[cfg(unix)]
@@ -356,9 +320,9 @@ where
         .await
         .map_err(agent_unavailable)?;
     if ids.is_empty() {
-        // Review-Befund 2 (Task 6): der Agent IST erreichbar, ihm fehlen nur
-        // geladene Schluessel -- die richtige Handlung ist `ssh-add`, nicht
-        // ein Dienst-Neustart. Siehe `AGENT_NO_IDENTITIES_MARKER`.
+        // Der Agent IST erreichbar, ihm fehlen nur geladene Schluessel -- die
+        // richtige Handlung ist `ssh-add`, nicht ein Dienst-Neustart (siehe
+        // `AuthError::AgentNoIdentities`).
         return Err(agent_has_no_identities_error());
     }
     for id in ids {
@@ -932,7 +896,9 @@ mod tests {
             AuthError::PassphraseWrong,
             AuthError::PasswordWrong,
             AuthError::AgentUnavailable("x".into()),
+            AuthError::AgentNoIdentities("x".into()),
             AuthError::MethodNotOffered("x".into()),
+            AuthError::MultiFactorRequired("x".into()),
             AuthError::SigningFailed,
         ]
         .iter()
@@ -940,19 +906,17 @@ mod tests {
         .collect();
         assert_eq!(
             msgs.len(),
-            8,
+            10,
             "Meldungen muessen unterscheidbar sein (Spec §7.5)"
         );
     }
 
-    /// Ergaenzung zum Test der unterscheidbaren Varianten oben:
-    /// `AgentUnavailable` und `MethodNotOffered` haben seit Review-Befund 1/2
-    /// (Task 6) je zwei moegliche Meldungen, abhaengig vom mitgefuehrten
-    /// Text (`PARTIAL_SUCCESS_MARKER`, `AGENT_NO_IDENTITIES_MARKER`). Jener
-    /// Test mit dem Platzhaltertext "x" sieht nur je eine davon --
-    /// dieser Test deckt alle in der Praxis erreichbaren Meldungen ab,
-    /// damit eine kuenftige Aenderung, die z. B. die ssh-add-Meldung mit der
-    /// generischen Agent-Meldung kollidieren laesst, tatsaechlich auffaellt.
+    /// Ergaenzung zum Test der unterscheidbaren Varianten oben: dieselben
+    /// Meldungen, aber so, wie die Erzeuger sie tatsaechlich bauen
+    /// (`agent_has_no_identities_error`, `classify_password_failure` mit
+    /// `partial_success`) statt mit dem Platzhaltertext "x". Faellt auf, wenn
+    /// ein Erzeuger die falsche Variante waehlt und dadurch z. B. die
+    /// ssh-add-Meldung mit der generischen Agent-Meldung zusammenfaellt.
     #[test]
     fn reachable_user_messages_are_pairwise_distinct() {
         use std::collections::HashSet;
@@ -1091,15 +1055,10 @@ sJWR7W+cGvJ/vLsw==
         let mut remaining = russh::MethodSet::empty();
         remaining.push(russh::MethodKind::PublicKey);
         let err = classify_password_failure(&remaining, true);
-        match &err {
-            AuthError::MethodNotOffered(detail) => {
-                assert!(
-                    detail.starts_with(PARTIAL_SUCCESS_MARKER),
-                    "kein partial-success-Marker im Text: {detail:?}"
-                );
-            }
-            other => panic!("falsche Variante fuer partial_success: {other:?}"),
-        }
+        assert!(
+            matches!(err, AuthError::MultiFactorRequired(_)),
+            "falsche Variante fuer partial_success: {err:?}"
+        );
         assert_ne!(
             err.user_message(),
             AuthError::PasswordWrong.user_message(),
@@ -1117,15 +1076,58 @@ sJWR7W+cGvJ/vLsw==
     fn publickey_partial_success_is_reported_as_multi_factor_required() {
         // Schluessel- und Agent-Weg teilen sich `classify_publickey_failure`.
         let err = classify_publickey_failure(true, "publickey");
-        match &err {
-            AuthError::MethodNotOffered(detail) => {
-                assert!(detail.starts_with(PARTIAL_SUCCESS_MARKER));
-            }
-            other => panic!("falsche Variante fuer partial_success: {other:?}"),
-        }
+        assert!(
+            matches!(err, AuthError::MultiFactorRequired(_)),
+            "falsche Variante fuer partial_success: {err:?}"
+        );
         assert_ne!(
             err.user_message(),
             AuthError::MethodNotOffered("publickey".into()).user_message()
+        );
+    }
+
+    /// Display- und Nutzertext der Mehrfaktor- und der Leerer-Agent-Meldung
+    /// sind woertlich festgehalten: beide landen in Fehlerketten und beim
+    /// Nutzer, und eine Umstellung der Fehlertypen darf keinen davon aendern.
+    #[test]
+    fn multi_factor_and_empty_agent_errors_keep_their_display_and_user_text() {
+        let mut remaining = russh::MethodSet::empty();
+        remaining.push(russh::MethodKind::PublicKey);
+        let multi_factor = "This account requires more than one authentication factor (e.g. key + \
+                            password). aidevbridge does not support multi-factor authentication in \
+                            this version.";
+        for (error, display) in [
+            (
+                classify_password_failure(&remaining, true),
+                "method not offered: partial-success: password was accepted by the server, but \
+                 it requires an additional authentication factor (multi-factor authentication \
+                 is not supported)",
+            ),
+            (
+                classify_publickey_failure(true, "publickey"),
+                "method not offered: partial-success: publickey was accepted by the server, but \
+                 it requires an additional authentication factor (multi-factor authentication \
+                 is not supported)",
+            ),
+            (
+                partial_success_error("publickey (agent)"),
+                "method not offered: partial-success: publickey (agent) was accepted by the \
+                 server, but it requires an additional authentication factor (multi-factor \
+                 authentication is not supported)",
+            ),
+        ] {
+            assert_eq!(error.to_string(), display);
+            assert_eq!(error.user_message(), multi_factor);
+        }
+        let empty_agent = agent_has_no_identities_error();
+        assert_eq!(
+            empty_agent.to_string(),
+            "agent unavailable: no identities loaded: agent is reachable but has no identities \
+             loaded"
+        );
+        assert_eq!(
+            empty_agent.user_message(),
+            "ssh-agent is reachable but has no keys loaded. Add one with: ssh-add"
         );
     }
 
@@ -1169,6 +1171,10 @@ sJWR7W+cGvJ/vLsw==
     fn agent_unreachable_is_distinct_from_agent_reachable_without_identities() {
         let unreachable = AuthError::AgentUnavailable("connection refused".into());
         let no_identities = agent_has_no_identities_error();
+        assert!(
+            matches!(no_identities, AuthError::AgentNoIdentities(_)),
+            "{no_identities:?}"
+        );
         assert_ne!(
             unreachable.user_message(),
             no_identities.user_message(),
