@@ -123,7 +123,7 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
 | M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme bestanden ([Bericht](messungen/messung-2026-10-25-m31-abnahme.md)): Punkt 1 bis 5 am 25.10., die Statuslatenz unter Last erst mit den Korrekturen vom 27.10. (parallele Abfrage, Takt ab dem Beginn), die mit dem nächsten Release kommen |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger lokaler Lauf für 0.2.2 nach dem Neubinden der Lizenzauswahl. Seit 26.10. baut der Workflow `packages.yml` sie bei jedem Tag, installiert jedes Paket auf einem frischen Runner, startet die App und hängt sie an das Release |
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 400 Komponenten, `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
-| Review vom 26.10. | umgesetzt auf dem Branch `claude/intelligent-rubin-jygw4u` nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Noch kein Release |
+| Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Noch kein Release |
 
 ## Letzte Prüfung
 
@@ -498,12 +498,13 @@ In dieser Reihenfolge:
    gebaute App bekommt; erst danach werden die `APPLE_*`-Secrets hinterlegt
    ([`SECURITY.md`](../SECURITY.md), „Unsigned binaries and checking a
    download“).
-10. **Review vom 26.10.:** Offen sind die
+10. **Review vom 26.10.:** Seit 27.10. in `main`; die CI auf Windows,
+    Ubuntu und macOS ist grün, unter Windows auch der TOFU-Test, der das
+    Anhängen an `known_hosts` über einen Ordner scheitern lässt. Offen sind
+    die
     [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610)
-    am Windows-Fenster (die macOS-Punkte, sobald ein Mac bereitsteht), die
-    CI auf Windows, Ubuntu und macOS nach dem Push (unter Windows auch der
-    TOFU-Test, der das Anhängen an `known_hosts` über einen Ordner scheitern
-    lässt), U3 und U4 und ein etwaiger Widerspruch zu U1, U2 und U5 (oben).
+    am Windows-Fenster (die macOS-Punkte, sobald ein Mac bereitsteht),
+    U3 und U4 und ein etwaiger Widerspruch zu U1, U2 und U5 (oben).
     Batch 9 folgt nur nach U3; seine neuen Dateien `commands/hosts.rs` und
     `commands/inventory.rs` sind dann in den Baum `src-tauri/src` beider
     Auswahlen aufzunehmen. `integration_default_socket.rs` braucht einen
@@ -534,6 +535,19 @@ In dieser Reihenfolge:
       dieser Runde galt nur `.ts`- und `.rs`-Dateien.
     - Der Vermerk in `safegcd.rs` von crypto-bigint (Punkt 6) wartet weiter
       auf die Entscheidung, ob er als Copyright-Hinweis dazukommt.
+    - Aus der Durchsicht von PR #7 und #8 am 27.10., ohne Korrektur:
+      - Der Polltakt rechnet mit `Date.now()` (`scheduleStatusPoll` in
+        `src/main.ts`). Stellt eine Zeitsynchronisation die Uhr zurück,
+        pausiert der Statuspoll des Hosts um diesen Betrag; `performance.now()`
+        oder eine Obergrenze von 2 s behebt das.
+      - Die Vorschläge aus `~/.ssh/config` schneiden einen Kommentar am
+        Zeilenende nicht ab: `Host web # prod` ergibt die Vorschläge `web`,
+        `#` und `prod`.
+      - Ein I/O-Fehler des ssh-agent zählt seit F1 als `auth_rejected`; das
+        Wiederverbinden versucht es dann nicht erneut. Nötig, weil russh nach
+        einer abgelehnten Signatur sonst hängt.
+      - Das CHANGELOG sagt, Dependabot halte die gepinnten Actions aktuell;
+        `dtolnay/rust-toolchain` ist davon ausgenommen.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 
