@@ -20,6 +20,9 @@ pub fn run() {
     // Umzug der `settings.toml` aus 0.1.2: vor allem anderen, damit das
     // erste Laden die umgezogene Datei schon sieht.
     settings::migrate_legacy_settings();
+    // Reste abgebrochener Schreibvorgaenge neben `settings.toml`; ein Fehler
+    // dabei haelt den Start nicht auf.
+    settings::remove_stale_temp_files();
     tauri::Builder::default()
         // Das Fenster `main` entsteht hier statt automatisch aus
         // tauri.conf.json (dort `"create": false`, Spec §8.5): nur der Builder

@@ -31,6 +31,7 @@ use std::io::{ErrorKind, Write};
 use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{Duration, SystemTime};
 
 pub const CURRENT_VERSION: u32 = 1;
 
@@ -1051,6 +1052,131 @@ fn create_temp_beside(path: &Path) -> anyhow::Result<(PathBuf, File)> {
     }
 }
 
+/// Ab diesem Alter gilt eine temporaere Datei von `create_temp_beside` als
+/// Rest eines abgebrochenen Laufs. Eine Instanz haelt ihre temporaere Datei
+/// nur fuer einen Schreibvorgang (schreiben, `sync_all`, pruefen, `rename`),
+/// das dauert auch auf einem langsamen Datentraeger Sekunden, keine Minuten.
+/// Eine juengere Datei kann die einer gleichzeitig laufenden zweiten Instanz
+/// sein und bleibt deshalb liegen.
+const STALE_TEMP_AGE: Duration = Duration::from_secs(10 * 60);
+
+/// Aufraeumen beim Start, aufgerufen aus `lib.rs::run()` nach dem Umzug.
+/// Endet die App oder der Rechner zwischen dem Anlegen der temporaeren Datei
+/// und dem `rename`, bleibt sie neben `settings.toml` liegen, und sonst
+/// entfernt sie niemand. Das Aufraeumen haelt den Start nie auf: Fehler
+/// kommen wie beim Umzug als Zeile auf stderr. Laesst sich der Pfad nicht
+/// bestimmen, bleibt es still; das erste Laden meldet denselben Fehler.
+pub fn remove_stale_temp_files() {
+    let Ok(path) = settings_path() else {
+        return;
+    };
+    for error in remove_stale_temp_files_beside(&path, SystemTime::now()) {
+        eprintln!("[settings] could not remove a leftover temporary file: {error:#}");
+    }
+}
+
+/// Testbarer Kern von [`remove_stale_temp_files`]: entfernt neben `path`
+/// jede regulaere Datei, deren Name genau dem Muster von
+/// `create_temp_beside` folgt und deren Aenderungszeit mindestens
+/// [`STALE_TEMP_AGE`] vor `now` liegt. Alles andere bleibt, auch eine Datei
+/// mit einer Aenderungszeit in der Zukunft. Ein fehlender Ordner
+/// (Erststart) ist kein Fehler. Liefert die Fehler beim Lesen des Ordners,
+/// beim Pruefen und beim Entfernen.
+///
+/// Zwischen Pruefen und Entfernen kann keine fremde, frische Datei an die
+/// Stelle des alten Rests treten: Solange er liegt, scheitert `create_new`
+/// an seinem Namen, und `create_temp_beside` nimmt den naechsten.
+fn remove_stale_temp_files_beside(path: &Path, now: SystemTime) -> Vec<anyhow::Error> {
+    let Some(file_name) = path.file_name().and_then(|name| name.to_str()) else {
+        return Vec::new();
+    };
+    let dir = parent_dir(path);
+    let read_context = || format!("could not read {}", dir.display());
+    let entries = match std::fs::read_dir(dir) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == ErrorKind::NotFound => return Vec::new(),
+        Err(error) => return vec![anyhow::Error::new(error).context(read_context())],
+    };
+    let mut errors = Vec::new();
+    for entry in entries {
+        let entry = match entry {
+            Ok(entry) => entry,
+            Err(error) => {
+                errors.push(anyhow::Error::new(error).context(read_context()));
+                continue;
+            }
+        };
+        let name = entry.file_name();
+        if !name
+            .to_str()
+            .is_some_and(|name| is_temp_name_of(name, file_name))
+        {
+            continue;
+        }
+        let tmp_path = entry.path();
+        match is_stale_file(&entry, now) {
+            Ok(true) => {}
+            Ok(false) => continue,
+            Err(error) => {
+                errors.push(
+                    anyhow::Error::new(error)
+                        .context(format!("could not check {}", tmp_path.display())),
+                );
+                continue;
+            }
+        }
+        match std::fs::remove_file(&tmp_path) {
+            Ok(()) => {}
+            // Schon weg, etwa durch eine gleichzeitig startende Instanz.
+            Err(error) if error.kind() == ErrorKind::NotFound => {}
+            Err(error) => errors.push(
+                anyhow::Error::new(error)
+                    .context(format!("could not remove {}", tmp_path.display())),
+            ),
+        }
+    }
+    errors
+}
+
+/// `true` genau fuer die Namen, die `create_temp_beside` neben `file_name`
+/// vergibt: `<file_name>.<pid>.<zaehler>.tmp`, beide Zahlen dezimal. Der
+/// feste Name `settings.toml.tmp` aelterer Versionen gehoert nicht dazu.
+fn is_temp_name_of(name: &str, file_name: &str) -> bool {
+    let Some(numbers) = name
+        .strip_prefix(file_name)
+        .and_then(|rest| rest.strip_prefix('.'))
+        .and_then(|rest| rest.strip_suffix(".tmp"))
+    else {
+        return false;
+    };
+    let is_number = |part: &str| !part.is_empty() && part.bytes().all(|b| b.is_ascii_digit());
+    numbers
+        .split_once('.')
+        .is_some_and(|(pid, counter)| is_number(pid) && is_number(counter))
+}
+
+/// Eine regulaere Datei, mindestens [`STALE_TEMP_AGE`] alt.
+/// `DirEntry::metadata` folgt keinem symbolischen Link: Ein Link oder Ordner
+/// unter diesem Namen stammt nie von `create_temp_beside` und bleibt.
+fn is_stale_file(entry: &std::fs::DirEntry, now: SystemTime) -> std::io::Result<bool> {
+    let metadata = entry.metadata()?;
+    if !metadata.is_file() {
+        return Ok(false);
+    }
+    let modified = metadata.modified()?;
+    Ok(now
+        .duration_since(modified)
+        .is_ok_and(|age| age >= STALE_TEMP_AGE))
+}
+
+/// Ordner von `path`; ein blosser Dateiname liegt im aktuellen Ordner.
+fn parent_dir(path: &Path) -> &Path {
+    match path.parent() {
+        Some(parent) if !parent.as_os_str().is_empty() => parent,
+        _ => Path::new("."),
+    }
+}
+
 /// Macht das `rename` selbst dauerhaft: Unter Unix steht der neue
 /// Verzeichniseintrag erst nach `fsync` auf das Verzeichnis sicher auf der
 /// Platte. Nur bestmoeglich, Fehler werden verworfen: Manche Dateisysteme
@@ -1059,11 +1185,7 @@ fn create_temp_beside(path: &Path) -> anyhow::Result<(PathBuf, File)> {
 /// laesst.
 #[cfg(unix)]
 fn sync_parent_dir(path: &Path) {
-    let parent = match path.parent() {
-        Some(parent) if !parent.as_os_str().is_empty() => parent,
-        _ => Path::new("."),
-    };
-    if let Ok(dir) = File::open(parent) {
+    if let Ok(dir) = File::open(parent_dir(path)) {
         let _ = dir.sync_all();
     }
 }
@@ -1138,10 +1260,7 @@ pub(crate) mod write_hook {
 #[cfg(test)]
 pub(crate) fn temp_files_beside(path: &Path) -> Vec<PathBuf> {
     let prefix = format!("{}.", path.file_name().unwrap().to_string_lossy());
-    let dir = match path.parent() {
-        Some(parent) if !parent.as_os_str().is_empty() => parent,
-        _ => Path::new("."),
-    };
+    let dir = parent_dir(path);
     let Ok(entries) = std::fs::read_dir(dir) else {
         return Vec::new();
     };
@@ -2662,6 +2781,98 @@ user = "dev"
             folder_files(&new),
             vec![("settings.toml".to_string(), b"version = 1\n".to_vec())]
         );
+        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    // --- Aufraeumen liegen gebliebener temporaerer Dateien beim Start ---
+
+    /// Setzt die Aenderungszeit von `path` auf `age` vor `now`.
+    fn age_file(path: &Path, now: SystemTime, age: Duration) {
+        OpenOptions::new()
+            .write(true)
+            .open(path)
+            .unwrap()
+            .set_modified(now - age)
+            .unwrap();
+    }
+
+    /// Ein Rest eines abgebrochenen Laufs, aelter als `STALE_TEMP_AGE`, faellt
+    /// beim Start weg, auch der einer anderen Prozess-Id. Ein Name kommt aus
+    /// `create_temp_beside` selbst, damit Muster und Erzeugung nicht
+    /// auseinanderlaufen.
+    #[test]
+    fn startup_cleanup_removes_an_old_leftover_temp_file() {
+        let (dir, path) = fresh_settings_dir("stale_temp");
+        save_to(&path, &Settings::default()).unwrap();
+        let settings_before = std::fs::read(&path).unwrap();
+        let (own, file) = create_temp_beside(&path).unwrap();
+        drop(file);
+        let other = dir.join("settings.toml.4294967295.0.tmp");
+        std::fs::write(&other, "halb geschrieben").unwrap();
+        let now = SystemTime::now();
+        age_file(&own, now, STALE_TEMP_AGE + Duration::from_secs(1));
+        age_file(&other, now, Duration::from_secs(24 * 60 * 60));
+
+        let errors = remove_stale_temp_files_beside(&path, now);
+        assert!(errors.is_empty(), "{errors:?}");
+        assert_eq!(names_in(&dir), ["settings.toml"]);
+        assert_eq!(std::fs::read(&path).unwrap(), settings_before);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Alles andere bleibt: eine junge temporaere Datei, wie sie eine
+    /// gleichzeitig laufende zweite Instanz gerade schreibt (auch knapp unter
+    /// der Altersgrenze), `settings.toml` selbst, Dateien mit anderen Namen
+    /// (darunter der feste Name aelterer Versionen) und der alte Ordner, aus
+    /// dem der Umzug liest. Ein fehlender Ordner ist kein Fehler.
+    #[test]
+    fn startup_cleanup_keeps_young_temp_files_and_every_other_file() {
+        let (base, legacy, new) = migration_dirs("cleanup_keeps");
+        let path = new.join("settings.toml");
+        assert!(remove_stale_temp_files_beside(&path, SystemTime::now()).is_empty());
+
+        write_legacy_folder(&legacy);
+        std::fs::write(legacy.join("settings.toml.7.0.tmp"), "Rest im alten Ordner").unwrap();
+        save_to(&path, &Settings::default()).unwrap();
+        let names = [
+            "settings.toml.4242.0.tmp",
+            "settings.toml.4242.1.tmp",
+            "settings.toml.tmp",
+            "settings.toml.12.tmp",
+            "settings.toml.1.2.3.tmp",
+            "settings.toml.a.1.tmp",
+            "settings.toml.1..tmp",
+            "settings.toml.-1.2.tmp",
+            "settings.toml.1.2.tmp.bak",
+            "settings.toml.1.2.TMP",
+            "other.toml.1.2.tmp",
+            ".window-state.json",
+        ];
+        for name in names {
+            std::fs::write(new.join(name), name).unwrap();
+        }
+        let now = SystemTime::now();
+        let day = Duration::from_secs(24 * 60 * 60);
+        // names[0] bleibt so jung, wie er gerade geschrieben wurde.
+        age_file(
+            &new.join(names[1]),
+            now,
+            STALE_TEMP_AGE - Duration::from_secs(60),
+        );
+        for name in &names[2..] {
+            age_file(&new.join(name), now, day);
+        }
+        age_file(&path, now, day);
+        for entry in std::fs::read_dir(&legacy).unwrap() {
+            age_file(&entry.unwrap().path(), now, day);
+        }
+        let new_before = folder_files(&new);
+        let legacy_before = folder_files(&legacy);
+
+        let errors = remove_stale_temp_files_beside(&path, now);
+        assert!(errors.is_empty(), "{errors:?}");
+        assert_eq!(folder_files(&new), new_before);
+        assert_eq!(folder_files(&legacy), legacy_before);
         std::fs::remove_dir_all(&base).unwrap();
     }
 

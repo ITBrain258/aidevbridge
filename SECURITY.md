@@ -86,8 +86,11 @@ Out of scope:
   stored; they stay in memory only while a connection is being made. The
   app saves the file through a new temporary file next to it
   (`settings.toml.<number>.<number>.tmp`), written to disk before it
-  replaces `settings.toml`; if the app ends at that moment, such a file can
-  stay behind, and you may delete it.
+  replaces `settings.toml`. If the app or the computer stops at that
+  moment, such a file stays behind; the next start of the app deletes it
+  once it is at least ten minutes old. A younger one stays, because it may
+  belong to another aidevbridge window that is saving right now (see
+  "Several windows at the same time" below).
 - `~/.ssh/known_hosts` (on Windows `%USERPROFILE%\.ssh\known_hosts`): a host
   key you confirm on first contact is appended to this file, which OpenSSH
   uses as well. The app never rewrites or removes lines there, so the
