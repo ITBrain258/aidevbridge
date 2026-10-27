@@ -24,9 +24,13 @@
 
 use anyhow::Context;
 use serde::Deserializer;
+use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, HashSet};
+use std::fs::{File, OpenOptions};
+use std::io::{ErrorKind, Write};
 use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 pub const CURRENT_VERSION: u32 = 1;
 
@@ -729,16 +733,18 @@ fn migration_dirs_from(
 ///
 /// Nur `settings.toml` geht mit. Sonst legt die App im alten Ordner nichts
 /// an (known_hosts ist `~/.ssh/known_hosts`, die Fensterlage lag unter der
-/// alten Kennung); Reste wie `settings.toml.tmp` bleiben dort. Der alte
-/// Ordner wird nur gelesen. Die Kopie entsteht wie in [`save_to`] ueber eine
-/// temporaere Datei und `rename`, eine halbe `settings.toml` gibt es also
-/// nie.
+/// alten Kennung); Reste wie die temporaere Datei `settings.toml.tmp` aelterer
+/// Versionen bleiben dort. Der alte Ordner wird nur gelesen. Die Kopie
+/// entsteht wie in [`save_to`] dauerhaft ueber eine eigene temporaere Datei
+/// und `rename` (siehe `replace_durably`), eine halbe `settings.toml` gibt es
+/// also nie. Legt eine gleichzeitig startende zweite Instanz die Datei
+/// unterdessen an, gewinnt deren Datei: Unmittelbar vor dem `rename` wird
+/// erneut geprueft, ob das Ziel noch fehlt.
 pub fn copy_legacy_settings(legacy_dir: &Path, new_dir: &Path) -> anyhow::Result<Migration> {
     let target = new_dir.join(SETTINGS_FILE_NAME);
-    match std::fs::symlink_metadata(&target) {
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+    if !is_missing(&target) {
         // Vorhanden oder nicht pruefbar: nichts anfassen.
-        _ => return Ok(Migration::NotNeeded),
+        return Ok(Migration::NotNeeded);
     }
     let source = legacy_dir.join(SETTINGS_FILE_NAME);
     match std::fs::metadata(&source) {
@@ -746,7 +752,7 @@ pub fn copy_legacy_settings(legacy_dir: &Path, new_dir: &Path) -> anyhow::Result
         // Keine Datei dort (sie fehlt, oder ein Ordner liegt dort): nichts
         // umzuziehen.
         Ok(_) => return Ok(Migration::NoLegacy),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+        Err(error) if error.kind() == ErrorKind::NotFound => {
             return Ok(Migration::NoLegacy);
         }
         // Nicht pruefbar heisst nicht fehlend: Der Fehler bringt seine Zeile
@@ -758,24 +764,33 @@ pub fn copy_legacy_settings(legacy_dir: &Path, new_dir: &Path) -> anyhow::Result
     }
     std::fs::create_dir_all(new_dir)
         .with_context(|| format!("could not create {}", new_dir.display()))?;
-    let tmp_path = target.with_extension("toml.tmp");
-    let copied = std::fs::copy(&source, &tmp_path)
-        .with_context(|| {
-            format!(
-                "could not copy {} to {}",
-                source.display(),
-                tmp_path.display()
-            )
-        })
-        .and_then(|_| {
-            std::fs::rename(&tmp_path, &target)
-                .with_context(|| format!("could not replace {}", target.display()))
-        });
-    if copied.is_err() {
-        // Nur die eigene temporaere Datei geht weg; ist sie ein Ordner, bleibt er.
-        let _ = std::fs::remove_file(&tmp_path);
-    }
-    copied.map(|()| Migration::Copied)
+    let copied = replace_durably(
+        &target,
+        |tmp_file, tmp_path| {
+            File::open(&source)
+                .and_then(|mut from| std::io::copy(&mut from, tmp_file))
+                .with_context(|| {
+                    format!(
+                        "could not copy {} to {}",
+                        source.display(),
+                        tmp_path.display()
+                    )
+                })?;
+            Ok(())
+        },
+        || Ok(is_missing(&target)),
+    )?;
+    Ok(if copied {
+        Migration::Copied
+    } else {
+        Migration::NotNeeded
+    })
+}
+
+/// `true` nur, wenn `path` sicher fehlt. Ein Pfad, der sich nicht pruefen
+/// laesst, zaehlt als vorhanden: Im Zweifel wird nichts ersetzt.
+fn is_missing(path: &Path) -> bool {
+    matches!(std::fs::symlink_metadata(path), Err(error) if error.kind() == ErrorKind::NotFound)
 }
 
 /// Laedt `settings.toml` vom Standardpfad (siehe `settings_path`).
@@ -792,9 +807,9 @@ pub fn load() -> anyhow::Result<Settings> {
 /// NIEMALS mit `unwrap_or_default()` verschluckt -- ein Aufrufer, der einen
 /// Fehler hier stillschweigend durch einen frischen Default ersetzen und
 /// dann speichern wuerde, wuerde genau die Datei ueberschreiben, deren
-/// Nicht-Ueberschreiben `parse_settings`s ganzer Zweck ist (siehe
-/// `commands::add_host_impl`/`remove_host_impl`, die diesen Fehler an den
-/// Aufrufer durchreichen statt ihn zu behandeln).
+/// Nicht-Ueberschreiben `parse_settings`s ganzer Zweck ist (`update_at`
+/// reicht diesen Fehler deshalb an die Settings-Commands durch, statt ihn
+/// zu behandeln).
 ///
 /// Jeder Fehler nennt den Pfad der Datei: `parse_settings` kennt ihn nicht,
 /// darum haengt der Kontext hier. Mit `{error:#}` gedruckt (wie die
@@ -802,12 +817,39 @@ pub fn load() -> anyhow::Result<Settings> {
 /// und Spalte aus `toml` in der Meldung; `error.to_string()` zeigt nur den
 /// aeussersten Kontext.
 pub fn load_from(path: &Path) -> anyhow::Result<Settings> {
-    match std::fs::read_to_string(path) {
-        Ok(text) => {
-            parse_settings(&text).with_context(|| format!("could not load {}", path.display()))
+    read_settings(path).map(|(settings, _)| settings)
+}
+
+/// SHA-256 des Dateiinhalts; `None` heisst: die Datei fehlt.
+type Fingerprint = Option<[u8; 32]>;
+
+/// Kern von `load_from` und `update_at`: liest und prueft die Datei und
+/// liefert zusaetzlich den Fingerabdruck genau der gelesenen Bytes.
+fn read_settings(path: &Path) -> anyhow::Result<(Settings, Fingerprint)> {
+    let bytes = match std::fs::read(path) {
+        Ok(bytes) => bytes,
+        Err(error) if error.kind() == ErrorKind::NotFound => {
+            return Ok((Settings::default(), None));
         }
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(Settings::default()),
-        Err(e) => Err(e).with_context(|| format!("could not read {}", path.display())),
+        Err(error) => {
+            return Err(error).with_context(|| format!("could not read {}", path.display()));
+        }
+    };
+    let fingerprint = Some(Sha256::digest(&bytes).into());
+    let text = std::str::from_utf8(&bytes)
+        .map_err(|error| std::io::Error::new(ErrorKind::InvalidData, error))
+        .with_context(|| format!("could not read {}", path.display()))?;
+    let settings =
+        parse_settings(text).with_context(|| format!("could not load {}", path.display()))?;
+    Ok((settings, fingerprint))
+}
+
+/// Fingerabdruck der Datei, wie sie JETZT auf der Platte liegt.
+fn current_fingerprint(path: &Path) -> anyhow::Result<Fingerprint> {
+    match std::fs::read(path) {
+        Ok(bytes) => Ok(Some(Sha256::digest(&bytes).into())),
+        Err(error) if error.kind() == ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(error).with_context(|| format!("could not read {}", path.display())),
     }
 }
 
@@ -825,36 +867,295 @@ pub fn save(s: &Settings) -> anyhow::Result<()> {
 /// Aufrufer, der nach dem Speichern weiter mit `s` arbeitet, hat mehr als die
 /// Datei.
 ///
-/// Schreibt atomar: erst in eine temporaere Datei im selben Verzeichnis,
-/// dann `rename` -- ein Absturz mitten im Schreiben darf niemals eine halb
-/// geschriebene `settings.toml` hinterlassen (dieselbe Datei, die Hosts UND
-/// Voreinstellungen traegt). `rename` innerhalb desselben Dateisystems ist
-/// unter Windows (`MoveFileExW` via `std::fs::rename`, ersetzt ein
-/// bestehendes Ziel) wie unter POSIX atomar bezueglich Lesern.
+/// Schreibt dauerhaft und atomar (siehe `replace_durably`), aber blind: Was
+/// eine andere Instanz inzwischen gespeichert hat, wird ersetzt. Wer erst
+/// liest und dann aendert, nimmt deshalb [`update_at`].
 pub fn save_to(path: &Path, s: &Settings) -> anyhow::Result<()> {
-    if let Some(parent) = path.parent() {
-        if !parent.as_os_str().is_empty() {
-            std::fs::create_dir_all(parent)
-                .with_context(|| format!("could not create {}", parent.display()))?;
-        }
-    }
-    // Jede Datei auf der Platte ist geklemmt und ohne Eintraege unbekannter
-    // Hosts, egal welcher Schreibweg sie erzeugt (Spec §9.2).
     let mut s = s.clone();
     s.normalize_for_save();
-    let text = toml::to_string_pretty(&s)
-        .with_context(|| format!("could not serialize settings for {}", path.display()))?;
-
-    // Temporaerer Name im selben Verzeichnis (nicht im System-Temp-Verzeichnis):
-    // `rename` ueber Dateisystemgrenzen hinweg ist NICHT atomar (unter
-    // Windows sogar ein harter Fehler, siehe `MoveFileExW`-Dokumentation --
-    // ein Laufwerkwechsel scheitert ohne `MOVEFILE_COPY_ALLOWED`).
-    let tmp_path = path.with_extension("toml.tmp");
-    std::fs::write(&tmp_path, text)
-        .with_context(|| format!("could not write {}", tmp_path.display()))?;
-    std::fs::rename(&tmp_path, path)
-        .with_context(|| format!("could not replace {}", path.display()))?;
+    let text = file_text(&s, path)?;
+    create_parent_dir(path)?;
+    replace_durably(
+        path,
+        |file, tmp_path| write_text(file, tmp_path, &text),
+        || Ok(true),
+    )?;
     Ok(())
+}
+
+/// Wie oft [`update_at`] es versucht, wenn eine andere Instanz die Datei
+/// zwischen Lesen und Ersetzen jedes Mal erneut geaendert hat.
+const UPDATE_ATTEMPTS: usize = 3;
+
+/// Lesen-Aendern-Schreiben an `settings.toml`, sicher gegen eine zweite
+/// Instanz der App, die dieselbe Datei zur selben Zeit schreibt. Mehrere
+/// Instanzen bleiben bewusst moeglich; es gibt weder Sperre noch
+/// Einzelinstanz-Plugin.
+///
+/// Ablauf je Versuch: Datei lesen und den SHA-256 der gelesenen Bytes merken
+/// (fehlt sie, ist das ein Erststart mit `Settings::default()`), pruefen
+/// (eine Datei, die sich nicht lesen laesst, wird NIE ueberschrieben, siehe
+/// `load_from`), `change` anwenden, normalisieren (wie in [`save_to`]) und
+/// dauerhaft in eine eigene temporaere Datei schreiben. Unmittelbar vor dem
+/// `rename` wird die Datei erneut gelesen. Hat sich ihr Fingerabdruck
+/// geaendert, hat eine andere Instanz dazwischen gespeichert: Die temporaere
+/// Datei faellt weg, und der naechste Versuch wendet `change` auf deren
+/// neuen Stand an. Nach [`UPDATE_ATTEMPTS`] Versuchen gibt die Funktion mit
+/// einer Meldung auf, statt die fremde Aenderung zu ueberschreiben.
+///
+/// `change` beschreibt deshalb nur die EIGENE Aenderung und kann mehrmals
+/// laufen; sein Ergebnis stammt aus dem Versuch, der geschrieben hat. Ein
+/// Fehler aus `change` bricht sofort ab, ohne zu schreiben.
+///
+/// Folge fuer mehrere Fenster: Hosts, die eine andere Instanz hinzugefuegt
+/// oder bearbeitet hat, gehen nie verloren, und ein dort entfernter Host
+/// kehrt nicht zurueck. `[ui]` und
+/// `[workspace]` tragen die Werte, die die zuletzt speichernde Instanz
+/// geschrieben hat (ein Arbeitsplatz-Patch ersetzt den ganzen Arbeitsplatz).
+/// Zwischen der letzten Pruefung und dem `rename` bleibt ein sehr kurzes
+/// Fenster ohne Schutz: Ohne Sperre gibt es auf Dateiebene kein atomares
+/// Vergleichen-und-Ersetzen.
+pub fn update_at<T>(
+    path: &Path,
+    mut change: impl FnMut(&mut Settings) -> anyhow::Result<T>,
+) -> anyhow::Result<T> {
+    for _ in 0..UPDATE_ATTEMPTS {
+        let (mut settings, loaded) = read_settings(path)?;
+        let value = change(&mut settings)?;
+        settings.normalize_for_save();
+        let text = file_text(&settings, path)?;
+        create_parent_dir(path)?;
+        let replaced = replace_durably(
+            path,
+            |file, tmp_path| write_text(file, tmp_path, &text),
+            || Ok(current_fingerprint(path)? == loaded),
+        )?;
+        if replaced {
+            return Ok(value);
+        }
+    }
+    Err(anyhow::anyhow!(
+        "settings.toml was changed by another aidevbridge window at the same time; try again."
+    ))
+    .with_context(|| format!("could not save {}", path.display()))
+}
+
+/// Der Dateitext eines bereits normalisierten Stands.
+fn file_text(s: &Settings, path: &Path) -> anyhow::Result<String> {
+    toml::to_string_pretty(s)
+        .with_context(|| format!("could not serialize settings for {}", path.display()))
+}
+
+fn create_parent_dir(path: &Path) -> anyhow::Result<()> {
+    match path.parent() {
+        Some(parent) if !parent.as_os_str().is_empty() => std::fs::create_dir_all(parent)
+            .with_context(|| format!("could not create {}", parent.display())),
+        _ => Ok(()),
+    }
+}
+
+fn write_text(file: &mut File, tmp_path: &Path, text: &str) -> anyhow::Result<()> {
+    file.write_all(text.as_bytes())
+        .with_context(|| format!("could not write {}", tmp_path.display()))
+}
+
+/// Ersetzt `path` dauerhaft und atomar. Eine NEUE temporaere Datei neben
+/// `path` (siehe `create_temp_beside`) bekommt ihren Inhalt von `fill`, dann
+/// `sync_all`, erst danach das `rename`. Ohne `sync_all` koennte ein
+/// Stromausfall nach dem `rename`, aber vor dem Wegschreiben der Daten eine
+/// leere oder halbe `settings.toml` hinterlassen; `load_from` lehnt eine
+/// kaputte Datei ab, und der Nutzer stuende ohne Hosts da. Nach dem `rename`
+/// folgt `sync_parent_dir`.
+///
+/// `may_replace` laeuft unmittelbar vor dem `rename`. Liefert es `false`,
+/// bleibt `path` unberuehrt, und die Funktion liefert `Ok(false)`. Bei jedem
+/// Fehler und bei `false` faellt die eigene temporaere Datei weg.
+///
+/// Die temporaere Datei liegt im selben Verzeichnis, nicht im
+/// System-Temp-Verzeichnis: `rename` ueber Dateisystemgrenzen hinweg ist
+/// NICHT atomar (unter Windows ohne `MOVEFILE_COPY_ALLOWED` sogar ein harter
+/// Fehler). Innerhalb desselben Dateisystems ersetzt `std::fs::rename` ein
+/// bestehendes Ziel unter Windows wie unter POSIX atomar bezueglich Lesern.
+fn replace_durably(
+    path: &Path,
+    fill: impl FnOnce(&mut File, &Path) -> anyhow::Result<()>,
+    may_replace: impl FnOnce() -> anyhow::Result<bool>,
+) -> anyhow::Result<bool> {
+    let (tmp_path, file) = create_temp_beside(path)?;
+    let replaced = fill_and_rename(path, &tmp_path, file, fill, may_replace);
+    if let Ok(true) = replaced {
+        sync_parent_dir(path);
+    } else {
+        // `create_new` garantiert, dass diese Datei die eigene ist.
+        let _ = std::fs::remove_file(&tmp_path);
+    }
+    replaced
+}
+
+fn fill_and_rename(
+    path: &Path,
+    tmp_path: &Path,
+    mut file: File,
+    fill: impl FnOnce(&mut File, &Path) -> anyhow::Result<()>,
+    may_replace: impl FnOnce() -> anyhow::Result<bool>,
+) -> anyhow::Result<bool> {
+    let write_context = || format!("could not write {}", tmp_path.display());
+    let replace_context = || format!("could not replace {}", path.display());
+    write_stage(WriteStage::BeforeTempWrite).with_context(write_context)?;
+    fill(&mut file, tmp_path)?;
+    file.sync_all().with_context(write_context)?;
+    drop(file);
+    write_stage(WriteStage::BeforeRename).with_context(replace_context)?;
+    if !may_replace()? {
+        return Ok(false);
+    }
+    std::fs::rename(tmp_path, path).with_context(replace_context)?;
+    Ok(true)
+}
+
+/// Zaehler fuer eindeutige temporaere Namen innerhalb dieses Prozesses.
+static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// Wie viele belegte Namen `create_temp_beside` hoechstens ueberspringt.
+const TEMP_NAME_ATTEMPTS: u32 = 16;
+
+/// Legt neben `path` eine neue, leere Datei `<name>.<pid>.<zaehler>.tmp` an.
+/// Prozess-Id und Zaehler trennen gleichzeitig schreibende Instanzen und
+/// Aufrufe; `create_new` stellt zusaetzlich sicher, dass nie eine fremde
+/// Datei geoeffnet und geleert wird. Liegt der Name schon da (Rest eines
+/// abgebrochenen Laufs mit derselben Prozess-Id), kommt der naechste dran.
+fn create_temp_beside(path: &Path) -> anyhow::Result<(PathBuf, File)> {
+    let name = path
+        .file_name()
+        .with_context(|| format!("{} names no file", path.display()))?;
+    let pid = std::process::id();
+    let mut taken = 0;
+    loop {
+        let counter = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+        let mut tmp_name = name.to_os_string();
+        tmp_name.push(format!(".{pid}.{counter}.tmp"));
+        let tmp_path = path.with_file_name(tmp_name);
+        match OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&tmp_path)
+        {
+            Ok(file) => return Ok((tmp_path, file)),
+            Err(error)
+                if error.kind() == ErrorKind::AlreadyExists && taken < TEMP_NAME_ATTEMPTS =>
+            {
+                taken += 1;
+            }
+            Err(error) => {
+                return Err(error)
+                    .with_context(|| format!("could not write {}", tmp_path.display()));
+            }
+        }
+    }
+}
+
+/// Macht das `rename` selbst dauerhaft: Unter Unix steht der neue
+/// Verzeichniseintrag erst nach `fsync` auf das Verzeichnis sicher auf der
+/// Platte. Nur bestmoeglich, Fehler werden verworfen: Manche Dateisysteme
+/// lehnen das ab, und die Datei ist zu diesem Zeitpunkt bereits vollstaendig
+/// ersetzt. Windows kennt kein Gegenstueck, das sich ueber `std` erreichen
+/// laesst.
+#[cfg(unix)]
+fn sync_parent_dir(path: &Path) {
+    let parent = match path.parent() {
+        Some(parent) if !parent.as_os_str().is_empty() => parent,
+        _ => Path::new("."),
+    };
+    if let Ok(dir) = File::open(parent) {
+        let _ = dir.sync_all();
+    }
+}
+
+#[cfg(not(unix))]
+fn sync_parent_dir(_path: &Path) {}
+
+/// Stelle im Schreibablauf, an der Tests ueber `write_hook` eingreifen.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum WriteStage {
+    /// Die temporaere Datei ist angelegt, aber noch leer.
+    BeforeTempWrite,
+    /// Die temporaere Datei ist vollstaendig geschrieben; als Naechstes
+    /// folgen die Pruefung vor dem Ersetzen und das `rename`.
+    BeforeRename,
+}
+
+#[cfg(not(test))]
+fn write_stage(_stage: WriteStage) -> std::io::Result<()> {
+    Ok(())
+}
+
+#[cfg(test)]
+fn write_stage(stage: WriteStage) -> std::io::Result<()> {
+    write_hook::run(stage)
+}
+
+/// Eingriffspunkt fuer Tests: ein Fehler an einer Stelle des Schreibablaufs
+/// oder eine "zweite Instanz", die die Datei zwischen Lesen und Ersetzen
+/// schreibt. Ohne Rechte-Tricks, denn die Tests laufen auch als root. Je
+/// Thread, damit parallel laufende Tests einander nicht stoeren; die
+/// Settings-Commands laufen synchron im Thread des Tests.
+#[cfg(test)]
+pub(crate) mod write_hook {
+    use super::WriteStage;
+    use std::cell::RefCell;
+
+    type Hook = Box<dyn FnMut(WriteStage) -> std::io::Result<()>>;
+
+    thread_local! {
+        static HOOK: RefCell<Option<Hook>> = const { RefCell::new(None) };
+    }
+
+    /// Haelt den Eingriff, bis der Waechter faellt.
+    #[must_use]
+    pub(crate) struct Guard;
+
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            HOOK.with(|slot| slot.borrow_mut().take());
+        }
+    }
+
+    pub(crate) fn set(hook: impl FnMut(WriteStage) -> std::io::Result<()> + 'static) -> Guard {
+        HOOK.with(|slot| *slot.borrow_mut() = Some(Box::new(hook)));
+        Guard
+    }
+
+    /// Waehrend des Aufrufs ist der Eingriff ausgehaengt: Schreibt er selbst
+    /// (als zweite Instanz), laeuft er nicht in sich selbst zurueck.
+    pub(super) fn run(stage: WriteStage) -> std::io::Result<()> {
+        let Some(mut hook) = HOOK.with(|slot| slot.borrow_mut().take()) else {
+            return Ok(());
+        };
+        let result = hook(stage);
+        HOOK.with(|slot| *slot.borrow_mut() = Some(hook));
+        result
+    }
+}
+
+/// Temporaere Dateien, die neben `path` liegen geblieben sind.
+#[cfg(test)]
+pub(crate) fn temp_files_beside(path: &Path) -> Vec<PathBuf> {
+    let prefix = format!("{}.", path.file_name().unwrap().to_string_lossy());
+    let dir = match path.parent() {
+        Some(parent) if !parent.as_os_str().is_empty() => parent,
+        _ => Path::new("."),
+    };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut leftovers: Vec<PathBuf> = entries
+        .filter_map(|entry| {
+            let name = entry.ok()?.file_name().to_string_lossy().into_owned();
+            (name.starts_with(&prefix) && name.ends_with(".tmp")).then(|| dir.join(name))
+        })
+        .collect();
+    leftovers.sort();
+    leftovers
 }
 
 #[cfg(test)]
@@ -997,7 +1298,6 @@ user = \"u\"
         let loaded = load_from(&path).unwrap();
         assert_eq!(loaded, s);
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     #[test]
@@ -1013,6 +1313,137 @@ user = \"u\"
         assert!(path.exists());
         let _ = std::fs::remove_file(&path);
         let _ = std::fs::remove_dir(&dir);
+    }
+
+    /// Ein frischer, leerer Ordner im Temp-Verzeichnis, darin der Pfad einer
+    /// `settings.toml`, die noch fehlt.
+    fn fresh_settings_dir(tag: &str) -> (PathBuf, PathBuf) {
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let dir = std::env::temp_dir().join(format!("aidevbridge_test_write_{tag}_{nanos}"));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("settings.toml");
+        (dir, path)
+    }
+
+    fn names_in(dir: &Path) -> Vec<String> {
+        let mut names: Vec<String> = std::fs::read_dir(dir)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+            .collect();
+        names.sort();
+        names
+    }
+
+    #[test]
+    fn consecutive_saves_leave_no_temp_files() {
+        let (dir, path) = fresh_settings_dir("consecutive");
+        let mut s = Settings::default();
+        save_to(&path, &s).unwrap();
+        s.ui.theme = "slate".into();
+        save_to(&path, &s).unwrap();
+        update_at(&path, |current| {
+            current.hosts.push(host_entry("a"));
+            Ok(())
+        })
+        .unwrap();
+        update_at(&path, |current| {
+            current.hosts.push(host_entry("b"));
+            Ok(())
+        })
+        .unwrap();
+
+        assert_eq!(names_in(&dir), ["settings.toml"]);
+        let loaded = load_from(&path).unwrap();
+        assert_eq!(loaded.ui.theme, "slate");
+        let ids: Vec<&str> = loaded.hosts.iter().map(|host| host.id.as_str()).collect();
+        assert_eq!(ids, ["a", "b"]);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Scheitert das Schreiben der temporaeren Datei, bleibt die alte Datei
+    /// byte-gleich, und die eigene temporaere Datei faellt weg.
+    #[test]
+    fn a_failed_temp_write_keeps_the_file_and_leaves_no_temp_file() {
+        let (dir, path) = fresh_settings_dir("temp_write_failure");
+        let mut s = Settings::default();
+        s.hosts.push(host_entry("a"));
+        save_to(&path, &s).unwrap();
+        let before = std::fs::read(&path).unwrap();
+
+        let hook = write_hook::set(|stage| match stage {
+            WriteStage::BeforeTempWrite => Err(std::io::Error::other("injected write failure")),
+            WriteStage::BeforeRename => Ok(()),
+        });
+        let saved = save_to(&path, &Settings::default());
+        let updated = update_at(&path, |current| {
+            current.hosts.clear();
+            Ok(())
+        });
+        drop(hook);
+
+        for error in [saved.unwrap_err(), updated.unwrap_err()] {
+            let chain = format!("{error:#}");
+            assert!(chain.contains("could not write"), "{chain}");
+            assert!(chain.contains("injected write failure"), "{chain}");
+        }
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+        assert_eq!(names_in(&dir), ["settings.toml"]);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Scheitert das Ersetzen, gilt dasselbe: alte Datei unberuehrt, keine
+    /// temporaere Datei.
+    #[test]
+    fn a_failed_replace_keeps_the_file_and_leaves_no_temp_file() {
+        let (dir, path) = fresh_settings_dir("replace_failure");
+        save_to(&path, &Settings::default()).unwrap();
+        let before = std::fs::read(&path).unwrap();
+
+        let hook = write_hook::set(|stage| match stage {
+            WriteStage::BeforeTempWrite => Ok(()),
+            WriteStage::BeforeRename => Err(std::io::Error::other("injected replace failure")),
+        });
+        let error = update_at(&path, |current| {
+            current.hosts.push(host_entry("a"));
+            Ok(())
+        })
+        .unwrap_err();
+        drop(hook);
+
+        let chain = format!("{error:#}");
+        assert!(chain.contains("could not replace"), "{chain}");
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+        assert_eq!(names_in(&dir), ["settings.toml"]);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Ein Fehler aus der Aenderung selbst bricht ab, ohne zu schreiben; eine
+    /// Datei, die sich nicht lesen laesst, wird nie ueberschrieben.
+    #[test]
+    fn update_at_writes_nothing_when_the_change_or_the_file_is_refused() {
+        let (dir, path) = fresh_settings_dir("refused");
+        let error = update_at(&path, |_| -> anyhow::Result<()> {
+            anyhow::bail!("refused")
+        })
+        .unwrap_err();
+        assert_eq!(format!("{error:#}"), "refused");
+        assert_eq!(names_in(&dir), Vec::<String>::new());
+
+        std::fs::write(&path, "version = 99\n").unwrap();
+        let mut ran = false;
+        let error = update_at(&path, |_| {
+            ran = true;
+            Ok(())
+        })
+        .unwrap_err();
+        assert!(!ran);
+        assert!(format!("{error:#}").contains(NEWER_FILE_TEXT), "{error:#}");
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "version = 99\n");
+        assert_eq!(names_in(&dir), ["settings.toml"]);
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     /// Gegenprobe zum "Version neuer -> nicht ueberschreiben"-Vertrag: ein
@@ -1375,7 +1806,6 @@ theme = "slate"
             assert!(text.contains(key), "{key} fehlt in:\n{text}");
         }
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     /// Review Focus 3, Richtung neu -> alt: die laufende alte App muss eine
@@ -1392,7 +1822,6 @@ theme = "slate"
         assert_eq!(old.hosts.len(), 2);
         assert_eq!(old.ui.theme, "slate");
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     /// Spec 2026-10-19 §4.6, Rueckweg: 0.1.2 liest eine Datei mit neun
@@ -1432,7 +1861,6 @@ theme = "slate"
             .collect();
         assert_eq!(kept, ["s0", "s1", "s2", "s3"]);
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     /// Dieselbe Regel fuer kuenftige Felder: kein Abschnitt lehnt unbekannte
@@ -1667,7 +2095,6 @@ theme = "slate"
             .iter()
             .all(|host| host.show_default_socket));
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     /// Spec 2026-10-25 §5: Eine fremde Kachel hat ein leeres `session`, ihren
@@ -1735,7 +2162,6 @@ theme = "slate"
             s.workspace.tiles
         );
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     #[test]
@@ -1763,7 +2189,6 @@ theme = "slate"
             .collect();
         assert_eq!(sessions, ["work", "build"]);
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     #[test]
@@ -1820,7 +2245,6 @@ last = "/x"
         assert_eq!(raw.workspace.tiles.len(), 2);
         assert_eq!(raw.workspace.dirs["host_a"].recent.len(), 5);
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     #[test]
@@ -1859,7 +2283,6 @@ last = "/x"
             ["h1"]
         );
         let _ = std::fs::remove_file(&path);
-        let _ = std::fs::remove_file(path.with_extension("toml.tmp"));
     }
 
     #[test]
@@ -2190,28 +2613,59 @@ user = "dev"
 
     /// Scheitert das Kopieren, bleibt keine `settings.toml` zurueck: Die App
     /// startet mit den Vorgaben, und der naechste Start versucht es erneut.
-    /// Die temporaere Datei als Ordner laesst das Kopieren scheitern (wie in
-    /// `update_host_impl_failed_temp_write_preserves_the_complete_settings_file`).
+    /// Der Fehler kommt ueber `write_hook` in die temporaere Datei, auch die
+    /// faellt dabei weg.
     #[test]
     fn a_failed_copy_starts_with_defaults_and_is_retried_on_the_next_start() {
         let (base, legacy, new) = migration_dirs("failure");
         write_legacy_folder(&legacy);
         let before = folder_files(&legacy);
-        std::fs::create_dir_all(new.join("settings.toml.tmp")).unwrap();
 
+        let hook = write_hook::set(|stage| match stage {
+            WriteStage::BeforeTempWrite => Err(std::io::Error::other("injected copy failure")),
+            WriteStage::BeforeRename => Ok(()),
+        });
         let error = copy_legacy_settings(&legacy, &new).unwrap_err();
-        assert!(format!("{error:#}").contains("could not copy"), "{error:#}");
-        assert!(!new.join("settings.toml").exists());
+        drop(hook);
+        assert!(
+            format!("{error:#}").contains("injected copy failure"),
+            "{error:#}"
+        );
+        assert_eq!(folder_files(&new), Vec::new(), "keine Datei bleibt liegen");
         assert_eq!(
             load_from(&new.join("settings.toml")).unwrap(),
             Settings::default()
         );
         assert_eq!(folder_files(&legacy), before);
 
-        std::fs::remove_dir(new.join("settings.toml.tmp")).unwrap();
         assert_eq!(
             copy_legacy_settings(&legacy, &new).unwrap(),
             Migration::Copied
+        );
+        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    /// Legt eine gleichzeitig startende zweite Instanz `settings.toml` an,
+    /// waehrend der Umzug kopiert, gewinnt ihre Datei: Der Umzug ersetzt sie
+    /// nicht und laesst keine temporaere Datei liegen.
+    #[test]
+    fn a_settings_file_written_during_the_copy_is_not_replaced() {
+        let (base, legacy, new) = migration_dirs("concurrent");
+        write_legacy_folder(&legacy);
+        let target = new.join("settings.toml");
+        let other = target.clone();
+        let hook = write_hook::set(move |stage| {
+            if stage == WriteStage::BeforeRename {
+                std::fs::write(&other, "version = 1\n")?;
+            }
+            Ok(())
+        });
+        let migration = copy_legacy_settings(&legacy, &new).unwrap();
+        drop(hook);
+        assert_eq!(migration, Migration::NotNeeded);
+        assert_eq!(
+            folder_files(&new),
+            vec![("settings.toml".to_string(), b"version = 1\n".to_vec())]
         );
         std::fs::remove_dir_all(&base).unwrap();
     }

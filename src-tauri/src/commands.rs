@@ -3139,17 +3139,19 @@ fn new_host_id() -> String {
 /// Fuegt einen Host zu `settings.toml` hinzu und speichert sofort (Task 13:
 /// keine Session-artige "add now, save later"-Zwischenablage -- Hosts
 /// SIND die Voreinstellungen, die laut Randbedingung dauerhaft in
-/// `settings.toml` leben). `settings::load_from`s Fehler werden durchgereicht,
-/// NIEMALS mit einem frischen Default ueberschrieben (siehe dessen
-/// Doc-Kommentar) -- eine zu neue `settings.toml` bleibt schreibgeschuetzt,
-/// `add_host` schlaegt dann fehl, statt sie zu ueberschreiben.
+/// `settings.toml` leben). Lesen-Aendern-Schreiben ueber
+/// `settings::update_at`: Ein Host, den eine zweite Instanz inzwischen
+/// gespeichert hat, bleibt erhalten. Ladefehler werden durchgereicht,
+/// NIEMALS mit einem frischen Default ueberschrieben (siehe
+/// `settings::load_from`) -- eine zu neue `settings.toml` bleibt
+/// schreibgeschuetzt, `add_host` schlaegt dann fehl, statt sie zu
+/// ueberschreiben.
 ///
 /// `settings_path` explizit als Parameter (siehe `list_hosts_impl`s
 /// Kommentar zur selben Entscheidung).
 pub fn add_host_impl(settings_path: &Path, entry: NewHostEntryDto) -> Result<HostEntry, String> {
     // Ein Host, der nie verbinden koennte, wird gar nicht erst gespeichert.
     usable_hostname(&entry.hostname)?;
-    let mut current = settings::load_from(settings_path).map_err(settings_error)?;
     let mut host_entry = HostEntry {
         id: new_host_id(),
         label: entry.label,
@@ -3176,8 +3178,11 @@ pub fn add_host_impl(settings_path: &Path, entry: NewHostEntryDto) -> Result<Hos
     // `list_hosts`) ein `null`, das `types.ts`s `HostEntry.auth_kind`
     // ausdruecklich ausschliesst.
     host_entry.auth_kind = Some(host_entry.effective_auth_kind());
-    current.hosts.push(host_entry.clone());
-    settings::save_to(settings_path, &current).map_err(settings_error)?;
+    settings::update_at(settings_path, |current| {
+        current.hosts.push(host_entry.clone());
+        Ok(())
+    })
+    .map_err(settings_error)?;
     Ok(host_entry)
 }
 
@@ -3187,9 +3192,11 @@ pub fn add_host(entry: NewHostEntryDto) -> Result<HostEntry, String> {
     add_host_impl(&path, entry)
 }
 
-/// Updates one saved host in place with a single load/change/save. The ID,
-/// list position and omitted socket/history values survive the edit. Failed
-/// writes leave the previous settings file intact; no removed-host state is saved.
+/// Aendert einen gespeicherten Host an Ort und Stelle, per Lesen-Aendern-
+/// Schreiben ueber `settings::update_at`. Id, Listenplatz und weggelassene
+/// Socket-/Verlaufswerte bleiben; Hosts einer zweiten Instanz bleiben
+/// erhalten. Ein gescheitertes Schreiben laesst die bisherige Datei
+/// unberuehrt.
 pub fn update_host_impl(
     settings_path: &Path,
     id: &str,
@@ -3198,31 +3205,31 @@ pub fn update_host_impl(
     // Gilt auch fuer einen unveraendert uebernommenen Namen: mit ihm koennte
     // der Host nie verbinden, und erst ein gueltiger Name repariert ihn.
     usable_hostname(&entry.hostname)?;
-    let mut current = settings::load_from(settings_path).map_err(settings_error)?;
-    let host = current
-        .hosts
-        .iter_mut()
-        .find(|host| host.id == id)
-        .ok_or_else(|| format!("saved host not found: {id}"))?;
-    host.label = entry.label;
-    host.hostname = entry.hostname;
-    host.user = entry.user;
-    host.port = entry.port;
-    if let Some(socket) = entry.tmux_socket {
-        host.tmux_socket = socket;
-    }
-    if let Some(history) = entry.history_limit {
-        host.history_limit = history;
-    }
-    host.key_path = entry.key_path;
-    host.auth_kind = entry.auth_kind;
-    if let Some(show) = entry.show_default_socket {
-        host.show_default_socket = show;
-    }
-    host.auth_kind = Some(host.effective_auth_kind());
-    let saved = host.clone();
-    settings::save_to(settings_path, &current).map_err(settings_error)?;
-    Ok(saved)
+    settings::update_at(settings_path, |current| {
+        let host = current
+            .hosts
+            .iter_mut()
+            .find(|host| host.id == id)
+            .ok_or_else(|| anyhow::anyhow!("saved host not found: {id}"))?;
+        host.label.clone_from(&entry.label);
+        host.hostname.clone_from(&entry.hostname);
+        host.user.clone_from(&entry.user);
+        host.port = entry.port;
+        if let Some(socket) = &entry.tmux_socket {
+            host.tmux_socket.clone_from(socket);
+        }
+        if let Some(history) = entry.history_limit {
+            host.history_limit = history;
+        }
+        host.key_path.clone_from(&entry.key_path);
+        host.auth_kind = entry.auth_kind;
+        if let Some(show) = entry.show_default_socket {
+            host.show_default_socket = show;
+        }
+        host.auth_kind = Some(host.effective_auth_kind());
+        Ok(host.clone())
+    })
+    .map_err(settings_error)
 }
 
 #[tauri::command]
@@ -3432,7 +3439,7 @@ impl UiSettingsPatchDto {
 
 /// Fehlertext eines Settings-Commands (Spec §9.2): die volle Ursachenkette
 /// (`{error:#}`), nicht nur der aeusserste Kontext. `settings::load_from` und
-/// `save_to` nennen den Pfad der Datei in jedem ihrer Fehler, bei einer
+/// `update_at` nennen den Pfad der Datei in jedem ihrer Fehler, bei einer
 /// kaputten Datei steht also hier, welche Datei es ist und welche Zeile und
 /// Spalte `toml` beanstandet. Ohne Endzeilenumbruch: `toml` haengt einen an.
 fn settings_error(error: anyhow::Error) -> String {
@@ -3440,9 +3447,11 @@ fn settings_error(error: anyhow::Error) -> String {
 }
 
 /// Ohne `patch` lesen, mit `patch` Lesen-Aendern-Schreiben ueber
-/// `settings::save_to` (temporaere Datei plus Umbenennen, wie `add_host_impl`),
-/// immer den neuen Stand liefern. Eine fehlende Datei ist ein Erststart
-/// (`load_from` liefert `Settings::default()`), Lesen legt sie NICHT an.
+/// `settings::update_at` (wie `add_host_impl`), immer den neuen Stand
+/// liefern. Eine fehlende Datei ist ein Erststart (`load_from` liefert
+/// `Settings::default()`), Lesen legt sie NICHT an. Hat eine zweite Instanz
+/// inzwischen gespeichert, kommt der Patch auf deren Stand: Ihre Hosts
+/// bleiben, und `[ui]`/`[workspace]` tragen danach die Werte des Patches.
 ///
 /// `settings_path` explizit als Parameter, dieselbe Entscheidung wie bei
 /// `list_hosts_impl`/`add_host_impl` (testbar ohne Konfigurationsverzeichnis).
@@ -3450,18 +3459,23 @@ pub fn ui_settings_impl(
     settings_path: &Path,
     patch: Option<UiSettingsPatchDto>,
 ) -> Result<UiSettingsDto, String> {
-    let mut current = settings::load_from(settings_path).map_err(settings_error)?;
-    if let Some(patch) = patch {
-        patch.apply(&mut current);
+    let Some(patch) = patch else {
+        let current = settings::load_from(settings_path).map_err(settings_error)?;
+        return Ok(UiSettingsDto::from_settings(&current, settings_path));
+    };
+    settings::update_at(settings_path, |current| {
+        patch.clone().apply(current);
+        // Die Antwort zeigt den Stand, der in die Datei geht.
         current.normalize_for_save();
-        settings::save_to(settings_path, &current).map_err(settings_error)?;
-    }
-    Ok(UiSettingsDto::from_settings(&current, settings_path))
+        Ok(UiSettingsDto::from_settings(current, settings_path))
+    })
+    .map_err(settings_error)
 }
 
 /// Synchron wie `add_host` und `remove_host` (kein `async`): Tauri fuehrt
 /// synchrone Commands seriell aus, so bleibt Lesen-Aendern-Schreiben an
-/// `settings.toml` frei von Ueberschneidungen (Spec §12.4).
+/// `settings.toml` innerhalb einer Instanz frei von Ueberschneidungen (Spec
+/// §12.4); gegen eine zweite Instanz schuetzt `settings::update_at`.
 #[tauri::command]
 pub fn ui_settings(patch: Option<UiSettingsPatchDto>) -> Result<UiSettingsDto, String> {
     let path = settings::settings_path().map_err(settings_error)?;
@@ -3476,15 +3490,20 @@ pub fn ui_settings(patch: Option<UiSettingsPatchDto>) -> Result<UiSettingsDto, S
 /// (UX-Ueberarbeitung, Spec §7.1): `expanded`, `connected`, `tiles` und
 /// `dirs`. Layout und Seitenleiste gehoeren keinem Host und bleiben.
 ///
+/// Lesen-Aendern-Schreiben ueber `settings::update_at`: Hosts, die eine
+/// zweite Instanz inzwischen gespeichert hat, bleiben erhalten.
+///
 /// `settings_path` explizit als Parameter (siehe `list_hosts_impl`s
 /// Kommentar zur selben Entscheidung).
 pub fn remove_host_impl(settings_path: &Path, id: &str) -> Result<(), String> {
-    let mut current = settings::load_from(settings_path).map_err(settings_error)?;
-    current.hosts.retain(|h| h.id != id);
-    // Verteidigung in der Tiefe: `save_to` verwirft die Eintraege unbekannter
-    // Hosts ohnehin, also auch die des eben entfernten.
-    current.workspace.forget_host(id);
-    settings::save_to(settings_path, &current).map_err(settings_error)
+    settings::update_at(settings_path, |current| {
+        current.hosts.retain(|h| h.id != id);
+        // Verteidigung in der Tiefe: `update_at` verwirft die Eintraege
+        // unbekannter Hosts ohnehin, also auch die des eben entfernten.
+        current.workspace.forget_host(id);
+        Ok(())
+    })
+    .map_err(settings_error)
 }
 
 #[tauri::command]
@@ -5937,8 +5956,9 @@ mod tests {
             "Hosts bleiben erhalten"
         );
         assert_eq!(ui_settings_impl(&path, None).unwrap().theme, "slate");
-        assert!(
-            !path.with_extension("toml.tmp").exists(),
+        assert_eq!(
+            settings::temp_files_beside(&path),
+            Vec::<PathBuf>::new(),
             "temporaere Datei wurde umbenannt"
         );
         let _ = std::fs::remove_file(&path);
@@ -6511,7 +6531,7 @@ mod tests {
             update_host_impl(&path, "missing", new_host_dto("new.example.test")).unwrap_err();
         assert!(error.contains("not found"), "{error}");
         assert_eq!(std::fs::read(&path).unwrap(), before);
-        assert!(!path.with_extension("toml.tmp").exists());
+        assert_eq!(settings::temp_files_beside(&path), Vec::<PathBuf>::new());
         std::fs::remove_file(path).unwrap();
     }
 
@@ -6520,13 +6540,153 @@ mod tests {
         let path = unique_temp_settings_path("update_write_failure");
         let original = add_host_impl(&path, new_host_dto("old.example.test")).unwrap();
         let before = std::fs::read(&path).unwrap();
-        let tmp = path.with_extension("toml.tmp");
-        std::fs::create_dir(&tmp).unwrap();
+        let hook = settings::write_hook::set(|stage| match stage {
+            settings::WriteStage::BeforeTempWrite => {
+                Err(std::io::Error::other("injected write failure"))
+            }
+            settings::WriteStage::BeforeRename => Ok(()),
+        });
         let result = update_host_impl(&path, &original.id, new_host_dto("new.example.test"));
-        std::fs::remove_dir(tmp).unwrap();
-        assert!(result.unwrap_err().contains("could not write"));
+        drop(hook);
+        let error = result.unwrap_err();
+        assert!(error.contains("could not write"), "{error}");
         assert_eq!(std::fs::read(&path).unwrap(), before);
+        assert_eq!(settings::temp_files_beside(&path), Vec::<PathBuf>::new());
         assert_eq!(list_hosts_impl(&path).unwrap(), vec![original]);
+        std::fs::remove_file(path).unwrap();
+    }
+
+    /// Wie eine zweite Instanz der App speichern wuerde: die Datei lesen,
+    /// einen eigenen Host anhaengen, ersetzen. Liefert die geschriebenen Bytes.
+    fn other_instance_adds_host(path: &Path, id: &str) -> Vec<u8> {
+        let mut current = settings::load_from(path).unwrap();
+        current.hosts.push(HostEntry {
+            id: id.to_string(),
+            label: id.to_string(),
+            hostname: format!("{id}.example.test"),
+            user: "u".into(),
+            port: 22,
+            tmux_socket: settings::default_socket(),
+            history_limit: settings::default_history(),
+            key_path: None,
+            auth_kind: Some(AuthKind::Agent),
+            show_default_socket: true,
+        });
+        settings::save_to(path, &current).unwrap();
+        std::fs::read(path).unwrap()
+    }
+
+    fn saved_host_ids(path: &Path) -> Vec<String> {
+        list_hosts_impl(path)
+            .unwrap()
+            .into_iter()
+            .map(|host| host.id)
+            .collect()
+    }
+
+    /// Laesst eine zweite Instanz genau einmal dazwischen speichern: beim
+    /// naechsten Schreibvorgang, nachdem die temporaere Datei fertig ist und
+    /// bevor sie die Datei ersetzt.
+    fn another_instance_adds_host_once(path: &Path, id: &str) -> settings::write_hook::Guard {
+        let path = path.to_path_buf();
+        let mut pending = Some(id.to_string());
+        settings::write_hook::set(move |stage| {
+            if stage == settings::WriteStage::BeforeRename {
+                if let Some(id) = pending.take() {
+                    other_instance_adds_host(&path, &id);
+                }
+            }
+            Ok(())
+        })
+    }
+
+    /// Eine zweite Instanz speichert einen Host, waehrend `add_host_impl`
+    /// zwischen Lesen und Ersetzen steht: Beide Hosts bleiben erhalten.
+    #[test]
+    fn add_host_impl_keeps_a_host_another_instance_saved_meanwhile() {
+        let path = unique_temp_settings_path("add_concurrent");
+        let first = add_host_impl(&path, new_host_dto("first.example.test")).unwrap();
+        let hook = another_instance_adds_host_once(&path, "host_other");
+        let added = add_host_impl(&path, new_host_dto("mine.example.test"));
+        drop(hook);
+
+        let added = added.unwrap();
+        assert_eq!(
+            saved_host_ids(&path),
+            [first.id, "host_other".to_string(), added.id],
+            "der Host der anderen Instanz darf nicht verloren gehen"
+        );
+        assert_eq!(settings::temp_files_beside(&path), Vec::<PathBuf>::new());
+        std::fs::remove_file(path).unwrap();
+    }
+
+    /// Dasselbe fuer `update_host_impl`, `ui_settings_impl` und
+    /// `remove_host_impl`: Jeder Command wendet nur seine eigene Aenderung auf
+    /// den neuesten Stand an.
+    #[test]
+    fn every_settings_command_keeps_a_host_another_instance_saved_meanwhile() {
+        let path = unique_temp_settings_path("commands_concurrent");
+        let first = add_host_impl(&path, new_host_dto("first.example.test")).unwrap();
+
+        let hook = another_instance_adds_host_once(&path, "host_during_update");
+        let updated = update_host_impl(&path, &first.id, new_host_dto("edited.example.test"));
+        drop(hook);
+        assert_eq!(updated.unwrap().hostname, "edited.example.test");
+
+        let hook = another_instance_adds_host_once(&path, "host_during_ui");
+        let dto = ui_settings_impl(&path, Some(theme_patch("slate")));
+        drop(hook);
+        assert_eq!(dto.unwrap().theme, "slate");
+
+        let hook = another_instance_adds_host_once(&path, "host_during_remove");
+        let removed = remove_host_impl(&path, &first.id);
+        drop(hook);
+        removed.unwrap();
+
+        assert_eq!(
+            saved_host_ids(&path),
+            ["host_during_update", "host_during_ui", "host_during_remove"]
+        );
+        assert_eq!(ui_settings_impl(&path, None).unwrap().theme, "slate");
+        assert_eq!(settings::temp_files_beside(&path), Vec::<PathBuf>::new());
+        std::fs::remove_file(path).unwrap();
+    }
+
+    /// Schreibt die andere Instanz bei jedem Versuch dazwischen, gibt der
+    /// Command nach drei Versuchen mit einer Meldung auf. Die Datei traegt
+    /// dann den Stand der anderen Instanz, und keine temporaere Datei bleibt.
+    #[test]
+    fn add_host_impl_gives_up_after_three_attempts_when_another_instance_keeps_writing() {
+        let path = unique_temp_settings_path("add_contended");
+        add_host_impl(&path, new_host_dto("first.example.test")).unwrap();
+        let other_path = path.clone();
+        let last_written = std::rc::Rc::new(std::cell::RefCell::new(Vec::new()));
+        let attempts = std::rc::Rc::new(std::cell::Cell::new(0));
+        let (hook_written, hook_attempts) = (last_written.clone(), attempts.clone());
+        let hook = settings::write_hook::set(move |stage| {
+            if stage == settings::WriteStage::BeforeRename {
+                hook_attempts.set(hook_attempts.get() + 1);
+                let id = format!("host_other_{}", hook_attempts.get());
+                *hook_written.borrow_mut() = other_instance_adds_host(&other_path, &id);
+            }
+            Ok(())
+        });
+        let result = add_host_impl(&path, new_host_dto("mine.example.test"));
+        drop(hook);
+
+        let error = result.unwrap_err();
+        assert!(
+            error.contains(&path.display().to_string())
+                && error.ends_with(
+                    "settings.toml was changed by another aidevbridge window at the same time; \
+                     try again."
+                ),
+            "{error}"
+        );
+        assert_eq!(attempts.get(), 3);
+        assert_eq!(std::fs::read(&path).unwrap(), *last_written.borrow());
+        assert_eq!(saved_host_ids(&path).len(), 4);
+        assert_eq!(settings::temp_files_beside(&path), Vec::<PathBuf>::new());
         std::fs::remove_file(path).unwrap();
     }
 
@@ -6541,7 +6701,7 @@ mod tests {
                 HOSTNAME_REFUSED
             );
             assert_eq!(std::fs::read(&path).unwrap(), before);
-            assert!(!path.with_extension("toml.tmp").exists());
+            assert_eq!(settings::temp_files_beside(&path), Vec::<PathBuf>::new());
         }
         std::fs::remove_file(path).unwrap();
     }
@@ -6566,7 +6726,7 @@ mod tests {
         let unchanged = update_host_impl(&path, &stored.id, unchanged);
         assert_eq!(unchanged.unwrap_err(), HOSTNAME_REFUSED);
         assert_eq!(std::fs::read(&path).unwrap(), before);
-        assert!(!path.with_extension("toml.tmp").exists());
+        assert_eq!(settings::temp_files_beside(&path), Vec::<PathBuf>::new());
 
         let repaired = update_host_impl(&path, &stored.id, new_host_dto("fixed.example.test"));
         assert_eq!(repaired.unwrap().hostname, "fixed.example.test");
@@ -6594,7 +6754,7 @@ mod tests {
         assert!(remove.unwrap_err().contains("could not replace"));
         assert_eq!(std::fs::read(&path).unwrap(), before);
         drop(lock);
-        std::fs::remove_file(path.with_extension("toml.tmp")).unwrap();
+        assert_eq!(settings::temp_files_beside(&path), Vec::<PathBuf>::new());
         std::fs::remove_file(path).unwrap();
     }
 
