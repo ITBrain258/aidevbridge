@@ -62,15 +62,15 @@ xterm.js.
   provenance: a record, signed through Sigstore and kept by GitHub apart from
   the release, that ties the file's SHA-256 to this repository's workflow
   `packages.yml`, the tag and its commit. With the
-  [GitHub CLI](https://cli.github.com/), signed in to any GitHub account
-  (`gh auth login`), run
+  [GitHub CLI](https://cli.github.com/) 2.49 or newer, signed in to any
+  GitHub account (`gh auth login`), run
   `gh attestation verify <file> --repo ITBrain258/aidevbridge`; add
-  `--source-ref refs/tags/v<version>` to also require that release's tag. It
-  must print `Verification succeeded!`. A file that a manual run from another
-  ref (such as a branch) attached later has no provenance, and the command
-  fails for it (current versions of the GitHub CLI report
-  `HTTP 404: Not Found`); for it, only the SHA-256 check above applies.
-  Details in
+  `--source-ref refs/tags/v<version>` (GitHub CLI 2.68 or newer) to also
+  require that release's tag. It must print `Verification succeeded!`. A
+  file that a manual run from another ref (such as a branch) attached later
+  has no provenance, and the command fails for it (current versions of the
+  GitHub CLI report `HTTP 404: Not Found`); for it, only the SHA-256 check
+  above applies. Details in
   [SECURITY.md](SECURITY.md#unsigned-binaries-and-checking-a-download).
 - **macOS: not notarized yet.** macOS refuses the first start ("Apple could
   not verify …"). After checking the file with
