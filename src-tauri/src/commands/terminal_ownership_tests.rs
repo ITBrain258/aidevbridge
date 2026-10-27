@@ -434,10 +434,10 @@ async fn replace_at_eight_open_waits_until_the_old_channel_is_closed() {
     finish(fixture, state).await;
 }
 
-/// Review Focus 4: Ersetzen an der Grenze bei langsamem Close. Das neue
-/// Oeffnen wartet `SLOT_WAIT` auf den Platz und scheitert dann mit dem Rohtext
-/// der PTY-Grenze, nie mit dem der Pumpengrenze, ohne ein Open zu senden. Ist
-/// der alte Kanal zu, gelingt es.
+/// Ersetzen an der Grenze bei langsamem Close. Das neue Oeffnen wartet
+/// `SLOT_WAIT` auf den Platz und scheitert dann mit dem Rohtext der
+/// PTY-Grenze, nie mit dem der Pumpengrenze, ohne ein Open zu senden. Ist der
+/// alte Kanal zu, gelingt es.
 #[tokio::test]
 async fn replace_with_slow_close_reports_capacity_after_the_slot_wait() {
     let (fixture, state) = connected().await;

@@ -1,6 +1,6 @@
 use super::*;
 
-// --- TofuPolicy (TOFU-Nachtrag, Task 13) ---
+// --- TofuPolicy (TOFU, Spec §8.1) ---
 //
 // Policy-Tests laufen auf Tokios einzelner Test-Worker-Thread-Runtime.
 // `decide` wartet asynchron auf Antwort, Frist oder Connect-Abbruch.
@@ -138,10 +138,9 @@ async fn tofu_policy_accepts_known_and_records_the_decision_without_ever_prompti
     assert_eq!(p.last_decision(), Some(HostKeyDecision::Known));
 }
 
-/// Die mandatierte Eigenschaft 1 des TOFU-Nachtrags: `Mismatch` loest
-/// NIEMALS eine Rueckfrage aus. Geprueft werden ZWEI unabhaengige
-/// Aspekte -- kein Prompt UND keine Spur in `known_hosts` (die Datei
-/// existiert danach immer noch nicht, siehe
+/// `Mismatch` loest NIEMALS eine Rueckfrage aus. Geprueft werden ZWEI
+/// unabhaengige Aspekte -- kein Prompt UND keine Spur in `known_hosts` (die
+/// Datei existiert danach immer noch nicht, siehe
 /// `tofu_policy_mismatch_leaves_an_existing_known_hosts_file_byte_identical`
 /// fuer die Variante mit VORHANDENEM Inhalt).
 ///
@@ -279,13 +278,12 @@ async fn tofu_policy_rejects_a_changed_key_behind_a_hashed_entry_without_prompti
     std::fs::remove_file(path).unwrap();
 }
 
-/// Die mandatierte Eigenschaft 2 (erster Teil): `Unknown` stellt genau
-/// EINE Rueckfrage, und ein expliziter `respond_host_key(..., true)`
-/// laesst `decide()` mit `true` zurueckkehren UND persistiert den
-/// akzeptierten Schluessel tatsaechlich in `known_hosts` (Eigenschaft 4:
-/// `append_entry`). Ein zweiter `std::thread` antwortet, waehrend
-/// `decide()` asynchron wartet. Die Verbindung darf erst nach der
-/// ausdruecklichen Antwort fortgesetzt werden.
+/// `Unknown` stellt genau EINE Rueckfrage, und ein expliziter
+/// `respond_host_key(..., true)` laesst `decide()` mit `true` zurueckkehren
+/// UND persistiert den akzeptierten Schluessel tatsaechlich in `known_hosts`
+/// (`append_entry`). Ein zweiter `std::thread` antwortet, waehrend `decide()`
+/// asynchron wartet. Die Verbindung darf erst nach der ausdruecklichen Antwort
+/// fortgesetzt werden.
 #[tokio::test]
 async fn tofu_policy_prompts_on_unknown_and_an_explicit_accept_persists_the_key() {
     let (req_tx, req_rx) = std::sync::mpsc::channel::<HostKeyRequest>();
@@ -385,9 +383,8 @@ async fn tofu_policy_prompts_on_unknown_and_an_explicit_reject_does_not_persist(
     );
 }
 
-/// Die mandatierte Eigenschaft 2 (zweiter Teil, TOFU-Nachtrag): ein
-/// Zeitablauf OHNE jede Antwort ist eine Ablehnung. Drei unabhaengige
-/// Assertions, keine davon allein wuerde reichen (Review-Befund):
+/// Ein Zeitablauf OHNE jede Antwort ist eine Ablehnung. Drei unabhaengige
+/// Assertions, keine davon allein wuerde reichen:
 ///   (a) `decide()` liefert `false`,
 ///   (b) es wurde tatsaechlich GENAU EINE Rueckfrage gestellt -- der
 ///       Nutzer haette also wirklich die Chance gehabt zu antworten
@@ -659,13 +656,11 @@ async fn tofu_policy_rejects_undecodable_key_instead_of_prompting_with_a_placeho
     );
 }
 
-/// Review-Nachtrag (Minor): bisher gab es keinen Test dafuer, dass
-/// `respond_host_key_impl` eine `request_id` ablehnt, die nie
-/// registriert wurde (z. B. ein Tippfehler, ein veralteter Client, oder
-/// ein Aufruf, der aus einer anderen Instanz stammt). Ohne diese
-/// Pruefung koennte `resolve_host_key_request`s `bool`-Rueckgabewert
-/// stillschweigend ignoriert werden, ohne dass ein Test das je
-/// bemerken wuerde.
+/// `respond_host_key_impl` lehnt eine `request_id` ab, die nie registriert
+/// wurde (z. B. ein Tippfehler, ein veralteter Client, oder ein Aufruf, der
+/// aus einer anderen Instanz stammt). Ohne diese Pruefung koennte
+/// `resolve_host_key_request`s `bool`-Rueckgabewert stillschweigend ignoriert
+/// werden, ohne dass ein Test das je bemerken wuerde.
 #[test]
 fn respond_host_key_impl_returns_an_error_for_an_unknown_request_id() {
     let state = Arc::new(AppState::default());
@@ -676,14 +671,13 @@ fn respond_host_key_impl_returns_an_error_for_an_unknown_request_id() {
     );
 }
 
-/// Review-Nachtrag (Minor): eine bereits beantwortete Anfrage darf
-/// kein ZWEITES Mal aufgeloest werden -- `resolve_host_key_request`
-/// entfernt den Eintrag beim ersten Erfolg (`HashMap::remove`), ein
-/// zweiter Aufruf mit derselben `id` findet ihn nicht mehr. Deckt
-/// denselben Codepfad ab, den auch eine per Zeitablauf laengst
-/// vergessene Anfrage traefe (siehe `forget_host_key_request`s
-/// Doc-Kommentar) -- beide raeumen denselben Map-Eintrag weg, bevor ein
-/// zweiter `respond_host_key`-Aufruf ihn noch vorfaende.
+/// Eine bereits beantwortete Anfrage darf kein ZWEITES Mal aufgeloest werden
+/// -- `resolve_host_key_request` entfernt den Eintrag beim ersten Erfolg
+/// (`HashMap::remove`), ein zweiter Aufruf mit derselben `id` findet ihn nicht
+/// mehr. Deckt denselben Codepfad ab, den auch eine per Zeitablauf laengst
+/// vergessene Anfrage traefe (siehe `forget_host_key_request`s Doc-Kommentar)
+/// -- beide raeumen denselben Map-Eintrag weg, bevor ein zweiter
+/// `respond_host_key`-Aufruf ihn noch vorfaende.
 #[test]
 fn respond_host_key_impl_returns_an_error_when_the_same_request_id_is_answered_twice() {
     let state = Arc::new(AppState::default());
@@ -709,11 +703,11 @@ fn now_unix_ms() -> u64 {
         .as_millis() as u64
 }
 
-/// Review-Befund, Important 1b: das Overlay muss die Restzeit anzeigen
-/// koennen -- dafuer muss `expires_at_unix_ms` ungefaehr `jetzt +
-/// prompt_timeout` sein, gemessen zum Zeitpunkt der Anfrage (nicht z. B.
-/// zum Zeitpunkt einer spaeteren Antwort). Anfrage und wartende Policy
-/// werden auf derselben Runtime gepollt; kein Kanalempfang blockiert sie.
+/// Das Overlay muss die Restzeit anzeigen koennen -- dafuer muss
+/// `expires_at_unix_ms` ungefaehr `jetzt + prompt_timeout` sein, gemessen zum
+/// Zeitpunkt der Anfrage (nicht z. B. zum Zeitpunkt einer spaeteren Antwort).
+/// Anfrage und wartende Policy werden auf derselben Runtime gepollt; kein
+/// Kanalempfang blockiert sie.
 #[tokio::test]
 async fn tofu_policy_sets_the_requests_deadline_to_roughly_now_plus_the_configured_timeout() {
     let timeout = Duration::from_millis(200);
@@ -744,11 +738,11 @@ async fn tofu_policy_sets_the_requests_deadline_to_roughly_now_plus_the_configur
     assert!(!decision.await);
 }
 
-/// Sink, der Anfragen ueber einen Kanal weiterleitet (wie `ChannelSink`
-/// oben) UND zusaetzlich jeden `notify_persist_failed`-Aufruf
-/// aufzeichnet -- fuer die beiden Tests unten (Review-Befund, Important
-/// 3), die belegen muessen, dass DIESES Ereignis genau dann und nur
-/// dann ausgeloest wird, wenn `append_entry` tatsaechlich fehlschlaegt.
+/// Sink, der Anfragen ueber einen Kanal weiterleitet (wie `ChannelSink` oben)
+/// UND zusaetzlich jeden `notify_persist_failed`-Aufruf aufzeichnet -- fuer
+/// die beiden Tests unten, die belegen muessen, dass DIESES Ereignis genau
+/// dann und nur dann ausgeloest wird, wenn `append_entry` tatsaechlich
+/// fehlschlaegt.
 struct ChannelAndPersistFailureSink {
     req_tx: std::sync::mpsc::Sender<HostKeyRequest>,
     persist_failures: Arc<std::sync::Mutex<Vec<(String, u16)>>>,
