@@ -89,8 +89,9 @@ Das mitgelieferte Java 25 geht mit diesem Gradle nicht.
 
 ### B3 Auf dem eigenen Telefon testen
 
-Auf diesem PC läuft der Emulator nicht schnell genug (keine
-Hardwarebeschleunigung in der VM). Am echten Telefon:
+Auf diesem PC startet der Android-Emulator nicht: Die VM reicht keine
+Virtualisierung durch. Die Ansicht fürs Telefon ist deshalb bisher nur in
+einer Vorschau im Browser geprüft. Am echten Telefon:
 
 1. `C:\Users\test\Desktop\aidevbridge-android\aidevbridge-android-arm64.apk`
    aufs Telefon kopieren (Kabel, Cloud, Mail an dich selbst) und dort öffnen;
