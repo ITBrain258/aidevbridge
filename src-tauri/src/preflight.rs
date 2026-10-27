@@ -34,14 +34,13 @@ impl PreflightReport {
     pub fn blocking_problem(&self) -> Option<String> {
         // base64 zuerst, nicht tmux: JEDE Kommandozeile aus `remote::build`
         // (auch die tmux- und die Socket-Verzeichnis-Sonde selbst) braucht
-        // `base64 -d` im eigenen Praeludium, um ihre Argumente zu
-        // dekodieren (siehe `remote::command::build`). Fehlt `base64`
-        // wirklich, schlagen deshalb ALLE DREI Sonden fehl, nicht nur die
-        // base64-Sonde -- `tmux_version: None` waere dann kein Beleg fuer
-        // "tmux fehlt", sondern nur ein Symptom des kaputten
-        // Transportmechanismus. Erst wenn `has_base64` bestaetigt, dass
-        // das Praeludium funktioniert, ist ein `None` bei `tmux_version`
-        // ein verlaessliches Signal. Review-Befund, siehe
+        // `base64 -d` im eigenen Praeludium, um ihre Argumente zu dekodieren
+        // (siehe `remote::command::build`). Fehlt `base64` wirklich, schlagen
+        // deshalb ALLE DREI Sonden fehl, nicht nur die base64-Sonde --
+        // `tmux_version: None` waere dann kein Beleg fuer "tmux fehlt",
+        // sondern nur ein Symptom des kaputten Transportmechanismus. Erst wenn
+        // `has_base64` bestaetigt, dass das Praeludium funktioniert, ist ein
+        // `None` bei `tmux_version` ein verlaessliches Signal, siehe
         // `run_reports_base64_not_tmux_as_the_problem_on_a_base64_less_host`.
         if !self.has_base64 {
             return Some("base64 is not available on this host".into());
@@ -83,12 +82,11 @@ impl PreflightReport {
 }
 
 /// Prueft die drei abbrechenden Voraussetzungen aus Spec §6.9 (`tmux`,
-/// `base64`, beschreibbares Socket-Verzeichnis). Die beiden restlichen
-/// Zeilen der Tabelle (`#{@x}`-Aufloesung, `git --version`) sind bewusst
-/// NICHT Teil dieses Reports -- sie sind Warnungen fuer Funktionen, die
-/// erst in spaeteren Plaenen entstehen (Reviewbefund aus
-/// Task 1: Plan 1 darf nicht an Voraussetzungen scheitern, die er gar
-/// nicht benutzt).
+/// `base64`, beschreibbares Socket-Verzeichnis). Die beiden restlichen Zeilen
+/// der Tabelle (`#{@x}`-Aufloesung, `git --version`) sind bewusst NICHT Teil
+/// dieses Reports -- sie sind Warnungen fuer Funktionen, die die App noch
+/// nicht hat; sie darf nicht an Voraussetzungen scheitern, die sie gar nicht
+/// benutzt.
 ///
 /// Jede Kommandozeile entsteht ueber `remote::build` -- kein `format!` auf
 /// einen SSH-Befehl (siehe `run_builds_every_command_via_remote_build`
@@ -278,7 +276,7 @@ mod tests {
     /// einer Liste. base64 kommt zuerst, nicht tmux: `remote::build`
     /// braucht `base64` fuer JEDE Sonde (auch die tmux- und die
     /// Socket-Verzeichnis-Sonde selbst), ein fehlendes `base64` macht
-    /// deren Ergebnisse unzuverlaessig (Review-Befund, siehe
+    /// deren Ergebnisse unzuverlaessig (siehe
     /// `run_reports_base64_not_tmux_as_the_problem_on_a_base64_less_host`
     /// fuer den End-zu-End-Beleg ueber `run()`).
     #[test]
@@ -387,11 +385,10 @@ mod run_tests {
     }
 
     /// Jede von `run()` ausgefuehrte Zeile muss aus `remote::build` stammen,
-    /// nicht aus einem rohen `format!` auf einen SSH-Befehl (Randbedingung
-    /// des Tasks). `remote::build` stellt seiner Ausgabe immer `set -eu;`
-    /// voran (siehe `remote::command::build`) -- das ist ein struktureller
-    /// Marker, der nur bei tatsaechlicher Nutzung von `remote::build`
-    /// auftaucht.
+    /// nicht aus einem rohen `format!` auf einen SSH-Befehl (Spec §8.2).
+    /// `remote::build` stellt seiner Ausgabe immer `set -eu;` voran (siehe
+    /// `remote::command::build`) -- das ist ein struktureller Marker, der nur
+    /// bei tatsaechlicher Nutzung von `remote::build` auftaucht.
     #[tokio::test]
     async fn run_builds_every_command_via_remote_build() {
         let t = ScriptedTransport::new(vec![ok("tmux 3.3a\n"), ok(""), ok("")]);
@@ -461,19 +458,18 @@ mod run_tests {
         );
     }
 
-    /// Review-Befund: JEDE von `remote::build` erzeugte Zeile
-    /// braucht `base64 -d` im eigenen Praeludium, um ihre Argumente
-    /// ueberhaupt zu dekodieren (siehe `remote::command::build`). Fehlt
-    /// `base64` auf dem Host wirklich, schlagen deshalb NICHT nur die
-    /// base64-Sonde, sondern alle drei Sonden fehl (das Praeludium selbst
-    /// bricht unter `set -eu` ab, bevor die eigentliche Nutzlast je
-    /// laeuft) -- exakt das Bild, das `ScriptedTransport::new(vec![failed();
-    /// 3])` simuliert. `blocking_problem()` darf in diesem Fall NICHT
-    /// "tmux is not installed" melden: `tmux_version: None` ist nur dann
-    /// ein verlaessliches Signal fuer "tmux fehlt", wenn `base64`
-    /// nachweislich funktioniert hat. Der Nutzer wuerde sonst angewiesen,
-    /// tmux zu installieren, obwohl das eigentliche (und einzig sichere)
-    /// Problem coreutils/base64 ist.
+    /// JEDE von `remote::build` erzeugte Zeile braucht `base64 -d` im eigenen
+    /// Praeludium, um ihre Argumente ueberhaupt zu dekodieren (siehe
+    /// `remote::command::build`). Fehlt `base64` auf dem Host wirklich,
+    /// schlagen deshalb NICHT nur die base64-Sonde, sondern alle drei Sonden
+    /// fehl (das Praeludium selbst bricht unter `set -eu` ab, bevor die
+    /// eigentliche Nutzlast je laeuft) -- exakt das Bild, das
+    /// `ScriptedTransport::new(vec![failed(); 3])` simuliert.
+    /// `blocking_problem()` darf in diesem Fall NICHT "tmux is not installed"
+    /// melden: `tmux_version: None` ist nur dann ein verlaessliches Signal
+    /// fuer "tmux fehlt", wenn `base64` nachweislich funktioniert hat. Der
+    /// Nutzer wuerde sonst angewiesen, tmux zu installieren, obwohl das
+    /// eigentliche (und einzig sichere) Problem coreutils/base64 ist.
     #[tokio::test]
     async fn run_reports_base64_not_tmux_as_the_problem_on_a_base64_less_host() {
         let t = ScriptedTransport::new(vec![failed(), failed(), failed()]);
