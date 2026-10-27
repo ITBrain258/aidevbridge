@@ -141,8 +141,8 @@ export function installKeyboard(deps: KeyboardDeps): () => void {
   // Terminal (UX-Spec §6.1) wie in einem Textfeld (§8.2) -- der `switch` unten
   // hat fuer sie deshalb keinen eigenen Zweig, `default: break` laesst sie
   // unangetastet.
-  // `session.new` ist seit dem Abschlussreview (Important 5) die Ausnahme:
-  // es hat hier einen eigenen Zweig UND in `terminal.ts` keinen mehr.
+  // `session.new` ist die Ausnahme: es hat hier einen eigenen Zweig UND in
+  // `terminal.ts` keinen.
   //
   // UX-Spec §8.3: neben dem Strg+Umschalt-Raum gehoert der App Strg allein auf
   // den Tasten der Ausnahmeliste -- aber nur mit einer Aktion (Strg+,).

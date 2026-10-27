@@ -31,8 +31,8 @@ export interface DirNode {
  * Eingestaendnis, keinen zu kennen. Der Zweig darf nicht raten: ein
  * Vorgabezweig auf `"denied"` wuerde jeder kuenftigen Antwort "kein
  * Leserecht" unterstellen -- die harmloseste der Diagnosen und damit die
- * irrefuehrendste. Genau dieser Defekt wurde im Rust-Gegenstueck bereits
- * dreimal entfernt; er soll hier nicht spiegelverkehrt wieder entstehen.
+ * irrefuehrendste. Genau diesen Defekt meidet auch das Rust-Gegenstueck;
+ * er soll hier nicht spiegelverkehrt entstehen.
  *
  * Verglichen wird auf Gleichheit, nicht auf Enthaltensein: `"Permission
  * denied (publickey)."` ist Prosa des Transports und traegt `denied` nur
@@ -139,14 +139,13 @@ export class DirTree {
 
   setError(path: string, error: NonNullable<DirNode["error"]>): void {
     const node = this.nodes.get(path);
-    // Dieselbe stille Verwerfung wie bei `setChildren` -- und dieselbe
-    // AUFLAGE AN DEN AUFRUFER. Sie stand hier bis zum Abschlussreview nicht,
-    // obwohl der Fall erreichbar ist: scheitert in der Ahnenkette ein Glied,
-    // das sein Elternteil gar nicht aufgelistet hat (weil der Filter es
-    // ausnahm oder es fort ist), gibt es keinen Knoten, an dem der Hinweis
-    // haengen koennte -- er verpufft, und keine Zeile sagt etwas. Wer hier
-    // einen Fehler meldet, muss also vorher wissen, dass der Pfad in `nodes`
-    // steht, sonst braucht er einen eigenen Kanal fuer die Meldung.
+    // Dieselbe stille Verwerfung wie bei `setChildren` -- und dieselbe AUFLAGE
+    // AN DEN AUFRUFER, denn der Fall ist erreichbar: scheitert in der
+    // Ahnenkette ein Glied, das sein Elternteil gar nicht aufgelistet hat (weil
+    // der Filter es ausnahm oder es fort ist), gibt es keinen Knoten, an dem
+    // der Hinweis haengen koennte -- er verpufft, und keine Zeile sagt etwas.
+    // Wer hier einen Fehler meldet, muss also vorher wissen, dass der Pfad in
+    // `nodes` steht, sonst braucht er einen eigenen Kanal fuer die Meldung.
     if (node === undefined) return;
     // Auch hier durch `errorKind`, obwohl die Signatur bereits eng ist: die
     // Union existiert zur Laufzeit nicht. Eine rohe Zeichenkette aus dem
@@ -169,13 +168,12 @@ export class DirTree {
   expand(path: string): boolean {
     const node = this.nodes.get(path);
     // Ein unbekannter Pfad meldet "kein Ladebedarf". Das ist FORMGLEICH mit
-    // dem `_ => PermissionDenied`, das im Rust-Gegenstueck dreimal entfernt
-    // wurde: ein nicht darstellbarer Zustand faellt still auf die
-    // beruhigende Antwort. Es bleibt stehen, weil die Schnittstelle kein
-    // Anlegen vorsieht und ein hier erfundener Knoten weder Tiefe noch
-    // Elternteil kennte -- aber der Aufrufer muss wissen, dass `false` an
-    // dieser Stelle ZWEI Dinge heissen kann: "schon geladen" und "diesen
-    // Pfad gibt es im Baum gar nicht".
+    // einem `_ => PermissionDenied`, wie es das Rust-Gegenstueck meidet: ein
+    // nicht darstellbarer Zustand faellt still auf die beruhigende Antwort. Es
+    // bleibt stehen, weil die Schnittstelle kein Anlegen vorsieht und ein hier
+    // erfundener Knoten weder Tiefe noch Elternteil kennte -- aber der Aufrufer
+    // muss wissen, dass `false` an dieser Stelle ZWEI Dinge heissen kann:
+    // "schon geladen" und "diesen Pfad gibt es im Baum gar nicht".
     if (node === undefined) return false;
     node.expanded = true;
     // `error` wird NICHT geloescht: bis die Antwort da ist, hat sich nichts
