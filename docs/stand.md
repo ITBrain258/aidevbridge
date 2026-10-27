@@ -480,9 +480,10 @@ In dieser Reihenfolge:
       Aufräumen beim Start ausschloss, weil es die Temp-Datei einer gerade
       speichernden zweiten Instanz löschen könnte; die Frist lässt diese
       stehen.
-    - In `src/styles.css` stehen noch private Verlaufsmarker in Kommentaren
-      (23 Zeilen nach dem Muster von `src/source-hygiene.test.ts`, dazu
-      weitere wie „Nachtrag B“ oder „Review Runde 1, Befund 2“). Batch 15
+    - In `src/styles.css` stehen noch private Verlaufsmarker in Kommentaren:
+      29 Zeilen mit Markern wie „Shell-Task 11“, „Fixrunde 2“ oder „Review
+      Runde 1, Befund 2“, 23 davon nach dem Muster von
+      `src/source-hygiene.test.ts`, dazu Formen wie „Nachtrag B“. Batch 15
       bereinigte nur `.ts`-Dateien; diese Runde lässt sie aus.
     - Der Vermerk in `safegcd.rs` von crypto-bigint (Punkt 6) wartet weiter
       auf die Entscheidung, ob er als Copyright-Hinweis dazukommt.
