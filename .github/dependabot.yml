@@ -12,3 +12,6 @@ updates:
       interval: weekly
     commit-message:
       prefix: ci
+    ignore:
+      # Kopf des Branches 1.97.1, von Hand gehoben; master braeuchte die Eingabe toolchain.
+      - dependency-name: dtolnay/rust-toolchain
