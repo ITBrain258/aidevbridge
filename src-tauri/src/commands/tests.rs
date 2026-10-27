@@ -2540,9 +2540,15 @@ async fn ending_the_last_bound_session_rejects_an_unproven_absence() {
 /// `tmux -V` die Pruefliste. Jede andere Antwort laesst den Ausgang offen.
 async fn end_bound_session_with_version(version: ExecResult) -> (anyhow::Result<()>, u32) {
     let t = ScriptedTransport::new(vec![created(), version]);
-    let result = kill_session_bound_and_verify(
+    let result = end_bound_session(&t).await;
+    let calls = *t.calls.lock().unwrap();
+    (result, calls)
+}
+
+async fn end_bound_session(transport: &dyn Transport) -> anyhow::Result<()> {
+    kill_session_bound_and_verify(
         &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
-        &t,
+        transport,
         crate::tmux::inventory::ServerIdentity {
             pid: 50,
             start_time: 1000,
@@ -2550,9 +2556,7 @@ async fn end_bound_session_with_version(version: ExecResult) -> (anyhow::Result<
         crate::tmux::inventory::SessionId(0),
         tokio::time::Instant::now() + std::time::Duration::from_secs(10),
     )
-    .await;
-    let calls = *t.calls.lock().unwrap();
-    (result, calls)
+    .await
 }
 
 fn assert_unverified_bound_kill(error: &anyhow::Error) {
@@ -2585,6 +2589,31 @@ async fn ending_a_bound_session_on_an_unmeasured_tmux_is_not_reported_done() {
     .await;
     assert_unverified_bound_kill(&result.unwrap_err());
     assert_eq!(calls, 2, "kill and version, no list");
+}
+
+/// Scheitert die Versionsabfrage selbst, hier an ihrer Frist, bleibt das
+/// Ende ebenso unbewiesen. Der `ExecError` bleibt unter der Meldung in der
+/// Kette: `operation_error` ordnet den Fehler danach ein.
+#[tokio::test]
+async fn ending_a_bound_session_whose_version_query_fails_is_not_reported_done() {
+    let t = TimedTransport {
+        steps: StdMutex::new(
+            vec![
+                answered(created(), Duration::ZERO),
+                failed(ExecReason::Timeout),
+            ]
+            .into(),
+        ),
+        calls: StdMutex::new(Vec::new()),
+    };
+    let error = end_bound_session(&t).await.unwrap_err();
+    assert_unverified_bound_kill(&error);
+    assert_eq!(
+        error.downcast_ref::<ExecError>().map(|error| error.reason),
+        Some(ExecReason::Timeout),
+        "{error:#}"
+    );
+    assert_eq!(t.calls().len(), 2, "kill and version, no list");
 }
 
 #[tokio::test]
