@@ -2,7 +2,7 @@
 //! Passphrase), ssh-agent, Passwort (Spec §8.4).
 //!
 //! Der Entwickler dieses Projekts testet nur gegen den einfachsten Fall
-//! (Schluessel ohne Passphrase, Task 5). Echte Nutzer haben Passphrasen,
+//! (Schluessel ohne Passphrase). Echte Nutzer haben Passphrasen,
 //! einen unter Windows 11 standardmaessig deaktivierten ssh-agent-Dienst
 //! und Passwort-Logins. Deshalb muss jeder Fehlschlag unterscheidbar sein:
 //! die Meldung allein muss dem Nutzer sagen, was zu tun ist (Spec §7.5).
@@ -198,13 +198,12 @@ fn classify_publickey_failure(partial_success: bool, method_label: &str) -> Auth
 /// melden.
 ///
 /// Prueft `partial_success` ZUERST, siehe `AuthError::MultiFactorRequired`:
-/// ein akzeptiertes Passwort
-/// bei serverseitig erzwungener Mehrfaktor-Authentifizierung darf weder als
-/// `PasswordWrong` (das Passwort war korrekt) noch als generisches
-/// `MethodNotOffered` (die Methode wurde sehr wohl angeboten und
-/// akzeptiert) gemeldet werden.
+/// ein akzeptiertes Passwort bei serverseitig erzwungener
+/// Mehrfaktor-Authentifizierung darf weder als `PasswordWrong` (das Passwort
+/// war korrekt) noch als generisches `MethodNotOffered` (die Methode wurde
+/// sehr wohl angeboten und akzeptiert) gemeldet werden.
 ///
-/// Erst danach greift die bisherige Logik: `remaining_methods` listet laut
+/// Erst danach greift die uebrige Logik: `remaining_methods` listet laut
 /// russh-Doc-Kommentar ("The server suggests to proceed with these auth
 /// methods") die Methoden, mit denen der Server einen weiteren Versuch fuer
 /// sinnvoll haelt -- deckungsgleich mit der "authentications that can
@@ -216,12 +215,11 @@ fn classify_publickey_failure(partial_success: bool, method_label: &str) -> Auth
 /// Passwort abgelehnt, bietet die Methode aber grundsaetzlich an.
 ///
 /// Nimmt bewusst `&MethodSet` und `bool` statt der ganzen `AuthResult`
-/// entgegen (Review-Befund 4, Task 6): der vorherige `unreachable!()` fuer
-/// den `AuthResult::Success`-Fall war nur an einer korrekt bewachten
-/// Aufrufstelle unerreichbar, also ein stiller Panic-Pfad bei
-/// Wiederverwendung. Mit dieser Signatur ist der Erfolgsfall am Aufrufer
-/// (`authenticate()`) strukturell ausgeschlossen -- es gibt keinen Wert
-/// dieser Parameter, der `AuthResult::Success` entspraeche, also auch
+/// entgegen: ein `unreachable!()` fuer den `AuthResult::Success`-Fall waere
+/// nur an einer korrekt bewachten Aufrufstelle unerreichbar, also ein stiller
+/// Panic-Pfad bei Wiederverwendung. Mit dieser Signatur ist der Erfolgsfall am
+/// Aufrufer (`authenticate()`) strukturell ausgeschlossen -- es gibt keinen
+/// Wert dieser Parameter, der `AuthResult::Success` entspraeche, also auch
 /// keinen Panic-Pfad mehr, der wegdefiniert werden muesste.
 fn classify_password_failure(
     remaining_methods: &russh::MethodSet,
@@ -332,10 +330,9 @@ where
         let AgentIdentity::PublicKey { key, .. } = id else {
             continue;
         };
-        // Task 5a (Befund 3): `best_supported_rsa_hash()` wartet bis zu
-        // einer Sekunde auf EXT_INFO (RFC 8308) -- das darf einen
-        // ed25519-Login nicht verlangsamen, deshalb nur fuer RSA-Schluessel
-        // abgefragt.
+        // `best_supported_rsa_hash()` wartet bis zu einer Sekunde auf EXT_INFO
+        // (RFC 8308) -- das darf einen ed25519-Login nicht verlangsamen,
+        // deshalb nur fuer RSA-Schluessel abgefragt.
         let hash = if key.algorithm().is_rsa() {
             choose_rsa_hash(handle.best_supported_rsa_hash().await)
         } else {
@@ -352,12 +349,11 @@ where
             .map_err(agent_sign_error)?;
         match result {
             russh::client::AuthResult::Success => return Ok(()),
-            // Review-Befund 1 (Task 6): partial_success ZUERST pruefen und
-            // sofort melden, statt weitere Identitaeten durchzuprobieren --
-            // ein zweiter Schluessel behebt den fehlenden zweiten Faktor
-            // i. d. R. nicht (Spec verlangt kein 2FA-Handling), und ein
-            // ehrlicher Abbruch ist einer stillen weiteren Fehlschlagkette
-            // vorzuziehen.
+            // partial_success ZUERST pruefen und sofort melden, statt weitere
+            // Identitaeten durchzuprobieren -- ein zweiter Schluessel behebt
+            // den fehlenden zweiten Faktor i. d. R. nicht (Spec verlangt kein
+            // 2FA-Handling), und ein ehrlicher Abbruch ist einer stillen
+            // weiteren Fehlschlagkette vorzuziehen.
             russh::client::AuthResult::Failure {
                 partial_success: true,
                 ..
@@ -845,8 +841,8 @@ mod tests {
         assert!(!is_encrypted_pkcs8(&format!("{ppk}\n{ENCRYPTED_PKCS8}")));
     }
 
-    // --- Task 5a (Befund 3): server-sig-algs -> Hash-Algorithmus fuer RSA.
-    // `hash_alg = None` bildete jeden RSA-Schluessel auf `ssh-rsa`/SHA-1 ab,
+    // --- server-sig-algs -> Hash-Algorithmus fuer RSA.
+    // `hash_alg = None` bildet jeden RSA-Schluessel auf `ssh-rsa`/SHA-1 ab,
     // das OpenSSH ab 8.8 ablehnt (VM 192.0.2.20 laeuft OpenSSH 9.6).
 
     #[test]
@@ -1007,8 +1003,8 @@ sJWR7W+cGvJ/vLsw==
     }
 
     // --- Passwort-Zweig: Unit-Tests gegen die Fehlerklassifikation statt
-    // gegen die echte VM (Task-Vorgabe). `AuthResult` und `MethodSet` sind
-    // von aussen konstruierbar (russh::client::AuthResult re-exportiert
+    // gegen die echte VM. `AuthResult` und `MethodSet` sind von aussen
+    // konstruierbar (russh::client::AuthResult re-exportiert
     // crate::auth::AuthResult, siehe russh-0.62.4/src/client/mod.rs:60),
     // deshalb ohne Netzwerkverbindung testbar.
 
@@ -1036,14 +1032,14 @@ sJWR7W+cGvJ/vLsw==
         }
     }
 
-    // --- Review-Befund 1 (Task 6): partial_success wurde in allen drei
-    // Auth-Zweigen ignoriert. Ein korrektes Passwort/Schluessel/Agent-Key
-    // bei serverseitig erzwungener Mehrfaktor-Authentifizierung
-    // (`AuthenticationMethods publickey,password`) lieferte
-    // `AuthResult::Failure { partial_success: true, .. }` -- ohne die
-    // Pruefung unten waere das als `MethodNotOffered` (Passwort-/
-    // Schluessel-Zweig identisch) oder generisch als `PasswordWrong`
-    // fehlklassifiziert worden, obwohl der Faktor akzeptiert wurde.
+    // --- partial_success in allen drei Auth-Zweigen. Ein korrektes
+    // Passwort/Schluessel/Agent-Key bei serverseitig erzwungener
+    // Mehrfaktor-Authentifizierung (`AuthenticationMethods
+    // publickey,password`) liefert `AuthResult::Failure { partial_success:
+    // true, .. }` -- ohne die Pruefung unten waere das als
+    // `MethodNotOffered` (Passwort-/Schluessel-Zweig identisch) oder
+    // generisch als `PasswordWrong` fehlklassifiziert, obwohl der Faktor
+    // akzeptiert wurde.
 
     #[test]
     fn password_partial_success_is_neither_wrong_password_nor_generic_not_offered() {
@@ -1134,7 +1130,7 @@ sJWR7W+cGvJ/vLsw==
     #[test]
     fn publickey_failure_without_partial_success_stays_generic_method_not_offered() {
         // Gegenprobe zum vorigen Test: ohne partial_success bleibt es beim
-        // bisherigen, generischen Verhalten.
+        // generischen Verhalten.
         let err = classify_publickey_failure(false, "publickey");
         match err {
             AuthError::MethodNotOffered(detail) => assert_eq!(detail, "publickey"),
@@ -1162,10 +1158,10 @@ sJWR7W+cGvJ/vLsw==
         );
     }
 
-    // --- Review-Befund 2 (Task 6): "Agent nicht erreichbar" und "Agent
-    // erreichbar, aber keine Identitaeten geladen" muessen unterscheidbare
-    // Meldungen liefern -- die erste rät zum Dienst-Neustart, die zweite zu
-    // `ssh-add`. Vertauscht waeren beide Ratschlaege falsch.
+    // --- "Agent nicht erreichbar" und "Agent erreichbar, aber keine
+    // Identitaeten geladen" muessen unterscheidbare Meldungen liefern -- die
+    // erste raet zum Dienst-Neustart, die zweite zu `ssh-add`. Vertauscht
+    // waeren beide Ratschlaege falsch.
 
     #[test]
     fn agent_unreachable_is_distinct_from_agent_reachable_without_identities() {
@@ -1218,13 +1214,12 @@ sJWR7W+cGvJ/vLsw==
         assert!(matches!(result, Err(AuthError::AgentUnavailable(_))));
     }
 
-    /// Unix-Pendant zu `agent_unavailable_when_pipe_does_not_exist` oben
-    /// (Review-Befund 3, Task 6): der `#[cfg(unix)]`-Zweig lief bisher nie
-    /// durch einen Compiler, weil die Entwicklungsmaschine Windows ist --
-    /// dieser Test gibt dem Pfad wenigstens EINEN Test, den die
-    /// Ubuntu-CI tatsaechlich ausfuehrt (auf Windows ist er per `cfg(unix)`
-    /// komplett abwesend; den Linux-Uebersetzungsnachweis liefert ein
-    /// separates `cargo check`).
+    /// Unix-Pendant zu `agent_unavailable_when_pipe_does_not_exist` oben: der
+    /// `#[cfg(unix)]`-Zweig laeuft auf einer Windows-Entwicklungsmaschine
+    /// durch keinen Compiler -- dieser Test gibt dem Pfad wenigstens EINEN
+    /// Test, den die Ubuntu-CI tatsaechlich ausfuehrt (auf Windows ist er per
+    /// `cfg(unix)` komplett abwesend; den Linux-Uebersetzungsnachweis liefert
+    /// ein separates `cargo check`).
     #[cfg(unix)]
     #[tokio::test]
     async fn agent_unavailable_when_socket_does_not_exist() {
