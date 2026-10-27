@@ -516,13 +516,18 @@ zeigen: die Konsole bei echten Rechten und echter CSP, die Eingabe beim
 - Für Schritt 1 ein Debug-Bau mit eingebettetem Frontend:
   `npm run tauri build -- --debug --no-bundle`. Er nutzt `csp`, nicht
   `devCsp`, und öffnet die Devtools selbst. Für die übrigen Schritte das
-  Release-Paket aus `npm run build:windows`.
+  Release-Paket aus `npm run build:windows`, außer wo die Testinstanz
+  verlangt ist (letzter Punkt).
 - Ein Testhost mit tmux 3.3a oder 3.6, etwa 192.0.2.20, mit Schlüssel oder
   ssh-agent. Für Schritt 3 eine Session mit einem Agent, der zurückfragt
   (siehe Punkt 9), und ein Host mit spürbarer Latenz.
-- Für Schritt 6 und 7 eine Testinstanz mit eigenem
-  `AIDEVBRIDGE_SETTINGS_DIR` (siehe Voraussetzungen), damit die eigene
-  `settings.toml` unberührt bleibt.
+- Für Schritt 6 und 7 und den optionalen Teil von Schritt 10 eine
+  Testinstanz mit eigenem `AIDEVBRIDGE_SETTINGS_DIR` (absoluter Pfad, siehe
+  Voraussetzungen), damit die eigene `settings.toml` unberührt bleibt. Die
+  Testinstanz muss ein Debug-Bau sein, etwa der aus Schritt 1: Der
+  Release-Bau überliest `AIDEVBRIDGE_SETTINGS_DIR` (`settings_dir_override`
+  in `src-tauri/src/settings.rs`) und schriebe die Testhosts in die echte
+  `settings.toml`.
 
 **Schritte**
 
