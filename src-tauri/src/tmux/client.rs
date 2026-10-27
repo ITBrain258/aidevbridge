@@ -290,7 +290,7 @@ impl TmuxClient {
 
     /// Baut `["tmux", "-L", <socket>, ...args]`. Jede von hier erzeugte
     /// Kommandozeile geht danach durch `remote::build` -- kein `format!`
-    /// auf einen SSH-Befehl (Randbedingung des Tasks).
+    /// auf einen SSH-Befehl (Spec §8.2).
     fn tmux<'a>(&'a self, args: &[&'a str]) -> Vec<&'a str> {
         let mut v = vec!["tmux"];
         v.extend_from_slice(&self.socket.args());
@@ -377,36 +377,34 @@ impl OwnTmuxClient {
     ///
     /// Reihenfolge ist kein Stil, sondern Bedingung:
     /// - `history-limit` wirkt nur auf Panes, die NACH dem Setzen erzeugt
-    ///   werden (gemessener Befund, nicht dokumentiert -- siehe
+    ///   werden (gemessen, nicht dokumentiert -- siehe
     ///   `history_limit_is_set_before_sessions_exist`). Deshalb `start-server`
     ///   + `set -g history-limit` fest VOR `create_session`, nie danach.
     /// - `remain-on-exit` MUSS ueber `setw -g`, nicht `set -g`: mit `set -g`
-    ///   stirbt der tmux-Server beim Start (gemessener Befund). Ohne diese
+    ///   stirbt der tmux-Server beim Start (gemessen). Ohne diese
     ///   Option kann `#{pane_dead}` nie 1 werden -- der Zustand "beendet"
-    ///   waere fuer spaetere Tasks unerreichbar.
+    ///   waere unerreichbar.
     ///
-    /// Vierter, selbst gemessener Befund: ein per
-    /// `start-server` gestarteter Server hat null Sessions. tmux' eigene
-    /// Serveroption `exit-empty` steht per Default auf "on" --
-    /// ein Server ohne Sessions beendet sich selbst, sobald der ihn
-    /// startende Client (dieser Aufruf, ein eigener SSH-Exec) die
-    /// Verbindung trennt. Der naechste, GETRENNTE Aufruf (`set -g
-    /// history-limit`, wieder ein eigener SSH-Exec) trifft dann schon auf
-    /// "no server running"; sein Fehler blieb unbemerkt, weil hier nur auf
-    /// Transportfehler mit `?` geprueft wird, nicht auf `r.code`. Der
-    /// darauffolgende `new-session`-Aufruf (der einzige Befehl, der von
-    /// sich aus einen fehlenden Server neu startet) laeuft dann gegen einen
-    /// BRANDNEUEN Server mit lauter Voreinstellungen -- `history-limit`
-    /// zeigte im ersten Testlauf "2000" (tmux-Default) statt "12345".
-    /// `exit-empty off` muss deshalb in DERSELBEN
-    /// tmux-Verbindung wie `start-server` gesetzt werden (`;` als eigenes
-    /// argv-Element -- `remote::build` transportiert es als Rohwert, keine
-    /// Shell-Interpretation noetig, tmux liest es als sein eigenes
-    /// Kommando-Trennzeichen). Sonst existiert genau die Luecke, in der der
-    /// Server zwischen den beiden separaten SSH-Execs schon wieder weg ist.
-    /// Gegenstueck steht in `create_session`: sobald eine Session existiert,
-    /// muss `exit-empty` wieder auf "on", sonst wuerde der Server nach
-    /// `kill_session` nicht mehr von selbst verschwinden.
+    /// Ebenfalls selbst gemessen: ein per `start-server` gestarteter Server
+    /// hat null Sessions. tmux' eigene Serveroption `exit-empty` steht per
+    /// Default auf "on" -- ein Server ohne Sessions beendet sich selbst,
+    /// sobald der ihn startende Client (dieser Aufruf, ein eigener SSH-Exec)
+    /// die Verbindung trennt. Der naechste, GETRENNTE Aufruf (`set -g
+    /// history-limit`, wieder ein eigener SSH-Exec) trifft dann schon auf "no
+    /// server running"; ohne Pruefung von `r.code` (nur Transportfehler mit
+    /// `?`) bliebe sein Fehler unbemerkt. Der darauffolgende
+    /// `new-session`-Aufruf (der einzige Befehl, der von sich aus einen
+    /// fehlenden Server neu startet) laeuft dann gegen einen BRANDNEUEN Server
+    /// mit lauter Voreinstellungen -- `history-limit` zeigte im ersten
+    /// Testlauf "2000" (tmux-Default) statt "12345". `exit-empty off` muss
+    /// deshalb in DERSELBEN tmux-Verbindung wie `start-server` gesetzt werden
+    /// (`;` als eigenes argv-Element -- `remote::build` transportiert es als
+    /// Rohwert, keine Shell-Interpretation noetig, tmux liest es als sein
+    /// eigenes Kommando-Trennzeichen). Sonst existiert genau die Luecke, in
+    /// der der Server zwischen den beiden separaten SSH-Execs schon wieder weg
+    /// ist. Gegenstueck steht in `create_session`: sobald eine Session
+    /// existiert, muss `exit-empty` wieder auf "on", sonst wuerde der Server
+    /// nach `kill_session` nicht mehr von selbst verschwinden.
     pub async fn prepare_server(
         &self,
         t: &dyn Transport,
@@ -514,11 +512,10 @@ impl OwnTmuxClient {
     /// Shell nicht umgedeutet werden (in zsh waere `=wort` sonst eine
     /// Pfadexpansion). An der VM bestaetigt.
     ///
-    /// **Kein Preis bei escapten Namen, entgegen der urspruenglichen
-    /// Annahme.** Der Plan zu diesem Paket ging davon aus, eine Session, die
-    /// tmux escapt speichert, sei unter ihrem GELISTETEN Namen mit `=` nicht
-    /// mehr adressierbar. In B3 nachgemessen (Testhost 192.0.2.10, tmux
-    /// **3.3a** -- die uebrigen Messungen dieses Pakets stammen von
+    /// **Kein Preis bei escapten Namen.** Naheliegend waere die Annahme, eine
+    /// Session, die tmux escapt speichert, sei unter ihrem GELISTETEN Namen
+    /// mit `=` nicht mehr adressierbar. Nachgemessen (Testhost 192.0.2.10,
+    /// tmux **3.3a** -- die uebrigen Messungen dieses Pakets stammen von
     /// 192.0.2.20 mit 3.4, deshalb hier ausdruecklich) und widerlegt:
     ///
     /// ```text
@@ -530,9 +527,7 @@ impl OwnTmuxClient {
     /// ```
     ///
     /// Der gelistete Name traegt die Maskierung, und mit ihr findet `=` die
-    /// Session. Diese Zeilen stehen hier, weil der Satz an ihrer Stelle das
-    /// Gegenteil behauptet hat -- und dieses Projekt Kommentare als Vertraege
-    /// fuehrt.
+    /// Session.
     pub async fn kill_session(&self, t: &dyn Transport, name: &str) -> anyhow::Result<()> {
         let target = format!("={name}");
         let r = t
@@ -669,7 +664,7 @@ impl TmuxClient {
 mod observation_tests;
 
 /// VM-freie Tests ueber einen abgespielten `Transport` -- Muster aus
-/// `preflight.rs::run_tests` uebernommen (Review-Befund).
+/// `preflight.rs::run_tests` uebernommen.
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -762,11 +757,10 @@ mod tests {
         }
     }
 
-    /// Belegt Punkt B aus dem Review: genau dieser Fall blieb
-    /// vor der Einfuehrung von `run_checked` unbemerkt -- ein
-    /// fehlgeschlagenes Serveroptions-Kommando lief unter `?` (das nur
-    /// Transportfehler abfaengt) einfach durch, `prepare_server` gab `Ok(())`
-    /// zurueck, obwohl z. B. `history-limit` nie gesetzt wurde.
+    /// Belegt, dass `run_checked` greift: ohne es liefe ein fehlgeschlagenes
+    /// Serveroptions-Kommando unter `?` (das nur Transportfehler abfaengt)
+    /// einfach durch, `prepare_server` gaebe `Ok(())` zurueck, obwohl z. B.
+    /// `history-limit` nie gesetzt wurde.
     #[tokio::test]
     async fn prepare_server_fails_when_a_server_option_command_fails() {
         // start-server ok, aber "set -g history-limit" (zweiter Aufruf)
@@ -946,7 +940,7 @@ mod tests {
         assert_eq!(argv, expected);
     }
 
-    /// Globale Randbedingung des Tasks: jede Kommandozeile fuer die
+    /// Globale Randbedingung (Spec §8.2): jede Kommandozeile fuer die
     /// entfernte Shell entsteht ausschliesslich ueber `remote::build`, nie
     /// ueber `format!` auf einen SSH-Befehl. `remote::build` stellt seiner
     /// Ausgabe immer `set -eu;` voran (siehe `remote::command::build`) --
@@ -971,19 +965,11 @@ mod tests {
         }
     }
 
-    /// Der billige Waechter fuer B0. Bewusst VM-frei und bewusst hier:
-    /// `integration_tmux.rs` kehrt ohne gesetztes `AIDEVBRIDGE_TEST_HOST`
-    /// still zurueck und ist dann GRUEN, ohne etwas geprueft zu haben -- der
-    /// VM-Test allein waere in einem Lauf ohne VM ein leerer Waechter.
-    ///
-    /// Geprueft wird das dekodierte `argv`, nicht die Zeile: nach
-    /// `remote::build` steht der Name nur noch base64-kodiert darin, ein
-    /// `assert!(line.contains("=zz_x"))` waere immer falsch.
-    /// VM-frei, aus demselben Grund wie der Waechter darunter: der VM-Test
-    /// zu `exit-empty` liegt in `integration_commands.rs` und kehrt ohne
-    /// `AIDEVBRIDGE_TEST_HOST` STILL zurueck -- er ist dann gruen, ohne
-    /// etwas geprueft zu haben (in dieser Runde nachgemessen: 17 Tests
-    /// "passed" in 0,07 s). Dieser hier laeuft immer.
+    /// VM-frei, aus demselben Grund wie der Waechter darunter: VM-Tests kehren
+    /// ohne `AIDEVBRIDGE_TEST_HOST` STILL zurueck -- sie sind dann gruen, ohne
+    /// etwas geprueft zu haben (nachgemessen: 17 Tests "passed" in 0,07 s),
+    /// und fuer diesen Fehlerausgang gibt es keinen (siehe
+    /// `create_session_impl`). Dieser hier laeuft immer.
     #[tokio::test]
     async fn restore_exit_empty_sets_the_option_back_to_on() {
         let t = ScriptedTransport::new(vec![ok()]);
@@ -1079,6 +1065,15 @@ mod tests {
         );
     }
 
+    /// Der billige Waechter gegen Praefixtreffer. Bewusst VM-frei und bewusst
+    /// hier: `integration_tmux.rs` kehrt ohne gesetztes
+    /// `AIDEVBRIDGE_TEST_HOST` still zurueck und ist dann GRUEN, ohne etwas
+    /// geprueft zu haben -- der VM-Test allein waere in einem Lauf ohne VM ein
+    /// leerer Waechter.
+    ///
+    /// Geprueft wird das dekodierte `argv`, nicht die Zeile: nach
+    /// `remote::build` steht der Name nur noch base64-kodiert darin, ein
+    /// `assert!(line.contains("=zz_x"))` waere immer falsch.
     #[tokio::test]
     async fn kill_session_targets_the_name_exactly_and_not_by_prefix() {
         let t = ScriptedTransport::new(vec![ok()]);
