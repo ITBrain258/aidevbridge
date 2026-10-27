@@ -261,7 +261,7 @@ async fn status_poll_without_titles_still_reports_the_cli_status() {
 }
 
 /// tmux 3.6 (Ubuntu 26.04, gemessen am 2026-10-11) geht wie 3.4 durch die
-/// Abfrage: dieselben Befehle, derselbe Inventarweg, derselbe Befund.
+/// Abfrage: dieselben Befehle, derselbe Inventarweg, dasselbe Ergebnis.
 #[tokio::test]
 async fn status_poll_runs_the_measured_tmux_3_6_exactly_like_3_4() {
     let mut polls = Vec::new();
@@ -610,7 +610,7 @@ use std::collections::VecDeque;
 use std::sync::Mutex as StdMutex;
 use zeroize::Zeroizing;
 
-// --- M-B (Abschlussreview): resolve_auth_method ---
+// --- resolve_auth_method ---
 //
 // `AuthMethod` hat kein `PartialEq` (siehe dessen Doc-Kommentar in
 // `ssh/auth.rs` -- Geheimnisse in `Zeroizing`-Feldern sollen nicht
@@ -637,10 +637,8 @@ fn resolve_auth_method_uses_key_without_passphrase_when_only_key_path_is_given()
     }
 }
 
-/// Der zentrale Befund: `AuthMethod::Key{passphrase: Some(..)}` war schon
-/// immer implementiert und getestet (siehe `ssh/auth.rs`), aber ausserhalb
-/// der Modultests nirgends konstruierbar, weil `HostSpecDto` kein Feld
-/// dafuer hatte.
+/// `AuthMethod::Key{passphrase: Some(..)}` entsteht ausserhalb der Modultests
+/// nur hier, aus `HostSpecDto` (siehe `ssh/auth.rs` fuer die Methode selbst).
 #[test]
 fn resolve_auth_method_uses_key_with_passphrase_when_both_are_given() {
     let m = resolve_auth_method(
@@ -662,9 +660,8 @@ fn resolve_auth_method_uses_key_with_passphrase_when_both_are_given() {
     }
 }
 
-/// Der zweite zentrale Befund: `AuthMethod::Password` war ebenfalls schon
-/// immer implementiert und getestet, aber ausserhalb der Modultests
-/// nirgends konstruierbar.
+/// `AuthMethod::Password` entsteht ausserhalb der Modultests ebenfalls nur
+/// hier.
 #[test]
 fn resolve_auth_method_uses_password_when_no_key_path_is_given() {
     let m = resolve_auth_method(None, None, Some(Zeroizing::new("hunter2".to_string())));
@@ -698,8 +695,8 @@ fn resolve_auth_method_ignores_a_passphrase_without_a_key_path() {
     assert!(matches!(m, AuthMethod::Agent));
 }
 
-// --- M-B: HostSpecDto ueber den tatsaechlichen Draht (JSON), nicht nur
-// per Rust-Struct-Literal -- belegt, dass die neuen Felder auch beim
+// --- HostSpecDto ueber den tatsaechlichen Draht (JSON), nicht nur
+// per Rust-Struct-Literal -- belegt, dass die Geheimnisfelder auch beim
 // ECHTEN `invoke()`-Aufruf aus dem WebView ankommen. ---
 
 #[test]
@@ -737,7 +734,7 @@ fn host_spec_dto_defaults_passphrase_and_password_to_none_when_the_keys_are_abse
     assert!(dto.password.is_none());
 }
 
-// --- OutputEvent: der Kern des Tasks ---
+// --- OutputEvent: der Kern des Bytepfads ---
 
 /// Belegt die zentrale Zusicherung des Bytepfads: `bytes` ueberlebt
 /// eine Serde-Rundreise (wie sie ein `app.emit` durchlaeuft) auch dann
@@ -888,7 +885,7 @@ fn auth_error_message_survives_context_and_falls_back_for_other_errors() {
     assert_eq!(auth_error_message(&unrelated), "something else entirely");
 }
 
-// --- classify_connect_error (Task 8, Spec §4.8) -- ein ungetesteter
+// --- classify_connect_error (Spec §4.8) -- ein ungetesteter
 // Klassifikator waere in dieser Datei ein Fremdkoerper (siehe die
 // Testdichte um `auth_error_message` direkt oberhalb). Deckt die
 // Abbildungstabelle ab: die zehn `AuthError`-Faelle und die beiden
@@ -1069,7 +1066,7 @@ fn ack_window_release_saturates_instead_of_underflowing() {
 
 // --- AckGate (die eigentliche Bremse, async) ---
 
-/// Der wichtigste Test des Tasks: belegt, dass `wait_for_room`
+/// Der wichtigste Test der Bremse: belegt, dass `wait_for_room`
 /// TATSAECHLICH blockiert, nicht bloss Buchhaltung fuehrt, und dass ein
 /// `ack()` es tatsaechlich wieder freigibt.
 #[tokio::test]
@@ -1097,11 +1094,10 @@ async fn ack_gate_actually_restrains_and_then_releases() {
     );
 }
 
-// --- ack_output_impl gegen einen bereits entfernten Eintrag (Befund 9,
-// Abschlussbewertung 2026-09-04): die Pumpaufgabe entfernt den
-// Terminaleintrag, BEVOR das WebView das Ack fuer den letzten Chunk aus
-// seinem `write()`-Callback schickt. Dasselbe nachlaufende Ack trifft
-// dann ins Leere -- kein Fehler, dieselbe Idempotenz wie
+// --- ack_output_impl gegen einen bereits entfernten Eintrag: die Pumpaufgabe
+// entfernt den Terminaleintrag, BEVOR das WebView das Ack fuer den letzten
+// Chunk aus seinem `write()`-Callback schickt. Dasselbe nachlaufende Ack
+// trifft dann ins Leere -- kein Fehler, dieselbe Idempotenz wie
 // `disconnect_host_impl`. ---
 
 #[tokio::test]
@@ -1114,12 +1110,12 @@ async fn ack_for_an_unknown_terminal_is_ok_not_an_error() {
     );
 }
 
-// --- wait_for_room_cancel_or_stall (Befund 2, Task 10 + Design §2.4:
+// --- wait_for_room_cancel_or_stall (Design §2.4:
 // Abbruchsignal gegen das Verwaisen der Pumpaufgabe, wenn ihre Session
 // waehrend eines Wartens in `wait_for_room` abgeraeumt wird; Stillstands-
 // Zeitlimit gegen einen Renderer, der nicht mehr ackt) ---
 
-/// Der eigentliche Beweis fuer Befund 2 (Task 10): ohne Kredit UND ohne
+/// Der eigentliche Beweis fuer das Abbruchsignal: ohne Kredit UND ohne
 /// Abbruch haengt die Funktion. Kommt ein Abbruchsignal, MUSS sie
 /// zurueckkehren -- und mit `Cancelled`, nicht `Proceed`: eine
 /// Implementierung, die bei Abbruch faelschlich `Proceed` liefert, wuerde
@@ -1234,30 +1230,27 @@ async fn wait_for_room_cancel_or_stall_reports_stalled_when_no_ack_ever_arrives(
 /// Umstrukturierung gruen -- das Zeitlimit AUSSERHALB der Pumpschleife
 /// aufzuspannen -- und wuerde die Bedeutung lautlos zu "jede Session,
 /// die unter Rueckstau laenger als STALL_TIMEOUT lebt, stirbt"
-/// verschieben. Die Fehlerklasse "Test war gruen, prueft aber nichts"
-/// trat in diesem Projekt schon achtmal auf; das hier ist ein
-/// offensichtlicher Kandidat fuer das neunte Mal.
+/// verschieben.
 ///
-/// Praezisierung, was dieser Test NICHT beweist (Review-Nachtrag): er
-/// ruft die Pumpschleife in `open_terminal_impl` selbst nicht auf,
-/// sondern ausschliesslich `wait_for_room_cancel_or_stall` direkt --
-/// eine ausserhalb der Schleife aufgespannte Deadline waere fuer diesen
-/// Test unsichtbar. Was der Test tatsaechlich beweist: ein stetig
-/// ackender Aufrufer bekommt ueber WIEDERHOLTE Aufrufe hinweg nie
-/// `Stalled`, UND die Gesamtdauer ueberschreitet `stall_timeout` (siehe
-/// die Assertion unten) -- die Pro-Aufruf-Semantik selbst folgt bereits
-/// aus der Signatur (die Funktion ist zustandslos, jeder Aufruf spannt
-/// sein eigenes `tokio::time::sleep` auf; die Gegenprobe dazu
-/// bestaetigt nur, dass ein kleinerer `stall_timeout`-Wert Runde 0 rot
-/// werden laesst, nicht, dass das Zeitlimit ueber Aufrufe hinweg
-/// zusammenhaengt). Dass die Pumpschleife dieses Pro-Aufruf-Verhalten
-/// nicht versehentlich in ein Pro-Session-Verhalten verwandelt, sichert
-/// stattdessen Task 2s Integrationstest
-/// `a_stalled_session_does_not_take_the_whole_connection_down` gegen die
-/// echte Schleife ab. Ein spaeterer Umbau auf ein deadline-basiertes
-/// statt ein pro-Aufruf-Zeitlimit wuerde die Signatur aendern (kein
-/// `stall_timeout: Duration`-Parameter mehr) -- dieser Test wuerde dann
-/// ohnehin neu geschrieben, nicht lautlos gruen bleiben.
+/// Praezisierung, was dieser Test NICHT beweist: er ruft die Pumpschleife in
+/// `TerminalPump` selbst nicht auf, sondern ausschliesslich
+/// `wait_for_room_cancel_or_stall` direkt -- eine ausserhalb der Schleife
+/// aufgespannte Deadline waere fuer diesen Test unsichtbar. Was der Test
+/// tatsaechlich beweist: ein stetig ackender Aufrufer bekommt ueber
+/// WIEDERHOLTE Aufrufe hinweg nie `Stalled`, UND die Gesamtdauer
+/// ueberschreitet `stall_timeout` (siehe die Assertion unten) -- die
+/// Pro-Aufruf-Semantik selbst folgt bereits aus der Signatur (die Funktion ist
+/// zustandslos, jeder Aufruf spannt sein eigenes `tokio::time::sleep` auf; die
+/// Gegenprobe dazu bestaetigt nur, dass ein kleinerer `stall_timeout`-Wert
+/// Runde 0 rot werden laesst, nicht, dass das Zeitlimit ueber Aufrufe hinweg
+/// zusammenhaengt). Dass die Pumpschleife dieses Pro-Aufruf-Verhalten nicht
+/// versehentlich in ein Pro-Session-Verhalten verwandelt, sichert stattdessen
+/// der Integrationstest
+/// `a_stalled_session_does_not_take_the_whole_connection_down` gegen die echte
+/// Schleife ab. Ein spaeterer Umbau auf ein deadline-basiertes statt ein
+/// pro-Aufruf-Zeitlimit wuerde die Signatur aendern (kein `stall_timeout:
+/// Duration`-Parameter mehr) -- dieser Test wuerde dann ohnehin neu
+/// geschrieben, nicht lautlos gruen bleiben.
 #[tokio::test]
 async fn wait_for_room_cancel_or_stall_budget_is_per_call_not_per_session() {
     // Zeitverhaeltnisse mit Absicht weit auseinander: jede EINZELNE
@@ -1356,7 +1349,7 @@ async fn read_known_hosts_text_unreadable_path_is_an_error_naming_the_path() {
 }
 
 // --- Hostverwaltung: list_hosts_impl/add_host_impl/remove_host_impl
-// (Task 13) -- alle drei nehmen `settings_path` explizit entgegen,
+// -- alle drei nehmen `settings_path` explizit entgegen,
 // damit diese Tests niemals die echte `%APPDATA%\io.github.itbrain258.aidevbridge\
 // settings.toml` des Bedienrechners anfassen (dasselbe Muster wie
 // `settings::load_from`/`save_to` gegenueber `load`/`save`).
@@ -1914,7 +1907,7 @@ fn ui_settings_patch_rejects_an_incomplete_workspace() {
     assert!(error.contains("missing field `tiles_version`"), "{error}");
 }
 
-// --- Task 8 (Spec §4.8): add_host_impl/list_hosts_impl und auth_kind ---
+// --- Spec §4.8: add_host_impl/list_hosts_impl und auth_kind ---
 
 #[test]
 fn add_host_impl_stores_the_chosen_auth_kind_and_returns_it_immediately() {
@@ -2641,7 +2634,7 @@ async fn does_not_retry_on_a_real_error() {
     );
 }
 
-// --- is_acceptable_remote_path (Task 7, H6/H9): Hostdaten, die in eine
+// --- is_acceptable_remote_path (H6/H9): Hostdaten, die in eine
 // Fernzeile gehen (cwd, path, Sessionname), werden AN DER COMMAND-GRENZE
 // geprueft, nicht erst per `assert!` in `remote::build` -- ein Panic dort
 // haengt den Tauri-`invoke` (der WebView bekaeme nie eine Antwort), statt
@@ -2703,16 +2696,15 @@ async fn list_directories_lets_the_empty_home_path_past_the_boundary_check() {
     );
 }
 
-// --- Fix-Runde 1 (Task 7): `open_terminal_impl`
-// und `kill_session_impl` pruefen den Sessionnamen NICHT gegen die
-// Allowlist aus `session_name_is_acceptable` -- die gilt nur fuer Namen,
-// die diese Anwendung selbst erzeugt (Spec, Befund B2). Von Hand in tmux
-// angelegte Sessions duerfen Punkte, Grossbuchstaben und Nicht-ASCII
-// tragen und muessen sich trotzdem oeffnen und beenden lassen; gegen H6
-// reicht der Ausschluss von leerem Namen und Steuerzeichen. Die
-// folgenden zwei Tests belegen fuer beide Funktionen, was fuer
-// `create_session_impl`/`list_directories_impl` oben bereits gilt: die
-// Namenspruefung steht VOR dem Host-Lookup und ist ohne VM erreichbar. ---
+// --- `open_terminal_impl` und `kill_session_impl` pruefen den Sessionnamen
+// NICHT gegen die Allowlist aus `session_name_is_acceptable` -- die gilt nur
+// fuer Namen, die diese Anwendung selbst erzeugt. Von Hand in tmux angelegte
+// Sessions duerfen Punkte, Grossbuchstaben und Nicht-ASCII tragen und muessen
+// sich trotzdem oeffnen und beenden lassen; gegen H6 reicht der Ausschluss von
+// leerem Namen und Steuerzeichen. Die folgenden zwei Tests belegen fuer beide
+// Funktionen, was fuer `create_session_impl`/`list_directories_impl` oben
+// bereits gilt: die Namenspruefung steht VOR dem Host-Lookup und ist ohne VM
+// erreichbar. ---
 
 /// Test-Doppelgaenger fuer `OutputSink`: in beiden Faellen unten
 /// scheitert `open_terminal_impl` entweder an der Namenspruefung oder am
@@ -2746,8 +2738,7 @@ async fn open_terminal_checks_the_session_name_before_the_host_lookup() {
 
     // "my.project": ein Punkt ist hier erlaubt -- die Allowlist aus
     // `session_name_is_acceptable` gilt nicht fuer von Hand angelegte
-    // Sessions (Task 7, Fix-Runde 1). Ohne
-    // Verbindung scheitert der Aufruf trotzdem, aber ERST am
+    // Sessions. Ohne Verbindung scheitert der Aufruf trotzdem, aber ERST am
     // Host-Lookup, nicht an der Namenspruefung.
     let r = open_terminal_impl(
         &state,
@@ -2786,7 +2777,7 @@ async fn kill_session_checks_the_session_name_before_the_host_lookup() {
     );
 
     // "Projekt-Ä": Nicht-ASCII ist hier erlaubt, aus demselben Grund wie
-    // oben bei `open_terminal_impl`.
+    // oben bei `open_terminal_impl` (siehe `open_terminal_with_history`).
     let r = kill_session_impl(
         &state,
         "no-such-host".into(),
