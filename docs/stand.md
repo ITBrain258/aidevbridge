@@ -129,9 +129,9 @@ lokalen OpenSSH-Host (9.6, tmux 3.4) auf eigenen Testsockets mit
 `integration_transport` 8 (mit RSA-Schlüssel), `test_environment` 7,
 `integration_tmux` 6, `capabilities_acl` 6, `acl_runtime` 4,
 `integration_pty` 4, `integration_status_title` und `integration_preflight`
-je 1 grün; in `integration_default_socket.rs` scheitert der Listentest, der
-tmux 3.3a oder 3.6 braucht (Punkt 10). VM-Abnahme 11 von 11, der
-ssh-agent-Zweig mangels Agent übersprungen; vorher scheiterten unter Linux
+je 1 grün; in `integration_default_socket.rs` meldet der Listentest, der
+tmux 3.3a oder 3.6 braucht, auf diesem Host ein SKIP (Punkt 10).
+VM-Abnahme 11 von 11, der ssh-agent-Zweig mangels Agent übersprungen; vorher scheiterten unter Linux
 neun der elf, weil der Test die Windows-Herkunft der App fest einsetzte und
 `list_sessions` als bloße Liste las. Offen sind die CI auf Windows und macOS
 und das Fenster.
@@ -448,7 +448,7 @@ In dieser Reihenfolge:
     sind dann in den Baum `src-tauri/src` beider Auswahlen aufzunehmen.
     `integration_default_socket.rs` braucht einen Testhost mit tmux 3.3a
     oder 3.6: Auf 3.4 liest die App den Standard-Socket bewusst nicht, und
-    der Listentest scheitert dort, statt zu überspringen. In
+    der Listentest meldet dort ein SKIP; sein voller Lauf steht aus. In
     `src/styles.css` stehen noch private Verlaufsmarker in Kommentaren
     (Batch 15 bereinigte nur `.ts`-Dateien).
 
