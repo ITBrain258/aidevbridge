@@ -197,3 +197,106 @@ fn a_command_without_an_allow_entry_is_actually_denied() {
          blind und muss nachgezogen werden."
     );
 }
+
+/// Die Core- und Plugin-Befehle, die das Frontend selbst aufruft -- das
+/// Gegenstueck zu den Nicht-App-Eintraegen in `capabilities/default.json`,
+/// die `tests/capabilities_acl.rs` woertlich festhaelt.
+///
+/// - `listen`/`unlisten`: `@tauri-apps/api/event` (`src/main.ts`,
+///   `src/terminal.ts`, `src/views/host-key-prompt.ts`).
+/// - `set_title`/`request_user_attention`: `getCurrentWindow()` in
+///   `src/main.ts`.
+/// - `dialog|open`: `@tauri-apps/plugin-dialog` in `src/views/host-form.ts`.
+/// - `internal_toggle_devtools`: das Ctrl+Shift+I-Skript, das Tauri nur im
+///   Debug-Bau einspielt. Die Tests laufen im Debug-Bau, der Command ist
+///   hier also registriert.
+const FRONTEND_PLUGIN_COMMANDS: &[&str] = &[
+    "plugin:event|listen",
+    "plugin:event|unlisten",
+    "plugin:window|set_title",
+    "plugin:window|request_user_attention",
+    "plugin:dialog|open",
+    "plugin:webview|internal_toggle_devtools",
+];
+
+/// Je ein Befehl aus jedem Teilrecht von `core:default` (path, event,
+/// window, webview, app, image, resources, menu, tray), den das Frontend
+/// NIE aufruft. `event` und `window` stehen dabei mit einem Befehl, der
+/// neben den erlaubten im selben Plugin liegt: die Capability gibt einzelne
+/// Befehle frei, nicht ganze Plugins.
+const UNUSED_CORE_COMMANDS: &[&str] = &[
+    "plugin:path|resolve_directory",
+    "plugin:event|emit",
+    "plugin:window|inner_size",
+    "plugin:webview|get_all_webviews",
+    "plugin:app|version",
+    "plugin:image|new",
+    "plugin:resources|close",
+    "plugin:menu|new",
+    "plugin:tray|new",
+];
+
+/// Die Core- und Plugin-Befehle des Frontends passieren den echten
+/// ACL-Aufloeser.
+///
+/// Erfolg und jeder Fehler ausser der ACL-Ablehnung zaehlen als bestanden:
+/// der Body ist leer, `set_title` scheitert also an fehlenden Argumenten,
+/// und `dialog|open` am fehlenden Plugin, weil `mock_builder()` keine
+/// Plugins registriert. Beides liegt HINTER der ACL-Pruefung in
+/// `on_message`; das ACL-Manifest des Dialog-Plugins kommt trotzdem ueber
+/// `generate_context!()` herein.
+#[test]
+fn the_frontends_core_and_plugin_commands_pass_the_real_acl_resolver() {
+    let app = app();
+    let webview = WebviewWindowBuilder::new(&app, WINDOW_LABEL, Default::default())
+        .build()
+        .expect("Webview liess sich nicht bauen");
+
+    let denied: Vec<String> = FRONTEND_PLUGIN_COMMANDS
+        .iter()
+        .filter_map(|cmd| {
+            invoke_and_get_error(&webview, cmd)
+                .filter(|err| err.contains(ACL_DENIAL))
+                .map(|err| format!("{cmd}: {err}"))
+        })
+        .collect();
+
+    assert!(
+        denied.is_empty(),
+        "Von der ACL abgelehnt, obwohl das Frontend sie aufruft (im Fenster: kein \
+         Terminal-Output, kein Fenstertitel, keine Dateiauswahl):\n{}",
+        denied.join("\n")
+    );
+}
+
+/// Was `core:default` zusaetzlich freigab, das Frontend aber nie aufruft,
+/// lehnt die ACL ab.
+///
+/// Gegenstueck zum Test darueber und zur woertlichen Liste in
+/// `tests/capabilities_acl.rs`: jene haelt die Eintraege fest, dieser
+/// belegt, dass die Laufzeit aus ihnen wirklich nicht mehr ableitet.
+/// Kommt ein Sammelrecht zurueck, lassen diese Befehle die ACL passieren
+/// (`app|version` liefe sogar erfolgreich durch), und der Test wird rot.
+#[test]
+fn core_commands_the_frontend_never_uses_are_denied() {
+    let app = app();
+    let webview = WebviewWindowBuilder::new(&app, WINDOW_LABEL, Default::default())
+        .build()
+        .expect("Webview liess sich nicht bauen");
+
+    let passed: Vec<String> = UNUSED_CORE_COMMANDS
+        .iter()
+        .filter_map(|cmd| match invoke_and_get_error(&webview, cmd) {
+            Some(err) if err.contains(ACL_DENIAL) => None,
+            Some(err) => Some(format!("{cmd}: kein ACL-Fehler, sondern {err}")),
+            None => Some(format!("{cmd}: erfolgreich")),
+        })
+        .collect();
+
+    assert!(
+        passed.is_empty(),
+        "Diese Befehle passieren die ACL, obwohl das Frontend sie nie aufruft -- \
+         capabilities/default.json gibt wieder zu viel frei:\n{}",
+        passed.join("\n")
+    );
+}

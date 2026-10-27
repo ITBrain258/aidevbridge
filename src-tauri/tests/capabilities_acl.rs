@@ -255,45 +255,85 @@ fn no_deny_entry_shadows_a_command() {
     );
 }
 
-/// Die beiden Core-Eintraege, an denen der WebView haengt, sind da.
+/// Die Eintraege, die keine App-Commands sind, sind GENAU die Core- und
+/// Plugin-Rechte, die das Frontend aufruft -- nicht mehr und nicht weniger.
 ///
-/// Auch das sieht `all_three_command_lists_agree` nicht: sein
-/// `strip_prefix("allow-")` wirft `core:default` und
-/// `core:event:allow-listen` weg, beide Listen blieben nach ihrem
-/// Verschwinden deckungsgleich.
+/// `all_five_command_lists_agree` sieht diese Eintraege nicht: sein
+/// `strip_prefix("allow-")` wirft alles weg, was nicht mit `allow-` beginnt.
 ///
-/// GENAU GELESEN, damit diese Zusicherung nicht mehr behauptet, als sie
-/// deckt: `core:default` enthaelt ueber `core:event:default` bereits
-/// `allow-listen` (nachgesehen in `gen/schemas/acl-manifests.json`:
-/// `core.default_permission` -> `core:event:default` ->
-/// `["allow-listen", "allow-unlisten", "allow-emit", "allow-emit-to"]`).
-/// Der ausdrueckliche `core:event:allow-listen`-Eintrag ist deshalb HEUTE
-/// redundant, und das Streichen EINES der beiden bliebe zur Laufzeit
-/// folgenlos. Gefordert werden trotzdem beide: Zusammen sind sie die
-/// doppelte Absicherung fuer `listen()`, und `listen()` ist der einzige Weg,
-/// auf dem `terminal://output` und `terminal://connection-lost` ueberhaupt
-/// im Frontend ankommen (`src/terminal.ts`). Faellt der Rest weg, rendert
-/// das Terminal nichts mehr -- ohne Build- und ohne Testfehler. Diese
-/// Zusicherung ist damit strenger als die Laufzeit, bewusst: sie macht das
-/// Entfernen zu einer sichtbaren Entscheidung statt zu einem Nebeneffekt.
+/// Weniger waere still kaputt: ohne `core:event:allow-listen` kommen
+/// `terminal://output` und `terminal://connection-lost` nie im Frontend an
+/// (`src/terminal.ts`), das Terminal rendert nichts -- ohne Build- und ohne
+/// Testfehler. Dasselbe gilt fuer `unlisten`, Fenstertitel,
+/// Taskleisten-Hinweis und Dateiauswahl (`src/main.ts`,
+/// `src/views/host-form.ts`).
+///
+/// Mehr waere still zu viel: ein Sammelrecht wie `core:default` oder
+/// `dialog:default` gibt dem WebView Befehle, die er nie aufruft (`emit`,
+/// Menue, Tray, Pfadaufloesung, Nachrichten- und Speicherdialog). Deshalb
+/// wird die Menge woertlich verglichen; jede Erweiterung macht diesen Test
+/// rot und ist damit eine Entscheidung statt eines Nebeneffekts. Dass die
+/// Laufzeit genau diese Rechte durchlaesst und den Rest von `core:default`
+/// ablehnt, belegt `tests/acl_runtime.rs`.
+///
+/// `core:webview:allow-internal-toggle-devtools` gehoert dazu, weil Tauri im
+/// Debug-Bau ein Skript einspielt, das Ctrl+Shift+I ueber
+/// `plugin:webview|internal_toggle_devtools` aufruft. Den Command
+/// registriert Tauri nur unter `cfg(any(debug_assertions, feature =
+/// "devtools"))` (tauri-2.11.5/src/webview/plugin.rs), und `Cargo.toml`
+/// schaltet `devtools` nicht ein: im Release-Bau erlaubt der Eintrag einen
+/// Command, den es dort nicht gibt.
+///
+/// Ein Eintrag als Objekt (`{"identifier": ..., "allow": [...]}`) ist
+/// ebenfalls eine Erweiterung, sogar mit eigenem Scope.
+/// `capability_permission_entries()` ueberspringt solche Eintraege, deshalb
+/// prueft dieser Test sie selbst.
 #[test]
 fn the_core_permissions_the_webview_needs_are_present() {
+    let value: serde_json::Value =
+        serde_json::from_str(CAPABILITY_JSON).expect("default.json ist kein gueltiges JSON");
+    let not_plain: Vec<&serde_json::Value> = value["permissions"]
+        .as_array()
+        .expect("permissions-Array fehlt in default.json")
+        .iter()
+        .filter(|entry| !entry.is_string())
+        .collect();
+    assert!(
+        not_plain.is_empty(),
+        "Eintraege als Objekt in capabilities/default.json: {not_plain:?}. Sie erweitern die \
+         Rechte des WebViews (mit Scope) an dieser Liste vorbei."
+    );
+
     let entries = capability_permission_entries();
     assert!(
         !entries.is_empty(),
         "Extraktion der permissions aus default.json lieferte nichts -- Feldname geaendert?"
     );
-    for required in [
-        "core:default",
+    let actual: BTreeSet<&str> = entries
+        .iter()
+        .map(String::as_str)
+        .filter(|entry| !entry.starts_with("allow-"))
+        .collect();
+    let expected: BTreeSet<&str> = [
         "core:event:allow-listen",
+        "core:event:allow-unlisten",
         "core:window:allow-set-title",
         "core:window:allow-request-user-attention",
-    ] {
-        assert!(
-            entries.iter().any(|entry| entry == required),
-            "{required} fehlt in capabilities/default.json."
-        );
-    }
+        "core:webview:allow-internal-toggle-devtools",
+        "dialog:allow-open",
+    ]
+    .into_iter()
+    .collect();
+
+    let missing: Vec<&&str> = expected.difference(&actual).collect();
+    let extra: Vec<&&str> = actual.difference(&expected).collect();
+    assert!(
+        missing.is_empty() && extra.is_empty(),
+        "Die Core- und Plugin-Rechte in capabilities/default.json weichen ab.\n\
+         Fehlt (das Frontend ruft es auf, im Fenster waere es eine abgelehnte Promise): \
+         {missing:?}\n\
+         Zu viel (das Frontend ruft es nie auf): {extra:?}"
+    );
 }
 
 /// Die Fenster-Labels aus `tauri.conf.json`, mit Tauris Vorgabe fuer den
