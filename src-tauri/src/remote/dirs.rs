@@ -118,7 +118,7 @@ pub fn parse(stdout: &str) -> Result<Listing, ListError> {
         .to_string();
     Ok(Listing {
         path,
-        // Task 7 (H6/H9): eine Zeile mit einem Steuerzeichen (NUL, ESC, ...)
+        // H6/H9: eine Zeile mit einem Steuerzeichen (NUL, ESC, ...)
         // kann in diesem zeilenweisen Protokoll nur von einem manipulierten
         // oder kaputten Fernaufruf stammen -- sie wird verworfen, statt roh
         // an das Frontend (und von dort potenziell weiter in eine
@@ -194,7 +194,7 @@ mod tests {
         assert!(matches!(parse("voellig anderes\n"), Err(ListError::Failed)));
     }
 
-    /// Task 7 (H6/H9): eine Zeile mit einem Steuerzeichen (hier NUL bzw.
+    /// H6/H9: eine Zeile mit einem Steuerzeichen (hier NUL bzw.
     /// ESC) kann nur von einem Verzeichnisnamen stammen, den ein fremder
     /// Host oder ein manipuliertes Skript geliefert hat -- sie wird
     /// verworfen, statt roh weiterzureichen. Die uebrigen, harmlosen
@@ -209,9 +209,9 @@ mod tests {
 
     #[test]
     fn die_meldungen_sind_genau_die_kuerzel_auf_die_sich_der_baum_stuetzt() {
-        // Task 2s `DirNode.error` ist genau diese Union. Ein Prosasatz
-        // waere im Frontend nicht von einem Transportfehler oder von
-        // "host not connected" zu unterscheiden -- beide reisen durch
+        // `DirNode.error` in `src/state/dir-tree.ts` ist genau diese Union.
+        // Ein Prosasatz waere im Frontend nicht von einem Transportfehler oder
+        // von "host not connected" zu unterscheiden -- beide reisen durch
         // dasselbe `Err(String)`.
         assert_eq!(ListError::NotFound.to_string(), "notfound");
         assert_eq!(ListError::NotADirectory.to_string(), "notdir");

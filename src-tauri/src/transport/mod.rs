@@ -22,10 +22,10 @@ pub struct ExecResult {
     pub code: u32,
 }
 
-/// Beschreibt nur noch das "Wo" (Host, Port, Login-Name). Das "Wie"
-/// (Schluessel/Agent/Passwort) ist seit Task 6 eigenstaendig in
-/// `crate::ssh::auth::AuthMethod` -- vorher trug dieser Typ zusaetzlich
-/// einen festen `key_path`, der mit drei Auth-Wegen nicht mehr ausreicht.
+/// Beschreibt nur das "Wo" (Host, Port, Login-Name). Das "Wie"
+/// (Schluessel/Agent/Passwort) ist eigenstaendig in
+/// `crate::ssh::auth::AuthMethod` -- ein fester `key_path` hier reichte fuer
+/// drei Auth-Wege nicht aus.
 #[derive(Debug, Clone)]
 pub struct HostSpec {
     pub hostname: String,

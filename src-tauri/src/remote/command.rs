@@ -11,10 +11,10 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 /// Diese und die uebrigen `assert!`s in dieser Datei sind Programmier-
 /// Invarianten fuer die fest verdrahteten Literale ihrer Aufrufer (`"git"`,
 /// `"tmux"`, ...), keine Eingabevalidierung mehr: Hostdaten, die ein Nutzer
-/// oder ein fremder tmux liefern kann (`cwd`, `path`, Sessionnamen), werden
-/// seit Task 7 (H6/H9) an der Command-Grenze in `commands.rs` geprueft,
-/// BEVOR sie hierher gelangen -- ein Panic hier wuerde den Tauri-`invoke`
-/// haengen lassen, statt dem WebView ein `Err(...)` zu liefern.
+/// oder ein fremder tmux liefern kann (`cwd`, `path`, Sessionnamen), werden an
+/// der Command-Grenze in `commands.rs` geprueft (H6/H9), BEVOR sie hierher
+/// gelangen -- ein Panic hier wuerde den Tauri-`invoke` haengen lassen, statt
+/// dem WebView ein `Err(...)` zu liefern.
 #[track_caller]
 fn assert_argv_not_empty(argv: &[&str]) {
     assert!(
