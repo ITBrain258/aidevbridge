@@ -1,3 +1,5 @@
+use std::path::Path;
+
 // `serde::Serialize`: `suggest_hosts()` liefert diesen Typ direkt als
 // `#[tauri::command]`-Rueckgabe an den WebView -- Tauris IPC verlangt
 // `Serialize` fuer jeden Rueckgabetyp (`IpcResponse`).
@@ -39,7 +41,11 @@ pub struct SshConfigHost {
 /// - `Match` beendet den aktuellen Block ebenfalls; seine Bedingungen werden
 ///   nicht ausgewertet, seine Schluesselwoerter landen bei keinem Vorschlag.
 /// - Innerhalb eines Blocks gilt der ERSTE Wert eines Schluesselworts, wie
-///   bei OpenSSH; spaetere Wiederholungen aendern nichts.
+///   bei OpenSSH; spaetere Wiederholungen aendern nichts. Das gilt auch fuer
+///   einen unbrauchbaren ersten Wert (ein `Port`, der keine Zahl ist, ein
+///   `~/`-Pfad ohne bekanntes Heimatverzeichnis): OpenSSH nimmt dann keinen
+///   spaeteren Wert, sondern bricht mit einem Fehler ab; der Vorschlag
+///   bekommt das Feld leer.
 ///
 /// Schluesselwort-Zeilen, die vor dem ersten `Host` stehen, werden verworfen:
 /// In der echten `ssh_config` gelten sie als globale Defaults fuer alle
@@ -48,12 +54,21 @@ pub struct SshConfigHost {
 /// unberuecksichtigt: `Include`, `%`-Tokens, das Zusammenfuehren mehrfach
 /// vorkommender `Host`-Bloecke und mehrere `IdentityFile`-Werte.
 pub fn parse(text: &str) -> Vec<SshConfigHost> {
+    parse_with_home(text, dirs::home_dir().as_deref())
+}
+
+/// Testbarer Kern von [`parse`]: `home` ist das Heimatverzeichnis, gegen das
+/// `resolve_identity_file` eine fuehrende Tilde aufloest.
+fn parse_with_home(text: &str, home: Option<&Path>) -> Vec<SshConfigHost> {
     let mut out: Vec<SshConfigHost> = Vec::new();
     // Indizes in `out`, die zum aktuellen Host-Block gehoeren. `out` waechst
     // nur bei einer `Host`-Zeile, darum bleibt der Bereich bis zur naechsten
     // `Host`- oder `Match`-Zeile gueltig. Leer, solange kein Block mit
     // konkretem Alias offen ist; die Schluesselwoerter gehen dann ins Leere.
     let mut block = 0..0;
+    // Gilt fuer alle Aliase von `block` gemeinsam, denn sie entstehen in
+    // derselben `Host`-Zeile und bekommen jede Zuweisung gemeinsam.
+    let mut seen = Seen::default();
 
     for raw in text.lines() {
         let line = raw.trim();
@@ -77,40 +92,59 @@ pub fn parse(text: &str) -> Vec<SshConfigHost> {
                     }
                 }
                 block = start..out.len();
+                seen = Seen::default();
             }
-            "match" => block = out.len()..out.len(),
-            "hostname" => {
+            "match" => {
+                block = out.len()..out.len();
+                seen = Seen::default();
+            }
+            // Der Waechter markiert das Feld als gesehen; jede Wiederholung
+            // im selben Block faellt in den leeren Zweig unten.
+            "hostname" if first(&mut seen.hostname) => {
                 let value = unquote(value);
                 for h in &mut out[block.clone()] {
-                    h.hostname.get_or_insert_with(|| value.to_string());
+                    h.hostname = Some(value.to_string());
                 }
             }
-            "user" => {
+            "user" if first(&mut seen.user) => {
                 let value = unquote(value);
                 for h in &mut out[block.clone()] {
-                    h.user.get_or_insert_with(|| value.to_string());
+                    h.user = Some(value.to_string());
                 }
             }
-            "port" => {
+            "port" if first(&mut seen.port) => {
                 let port = unquote(value).parse().ok();
                 for h in &mut out[block.clone()] {
-                    if h.port.is_none() {
-                        h.port = port;
-                    }
+                    h.port = port;
                 }
             }
-            "identityfile" => {
-                let path = resolve_identity_file(unquote(value));
+            "identityfile" if first(&mut seen.identity_file) => {
+                let path = resolve_identity_file(unquote(value), home);
                 for h in &mut out[block.clone()] {
-                    if h.identity_file.is_none() {
-                        h.identity_file.clone_from(&path);
-                    }
+                    h.identity_file.clone_from(&path);
                 }
             }
             _ => {}
         }
     }
     out
+}
+
+/// Welche Felder im aktuellen Block schon einen Wert hatten. Ein Feld zaehlt
+/// ab seinem ersten Schluesselwort als gesehen, auch wenn der Wert
+/// unbrauchbar war und das Feld deshalb leer blieb: Sonst fuellte ein
+/// spaeterer Wert es, und der erste gaelte nicht mehr.
+#[derive(Default)]
+struct Seen {
+    hostname: bool,
+    user: bool,
+    port: bool,
+    identity_file: bool,
+}
+
+/// `true` nur beim ersten Aufruf fuer ein Feld des Blocks.
+fn first(seen: &mut bool) -> bool {
+    !std::mem::replace(seen, true)
 }
 
 /// Trennt eine (bereits getrimmte) Zeile in Schluesselwort und Wert wie
@@ -170,29 +204,30 @@ fn is_concrete_pattern(pattern: &str) -> bool {
 }
 
 /// Loest eine fuehrende `~/`-Tilde in einem `IdentityFile`-Wert gegen
-/// `dirs::home_dir()` auf. Anders als Arbeitsverzeichnisse auf dem
-/// ENTFERNTEN Rechner (dort MUSS der Pfad absolut sein und eine Tilde wird
-/// nie aufgeloest, siehe `settings::is_absolute_remote_path`) ist ein
-/// `IdentityFile` ein LOKALER Pfad: dieser Prozess kann und muss ihn selbst
-/// aufloesen, bevor er die SSH-Schicht erreicht -- eine woertlich
-/// weitergereichte Tilde waere dort schlicht ein nicht existierender
-/// Dateiname.
+/// `home` auf (in [`parse`] `dirs::home_dir()`). Anders als
+/// Arbeitsverzeichnisse auf dem ENTFERNTEN Rechner (dort MUSS der Pfad
+/// absolut sein und eine Tilde wird nie aufgeloest, siehe
+/// `settings::is_absolute_remote_path`) ist ein `IdentityFile` ein LOKALER
+/// Pfad: dieser Prozess kann und muss ihn selbst aufloesen, bevor er die
+/// SSH-Schicht erreicht -- eine woertlich weitergereichte Tilde waere dort
+/// schlicht ein nicht existierender Dateiname.
 ///
-/// Liefert `None`, wenn `dirs::home_dir()` das Heimatverzeichnis nicht
-/// ermitteln kann (z. B. `HOME`/`USERPROFILE` nicht gesetzt): ein fehlendes
-/// Feld faellt ueber den bestehenden `resolve_auth_method`-Pfad auf
-/// `AuthMethod::Agent` zurueck -- bekannt unbequem (Windows-Standarddienst
-/// aus), aber wenigstens ein EHRLICHER Zustand. Eine woertliche Tilde
-/// stumm durchzureichen waere die schlechtere Wahl: sie saehe wie ein
-/// gueltiger Pfad aus und schluege erst beim Verbindungsversuch mit einer
-/// irrefuehrenden "Datei nicht gefunden"-Meldung fehl.
+/// Liefert `None`, wenn das Heimatverzeichnis unbekannt ist
+/// (`dirs::home_dir()` kann es nicht ermitteln, z. B. `HOME`/`USERPROFILE`
+/// nicht gesetzt): ein fehlendes Feld faellt ueber den bestehenden
+/// `resolve_auth_method`-Pfad auf `AuthMethod::Agent` zurueck -- bekannt
+/// unbequem (Windows-Standarddienst aus), aber wenigstens ein EHRLICHER
+/// Zustand. Eine woertliche Tilde stumm durchzureichen waere die schlechtere
+/// Wahl: sie saehe wie ein gueltiger Pfad aus und schluege erst beim
+/// Verbindungsversuch mit einer irrefuehrenden "Datei nicht gefunden"-Meldung
+/// fehl.
 ///
 /// YAGNI: nur die fuehrende `~/`-Form wird behandelt (die einzige, die in
 /// echten `ssh_config`-Dateien fuer `IdentityFile` ueblich ist). Kein
 /// Globbing, keine Mehrfachwerte, kein `IdentitiesOnly`.
-fn resolve_identity_file(raw: &str) -> Option<String> {
+fn resolve_identity_file(raw: &str, home: Option<&Path>) -> Option<String> {
     match raw.strip_prefix("~/") {
-        Some(rest) => dirs::home_dir().map(|home| home.join(rest).to_string_lossy().into_owned()),
+        Some(rest) => home.map(|home| home.join(rest).to_string_lossy().into_owned()),
         None => Some(raw.to_string()),
     }
 }
@@ -304,6 +339,36 @@ Host jump
         assert_eq!(hosts[0].user.as_deref(), Some("u1"));
         assert_eq!(hosts[0].port, Some(2201));
         assert_eq!(hosts[0].identity_file.as_deref(), Some("/k/one"));
+    }
+
+    /// Auch ein unbrauchbarer erster Wert gilt: Ein spaeterer `Port` im
+    /// selben Block fuellt das Feld nicht, es bleibt leer. Der naechste Block
+    /// beginnt wieder frei.
+    #[test]
+    fn an_unparsable_first_port_is_not_replaced_by_a_later_one() {
+        let hosts = parse("Host a\n  Port ssh\n  Port 2222\nHost b\n  Port 2200\n");
+        assert_eq!(hosts.len(), 2);
+        assert_eq!(hosts[0].port, None);
+        assert_eq!(hosts[1].port, Some(2200));
+    }
+
+    /// Ein `~/`-Pfad ohne bekanntes Heimatverzeichnis ist ebenso der erste
+    /// Wert: Ein spaeteres `IdentityFile` fuellt das Feld nicht.
+    #[test]
+    fn a_tilde_identity_file_without_a_home_is_not_replaced_by_a_later_one() {
+        let text = "Host a\n  IdentityFile ~/.ssh/id\n  IdentityFile /k/two\n\
+                    Host b\n  IdentityFile /k/three\n";
+        let hosts = parse_with_home(text, None);
+        assert_eq!(hosts.len(), 2);
+        assert_eq!(hosts[0].identity_file, None);
+        assert_eq!(hosts[1].identity_file.as_deref(), Some("/k/three"));
+
+        let home = Path::new("/home/u");
+        let hosts = parse_with_home(text, Some(home));
+        assert_eq!(
+            hosts[0].identity_file.as_deref(),
+            Some(home.join(".ssh/id").to_string_lossy().as_ref())
+        );
     }
 
     #[test]
