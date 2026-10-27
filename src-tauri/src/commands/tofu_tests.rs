@@ -829,7 +829,7 @@ async fn tofu_policy_notifies_the_sink_when_append_entry_fails_but_still_accepts
         accepted,
         "ein Schreibfehlschlag beim Persistieren darf die fuer DIESE \
          Verbindung bereits erteilte Zustimmung nicht rueckwirkend \
-         verwerfen (Kompromiss aus dem Befund: die Verbindung bleibt \
+         verwerfen (bewusster Kompromiss: die Verbindung bleibt \
          bestehen, nur die Dauerhaftigkeit geht verloren)"
     );
     assert_eq!(

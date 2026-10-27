@@ -2174,11 +2174,11 @@ async fn open_terminal_with_history<S: OutputSink>(
     selected: Option<PaneIdentity>,
     history: Option<HistoryRequest>,
 ) -> Result<(), String> {
-    // H6/H9: bewusst nicht die Allowlist aus `create_session_impl`, die nur
-    // fuer Namen gilt, die diese Anwendung selbst erzeugt. Von Hand
-    // angelegte Sessions duerfen Punkte, Grossbuchstaben und Nicht-ASCII
-    // tragen und muessen sich trotzdem oeffnen lassen; gegen H6 reicht der
-    // Ausschluss von leerem Namen und Steuerzeichen.
+    // H6/H9: bewusst nicht die Allowlist aus `create_session_impl`
+    // (`tmux::session_name_is_acceptable`); sie prueft nur Namen, die in
+    // `create_session` eingetippt werden. Von Hand angelegte Sessions duerfen
+    // Punkte und Nicht-ASCII tragen und muessen sich trotzdem oeffnen lassen;
+    // gegen H6 reicht der Ausschluss von leerem Namen und Steuerzeichen.
     if session.is_empty() || session.chars().any(char::is_control) {
         return Err("invalid session name".into());
     }

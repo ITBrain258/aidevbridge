@@ -152,11 +152,12 @@ async fn key_auth_error_survives_the_anyhow_boundary() {
     );
 }
 
-/// Mit `hash_alg = None` ginge jeder RSA-Schluessel als `ssh-rsa`/SHA-1 raus
-/// -- das lehnt OpenSSH ab 8.8 ab (die Testvorlage 192.0.2.20 laeuft OpenSSH
-/// 9.6). Ohne `choose_rsa_hash` im Auth-Weg ist dieser Test rot: die
-/// Verbindung scheitert mit einer Auth-Ablehnung. Siehe `tests/common::
-/// rsa_key_path` fuer die Einrichtung des Testschluessels.
+/// Befund 3 der Bewertung 2026-09-04: Mit `hash_alg = None` ginge jeder
+/// RSA-Schluessel als `ssh-rsa`/SHA-1 raus -- das lehnt OpenSSH ab 8.8 ab
+/// (die Testvorlage 192.0.2.20 laeuft OpenSSH 9.6). Ohne `choose_rsa_hash`
+/// im Auth-Weg ist dieser Test rot: die Verbindung scheitert mit einer
+/// Auth-Ablehnung. Siehe `tests/common::rsa_key_path` fuer die Einrichtung
+/// des Testschluessels.
 #[tokio::test]
 async fn rsa_key_authenticates_against_openssh_8_8_or_newer() {
     let Some(spec) = common::spec() else {

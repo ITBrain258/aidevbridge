@@ -266,7 +266,8 @@ pub fn wrong_key_same_host() -> String {
     format!("{} ssh-ed25519 {}\n", test_host_name(), WRONG_KEY_B64)
 }
 
-/// RSA-Schluessel fuer den Test gegen OpenSSH >= 8.8.
+/// RSA-Schluessel fuer den Test gegen OpenSSH >= 8.8 (Befund 3 der
+/// Bewertung 2026-09-04).
 /// `None`: Test meldet SKIP.
 ///
 /// `AIDEVBRIDGE_TEST_RSA_KEY` nennt eine private RSA-Schluesseldatei ohne

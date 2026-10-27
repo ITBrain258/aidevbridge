@@ -190,8 +190,9 @@ impl BindingQuery {
 /// 3.3a: Eine Folge aus mindestens zwei `#` direkt vor `[` ist eine
 /// Stilmarke und bleibt woertlich stehen; ein einzelnes `#` vor `[` bleibt in
 /// allen Versionen ein `#`. Eine `#`-Folge direkt vor `[` bleibt deshalb
-/// unveraendert. Nur 3.0a halbiert eine solche Folge aus mindestens zwei
-/// `#`; die Pane startet dann im Home-Ordner, wie ohne Verdopplung auch.
+/// unveraendert. Von den gemessenen Versionen halbiert nur 3.0a eine solche
+/// Folge aus mindestens zwei `#`; die Pane startet dann in einem anderen
+/// Ordner, meist im Home-Ordner, wie ohne Verdopplung auch.
 ///
 /// Ausgefuehrt wird so in keiner Version etwas: Jede andere `#`-Folge hat
 /// danach gerade Laenge und ergibt nur `#`, und eine Folge vor `[` bildet

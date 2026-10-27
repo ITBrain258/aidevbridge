@@ -208,8 +208,10 @@ fn a_command_without_an_allow_entry_is_actually_denied() {
 ///   `src/main.ts`.
 /// - `dialog|open`: `@tauri-apps/plugin-dialog` in `src/views/host-form.ts`.
 /// - `internal_toggle_devtools`: das Ctrl+Shift+I-Skript, das Tauri nur im
-///   Debug-Bau einspielt. Die Tests laufen im Debug-Bau, der Command ist
-///   hier also registriert.
+///   Debug-Bau einspielt. Im ueblichen Debug-Testbau ist der Command
+///   registriert. In einem Release-Testbau (`cargo test --release`) fehlt
+///   er; der Aufruf scheitert dann erst hinter der ACL-Pruefung am
+///   unbekannten Command, und das laesst der Test unten ebenfalls gelten.
 const FRONTEND_PLUGIN_COMMANDS: &[&str] = &[
     "plugin:event|listen",
     "plugin:event|unlisten",

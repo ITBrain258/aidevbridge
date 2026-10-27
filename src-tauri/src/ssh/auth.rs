@@ -330,6 +330,7 @@ where
         let AgentIdentity::PublicKey { key, .. } = id else {
             continue;
         };
+        // RSA-Hash nach server-sig-algs (Befund 3 der Bewertung 2026-09-04):
         // `best_supported_rsa_hash()` wartet bis zu einer Sekunde auf EXT_INFO
         // (RFC 8308) -- das darf einen ed25519-Login nicht verlangsamen,
         // deshalb nur fuer RSA-Schluessel abgefragt.
@@ -841,9 +842,10 @@ mod tests {
         assert!(!is_encrypted_pkcs8(&format!("{ppk}\n{ENCRYPTED_PKCS8}")));
     }
 
-    // --- server-sig-algs -> Hash-Algorithmus fuer RSA.
-    // `hash_alg = None` bildet jeden RSA-Schluessel auf `ssh-rsa`/SHA-1 ab,
-    // das OpenSSH ab 8.8 ablehnt (VM 192.0.2.20 laeuft OpenSSH 9.6).
+    // --- server-sig-algs -> Hash-Algorithmus fuer RSA (Befund 3 der
+    // Bewertung 2026-09-04). `hash_alg = None` bildet jeden RSA-Schluessel
+    // auf `ssh-rsa`/SHA-1 ab, das OpenSSH ab 8.8 ablehnt (VM 192.0.2.20
+    // laeuft OpenSSH 9.6).
 
     #[test]
     fn choose_rsa_hash_falls_back_to_sha256_when_server_says_nothing() {

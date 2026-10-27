@@ -855,8 +855,8 @@ fn auth_error_message_prefers_the_user_message_over_the_terse_display() {
 
 /// Der wichtigste Einzelfall (Design §4.5): Windows 11 liefert den
 /// ssh-agent standardmaessig deaktiviert aus. `AgentUnavailable`s
-/// `user_message()` nennt den PowerShell-Befehl, der ihn startet --
-/// diese Meldung war bisher unerreichbar.
+/// `user_message()` nennt den PowerShell-Befehl, der ihn startet; der Test
+/// haelt fest, dass `auth_error_message` genau diese Meldung liefert.
 #[test]
 fn auth_error_message_carries_the_actionable_ssh_agent_instruction() {
     let e = anyhow::Error::from(AuthError::AgentUnavailable(
@@ -1094,11 +1094,11 @@ async fn ack_gate_actually_restrains_and_then_releases() {
     );
 }
 
-// --- ack_output_impl gegen einen bereits entfernten Eintrag: die Pumpaufgabe
-// entfernt den Terminaleintrag, BEVOR das WebView das Ack fuer den letzten
-// Chunk aus seinem `write()`-Callback schickt. Dasselbe nachlaufende Ack
-// trifft dann ins Leere -- kein Fehler, dieselbe Idempotenz wie
-// `disconnect_host_impl`. ---
+// --- ack_output_impl gegen einen bereits entfernten Eintrag (Befund 9 der
+// Bewertung 2026-09-04): die Pumpaufgabe entfernt den Terminaleintrag, BEVOR
+// das WebView das Ack fuer den letzten Chunk aus seinem `write()`-Callback
+// schickt. Dasselbe nachlaufende Ack trifft dann ins Leere -- kein Fehler,
+// dieselbe Idempotenz wie `disconnect_host_impl`. ---
 
 #[tokio::test]
 async fn ack_for_an_unknown_terminal_is_ok_not_an_error() {
@@ -2726,11 +2726,11 @@ async fn list_directories_lets_the_empty_home_path_past_the_boundary_check() {
 }
 
 // --- `open_terminal_impl` und `kill_session_impl` pruefen den Sessionnamen
-// NICHT gegen die Allowlist aus `session_name_is_acceptable` -- die gilt nur
-// fuer Namen, die diese Anwendung selbst erzeugt. Von Hand in tmux angelegte
-// Sessions duerfen Punkte, Grossbuchstaben und Nicht-ASCII tragen und muessen
-// sich trotzdem oeffnen und beenden lassen; gegen H6 reicht der Ausschluss von
-// leerem Namen und Steuerzeichen. Die folgenden zwei Tests belegen fuer beide
+// NICHT gegen die Allowlist aus `session_name_is_acceptable` -- die prueft nur
+// Namen, die in `create_session` eingetippt werden. Von Hand in tmux angelegte
+// Sessions duerfen Punkte und Nicht-ASCII tragen und muessen sich trotzdem
+// oeffnen und beenden lassen; gegen H6 reicht der Ausschluss von leerem Namen
+// und Steuerzeichen. Die folgenden zwei Tests belegen fuer beide
 // Funktionen, was fuer `create_session_impl`/`list_directories_impl` oben
 // bereits gilt: die Namenspruefung steht VOR dem Host-Lookup und ist ohne VM
 // erreichbar. ---
