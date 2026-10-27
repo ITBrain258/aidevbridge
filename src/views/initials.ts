@@ -11,7 +11,7 @@
 //  (d) keine Wortteile -> erste zwei Zeichen des Alias (2024 -> 20)
 //  Kein Alias -> erste zwei Zeichen des Hostnamens. Alles in Versalien.
 //  Sonderfall vor allem anderen: eine IPv4-Adresse ergibt ihr LETZTES Oktett
-//  (192.0.2.20 -> 20, Nachtrag Task 16).
+//  (192.0.2.20 -> 20, Sichtpruefung 2026-09-07 der UI-v2-Spec, Punkt C).
 //  Es zaehlen nur Buchstaben und Ziffern: andere Zeichen in einem Teil werden
 //  uebergangen, ein Teil ohne Buchstaben und Ziffern entfaellt, und ein Alias
 //  ganz ohne sie gilt wie kein Alias. So ergibt "VM 20 (accept)" VA statt "V(".

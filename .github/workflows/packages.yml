@@ -23,12 +23,19 @@ on:
         default: ''
 permissions:
   contents: read
+# A manual run naming a tag shares the group of that tag's push, so that the
+# two never attach to the same release at the same time.
 concurrency:
-  group: packages-${{ inputs.tag || github.ref }}
+  group: packages-${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') && !inputs.tag }}
 env:
-  # The source to build: the named tag of a manual run, otherwise the event's ref.
-  SOURCE_REF: ${{ inputs.tag || github.ref }}
+  # The source to build: the named tag of a manual run, otherwise the event's
+  # commit. github.sha rather than the ref name, so that the build is the
+  # commit the provenance records even if the tag or branch moves during the
+  # run. A named tag is fully qualified, so that checkout does not take a
+  # branch of the same name first; every job that uses it checks it before
+  # checkout and build.
+  SOURCE_REF: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.sha }}
   # The tag whose release receives the packages; empty for previews and test runs.
   PUBLISH_TAG: ${{ inputs.tag || (startsWith(github.ref, 'refs/tags/v') && github.ref_name) || '' }}
   RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || inputs.release == true || (inputs.tag || '') != '' }}
@@ -41,12 +48,21 @@ jobs:
       dmg: ${{ steps.artifact.outputs.dmg }}
       signing: ${{ steps.artifact.outputs.signing }}
     steps:
-      - uses: actions/checkout@v7
-        with: { ref: '${{ env.SOURCE_REF }}' }
-      - uses: dtolnay/rust-toolchain@1.97.1
+      - name: Check the named tag
+        shell: bash
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "$TAG" ] && ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::The named tag must have the form v<major>.<minor>.<patch>"
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { ref: '${{ env.SOURCE_REF }}', persist-credentials: false }
+      - uses: dtolnay/rust-toolchain@59a558e8c538bf4a23bbffa19e5a278b703f2920 # 1.97.1
         with:
           targets: aarch64-apple-darwin, x86_64-apple-darwin
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 24 }
       - name: Tag and version agree
         if: env.PUBLISH_TAG != ''
@@ -97,14 +113,14 @@ jobs:
           echo "dmg=$dmg" >> "$GITHUB_OUTPUT"
           echo "### $dmg" >> "$GITHUB_STEP_SUMMARY"
           echo "\`$(cat "$dmg.sha256")\`" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: macos-dmg
           path: dmg/
           if-no-files-found: error
       - name: Keep the build logs
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: macos-build-logs
           path: |
@@ -128,13 +144,17 @@ jobs:
     env:
       APP: /Applications/aidevbridge.app
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with: { name: macos-dmg }
       - name: Install from the disk image
+        env:
+          ARCH: ${{ matrix.arch }}
+          DMG: ${{ needs.macos-package.outputs.dmg }}
+          SIGNING: ${{ needs.macos-package.outputs.signing }}
         run: |
           set -euo pipefail
-          test "$(uname -m)" = "${{ matrix.arch }}"
-          dmg="${{ needs.macos-package.outputs.dmg }}"
+          test "$(uname -m)" = "$ARCH"
+          dmg="$DMG"
           shasum -a 256 -c "$dmg.sha256"
           mount=$(mktemp -d)
           hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$mount" "$dmg"
@@ -144,7 +164,7 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$APP"
           lipo -archs "$APP/Contents/MacOS/aidevbridge"
           if ! spctl --assess --type execute --verbose=2 "$APP"; then
-            if [ "${{ needs.macos-package.outputs.signing }}" = developer-id ]; then
+            if [ "$SIGNING" = developer-id ]; then
               echo "::error::Gatekeeper rejects the notarized app"
               exit 1
             fi
@@ -190,7 +210,7 @@ jobs:
           fi
       - name: Keep the screenshot and log
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: macos-start-${{ matrix.arch }}
           path: |
@@ -207,10 +227,19 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v7
-        with: { ref: '${{ env.SOURCE_REF }}' }
-      - uses: dtolnay/rust-toolchain@1.97.1
-      - uses: actions/setup-node@v7
+      - name: Check the named tag
+        shell: bash
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "$TAG" ] && ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::The named tag must have the form v<major>.<minor>.<patch>"
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { ref: '${{ env.SOURCE_REF }}', persist-credentials: false }
+      - uses: dtolnay/rust-toolchain@59a558e8c538bf4a23bbffa19e5a278b703f2920 # 1.97.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 24 }
       - name: Tag and version agree
         if: env.PUBLISH_TAG != ''
@@ -231,14 +260,14 @@ jobs:
             if ((Get-FileHash "win/$($item.path)" -Algorithm SHA256).Hash.ToLower() -ne $item.sha256) { throw "Hash mismatch: $($item.path)" }
             Add-Content $env:GITHUB_STEP_SUMMARY "``$($item.sha256)  $($item.path)``"
           }
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-packages
           path: win/
           if-no-files-found: error
       - name: Keep the build logs
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-build-logs
           path: |
@@ -252,7 +281,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with: { name: windows-packages, path: win }
       - name: Install each package, start the app and remove it again
         shell: pwsh
@@ -303,7 +332,7 @@ jobs:
           Test-Start (Join-Path $zipDir 'aidevbridge.exe') 'ZIP'
       - name: Keep the installer log
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-install-log
           path: ${{ runner.temp }}/msi-install.log
@@ -318,43 +347,113 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+      # Only for the build provenance: id-token fetches the OIDC token for the
+      # Sigstore certificate, attestations stores the attestation at GitHub.
+      # No other job gets these permissions.
+      id-token: write
+      attestations: write
     steps:
+      - name: Check the named tag
+        shell: bash
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "$TAG" ] && ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::The named tag must have the form v<major>.<minor>.<patch>"
+            exit 1
+          fi
       # The release-notes script of the workflow's own ref, also for a named tag.
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 24 }
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with: { name: macos-dmg, path: mac }
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with: { name: windows-packages, path: win }
-      - name: Attach the packages the release still lacks, or create the release
+      # A published file is never replaced. For each platform the plan
+      # compares the files on the release (name and digest from the API, no
+      # download) with the new build and stops on a conflict; otherwise it
+      # lists the missing files, one per line.
+      - name: Decide what the release still lacks
+        id: plan
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+          if gh api "repos/$GH_REPO/releases/tags/$PUBLISH_TAG" > "$RUNNER_TEMP/release.json" 2> "$RUNNER_TEMP/release.err"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          elif grep -qF '(HTTP 404)' "$RUNNER_TEMP/release.err"; then
+            echo '{"assets": []}' > "$RUNNER_TEMP/release.json"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          else
+            cat "$RUNNER_TEMP/release.err" >&2
+            exit 1
+          fi
+          node scripts/release-attach.mjs --release "$RUNNER_TEMP/release.json" \
+            --windows win/release-manifest.json --macos mac/release-manifest.json \
+            --upload-list "$RUNNER_TEMP/upload.txt" --notes-args "$RUNNER_TEMP/notes-args.txt"
+          {
+            echo 'files<<UPLOAD_LIST_END'
+            cat "$RUNNER_TEMP/upload.txt"
+            echo 'UPLOAD_LIST_END'
+          } >> "$GITHUB_OUTPUT"
+          if [ ! -s "$RUNNER_TEMP/upload.txt" ]; then
+            echo "Nothing to attach to $PUBLISH_TAG." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          # A group the release has with exactly this build's bytes gets its
+          # section written again, also when nothing is left to upload.
+          if [ -s "$RUNNER_TEMP/notes-args.txt" ]; then
+            echo "notes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "notes=false" >> "$GITHUB_OUTPUT"
+          fi
+      # GitHub expressions compare strings without regard to case, so they
+      # would take a run on refs/tags/V0.2.4 for one on the tag v0.2.4. The
+      # decision is made here in bash, which compares exactly.
+      - name: Check whether the run's ref is the tag to publish
+        id: ref
+        run: |
+          if [[ "$GITHUB_REF" == "refs/tags/$PUBLISH_TAG" ]]; then
+            echo "on_tag=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "on_tag=false" >> "$GITHUB_OUTPUT"
+          fi
+      # The provenance records the run's ref and commit (github.ref,
+      # github.sha), not those of the built tag. They agree only when the run
+      # runs on the tag itself. A tag push builds github.sha, so the attested
+      # commit is the built one even if the tag has moved since; a manual run
+      # on the tag that also names it builds the tag by name. A manual run from
+      # a branch that names the tag would attest the branch as the source. The
+      # subjects are exactly the files of the upload list, so that only digests
+      # this run intends to upload are attested; if the upload fails
+      # afterwards, their attestation remains all the same.
+      - name: Record the build provenance of the files to attach
+        if: steps.plan.outputs.files != '' && steps.ref.outputs.on_tag == 'true'
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ steps.plan.outputs.files }}
+      - name: Attach the packages the release still lacks, or create the release
+        if: steps.plan.outputs.files != '' || steps.plan.outputs.notes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EXISTS: ${{ steps.plan.outputs.exists }}
+        run: |
+          set -euo pipefail
           tag="$PUBLISH_TAG"
           version="${tag#v}"
-          mac=(mac/*.dmg mac/*.dmg.sha256)
-          win=($(node -p "require('./win/release-manifest.json').artifacts.map(a => 'win/' + a.path).join(' ')"))
-          if gh release view "$tag" --json body --jq .body > "$RUNNER_TEMP/body.md"; then
-            exists=true
-            gh release view "$tag" --json assets --jq '.assets[].name' > "$RUNNER_TEMP/assets.txt"
-          else
-            exists=false
-            : > "$RUNNER_TEMP/assets.txt"
-          fi
-          lacks() { for f in "$@"; do grep -qxF "$(basename "$f")" "$RUNNER_TEMP/assets.txt" || return 0; done; return 1; }
-          args=() upload=()
-          if lacks "${win[@]}"; then args+=(--windows win/release-manifest.json); upload+=("${win[@]}"); else echo "The Windows packages are attached already."; fi
-          if lacks "${mac[@]}"; then args+=(--macos mac/release-manifest.json); upload+=("${mac[@]}"); else echo "The macOS disk image is attached already."; fi
-          if [ ${#upload[@]} -eq 0 ]; then
-            echo "Nothing to attach to $tag." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          if [ "$exists" = true ]; then
+          mapfile -t upload < "$RUNNER_TEMP/upload.txt"
+          mapfile -t args < "$RUNNER_TEMP/notes-args.txt"
+          # gh release upload replaces nothing here: if one of the files has
+          # appeared on the release in the meantime, the upload stops.
+          if [ "$EXISTS" = true ]; then
+            node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).body ?? "")' "$RUNNER_TEMP/release.json" > "$RUNNER_TEMP/body.md"
             node scripts/release-notes.mjs "$version" --body "$RUNNER_TEMP/body.md" "${args[@]}" > "$RUNNER_TEMP/notes.md"
-            gh release upload "$tag" "${upload[@]}" --clobber
+            if [ "${#upload[@]}" -gt 0 ]; then
+              gh release upload "$tag" "${upload[@]}"
+            fi
             gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md"
           else
             node scripts/release-notes.mjs "$version" "${args[@]}" > "$RUNNER_TEMP/notes.md"
@@ -362,3 +461,12 @@ jobs:
           fi
           printf 'Attached to %s:\n' "$tag" >> "$GITHUB_STEP_SUMMARY"
           for f in "${upload[@]}"; do echo "- $(basename "$f")" >> "$GITHUB_STEP_SUMMARY"; done
+      # Runs after the upload, and also after a failed one, which may have
+      # attached part of the files already: the warning appears whenever this
+      # run put or tried to put files without provenance on the release.
+      - name: Note the attached files without build provenance
+        if: ${{ !cancelled() && steps.plan.outputs.files != '' && steps.ref.outputs.on_tag == 'false' }}
+        run: |
+          msg="The files this run attached or attempted to attach to $PUBLISH_TAG carry no build provenance, because the run's ref $GITHUB_REF is not refs/tags/$PUBLISH_TAG."
+          echo "::warning::$msg"
+          echo "$msg" >> "$GITHUB_STEP_SUMMARY"

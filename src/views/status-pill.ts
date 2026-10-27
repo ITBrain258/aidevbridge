@@ -2,18 +2,8 @@
  * CSS shape in the 14-px box plus a short word on a tinted pill. The sidebar
  * row and the tile head both render through here, so shapes, words and
  * tooltips cannot drift apart. */
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
+import { t } from "../i18n/t";
+import type { TranslationKey } from "../i18n/t";
 
 export type AgentStatusKind = "waiting" | "busy" | "idle" | "ended" | "unknown";
 

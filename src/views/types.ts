@@ -1,4 +1,4 @@
-// Gemeinsame DTO-Typen fuer die Hostverwaltungs-Ansichten (Task 13).
+// Gemeinsame DTO-Typen fuer die Hostverwaltungs-Ansichten.
 // Deckungsgleich mit den `serde::Serialize`-Typen auf der Rust-Seite --
 // `ssh::config_parser::SshConfigHost` bzw. `settings::HostEntry`.
 
@@ -8,7 +8,7 @@ export interface SshConfigHost {
   user: string | null;
   port: number | null;
   /** Aus der `IdentityFile`-Direktive, Tilde bereits aufgeloest. `null`,
-   * wenn die Direktive fehlt. Ohne dieses Feld verlor jeder angeklickte
+   * wenn die Direktive fehlt. Ohne dieses Feld verloere jeder angeklickte
    * Vorschlag seinen Schluessel und landete still auf ssh-agent -- unter
    * Windows 11 ein ab Werk DEAKTIVIERTER Dienst (Spec §9.1). */
   identity_file: string | null;
@@ -22,19 +22,17 @@ export interface HostEntry {
   port: number;
   tmux_socket: string;
   history_limit: number;
-  // M-D (Abschlussreview): fehlte bislang komplett -- der damalige
-  // Hostlisten-Weg (`host-list.ts`, inzwischen durch `sidebar.ts` ersetzt,
-  // Shell-Task 9) verdrahtete beim Verbinden fest `key_path: null`,
-  // unabhaengig davon, ob der Host ueber eine Schluesseldatei gespeichert
-  // wurde. `null`, nicht optional/fehlend: Rust-Seite serialisiert
-  // `Option<String>` als JSON `null` bei Abwesenheit
+  // Der gespeicherte Schluesselpfad, den das Verbinden weiterreicht -- ein
+  // fest gesetztes `key_path: null` verbaende einen Schluessel-Host ohne
+  // seine Schluesseldatei. `null`, nicht optional/fehlend: Rust-Seite
+  // serialisiert `Option<String>` als JSON `null` bei Abwesenheit
   // (serde_json-Standardverhalten), niemals als fehlendes Feld.
   key_path: string | null;
-  /** Anmeldeart (Task 8, Spec §4.8) -- NIE `null`/fehlend, wenn dieses Objekt
+  /** Anmeldeart (Spec §4.8) -- NIE `null`/fehlend, wenn dieses Objekt
    * von `list_hosts` oder `add_host` kommt: `list_hosts_impl` liefert
    * `HostEntry::effective_auth_kind()` statt des rohen, moeglicherweise
    * `None`-Feldes (eine aeltere `settings.toml` hat `auth_kind` nie
-   * geschrieben), `add_host_impl` speichert seit diesem Task ebenfalls immer
+   * geschrieben), `add_host_impl` speichert ebenfalls immer
    * ein konkretes `Some(..)`. Deckungsgleich mit `AuthKind`
    * (`settings.rs`, `#[serde(rename_all = "lowercase")]`) und mit
    * `AuthChoice.kind` (`host-form.ts`). */

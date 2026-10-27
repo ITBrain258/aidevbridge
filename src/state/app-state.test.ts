@@ -332,6 +332,65 @@ describe("AppState", () => {
     s.focusTileAt(0);
     expect(fn).toHaveBeenCalledTimes(1);
   });
+
+  // Ein Fehler in einem Teil der Oberflaeche darf weder die uebrigen Abonnenten
+  // noch den Aufrufer der Aenderung anhalten. Verschluckt wird er trotzdem
+  // nicht: er wird in einer eigenen Mikroaufgabe neu geworfen.
+  it("isoliert Abonnenten: ein werfender haelt die uebrigen nicht an, sein Fehler geht trotzdem hinaus", () => {
+    const scheduled: Array<() => void> = [];
+    vi.stubGlobal("queueMicrotask", (callback: () => void) => {
+      scheduled.push(callback);
+    });
+    try {
+      const s = new AppState();
+      s.upsertHost(host("h1", ["a"]));
+      const failure = new Error("subscriber A failed");
+      s.subscribe(() => {
+        throw failure;
+      });
+      const b = vi.fn();
+      s.subscribe(b);
+
+      const result = s.openSession("h1", "a");
+
+      expect(result).toEqual({ kind: "added", tileId: expect.any(Number) });
+      expect(s.tiles.map((t) => t.sessionKey)).toEqual(["h1/a"]);
+      expect(b).toHaveBeenCalledTimes(1);
+      expect(scheduled).toHaveLength(1);
+      expect(() => scheduled[0]()).toThrow(failure);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("ein Abonnent, der sich waehrend der Benachrichtigung abmeldet, stoert die uebrigen nicht", () => {
+    const scheduled: Array<() => void> = [];
+    vi.stubGlobal("queueMicrotask", (callback: () => void) => {
+      scheduled.push(callback);
+    });
+    try {
+      const s = new AppState();
+      s.upsertHost(host("h1", ["a", "b"]));
+      const seen: string[] = [];
+      const offOnce = s.subscribe(() => {
+        seen.push("once");
+        offOnce();
+      });
+      s.subscribe(() => {
+        seen.push("failing");
+        throw new Error("failing subscriber");
+      });
+      s.subscribe(() => seen.push("last"));
+
+      s.openSession("h1", "a");
+      s.openSession("h1", "b");
+
+      expect(seen).toEqual(["once", "failing", "last", "failing", "last"]);
+      expect(scheduled).toHaveLength(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
 
 describe("AppState: Kachelliste (Spec 2026-10-19 §4.1, §5.1, §5.5, §5.7)", () => {

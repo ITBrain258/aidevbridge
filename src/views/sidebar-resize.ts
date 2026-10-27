@@ -14,24 +14,17 @@
 // Eingeklappt verschwindet der Griff mit `#sidebar` (`display: none` in
 // styles.css); `setHidden` setzt zusaetzlich `hidden`, das auch die Fokus-Falle
 // (`focusableElements`) und die Tests sehen.
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey): string {
-  return en[key];
-}
+import { t } from "../i18n/t";
 
 /** Vorgabe und Grenzen der Breite in px (UX-Spec §7.8). Die Vorgabe ist die
  * von `--ab-sidebar-w` in styles.css (`styles.test.ts` prueft das).
  *
- * Untergrenze 208 statt der 200 aus der Spec (Aufgabe 19, Fixrunde 2): erst
- * ab 208 px passt die Leiste eines verbundenen Hosts
- * (Disconnect, New session, Reload sessions, ⋯) auch mit dem Scrollbalken der
- * Liste in eine Zeile, und von 240 aus treffen die Pfeilschritte genau 224 und
- * 208. Rust klemmt weiter auf 200 bis 480 (alles ausserhalb wird 240); einen
- * gespeicherten Wert von 200 bis 207 zeigt die Klemme hier als 208, ohne ihn zu
- * schreiben. */
+ * Untergrenze 208 statt der 200 aus der Spec: erst ab 208 px passt die Leiste
+ * eines verbundenen Hosts (Disconnect, New session, Reload sessions, ⋯) auch
+ * mit dem Scrollbalken der Liste in eine Zeile, und von 240 aus treffen die
+ * Pfeilschritte genau 224 und 208. Rust klemmt weiter auf 200 bis 480 (alles
+ * ausserhalb wird 240); einen gespeicherten Wert von 200 bis 207 zeigt die
+ * Klemme hier als 208, ohne ihn zu schreiben. */
 export const SIDEBAR_WIDTH_DEFAULT = 240;
 export const SIDEBAR_WIDTH_MIN = 208;
 export const SIDEBAR_WIDTH_MAX = 480;
@@ -117,8 +110,8 @@ export function mountSidebarResize(container: HTMLElement, opts: SidebarResizeOp
     if (event.button !== 0 || drag) return;
     // Sonst markierte der Zug Text in Seitenleiste und Kacheln, und der Druck
     // zoege den Fokus auf den Griff. Ein Zug mit der Maus laesst ihn, wo er
-    // war -- meist im Terminal, das danach weiter die Tastendruecke bekommt
-    // (Fixrunde 3); die Tastatur erreicht den Griff ueber den Tabulator.
+    // war -- meist im Terminal, das danach weiter die Tastendruecke bekommt;
+    // die Tastatur erreicht den Griff ueber den Tabulator.
     event.preventDefault();
     // Die Erfassung leitet jedes weitere Ereignis dieses Zeigers an den Griff,
     // auch wenn er den 6-px-Streifen laengst verlassen hat. Ohne sie gibt es

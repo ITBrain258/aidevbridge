@@ -76,13 +76,12 @@ async fn rejected_host_key_is_actually_consulted_before_failing() {
     );
 }
 
-/// Review-Befund aus Task 5: nach erfolgreichem `ch.exec()` wurde nie
-/// `ch.eof()` gesendet. Ein Kommando, das von stdin liest (`cat`), haette
-/// dadurch unbegrenzt blockiert -- der Server sendet dafuer weder `Eof`
-/// noch `ExitStatus` noch `Close`, das Keepalive sieht das nicht, und
-/// `ch.wait()` liefert nie `None`. Der `timeout` stellt sicher, dass DIESER
-/// Test bei einem Ruecksturz des Fixes nicht selbst unbegrenzt haengt,
-/// sondern kontrolliert rot wird.
+/// Nach erfolgreichem `ch.exec()` muss `ch.eof()` folgen. Ein Kommando, das
+/// von stdin liest (`cat`), blockierte sonst unbegrenzt -- der Server sendet
+/// dafuer weder `Eof` noch `ExitStatus` noch `Close`, das Keepalive sieht das
+/// nicht, und `ch.wait()` liefert nie `None`. Der `timeout` stellt sicher,
+/// dass DIESER Test bei einem Ruecksturz des Fixes nicht selbst unbegrenzt
+/// haengt, sondern kontrolliert rot wird.
 #[tokio::test]
 async fn exec_sends_eof_so_stdin_reading_commands_do_not_hang() {
     let Some(t) = common::connect_test_host().await else {
@@ -96,20 +95,19 @@ async fn exec_sends_eof_so_stdin_reading_commands_do_not_hang() {
     t.dispose().await;
 }
 
-/// M-A (Abschlussreview ueber den gesamten Zweig): ein per Signal getoeteter
-/// Remote-Prozess sendet laut RFC 4254 KEIN `ExitStatus`, sondern
-/// `ChannelMsg::ExitSignal` -- die `exec()`-Schleife kannte diesen Arm nicht
-/// und liess `code` auf 0 stehen, was als Erfolg gilt. Gegen die echte VM
-/// verifiziert (per temporaerem Debug-Log): `sh -c 'kill -TERM
+/// Ein per Signal getoeteter Remote-Prozess sendet laut RFC 4254 KEIN
+/// `ExitStatus`, sondern `ChannelMsg::ExitSignal` -- ohne diesen Arm in der
+/// `exec()`-Schleife bliebe `code` auf 0 stehen, was als Erfolg gilt. Gegen
+/// die echte VM verifiziert (per temporaerem Debug-Log): `sh -c 'kill -TERM
 /// $$'` liefert `ExitSignal { signal_name: TERM, .. }` und GAR KEIN
-/// `ExitStatus`. Erwartet wird die POSIX-Konvention `128 + Signalnummer`
-/// (TERM = 15 unter Linux), dieselbe, die `$?` in bash nach einem
-/// signalbedingten Tod zeigt.
+/// `ExitStatus`. Erwartet wird die POSIX-Konvention `128 + Signalnummer` (TERM
+/// = 15 unter Linux), dieselbe, die `$?` in bash nach einem signalbedingten
+/// Tod zeigt.
 ///
 /// Warum das mehr als Kosmetik ist: `TmuxClient::create_session` entscheidet
 /// ausschliesslich an `r.code == 0` auf `CreateOutcome::Created` -- ein per
-/// Signal getoetetes `new-session` haette bislang faelschlich "erstellt"
-/// gemeldet, obwohl keine Session existiert.
+/// Signal getoetetes `new-session` meldete sonst faelschlich "erstellt",
+/// obwohl keine Session existiert.
 #[tokio::test]
 async fn exec_reports_a_nonzero_code_when_the_remote_process_dies_by_signal() {
     let Some(t) = common::connect_test_host().await else {
@@ -154,12 +152,12 @@ async fn key_auth_error_survives_the_anyhow_boundary() {
     );
 }
 
-/// Task 5a (Befund 3): mit `hash_alg = None` ging jeder RSA-Schluessel als
-/// `ssh-rsa`/SHA-1 raus -- das lehnt OpenSSH ab 8.8 ab (die Testvorlage
-/// 192.0.2.20 laeuft OpenSSH 9.6). Vor der Implementierung (`choose_rsa_hash`
-/// noch nicht in den Auth-Weg verdrahtet) ist dieser Test RED: die
-/// Verbindung scheitert mit einer Auth-Ablehnung. Siehe `tests/common::
-/// rsa_key_path` fuer die Einrichtung des Testschluessels.
+/// Befund 3 der Bewertung 2026-09-04: Mit `hash_alg = None` ginge jeder
+/// RSA-Schluessel als `ssh-rsa`/SHA-1 raus -- das lehnt OpenSSH ab 8.8 ab
+/// (die Testvorlage 192.0.2.20 laeuft OpenSSH 9.6). Ohne `choose_rsa_hash`
+/// im Auth-Weg ist dieser Test rot: die Verbindung scheitert mit einer
+/// Auth-Ablehnung. Siehe `tests/common::rsa_key_path` fuer die Einrichtung
+/// des Testschluessels.
 #[tokio::test]
 async fn rsa_key_authenticates_against_openssh_8_8_or_newer() {
     let Some(spec) = common::spec() else {

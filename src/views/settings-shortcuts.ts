@@ -3,19 +3,9 @@
 // sind getrennt: die Tasten kommen aus der uebergebenen Belegung, nie direkt aus
 // `DEFAULT_KEYMAP` -- ein spaeterer Editor fuer eigene Kuerzel reicht hier
 // seine Tabelle durch (dasselbe Muster wie `matchAction(event, bindings)`).
-import en from "../i18n/en.json";
+import { t } from "../i18n/t";
+import type { TranslationKey } from "../i18n/t";
 import type { KeymapAction } from "../keymap";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
 
 /** Eine Taste einer festen Belegung: ihr Name (`"Ctrl"`, `"Insert"`, `"Esc"`)
  * oder ein Wort aus en.json fuer eine Mausgeste (`Wheel`, `Drag`). */

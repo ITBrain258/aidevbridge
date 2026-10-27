@@ -1,12 +1,12 @@
-// Sitzungsdialog (Shell-Task 9b, Spec §6.4): fragt vor JEDER neuen Session
-// nach dem Arbeitsverzeichnis auf dem Host, vorbelegt mit dem zuletzt
-// genutzten (`initialCwd`, leer heisst Heimatverzeichnis). Seit der
-// Verzeichnisauswahl (Entwurf 2026-07-29) steht unter dem Feld ein
-// Verzeichnisbaum (`directory-tree.ts`): das Feld bleibt der erste Weg zum
-// Pfad (Entwurf E4), der Baum ist der zweite fuer alle, die nicht wissen, was
-// auf der VM liegt. Seit UX-Spec §7.6 steht dazwischen die Liste "Recent" mit
-// den letzten Verzeichnissen, und jede Wahl eines Verzeichnisses schlaegt
-// einen Sessionnamen aus dem Ordnernamen vor (`suggestSessionName`).
+// Sitzungsdialog (Spec §6.4): fragt vor JEDER neuen Session nach dem
+// Arbeitsverzeichnis auf dem Host, vorbelegt mit dem zuletzt genutzten
+// (`initialCwd`, leer heisst Heimatverzeichnis). Unter dem Feld steht ein
+// Verzeichnisbaum (`directory-tree.ts`, Verzeichnisauswahl, Entwurf
+// 2026-07-29): das Feld bleibt der erste Weg zum Pfad (Entwurf E4), der Baum
+// ist der zweite fuer alle, die nicht wissen, was auf der VM liegt. Nach
+// UX-Spec §7.6 steht dazwischen die Liste "Recent" mit den letzten
+// Verzeichnissen, und jede Wahl eines Verzeichnisses schlaegt einen
+// Sessionnamen aus dem Ordnernamen vor (`suggestSessionName`).
 //
 // Woher die Vorbelegung und die Liste kommen und wohin der benutzte Pfad
 // zurueckgeht, weiss diese Datei NICHT -- `mountSessionDialog` kennt weder
@@ -30,14 +30,14 @@
 // kann -- ein Arbeitsverzeichnis liegt auf der REMOTE-Maschine und muss
 // absolut ankommen.
 //
-// Diese Datei traegt zusaetzlich `editHost`: die Absendereihenfolge fuer
-// "Edit" an einem gespeicherten Host (Spec §9.3). Kein eigener Dialog-Mount
-// dafuer -- der Knopf in `sidebar.ts` ruft bereits `opts.onEditHost(hostId)`
-// (Shell-Task 9), das eigentliche Oeffnen von `mountHostForm` mit `initial`
-// aus dem gespeicherten Host ist Sache des Aufrufers (Shell-Task 11,
-// `main.ts`). Diese Datei liefert die getestete, wiederverwendbare
-// Absendelogik dafuer; der Aufrufer in main.ts verwaltet Formular und
-// Laufzeitverbindung, der Helper speichert nur die neuen Hostwerte.
+// Diese Datei traegt zusaetzlich `editHost`: die Absendereihenfolge fuer "Edit"
+// an einem gespeicherten Host (Spec §9.3). Kein eigener Dialog-Mount dafuer --
+// der Knopf in `sidebar.ts` ruft bereits `opts.onEditHost(hostId)`, das
+// eigentliche Oeffnen von `mountHostForm` mit `initial` aus dem gespeicherten
+// Host ist Sache des Aufrufers (`main.ts`). Diese Datei liefert die getestete,
+// wiederverwendbare Absendelogik dafuer; der Aufrufer in main.ts verwaltet
+// Formular und Laufzeitverbindung, der Helper speichert nur die neuen
+// Hostwerte.
 
 import { invoke } from "@tauri-apps/api/core";
 import { mountDirectoryTree } from "./directory-tree";
@@ -45,18 +45,7 @@ import type { HostFormValue } from "./host-form";
 import type { Host } from "../state/app-state";
 import { RECENT_DIRS_LIMIT } from "../state/workspace";
 import type { HostEntry } from "./types";
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
+import { t } from "../i18n/t";
 
 export interface SessionDialogOptions {
   /** Die LAUFZEIT-ID des Hosts (die von `connect_host`), NICHT die in
@@ -81,7 +70,7 @@ export interface SessionDialogOptions {
    * Eintrag fehlt sie. */
   recentDirs: readonly string[];
   /** `name` ist `null`, wenn der Nutzer das Feld leer gelassen hat (oder nur
-   * Leerzeichen eingetippt hat) -- dann erzeugt das Backend wie bisher
+   * Leerzeichen eingetippt hat) -- dann erzeugt das Backend
    * `ab_<6 hex>`. */
   onSubmit: (cwd: string, name: string | null) => void;
   onCancel: () => void;
@@ -138,13 +127,11 @@ export function suggestSessionName(dir: string, taken: ReadonlySet<string>): str
  * DIESE Bedingung abgelehnt, denn kein String beginnt gleichzeitig mit `/`
  * und `~`. Eine eigene Tilde-Klausel wuerde hier NIE etwas ablehnen, was
  * `startsWith("/")` nicht schon ablehnt: toter Code, der einen kuenftigen
- * Leser glauben liesse, er sichere eine eigene Regel ab (Beleg aus der
- * Gegenprobe, zweite Runde: Entfernen NUR der
- * fruehere zweiten Klausel liess den Tilde-Test gruen -- die Ablehnung von
- * `~/repo` FOLGT aus der Absolutheitsforderung, sie ist keine eigene Regel).
+ * Leser glauben liesse, er sichere eine eigene Regel ab: die Ablehnung von
+ * `~/repo` FOLGT aus der Absolutheitsforderung, sie ist keine eigene Regel.
  * Der Test "lehnt eine Tilde ab" bleibt trotzdem bestehen: er sichert eine
  * echte, aus Nutzersicht relevante Zusage zu (eine Tilde wird abgelehnt),
- * auch wenn dafuer keine eigene Codezeile mehr existiert. */
+ * auch wenn dafuer keine eigene Codezeile existiert. */
 function isAcceptableRemotePath(value: string): boolean {
   return value.startsWith("/");
 }
@@ -176,7 +163,7 @@ export function mountSessionDialog(el: HTMLElement, opts: SessionDialogOptions):
 
   // UEBER dem Arbeitsverzeichnis: der Name ist das, was der Nutzer sich
   // merkt, und das Verzeichnis ist vorbelegt. Nicht `required` -- leer
-  // heisst "erzeug mir einen", genau wie bisher.
+  // heisst "erzeug mir einen".
   const nameLabel = document.createElement("label");
   nameLabel.textContent = t("sessionDialog.name.label");
   const nameInput = document.createElement("input");
@@ -301,7 +288,7 @@ export function mountSessionDialog(el: HTMLElement, opts: SessionDialogOptions):
   // UX-Spec §7.6: jede Wahl eines Verzeichnisses -- Baum, Liste "Recent",
   // getippter Pfad -- traegt den Vorschlag ins Namensfeld, solange es leer
   // ist oder noch den letzten Vorschlag haelt. Das Oeffnen selbst waehlt
-  // nichts: wer sofort absendet, bekommt wie bisher einen erzeugten Namen.
+  // nichts: wer sofort absendet, bekommt einen erzeugten Namen.
   // "Vergeben" heisst, was der Dialog kennt -- dieselbe Liste wie die
   // Duplikatpruefung beim Absenden.
   const taken = new Set(opts.existingSessions);
@@ -313,7 +300,7 @@ export function mountSessionDialog(el: HTMLElement, opts: SessionDialogOptions):
   }
 
   /** Ein Klick in "Recent" waehlt wie ein Klick im Baum, und der Baum oeffnet
-   * dort (Aufgabe 17). */
+   * dort. */
   function chooseRecent(dir: string): void {
     cwdInput.value = dir;
     // Wie bei `onSelect` unten von Hand: `.value` loest kein `input` aus.
@@ -459,7 +446,7 @@ export function changesConnection(host: Host, values: HostFormValue): boolean {
 
 /** Das im Bearbeiten-Formular getippte Geheimnis -- ein Passwort oder eine
  * Passphrase, ein leeres Feld ist keins -- fuer genau den einen Aufbau nach
- * "Save" (UX-Spec §7.7, Aufgabe 18). Gespeichert wird
+ * "Save" (UX-Spec §7.7). Gespeichert wird
  * es nie; `main.ts` reicht es nur an diesen Aufbau weiter. */
 export function reconnectSecret(values: HostFormValue): { password?: string; passphrase?: string } | undefined {
   if (values.auth.kind === "password" && values.auth.password !== "") return { password: values.auth.password };

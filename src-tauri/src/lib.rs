@@ -1,8 +1,7 @@
-// Task 10, uebersehener Fehler: `clippy::significant_drop_in_scrutinee` ist
-// ein Nursery-Lint (per Default aus) und haette den `disconnect_host_impl`-
-// Fehler (MutexGuard aus einem `if let`-Scrutinee lebt bis zum Blockende,
-// ueber ein `.await` hinweg) erkannt, wenn er an war. Dauerhaft aktiviert,
-// damit dieselbe Fehlerklasse nicht ein drittes Mal unbemerkt bleibt.
+// `clippy::significant_drop_in_scrutinee` ist ein Nursery-Lint (per Default
+// aus). Er erkennt einen `MutexGuard` aus einem `if let`-Scrutinee, der bis
+// zum Blockende lebt, ueber ein `.await` hinweg. Dauerhaft aktiviert, damit
+// diese Fehlerklasse nicht unbemerkt bleibt.
 #![warn(clippy::significant_drop_in_scrutinee)]
 
 pub mod commands;
@@ -16,16 +15,14 @@ pub mod status;
 pub mod tmux;
 pub mod transport;
 
-// Task 11 ersetzt Task 1s Demoseite (die `greet` aufrief) durch die
-// TerminalView -- `src/main.ts` hat damit keinen Aufrufer mehr fuer
-// `greet`. Der vorherige Kommentar an dieser Stelle kuendigte genau diese
-// Entfernung fuer Task 11 an; sie ist jetzt nachgeholt, statt einen toten
-// Command registriert zu lassen.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Umzug der `settings.toml` aus 0.1.2: vor allem anderen, damit das
     // erste Laden die umgezogene Datei schon sieht.
     settings::migrate_legacy_settings();
+    // Reste abgebrochener Schreibvorgaenge neben `settings.toml`; ein Fehler
+    // dabei haelt den Start nicht auf.
+    settings::remove_stale_temp_files();
     tauri::Builder::default()
         // Das Fenster `main` entsteht hier statt automatisch aus
         // tauri.conf.json (dort `"create": false`, Spec §8.5): nur der Builder
@@ -39,12 +36,11 @@ pub fn run() {
         // schon in `Builder::build` initialisiert ist, vor `setup`.
         //
         // Nur im Debug-Bau: Entwicklerwerkzeuge sofort oeffnen, erst nach
-        // `build()`. `index.html` traegt seit dem Umbau KEINE statischen
-        // Kindelemente mehr -- jedes Pixel baut `main.ts`. Faellt der Start
-        // aus, bleibt deshalb ein leeres Fenster zurueck, und die Ursache
-        // steht ausschliesslich in einer Konsole, die erst jemand aufklappen
-        // muss. Genau daran ist die Fehlersuche am 2026-07-29 dreimal
-        // gescheitert.
+        // `build()`. `index.html` traegt KEINE statischen Kindelemente --
+        // jedes Pixel baut `main.ts`. Faellt der Start aus, bleibt deshalb ein
+        // leeres Fenster zurueck, und die Ursache steht ausschliesslich in
+        // einer Konsole, die erst jemand aufklappen muss. Genau daran ist die
+        // Fehlersuche am 2026-07-29 dreimal gescheitert.
         .setup(|app| {
             let config = &app.config().app.windows[0];
             let window = tauri::WebviewWindowBuilder::from_config(app, config)?
@@ -73,7 +69,7 @@ pub fn run() {
         // `opener:`-Recht; Links laufen ausschliesslich ueber `open_link` und
         // dessen Pruefung in `commands::validate_link` (Spec §6.5).
         .plugin(tauri_plugin_opener::init())
-        // Shell-Task 8: natives "Choose file..." im Anmeldungsmenue
+        // Natives "Choose file..." im Anmeldungsmenue
         // (`src/views/host-form.ts`) braucht den Dateiauswahldialog. Das
         // zugehoerige Recht (`dialog:allow-open`, siehe capabilities/
         // default.json) faellt NICHT in die Command-Zaehlung
@@ -106,10 +102,9 @@ pub fn run() {
             commands::close_terminal,
             commands::kill_session,
             commands::disconnect_host,
-            // Task 13 (Hostverwaltung, Erststart, TOFU). Seit Task 7 ist
-            // die ACL scharf: `build.rs` erzeugt per
-            // `tauri_build::try_build` ein App-ACL-Manifest, also braucht
-            // JEDER Command dieser Liste auch einen
+            // Hostverwaltung, Erststart, TOFU. Die ACL ist scharf: `build.rs`
+            // erzeugt per `tauri_build::try_build` ein App-ACL-Manifest, also
+            // braucht JEDER Command dieser Liste auch einen
             // `allow-<kebab-case>`-Eintrag in `capabilities/default.json`,
             // sonst lehnt Tauri ihn zur Laufzeit ab.
             // `tests/capabilities_acl.rs` haelt alle FUENF Listen zusammen

@@ -14,13 +14,13 @@ host names. Use a minimal, redacted example.
 
 <!--
 In aidevbridge open Settings (Ctrl+,) → About → "Copy version info" and paste
-the line here. It looks like: aidevbridge 0.2.0 (<commit>)
+the line here. It looks like: aidevbridge <version> (<commit>)
 -->
 
 ### Environment
 
-- Installation: ZIP / built from source
-- Windows version:
+- Installation: setup EXE / MSI / ZIP / macOS DMG / built from source
+- OS and version (Windows/macOS):
 - Host: Linux distribution and `tmux -V`
 - Agent and version, if relevant (for example `claude --version`):
 - SSH authentication: key file / ssh-agent / password (no secrets)

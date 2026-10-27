@@ -10,7 +10,7 @@ export interface Tile {
    * darauf; die Position ist der Index in `AppState.tiles`. */
   id: number;
   /** `${hostId}/${name}` -- host-qualifiziert, weil zwei Hosts gleichnamige
-   * tmux-Sessions haben duerfen. Leere Plaetze gibt es nicht mehr. */
+   * tmux-Sessions haben duerfen. Leere Plaetze gibt es nicht. */
   sessionKey: string;
   /** Monoton steigender Zaehler, NICHT `Date.now()`: zwei Fokuswechsel
    * innerhalb derselben Millisekunde waeren sonst ununterscheidbar.
@@ -51,7 +51,7 @@ function hostCount(tiles: readonly Tile[], hostId: string, hostOf: (key: string)
   return tiles.filter((tile) => hostOf(tile.sessionKey) === hostId).length;
 }
 
-/** Klick in Spur oder Liste, Enter im Schnellöffnen, Strg+Umschalt+A, New
+/** Klick in Spur oder Liste, Enter im Schnelloeffnen, Strg+Umschalt+A, New
  * session (Spec §5.1): offen -> fokussieren, sonst hinzufuegen, an einer
  * Grenze nichts (§5.3). Die Grenze je Host geht vor der Gesamtgrenze, weil
  * ihr Hinweis den genaueren Grund nennt. `key` ist `null` fuer eine Session,

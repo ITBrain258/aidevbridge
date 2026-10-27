@@ -1,0 +1,48 @@
+name: Audit
+# Prueft Cargo.lock und package-lock.json gegen die bekannten
+# Sicherheitsmeldungen: woechentlich, weil neue Meldungen ohne jede Aenderung
+# hier erscheinen, bei jeder Aenderung einer Lock-Datei und auf Abruf. Kein
+# Teil der Pruefungen, die ein Pull Request bestehen muss (die laufen in
+# ci.yml). cargo audit gleicht nur Pakete mit einer Registry-Quelle ab;
+# Pfadabhaengigkeiten wie das vendorte russh unter vendor/russh deckt es nicht
+# ab. Die fuer diese Kopie bekannten Meldungen fuehrt SECURITY.md.
+on:
+  schedule:
+    - cron: '23 4 * * 1'
+  push:
+    paths: [Cargo.lock, package-lock.json, .github/workflows/audit.yml]
+  pull_request:
+    paths: [Cargo.lock, package-lock.json, .github/workflows/audit.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  # Zwei Jobs, damit eine Meldung auf der einen Seite die Pruefung der anderen
+  # nicht verdeckt.
+  rust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      # Vor cargo install: rust-toolchain.toml verlangt Rust 1.97.1, und
+      # cargo-audit baut mit --locked auf dieser Toolchain.
+      - uses: dtolnay/rust-toolchain@59a558e8c538bf4a23bbffa19e5a278b703f2920 # 1.97.1
+      - run: cargo install cargo-audit --locked --version 0.22.2
+      # RUSTSEC-2023-0071 (rsa, Marvin) hat keine behobene Version; SECURITY.md
+      # begruendet, warum die App das hinnimmt. Die Ausnahme steht als Flag
+      # hier und nicht in .cargo/audit.toml, damit ein lokales `cargo audit`
+      # sie weiter meldet. Nur Sicherheitsluecken lassen den Lauf scheitern,
+      # Warnungen (unsound, unmaintained, yanked) nicht.
+      - run: cargo audit --ignore RUSTSEC-2023-0071
+  npm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 24 }
+      # Nur die Laufzeitpakete aus package-lock.json, ohne Installation; jede
+      # Meldung laesst den Lauf scheitern.
+      - run: npm audit --package-lock-only --omit=dev

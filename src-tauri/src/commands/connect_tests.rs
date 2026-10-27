@@ -573,3 +573,138 @@ async fn an_unanswered_host_key_prompt_expires_with_its_own_text_and_code() {
         "The host key wasn't confirmed in time, so aidevbridge didn't connect."
     );
 }
+
+/// Bestaetigt jede Rueckfrage sofort, wie ein Nutzer, der dem Schluessel
+/// vertraut, und zaehlt sie.
+struct AcceptsEveryPrompt {
+    state: std::sync::Weak<AppState>,
+    prompts: std::sync::atomic::AtomicUsize,
+}
+impl HostKeyRequestSink for AcceptsEveryPrompt {
+    fn request(&self, request: &HostKeyRequest) -> bool {
+        self.prompts
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        self.state
+            .upgrade()
+            .is_some_and(|state| respond_host_key_impl(&state, request.request_id, true).is_ok())
+    }
+}
+
+fn password_spec(hostname: &str, port: u16) -> HostSpecDto {
+    HostSpecDto {
+        hostname: hostname.into(),
+        port,
+        user: "fixture-user".into(),
+        key_path: None,
+        passphrase: None,
+        password: Some(zeroize::Zeroizing::new("fixture-password".into())),
+    }
+}
+
+/// `*` ist kein Hostname. Fuehrte der Resolver ihn zum Testserver auf
+/// Loopback (glibc tut das, sobald ein Dienst mitgegeben wird), stuende nach
+/// der Bestaetigung `[*]:port` in `known_hosts`: ein Muster, das OpenSSH fuer
+/// jeden Host liest. Abgewiesen wird vor jeder Namensaufloesung, unabhaengig
+/// vom Resolver, und die Datei bleibt Byte fuer Byte gleich.
+#[tokio::test]
+async fn a_wildcard_host_name_is_refused_before_it_can_reach_known_hosts() {
+    let server = host_key_server().await;
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let path = std::env::temp_dir().join(format!("aidevbridge_test_refused_name_{nanos}"));
+    let existing = "192.0.2.20 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKEY1\n";
+    std::fs::write(&path, existing).unwrap();
+    let state = Arc::new(AppState::default());
+    let sink = Arc::new(AcceptsEveryPrompt {
+        state: Arc::downgrade(&state),
+        prompts: std::sync::atomic::AtomicUsize::new(0),
+    });
+    let result = timeout(
+        TEST_END,
+        connect_host_with_known_hosts(
+            &state,
+            password_spec("*", server.port),
+            String::new(),
+            path.clone(),
+            sink.clone(),
+            Duration::from_secs(1),
+        ),
+    )
+    .await
+    .unwrap();
+    let after = std::fs::read_to_string(&path).unwrap();
+    std::fs::remove_file(&path).unwrap();
+    server.task.abort();
+    assert_eq!(after, existing, "known_hosts was changed");
+    assert_eq!(result.unwrap_err(), HOSTNAME_REFUSED);
+    assert_eq!(sink.prompts.load(std::sync::atomic::Ordering::SeqCst), 0);
+    assert!(state.hosts.lock().unwrap().is_empty());
+}
+
+/// Wie `connect_host_impl`, nur mit leerem `known_hosts` statt der Datei im
+/// Heimatverzeichnis: reservieren, verbinden, und mit dem Versuch faellt die
+/// Reservierung weg.
+async fn connect_once(state: &Arc<AppState>, spec: HostSpecDto) -> Result<String, ConnectError> {
+    let id = begin_connect_impl(state).unwrap();
+    let mut attempt = ConnectAttempt::take(state, id).unwrap();
+    connect_host_core(
+        state,
+        &mut attempt,
+        spec,
+        String::new(),
+        PathBuf::from("unused-hermetic-known-hosts"),
+        Arc::new(RejectPrompt),
+        Duration::from_secs(1),
+    )
+    .await
+}
+
+/// Ein abgewiesener Name gibt seine Reservierung frei. Auch mehr Abweisungen,
+/// als Versuche gleichzeitig offen sein duerfen, blockieren den naechsten
+/// Versuch desselben Hosts nicht: mit berichtigtem Namen erreicht er den
+/// Server bis zur Hostschluesselfrage.
+#[tokio::test]
+async fn a_refused_host_name_releases_its_reservation_for_the_corrected_attempt() {
+    let server = host_key_server().await;
+    let state = Arc::new(AppState::default());
+    for _ in 0..=MAX_CONNECT_ATTEMPTS {
+        let spec = password_spec("fixture-user@127.0.0.1", server.port);
+        let error = timeout(TEST_END, connect_once(&state, spec))
+            .await
+            .unwrap()
+            .unwrap_err();
+        assert_eq!(
+            (error.code, error.message.as_str()),
+            ("other", HOSTNAME_REFUSED)
+        );
+        assert!(state.hosts.lock().unwrap().is_empty());
+    }
+    let id = begin_connect_impl(&state).unwrap();
+    let mut attempt = ConnectAttempt::take(&state, id).unwrap();
+    let error = timeout(
+        TEST_END,
+        connect_to_fixture(
+            &state,
+            &mut attempt,
+            server.port,
+            String::new(),
+            Arc::new(RejectPrompt),
+            Duration::from_secs(1),
+        ),
+    )
+    .await
+    .unwrap()
+    .unwrap_err();
+    assert_eq!(
+        (error.code, error.message.as_str()),
+        (
+            "host_key_rejected",
+            "The host key wasn't confirmed, so aidevbridge didn't connect."
+        )
+    );
+    drop(attempt);
+    assert!(state.hosts.lock().unwrap().is_empty());
+    timeout(TEST_END, server.task).await.unwrap().unwrap();
+}

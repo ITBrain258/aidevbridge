@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-10-27T09:38:07.538Z",
+  "scope": "Security updates in Cargo.lock: crypto-bigint 0.7.5 to 0.7.10, ctutils 0.4.2 to 0.4.6 and tokio 1.53.1 to 1.53.3 (RUSTSEC-2026-0387, RUSTSEC-2026-0385, RUSTSEC-2026-0386). Whether declared licenses, license texts, in-source notices or the Windows and macOS release graphs change. Not final application compliance or installer delivery.",
+  "basis": [
+    "docs/release/license-inventory-2026-09-12-rust.json",
+    "docs/release/license-selection.windows-x64.json"
+  ],
+  "lockfile": {
+    "path": "Cargo.lock",
+    "before": {
+      "bytes": 153541,
+      "sha256": "fcc126d58d59450f2553cb3655d0958178dffd95bfa2f8f85165397e9b0bcce3"
+    },
+    "after": {
+      "bytes": 153542,
+      "sha256": "fbb8502c5981e0948cd98a8f9a30e5874daa3b688b718e35dd5a5f3cf0567b15"
+    },
+    "change": "Only the version and checksum lines of the three packages change. No package is added or removed and no dependency list changes; vendor/russh/Cargo.lock is untouched."
+  },
+  "packages": {
+    "crypto-bigint": {
+      "advisory": "RUSTSEC-2026-0387",
+      "before": {
+        "version": "0.7.5",
+        "archive": {
+          "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.5.crate",
+          "bytes": 300554,
+          "sha256": "1a52aa3fcda4e6302a9f48734f234d35d4721b96f8fe07d073f07ce9df4f0271",
+          "equals_cargo_lock_checksum": true
+        },
+        "manifest": {
+          "bytes": 5670,
+          "sha256": "197eac2e9e169e0837bcd9168a08827cc99583b08ec449348a41d0c10a0629fc"
+        },
+        "declared_license": "Apache-2.0 OR MIT",
+        "rust_version": "1.85",
+        "file_count": 224,
+        "license_candidates": [
+          {
+            "path": "LICENSE-APACHE",
+            "bytes": 10849,
+            "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "bytes": 1082,
+            "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
+          }
+        ],
+        "notice_lines": [
+          {
+            "path": "README.md",
+            "line": 52,
+            "text": "Licensed under either of:"
+          },
+          {
+            "path": "src/modular/safegcd.rs",
+            "line": 8,
+            "text": "//! Copyright (c) 2023 Privacy Scaling Explorations Team"
+          }
+        ]
+      },
+      "after": {
+        "version": "0.7.10",
+        "archive": {
+          "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
+          "bytes": 308988,
+          "sha256": "9c035cb64cba03dad2fb921f3e218785e8cf9a41790da5eb3a1400f62fa2be11",
+          "equals_cargo_lock_checksum": true
+        },
+        "manifest": {
+          "bytes": 5773,
+          "sha256": "50bba1b880a992d323bf1c73dd523a0bda1f6eeea60421b0e135abc5446ee122"
+        },
+        "declared_license": "Apache-2.0 OR MIT",
+        "rust_version": "1.87",
+        "file_count": 226,
+        "license_candidates": [
+          {
+            "path": "LICENSE-APACHE",
+            "bytes": 10849,
+            "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "bytes": 1082,
+            "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
+          }
+        ],
+        "notice_lines": [
+          {
+            "path": "README.md",
+            "line": 52,
+            "text": "Licensed under either of:"
+          },
+          {
+            "path": "src/modular/safegcd.rs",
+            "line": 8,
+            "text": "//! Copyright (c) 2023 Privacy Scaling Explorations Team"
+          }
+        ]
+      },
+      "license_candidates_equal": true,
+      "declared_license_equal": true,
+      "notice_texts_equal": true
+    },
+    "ctutils": {
+      "advisory": "RUSTSEC-2026-0385",
+      "before": {
+        "version": "0.4.2",
+        "archive": {
+          "url": "https://static.crates.io/crates/ctutils/ctutils-0.4.2.crate",
+          "bytes": 32739,
+          "sha256": "7d5515a3834141de9eafb9717ad39eea8247b5674e6066c404e8c4b365d2a29e",
+          "equals_cargo_lock_checksum": true
+        },
+        "manifest": {
+          "bytes": 2723,
+          "sha256": "aafad7883015f7b4daf7e2ba40416a0176663c47167ca1a132614db11dcb8639"
+        },
+        "declared_license": "Apache-2.0 OR MIT",
+        "rust_version": "1.85",
+        "file_count": 22,
+        "license_candidates": [
+          {
+            "path": "LICENSE-APACHE",
+            "bytes": 11358,
+            "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "bytes": 1082,
+            "sha256": "91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae"
+          }
+        ],
+        "notice_lines": [
+          {
+            "path": "README.md",
+            "line": 62,
+            "text": "Licensed under either of:"
+          }
+        ]
+      },
+      "after": {
+        "version": "0.4.6",
+        "archive": {
+          "url": "https://static.crates.io/crates/ctutils/ctutils-0.4.6.crate",
+          "bytes": 35853,
+          "sha256": "fe3e9d21d39e6f39ff46e03d5b621424f88ee23d8a1672c6bfc9ccc7f2da4f6a",
+          "equals_cargo_lock_checksum": true
+        },
+        "manifest": {
+          "bytes": 2740,
+          "sha256": "35aab4982b5099c361e077e7981d3d270b626a7b2e4ad499fa5f28f47e788602"
+        },
+        "declared_license": "Apache-2.0 OR MIT",
+        "rust_version": "1.87",
+        "file_count": 24,
+        "license_candidates": [
+          {
+            "path": "LICENSE-APACHE",
+            "bytes": 11358,
+            "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "bytes": 1082,
+            "sha256": "91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae"
+          }
+        ],
+        "notice_lines": [
+          {
+            "path": "README.md",
+            "line": 66,
+            "text": "Licensed under either of:"
+          }
+        ]
+      },
+      "license_candidates_equal": true,
+      "declared_license_equal": true,
+      "notice_texts_equal": true
+    },
+    "tokio": {
+      "advisory": "RUSTSEC-2026-0386",
+      "before": {
+        "version": "1.53.1",
+        "archive": {
+          "url": "https://static.crates.io/crates/tokio/tokio-1.53.1.crate",
+          "bytes": 920101,
+          "sha256": "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed",
+          "equals_cargo_lock_checksum": true
+        },
+        "manifest": {
+          "bytes": 17637,
+          "sha256": "e0194904acf8d55946b949cacca2b266051bb2a99844c606829fb0159c39cfb1"
+        },
+        "declared_license": "MIT",
+        "rust_version": "1.71",
+        "file_count": 564,
+        "license_candidates": [
+          {
+            "path": "LICENSE",
+            "bytes": 1070,
+            "sha256": "253cd04c6714889df2d32f3f64d669179a1c95c76ac43c40882c52eb06bc3552"
+          }
+        ],
+        "notice_lines": [
+          {
+            "path": "README.md",
+            "line": 252,
+            "text": "This project is licensed under the [MIT license]."
+          }
+        ]
+      },
+      "after": {
+        "version": "1.53.3",
+        "archive": {
+          "url": "https://static.crates.io/crates/tokio/tokio-1.53.3.crate",
+          "bytes": 933090,
+          "sha256": "ce3335fa71841cda333a58d7615b03901380ecf09d59b3296d21f8bbac0dde4e",
+          "equals_cargo_lock_checksum": true
+        },
+        "manifest": {
+          "bytes": 17621,
+          "sha256": "6e6a777fce6800a5ed2a0efb672d7751445556ee40d258157938ba4506b78c35"
+        },
+        "declared_license": "MIT",
+        "rust_version": "1.71",
+        "file_count": 565,
+        "license_candidates": [
+          {
+            "path": "LICENSE",
+            "bytes": 1070,
+            "sha256": "253cd04c6714889df2d32f3f64d669179a1c95c76ac43c40882c52eb06bc3552"
+          }
+        ],
+        "notice_lines": [
+          {
+            "path": "README.md",
+            "line": 253,
+            "text": "This project is licensed under the [MIT license]."
+          }
+        ]
+      },
+      "license_candidates_equal": true,
+      "declared_license_equal": true,
+      "notice_texts_equal": true
+    }
+  },
+  "release_graphs": {
+    "x86_64-pc-windows-msvc": {
+      "command": "cargo tree --locked --offline --target x86_64-pc-windows-msvc -e normal,build --features tauri/custom-protocol --prefix none -f {p}|{f}",
+      "distinct_packages_before": 367,
+      "distinct_packages_after": 367,
+      "lines_only_before": [
+        "crypto-bigint@0.7.5|alloc,default,getrandom,hybrid-array,rand_core,subtle,zeroize",
+        "ctutils@0.4.2|subtle",
+        "tokio@1.53.1|bytes,default,fs,io-util,libc,macros,mio,net,rt,rt-multi-thread,socket2,sync,time,tokio-macros,windows-sys"
+      ],
+      "lines_only_after": [
+        "crypto-bigint@0.7.10|alloc,default,getrandom,hybrid-array,rand_core,subtle,zeroize",
+        "ctutils@0.4.6|subtle",
+        "tokio@1.53.3|bytes,default,fs,io-util,libc,macros,mio,net,rt,rt-multi-thread,socket2,sync,time,tokio-macros,windows-sys"
+      ]
+    },
+    "aarch64-apple-darwin+x86_64-apple-darwin": {
+      "command": "cargo tree --locked --offline --target aarch64-apple-darwin --target x86_64-apple-darwin -e normal,build --features tauri/custom-protocol --prefix none -f {p}|{f}",
+      "distinct_packages_before": 348,
+      "distinct_packages_after": 348,
+      "lines_only_before": [
+        "crypto-bigint@0.7.5|alloc,default,getrandom,hybrid-array,rand_core,subtle,zeroize",
+        "ctutils@0.4.2|subtle",
+        "tokio@1.53.1|bytes,default,fs,io-util,libc,macros,mio,net,rt,rt-multi-thread,socket2,sync,time,tokio-macros"
+      ],
+      "lines_only_after": [
+        "crypto-bigint@0.7.10|alloc,default,getrandom,hybrid-array,rand_core,subtle,zeroize",
+        "ctutils@0.4.6|subtle",
+        "tokio@1.53.3|bytes,default,fs,io-util,libc,macros,mio,net,rt,rt-multi-thread,socket2,sync,time,tokio-macros"
+      ]
+    }
+  },
+  "windows_metadata_package_set": "cargo metadata --locked --offline --filter-platform x86_64-pc-windows-msvc --features tauri/custom-protocol lists 386 packages before and after; only the identities of the three packages change.",
+  "decision": "Unchanged decisions for all three packages: same declared license, byte-identical license files, the same in-source notice lines and unchanged release feature sets, so MIT stays selected with the same complete texts. The components move to cargo:crypto-bigint@0.7.10, cargo:ctutils@0.4.6 and cargo:tokio@1.53.3 with the new manifests and archive checksums; the selected texts keep their bytes and document ids, their output file names and source names follow the new versions. The macOS selection is derived again from the Windows selection. crypto-bigint 0.7.10 and ctutils 0.4.6 need Rust 1.87; the pinned toolchain is 1.97.1."
+}

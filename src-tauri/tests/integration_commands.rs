@@ -25,12 +25,12 @@ fn own(socket: &str) -> OwnTmuxClient {
 }
 
 /// Pfad fuer Testverbindungen, die garantiert nie `append_entry` erreichen
-/// (jeder Aufruf in dieser Datei ausser dem `Unknown`-Timeout-Test landet
-/// im `Known`- oder `Mismatch`-Zweig von `TofuPolicy::decide` -- beide
-/// ruehren `known_hosts_path` nie an). Existiert absichtlich nie und wird
-/// nie angelegt -- fuer die Sonderregel dieses Tasks ("Tests duerfen
-/// `~/.ssh/known_hosts` des Bedienrechners nicht veraendern") reicht das:
-/// dieser Pfad hat mit der echten Datei nichts zu tun.
+/// (jeder Aufruf in dieser Datei ausser dem `Unknown`-Timeout-Test landet im
+/// `Known`- oder `Mismatch`-Zweig von `TofuPolicy::decide` -- beide ruehren
+/// `known_hosts_path` nie an). Existiert absichtlich nie und wird nie angelegt
+/// -- fuer die Sonderregel ("Tests duerfen `~/.ssh/known_hosts` des
+/// Bedienrechners nicht veraendern") reicht das: dieser Pfad hat mit der
+/// echten Datei nichts zu tun.
 fn dummy_known_hosts_path() -> PathBuf {
     std::env::temp_dir().join("aidevbridge_integration_test_unused_known_hosts")
 }
@@ -48,9 +48,9 @@ fn dto() -> Option<HostSpecDto> {
         port: host.port,
         user: host.user,
         key_path: dirs::home_dir().map(|h| h.join(".ssh/id_ed25519").display().to_string()),
-        // M-B (Abschlussreview): die Testumgebung verwendet einen Schluessel
-        // ohne Passphrase (Task-Vorgabe, siehe `common::key_auth_method`),
-        // weder Passphrase noch Passwort sind hier gebraucht.
+        // Die Testumgebung verwendet einen Schluessel ohne Passphrase (siehe
+        // `common::key_auth_method`), weder Passphrase noch Passwort sind hier
+        // gebraucht.
         passphrase: None,
         password: None,
     })
@@ -89,10 +89,10 @@ async fn connect_succeeds_with_the_real_hosts_actual_key() {
     assert!(!state.has_host(&host_id).await);
 }
 
-/// Der wichtigste End-zu-Ende-Beleg fuer den TOFU-Nachtrag (Task 13): eine
-/// echte, bislang unbekannte Verbindung zur realen Test-VM durchlaeuft den
-/// GESAMTEN Produktionspfad -- `TofuPolicy::decide` stellt tatsaechlich eine
-/// Rueckfrage waehrend des echten SSH-Handshakes, ein zweiter, unabhaengiger
+/// Der wichtigste End-zu-Ende-Beleg fuer TOFU (Spec §8.1): eine echte, bislang
+/// unbekannte Verbindung zur realen Test-VM durchlaeuft den GESAMTEN
+/// Produktionspfad -- `TofuPolicy::decide` stellt tatsaechlich eine Rueckfrage
+/// waehrend des echten SSH-Handshakes, ein zweiter, unabhaengiger
 /// `std::thread` antwortet ueber `respond_host_key_impl` (genau die Funktion
 /// hinter dem `respond_host_key`-Command) WAEHREND `connect_host_with_known_
 /// hosts` noch auf die Antwort wartet, und der akzeptierte, ECHTE Host-Key
@@ -172,23 +172,21 @@ async fn connect_accepts_a_truly_unknown_real_host_key_after_an_explicit_accept_
     let _ = std::fs::remove_file(&known_hosts_path);
 }
 
-/// Belegt Task 4/5s weitergereichte Randbedingung praktisch: ein Host ohne
-/// known_hosts-Eintrag wird ohne Zustimmung abgelehnt (Spec §8.1), UND die
-/// Meldung ist von einem generischen Verbindungsfehler unterscheidbar
-/// (Task-14-Vorbereitung).
+/// Belegt praktisch: ein Host ohne known_hosts-Eintrag wird ohne Zustimmung
+/// abgelehnt (Spec §8.1), UND die Meldung ist von einem generischen
+/// Verbindungsfehler unterscheidbar.
 #[tokio::test]
 async fn connect_rejects_a_host_missing_from_known_hosts() {
     let Some(spec) = dto() else { return };
     let state = Arc::new(AppState::with_own_socket(common::test_socket()));
 
-    // Seit der TOFU-Verdrahtung (Task 13) ist "kein known_hosts-Eintrag"
-    // der `Unknown`-Zweig: `TofuPolicy::decide` stellt eine Rueckfrage und
-    // wartet bis zu `prompt_timeout`. `NeverAnswersSink` liefert die
-    // Anfrage zu, antwortet aber nie -- der erwartete Ausgang (Ablehnung)
-    // bleibt gleich, nur ueber den TOFU-Zeitablauf statt eine sofortige
-    // Ablehnung. `TEST_PROMPT_TIMEOUT` (300ms) statt der vollen
-    // Produktions-Wartezeit (60s), sonst waere dieser Test seit diesem Task
-    // ploetzlich eine Minute langsamer.
+    // Mit TOFU ist "kein known_hosts-Eintrag" der `Unknown`-Zweig:
+    // `TofuPolicy::decide` stellt eine Rueckfrage und wartet bis zu
+    // `prompt_timeout`. `NeverAnswersSink` liefert die Anfrage zu, antwortet
+    // aber nie -- der erwartete Ausgang (Ablehnung) bleibt gleich, nur ueber
+    // den TOFU-Zeitablauf statt eine sofortige Ablehnung.
+    // `TEST_PROMPT_TIMEOUT` (300ms) statt der vollen Produktions-Wartezeit
+    // (60s), sonst waere dieser Test eine Minute langsamer.
     let err = connect_host_with_known_hosts(
         &state,
         spec,
@@ -322,9 +320,9 @@ async fn full_round_trip_connect_create_open_write_echo_close() {
     .unwrap();
 
     // ... und wieder zurueck ueber denselben Event-Pfad. Jedes empfangene
-    // Ereignis wird sofort per ack_output_impl bestaetigt (wie es Task 11s
-    // Frontend spaeter tun soll) -- ohne das wuerde die Bremse nach 1 MiB
-    // greifen, siehe die eigene Bremse-Probe unten.
+    // Ereignis wird sofort per ack_output_impl bestaetigt (wie es das Frontend
+    // tut) -- ohne das wuerde die Bremse nach 1 MiB greifen, siehe die eigene
+    // Bremse-Probe unten.
     let mut seen = String::new();
     for _ in 0..40 {
         if let Ok(Some((_, bytes))) =
@@ -358,12 +356,12 @@ async fn full_round_trip_connect_create_open_write_echo_close() {
     assert!(!state.has_host(&host_id).await);
 }
 
-/// Belegt, dass die Ack-Bremse tatsaechlich bremst (Kernanforderung des
-/// Tasks): eine Flut ungeackter Ausgabe stoppt den Ereignisstrom lange vor
-/// den vollen 2 MB, die der Server erzeugt.
+/// Belegt, dass die Ack-Bremse tatsaechlich bremst (Spec §9.1): eine Flut
+/// ungeackter Ausgabe stoppt den Ereignisstrom lange vor den vollen 2 MB, die
+/// der Server erzeugt.
 ///
 /// Beweist NICHT, dass der volle Rueckstau nach `ack_output` 1:1 nachfliesst
-/// -- eine erste Fassung dieses Tests nahm das an und schlug fehl. Befund
+/// -- eine erste Fassung dieses Tests nahm das an und schlug fehl. Messung
 /// (per `pane_current_command`/`pgrep` auf einer zweiten Verbindung
 /// nachgewiesen): der erzeugende Prozess (`yes | head -c
 /// 2000000`) war zum Stall-Zeitpunkt LAENGST fertig (Pane zeigte wieder
@@ -372,7 +370,7 @@ async fn full_round_trip_connect_create_open_write_echo_close() {
 /// Bildschirmzustand noetigen Ausschnitt vor -- ein Terminal-Multiplexer ist
 /// kein dummes Byte-Rohr. Der eigentliche Beweis fuer "die Bremse wurde nach
 /// dem Ack wieder geloest" ist deshalb: frische, NEUE Eingabe nach dem Ack
-/// erzeugt frische Ausgabe, die ankommt -- das ist die vom Task geforderte
+/// erzeugt frische Ausgabe, die ankommt -- das ist die geforderte
 /// Eigenschaft ("bremst, entwertet sich aber nicht selbst dauerhaft"), ohne
 /// eine Annahme ueber tmux' interne Pufferstrategie fuer haengengebliebene
 /// Clients zu treffen.
@@ -409,11 +407,10 @@ async fn ack_backpressure_actually_stalls_and_then_resumes() {
     while rx.try_recv().is_ok() {}
 
     // Flut, die den Server weit mehr als das Ack-Fenster erzeugen laesst.
-    // Befund 4 (Review, Minor): sowohl die Flutgroesse als auch der
-    // Erwartungswert unten haengen an `ACK_WINDOW_BYTES` statt an festen
-    // Zahlen -- aendert sich das Fenster, prueft dieser Test automatisch
-    // wieder dieselbe Eigenschaft, statt stillschweigend etwas anderes zu
-    // pruefen als gemeint.
+    // Sowohl die Flutgroesse als auch der Erwartungswert unten haengen an
+    // `ACK_WINDOW_BYTES` statt an festen Zahlen -- aendert sich das Fenster,
+    // prueft dieser Test automatisch wieder dieselbe Eigenschaft, statt
+    // stillschweigend etwas anderes zu pruefen als gemeint.
     //
     // `* 2` (nicht `* 4`): eine erste Fassung
     // nutzte `4 * ACK_WINDOW_BYTES` -- non-vakuos (die Grenze unten liegt
@@ -427,7 +424,7 @@ async fn ack_backpressure_actually_stalls_and_then_resumes() {
     // bevor der frische Marker ueberhaupt drankam -- 40 Runden reichten
     // dafuer nicht (Diagnose-Log: 40 Chunks / 78 KB
     // durchgekommen, Marker noch nicht erreicht). `* 2` haelt sich naeher an
-    // die im urspruenglichen Test empirisch bewaehrte Grössenordnung
+    // die im urspruenglichen Test empirisch bewaehrte Groessenordnung
     // (2.000.000 gegen ein 1-MiB-Fenster), bleibt aber trotzdem non-vakuos:
     // die Grenze unten (`ACK_WINDOW_BYTES + ACK_WINDOW_BYTES / 2`) liegt
     // echt unter der Flutgroesse `ACK_WINDOW_BYTES * 2`.
@@ -481,8 +478,8 @@ async fn ack_backpressure_actually_stalls_and_then_resumes() {
     )
     .await
     .unwrap();
-    // Weiter acken, waehrend gesammelt wird (wie es Task 11s Frontend
-    // tun soll, siehe `ack_output_impl`s Doc-Kommentar) -- nicht nur der
+    // Weiter acken, waehrend gesammelt wird (wie es das Frontend
+    // tut, siehe `ack_output_impl`s Doc-Kommentar) -- nicht nur der
     // eine Sammel-Ack oben. Auch bei der jetzigen Flutgroesse
     // (`2 * ACK_WINDOW_BYTES`) kann nach dem ersten Ack noch Nachzuegler-
     // Material folgen, bevor der frische Marker erscheint -- ein einzelner
@@ -546,13 +543,13 @@ async fn ack_backpressure_actually_stalls_and_then_resumes() {
     disconnect_host_impl(&state, host_id).await.unwrap();
 }
 
-/// Befund 1 (Review, Critical): `open_terminal_impl` ueberschrieb den
-/// Map-Eintrag bislang per `HashMap::insert`, ohne den VERDRAENGTEN
-/// `PtyHandle` zu schliessen. Ruft der WebView `open_terminal` zweimal fuer
-/// denselben `(host_id, session)`-Schluessel ohne ein dazwischenliegendes
+/// Ein verdraengendes `open_terminal_impl` muss den VERDRAENGTEN `PtyHandle`
+/// schliessen, statt den Map-Eintrag nur per `HashMap::insert` zu
+/// ueberschreiben. Ruft der WebView `open_terminal` zweimal fuer denselben
+/// `(host_id, session)`-Schluessel ohne ein dazwischenliegendes
 /// `close_terminal` (z. B. ein erneuter Verbindungsaufbau nach einem
-/// Netzwerk-Hickup, der den alten Slot fuer immer offen liess), blieb der
-/// alte SSH-Kanal offen -- ein von `MaxSessions = 10` dauerhaft verlorener
+/// Netzwerk-Hickup, der den alten Slot fuer immer offen liess), bliebe sonst
+/// der alte SSH-Kanal offen -- ein von `MaxSessions = 10` dauerhaft verlorener
 /// Slot.
 ///
 /// Beweis: jeder `open_terminal`-Aufruf startet server-seitig einen neuen
@@ -656,14 +653,13 @@ async fn open_terminal_twice_for_the_same_key_closes_the_first_channel_instead_o
     disconnect_host_impl(&state, host_id).await.unwrap();
 }
 
-/// Befund 2 (Review, Important): blockiert die Pumpaufgabe in
-/// `AckGate::wait_for_room` (viel ungeackte Ausgabe -- "Tab schliessen,
-/// waehrend der Agent gerade flutet"), und wird in diesem Moment
-/// `close_terminal` gerufen, entfernte das bisher den Map-Eintrag, ohne die
-/// Pumpaufgabe zu wecken: `wait_for_room` wartet auf einen `ack()`, der fuer
-/// eine bereits abgeraeumte Session nie wieder kommt -- die Pumpaufgabe (und
-/// ihre `Arc`-Referenzen auf `AppState`/`AckGate`/`OutputSink`) leckt fuer
-/// den Rest der Prozesslaufzeit.
+/// Blockiert die Pumpaufgabe in `AckGate::wait_for_room` (viel ungeackte
+/// Ausgabe -- "Tab schliessen, waehrend der Agent gerade flutet") und wird in
+/// diesem Moment `close_terminal` gerufen, muss das die Pumpaufgabe wecken,
+/// nicht nur den Map-Eintrag entfernen: sonst wartet `wait_for_room` auf einen
+/// `ack()`, der fuer eine bereits abgeraeumte Session nie wieder kommt -- die
+/// Pumpaufgabe (und ihre `Arc`-Referenzen auf
+/// `AppState`/`AckGate`/`OutputSink`) leckt fuer den Rest der Prozesslaufzeit.
 ///
 /// Beweisidee: die Pumpaufgabe haelt `sink` (und damit den letzten lebenden
 /// Klon von `tx`) als exklusiven Besitzer -- sie kann `sink` nur droppen,
@@ -679,11 +675,11 @@ async fn open_terminal_twice_for_the_same_key_closes_the_first_channel_instead_o
 /// nicht weil das Ack-Fenster zu ist. Mit endloser Ausgabe steht das nicht
 /// zur Debatte).
 ///
-/// Die eigentliche Trennschaerfe fuer Befund 2 liefern die hermetischen
-/// Unit-Tests `wait_for_room_cancel_or_stall_*` in `src/commands.rs` (sie
-/// pruefen exakt die Funktion, die der Pump-Loop aufruft, ohne von tmux'
-/// Pufferverhalten abzuhaengen). Dieser Test hier belegt zusaetzlich, dass
-/// die komplette Verdrahtung (`open_terminal_impl` -> Pumpaufgabe ->
+/// Die eigentliche Trennschaerfe dafuer liefern die hermetischen Unit-Tests
+/// `wait_for_room_cancel_or_stall_*` in `src/commands/tests.rs` (sie pruefen
+/// exakt die Funktion, die der Pump-Loop aufruft, ohne von tmux'
+/// Pufferverhalten abzuhaengen). Dieser Test hier belegt zusaetzlich, dass die
+/// komplette Verdrahtung (`open_terminal_impl` -> Pumpaufgabe ->
 /// `close_terminal_impl` -> `close_entry`) gegen die echte VM tatsaechlich
 /// nicht haengt.
 #[tokio::test]
@@ -756,27 +752,25 @@ async fn closing_a_terminal_while_the_pump_task_is_blocked_on_the_ack_gate_unblo
     disconnect_host_impl(&state, host_id).await.unwrap();
 }
 
-/// Ergaenzung zu Befund 2, ueber `disconnect_host_impl` statt
-/// `close_terminal_impl` -- derselbe Fund ("Prüfe, ob es weitere Stellen
-/// gibt ... und behandle sie gleich") verlangt auch hierfuer einen Beleg,
-/// nicht nur dieselbe Korrektur ungeprueft mitzuziehen.
+/// Dasselbe wie oben, ueber `disconnect_host_impl` statt `close_terminal_impl`
+/// -- dieselbe Korrektur braucht auch hier einen eigenen Beleg, statt
+/// ungeprueft mitgezogen zu werden.
 ///
-/// `disconnect_host_impl` hatte ZUSAETZLICH zwei eigene Lock-Probleme
-/// (Review-Hinweis waehrend der Umsetzung) desselben Musters:
-/// sowohl `if let Some(entry) = state.terminals.lock().await.remove(&key)
-/// { ... }` als auch (erst spaeter aufgefallen -- Task 10,
-/// "uebersehener Fehler", siehe `lib.rs`) `if let Some(transport) =
-/// state.hosts.lock().await.remove(&host_id) { ... }` halten in Edition
-/// 2021 den `MutexGuard` aus dem `if let`-Scrutinee bis zum Ende des
-/// Blocks -- also ueber `close_entry(entry).await` bzw.
-/// `transport.dispose().await` hinweg. Waehrend dieser Zeit ist die
-/// GESAMTE jeweilige Sperre blockiert: jede andere Terminal-Operation (bei
-/// `terminals`) bzw. JEDE Host-Operation (bei `hosts`, auf JEDEM Host, nicht
-/// nur dem gerade getrennten) muesste warten, bis der Kanal-Close bzw. das
-/// `dispose()` durchgelaufen ist -- im pathologischen Fall (haengender
-/// Netzwerk-Close) ein unbegrenztes Blockieren der gesamten Anwendung, nicht
-/// nur der einen Session/des einen Hosts. Erst binden (`let entry = ...`,
-/// Guard faellt am `;`), DANN `if let`, behebt beide.
+/// `disconnect_host_impl` hat ZUSAETZLICH zwei moegliche Lock-Probleme
+/// desselben Musters: sowohl `if let Some(entry) =
+/// state.terminals.lock().await.remove(&key) { ... }` als auch (siehe den Lint
+/// in `lib.rs`) `if let Some(transport) =
+/// state.hosts.lock().await.remove(&host_id) { ... }` halten in Edition 2021
+/// den `MutexGuard` aus dem `if let`-Scrutinee bis zum Ende des Blocks -- also
+/// ueber `close_entry(entry).await` bzw. `transport.dispose().await` hinweg.
+/// Waehrend dieser Zeit ist die GESAMTE jeweilige Sperre blockiert: jede
+/// andere Terminal-Operation (bei `terminals`) bzw. JEDE Host-Operation (bei
+/// `hosts`, auf JEDEM Host, nicht nur dem gerade getrennten) muesste warten,
+/// bis der Kanal-Close bzw. das `dispose()` durchgelaufen ist -- im
+/// pathologischen Fall (haengender Netzwerk-Close) ein unbegrenztes Blockieren
+/// der gesamten Anwendung, nicht nur der einen Session/des einen Hosts. Erst
+/// binden (`let entry = ...`, Guard faellt am `;`), DANN `if let`, vermeidet
+/// beide.
 ///
 /// Heute sind `state.hosts` und `state.terminals` `std::sync::Mutex`, und
 /// `disconnect_host_impl` gibt beide Sperren frei, bevor es auf `dispose()`
@@ -858,20 +852,19 @@ async fn disconnecting_a_host_while_the_pump_task_is_blocked_on_the_ack_gate_unb
     own(&socket).kill_session(&t, &session).await.unwrap();
 }
 
-// --- M-C (Abschlussreview): terminal://connection-lost ---
+// --- terminal://connection-lost ---
 //
-// `RecordingSink` sammelt BEIDE Ereignisarten (`send`/`connection_lost`)
-// ueber je einen eigenen Kanal -- absichtlich derselbe Sink-Typ fuer alle
-// Tests unten (Review-Nachtrag): ein Test, der "kein
-// `connection_lost`" mit einem Sink prueft, der das Ereignis physisch gar
-// nicht aufzeichnen KANN, wuerde vakuos gruen bleiben. Der positive Test
-// (externes Kill) belegt zuerst, dass der Rekorder tatsaechlich funktioniert
-// -- erst danach beweisen die beiden negativen Tests mit GENAU DEMSELBEN
-// Rekorder etwas.
+// `RecordingSink` sammelt BEIDE Ereignisarten (`send`/`connection_lost`) ueber
+// je einen eigenen Kanal -- absichtlich derselbe Sink-Typ fuer alle Tests
+// unten: ein Test, der "kein `connection_lost`" mit einem Sink prueft, der das
+// Ereignis physisch gar nicht aufzeichnen KANN, wuerde vakuos gruen bleiben.
+// Der positive Test (externes Kill) belegt zuerst, dass der Rekorder
+// tatsaechlich funktioniert -- erst danach beweisen die beiden negativen Tests
+// mit GENAU DEMSELBEN Rekorder etwas.
 //
 // `sent` (Waechter-Task): der Stillstandstest muss wissen, WANN der
 // Bytestrom versiegt ist -- vorher steht die Pumpaufgabe noch nicht. Die
-// bestehenden M-C-Tests ignorieren diesen Kanal, verlieren aber nichts.
+// connection-lost-Tests ignorieren diesen Kanal, verlieren aber nichts.
 struct RecordingSink {
     lost: mpsc::UnboundedSender<(String, String)>,
     sent: mpsc::UnboundedSender<usize>,
@@ -941,17 +934,16 @@ async fn connect_create_and_open_with_recording_sink(
 /// Wartet bis zu `timeout` auf ein WEITERES `connection_lost`-Ereignis und
 /// schlaegt fehl, wenn eines ankommt.
 ///
-/// Bewusst KEIN blosses `timeout(..., lost_rx.recv()).await.is_err()`
-/// (Review-Nachtrag, per echtem Testlauf gegen die VM gefunden, nicht
-/// geraten -- eine erste Fassung aller drei Tests unten scheiterte damit
-/// AUSNAHMSLOS, auch der positive Fall): sobald die Pumpaufgabe endet, faellt
-/// ihr `RecordingSink` aus dem Scope und dropt den einzigen
-/// `UnboundedSender` dieses Kanals -- `lost_rx.recv()` liefert dann SOFORT
-/// `Ok(None)` (Kanal geschlossen, keine Nachricht mehr), nicht
-/// `Err(Elapsed)`. `.is_err()` haette das mit "es kam KEIN Ereignis
-/// innerhalb der Frist" verwechselt, obwohl beide FAELLE (Kanal sauber
-/// geschlossen, ODER echtes Zeitlimit erreicht waehrend die Pumpaufgabe noch
-/// laeuft) unauffaellig sind -- nur `Ok(Some(_))` ist ein tatsaechlicher
+/// Bewusst KEIN blosses `timeout(..., lost_rx.recv()).await.is_err()` (per
+/// echtem Testlauf gegen die VM gefunden, nicht geraten -- eine erste Fassung
+/// aller drei Tests unten scheiterte damit AUSNAHMSLOS, auch der positive
+/// Fall): sobald die Pumpaufgabe endet, faellt ihr `RecordingSink` aus dem
+/// Scope und dropt den einzigen `UnboundedSender` dieses Kanals --
+/// `lost_rx.recv()` liefert dann SOFORT `Ok(None)` (Kanal geschlossen, keine
+/// Nachricht mehr), nicht `Err(Elapsed)`. `.is_err()` haette das mit "es kam
+/// KEIN Ereignis innerhalb der Frist" verwechselt, obwohl beide FAELLE (Kanal
+/// sauber geschlossen, ODER echtes Zeitlimit erreicht waehrend die Pumpaufgabe
+/// noch laeuft) unauffaellig sind -- nur `Ok(Some(_))` ist ein tatsaechlicher
 /// zweiter/unerwuenschter Fund.
 async fn assert_no_further_connection_lost_event(
     lost_rx: &mut mpsc::UnboundedReceiver<(String, String)>,
@@ -1143,17 +1135,17 @@ async fn a_stalled_session_does_not_take_the_whole_connection_down() {
         total += len as u64;
     }
     // Der Grund fuer die Stille MUSS das geschlossene Ack-Fenster sein, nicht
-    // eine versiegte Quelle (Review-Nachtrag): die Flut ist endlich
-    // (`head -c`), und tmux liefert einem zurueckgefallenen Client nicht den
-    // vollen Rohbytestrom nach -- siehe den Debugging-Fund bei
+    // eine versiegte Quelle: die Flut ist endlich (`head -c`), und tmux
+    // liefert einem zurueckgefallenen Client nicht den vollen Rohbytestrom
+    // nach -- siehe den Debugging-Fund bei
     // `closing_a_terminal_while_the_pump_task_is_blocked_on_the_ack_gate_*`.
-    // Waere die Quelle versiegt, hinge die Pumpaufgabe in `rx.recv()` statt
-    // an der Bremse, es liefe GAR KEIN Stillstands-Zeitlimit (das spannt
-    // `wait_for_room_cancel_or_stall` pro AUFRUF auf), und Zusicherung 1
-    // unten scheiterte mit WORTGLEICHER Meldung wie bei einem fehlenden
-    // Waechter. Diese Zusicherung trennt die beiden Ursachen, statt das dem
-    // Leser des Protokolls zu ueberlassen. Gemessen liegt `total` bei rund
-    // 99,9 % des Fensters, die Schwelle hat also reichlich Luft.
+    // Waere die Quelle versiegt, hinge die Pumpaufgabe in `rx.recv()` statt an
+    // der Bremse, es liefe GAR KEIN Stillstands-Zeitlimit (das spannt
+    // `wait_for_room_cancel_or_stall` pro AUFRUF auf), und Zusicherung 1 unten
+    // scheiterte mit WORTGLEICHER Meldung wie bei einem fehlenden Waechter.
+    // Diese Zusicherung trennt die beiden Ursachen, statt das dem Leser des
+    // Protokolls zu ueberlassen. Gemessen liegt `total` bei rund 99,9 % des
+    // Fensters, die Schwelle hat also reichlich Luft.
     assert!(
         total > ACK_WINDOW_BYTES * 3 / 4,
         "die Stille muss vom geschlossenen Ack-Fenster kommen, nicht von einer versiegten \
@@ -1212,8 +1204,7 @@ async fn a_stalled_session_does_not_take_the_whole_connection_down() {
     t.dispose().await;
 }
 
-/// B2, Test 6: ein regelwidriger Name wird abgelehnt, und danach existiert
-/// NICHTS Neues.
+/// Ein regelwidriger Name wird abgelehnt, und danach existiert NICHTS Neues.
 ///
 /// Die zweite Haelfte ist die eigentliche Zusicherung. Ein Test, der nur auf
 /// den Fehler prueft, waere auch dann gruen, wenn der Name still verstuemmelt
@@ -1279,19 +1270,13 @@ async fn a_hostile_session_name_is_rejected_and_creates_nothing() {
     disconnect_host_impl(&state, host_id).await.unwrap();
 }
 
-/// B2, Test 7 und 8 in einem Lauf -- sie teilen sich denselben, teuren
-/// Aufbau und pruefen zwei Seiten desselben Schadenszustands.
+/// **Die Zusicherung gegen die Retry-Schleife:** ein doppelter NUTZERNAME
+/// ergibt einen Fehler und insbesondere KEINE `ab_*`-Ersatzsession.
+/// `create_session_with_retry` reagiert auf `DuplicateName` mit einem neuen
+/// Zufallsnamen -- liefe ein Nutzername durch diese Schleife, bekaeme der
+/// Nutzer still etwas anderes, als er verlangt hat, und erfuehre es nicht.
 ///
-/// **Test 7 (die Zusicherung gegen die Retry-Schleife):** ein doppelter
-/// NUTZERNAME ergibt einen Fehler und insbesondere KEINE
-/// `ab_*`-Ersatzsession. `create_session_with_retry` reagiert auf
-/// `DuplicateName` mit einem neuen Zufallsnamen -- liefe ein Nutzername durch
-/// diese Schleife, bekaeme der Nutzer still etwas anderes, als er verlangt
-/// hat, und erfuehre es nicht.
-///
-/// Der Test hiess einmal `..._and_leaves_exit_empty_on` und trug eine zweite
-/// Zusicherung auf die gleichnamige Serveroption. Die ist fort -- warum,
-/// steht ausfuehrlich im Rumpf, an der Stelle, an der sie stand.
+/// Warum hier keine Zusicherung auf `exit-empty` steht, erklaert der Rumpf.
 #[tokio::test]
 async fn a_duplicate_user_name_is_an_end_error_not_a_silent_replacement() {
     let Some(spec) = dto() else { return };
@@ -1398,8 +1383,8 @@ async fn a_duplicate_user_name_is_an_end_error_not_a_silent_replacement() {
     disconnect_host_impl(&state, host_id).await.unwrap();
 }
 
-/// B3, Test 5: `kill_session` ist der VIERTE gewollte Schliesspfad und darf
-/// deshalb KEIN `connection_lost` erzeugen.
+/// `kill_session` ist der VIERTE gewollte Schliesspfad und darf deshalb KEIN
+/// `connection_lost` erzeugen.
 ///
 /// Die Invariante steht woertlich an `OutputSink::connection_lost`: alle
 /// gewollten Schliesspfade entfernen ihren Eintrag VOR dem Zeitpunkt, an dem
@@ -1438,10 +1423,10 @@ async fn killing_a_session_deliberately_emits_no_connection_lost_event() {
     .await
     .expect("das Beenden der eigenen Session muss gelingen");
 
-    // Test 6 nebenbei, mit derselben Verbindung: die Session ist wirklich
-    // weg. Ohne diese Zusicherung waere der Test auch dann gruen, wenn
-    // `kill_session_impl` gar nichts getan haette -- und "kein Ereignis"
-    // ist genau das, was Nichtstun ebenfalls erzeugt.
+    // Nebenbei, mit derselben Verbindung: die Session ist wirklich weg. Ohne
+    // diese Zusicherung waere der Test auch dann gruen, wenn
+    // `kill_session_impl` gar nichts getan haette -- und "kein Ereignis" ist
+    // genau das, was Nichtstun ebenfalls erzeugt.
     let remaining = list_sessions_impl(&state, host_id.clone()).await.unwrap();
     assert!(
         !remaining.iter().any(|row| row.display_name == session),
@@ -1458,7 +1443,7 @@ async fn killing_a_session_deliberately_emits_no_connection_lost_event() {
     disconnect_host_impl(&state, host_id).await.unwrap();
 }
 
-/// B3, Test 7: die WIRKUNG entscheidet, nicht der Exit-Code.
+/// Die WIRKUNG entscheidet, nicht der Exit-Code.
 ///
 /// Der Fall, den dieser Test faehrt: **das Ziel ist sauber abwesend.** Der
 /// Nutzer hat doppelt geklickt, oder ein Kollege war schneller. tmux meldet
@@ -1470,8 +1455,8 @@ async fn killing_a_session_deliberately_emits_no_connection_lost_event() {
 /// **Was dieser Test NICHT faehrt, ausgesprochen statt verschwiegen:** die
 /// andere Haelfte der Entscheidung -- "der Aufruf meldet Erfolg, die Session
 /// steht danach trotzdem noch in der Liste" -- hat hier keine Vorrichtung.
-/// Der Plan wollte sie aus dem Restfall von B0 bauen (eine Session mit `$`
-/// im Namen, die tmux escapt speichert). An der VM nachgemessen, tmux 3.4:
+/// Naheliegend waere eine Session mit `$` im Namen, die tmux escapt speichert.
+/// An der VM nachgemessen, tmux 3.4:
 ///
 ///     $ tmux -L zzb3 new-session -d -s 'zz_b3$esc'
 ///     $ tmux -L zzb3 list-sessions -F '#{session_name}'
@@ -1480,12 +1465,12 @@ async fn killing_a_session_deliberately_emits_no_connection_lost_event() {
 ///     exit=0        # und die Session ist weg
 ///
 /// Unter ihrem GELISTETEN Namen ist sie also sehr wohl adressierbar -- die
-/// Annahme des Plans war falsch, und mit ihr die Vorrichtung. Der
-/// `still running`-Zweig in `kill_session_impl` bleibt damit vorsorglicher
-/// Code ohne eigenen Test: er kostet nichts, deckt fremde tmux-Versionen mit
-/// ab, und die Alternative waere, ihn zu streichen und dem Exit-Code doch zu
-/// glauben. Das Nachlesen als solches ist durch den Fall UNTEN abgesichert
-/// (ohne es waere er rot).
+/// Annahme traegt nicht, und mit ihr die Vorrichtung. Der `still
+/// running`-Zweig in `kill_session_impl` bleibt damit vorsorglicher Code ohne
+/// eigenen Test: er kostet nichts, deckt fremde tmux-Versionen mit ab, und die
+/// Alternative waere, ihn zu streichen und dem Exit-Code doch zu glauben. Das
+/// Nachlesen als solches ist durch den Fall UNTEN abgesichert (ohne es waere
+/// er rot).
 #[tokio::test]
 async fn killing_an_absent_session_is_success_not_a_failed_exit_code() {
     let Some(spec) = dto() else { return };

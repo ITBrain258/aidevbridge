@@ -1,0 +1,26 @@
+version: tmux 3.4
+fall	form	argv	session_path	pane_current_path	MARK
+#(touch MARK)	roh	<W>/d/#(touch MARK)	<W>/d/	<W>/d	ja
+#(touch MARK)	verdoppelt	<W>/d/##(touch MARK)	<W>/d/#(touch MARK)	<W>/d/#(touch MARK)	nein
+#(touch MARK)	app	<W>/d/##(touch MARK)	<W>/d/#(touch MARK)	<W>/d/#(touch MARK)	nein
+C#Project	roh	<W>/d/C#Project	<W>/d/Croject	<W>/home	nein
+C#Project	verdoppelt	<W>/d/C##Project	<W>/d/C#Project	<W>/d/C#Project	nein
+C#Project	app	<W>/d/C##Project	<W>/d/C#Project	<W>/d/C#Project	nein
+A#{session_name}B	roh	<W>/d/A#{session_name}B	<W>/d/AB	<W>/home	nein
+A#{session_name}B	verdoppelt	<W>/d/A##{session_name}B	<W>/d/A#{session_name}B	<W>/d/A#{session_name}B	nein
+A#{session_name}B	app	<W>/d/A##{session_name}B	<W>/d/A#{session_name}B	<W>/d/A#{session_name}B	nein
+trail#	roh	<W>/d/trail#	<W>/d/trail#	<W>/d/trail#	nein
+trail#	verdoppelt	<W>/d/trail##	<W>/d/trail#	<W>/d/trail#	nein
+trail#	app	<W>/d/trail##	<W>/d/trail#	<W>/d/trail#	nein
+D####Q	roh	<W>/d/D####Q	<W>/d/D##Q	<W>/home	nein
+D####Q	verdoppelt	<W>/d/D########Q	<W>/d/D####Q	<W>/d/D####Q	nein
+D####Q	app	<W>/d/D########Q	<W>/d/D####Q	<W>/d/D####Q	nein
+E#[x]	roh	<W>/d/E#[x]	<W>/d/E#[x]	<W>/d/E#[x]	nein
+E#[x]	verdoppelt	<W>/d/E##[x]	<W>/d/E##[x]	<W>/home	nein
+E#[x]	app	<W>/d/E#[x]	<W>/d/E#[x]	<W>/d/E#[x]	nein
+F##[x]	roh	<W>/d/F##[x]	<W>/d/F##[x]	<W>/d/F##[x]	nein
+F##[x]	verdoppelt	<W>/d/F####[x]	<W>/d/F####[x]	<W>/home	nein
+F##[x]	app	<W>/d/F##[x]	<W>/d/F##[x]	<W>/d/F##[x]	nein
+G#(touch MARK)#[y]	roh	<W>/d/G#(touch MARK)#[y]	<W>/d/G#[y]	<W>/home	ja
+G#(touch MARK)#[y]	verdoppelt	<W>/d/G##(touch MARK)##[y]	<W>/d/G#(touch MARK)##[y]	<W>/home	nein
+G#(touch MARK)#[y]	app	<W>/d/G##(touch MARK)#[y]	<W>/d/G#(touch MARK)#[y]	<W>/d/G#(touch MARK)#[y]	nein

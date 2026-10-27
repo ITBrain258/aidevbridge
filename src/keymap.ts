@@ -1,4 +1,4 @@
-// `Keymap` (Task 12): trennt Tastenkombinationen, die der App gehoeren, von
+// `Keymap`: trennt Tastenkombinationen, die der App gehoeren, von
 // allem, was dem Terminal gehoert (Spec §7.4).
 //
 // Alles Einfache geht ans Terminal, wie ein Agent-CLI es erwartet. Die
@@ -43,19 +43,19 @@ export type KeymapAction =
   | "settings.open"
   | "quickOpen";
 
-/** Vorgabebelegung aus Spec §7.4. Frei konfigurierbar (Spec §12.1,
- * `[keymap]` in `settings.toml`) -- `SettingsStore` existiert erst ab
- * Task 13; bis dahin ist dies die einzige Quelle.
+/** Vorgabebelegung aus Spec §7.4. Spec §12.1 sieht eine frei konfigurierbare
+ * Belegung vor (`[keymap]` in `settings.toml`); das Frontend laedt keine,
+ * dies ist die einzige Quelle.
  *
  * `session.prev`/`.next` (Strg+Umschalt+Hoch/Runter) fuehren den Fokus zur
  * vorigen oder naechsten Kachel; die Namen stammen aus der Zeit, als sie die
  * Liste der Seitenleiste blaetterten (Spec 2026-10-19 §5.7). `session.select.N`
  * fokussiert die Kachel an Position N; dieselbe Ziffer steht im Kachelkopf.
  *
- * `tile.maximize`/`sidebar.toggle`/`sidebar.focus` stammen aus Task 12
- * (Designsystem §7.5); Strg+Umschalt+G ist seit Spec 2026-10-19 §4.7
- * unbelegt. `tile.moveEarlier`/`.moveLater` schieben die fokussierte Kachel
- * eine Position (Spec 2026-10-19 §5.4).
+ * `tile.maximize`/`sidebar.toggle`/`sidebar.focus` stammen aus dem
+ * Designsystem §7.5; Strg+Umschalt+G ist nach Spec 2026-10-19 §4.7 unbelegt.
+ * `tile.moveEarlier`/`.moveLater` schieben die fokussierte Kachel eine Position
+ * (Spec 2026-10-19 §5.4).
  *
  * `settings.open` (UX-Spec §8.3) ist die erste Belegung mit Ctrl allein, aus
  * der Ausnahmeliste `PLAIN_CTRL_KEYS`. `quickOpen` (UX-Spec §7.5, §8.3) ist ein
@@ -112,10 +112,10 @@ export const PLAIN_CTRL_KEYS: readonly string[] = [",", "=", "-", "0"];
  * beide hieraus ab -- ohne das wuerde `canonicalize("Ctrl+Shift+ArrowUp")`
  * einen anderen Vergleichsschluessel liefern als `canonicalize("Ctrl+Shift+Up")`,
  * obwohl ein echter Tastendruck auf der Pfeiltaste-hoch IMMER "Up" erzeugt,
- * nie "ArrowUp" (Task 12, Review-Befund: `validate` wuerde sonst eine tote
- * Belegung zertifizieren -- gueltig laut Validierung, aber durch keinen
- * echten Tastendruck je auszuloesen). Deckungsgleich mit `ARROW_KEY_ALIASES`
- * in `src-tauri/src/keymap.rs`. */
+ * nie "ArrowUp" (`validate` wuerde sonst eine tote Belegung zertifizieren --
+ * gueltig laut Validierung, aber durch keinen echten Tastendruck je
+ * auszuloesen). Deckungsgleich mit `ARROW_KEY_ALIASES` in
+ * `src-tauri/src/keymap.rs`. */
 const ARROW_KEY_NAMES: Record<string, string> = {
   ArrowUp: "Up",
   ArrowDown: "Down",
@@ -177,16 +177,15 @@ function comparisonKey(c: Canonical): string {
  * (UX-Spec §8.3); jede andere Taste hinter Ctrl, jedes Ctrl+Alt und jedes Alt
  * bleibt beim Terminal.
  *
- * Review-Befund (Task 12): die urspruengliche Fassung pruefte "enthaelt
- * Ctrl UND Shift" (`mods.includes("ctrl") && mods.includes("shift")`) statt
- * "besteht ausschliesslich aus Ctrl+Shift" -- "Ctrl+Alt+Shift+F" enthaelt
- * beides und wurde deshalb faelschlich als App-Akkord akzeptiert, obwohl er
- * drei Modifikatoren traegt. Da `mods` bereits sortiert und dedupliziert ist
- * (siehe `canonicalize`), ist "die Menge ist EXAKT {ctrl, shift}"
- * gleichbedeutend mit "Laenge 2 UND beide enthalten" -- ein zusaetzliches
- * drittes Element (`alt`) faellt damit durch, ohne dass `alt` hier namentlich
- * ausgeschlossen werden muss. `"meta"` ist ohnehin kein erkannter
- * Modifikator-Token (siehe `MODIFIERS` oben) und fuehrt bereits in
+ * Geprueft wird "besteht ausschliesslich aus Ctrl+Shift", nicht "enthaelt Ctrl
+ * UND Shift" (`mods.includes("ctrl") && mods.includes("shift")`) --
+ * "Ctrl+Alt+Shift+F" enthaelt beides und wuerde sonst faelschlich als
+ * App-Akkord akzeptiert, obwohl er drei Modifikatoren traegt. Da `mods` bereits
+ * sortiert und dedupliziert ist (siehe `canonicalize`), ist "die Menge ist
+ * EXAKT {ctrl, shift}" gleichbedeutend mit "Laenge 2 UND beide enthalten" --
+ * ein zusaetzliches drittes Element (`alt`) faellt damit durch, ohne dass `alt`
+ * hier namentlich ausgeschlossen werden muss. `"meta"` ist ohnehin kein
+ * erkannter Modifikator-Token (siehe `MODIFIERS` oben) und fuehrt bereits in
  * `canonicalize` zu `null` (zweite Nicht-Modifikator-"Taste"). */
 export function isReservedForApp(binding: string): boolean {
   const c = canonicalize(binding);
@@ -272,33 +271,31 @@ export function eventBinding(event: KeyboardEvent): string {
  * Terminal-Eingabe durchrutschen -- sonst waere die Grenze von der
  * aktuellen Konfiguration abhaengig statt fest.
  *
- * Review-Befund (Task 12): die urspruengliche Fassung (`ctrlKey && shiftKey`)
- * pruefte "enthaelt Ctrl UND Shift", nicht "besteht ausschliesslich aus
- * Ctrl+Shift" -- weder `altKey` noch `metaKey` wurden je abgefragt. Ein
- * physischer Ctrl+Alt+Shift+F-Tastendruck (drei Tasten, kein AltGr noetig)
- * lieferte damit `true`: `preventDefault()` feuerte, `matchAction` fand aber
- * keine Bindung (`null`) -- das erzeugte Zeichen verschwand ersatzlos, weder
- * im Terminal noch als App-Aktion. Jetzt EXAKT `ctrl && shift && !alt &&
- * !meta`, deckungsgleich mit `isReservedForApp`s "Laenge 2"-Kriterium.
+ * EXAKT `ctrl && shift && !alt && !meta`, deckungsgleich mit
+ * `isReservedForApp`s "Laenge 2"-Kriterium -- nicht bloss "enthaelt Ctrl UND
+ * Shift" (`ctrlKey && shiftKey`). Sonst lieferte ein physischer
+ * Ctrl+Alt+Shift+F-Tastendruck (drei Tasten, kein AltGr noetig) `true`:
+ * `preventDefault()` feuerte, `matchAction` faende aber keine Bindung
+ * (`null`) -- das erzeugte Zeichen verschwaende ersatzlos, weder im Terminal
+ * noch als App-Aktion.
  *
- * `getModifierState("AltGraph")`: auf AltGr-Tastaturen (z. B. deutsches
- * Layout) synthetisiert Windows AltGr traditionell als Left-Ctrl+Right-Alt;
- * Chromium spiegelte das bis zu einem Fix (~2018, Intent-to-Ship
- * "modifier flags on AltGraph-shifted events") unveraendert in
- * `ctrlKey`/`altKey` -- seitdem werden beide fuer AltGr-erzeugte druckbare
- * Zeichen GELOESCHT, nur `getModifierState("AltGraph")` bleibt gesetzt (UI
- * Events Spec, `KeyboardEvent.getModifierState`). Damit war die ALTE
- * Modifikator-Pruefung (auch die neue, rein boolesche exakte Fassung ohne
- * diese Zeile) fuer AltGr+Shift auf AKTUELLEM Chromium/WebView2 schon
- * "zufaellig" sicher (`ctrlKey` ist dort bereits `false`) -- aber nicht auf
- * dem HISTORISCHEN Chromium-Verhalten (`ctrlKey=true, altKey=true`, dort
- * bereits durch `!altKey` abgedeckt) UND nicht fuer einen denkbaren,
- * unbeobachteten Zwischenfall (`ctrlKey=true, altKey=false,
- * AltGraph=true`), den weder Recherche noch Spec belegen, den die reine
- * Modifikator-Pruefung aber auch nicht ausschliessen wuerde. Diese Zeile
+ * `getModifierState("AltGraph")`: auf AltGr-Tastaturen (z. B. deutsches Layout)
+ * synthetisiert Windows AltGr traditionell als Left-Ctrl+Right-Alt; Chromium
+ * spiegelte das bis zu einem Fix (~2018, Intent-to-Ship "modifier flags on
+ * AltGraph-shifted events") unveraendert in `ctrlKey`/`altKey` -- seitdem
+ * werden beide fuer AltGr-erzeugte druckbare Zeichen GELOESCHT, nur
+ * `getModifierState("AltGraph")` bleibt gesetzt (UI Events Spec,
+ * `KeyboardEvent.getModifierState`). Damit ist die rein boolesche
+ * Modifikator-Pruefung ohne diese Zeile fuer AltGr+Shift auf AKTUELLEM
+ * Chromium/WebView2 schon "zufaellig" sicher (`ctrlKey` ist dort bereits
+ * `false`) -- aber nicht auf dem HISTORISCHEN Chromium-Verhalten
+ * (`ctrlKey=true, altKey=true`, dort bereits durch `!altKey` abgedeckt) UND
+ * nicht fuer einen denkbaren, unbeobachteten Zwischenfall (`ctrlKey=true,
+ * altKey=false, AltGraph=true`), den weder Recherche noch Spec belegen, den die
+ * reine Modifikator-Pruefung aber auch nicht ausschliessen wuerde. Diese Zeile
  * haertet genau gegen diesen unbelegten Fall ab -- **nicht** auf echtem
- * WebView2 gemessen, aber ein einzeiliger, laut Spec breit
- * unterstuetzter Zusatz-Check ohne bekannten Nachteil. */
+ * WebView2 gemessen, aber ein einzeiliger, laut Spec breit unterstuetzter
+ * Zusatz-Check ohne bekannten Nachteil. */
 export function isAppChord(event: KeyboardEvent): boolean {
   return (
     event.ctrlKey &&
@@ -312,7 +309,7 @@ export function isAppChord(event: KeyboardEvent): boolean {
 /** `true` fuer Ctrl allein auf einer Taste der Ausnahmeliste (UX-Spec §8.3),
  * das Gegenstueck zu `isAppChord` fuer `PLAIN_CTRL_KEYS`: dieselbe Pruefung auf
  * Alt, Meta und AltGr, dazu kein Umschalt. `Ctrl+Alt+0` ist auf deutscher
- * Tastatur AltGr+0, also `}`, und gehoert dem Terminal (Review Focus 1). */
+ * Tastatur AltGr+0, also `}`, und gehoert dem Terminal. */
 export function isPlainCtrlAppKey(event: KeyboardEvent): boolean {
   return (
     event.ctrlKey &&
@@ -363,17 +360,16 @@ function isKnownAction(action: string): action is KeymapAction {
  * konfigurierten Belegung (dieselbe Normalisierung wie `validate`).
  *
  * `bindings` bleibt bewusst `Record<string, string>` (nicht
- * `Record<KeymapAction, string>`): Task 13 laedt eine Belegungstabelle aus
- * `settings.toml`, deren Aktionsnamen zur Compile-Zeit nicht feststehen --
- * eine engere Parametertyp wuerde genau dort einen ungeprueften Cast
- * erzwingen (dieselbe Klasse Loch, die dieser Befund schliessen soll, nur an
- * die Aufrufstelle verschoben). Der RUECKGABETYP ist dagegen `KeymapAction |
- * null` (Review-Befund, Task 12): ein unbekannter Aktionsname (Tippfehler in
- * der Konfiguration, z. B. "sesion.new") liefert `null` -- korrektes
- * Verhalten (der `switch` in `terminal.ts` hat ohnehin keinen Zweig dafuer)
- * UND type-checked: ein verschriebenes `case`-Label in jenem `switch` waere
- * jetzt ein Compile-Fehler (TS2678 "not comparable"), keine leise nie
- * erreichte Verzweigung mehr. */
+ * `Record<KeymapAction, string>`): eine Belegungstabelle aus `settings.toml`
+ * (Spec §12.1) hat Aktionsnamen, die zur Compile-Zeit nicht feststehen -- ein
+ * engerer Parametertyp wuerde genau dort einen ungeprueften Cast erzwingen
+ * (dieselbe Klasse Loch, die der Rueckgabetyp unten schliesst, nur an die
+ * Aufrufstelle verschoben). Der RUECKGABETYP ist dagegen `KeymapAction | null`:
+ * ein unbekannter Aktionsname (Tippfehler in der Konfiguration, z. B.
+ * "sesion.new") liefert `null` -- korrektes Verhalten (der `switch` in
+ * `terminal.ts` hat ohnehin keinen Zweig dafuer) UND type-checked: ein
+ * verschriebenes `case`-Label in jenem `switch` ist ein Compile-Fehler (TS2678
+ * "not comparable"), keine leise nie erreichte Verzweigung. */
 export function matchAction(
   event: KeyboardEvent,
   bindings: Record<string, string> = DEFAULT_KEYMAP,

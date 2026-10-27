@@ -3,15 +3,10 @@
 // einer Karte. "Copy version info" legt dieselbe Zeile in die Zwischenablage,
 // mit der auch "Copy diagnostics" beginnt (`appVersionLine`). Keine Liste der
 // Fremdlizenzen -- die waere nur vollstaendig, wenn sie erzeugt wird (Spec §12).
-import en from "../i18n/en.json";
+import { t } from "../i18n/t";
+import type { TranslationKey } from "../i18n/t";
 import { icon } from "../icons";
 import { appCommit, appVersion, appVersionLine } from "../version";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey): string {
-  return en[key];
-}
 
 const COPIED_MS = 2000;
 

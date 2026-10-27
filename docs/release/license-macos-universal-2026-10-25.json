@@ -19,8 +19,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1069128,
-    "sha256": "3e85399abea69ac4ac3b0e2c453a0b535a92c80a0504270f074be8cd9d7884b0"
+    "bytes": 1070627,
+    "sha256": "2d9ca70231ffca5ae95cf53b6c5335bcd3983c2e6f2b3a43ab4403bad764d422"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -418,9 +418,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:crypto-bigint@0.7.5",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:crypto-bigint@0.7.10",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files."
       },
       {
         "id": "cargo:crypto-common@0.1.7",
@@ -448,9 +448,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:ctutils@0.4.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:ctutils@0.4.6",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files."
       },
       {
         "id": "cargo:curve25519-dalek@5.0.0",
@@ -1278,9 +1278,9 @@
         "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:tokio@1.53.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tokio@1.53.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files."
       },
       {
         "id": "cargo:toml_datetime@0.6.3",

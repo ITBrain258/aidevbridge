@@ -10,6 +10,12 @@ fn reader(name: &str) -> TmuxClient {
     TmuxClient::new(&TmuxSocket::own(&OwnSocket::new(name).unwrap()))
 }
 
+/// Ein lesender Client mit einem Namen, den `OwnSocket::new` ablehnt: Die
+/// Tests damit pruefen das Quoting und die Ablehnung einer tieferen Schicht.
+fn hostile_reader(name: &str) -> TmuxClient {
+    TmuxClient::new(&TmuxSocket::own(&OwnSocket::unchecked_for_test(name)))
+}
+
 struct Step {
     result: Result<ExecResult, ExecError>,
     elapsed: Duration,
@@ -137,7 +143,7 @@ fn end() -> Instant {
 async fn eight_rows_share_one_inventory_and_one_decreasing_absolute_budget() {
     let transport = ScriptedTransport::new(sequence(8), Duration::from_millis(500));
     let deadline = end();
-    let observed = reader("own'|$socket")
+    let observed = hostile_reader("own'|$socket")
         .observe_sessions(&transport, MeasuredVersion::V3_0, deadline)
         .await
         .unwrap();
@@ -368,7 +374,7 @@ async fn transport_failures_at_every_phase_stop_all_follow_up_queries() {
 #[tokio::test(start_paused = true)]
 async fn invalid_socket_context_is_rejected_before_any_command() {
     let transport = ScriptedTransport::new(Vec::new(), Duration::ZERO);
-    let error = reader("/not-a-named-socket")
+    let error = hostile_reader("/not-a-named-socket")
         .observe_sessions(&transport, MeasuredVersion::V3_4, end())
         .await
         .unwrap_err();

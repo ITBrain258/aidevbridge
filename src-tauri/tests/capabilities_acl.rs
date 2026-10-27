@@ -4,14 +4,13 @@
 //! Die vierte ist das Fenster-Label in `tauri.conf.json`, die fuenfte die
 //! `COMMANDS`-Liste in `acl_runtime.rs`. Dieser Test haelt sie zusammen.
 //!
-//! Er ist die maschinelle Fassung genau der "Checkliste, die nicht veralten
-//! darf", die das Abschlussreview verlangt hat -- dort noch als Kommentar
-//! geloest, was bereits einmal lautlos veraltet ist (eine dort notierte
-//! feste Zahl stimmte laengst nicht mehr).
+//! Er ist die maschinelle Fassung einer "Checkliste, die nicht veralten
+//! darf": als Kommentar ist eine solche Liste bereits einmal lautlos
+//! veraltet (eine dort notierte feste Zahl stimmte laengst nicht mehr).
 //!
 //! Braucht KEINE VM und keine Umgebungsvariable.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 const LIB_RS: &str = include_str!("../src/lib.rs");
 const BUILD_RS: &str = include_str!("../build.rs");
@@ -27,6 +26,8 @@ const CAPABILITY_JSON: &str = include_str!("../capabilities/default.json");
 const ACL_RUNTIME_RS: &str = include_str!("acl_runtime.rs");
 /// Vierte Liste, die zur ACL gehoert, ohne dass man ihr das ansieht: das
 /// Fenster-Label. Siehe `every_configured_window_is_covered_by_the_capability`.
+/// Dieselbe Datei traegt die Content-Security-Policy, siehe
+/// `both_content_security_policies_allow_only_what_the_frontend_loads`.
 const TAURI_CONF_JSON: &str = include_str!("../tauri.conf.json");
 
 /// Als Zahl im Test, nicht abgeleitet: ein neuer Command macht diesen Test
@@ -51,9 +52,8 @@ fn handler_commands() -> BTreeSet<String> {
         .expect("Ende des generate_handler!-Blocks nicht gefunden");
     block[..end]
         .lines()
-        // Kommentarzeilen ausfiltern: der Block enthaelt einen Task-13-
-        // Kommentar, der selbst "capabilities/default.json" und "allow-"
-        // erwaehnt.
+        // Kommentarzeilen ausfiltern: der Block enthaelt einen Kommentar, der
+        // selbst "capabilities/default.json" und "allow-" erwaehnt.
         .filter(|line| !line.trim_start().starts_with("//"))
         .filter_map(|line| line.trim().strip_prefix("commands::"))
         .map(|rest| rest.trim_end_matches(',').trim().to_string())
@@ -232,7 +232,7 @@ fn all_five_command_lists_agree() {
 /// Eigener Test statt einer weiteren Zusicherung in
 /// `all_three_command_lists_agree`: "ein Eintrag SPERRT einen Command" ist
 /// eine andere Diagnose als "die fuenf Listen laufen auseinander" -- unter
-/// jenem Namen gemeldet wuerde der Befund in die falsche Richtung schicken.
+/// jenem Namen gemeldet wuerde die Diagnose in die falsche Richtung schicken.
 #[test]
 fn no_deny_entry_shadows_a_command() {
     let entries = capability_permission_entries();
@@ -255,45 +255,85 @@ fn no_deny_entry_shadows_a_command() {
     );
 }
 
-/// Die beiden Core-Eintraege, an denen der WebView haengt, sind da.
+/// Die Eintraege, die keine App-Commands sind, sind GENAU die Core- und
+/// Plugin-Rechte, die das Frontend aufruft -- nicht mehr und nicht weniger.
 ///
-/// Auch das sieht `all_three_command_lists_agree` nicht: sein
-/// `strip_prefix("allow-")` wirft `core:default` und
-/// `core:event:allow-listen` weg, beide Listen blieben nach ihrem
-/// Verschwinden deckungsgleich.
+/// `all_five_command_lists_agree` sieht diese Eintraege nicht: sein
+/// `strip_prefix("allow-")` wirft alles weg, was nicht mit `allow-` beginnt.
 ///
-/// GENAU GELESEN, damit diese Zusicherung nicht mehr behauptet, als sie
-/// deckt: `core:default` enthaelt ueber `core:event:default` bereits
-/// `allow-listen` (nachgesehen in `gen/schemas/acl-manifests.json`:
-/// `core.default_permission` -> `core:event:default` ->
-/// `["allow-listen", "allow-unlisten", "allow-emit", "allow-emit-to"]`).
-/// Der ausdrueckliche `core:event:allow-listen`-Eintrag ist deshalb HEUTE
-/// redundant, und das Streichen EINES der beiden bliebe zur Laufzeit
-/// folgenlos. Gefordert werden trotzdem beide: Zusammen sind sie die
-/// doppelte Absicherung fuer `listen()`, und `listen()` ist der einzige Weg,
-/// auf dem `terminal://output` und `terminal://connection-lost` ueberhaupt
-/// im Frontend ankommen (`src/terminal.ts`). Faellt der Rest weg, rendert
-/// das Terminal nichts mehr -- ohne Build- und ohne Testfehler. Diese
-/// Zusicherung ist damit strenger als die Laufzeit, bewusst: sie macht das
-/// Entfernen zu einer sichtbaren Entscheidung statt zu einem Nebeneffekt.
+/// Weniger waere still kaputt: ohne `core:event:allow-listen` kommen
+/// `terminal://output` und `terminal://connection-lost` nie im Frontend an
+/// (`src/terminal.ts`), das Terminal rendert nichts -- ohne Build- und ohne
+/// Testfehler. Dasselbe gilt fuer `unlisten`, Fenstertitel,
+/// Taskleisten-Hinweis und Dateiauswahl (`src/main.ts`,
+/// `src/views/host-form.ts`).
+///
+/// Mehr waere still zu viel: ein Sammelrecht wie `core:default` oder
+/// `dialog:default` gibt dem WebView Befehle, die er nie aufruft (`emit`,
+/// Menue, Tray, Pfadaufloesung, Nachrichten- und Speicherdialog). Deshalb
+/// wird die Menge woertlich verglichen; jede Erweiterung macht diesen Test
+/// rot und ist damit eine Entscheidung statt eines Nebeneffekts. Dass die
+/// Laufzeit genau diese Rechte durchlaesst und den Rest von `core:default`
+/// ablehnt, belegt `tests/acl_runtime.rs`.
+///
+/// `core:webview:allow-internal-toggle-devtools` gehoert dazu, weil Tauri im
+/// Debug-Bau ein Skript einspielt, das Ctrl+Shift+I ueber
+/// `plugin:webview|internal_toggle_devtools` aufruft. Den Command
+/// registriert Tauri nur unter `cfg(any(debug_assertions, feature =
+/// "devtools"))` (tauri-2.11.5/src/webview/plugin.rs), und `Cargo.toml`
+/// schaltet `devtools` nicht ein: im Release-Bau erlaubt der Eintrag einen
+/// Command, den es dort nicht gibt.
+///
+/// Ein Eintrag als Objekt (`{"identifier": ..., "allow": [...]}`) ist
+/// ebenfalls eine Erweiterung, sogar mit eigenem Scope.
+/// `capability_permission_entries()` ueberspringt solche Eintraege, deshalb
+/// prueft dieser Test sie selbst.
 #[test]
 fn the_core_permissions_the_webview_needs_are_present() {
+    let value: serde_json::Value =
+        serde_json::from_str(CAPABILITY_JSON).expect("default.json ist kein gueltiges JSON");
+    let not_plain: Vec<&serde_json::Value> = value["permissions"]
+        .as_array()
+        .expect("permissions-Array fehlt in default.json")
+        .iter()
+        .filter(|entry| !entry.is_string())
+        .collect();
+    assert!(
+        not_plain.is_empty(),
+        "Eintraege als Objekt in capabilities/default.json: {not_plain:?}. Sie erweitern die \
+         Rechte des WebViews (mit Scope) an dieser Liste vorbei."
+    );
+
     let entries = capability_permission_entries();
     assert!(
         !entries.is_empty(),
         "Extraktion der permissions aus default.json lieferte nichts -- Feldname geaendert?"
     );
-    for required in [
-        "core:default",
+    let actual: BTreeSet<&str> = entries
+        .iter()
+        .map(String::as_str)
+        .filter(|entry| !entry.starts_with("allow-"))
+        .collect();
+    let expected: BTreeSet<&str> = [
         "core:event:allow-listen",
+        "core:event:allow-unlisten",
         "core:window:allow-set-title",
         "core:window:allow-request-user-attention",
-    ] {
-        assert!(
-            entries.iter().any(|entry| entry == required),
-            "{required} fehlt in capabilities/default.json."
-        );
-    }
+        "core:webview:allow-internal-toggle-devtools",
+        "dialog:allow-open",
+    ]
+    .into_iter()
+    .collect();
+
+    let missing: Vec<&&str> = expected.difference(&actual).collect();
+    let extra: Vec<&&str> = actual.difference(&expected).collect();
+    assert!(
+        missing.is_empty() && extra.is_empty(),
+        "Die Core- und Plugin-Rechte in capabilities/default.json weichen ab.\n\
+         Fehlt (das Frontend ruft es auf, im Fenster waere es eine abgelehnte Promise): \
+         {missing:?}\n\
+         Zu viel (das Frontend ruft es nie auf): {extra:?}"
+    );
 }
 
 /// Die Fenster-Labels aus `tauri.conf.json`, mit Tauris Vorgabe fuer den
@@ -392,4 +432,108 @@ fn extraction_is_limited_to_the_handler_block() {
         "AppState ist kein Command -- die Extraktion greift ausserhalb des \
          generate_handler!-Blocks"
     );
+}
+
+/// Zerlegt eine Content-Security-Policy in Direktive -> Quellen.
+///
+/// Doppelte Direktiven sind ein Fehler, keine Kleinigkeit: der Browser
+/// wertet nur die ERSTE aus, eine Map behielte die letzte -- der Test
+/// pruefte dann eine andere Policy als die, die gilt.
+fn csp_directives(policy: &str) -> BTreeMap<String, Vec<String>> {
+    let mut directives = BTreeMap::new();
+    for directive in policy.split(';').map(str::trim).filter(|d| !d.is_empty()) {
+        let mut parts = directive.split_whitespace();
+        let name = parts
+            .next()
+            .expect("nicht leere Direktive ohne Namen")
+            .to_string();
+        let sources: Vec<String> = parts.map(str::to_string).collect();
+        assert!(
+            directives.insert(name.clone(), sources).is_none(),
+            "Direktive {name} steht doppelt in der CSP {policy:?}; der Browser wertet nur die \
+             erste aus."
+        );
+    }
+    directives
+}
+
+/// `csp` und `devCsp` erlauben nur, was das Frontend wirklich laedt, und
+/// sperren die Ziele, die es nie braucht.
+///
+/// - `base-uri 'none'`: kein `<base>` kann relative URLs (Skripte,
+///   Stylesheets) auf eine fremde Herkunft umlenken. `default-src` deckt
+///   `base-uri` NICHT ab.
+/// - `form-action 'none'`: beide Formulare (`src/views/host-form.ts`,
+///   `src/views/session-dialog.ts`) rufen beim Absenden `preventDefault()`
+///   auf, keines schickt je etwas ab. Auch `form-action` erbt nicht von
+///   `default-src`.
+/// - `object-src 'none'`: kein `<object>`/`<embed>` im Frontend.
+/// - kein `blob:`: das Frontend und die xterm-Addons starten keinen Worker
+///   und erzeugen keine Objekt-URLs; ohne `worker-src` gilt fuer Worker
+///   `script-src 'self'`.
+/// - `font-src` ohne `data:`: keine `@font-face` im Frontend und in xterm.
+/// - `img-src` BEHAELT `data:`: `src/styles.css` zeichnet ein Warnsymbol als
+///   `mask: url("data:image/svg+xml,...")`; ohne `data:` verschwindet es
+///   lautlos.
+/// - `connect-src` bleibt woertlich, was der IPC-Kanal (und im Dev-Modus
+///   der Vite-Server samt HMR-Websocket) braucht: ohne `ipc:` und
+///   `http://ipc.localhost` scheitert jeder `invoke`.
+///
+/// `style-src 'unsafe-inline'` bleibt bewusst stehen, xterm setzt Styles
+/// inline; dieser Test sagt dazu nichts.
+#[test]
+fn both_content_security_policies_allow_only_what_the_frontend_loads() {
+    let config: serde_json::Value =
+        serde_json::from_str(TAURI_CONF_JSON).expect("tauri.conf.json ist kein gueltiges JSON");
+    let security = &config["app"]["security"];
+    for (key, expected_connect_src) in [
+        ("csp", "ipc: http://ipc.localhost"),
+        (
+            "devCsp",
+            "ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1420 \
+             ws://localhost:1421",
+        ),
+    ] {
+        let policy = security[key]
+            .as_str()
+            .unwrap_or_else(|| panic!("app.security.{key} fehlt in tauri.conf.json"));
+        let directives = csp_directives(policy);
+        let sources = |name: &str| -> Vec<&str> {
+            directives
+                .get(name)
+                .unwrap_or_else(|| panic!("{key}: Direktive {name} fehlt in {policy:?}"))
+                .iter()
+                .map(String::as_str)
+                .collect()
+        };
+
+        for closed in ["base-uri", "form-action", "object-src"] {
+            assert_eq!(
+                sources(closed),
+                ["'none'"],
+                "{key}: {closed} muss 'none' sein -- default-src deckt base-uri und \
+                 form-action nicht ab."
+            );
+        }
+        assert!(
+            !policy.contains("blob:"),
+            "{key}: blob: erlaubt Worker und Objekt-URLs, die das Frontend nicht braucht: \
+             {policy:?}"
+        );
+        assert!(
+            !sources("font-src").contains(&"data:"),
+            "{key}: font-src erlaubt data:, obwohl das Frontend keine eingebetteten Schriften \
+             laedt: {policy:?}"
+        );
+        assert!(
+            sources("img-src").contains(&"data:"),
+            "{key}: img-src braucht data: fuer die Maske in src/styles.css: {policy:?}"
+        );
+        assert_eq!(
+            sources("connect-src").join(" "),
+            expected_connect_src,
+            "{key}: connect-src weicht ab -- ohne ipc: und http://ipc.localhost scheitert jeder \
+             invoke."
+        );
+    }
 }

@@ -2,7 +2,7 @@
 //! Passphrase), ssh-agent, Passwort (Spec §8.4).
 //!
 //! Der Entwickler dieses Projekts testet nur gegen den einfachsten Fall
-//! (Schluessel ohne Passphrase, Task 5). Echte Nutzer haben Passphrasen,
+//! (Schluessel ohne Passphrase). Echte Nutzer haben Passphrasen,
 //! einen unter Windows 11 standardmaessig deaktivierten ssh-agent-Dienst
 //! und Passwort-Logins. Deshalb muss jeder Fehlschlag unterscheidbar sein:
 //! die Meldung allein muss dem Nutzer sagen, was zu tun ist (Spec §7.5).
@@ -72,58 +72,33 @@ pub enum AuthError {
     PasswordWrong,
     #[error("agent unavailable: {0}")]
     AgentUnavailable(String),
+    /// Der Agent ist erreichbar, `request_identities()` liefert aber keine
+    /// Identitaet. Getrennt von `AgentUnavailable`, weil die richtige
+    /// Handlung eine andere ist: dort den Dienst starten (Windows:
+    /// `Start-Service ssh-agent`), hier einen Schluessel mit `ssh-add` laden.
+    /// Der Display-Text beginnt wie der von `AgentUnavailable`.
+    #[error("agent unavailable: no identities loaded: {0}")]
+    AgentNoIdentities(String),
     #[error("method not offered: {0}")]
     MethodNotOffered(String),
+    /// `AuthResult::Failure.partial_success`: der Server hat GENAU DEN
+    /// VERSUCHTEN FAKTOR akzeptiert, verlangt aber laut RFC 4252 §5.1
+    /// mindestens einen weiteren (z. B. `AuthenticationMethods
+    /// publickey,password` in `sshd_config`). Der Faktor steht dann u. U.
+    /// nicht mehr in `remaining_methods`; "Methode nicht angeboten" oder
+    /// "falsches Passwort" waere eine Luege. Mehrfaktor-Anmeldung zu
+    /// unterstuetzen ist laut Spec kein Ziel dieser Version -- die Anwendung
+    /// muss das aber SAGEN. Der Display-Text beginnt wie der von
+    /// `MethodNotOffered`.
+    #[error("method not offered: partial-success: {0}")]
+    MultiFactorRequired(String),
     #[error("secure signing failed")]
     SigningFailed,
 }
 
-/// Marker-Praefix im mitgefuehrten Text von `AuthError::MethodNotOffered`,
-/// wenn `AuthResult::Failure.partial_success` gesetzt war.
-///
-/// **Bekannte Grenze (Review-Befund 1, Task 6):** `partial_success == true`
-/// bedeutet laut russh-Doc-Kommentar "though auth method has been accepted,
-/// further authentication is required" -- der Server erzwingt Mehrfaktor-
-/// Authentifizierung (z. B. `AuthenticationMethods publickey,password` in
-/// `sshd_config`) und hat GENAU DEN VERSUCHTEN FAKTOR akzeptiert, verlangt
-/// aber laut RFC 4252 §5.1 mindestens einen weiteren. Ohne diese
-/// Unterscheidung waere der Faktor u.U. nicht mehr in `remaining_methods`
-/// enthalten, und der Code haette faelschlich "Methode nicht angeboten"
-/// gemeldet -- fuer einen Faktor, den der Server bereits akzeptiert hat.
-///
-/// `AuthError` hat fuer Mehrfaktor-Anmeldung keine eigene Variante.
-/// `MethodNotOffered` ist die am wenigsten falsche vorhandene Variante --
-/// aber auch deren generische, feste Meldung ("The server does not offer
-/// this authentication method") waere hier eine Luege: die Methode WURDE
-/// angeboten und akzeptiert. Deshalb traegt der mitgefuehrte Text diesen
-/// Marker, und `user_message()` erkennt ihn und ersetzt die generische
-/// Meldung durch eine ehrliche, auf fehlende Mehrfaktor-Unterstuetzung
-/// hinweisende. Mehrfaktor-Authentifizierung selbst zu unterstuetzen ist
-/// laut Spec kein Ziel dieser Version -- die Anwendung muss das aber
-/// SAGEN, nicht so tun, als waere der Faktor falsch oder unbekannt.
-const PARTIAL_SUCCESS_MARKER: &str = "partial-success: ";
-
-/// Marker-Praefix im mitgefuehrten Text von `AuthError::AgentUnavailable`,
-/// wenn der Agent erreichbar war, `request_identities()` aber eine leere
-/// Liste lieferte.
-///
-/// **Bekannte Grenze (Review-Befund 2, Task 6):** zu unterscheiden von
-/// "Agent nicht erreichbar" (Verbindungsaufbau zur Pipe/zum Socket
-/// schlaegt fehl) -- dort ist "Dienst starten" (Windows:
-/// `Start-Service ssh-agent`) die richtige Handlung. Hier waere sie
-/// irrefuehrend: der Agent LAEUFT, ihm fehlen nur geladene Schluessel, die
-/// richtige Handlung ist `ssh-add`. Gleiche Technik wie bei
-/// `PARTIAL_SUCCESS_MARKER`: keine eigene `AuthError`-Variante, Kontext
-/// ueber den mitgefuehrten Text, ausgewertet in `user_message()`.
-const AGENT_NO_IDENTITIES_MARKER: &str = "no identities loaded: ";
-
 impl AuthError {
     /// Jede Variante braucht eine eigene, handlungsleitende Meldung (Spec §7.5).
-    ///
-    /// Fuer `AgentUnavailable` und `MethodNotOffered` haengt die Meldung
-    /// zusaetzlich vom mitgefuehrten Text ab (siehe `PARTIAL_SUCCESS_MARKER`
-    /// und `AGENT_NO_IDENTITIES_MARKER` oben). Diese beiden Varianten sind
-    /// deshalb nicht auf eine einzige feste Meldung beschraenkt.
+    /// Der mitgefuehrte Text aendert die Meldung nie.
     pub fn user_message(&self) -> &'static str {
         match self {
             Self::HostUnreachable => "Host not reachable. Check hostname, port and network.",
@@ -134,22 +109,18 @@ impl AuthError {
             Self::SigningFailed => {
                 "Secure signing failed. Try again or choose another authentication method."
             }
-            Self::AgentUnavailable(detail) => {
-                if detail.starts_with(AGENT_NO_IDENTITIES_MARKER) {
-                    "ssh-agent is reachable but has no keys loaded. Add one with: ssh-add"
-                } else {
-                    "ssh-agent not reachable. On Windows 11 the service is disabled by default — \
-                     start it with: Set-Service ssh-agent -StartupType Automatic; Start-Service ssh-agent"
-                }
+            Self::AgentUnavailable(_) => {
+                "ssh-agent not reachable. On Windows 11 the service is disabled by default — \
+                 start it with: Set-Service ssh-agent -StartupType Automatic; Start-Service ssh-agent"
             }
-            Self::MethodNotOffered(detail) => {
-                if detail.starts_with(PARTIAL_SUCCESS_MARKER) {
-                    "This account requires more than one authentication factor (e.g. key + \
-                     password). aidevbridge does not support multi-factor authentication in \
-                     this version."
-                } else {
-                    "The server does not offer this authentication method."
-                }
+            Self::AgentNoIdentities(_) => {
+                "ssh-agent is reachable but has no keys loaded. Add one with: ssh-add"
+            }
+            Self::MethodNotOffered(_) => "The server does not offer this authentication method.",
+            Self::MultiFactorRequired(_) => {
+                "This account requires more than one authentication factor (e.g. key + \
+                 password). aidevbridge does not support multi-factor authentication in \
+                 this version."
             }
         }
     }
@@ -193,23 +164,21 @@ pub fn classify_key_error(msg: &str) -> AuthError {
     }
 }
 
-/// Baut die `MethodNotOffered`-Variante fuer den `partial_success`-Fall
-/// (siehe `PARTIAL_SUCCESS_MARKER` oben) -- gemeinsam fuer alle drei
-/// Auth-Wege, damit die Meldung fuer Schluessel-, Agent- und Passwort-Weg
-/// wortgleich aufgebaut ist.
+/// Baut `MultiFactorRequired` fuer den `partial_success`-Fall -- gemeinsam
+/// fuer alle drei Auth-Wege, damit der Text fuer Schluessel-, Agent- und
+/// Passwort-Weg wortgleich aufgebaut ist.
 fn partial_success_error(method_label: &str) -> AuthError {
-    AuthError::MethodNotOffered(format!(
-        "{PARTIAL_SUCCESS_MARKER}{method_label} was accepted by the server, but it requires \
-         an additional authentication factor (multi-factor authentication is not supported)"
+    AuthError::MultiFactorRequired(format!(
+        "{method_label} was accepted by the server, but it requires an additional \
+         authentication factor (multi-factor authentication is not supported)"
     ))
 }
 
 /// Ordnet ein gescheitertes `AuthResult` fuer die beiden Public-Key-Wege
 /// (Schluessel- und Agent-Auth, Spec §8.4) der richtigen Variante zu.
 ///
-/// Prueft `partial_success` ZUERST (Review-Befund 1, Task 6) -- siehe
-/// `PARTIAL_SUCCESS_MARKER` fuer die Begruendung. Ist `partial_success`
-/// falsch, bleibt es beim bisherigen Verhalten: `MethodNotOffered`, ohne
+/// Prueft `partial_success` ZUERST, siehe `AuthError::MultiFactorRequired`.
+/// Ist `partial_success` falsch, bleibt es bei `MethodNotOffered`, ohne
 /// zusaetzliche Auswertung von `remaining_methods`. Anders als beim
 /// Passwort-Weg (`classify_password_failure`) gibt es hier keine
 /// `AuthError`-Variante, die "Schluessel korrekt entschluesselt, aber vom
@@ -228,14 +197,13 @@ fn classify_publickey_failure(partial_success: bool, method_label: &str) -> Auth
 /// Variante zu, statt jeden Fehlschlag pauschal als "falsches Passwort" zu
 /// melden.
 ///
-/// Prueft `partial_success` ZUERST (Review-Befund 1, Task 6) -- siehe
-/// `PARTIAL_SUCCESS_MARKER` fuer die Begruendung: ein akzeptiertes Passwort
-/// bei serverseitig erzwungener Mehrfaktor-Authentifizierung darf weder als
-/// `PasswordWrong` (das Passwort war korrekt) noch als generisches
-/// `MethodNotOffered` (die Methode wurde sehr wohl angeboten und
-/// akzeptiert) gemeldet werden.
+/// Prueft `partial_success` ZUERST, siehe `AuthError::MultiFactorRequired`:
+/// ein akzeptiertes Passwort bei serverseitig erzwungener
+/// Mehrfaktor-Authentifizierung darf weder als `PasswordWrong` (das Passwort
+/// war korrekt) noch als generisches `MethodNotOffered` (die Methode wurde
+/// sehr wohl angeboten und akzeptiert) gemeldet werden.
 ///
-/// Erst danach greift die bisherige Logik: `remaining_methods` listet laut
+/// Erst danach greift die uebrige Logik: `remaining_methods` listet laut
 /// russh-Doc-Kommentar ("The server suggests to proceed with these auth
 /// methods") die Methoden, mit denen der Server einen weiteren Versuch fuer
 /// sinnvoll haelt -- deckungsgleich mit der "authentications that can
@@ -247,12 +215,11 @@ fn classify_publickey_failure(partial_success: bool, method_label: &str) -> Auth
 /// Passwort abgelehnt, bietet die Methode aber grundsaetzlich an.
 ///
 /// Nimmt bewusst `&MethodSet` und `bool` statt der ganzen `AuthResult`
-/// entgegen (Review-Befund 4, Task 6): der vorherige `unreachable!()` fuer
-/// den `AuthResult::Success`-Fall war nur an einer korrekt bewachten
-/// Aufrufstelle unerreichbar, also ein stiller Panic-Pfad bei
-/// Wiederverwendung. Mit dieser Signatur ist der Erfolgsfall am Aufrufer
-/// (`authenticate()`) strukturell ausgeschlossen -- es gibt keinen Wert
-/// dieser Parameter, der `AuthResult::Success` entspraeche, also auch
+/// entgegen: ein `unreachable!()` fuer den `AuthResult::Success`-Fall waere
+/// nur an einer korrekt bewachten Aufrufstelle unerreichbar, also ein stiller
+/// Panic-Pfad bei Wiederverwendung. Mit dieser Signatur ist der Erfolgsfall am
+/// Aufrufer (`authenticate()`) strukturell ausgeschlossen -- es gibt keinen
+/// Wert dieser Parameter, der `AuthResult::Success` entspraeche, also auch
 /// keinen Panic-Pfad mehr, der wegdefiniert werden muesste.
 fn classify_password_failure(
     remaining_methods: &russh::MethodSet,
@@ -276,16 +243,11 @@ fn agent_unavailable(e: impl std::fmt::Display) -> AuthError {
     AuthError::AgentUnavailable(e.to_string())
 }
 
-/// Baut die `AgentUnavailable`-Variante fuer "Agent erreichbar, aber keine
-/// Identitaeten geladen" (Review-Befund 2, Task 6) -- siehe
-/// `AGENT_NO_IDENTITIES_MARKER` fuer die Begruendung, warum das eine
-/// andere Meldung braucht als "Agent nicht erreichbar". Als eigene
-/// Funktion ausgelagert, damit sie ohne echten Agent-Prozess unit-testbar
-/// ist (siehe Testmodul unten).
+/// Baut `AgentNoIdentities` fuer "Agent erreichbar, aber keine Identitaeten
+/// geladen". Als eigene Funktion ausgelagert, damit sie ohne echten
+/// Agent-Prozess unit-testbar ist (siehe Testmodul unten).
 fn agent_has_no_identities_error() -> AuthError {
-    AuthError::AgentUnavailable(format!(
-        "{AGENT_NO_IDENTITIES_MARKER}agent is reachable but has no identities loaded"
-    ))
+    AuthError::AgentNoIdentities("agent is reachable but has no identities loaded".into())
 }
 
 #[cfg(unix)]
@@ -356,9 +318,9 @@ where
         .await
         .map_err(agent_unavailable)?;
     if ids.is_empty() {
-        // Review-Befund 2 (Task 6): der Agent IST erreichbar, ihm fehlen nur
-        // geladene Schluessel -- die richtige Handlung ist `ssh-add`, nicht
-        // ein Dienst-Neustart. Siehe `AGENT_NO_IDENTITIES_MARKER`.
+        // Der Agent IST erreichbar, ihm fehlen nur geladene Schluessel -- die
+        // richtige Handlung ist `ssh-add`, nicht ein Dienst-Neustart (siehe
+        // `AuthError::AgentNoIdentities`).
         return Err(agent_has_no_identities_error());
     }
     for id in ids {
@@ -368,27 +330,31 @@ where
         let AgentIdentity::PublicKey { key, .. } = id else {
             continue;
         };
-        // Task 5a (Befund 3): `best_supported_rsa_hash()` wartet bis zu
-        // einer Sekunde auf EXT_INFO (RFC 8308) -- das darf einen
-        // ed25519-Login nicht verlangsamen, deshalb nur fuer RSA-Schluessel
-        // abgefragt.
+        // RSA-Hash nach server-sig-algs (Befund 3 der Bewertung 2026-09-04):
+        // `best_supported_rsa_hash()` wartet bis zu einer Sekunde auf EXT_INFO
+        // (RFC 8308) -- das darf einen ed25519-Login nicht verlangsamen,
+        // deshalb nur fuer RSA-Schluessel abgefragt.
         let hash = if key.algorithm().is_rsa() {
             choose_rsa_hash(handle.best_supported_rsa_hash().await)
         } else {
             None
         };
+        // Jeder Fehler bricht die Schleife ab, auch eine abgelehnte Signatur:
+        // nach einer gescheiterten Signaturanfrage wartet die russh-Session
+        // nur noch auf die Signatur und verwirft alles andere, die naechste
+        // Identitaet wuerde haengen. Weitere Identitaeten probieren geht erst
+        // mit einem russh-Patch.
         let result = handle
             .authenticate_publickey_with(user, key, hash, &mut agent)
             .await
-            .map_err(|_| AuthError::HostUnreachable)?;
+            .map_err(agent_sign_error)?;
         match result {
             russh::client::AuthResult::Success => return Ok(()),
-            // Review-Befund 1 (Task 6): partial_success ZUERST pruefen und
-            // sofort melden, statt weitere Identitaeten durchzuprobieren --
-            // ein zweiter Schluessel behebt den fehlenden zweiten Faktor
-            // i. d. R. nicht (Spec verlangt kein 2FA-Handling), und ein
-            // ehrlicher Abbruch ist einer stillen weiteren Fehlschlagkette
-            // vorzuziehen.
+            // partial_success ZUERST pruefen und sofort melden, statt weitere
+            // Identitaeten durchzuprobieren -- ein zweiter Schluessel behebt
+            // den fehlenden zweiten Faktor i. d. R. nicht (Spec verlangt kein
+            // 2FA-Handling), und ein ehrlicher Abbruch ist einer stillen
+            // weiteren Fehlschlagkette vorzuziehen.
             russh::client::AuthResult::Failure {
                 partial_success: true,
                 ..
@@ -400,6 +366,20 @@ where
         }
     }
     Err(classify_publickey_failure(false, "publickey (agent)"))
+}
+
+/// Ordnet den Fehler einer Agent-Anmeldung zu. `Send` heisst, die
+/// SSH-Session selbst ist weg: ein Verbindungsfehler. `Key` kommt vom Agenten:
+/// eine verweigerte Signatur (SSH_AGENT_FAILURE, etwa nach abgelehnter
+/// `ssh-add -c`-Rueckfrage oder bei einem FIDO-Schluessel ohne Beruehrung),
+/// aber auch IO- und Protokollfehler des Agenten. Sie alle zaehlen als
+/// Signaturfehler; `SigningFailed` ist ein Anmeldefehler und beendet damit die
+/// automatische Wiederverbindung, statt bei jedem Versuch erneut nachzufragen.
+fn agent_sign_error(error: russh::AgentAuthError) -> AuthError {
+    match error {
+        russh::AgentAuthError::Send(_) => AuthError::HostUnreachable,
+        russh::AgentAuthError::Key(_) => AuthError::SigningFailed,
+    }
 }
 
 /// Bildet `server-sig-algs` (aus `Handle::best_supported_rsa_hash()`, EXT_INFO
@@ -416,6 +396,9 @@ pub fn choose_rsa_hash(
     negotiated: Result<Option<Option<russh::keys::HashAlg>>, russh::Error>,
 ) -> Option<russh::keys::HashAlg> {
     match negotiated {
+        // `Some(None)` gibt es nur, wenn der Server kein rsa-sha2-* anbietet;
+        // dann signiert russh mit `ssh-rsa`/SHA-1. Dieser Rueckfall bleibt
+        // bewusst erhalten und steht in SECURITY.md als akzeptiertes Risiko.
         Ok(Some(inner)) => inner,
         Ok(None) | Err(_) => Some(russh::keys::HashAlg::Sha256),
     }
@@ -617,6 +600,7 @@ pub(crate) async fn authenticate_prepared<H: client::Handler>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
     const ENCRYPTED_PKCS8: &str =
         include_str!("../../tests/fixtures/rsa-signing/russh-rsa-pkcs8-encrypted.pem");
@@ -858,9 +842,10 @@ mod tests {
         assert!(!is_encrypted_pkcs8(&format!("{ppk}\n{ENCRYPTED_PKCS8}")));
     }
 
-    // --- Task 5a (Befund 3): server-sig-algs -> Hash-Algorithmus fuer RSA.
-    // `hash_alg = None` bildete jeden RSA-Schluessel auf `ssh-rsa`/SHA-1 ab,
-    // das OpenSSH ab 8.8 ablehnt (VM 192.0.2.20 laeuft OpenSSH 9.6).
+    // --- server-sig-algs -> Hash-Algorithmus fuer RSA (Befund 3 der
+    // Bewertung 2026-09-04). `hash_alg = None` bildet jeden RSA-Schluessel
+    // auf `ssh-rsa`/SHA-1 ab, das OpenSSH ab 8.8 ablehnt (VM 192.0.2.20
+    // laeuft OpenSSH 9.6).
 
     #[test]
     fn choose_rsa_hash_falls_back_to_sha256_when_server_says_nothing() {
@@ -909,7 +894,9 @@ mod tests {
             AuthError::PassphraseWrong,
             AuthError::PasswordWrong,
             AuthError::AgentUnavailable("x".into()),
+            AuthError::AgentNoIdentities("x".into()),
             AuthError::MethodNotOffered("x".into()),
+            AuthError::MultiFactorRequired("x".into()),
             AuthError::SigningFailed,
         ]
         .iter()
@@ -917,19 +904,17 @@ mod tests {
         .collect();
         assert_eq!(
             msgs.len(),
-            8,
+            10,
             "Meldungen muessen unterscheidbar sein (Spec §7.5)"
         );
     }
 
-    /// Ergaenzung zum Test der unterscheidbaren Varianten oben:
-    /// `AgentUnavailable` und `MethodNotOffered` haben seit Review-Befund 1/2
-    /// (Task 6) je zwei moegliche Meldungen, abhaengig vom mitgefuehrten
-    /// Text (`PARTIAL_SUCCESS_MARKER`, `AGENT_NO_IDENTITIES_MARKER`). Jener
-    /// Test mit dem Platzhaltertext "x" sieht nur je eine davon --
-    /// dieser Test deckt alle in der Praxis erreichbaren Meldungen ab,
-    /// damit eine kuenftige Aenderung, die z. B. die ssh-add-Meldung mit der
-    /// generischen Agent-Meldung kollidieren laesst, tatsaechlich auffaellt.
+    /// Ergaenzung zum Test der unterscheidbaren Varianten oben: dieselben
+    /// Meldungen, aber so, wie die Erzeuger sie tatsaechlich bauen
+    /// (`agent_has_no_identities_error`, `classify_password_failure` mit
+    /// `partial_success`) statt mit dem Platzhaltertext "x". Faellt auf, wenn
+    /// ein Erzeuger die falsche Variante waehlt und dadurch z. B. die
+    /// ssh-add-Meldung mit der generischen Agent-Meldung zusammenfaellt.
     #[test]
     fn reachable_user_messages_are_pairwise_distinct() {
         use std::collections::HashSet;
@@ -1020,8 +1005,8 @@ sJWR7W+cGvJ/vLsw==
     }
 
     // --- Passwort-Zweig: Unit-Tests gegen die Fehlerklassifikation statt
-    // gegen die echte VM (Task-Vorgabe). `AuthResult` und `MethodSet` sind
-    // von aussen konstruierbar (russh::client::AuthResult re-exportiert
+    // gegen die echte VM. `AuthResult` und `MethodSet` sind von aussen
+    // konstruierbar (russh::client::AuthResult re-exportiert
     // crate::auth::AuthResult, siehe russh-0.62.4/src/client/mod.rs:60),
     // deshalb ohne Netzwerkverbindung testbar.
 
@@ -1049,14 +1034,14 @@ sJWR7W+cGvJ/vLsw==
         }
     }
 
-    // --- Review-Befund 1 (Task 6): partial_success wurde in allen drei
-    // Auth-Zweigen ignoriert. Ein korrektes Passwort/Schluessel/Agent-Key
-    // bei serverseitig erzwungener Mehrfaktor-Authentifizierung
-    // (`AuthenticationMethods publickey,password`) lieferte
-    // `AuthResult::Failure { partial_success: true, .. }` -- ohne die
-    // Pruefung unten waere das als `MethodNotOffered` (Passwort-/
-    // Schluessel-Zweig identisch) oder generisch als `PasswordWrong`
-    // fehlklassifiziert worden, obwohl der Faktor akzeptiert wurde.
+    // --- partial_success in allen drei Auth-Zweigen. Ein korrektes
+    // Passwort/Schluessel/Agent-Key bei serverseitig erzwungener
+    // Mehrfaktor-Authentifizierung (`AuthenticationMethods
+    // publickey,password`) liefert `AuthResult::Failure { partial_success:
+    // true, .. }` -- ohne die Pruefung unten waere das als
+    // `MethodNotOffered` (Passwort-/Schluessel-Zweig identisch) oder
+    // generisch als `PasswordWrong` fehlklassifiziert, obwohl der Faktor
+    // akzeptiert wurde.
 
     #[test]
     fn password_partial_success_is_neither_wrong_password_nor_generic_not_offered() {
@@ -1068,15 +1053,10 @@ sJWR7W+cGvJ/vLsw==
         let mut remaining = russh::MethodSet::empty();
         remaining.push(russh::MethodKind::PublicKey);
         let err = classify_password_failure(&remaining, true);
-        match &err {
-            AuthError::MethodNotOffered(detail) => {
-                assert!(
-                    detail.starts_with(PARTIAL_SUCCESS_MARKER),
-                    "kein partial-success-Marker im Text: {detail:?}"
-                );
-            }
-            other => panic!("falsche Variante fuer partial_success: {other:?}"),
-        }
+        assert!(
+            matches!(err, AuthError::MultiFactorRequired(_)),
+            "falsche Variante fuer partial_success: {err:?}"
+        );
         assert_ne!(
             err.user_message(),
             AuthError::PasswordWrong.user_message(),
@@ -1094,22 +1074,65 @@ sJWR7W+cGvJ/vLsw==
     fn publickey_partial_success_is_reported_as_multi_factor_required() {
         // Schluessel- und Agent-Weg teilen sich `classify_publickey_failure`.
         let err = classify_publickey_failure(true, "publickey");
-        match &err {
-            AuthError::MethodNotOffered(detail) => {
-                assert!(detail.starts_with(PARTIAL_SUCCESS_MARKER));
-            }
-            other => panic!("falsche Variante fuer partial_success: {other:?}"),
-        }
+        assert!(
+            matches!(err, AuthError::MultiFactorRequired(_)),
+            "falsche Variante fuer partial_success: {err:?}"
+        );
         assert_ne!(
             err.user_message(),
             AuthError::MethodNotOffered("publickey".into()).user_message()
         );
     }
 
+    /// Display- und Nutzertext der Mehrfaktor- und der Leerer-Agent-Meldung
+    /// sind woertlich festgehalten: beide landen in Fehlerketten und beim
+    /// Nutzer, und eine Umstellung der Fehlertypen darf keinen davon aendern.
+    #[test]
+    fn multi_factor_and_empty_agent_errors_keep_their_display_and_user_text() {
+        let mut remaining = russh::MethodSet::empty();
+        remaining.push(russh::MethodKind::PublicKey);
+        let multi_factor = "This account requires more than one authentication factor (e.g. key + \
+                            password). aidevbridge does not support multi-factor authentication in \
+                            this version.";
+        for (error, display) in [
+            (
+                classify_password_failure(&remaining, true),
+                "method not offered: partial-success: password was accepted by the server, but \
+                 it requires an additional authentication factor (multi-factor authentication \
+                 is not supported)",
+            ),
+            (
+                classify_publickey_failure(true, "publickey"),
+                "method not offered: partial-success: publickey was accepted by the server, but \
+                 it requires an additional authentication factor (multi-factor authentication \
+                 is not supported)",
+            ),
+            (
+                partial_success_error("publickey (agent)"),
+                "method not offered: partial-success: publickey (agent) was accepted by the \
+                 server, but it requires an additional authentication factor (multi-factor \
+                 authentication is not supported)",
+            ),
+        ] {
+            assert_eq!(error.to_string(), display);
+            assert_eq!(error.user_message(), multi_factor);
+        }
+        let empty_agent = agent_has_no_identities_error();
+        assert_eq!(
+            empty_agent.to_string(),
+            "agent unavailable: no identities loaded: agent is reachable but has no identities \
+             loaded"
+        );
+        assert_eq!(
+            empty_agent.user_message(),
+            "ssh-agent is reachable but has no keys loaded. Add one with: ssh-add"
+        );
+    }
+
     #[test]
     fn publickey_failure_without_partial_success_stays_generic_method_not_offered() {
         // Gegenprobe zum vorigen Test: ohne partial_success bleibt es beim
-        // bisherigen, generischen Verhalten.
+        // generischen Verhalten.
         let err = classify_publickey_failure(false, "publickey");
         match err {
             AuthError::MethodNotOffered(detail) => assert_eq!(detail, "publickey"),
@@ -1137,15 +1160,19 @@ sJWR7W+cGvJ/vLsw==
         );
     }
 
-    // --- Review-Befund 2 (Task 6): "Agent nicht erreichbar" und "Agent
-    // erreichbar, aber keine Identitaeten geladen" muessen unterscheidbare
-    // Meldungen liefern -- die erste rät zum Dienst-Neustart, die zweite zu
-    // `ssh-add`. Vertauscht waeren beide Ratschlaege falsch.
+    // --- "Agent nicht erreichbar" und "Agent erreichbar, aber keine
+    // Identitaeten geladen" muessen unterscheidbare Meldungen liefern -- die
+    // erste raet zum Dienst-Neustart, die zweite zu `ssh-add`. Vertauscht
+    // waeren beide Ratschlaege falsch.
 
     #[test]
     fn agent_unreachable_is_distinct_from_agent_reachable_without_identities() {
         let unreachable = AuthError::AgentUnavailable("connection refused".into());
         let no_identities = agent_has_no_identities_error();
+        assert!(
+            matches!(no_identities, AuthError::AgentNoIdentities(_)),
+            "{no_identities:?}"
+        );
         assert_ne!(
             unreachable.user_message(),
             no_identities.user_message(),
@@ -1189,13 +1216,12 @@ sJWR7W+cGvJ/vLsw==
         assert!(matches!(result, Err(AuthError::AgentUnavailable(_))));
     }
 
-    /// Unix-Pendant zu `agent_unavailable_when_pipe_does_not_exist` oben
-    /// (Review-Befund 3, Task 6): der `#[cfg(unix)]`-Zweig lief bisher nie
-    /// durch einen Compiler, weil die Entwicklungsmaschine Windows ist --
-    /// dieser Test gibt dem Pfad wenigstens EINEN Test, den die
-    /// Ubuntu-CI tatsaechlich ausfuehrt (auf Windows ist er per `cfg(unix)`
-    /// komplett abwesend; den Linux-Uebersetzungsnachweis liefert ein
-    /// separates `cargo check`).
+    /// Unix-Pendant zu `agent_unavailable_when_pipe_does_not_exist` oben: der
+    /// `#[cfg(unix)]`-Zweig laeuft auf einer Windows-Entwicklungsmaschine
+    /// durch keinen Compiler -- dieser Test gibt dem Pfad wenigstens EINEN
+    /// Test, den die Ubuntu-CI tatsaechlich ausfuehrt (auf Windows ist er per
+    /// `cfg(unix)` komplett abwesend; den Linux-Uebersetzungsnachweis liefert
+    /// ein separates `cargo check`).
     #[cfg(unix)]
     #[tokio::test]
     async fn agent_unavailable_when_socket_does_not_exist() {
@@ -1206,5 +1232,195 @@ sJWR7W+cGvJ/vLsw==
         .await
         .expect("connect_agent_at ist haengengeblieben statt sofort einen Fehler zu melden");
         assert!(matches!(result, Err(AuthError::AgentUnavailable(_))));
+    }
+
+    #[test]
+    fn agent_sign_error_separates_a_lost_session_from_a_refused_signature() {
+        assert!(matches!(
+            agent_sign_error(russh::AgentAuthError::Send(russh::SendError {})),
+            AuthError::HostUnreachable
+        ));
+        for agent_error in [
+            russh::keys::Error::AgentFailure,
+            russh::keys::Error::AgentProtocolError,
+            russh::keys::Error::IO(std::io::ErrorKind::UnexpectedEof.into()),
+        ] {
+            assert!(matches!(
+                agent_sign_error(russh::AgentAuthError::Key(agent_error)),
+                AuthError::SigningFailed
+            ));
+        }
+    }
+
+    // --- Agent-Weg gegen einen echten russh-Server im Prozess. Server und
+    // Agent haengen an `tokio::io::duplex`, damit der Test ohne Socket, Pipe
+    // oder echten ssh-agent auch in der Windows-CI laeuft.
+
+    struct AnyHostKey;
+
+    impl russh::client::Handler for AnyHostKey {
+        type Error = russh::Error;
+        async fn check_server_key(
+            &mut self,
+            _: &russh::keys::PublicKeyOrCertificate,
+        ) -> Result<bool, Self::Error> {
+            Ok(true)
+        }
+    }
+
+    /// Bietet jeden Schluessel per PK_OK an, sodass der Client wirklich
+    /// signieren muss; eine Signatur nimmt er nie an.
+    struct OfferingServer {
+        offered: Arc<AtomicUsize>,
+    }
+
+    impl russh::server::Handler for OfferingServer {
+        type Error = russh::Error;
+        async fn auth_publickey_offered(
+            &mut self,
+            _: &str,
+            _: &russh::keys::PublicKey,
+        ) -> Result<russh::server::Auth, Self::Error> {
+            self.offered.fetch_add(1, Ordering::SeqCst);
+            Ok(russh::server::Auth::Accept)
+        }
+        async fn auth_publickey(
+            &mut self,
+            _: &str,
+            _: &russh::keys::PublicKey,
+        ) -> Result<russh::server::Auth, Self::Error> {
+            Ok(russh::server::Auth::reject())
+        }
+    }
+
+    /// Minimaler ssh-agent nach draft-miller-ssh-agent: listet die
+    /// uebergebenen Identitaeten und lehnt jede Signatur mit
+    /// SSH_AGENT_FAILURE ab, wie nach einer abgelehnten `ssh-add -c`-Rueckfrage
+    /// oder einem FIDO-Schluessel ohne Beruehrung.
+    async fn refusing_agent(
+        mut io: tokio::io::DuplexStream,
+        identities: Vec<Vec<u8>>,
+        sign_requests: Arc<AtomicUsize>,
+    ) -> std::io::Result<()> {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        const FAILURE: u8 = 5;
+        const REQUEST_IDENTITIES: u8 = 11;
+        const IDENTITIES_ANSWER: u8 = 12;
+        const SIGN_REQUEST: u8 = 13;
+        fn put_string(out: &mut Vec<u8>, value: &[u8]) {
+            out.extend_from_slice(&(value.len() as u32).to_be_bytes());
+            out.extend_from_slice(value);
+        }
+        loop {
+            let mut length = [0u8; 4];
+            if io.read_exact(&mut length).await.is_err() {
+                // Der Client hat seine Seite geschlossen.
+                return Ok(());
+            }
+            let mut request = vec![0u8; u32::from_be_bytes(length) as usize];
+            io.read_exact(&mut request).await?;
+            let mut answer = Vec::new();
+            match request.first() {
+                Some(&REQUEST_IDENTITIES) => {
+                    answer.push(IDENTITIES_ANSWER);
+                    answer.extend_from_slice(&(identities.len() as u32).to_be_bytes());
+                    for blob in &identities {
+                        put_string(&mut answer, blob);
+                        put_string(&mut answer, b"refusing-agent-fixture");
+                    }
+                }
+                Some(&SIGN_REQUEST) => {
+                    sign_requests.fetch_add(1, Ordering::SeqCst);
+                    answer.push(FAILURE);
+                }
+                _ => answer.push(FAILURE),
+            }
+            io.write_all(&(answer.len() as u32).to_be_bytes()).await?;
+            io.write_all(&answer).await?;
+            io.flush().await?;
+        }
+    }
+
+    #[tokio::test]
+    async fn agent_refused_signature_is_a_signing_failure_and_ends_the_identity_loop() {
+        use std::time::Duration;
+
+        let host_key = russh::keys::decode_secret_key(PLAIN_PKCS8, None).unwrap();
+        // Zwei Identitaeten: nach der abgelehnten ersten darf die zweite
+        // nicht mehr versucht werden.
+        let identities = [(ED25519_AESCTR_KEY, "test"), (ED25519_KEY, "blabla")]
+            .into_iter()
+            .map(|(source, password)| {
+                russh::keys::decode_secret_key(source, Some(password))
+                    .unwrap()
+                    .public_key()
+                    .to_bytes()
+                    .unwrap()
+            })
+            .collect();
+        let offered = Arc::new(AtomicUsize::new(0));
+        let sign_requests = Arc::new(AtomicUsize::new(0));
+        let server_config = Arc::new(russh::server::Config {
+            keys: vec![host_key],
+            auth_rejection_time: Duration::ZERO,
+            auth_rejection_time_initial: Some(Duration::ZERO),
+            inactivity_timeout: None,
+            ..Default::default()
+        });
+        let (client_io, server_io) = tokio::io::duplex(64 * 1024);
+        let handler = OfferingServer {
+            offered: offered.clone(),
+        };
+        let mut server = tokio::spawn(async move {
+            russh::server::run_stream(server_config, server_io, handler)
+                .await?
+                .await
+        });
+        let (agent_io, agent_peer) = tokio::io::duplex(64 * 1024);
+        let agent = tokio::spawn(refusing_agent(
+            agent_peer,
+            identities,
+            sign_requests.clone(),
+        ));
+
+        let mut client = tokio::time::timeout(
+            Duration::from_secs(10),
+            russh::client::connect_stream(Default::default(), client_io, AnyHostKey),
+        )
+        .await
+        .expect("hermetic handshake deadline")
+        .unwrap();
+        let result = tokio::time::timeout(
+            Duration::from_secs(10),
+            authenticate_with_agent(
+                &mut client,
+                "fixture-user",
+                russh::keys::agent::client::AgentClient::connect(agent_io),
+            ),
+        )
+        .await
+        .expect("a refused agent signature must end the attempt promptly");
+
+        assert!(
+            matches!(result, Err(AuthError::SigningFailed)),
+            "refused agent signature classified as {result:?}"
+        );
+        assert_eq!(offered.load(Ordering::SeqCst), 1, "only the first identity");
+        assert_eq!(sign_requests.load(Ordering::SeqCst), 1);
+
+        // Erst das Ende des Handles loest die Session aus dem Warten auf die
+        // Signatur; danach muss auch der Server das Ende sehen.
+        drop(client);
+        let ended = tokio::time::timeout(Duration::from_secs(3), &mut server).await;
+        if ended.is_err() {
+            server.abort();
+            panic!("server session remained open after the client handle was dropped");
+        }
+        ended.unwrap().expect("server task must not panic").ok();
+        tokio::time::timeout(Duration::from_secs(3), agent)
+            .await
+            .expect("fake agent must see the closed client side")
+            .expect("fake agent task must not panic")
+            .unwrap();
     }
 }

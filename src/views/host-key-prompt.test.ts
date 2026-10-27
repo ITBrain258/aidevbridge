@@ -95,8 +95,18 @@ function emitPersistFailure(payload: PersistFailurePayload): void {
   )?.({ payload });
 }
 
-async function flush(times = 3): Promise<void> {
-  for (let i = 0; i < times; i++) {
+/** Tiefe von `flush()`: weit mehr Stufen, als eine await-Kette des
+ * Produktivcodes je braucht. Eine feste Tiefe statt einer Zahl je Aufruf, damit
+ * ein zusaetzliches `await` im Produktivcode keinen Test bricht und keine
+ * Negativpruefung zu frueh durchlaesst. */
+const MICROTASK_DRAIN_DEPTH = 300;
+
+/** Laesst wartende Mikroaufgaben (Promise-Fortsetzungen) bis zur Tiefe
+ * `MICROTASK_DRAIN_DEPTH` laufen. Timer und Makroaufgaben bleiben stehen: unter
+ * falschen Timern rueckt sie nur `vi.advanceTimersByTimeAsync` vor, unter
+ * echten laufen sie erst nach diesem Aufruf. */
+async function flush(): Promise<void> {
+  for (let i = 0; i < MICROTASK_DRAIN_DEPTH; i++) {
     await Promise.resolve();
   }
 }

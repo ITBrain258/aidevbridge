@@ -1,4 +1,4 @@
-//! `Keymap` (Task 12): trennt Tastenkombinationen, die der App gehoeren, von
+//! `Keymap`: trennt Tastenkombinationen, die der App gehoeren, von
 //! allem, was dem Terminal gehoert (Spec §7.4).
 //!
 //! Alles Einfache geht ans Terminal -- auch `Strg+C` und `Strg+V`, wie ein
@@ -11,8 +11,8 @@
 //! sie wird nicht bloss gemeldet und trotzdem akzeptiert.
 //!
 //! Jede Belegung ist frei konfigurierbar (Spec §12.1, `[keymap]` in
-//! `settings.toml`); dieses Modul kennt `SettingsStore` (Task 13) noch nicht
-//! und ist bewusst davon unabhaengig -- es validiert eine beliebige
+//! `settings.toml`); dieses Modul ist bewusst unabhaengig vom
+//! Einstellungsmodul (`settings.rs`) -- es validiert eine beliebige
 //! `HashMap<Aktion, Belegung>`, unabhaengig davon, woher sie stammt.
 
 use std::collections::{HashMap, HashSet};
@@ -41,17 +41,17 @@ const PLAIN_CTRL_KEYS: [&str; 4] = [",", "=", "-", "0"];
 
 /// Pfeiltasten-Alias, lowercase auf beiden Seiten (nach dem Lowercasing in
 /// `canonicalize` unten angewendet). Deckungsgleich mit `ARROW_KEY_NAMES` in
-/// `src/keymap.ts`, wo ein echtes `KeyboardEvent` `event.key === "ArrowUp"`
-/// zu `"Up"` normalisiert (Spec-Schreibweise) -- ohne diesen Alias HIER
-/// wuerde `canonicalize("Ctrl+Shift+ArrowUp")` einen anderen `comparison_key`
-/// liefern als `canonicalize("Ctrl+Shift+Up")`, obwohl ein echter Tastendruck
-/// auf der Pfeiltaste-hoch IMMER `"Up"` erzeugt, nie `"ArrowUp"` (Task 12,
-/// Review-Befund: `validate` wuerde sonst eine tote Belegung zertifizieren
-/// -- gueltig laut Validierung, aber durch keinen echten Tastendruck jemals
-/// auszuloesen). Betrifft `DEFAULT_KEYMAP` nicht (die nutzt bereits `"Up"`/
-/// `"Down"`), wird aber relevant, sobald Task 13 freie Nutzerkonfiguration
-/// aus `settings.toml` erlaubt -- dieses Modul validiert eine solche
-/// Konfiguration bereits jetzt, unabhaengig von `SettingsStore` selbst.
+/// `src/keymap.ts`, wo ein echtes `KeyboardEvent` `event.key === "ArrowUp"` zu
+/// `"Up"` normalisiert (Spec-Schreibweise) -- ohne diesen Alias HIER wuerde
+/// `canonicalize("Ctrl+Shift+ArrowUp")` einen anderen `comparison_key` liefern
+/// als `canonicalize("Ctrl+Shift+Up")`, obwohl ein echter Tastendruck auf der
+/// Pfeiltaste-hoch IMMER `"Up"` erzeugt, nie `"ArrowUp"` (`validate` wuerde
+/// sonst eine tote Belegung zertifizieren -- gueltig laut Validierung, aber
+/// durch keinen echten Tastendruck jemals auszuloesen). Betrifft
+/// `DEFAULT_KEYMAP` nicht (die nutzt bereits `"Up"`/`"Down"`), wohl aber eine
+/// frei konfigurierte Belegung aus `settings.toml` (Spec §12.1) -- dieses
+/// Modul validiert eine solche Konfiguration unabhaengig davon, woher sie
+/// stammt.
 const ARROW_KEY_ALIASES: [(&str, &str); 4] = [
     ("arrowup", "up"),
     ("arrowdown", "down"),
@@ -125,17 +125,17 @@ fn canonicalize(binding: &str) -> Option<Canonical> {
 /// der Ausnahmeliste (Spec §8.3); jede andere Taste hinter Strg, jedes
 /// Strg+Alt und jedes Alt bleibt beim Terminal.
 ///
-/// Review-Befund (Task 12): die urspruengliche Fassung pruefte "enthaelt
-/// Ctrl UND Shift" (`mods.iter().any(...) && mods.iter().any(...)`) statt
-/// "besteht ausschliesslich aus Ctrl+Shift". `"Ctrl+Alt+Shift+F"` enthaelt
-/// beides und wurde deshalb faelschlich als App-Akkord akzeptiert, obwohl
-/// er drei Modifikatoren traegt. Da `mods` bereits sortiert und dedupliziert
-/// ist (siehe `canonicalize`), ist "die Menge ist EXAKT {ctrl, shift}"
-/// gleichbedeutend mit "Laenge 2 UND beide enthalten" -- ein zusaetzliches
-/// drittes Element (`alt`) faellt damit durch, ohne dass `alt` hier namentlich
-/// ausgeschlossen werden muss. `"meta"`/`"cmd"` sind ohnehin kein erkannter
-/// Modifikator-Token (siehe `MODIFIERS` oben) und fuehren bereits in
-/// `canonicalize` zu `None` (zweite Nicht-Modifikator-"Taste").
+/// Geprueft wird "besteht ausschliesslich aus Ctrl+Shift", nicht "enthaelt
+/// Ctrl UND Shift" (`mods.iter().any(...) && mods.iter().any(...)`):
+/// `"Ctrl+Alt+Shift+F"` enthaelt beides und wuerde sonst faelschlich als
+/// App-Akkord akzeptiert, obwohl er drei Modifikatoren traegt. Da `mods`
+/// bereits sortiert und dedupliziert ist (siehe `canonicalize`), ist "die
+/// Menge ist EXAKT {ctrl, shift}" gleichbedeutend mit "Laenge 2 UND beide
+/// enthalten" -- ein zusaetzliches drittes Element (`alt`) faellt damit durch,
+/// ohne dass `alt` hier namentlich ausgeschlossen werden muss.
+/// `"meta"`/`"cmd"` sind ohnehin kein erkannter Modifikator-Token (siehe
+/// `MODIFIERS` oben) und fuehren bereits in `canonicalize` zu `None` (zweite
+/// Nicht-Modifikator-"Taste").
 pub fn is_reserved_for_app(binding: &str) -> bool {
     match canonicalize(binding) {
         Some(c) => {
@@ -382,16 +382,15 @@ mod tests {
 
     #[test]
     fn is_reserved_for_app_false_for_ctrl_alt_shift() {
-        // Review-Befund (Task 12): die alte Pruefung fragte "enthaelt Ctrl
-        // UND Shift", nicht "besteht ausschliesslich aus Ctrl+Shift" --
-        // "Ctrl+Alt+Shift+F" enthaelt beides und wurde deshalb faelschlich
-        // als App-Akkord akzeptiert. Auf einer AltGr-Tastatur (deutsches
-        // Layout u.a.) liefert AltGr+Umschalt auf ALTEREN Chromium-Versionen
-        // genau diese Kombination (ctrlKey=true, altKey=true, shiftKey=true,
-        // siehe Forschungsnotiz im TS-Gegenstueck) -- ein solcher Akkord darf
-        // nicht der App gehoeren, sonst verschwindet das erzeugte Zeichen
-        // ersatzlos (kein Ziel in `matchAction`, aber `preventDefault()`
-        // hat bereits gefeuert).
+        // Eine Pruefung auf "enthaelt Ctrl UND Shift" statt "besteht
+        // ausschliesslich aus Ctrl+Shift" wuerde "Ctrl+Alt+Shift+F"
+        // faelschlich als App-Akkord akzeptieren. Auf einer AltGr-Tastatur
+        // (deutsches Layout u.a.) liefert AltGr+Umschalt auf ALTEREN
+        // Chromium-Versionen genau diese Kombination (ctrlKey=true,
+        // altKey=true, shiftKey=true, siehe Forschungsnotiz im TS-Gegenstueck)
+        // -- ein solcher Akkord darf nicht der App gehoeren, sonst
+        // verschwindet das erzeugte Zeichen ersatzlos (kein Ziel in
+        // `matchAction`, aber `preventDefault()` hat bereits gefeuert).
         assert!(!is_reserved_for_app("Ctrl+Alt+Shift+F"));
     }
 
@@ -406,14 +405,13 @@ mod tests {
     #[test]
     fn is_reserved_for_app_ignores_the_exact_key_spelling() {
         // WICHTIG, was dieser Test NICHT prueft: `is_reserved_for_app`
-        // inspiziert nur `mods`, nie `key` -- diese Assertion waere auch
-        // OHNE den Alias-Fix (Befund 3) wahr (per Gegenprobe bestaetigt:
-        // Mutation der Alias-Aufloesung in `canonicalize` liess genau
-        // DIESEN Test gruen). Die tatsaechliche Absicherung fuer den Alias
-        // ist die Duplikaterkennung unten (`validate` mit "Up" UND
-        // "ArrowUp" gleichzeitig) -- dieser Test dokumentiert nur, dass
-        // "ArrowUp" als Tastenname keine Sonderbehandlung in dieser
-        // Funktion ausloest.
+        // inspiziert nur `mods`, nie `key` -- diese Assertion waere auch OHNE
+        // die Alias-Aufloesung wahr (per Gegenprobe bestaetigt: Mutation der
+        // Alias-Aufloesung in `canonicalize` liess genau DIESEN Test gruen).
+        // Die tatsaechliche Absicherung fuer den Alias ist die
+        // Duplikaterkennung unten (`validate` mit "Up" UND "ArrowUp"
+        // gleichzeitig) -- dieser Test dokumentiert nur, dass "ArrowUp" als
+        // Tastenname keine Sonderbehandlung in dieser Funktion ausloest.
         assert!(is_reserved_for_app("Ctrl+Shift+ArrowUp"));
     }
 

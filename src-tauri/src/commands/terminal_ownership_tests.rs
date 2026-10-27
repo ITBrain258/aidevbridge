@@ -379,6 +379,70 @@ async fn an_unconfirmed_kill_ends_its_message_with_a_readable_ssh_sentence() {
     finish(fixture, state).await;
 }
 
+#[tokio::test]
+async fn a_bound_kill_without_a_measured_version_is_not_reported_done() {
+    let (fixture, state) = connected().await;
+    // Das gebundene kill-session gelingt, `tmux -V` liefert keine gemessene
+    // Version: die Pruefliste kann nicht laufen, der Ausgang bleibt offen.
+    fixture.script_control(vec![
+        (Some(0), "", ""),
+        (Some(127), "", "sh: tmux: not found"),
+    ]);
+    let message = kill_session_impl(
+        &state,
+        "hermetic-h0".into(),
+        SocketKind::App,
+        "victim".into(),
+        Some(0),
+        Some(50),
+        Some(1000),
+    )
+    .await
+    .unwrap_err();
+    assert_eq!(
+        message,
+        "The remote operation may have taken effect, but its final outcome could not be \
+         confirmed. Refresh the session list before trying again. The end of the selected \
+         session could not be verified; it may already have ended."
+    );
+    assert_eq!(fixture.command_count(), 2, "kill and version, no list");
+    finish(fixture, state).await;
+}
+
+/// Quittiert tmux den gebundenen Kill mit "no server", setzt
+/// `operation_error` keinen Vorsatz zum offenen Ausgang. Bleibt das Ende
+/// danach unbewiesen, bittet die Meldung trotzdem um eine frische Liste.
+#[tokio::test]
+async fn a_bound_kill_answered_with_no_server_and_left_unverified_asks_for_a_refresh() {
+    let (fixture, state) = connected().await;
+    fixture.script_control(vec![
+        (
+            Some(1),
+            "",
+            "no server running on /tmp/tmux-1000/hermetic_socket\n",
+        ),
+        (Some(127), "", "sh: tmux: not found"),
+    ]);
+    let message = kill_session_impl(
+        &state,
+        "hermetic-h0".into(),
+        SocketKind::App,
+        "victim".into(),
+        Some(0),
+        Some(50),
+        Some(1000),
+    )
+    .await
+    .unwrap_err();
+    assert_eq!(
+        message,
+        "The end of the selected session could not be verified; it may already have ended. \
+         Refresh the session list before trying again."
+    );
+    assert_eq!(fixture.command_count(), 2, "kill and version, no list");
+    finish(fixture, state).await;
+}
+
 /// Spec 2026-10-19 §8.1 (Schritt 3), Ersetzen an der Grenze: Mit acht offenen
 /// Terminals sind alle PTY-Plaetze belegt. Schliessen und sofort Oeffnen
 /// wartet, bis der alte Kanal zu ist, statt an der Kanalgrenze zu scheitern.
@@ -405,10 +469,10 @@ async fn replace_at_eight_open_waits_until_the_old_channel_is_closed() {
     finish(fixture, state).await;
 }
 
-/// Review Focus 4: Ersetzen an der Grenze bei langsamem Close. Das neue
-/// Oeffnen wartet `SLOT_WAIT` auf den Platz und scheitert dann mit dem Rohtext
-/// der PTY-Grenze, nie mit dem der Pumpengrenze, ohne ein Open zu senden. Ist
-/// der alte Kanal zu, gelingt es.
+/// Ersetzen an der Grenze bei langsamem Close. Das neue Oeffnen wartet
+/// `SLOT_WAIT` auf den Platz und scheitert dann mit dem Rohtext der
+/// PTY-Grenze, nie mit dem der Pumpengrenze, ohne ein Open zu senden. Ist der
+/// alte Kanal zu, gelingt es.
 #[tokio::test]
 async fn replace_with_slow_close_reports_capacity_after_the_slot_wait() {
     let (fixture, state) = connected().await;

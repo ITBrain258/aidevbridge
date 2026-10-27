@@ -84,6 +84,8 @@ const hoisted = vi.hoisted(() => {
     terminals: [] as Array<{
       ownSelection: string | null;
       element: HTMLElement | undefined;
+      /** xterms verstecktes Textfeld, nach `open()`; dorthin fuegt Chromium ein. */
+      textarea: HTMLTextAreaElement | null;
       /** Dasselbe Objekt wie `term.options`: Schriftgroesse beim Bau und nach
        * `setFontSize` (UX-Spec §6.7). */
       options: Record<string, unknown>;
@@ -783,13 +785,24 @@ describe("mountTerminal: Fehlerpfad fuer open_terminal", () => {
 // Art und den Rohtext der Ursache, der nur in "Copy details" erscheint.
 // Ack-Fehler gehen nur in die Konsole.
 describe("mountTerminal: jeder Fehlerpfad meldet seine Art (UX-Spec §6.9)", () => {
-  it("meldet ein abgelehntes send_input als Art input", async () => {
+  it("meldet ein abgelehntes send_input als Art input, erst nach dem Anhaengen", async () => {
+    const opening = deferred<void>();
     invokeMock.mockImplementation((command: string) =>
-      command === "send_input" ? Promise.reject("channel closed") : Promise.resolve(undefined));
+      command === "open_terminal"
+        ? opening.promise
+        : command === "send_input"
+          ? Promise.reject("channel closed")
+          : Promise.resolve(undefined));
     const onError = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush();
 
     hoisted.dataListener?.("a");
+    await flush();
+    // Vor dem Anhaengen geht nichts hinaus, also scheitert auch nichts.
+    expect(onError).not.toHaveBeenCalled();
+
+    opening.resolve();
     await flush();
 
     expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "input", detail: "channel closed" });
@@ -842,10 +855,62 @@ describe("mountTerminal: jeder Fehlerpfad meldet seine Art (UX-Spec §6.9)", () 
       warn.mockRestore();
     }
   });
+
+  // Der Wortlaut des Backends fuer einen fehlenden Kanal ist kein Sonderfall:
+  // Eingabe geht erst nach dem Anhaengen hinaus, ihr Fehlschlag ist dann ein
+  // echter. Der Text steht hier woertlich, damit keine Konstante ihn mit dem
+  // Produktivcode koppelt.
+  it("meldet ein send_input, das mit 'no terminal open for this session' scheitert, als Art input", async () => {
+    invokeMock.mockImplementation((command: string) =>
+      command === "send_input" ? Promise.reject("no terminal open for this session") : Promise.resolve(undefined));
+    const onError = vi.fn();
+    mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush(); // open_terminal hat geantwortet: angehaengt
+
+    hoisted.dataListener?.("a");
+    await flush();
+
+    expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "input", detail: "no terminal open for this session" });
+  });
+
+  it("schreibt ein ack_output vor dem Anhaengen, das mit 'no terminal open for this session' scheitert, in die Konsole", async () => {
+    let capturedListener: Listener | undefined;
+    listenMock.mockImplementation((event, handler) => {
+      if (event === "terminal://output") capturedListener = handler as Listener;
+      return Promise.resolve(vi.fn());
+    });
+    const opening = deferred<void>();
+    invokeMock.mockImplementation((command: string) =>
+      command === "open_terminal"
+        ? opening.promise
+        : command === "ack_output"
+          ? Promise.reject("no terminal open for this session")
+          : Promise.resolve(undefined));
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const onError = vi.fn();
+      mount(document.createElement("div"), "host-1", "sess-1", onError);
+      await flush(); // open_terminal ist hinaus, seine Antwort steht aus
+
+      capturedListener?.({ payload: { open_id: FIXED_OPEN_ID, host_id: "host-1", session: "sess-1", bytes: [1, 2] } });
+      hoisted.writeCalls[0].callback?.();
+      await flush();
+
+      expect(invokeMock.mock.calls.some(([command]) => command === "ack_output")).toBe(true);
+      expect(onError).not.toHaveBeenCalled();
+      expect(warn).toHaveBeenCalledOnce();
+      expect(String(warn.mock.calls[0][0])).toContain("no terminal open for this session");
+      opening.resolve();
+      await flush();
+    } finally {
+      warn.mockRestore();
+    }
+  });
 });
 
-// Bekannte Fehler des Rasters, behoben am 24.10.: eine grosse Einfuegung ging
-// als ein `send_input` hinaus und hielt die Seite Sekunden lang an.
+// Eingabe ueber `INPUT_CHUNK_BYTES` geht in Teilen der Reihe nach hinaus, nicht
+// als ein `send_input`: als ein Aufruf hielt eine grosse Einfuegung die Seite
+// rund 0,8 s je MB an (gemessen am 24.10., `docs/stand.md`).
 describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
   /** Jeder `send_input` wartet, bis der Test ihn beantwortet. */
   function heldSends(): { bytes: () => number[][]; answer: (ok?: boolean) => Promise<void> } {
@@ -871,6 +936,7 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
   it("schickt den naechsten Teil erst, wenn der vorige angekommen ist, und nichts geht verloren", async () => {
     const sends = heldSends();
     mount(document.createElement("div"), "host-1", "sess-1");
+    await flush(); // angehaengt: davor puffert die Kachel nur
     const text = "ab".repeat(INPUT_CHUNK_BYTES + 5);
 
     hoisted.dataListener?.(text);
@@ -887,6 +953,7 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
   it("was waehrenddessen getippt wird, kommt nach der Einfuegung", async () => {
     const sends = heldSends();
     mount(document.createElement("div"), "host-1", "sess-1");
+    await flush(); // angehaengt: davor puffert die Kachel nur
 
     hoisted.dataListener?.("x".repeat(INPUT_CHUNK_BYTES + 1));
     await flush();
@@ -907,6 +974,7 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
     const sends = heldSends();
     const onError = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush(); // angehaengt: davor puffert die Kachel nur
 
     hoisted.dataListener?.("x".repeat(3 * INPUT_CHUNK_BYTES));
     await flush();
@@ -918,26 +986,330 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
   });
 });
 
+// Zwischen dem Mounten und dem Anhaengen liegen mehrere SSH-Runden. Was der
+// Nutzer darin tippt oder einfuegt und was xterm selbst auf Anfragen von tmux
+// antwortet, ging frueher als `send_input` an einen Kanal, den das Backend noch
+// nicht kannte, und verschwand still. Die Kachel puffert es und sendet es nach
+// dem Anhaengen einmal, in derselben Reihenfolge, vor allem Spaeteren.
+describe("mountTerminal: Eingabe vor dem Anhaengen geht nicht verloren", () => {
+  /** `open_terminal` und jeder `send_input` warten, bis der Test sie
+   * beantwortet. */
+  function holdOpenAndInput() {
+    let answerOpen!: { resolve: () => void; reject: (error: unknown) => void };
+    const opening = new Promise<void>((resolve, reject) => {
+      answerOpen = { resolve, reject };
+    });
+    const pendingSends: Array<() => void> = [];
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "open_terminal") return opening;
+      if (command === "send_input") return new Promise<void>((resolve) => pendingSends.push(resolve));
+      return Promise.resolve(undefined);
+    });
+    return {
+      open: answerOpen,
+      sent: () =>
+        invokeMock.mock.calls
+          .filter(([command]) => command === "send_input")
+          .map(([, args]) => (args as { bytes: number[] }).bytes),
+      answerSend: async () => {
+        pendingSends.shift()!();
+        await flush();
+      },
+    };
+  }
+
+  function bytesOf(text: string): number[] {
+    return Array.from(new TextEncoder().encode(text));
+  }
+
+  it("sendet vor der Antwort auf open_terminal nichts und danach die Eingabe genau einmal", async () => {
+    const io = holdOpenAndInput();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    // Vorbedingung: das Oeffnen ist unterwegs, die Antwort steht aus.
+    expect(invokedOpenTerminal()).toBe(true);
+
+    hoisted.dataListener?.("ab");
+    await flush();
+    expect(io.sent()).toEqual([]);
+
+    io.open.resolve();
+    await flush();
+    expect(io.sent()).toEqual([[97, 98]]);
+    expect(invokeMock).toHaveBeenCalledWith("send_input", {
+      hostId: "host-1",
+      session: "sess-1",
+      openId: FIXED_OPEN_ID,
+      bytes: [97, 98],
+    });
+  });
+
+  it("schickt die gepufferte Eingabe vor allem, was nach dem Anhaengen getippt wird", async () => {
+    const io = holdOpenAndInput();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    hoisted.dataListener?.("a");
+    hoisted.dataListener?.("b");
+    io.open.resolve();
+    await flush();
+    hoisted.dataListener?.("c");
+    await flush();
+    // "c" reiht sich hinter die gepufferte Eingabe, solange die unterwegs ist.
+    expect(io.sent()).toEqual([[97, 98]]);
+
+    await io.answerSend();
+    expect(io.sent()).toEqual([[97, 98], [99]]);
+  });
+
+  it("schickt eine grosse gepufferte Einfuegung nach dem Anhaengen in Teilen der Reihe nach", async () => {
+    const io = holdOpenAndInput();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    const text = "ab".repeat(INPUT_CHUNK_BYTES / 2 + 5);
+
+    hoisted.dataListener?.(text);
+    await flush();
+    expect(io.sent()).toEqual([]);
+
+    io.open.resolve();
+    await flush();
+    expect(io.sent().map((part) => part.length)).toEqual([INPUT_CHUNK_BYTES]);
+    await io.answerSend();
+    expect(io.sent().map((part) => part.length)).toEqual([INPUT_CHUNK_BYTES, 10]);
+    await io.answerSend();
+    expect(new TextDecoder().decode(Uint8Array.from(io.sent().flat()))).toBe(text);
+  });
+
+  it("verwirft die Eingabe, wenn open_terminal abgelehnt wird, und meldet nur das Oeffnen", async () => {
+    const io = holdOpenAndInput();
+    const onError = vi.fn();
+    mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush();
+
+    hoisted.dataListener?.("ab");
+    io.open.reject("session not found");
+    await flush();
+    hoisted.dataListener?.("c");
+    await flush();
+
+    expect(io.sent()).toEqual([]);
+    expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "open", detail: "session not found" });
+  });
+
+  it("verwirft die Eingabe, wenn die Ansicht vor dem Anhaengen entsorgt wird", async () => {
+    const io = holdOpenAndInput();
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    hoisted.dataListener?.("ab");
+    handle.dispose();
+    io.open.resolve();
+    await flush();
+
+    expect(io.sent()).toEqual([]);
+  });
+
+  it("verwirft die Eingabe, wenn der Aufrufer vor dem Anhaengen sperrt", async () => {
+    const io = holdOpenAndInput();
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    hoisted.dataListener?.("ab");
+    handle.setInputLocked(true);
+    io.open.resolve();
+    await flush();
+
+    expect(io.sent()).toEqual([]);
+  });
+
+  it("nach Sperren und Freigeben vor dem Anhaengen geht nur die spaetere Eingabe hinaus", async () => {
+    const io = holdOpenAndInput();
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    hoisted.dataListener?.("a");
+    handle.setInputLocked(true);
+    handle.setInputLocked(false);
+    hoisted.dataListener?.("b");
+    io.open.resolve();
+    await flush();
+
+    expect(io.sent()).toEqual([[98]]);
+  });
+
+  it("verwirft die Eingabe, wenn der Kanal vor der Antwort verloren geht, ohne Meldung", async () => {
+    const losses: LostListener[] = [];
+    listenMock.mockImplementation((event, handler) => {
+      if (event === "terminal://connection-lost") losses.push(handler as LostListener);
+      return Promise.resolve(vi.fn());
+    });
+    const io = holdOpenAndInput();
+    const onError = vi.fn();
+    mount(document.createElement("div"), "host-1", "sess-1", onError, { onConnectionLost: vi.fn() });
+    await flush();
+
+    hoisted.dataListener?.("ab");
+    losses[0]({ payload: { host_id: "host-1", session: "sess-1", open_id: FIXED_OPEN_ID } });
+    io.open.resolve();
+    await flush();
+
+    expect(io.sent()).toEqual([]);
+    expect(onError).not.toHaveBeenCalledWith(expect.objectContaining({ kind: "input" }));
+  });
+
+  // tmux fragt beim Anhaengen nach dem Terminal (DA, XTVERSION, OSC 10/11),
+  // und xterm antwortet ueber denselben Weg wie eine Taste. Die Ausgabe kann
+  // vor der Antwort auf `open_terminal` ankommen.
+  it("puffert xterms eigene Antwort auf eine Anfrage vor der Antwort und sendet sie danach einmal, vor spaeterer Eingabe", async () => {
+    const outputs: Listener[] = [];
+    listenMock.mockImplementation((event, handler) => {
+      if (event === "terminal://output") outputs.push(handler as Listener);
+      return Promise.resolve(vi.fn());
+    });
+    const io = holdOpenAndInput();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    const term = hoisted.terminals[0] as unknown as { input(data: string): void };
+    const reply = "\x1b[>0;276;0c";
+
+    outputs[0]({ payload: { host_id: "host-1", session: "sess-1", open_id: FIXED_OPEN_ID, bytes: bytesOf("\x1b[>c") } });
+    expect(hoisted.writeCalls).toHaveLength(1);
+    term.input(reply);
+    await flush();
+    expect(io.sent()).toEqual([]);
+
+    io.open.resolve();
+    await flush();
+    hoisted.dataListener?.("x");
+    await flush();
+    expect(io.sent()).toEqual([bytesOf(reply)]);
+
+    await io.answerSend();
+    expect(io.sent()).toEqual([bytesOf(reply), [120]]);
+  });
+
+  // xterm klammert eine Einfuegung nur bei eingeschaltetem Bracketed Paste,
+  // und das meldet tmux erst mit seiner ersten Ausgabe. Gepuffert ginge
+  // mehrzeiliger Text ungeklammert hinaus, und die Shell fuehrte jede Zeile aus.
+  it("verwirft eine native Einfuegung vor dem Anhaengen, bevor xterm sie sieht, und laesst sie danach durch", async () => {
+    const io = holdOpenAndInput();
+    const container = document.createElement("div");
+    mount(container, "host-1", "sess-1");
+    await flush();
+    const textarea = hoisted.terminals[0].textarea!;
+    const seenByXterm = vi.fn();
+    textarea.addEventListener("paste", seenByXterm);
+    const paste = () => {
+      const event = new Event("paste", { bubbles: true, cancelable: true });
+      textarea.dispatchEvent(event);
+      return event;
+    };
+
+    expect(paste().defaultPrevented).toBe(true);
+    expect(seenByXterm).not.toHaveBeenCalled();
+
+    io.open.resolve();
+    await flush();
+    expect(paste().defaultPrevented).toBe(false);
+    expect(seenByXterm).toHaveBeenCalledOnce();
+  });
+
+  it("fuegt aus dem Menue erst nach dem Anhaengen ein", async () => {
+    const io = holdOpenAndInput();
+    clipboardReadText.mockResolvedValue("ls\nrm -r build\n");
+    const { xtermEl } = setupTile();
+    await flush();
+
+    rightClick(xtermEl);
+    menuItem("Paste").click();
+    await flush();
+    expect(hoisted.pasteCalls).toEqual([]);
+
+    io.open.resolve();
+    await flush();
+    rightClick(xtermEl);
+    menuItem("Paste").click();
+    await flush();
+    expect(hoisted.pasteCalls).toEqual(["ls\nrm -r build\n"]);
+  });
+});
+
+/** Nodes `process`, unter dem vitest laeuft -- ohne `@types/node` nur so weit
+ * getippt, wie die Probe auf unbehandelte Ablehnungen ihn braucht. */
+const nodeProcess = (
+  globalThis as unknown as {
+    process: {
+      on(event: "unhandledRejection", listener: (reason: unknown) => void): void;
+      off(event: "unhandledRejection", listener: (reason: unknown) => void): void;
+    };
+  }
+).process;
+
+// Ohne beide Listener darf `open_terminal` nie hinaus (Kopfkommentar von
+// `mountTerminal`). Scheitert einer, wartete die Kachel sonst still fuer immer,
+// und ihr Platz in der Schlange des Hosts bliebe belegt.
+describe("mountTerminal: ein scheiterndes listen() ist ein Oeffnungsfehler", () => {
+  it.each(["terminal://connection-lost", "terminal://output"])(
+    "meldet das Scheitern fuer %s, gibt den Platz frei und meldet sich sauber ab",
+    async (failing) => {
+      const unhandled: unknown[] = [];
+      const probe = (reason: unknown): void => {
+        unhandled.push(reason);
+      };
+      nodeProcess.on("unhandledRejection", probe);
+      try {
+        const unlisten = vi.fn();
+        listenMock.mockImplementation((event) =>
+          event === failing ? Promise.reject(new Error("event plugin gone")) : Promise.resolve(unlisten));
+        const queue = createOpenQueue();
+        const onError = vi.fn();
+        const onOpenFailed = vi.fn();
+        const handle = mount(document.createElement("div"), "host-1", "sess-1", onError, {
+          openQueue: queue,
+          onOpenFailed,
+        });
+        // Vorbedingung: der Platz ist beim Mounten belegt.
+        expect(queue.inFlight("host-1")).toBe(1);
+        await flush();
+
+        expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "open", detail: "Error: event plugin gone" });
+        expect(onOpenFailed).toHaveBeenCalledTimes(1);
+        expect(invokedOpenTerminal()).toBe(false);
+        expect(queue.inFlight("host-1")).toBe(0);
+
+        handle.dispose();
+        // Eine Makroaufgabe: erst danach meldet Node unbehandelte Ablehnungen.
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Der Listener, der stand, wird trotzdem abgemeldet.
+        expect(unlisten).toHaveBeenCalledTimes(1);
+        expect(invokeMock.mock.calls.some(([command]) => command === "close_terminal")).toBe(false);
+        expect(onOpenFailed).toHaveBeenCalledTimes(1);
+        expect(unhandled).toEqual([]);
+      } finally {
+        nodeProcess.off("unhandledRejection", probe);
+      }
+    },
+  );
+});
+
 // UX-Spec §5.4, §5.5: die Kachel haengt sich nach einem Kanalverlust still neu
 // an. Sie muss wissen, wann der frische Kanal steht (dann verschwindet der
 // Hinweis "Reconnecting…"), und solange sie den Hinweis zeigt, sperrt sie die
 // Eingabe selbst -- unabhaengig davon, ob der Kanal seinen Verlust schon
 // gemeldet hat.
 describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
-  async function settle(): Promise<void> {
-    for (let i = 0; i < 4; i++) await Promise.resolve();
-  }
-
   it("meldet onOpened, sobald open_terminal angehaengt hat", async () => {
     const opening = deferred<void>();
     invokeMock.mockImplementation((command: string) => command === "open_terminal" ? opening.promise : Promise.resolve());
     const onOpened = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onOpened });
-    await settle();
+    await flush();
     expect(invokedOpenTerminal()).toBe(true);
     expect(onOpened).not.toHaveBeenCalled();
     opening.resolve();
-    await settle();
+    await flush();
     expect(onOpened).toHaveBeenCalledTimes(1);
   });
 
@@ -947,7 +1319,7 @@ describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
     const onOpened = vi.fn();
     const onOpenFailed = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onOpened, onOpenFailed });
-    await settle();
+    await flush();
     expect(onOpenFailed).toHaveBeenCalledTimes(1);
     expect(onOpened).not.toHaveBeenCalled();
   });
@@ -957,10 +1329,10 @@ describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
     invokeMock.mockImplementation((command: string) => command === "open_terminal" ? opening.promise : Promise.resolve());
     const onOpened = vi.fn();
     const handle = mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onOpened });
-    await settle();
+    await flush();
     handle.dispose();
     opening.resolve();
-    await settle();
+    await flush();
     expect(onOpened).not.toHaveBeenCalled();
   });
 
@@ -977,7 +1349,7 @@ describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
     expect(hoisted.lastOptions?.disableStdin).toBe(true);
     // Das Anhaengen allein hebt die Sperre des Aufrufers nicht auf.
     opening.resolve();
-    await settle();
+    await flush();
     expect(hoisted.lastOptions?.disableStdin).toBe(true);
     handle.setInputLocked(false);
     expect(hoisted.lastOptions?.disableStdin).toBe(false);
@@ -990,7 +1362,7 @@ describe("mountTerminal: Wiederanhaengen (UX-Spec §5.5)", () => {
       return Promise.resolve(vi.fn());
     });
     const handle = mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onConnectionLost: vi.fn() });
-    await settle();
+    await flush();
     handle.setInputLocked(true);
     losses[0]({ payload: { host_id: "host-1", session: "sess-1", open_id: FIXED_OPEN_ID } });
     handle.setInputLocked(false);
@@ -1238,13 +1610,11 @@ describe("mountTerminal: Ack-Nachbestaetigung bei dispose()", () => {
     });
   });
 
-  // Die Reihenfolge ist Teil der Zusicherung, nicht nur der Aufruf:
-  // `ack_output_impl` liefert fuer einen fehlenden Map-Eintrag
-  // `Err("no terminal open for this session")`. Kaeme `close_terminal`
-  // ZUERST, wuerde die Sammel-Bestaetigung fehlschlagen und ueber `onError`
-  // eine irrefuehrende Meldung erzeugen -- fuer einen Vorgang, der voellig
-  // in Ordnung war. Ein Test, der nur "close_terminal wurde gerufen" prueft,
-  // bliebe bei genau dieser Vertauschung gruen.
+  // Die Reihenfolge ist Teil der Zusicherung, nicht nur der Aufruf: die
+  // Sammel-Bestaetigung gilt dem Eintrag, den `close_terminal` entfernt.
+  // Kaeme `close_terminal` ZUERST, faende sie keinen Eintrag mehr. Ein Test,
+  // der nur "close_terminal wurde gerufen" prueft, bliebe bei genau dieser
+  // Vertauschung gruen.
   it("bestaetigt ausstehende Bytes VOR dem close_terminal", async () => {
     let capturedListener: Listener | undefined;
     listenMock.mockImplementation((event, handler) => {
@@ -2894,8 +3264,9 @@ describe("mountTerminal: Zwischenablage wie Windows Terminal (Spec §6.1, §6.2)
 
   // Kontrolle fuer jede Zusicherung "nichts gesendet" in diesem Block: ohne
   // sie koennte `sentInput()` gar nicht wahr werden.
-  it("Eingabe, die xterm meldet, geht roh als send_input ans PTY", () => {
+  it("Eingabe, die xterm meldet, geht roh als send_input ans PTY", async () => {
     mount(document.createElement("div"), "host-1", "sess-1");
+    await flush(); // angehaengt: davor puffert die Kachel nur
 
     hoisted.dataListener?.("ab");
 
@@ -3135,6 +3506,9 @@ describe("mountTerminal: Zwischenablage wie Windows Terminal (Spec §6.1, §6.2)
   it("OSC 52 mit ? wird nie beantwortet: nichts geschrieben, nichts gesendet", async () => {
     const onCopied = vi.fn();
     mount(document.createElement("div"), "host-1", "sess-1", vi.fn(), { onCopied });
+    // Erst angehaengt: davor ginge auch eine Antwort noch nicht hinaus, und
+    // `sentInput()` bliebe aus dem falschen Grund falsch.
+    await flush();
 
     expect(hoisted.oscHandlers.get(52)?.("c;?")).toBe(true);
     await Promise.resolve();
@@ -3177,9 +3551,18 @@ const MENU_TEXTS: TerminalMenuTexts = {
   mouseHint: en["terminalMenu.mouseHint"],
 };
 
-/** Genug Mikroaufgaben fuer `readText().then(...)` bzw. `writeText().then(...)`. */
+/** Tiefe von `flush()`: weit mehr Stufen, als eine await-Kette des
+ * Produktivcodes je braucht. Eine feste Tiefe statt einer knapp abgezaehlten,
+ * damit ein zusaetzliches `await` im Produktivcode keinen Test bricht und keine
+ * Negativpruefung zu frueh durchlaesst. */
+const MICROTASK_DRAIN_DEPTH = 300;
+
+/** Laesst wartende Mikroaufgaben (Promise-Fortsetzungen) bis zur Tiefe
+ * `MICROTASK_DRAIN_DEPTH` laufen. Timer und Makroaufgaben bleiben stehen: unter
+ * falschen Timern rueckt sie nur `vi.advanceTimersByTimeAsync` vor, unter
+ * echten laufen sie erst nach diesem Aufruf. */
 async function flush(): Promise<void> {
-  for (let i = 0; i < 4; i++) await Promise.resolve();
+  for (let i = 0; i < MICROTASK_DRAIN_DEPTH; i++) await Promise.resolve();
 }
 
 /** Ein eingehaengter Container mit einem Platzhalter fuer das Element, das
@@ -3582,6 +3965,8 @@ describe("mountTerminal: Menueeintraege und Modus Copy/Paste (UX-Spec §6.3)", (
   it("Paste liest die Zwischenablage und fuegt sie per term.paste ein", async () => {
     clipboardReadText.mockResolvedValue("from clipboard");
     const { xtermEl } = setupTile();
+    // Erst angehaengt: davor fuegt die Kachel nichts ein.
+    await flush();
     rightClick(xtermEl);
 
     menuItem("Paste").click();
@@ -3730,6 +4115,7 @@ describe("mountTerminal: Menueeintraege und Modus Copy/Paste (UX-Spec §6.3)", (
     clipboardReadText.mockResolvedValue("from clipboard");
     const { xtermEl } = setupTile();
     hoisted.blankSelection = blank;
+    await flush();
 
     rightClick(xtermEl);
     await flush();
@@ -3754,6 +4140,7 @@ describe("mountTerminal: Menueeintraege und Modus Copy/Paste (UX-Spec §6.3)", (
   it("liest die Einstellung \"Right click\" bei jedem Rechtsklick, auch nach dem Mounten", async () => {
     const { xtermEl } = setupTile();
     clipboardReadText.mockResolvedValue("from clipboard");
+    await flush();
 
     rightClick(xtermEl);
     expect(terminalMenu()).not.toBeNull();

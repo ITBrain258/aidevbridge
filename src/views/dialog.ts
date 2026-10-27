@@ -1,23 +1,15 @@
-// Dialoghuelle (aus main.ts herausgeloest, UX-Ueberarbeitung Aufgabe 7): die
-// generische Ueberlagerung in `#dialog-root` mit Kopfzeile, Fokus-Falle,
-// `inert` auf `#app`, dokumentweitem Escape und Fokusrueckgabe.
+// Dialoghuelle: die generische Ueberlagerung in `#dialog-root` mit Kopfzeile,
+// Fokus-Falle, `inert` auf `#app`, dokumentweitem Escape und Fokusrueckgabe.
 //
-// Den Zustand haelt die Huelle, die `mountDialogShell` anlegt, nicht das
-// Modul: `main()` legt je Lauf eine eigene an, so wie der Zustand vorher im
-// Abschluss eines `main()`-Laufs lebte. `main.test.ts` ruft `main()` je Test
-// auf demselben `document` auf -- ein Modulzustand liesse eine offen
-// gebliebene Ueberlagerung oder einen spaeten Rueckruf eines frueheren Laufs
-// in den naechsten hineinwirken. Einzige Ausnahme ist der Zaehler fuer die
-// Kennungen der Ueberschriften (`dialogTitles`): er haelt Kennungen im ganzen
-// Dokument eindeutig und wirkt auf keinen Lauf.
-import en from "../i18n/en.json";
+// Den Zustand haelt die Huelle, die `mountDialogShell` anlegt, nicht das Modul:
+// `main()` legt je Lauf eine eigene an. `main.test.ts` ruft `main()` je Test
+// auf demselben `document` auf -- ein Modulzustand liesse eine offen gebliebene
+// Ueberlagerung oder einen spaeten Rueckruf eines frueheren Laufs in den
+// naechsten hineinwirken. Einzige Ausnahme ist der Zaehler fuer die Kennungen
+// der Ueberschriften (`dialogTitles`): er haelt Kennungen im ganzen Dokument
+// eindeutig und wirkt auf keinen Lauf.
+import { t } from "../i18n/t";
 import { icon } from "../icons";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey): string {
-  return en[key];
-}
 
 /** Alle Elemente in `root`, die per Tastatur einen eigenen Tab-Stopp
  * darstellen -- fuer den Fokus-Falle-Umlauf in `openDialog` unten
@@ -36,11 +28,11 @@ function t(key: TranslationKey): string {
  * fest, dass von einer Gruppe (gleicher `name` am selben Formular bzw. --
  * ohne Formular -- im selben Dokument) nur das gewaehlte Radio in der
  * sequentiellen Fokusreihenfolge steht; ist keines gewaehlt, ist es das
- * erste nicht deaktivierte. Der nackte `input`-Selektor oben zaehlte beide
- * Themenradios des Einstellungsdialogs (Spec 12.1) und die Falle rechnete
- * mit einem `last`, das der Browser nie fokussiert -- Tab aus dem gewaehlten
- * Radio verliess das Panel unbemerkt, Shift+Tab aus "Close" landete auf dem
- * NICHT gewaehlten Radio (Gesamt-Review, Important 1). Exportiert, damit
+ * erste nicht deaktivierte. Der nackte `input`-Selektor oben zaehlte sonst
+ * beide Themenradios des Einstellungsdialogs (Spec 12.1) und die Falle
+ * rechnete mit einem `last`, das der Browser nie fokussiert -- Tab aus dem
+ * gewaehlten Radio verliesse das Panel unbemerkt, Shift+Tab aus "Close"
+ * landete auf dem NICHT gewaehlten Radio. Exportiert, damit
  * `main.test.ts` genau diese Zaehlung pruefen kann (Spec 16.2) -- main.ts
  * reicht es dafuer weiter und braucht es selbst fuer `focusSidebar`. */
 export function focusableElements(root: HTMLElement): HTMLElement[] {
@@ -118,18 +110,17 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
   /** Der Inhalt der offenen Ueberlagerung, `null`, solange keine offen ist. */
   let dialogHandle: { dispose(): void } | null = null;
 
-  // Review-Nachtrag (Important 3): `aria-modal="true"` behauptet Screen-
-  // readern, ALLES ausserhalb der Ueberlagerung sei inert -- das stimmte
-  // nicht: `#dialog-root` liegt im DOM NACH `#app` (index.html), die
-  // Seitenleiste bleibt vollstaendig gemountet und ihre Knoepfe bleiben
-  // tab-erreichbar, der Scrim blockiert nur die Maus, nicht den
-  // Tastaturfokus. Ein Tastaturnutzer konnte so hinter dem Scrim z. B.
-  // "Remove" auf einem unsichtbaren Host ausloesen. Diese drei Stuecke
-  // (Fokus-Falle, `#app.inert`, dokumentweiter statt Panel-gebundener
-  // Escape-Handler) machen die Zusage `aria-modal` erst wahr, statt sie nur
-  // zu behaupten. `lastFocusedBeforeDialog` merkt sich, WOHER der Fokus
-  // kam, damit er beim Schliessen dorthin zurueckkehrt (WAI-ARIA-Dialog-
-  // Muster), statt irgendwo (oder nirgends) zu landen.
+  // `aria-modal="true"` behauptet Screenreadern, ALLES ausserhalb der
+  // Ueberlagerung sei inert -- von selbst stimmt das nicht: `#dialog-root`
+  // liegt im DOM NACH `#app` (index.html), die Seitenleiste bleibt vollstaendig
+  // gemountet und ihre Knoepfe blieben tab-erreichbar, der Scrim blockiert nur
+  // die Maus, nicht den Tastaturfokus. Ein Tastaturnutzer koennte so hinter dem
+  // Scrim z. B. "Remove" auf einem unsichtbaren Host ausloesen. Diese drei
+  // Stuecke (Fokus-Falle, `#app.inert`, dokumentweiter statt Panel-gebundener
+  // Escape-Handler) machen die Zusage `aria-modal` erst wahr, statt sie nur zu
+  // behaupten. `lastFocusedBeforeDialog` merkt sich, WOHER der Fokus kam, damit
+  // er beim Schliessen dorthin zurueckkehrt (WAI-ARIA-Dialog-Muster), statt
+  // irgendwo (oder nirgends) zu landen.
   let lastFocusedBeforeDialog: HTMLElement | null = null;
   let dialogFocusFallback: (() => HTMLElement | null) | null = null;
 
@@ -137,18 +128,17 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
    * `setHostKeyPromptOpen` unten, das main.ts als `onOpenChange` an
    * `mountHostKeyPrompt` reicht.
    *
-   * Validierung (Critical): `#host-key-prompt-root` und `#dialog-root`
-   * trugen denselben `z-index`, und weil `#dialog-root` in index.html
-   * spaeter steht, malte die Ueberlagerung ueber die Rueckfrage. Der
-   * naive Weg -- Seitenleiste "+ Add host" -> Formular -> Absenden --
-   * fuehrte damit in eine Minute Nichts und danach in "Connection failed":
-   * das Backend blockiert den Handshake in `recv_timeout`, bis jemand
-   * antwortet oder `HOST_KEY_PROMPT_TIMEOUT` (60 s) ablaeuft, und ein
-   * Zeitablauf zaehlt als Ablehnung. Der Fingerabdruck, den der Nutzer
-   * pruefen SOLL, war dabei zwar gerendert, aber weder sichtbar noch
+   * Truegen `#host-key-prompt-root` und `#dialog-root` denselben `z-index`,
+   * malte die Ueberlagerung ueber die Rueckfrage, weil `#dialog-root` in
+   * index.html spaeter steht. Der naive Weg -- Seitenleiste "+ Add host" ->
+   * Formular -> Absenden -- fuehrte damit in eine Minute Nichts und danach in
+   * "Connection failed": das Backend blockiert den Handshake in `recv_timeout`,
+   * bis jemand antwortet oder `HOST_KEY_PROMPT_TIMEOUT` (60 s) ablaeuft, und
+   * ein Zeitablauf zaehlt als Ablehnung. Der Fingerabdruck, den der Nutzer
+   * pruefen SOLL, waere dabei zwar gerendert, aber weder sichtbar noch
    * erreichbar.
    *
-   * Die Ebene allein (jetzt 200 gegen 100, siehe die Stapelleiter in
+   * Die Ebene allein (200 gegen 100, siehe die Stapelleiter in
    * styles.css) behebt Maus und Sichtbarkeit. Sie behebt NICHT die beiden
    * Dinge, die diese Datei beisteuert: die Fokus-Falle unten holt den
    * Fokus in `.dialog-panel` zurueck, egal wo er steht, und `#dialog-root`
@@ -173,8 +163,8 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
 
   function onDialogKeydown(event: KeyboardEvent): void {
     // Solange eine TOFU-Rueckfrage steht, gehoert die Tastatur IHR (siehe
-    // `hostKeyPromptOpen` oben) -- inklusive Escape: das schloss frueher
-    // die Ueberlagerung und war der einzige, voellig unbeschilderte Weg zu
+    // `hostKeyPromptOpen` oben) -- inklusive Escape: das schloesse sonst
+    // die Ueberlagerung und waere der einzige, voellig unbeschilderte Weg zu
     // einer bedienbaren Rueckfrage. Ein Escape, das mitten in der
     // Entscheidung die Verbindung dahinter verwirft, ist als Fluchtweg
     // schlechter als gar keiner -- die Rueckfrage selbst hat mit "Reject"
@@ -240,7 +230,7 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
 
     lastFocusedBeforeDialog = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     dialogFocusFallback = options.fallbackFocus ?? null;
-    // Siehe Kopfkommentar oben zu Important 3: solange die Ueberlagerung
+    // Siehe den Kommentar zu `aria-modal` oben: solange die Ueberlagerung
     // offen ist, ist der Rest der Anwendung fuer Tastatur UND Hilfstechnik
     // tatsaechlich unerreichbar, nicht nur behauptet.
     app.inert = true;
@@ -267,7 +257,7 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
     closeButton.className = "dialog-close-btn";
     closeButton.setAttribute("aria-label", t("app.close"));
     closeButton.title = t("app.close");
-    // Icon statt des frueheren "✕"-Zeichens (Spec 13): ein Ornament, der
+    // Icon statt eines "✕"-Zeichens (Spec 13): ein Ornament, der
     // Name steckt weiter in aria-label/title (dasselbe Muster wie tile.close
     // in grid.ts). Der Kasten haelt die 16 Pixel, `icon()` liefert das SVG
     // bereits mit `aria-hidden`.
@@ -294,12 +284,12 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
     const contentHandle = build(body);
     dialogHandle = contentHandle;
 
-    // Escape haengt am `document`, NICHT am `panel` (Review-Nachtrag,
-    // Important 3): ein Panel-gebundener Handler greift nur, solange der
-    // Fokus noch INNERHALB des Panels steht -- genau die Situation, deren
-    // Fehlen dieser ganze Umbau beheben soll, waere damit eine Luecke im
-    // eigenen Ersatz. Auf `keydown` statt `keyup`, dasselbe Ereignis, an
-    // dem auch der Tab-Umlauf oben haengt.
+    // Escape haengt am `document`, NICHT am `panel` (siehe den Kommentar zu
+    // `aria-modal` oben): ein Panel-gebundener Handler greift nur, solange
+    // der Fokus noch INNERHALB des Panels steht -- steht er ausserhalb, genau
+    // der Fall, gegen den Fokus-Falle und `inert` antreten, bliebe Escape
+    // wirkungslos. Auf `keydown` statt `keyup`, dasselbe Ereignis, an dem auch
+    // der Tab-Umlauf oben haengt.
     document.addEventListener("keydown", onDialogKeydown);
 
     // Fokus als ERSTES Bedienelement in die Ueberlagerung (WAI-ARIA-
@@ -323,11 +313,10 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
     dialogHandle = null;
     dialogRoot.replaceChildren();
     document.removeEventListener("keydown", onDialogKeydown);
-    // NICHT unbedingt `false` (H-Nachtrag): steht gerade eine TOFU-
-    // Rueckfrage offen, haelt SIE #app weiter fest -- sonst waere die
-    // Seitenleiste dahinter fuer die Dauer der Rueckfrage wieder per Tab
-    // erreichbar, nur weil diese generische Ueberlagerung zufaellig
-    // gleichzeitig geschlossen wurde.
+    // NICHT unbedingt `false`: steht gerade eine TOFU-Rueckfrage offen, haelt
+    // SIE #app weiter fest -- sonst waere die Seitenleiste dahinter fuer die
+    // Dauer der Rueckfrage wieder per Tab erreichbar, nur weil diese generische
+    // Ueberlagerung zufaellig gleichzeitig geschlossen wurde.
     app.inert = hostKeyPromptOpen;
     // Fokus zurueck auf das Element, das die Ueberlagerung geoeffnet hat
     // (WAI-ARIA-Dialog-Muster) -- `document.contains` schuetzt gegen ein
@@ -353,11 +342,11 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
     hostKeyPromptOpen = open;
     dialogRoot.inert = open;
     // Auch die Anwendung selbst, nicht nur die Dialogebene: sonst ist die
-    // Seitenleiste hinter dem Scrim per Tab erreichbar, bis hin zu
-    // "Remove" (H-Nachtrag). Frei nur, wenn AUCH kein generischer Dialog
-    // offen ist (`dialogHandle`, siehe `openDialog`/`closeDialog` oben) --
-    // eine TOFU-Rueckfrage, die schliesst, waehrend "Add host" noch
-    // offen ist, darf #app nicht vorzeitig freigeben.
+    // Seitenleiste hinter dem Scrim per Tab erreichbar, bis hin zu "Remove".
+    // Frei nur, wenn AUCH kein generischer Dialog offen ist (`dialogHandle`,
+    // siehe `openDialog`/`closeDialog` oben) -- eine TOFU-Rueckfrage, die
+    // schliesst, waehrend "Add host" noch offen ist, darf #app nicht vorzeitig
+    // freigeben.
     app.inert = open || dialogHandle !== null;
   }
 

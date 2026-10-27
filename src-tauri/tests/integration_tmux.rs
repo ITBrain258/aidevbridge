@@ -5,7 +5,7 @@
 use aidevbridge_lib::remote;
 use aidevbridge_lib::tmux::{CreateOutcome, OwnSocket, OwnTmuxClient};
 use aidevbridge_lib::transport::Transport;
-mod common; // stellt `connect_test_host()` bereit, siehe Task 5
+mod common; // stellt `connect_test_host()` bereit
 
 #[tokio::test]
 async fn create_list_and_kill_session() {
@@ -41,7 +41,7 @@ async fn create_list_and_kill_session() {
         .contains(&name.to_string()));
 }
 
-/// B0: `kill_session` darf ein Praefixgeschwister nicht erwischen.
+/// `kill_session` darf ein Praefixgeschwister nicht erwischen.
 ///
 /// **Der Schadenszustand ist "Ziel abwesend + Praefixgeschwister
 /// anwesend".** Ein Test, der beide Namen anlegt, kann den Fehler nicht
@@ -117,12 +117,11 @@ async fn history_limit_is_set_before_sessions_exist() {
     c.kill_session(&t, "ab_cc22dd").await.unwrap();
 }
 
-/// Review-Befund: der `exit-empty`-Bug hat beim
-/// ersten Testlauf ALLE VIER `prepare_server`-Kommandos wirkungslos gemacht,
-/// nicht nur `history-limit` -- nur `history-limit` hatte bis dahin eine
-/// eigene Probe. Ohne diesen Test waere `remain-on-exit` (Spec V21) undicht
-/// geblieben: `#{pane_dead}` koennte nie 1 werden, ohne dass irgendein Test
-/// das bemerkt.
+/// Der `exit-empty`-Bug hat beim ersten Testlauf ALLE VIER
+/// `prepare_server`-Kommandos wirkungslos gemacht, nicht nur `history-limit`
+/// -- nur `history-limit` hatte bis dahin eine eigene Probe. Ohne diesen Test
+/// waere `remain-on-exit` (Spec V21) undicht geblieben: `#{pane_dead}` koennte
+/// nie 1 werden, ohne dass irgendein Test das bemerkt.
 #[tokio::test]
 async fn remain_on_exit_and_terminal_overrides_are_applied() {
     let Some(t) = common::connect_test_host().await else {
@@ -171,7 +170,7 @@ async fn remain_on_exit_and_terminal_overrides_are_applied() {
 }
 
 /// Prueft den Rueckweg aus `create_session` (`; set -g exit-empty on`)
-/// direkt, nicht ueber `list_session_names` (Review-Befund).
+/// direkt, nicht ueber `list_session_names`.
 ///
 /// `list_session_names` liefert nach `kill_session` in ZWEI verschiedenen
 /// Situationen eine leere Liste: wenn gar kein Server mehr laeuft (der
@@ -255,4 +254,106 @@ async fn kill_session_leaves_no_server_running_behind() {
         "erwartete Fehlermeldung eines toten Servers, bekam: {}",
         after.stderr
     );
+}
+
+/// Ein `#` im Startordner bleibt woertlich: tmux wertet das Argument von
+/// `new-session -c` als Format aus. Ohne Verdopplung startete `C#Project`
+/// still im Home-Ordner, und ein Ordner `#(...)` fuehrte seinen Befehl auf dem
+/// Host aus (gemessen, docs/messungen/messung-2026-10-26-tmux-cwd-format.md).
+///
+/// Der Befehl im Ordnernamen legt die Marke per `cd` immer im Home-Ordner
+/// an, gleich in welchem Ordner tmux den Format-Job startet. Format-Jobs
+/// laufen asynchron; die Pause vor der Pruefung laesst einem faelschlich
+/// gestarteten Job Zeit.
+#[tokio::test]
+async fn a_hash_in_the_start_directory_stays_literal() {
+    let Some(t) = common::connect_test_host().await else {
+        return;
+    };
+    let socket = common::test_socket_for("cwdhash");
+    let c = OwnTmuxClient::new(&OwnSocket::new(socket.clone()).unwrap());
+    let base = t
+        .exec(&remote::build(&["mktemp", "-d", "/tmp/zz_cwdhash.XXXXXX"]))
+        .await
+        .unwrap();
+    assert_eq!(base.code, 0, "mktemp: {}", base.stderr);
+    let base = base.stdout.trim().to_string();
+    let marker = format!("zz_cwdhash_marker_{}", std::process::id());
+    let cases = [
+        ("zz_cwdhash_c", format!("{base}/C#Project")),
+        ("zz_cwdhash_job", format!("{base}/#(cd;touch {marker})")),
+    ];
+    for (_, dir) in &cases {
+        let made = t.exec(&remote::build(&["mkdir", dir])).await.unwrap();
+        assert_eq!(made.code, 0, "mkdir {dir:?}: {}", made.stderr);
+    }
+
+    c.prepare_server(&t, 2000).await.unwrap();
+    for (name, dir) in &cases {
+        assert!(matches!(
+            c.create_session(&t, name, dir).await.unwrap(),
+            CreateOutcome::Created
+        ));
+    }
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
+    // tmux 3.0 kennt `#{session_path}` nicht und gibt dafuer eine leere Zeile
+    // aus; dort bleibt nur der Ordner der Pane zu pruefen.
+    let version = t
+        .exec(&remote::build(&[
+            "tmux",
+            "-L",
+            &socket,
+            "display",
+            "-p",
+            "-t",
+            cases[0].0,
+            "#{version}",
+        ]))
+        .await
+        .unwrap();
+    assert_eq!(version.code, 0, "version: {}", version.stderr);
+    let formats: &[&str] = if version.stdout.trim().starts_with("3.0") {
+        &["#{pane_current_path}"]
+    } else {
+        &["#{pane_current_path}", "#{session_path}"]
+    };
+
+    for (name, dir) in &cases {
+        for &format in formats {
+            let r = t
+                .exec(&remote::build(&[
+                    "tmux", "-L", &socket, "display", "-p", "-t", name, format,
+                ]))
+                .await
+                .unwrap();
+            assert_eq!(
+                (r.code, r.stdout.trim_end_matches('\n')),
+                (0, dir.as_str()),
+                "{format} von {name}: {}",
+                r.stderr
+            );
+        }
+    }
+    let probe = t
+        .exec(&remote::build(&[
+            "sh",
+            "-c",
+            "if test -e \"$HOME/$1\"; then echo present; else echo absent; fi",
+            "sh",
+            &marker,
+        ]))
+        .await
+        .unwrap();
+    assert_eq!(
+        probe.stdout.trim(),
+        "absent",
+        "der Befehl im Ordnernamen lief auf dem Host: {}",
+        probe.stderr
+    );
+
+    for (name, _) in &cases {
+        c.kill_session(&t, name).await.unwrap();
+    }
+    t.exec(&remote::build(&["rm", "-rf", &base])).await.unwrap();
 }

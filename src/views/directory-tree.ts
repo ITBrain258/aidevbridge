@@ -15,15 +15,11 @@
 //  3. Eine rohe `Err(String)` wird ausschliesslich mit `errorKind`
 //     uebersetzt, nie mit einem eigenen `switch` (`request`).
 //
-// Die rollende Tabulatorstation (Designsystem §5.2, Spec §7) entstand hier
-// zum ERSTEN Mal in dieser Anwendung. Die Seitenleiste, fuer die sie
-// vorgeschrieben ist, hat inzwischen drei eigene (Liste, Knopfleiste und
-// Hostmenue, Entwurf 2026-07-31 §1.5 und §3) -- sie hat diesen Block aber
-// nicht uebernommen, sondern seine Form nachgebaut: je ein `apply…` als
-// einziger Schreiber der `0`, ein `move…To`, ein Tastaturhorcher. Damit gibt
-// es die vierte Abschrift derselben Regel. Ein gemeinsames Modul dafuer
-// entsteht ausdruecklich NICHT hier -- die Zusammenfuehrung aller vier ist
-// eine eigene Aufgabe des naechsten Pakets.
+// Die rollende Tabulatorstation (Designsystem §5.2, Spec §7) hat hier
+// dieselbe Form wie die der Seitenleiste (Liste, Knopfleiste und Hostmenue,
+// Entwurf 2026-07-31 §1.5 und §3): je ein `apply…` als einziger Schreiber der
+// `0`, ein `move…To`, ein Tastaturhorcher. Ein gemeinsames Modul fuer diese
+// Abschriften derselben Regel gibt es nicht.
 //
 // FUER DEN EINBAUENDEN DIALOG: der BAUM ist eine Tabulatorstation, der
 // Versteckt-Schalter ueber ihm eine zweite -- dieses Modul belegt also zwei
@@ -32,18 +28,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { DirTree, ancestry, errorKind, type DirNode } from "../state/dir-tree";
 import { icon } from "../icons";
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
+import { t } from "../i18n/t";
 
 export interface DirectoryTreeOptions {
   hostId: string;
@@ -280,14 +265,13 @@ export function mountDirectoryTree(
 
   /** Welche Zeile die Tabulatorstation gerade TRAEGT.
    *
-   * Getrennt von `focusPath`, und das ist der Kern (Review Runde 2,
-   * Important 2): `focusPath` ist der gemerkte WUNSCH und wird hier NIE
-   * ueberschrieben. Frueher tat diese Stelle genau das, und jedes
-   * voruebergehende Schrumpfen von `visible()` zerstoerte die Erinnerung
-   * dauerhaft -- beim Versteckt-Schalter (`invalidate` leert `children`, bis
-   * die neue Liste da ist), aber genauso, wenn ein Knoten zwischen zwei
-   * Auflistungen wirklich vom entfernten Rechner verschwindet. Ein
-   * Tastaturnutzer verlor dabei jedes Mal seine Stelle.
+   * Getrennt von `focusPath`, und das ist der Kern: `focusPath` ist der
+   * gemerkte WUNSCH und wird hier NIE ueberschrieben. Sonst zerstoerte jedes
+   * voruebergehende Schrumpfen von `visible()` die Erinnerung dauerhaft --
+   * beim Versteckt-Schalter (`invalidate` leert `children`, bis die neue
+   * Liste da ist), aber genauso, wenn ein Knoten zwischen zwei Auflistungen
+   * wirklich vom entfernten Rechner verschwindet. Ein Tastaturnutzer verloere
+   * dabei jedes Mal seine Stelle.
    *
    * Nicht ueberschrieben zu werden ist strikt mehr, als "behalten, solange
    * der Knoten in `nodes` steht" verlangt -- und es muss mehr sein: `nodes`
@@ -320,12 +304,12 @@ export function mountDirectoryTree(
     }
     if (target === null) return;
     if (takeFocus) target.focus();
-    // AUCH ohne Fokusnahme (Review Runde 2): der Erstlauf ruft
-    // `applyRoving(false)` -- er darf dem Textfeld daneben den Fokus nicht
-    // entreissen, muss die aufgeklappte Zeile aber ins Bild holen.
-    // `.dir-tree-rows` fasst rund acht Zeilen; ohne das waere
-    // Abnahmekriterium 2 erfuellt und zugleich unsichtbar. `block: "nearest"`
-    // scrollt nur, wenn die Zeile wirklich ausserhalb steht.
+    // AUCH ohne Fokusnahme: der Erstlauf ruft `applyRoving(false)` -- er
+    // darf dem Textfeld daneben den Fokus nicht entreissen, muss die
+    // aufgeklappte Zeile aber ins Bild holen. `.dir-tree-rows` fasst rund
+    // acht Zeilen; ohne das waere Abnahmekriterium 2 erfuellt und zugleich
+    // unsichtbar. `block: "nearest"` scrollt nur, wenn die Zeile wirklich
+    // ausserhalb steht.
     //
     // Optional gerufen, weil jsdom die Methode nicht kennt (nachgemessen) --
     // dieselbe Vorsichtsform wie bei `navigator.clipboard` in `sidebar.ts`.
@@ -360,9 +344,9 @@ export function mountDirectoryTree(
   /** Holt EINE Ebene nach.
    *
    * Die beiden `disposed`-Wachen hier sind Verteidigung in der Tiefe und
-   * durch KEINEN Test zu pinnen -- nachgemessen (Review Runde 3), nicht
-   * vermutet: beide entfernt, alle 22 Tests bleiben gruen. Zwei Gruende,
-   * die zusammenwirken:
+   * durch KEINEN Test zu pinnen -- nachgemessen, nicht vermutet: ohne beide
+   * bleiben alle 35 Tests von `directory-tree.test.ts` gruen (2026-10-27).
+   * Zwei Gruende, die zusammenwirken:
    *
    *  - Die obere ist heute unerreichbar. Alle drei Aufrufer wachen bereits
    *    selbst (`activate` ueber den Klickbehandler, `onKeyDown` und
@@ -383,8 +367,7 @@ export function mountDirectoryTree(
     loading.add(path);
     // WELCHER Filterstand diese Anfrage erzeugt hat. `request()` schliesst
     // ihn beim Absetzen ein; ohne diese Notiz weiss danach niemand mehr,
-    // welcher es war -- genau die fehlende Invariante aus dem
-    // Abschlussreview.
+    // welcher es war.
     const askedWith = includeHidden;
     const reply = await request(path);
     if (disposed) return;
@@ -557,9 +540,9 @@ export function mountDirectoryTree(
 
   /** Haelt `Enter` auf dem Schalter an.
    *
-   * Nicht Kosmetik: seit Task 4 haengt dieser Baum IM `<form>` des
-   * Sitzungsdialogs, und ein echter Browser macht aus `Enter` auf einem
-   * Formularelement die implizite Absendung. Ein Tastaturnutzer tabbt auf
+   * Nicht Kosmetik: dieser Baum haengt IM `<form>` des Sitzungsdialogs, und
+   * ein echter Browser macht aus `Enter` auf einem Formularelement die
+   * implizite Absendung. Ein Tastaturnutzer tabbt auf
    * "Show hidden entries", drueckt `Enter`, um umzuschalten -- und legt
    * stattdessen die Session an, mit dem Pfad, der gerade im Feld steht.
    *
@@ -598,12 +581,12 @@ export function mountDirectoryTree(
    * `run` ist der Aufklapp-Lauf (siehe `navigation`): hat inzwischen ein
    * neuer begonnen, bricht dieser ab, ohne weitere Antworten anzuwenden. */
   async function openOn(target: string, run: number): Promise<boolean> {
-    // VOR `chain.map` (Review Runde 2, Important 1): danach waeren die
-    // Aufrufe abgesetzt, und eine Wache hinter dem ersten `await` kaeme zu
-    // spaet -- die SSH-Runden liefen bereits.
+    // VOR `chain.map`: danach waeren die Aufrufe abgesetzt, und eine Wache
+    // hinter dem ersten `await` kaeme zu spaet -- die SSH-Runden liefen
+    // bereits.
     if (disposed || run !== navigation) return false;
 
-    // Ein neuer Oeffnungsversuch loest den Hinweis des vorigen ab. Seit
+    // Ein neuer Oeffnungsversuch loest den Hinweis des vorigen ab. Ueber
     // `reveal` erreichbar: der Start kann den Hinweis gesetzt haben, und die
     // Wahl aus der Liste "Recent" oeffnet danach anderswo.
     unreachable = null;
@@ -650,9 +633,9 @@ export function mountDirectoryTree(
         // Neustart geholt. Gemessen bei einem Umlegen mitten in der Kette:
         // neun Aufrufe, `/` dreimal, Ergebnisbaum korrekt. Der Preis ist
         // hier gerechtfertigt (der Fall ist echt und die Alternative waere
-        // ein Baum im falschen Filterstand); mit demselben Argument wurde
-        // das Umlegen im Rueckfallzweig von `start()` gestrichen, wo der
-        // Fall konstruiert ist.
+        // ein Baum im falschen Filterstand); mit demselben Argument fehlt
+        // das Umlegen im Rueckfallzweig von `start()`, wo der Fall
+        // konstruiert ist.
         for (const rest of chain.slice(i)) loading.delete(rest);
         return openOn(target, run);
       }
@@ -714,10 +697,10 @@ export function mountDirectoryTree(
    * SSH-Runde in einem seltenen Fall. */
   async function requestHome(): Promise<string | null> {
     const reply = await request("");
-    // VOR der Auswertung (Review Runde 2, Important 1): stand die Wache
-    // hinter `if (reply.ok)`, gab ein entsorgter Baum den Heimatpfad
-    // trotzdem zurueck -- und `start()` legte darauf die ganze Ahnenkette
-    // los, drei SSH-Runden fuer einen geschlossenen Dialog.
+    // VOR der Auswertung: stuende die Wache hinter `if (reply.ok)`, gaebe
+    // ein entsorgter Baum den Heimatpfad trotzdem zurueck -- und `start()`
+    // legte darauf die ganze Ahnenkette los, drei SSH-Runden fuer einen
+    // geschlossenen Dialog.
     if (disposed) return null;
     if (reply.ok) return reply.path;
     // Der Wurzelknoten ist die einzige Zeile, die es zu diesem Zeitpunkt
@@ -767,11 +750,11 @@ export function mountDirectoryTree(
     if (home === null || disposed || run !== navigation) return;
     fallback = { path: target, home };
     focusPath = home;
-    // Hier BEWUSST kein `hasHiddenSegment`-Umlegen (Nachpruefung, Punkt 4):
-    // an dieser Stelle ist `/` bereits geladen, das Umlegen entwertete und
-    // laedt es nach, und `openOn(home)` holte es unmittelbar danach als
-    // Kettenglied erneut -- gemessen EIN Aufruf mehr, nicht mehrere, fuer ein
-    // Heimatverzeichnis mit Punkt-Glied, das es praktisch nicht gibt.
+    // Hier BEWUSST kein `hasHiddenSegment`-Umlegen: an dieser Stelle ist `/`
+    // bereits geladen, das Umlegen entwertete und laedt es nach, und
+    // `openOn(home)` holte es unmittelbar danach als Kettenglied erneut --
+    // gemessen EIN Aufruf mehr, nicht mehrere, fuer ein Heimatverzeichnis mit
+    // Punkt-Glied, das es praktisch nicht gibt.
     //
     // Traegt es wider Erwarten eines, meldet die Auffanglinie in `openOn`,
     // dass der Baum dort nicht oeffnen kann -- aber ueber das FALSCHE

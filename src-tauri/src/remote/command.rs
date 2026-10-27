@@ -11,10 +11,10 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 /// Diese und die uebrigen `assert!`s in dieser Datei sind Programmier-
 /// Invarianten fuer die fest verdrahteten Literale ihrer Aufrufer (`"git"`,
 /// `"tmux"`, ...), keine Eingabevalidierung mehr: Hostdaten, die ein Nutzer
-/// oder ein fremder tmux liefern kann (`cwd`, `path`, Sessionnamen), werden
-/// seit Task 7 (H6/H9) an der Command-Grenze in `commands.rs` geprueft,
-/// BEVOR sie hierher gelangen -- ein Panic hier wuerde den Tauri-`invoke`
-/// haengen lassen, statt dem WebView ein `Err(...)` zu liefern.
+/// oder ein fremder tmux liefern kann (`cwd`, `path`, Sessionnamen), werden an
+/// der Command-Grenze in `commands.rs` geprueft (H6/H9), BEVOR sie hierher
+/// gelangen -- ein Panic hier wuerde den Tauri-`invoke` haengen lassen, statt
+/// dem WebView ein `Err(...)` zu liefern.
 #[track_caller]
 fn assert_argv_not_empty(argv: &[&str]) {
     assert!(
@@ -71,6 +71,12 @@ pub fn build(argv: &[&str]) -> String {
 
 /// Wie [`build`], wechselt aber vorher in ein absolutes Verzeichnis.
 /// Das Verzeichnis liegt in `A0`, die Argumente beginnen bei `A1`.
+///
+/// Vorgesehen fuer `cd -- "$REPO" && git worktree add` (Gesamtspec §8.2,
+/// Anforderung A5) und noch ohne Produktaufrufer. Das Arbeitsverzeichnis
+/// einer Session laeuft NICHT hierueber, sondern als Argument von
+/// `tmux new-session -c` durch [`build`]; dessen Regel "absoluter Pfad"
+/// prueft die Command-Grenze in `commands.rs`.
 pub fn build_in_dir(cwd: &str, argv: &[&str]) -> String {
     assert!(
         cwd.starts_with('/'),

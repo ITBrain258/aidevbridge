@@ -36,9 +36,38 @@ pub fn format_entry(host: &str, port: u16, key_type: &str, key_b64: &str) -> Str
     format!("{} {} {}", host_token(host, port), key_type, key_b64)
 }
 
-/// Haengt `line` an die Datei unter `path` an (TOFU-Nachtrag, Task 13:
-/// Eigenschaft 4). Erstellt Datei und Elternverzeichnis, falls sie noch
-/// nicht existieren.
+/// Zeichen, die in keinem Hostnamen und keiner Adresse vorkommen. In einer
+/// `known_hosts`-Zeile haben die meisten eine eigene Bedeutung: `*` und `?`
+/// sind Muster, `!` verneint, `,` trennt Aliasse, `[` `]` umschliessen die
+/// Portform, `|` leitet einen gehashten Namen ein, `#` einen Kommentar und
+/// `@` einen Marker. `@` ist ausserdem der haeufigste Tippfehler
+/// (`user@host`); `/` und `\` stehen in keinem Namen.
+const NEVER_IN_A_HOSTNAME: &[char] = &[',', '*', '?', '!', '[', ']', '|', '@', '#', '/', '\\'];
+
+/// Ob `host` ueberhaupt ein Hostname oder eine Adresse sein kann. Die App
+/// prueft das, bevor sie verbindet oder einen Host speichert, denn
+/// `format_entry` schreibt den Namen roh in `known_hosts`. Fuehrte der
+/// Resolver einen solchen Namen doch zu einem Server, stuende nach der
+/// Bestaetigung eine Zeile darin, die OpenSSH als Muster oder Liste liest,
+/// mit `*` fuer jeden Host. Ob er das tut, haengt von der Plattform ab (glibc
+/// liest `*` als leeren Namen und liefert Loopback, sobald ein Dienst
+/// mitgegeben wird); die Pruefung haengt nicht davon ab.
+///
+/// Bewusst nur eine Sperrliste fuer Werte, die nie gueltig sein koennen:
+/// leer, mit Leerraum (er trennt die Felder einer Zeile, ein Zeilenumbruch
+/// die Zeilen), mit Steuerzeichen oder mit einem Zeichen aus
+/// `NEVER_IN_A_HOSTNAME`. Alles andere bleibt erlaubt, damit keine
+/// funktionierende Einrichtung wegfaellt: internationalisierte Namen, `_`,
+/// ein Punkt am Ende, `:` fuer IPv6 und `%` fuer die Zonen-ID.
+pub(crate) fn is_acceptable_hostname(host: &str) -> bool {
+    !host.is_empty()
+        && !host
+            .chars()
+            .any(|c| c.is_whitespace() || c.is_control() || NEVER_IN_A_HOSTNAME.contains(&c))
+}
+
+/// Haengt `line` an die Datei unter `path` an (TOFU, Spec §8.1). Erstellt
+/// Datei und Elternverzeichnis, falls sie noch nicht existieren.
 ///
 /// Bestehende Zeilen werden NIE gelesen, veraendert oder neu geschrieben --
 /// dieser Pfad oeffnet die Datei ausschliesslich mit `.append(true)`
@@ -55,10 +84,9 @@ pub fn format_entry(host: &str, port: u16, key_type: &str, key_b64: &str) -> Str
 /// `missing_trailing_newline_would_merge_entries_without_the_fix`).
 ///
 /// Nimmt bewusst KEINE `HostKeyDecision` entgegen -- der Aufrufer
-/// (`commands::TofuPolicy::decide`) ruft diese Funktion nur im
-/// `Unknown`-Zweig nach einer expliziten Nutzerzustimmung auf. Es gibt
-/// hier keinen Parameter, ueber den ein `Mismatch` versehentlich denselben
-/// Weg nehmen koennte (Eigenschaft 1 des TOFU-Nachtrags).
+/// (`commands::TofuPolicy::decide`) ruft diese Funktion nur im `Unknown`-Zweig
+/// nach einer expliziten Nutzerzustimmung auf. Es gibt hier keinen Parameter,
+/// ueber den ein `Mismatch` versehentlich denselben Weg nehmen koennte.
 pub fn append_entry(path: &Path, line: &str) -> anyhow::Result<()> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
@@ -93,11 +121,10 @@ pub fn append_entry(path: &Path, line: &str) -> anyhow::Result<()> {
 }
 
 /// SHA256-Fingerabdruck im Format, das `ssh-keygen -lf` ausgibt (z. B.
-/// `SHA256:cd4xJCbJywoyJ+atpjT31411tIy9KUZajEpme8VfVOc`) -- TOFU-Nachtrag
-/// Eigenschaft 3: der Nutzer bekommt diesen kurzen, mit einer anderen
-/// Quelle (Server-Admin, Cloud-Konsole) vergleichbaren String angezeigt,
-/// NIEMALS den rohen Base64-Schluessel selbst (den vergleicht niemand von
-/// Hand ueber 68+ Zeichen).
+/// `SHA256:cd4xJCbJywoyJ+atpjT31411tIy9KUZajEpme8VfVOc`) -- der Nutzer bekommt
+/// diesen kurzen, mit einer anderen Quelle (Server-Admin, Cloud-Konsole)
+/// vergleichbaren String angezeigt, NIEMALS den rohen Base64-Schluessel selbst
+/// (den vergleicht niemand von Hand ueber 68+ Zeichen).
 ///
 /// `key_b64` ist Standard-Base64 (wie es `known_hosts`-Zeilen und
 /// `PublicKey::public_key_base64()` liefern); der Fingerabdruck ist SHA256
@@ -374,6 +401,45 @@ mod tests {
             .starts_with("[192.0.2.10]:2222 "));
     }
 
+    /// Die Sperrliste trifft nur Werte, die nie ein Hostname sein koennen;
+    /// jede Form, unter der heute eine Verbindung gelingt, bleibt erlaubt.
+    #[test]
+    fn only_values_that_can_never_be_a_hostname_are_refused() {
+        for host in [
+            "localhost",
+            "localhost.",
+            "example.com",
+            "192.0.2.10",
+            "::1",
+            "fe80::1%eth0",
+            "my_host",
+            "bücher.example",
+        ] {
+            assert!(is_acceptable_hostname(host), "refused {host:?}");
+        }
+        for host in [
+            "",
+            "*",
+            "a,b",
+            "a b",
+            "h\nx",
+            "|1|x",
+            "@x",
+            "[::1]",
+            "user@host",
+            "a/b",
+            "a\\b",
+            "#x",
+            "!x",
+            "?",
+            "a\tb",
+            "a\u{0}b",
+            "a\u{a0}b",
+        ] {
+            assert!(!is_acceptable_hostname(host), "accepted {host:?}");
+        }
+    }
+
     #[test]
     fn known_key_is_accepted() {
         assert_eq!(
@@ -640,8 +706,8 @@ mod tests {
     /// OpenSSH liest ein Hostfeld, das mit `|` beginnt, als einen einzigen
     /// Hash und schreibt gehashte Namen nie in eine Kommaliste. Hier zaehlt
     /// jeder Eintrag der Liste fuer sich (`host_field_matches`): der
-    /// woertliche Alias passt wie bisher, in beiden Reihenfolgen, und der
-    /// gehashte passt nur auf genau sein Token (Host und Port).
+    /// woertliche Alias passt, in beiden Reihenfolgen, und der gehashte passt
+    /// nur auf genau sein Token (Host und Port).
     #[test]
     fn hashed_alias_in_a_comma_list_matches_only_its_exact_token() {
         for field in [
@@ -765,8 +831,8 @@ mod tests {
         }
     }
 
-    // --- Punkt 2 des Reviews: Hostvergleich muss case-insensitiv sein, ---
-    // --- der Key-Vergleich ausdruecklich nicht.                        ---
+    // --- Hostvergleich muss case-insensitiv sein, ---
+    // --- der Key-Vergleich ausdruecklich nicht.   ---
 
     const KH_CASE: &str = "HOST.example ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKEYC\n";
 
@@ -792,7 +858,7 @@ mod tests {
         );
     }
 
-    // --- Punkt 1 des Reviews: @revoked und @cert-authority. ---
+    // --- @revoked und @cert-authority. ---
 
     const KH_REVOKED: &str = "@revoked 192.0.2.40 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIREVOKED\n";
 
@@ -1023,7 +1089,7 @@ mod tests {
         );
     }
 
-    // --- Punkt 4 des Reviews: fehlende Abdeckung. ---
+    // --- Weitere Abdeckung. ---
 
     // Zwei separate Zeilen fuer denselben Host (z. B. nach Key-Rotation, alte
     // Zeile noch nicht aufgeraeumt): Findet sich der praesentierte Key in
@@ -1074,7 +1140,7 @@ mod tests {
         );
     }
 
-    // --- append_entry (TOFU-Nachtrag, Task 13) ---
+    // --- append_entry (TOFU, Spec §8.1) ---
 
     fn unique_temp_path(tag: &str) -> std::path::PathBuf {
         let nanos = std::time::SystemTime::now()
@@ -1107,7 +1173,7 @@ mod tests {
         let _ = std::fs::remove_file(&path);
     }
 
-    /// Der eigentliche Beweis fuer Eigenschaft 4 des Nachtrags: fehlt der
+    /// Der eigentliche Beweis fuer das reine Anhaengen: fehlt der
     /// Zeilenumbruch am Dateiende, wird er VOR der neuen Zeile ergaenzt --
     /// sonst verschmilzt sie mit der letzten bestehenden Zeile zu einem
     /// einzigen, ungueltigen Eintrag. Gegenprobe: mit der
@@ -1123,7 +1189,7 @@ mod tests {
             content, "192.0.2.20 ssh-ed25519 AAAAEXISTING\n192.0.2.62 ssh-ed25519 AAAANEW\n",
             "ohne die Ergaenzung waeren die beiden Zeilen zu einer verschmolzen"
         );
-        // Die urspruengliche Zeile muss als eigenstaendige, unveraenderte
+        // Die bestehende Zeile muss als eigenstaendige, unveraenderte
         // Zeile wiederzufinden sein -- nicht als Praefix eines laengeren
         // verschmolzenen Strings.
         assert!(content
@@ -1164,7 +1230,7 @@ mod tests {
         let _ = std::fs::remove_file(&path);
     }
 
-    // --- fingerprint (TOFU-Nachtrag, Task 13) ---
+    // --- fingerprint (TOFU, Spec §8.1) ---
 
     /// Bekannter, unabhaengig nachrechenbarer Vektor: SHA256("") base64
     /// (ohne Padding) ist der oft zitierte Konstantenwert

@@ -1,13 +1,8 @@
 // Passwort-/Passphrasenfeld fuer Hinweisleiste (sidebar.ts) und Erststart
 // (first-run.ts), UI-v2-Spec §9.3/§11.3. Ein Modul, damit beide Wege dasselbe
 // Feld, dieselbe Beschriftung und dieselbe Leer-Regel teilen.
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey): string {
-  return en[key];
-}
+import { t } from "../i18n/t";
+import type { TranslationKey } from "../i18n/t";
 
 export type CredentialKind = "passphrase" | "password";
 

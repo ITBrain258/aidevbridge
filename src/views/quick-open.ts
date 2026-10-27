@@ -9,19 +9,8 @@ import { socketOf, type AppState, type SessionSocket } from "../state/app-state"
 import { DEFAULT_KEYMAP, type KeymapAction } from "../keymap";
 import type { DialogShell } from "./dialog";
 import { agentStatusView, buildStatusPill, type AgentStatusView } from "./status-pill";
-import en from "../i18n/en.json";
+import { t } from "../i18n/t";
 import { tmuxMark } from "./waiting-lane";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
 
 /** Die Aktionen am Ende der Liste (UX-Spec §7.5, Punkt 3). */
 export type QuickOpenActionId = "settings" | "toggleSidebar";

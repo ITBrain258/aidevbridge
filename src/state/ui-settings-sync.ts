@@ -1,7 +1,8 @@
 // Schreiber der [ui]-Felder von settings.toml (UX-Spec §6.7, §9.2): die
 // Terminal-Einstellungen (`terminal-prefs`), "Restore hosts and terminals" und
-// die Breite der Seitenleiste (Aufgabe 19). Das Thema hat seinen eigenen Weg
-// (Appearance), den Arbeitsplatz schreibt ein eigener Schreiber (Aufgabe 14).
+// die Breite der Seitenleiste (UX-Spec §7.8). Das Thema hat seinen eigenen
+// Weg (Appearance), den Arbeitsplatz schreibt ein eigener Schreiber
+// (`state/workspace.ts`).
 //
 // Eine Feldtabelle bestimmt alles, was Felder betrifft: welche es gibt, wie ein
 // Wert geprueft wird (Zahlen ganzzahlig -- `ui_settings` lehnt Bruchzahlen ab)
@@ -66,7 +67,7 @@ const FIELDS: { readonly [F in UiField]: FieldSpec<F> } = {
   },
   restore_workspace: { accept: acceptBoolean },
   // Nur ganzzahlig; die Grenzen der Anzeige (208 bis 480) haelt der Ziehgriff
-  // (Aufgabe 19, `views/sidebar-resize.ts`). Rust setzt alles ausserhalb von 200
+  // (`views/sidebar-resize.ts`). Rust setzt alles ausserhalb von 200
   // bis 480 auf 240.
   sidebar_width: {
     accept: (value) => (typeof value === "number" && Number.isFinite(value) ? Math.round(value) : undefined),

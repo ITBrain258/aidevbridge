@@ -57,6 +57,24 @@ xterm.js.
   `Get-FileHash .\aidevbridge-0.2.2-windows-x64-setup.exe -Algorithm SHA256`
   (or the name of the file you downloaded) must print the same value. It prints upper-case letters where the release
   lists lower-case ones; letter case does not matter.
+- **Optional, stronger: check the build provenance.** From the release after
+  0.2.3 on, each file that the run of the release's tag attaches has a build
+  provenance: a record, signed through Sigstore and kept by GitHub apart from
+  the release, that ties the file's SHA-256 to this repository's workflow
+  `packages.yml`, the tag and its commit. With the
+  [GitHub CLI](https://cli.github.com/) 2.68 or newer, signed in to any
+  GitHub account (`gh auth login`), run
+  `gh attestation verify <file> --repo ITBrain258/aidevbridge --signer-workflow ITBrain258/aidevbridge/.github/workflows/packages.yml --source-ref refs/tags/v<version>`.
+  It must print `Verification succeeded!`. GitHub CLI 2.49 to 2.67 lacks
+  `--source-ref`; there, `gh attestation verify <file> --repo ITBrain258/aidevbridge`
+  is the fallback. It only checks that a workflow of this repository made
+  the provenance, not that it was `packages.yml` nor that the file was built
+  from that release's tag. A
+  file that a manual run from another ref (such as a branch) attached later
+  has no provenance, and the command fails for it (current versions of the
+  GitHub CLI report `HTTP 404: Not Found`); for it, only the SHA-256 check
+  above applies. Details in
+  [SECURITY.md](SECURITY.md#unsigned-binaries-and-checking-a-download).
 - **macOS: not notarized yet.** macOS refuses the first start ("Apple could
   not verify …"). After checking the file with
   `shasum -a 256 ~/Downloads/aidevbridge-<version>-macos-universal.dmg`,
@@ -311,6 +329,16 @@ the app as one more client of that session:
   (control and terminals) bound to the same host key. An SSH agent that asks
   for approval may therefore ask twice, and again on every automatic
   reconnect attempt.
+- **Several windows:** aidevbridge can run more than once, and all windows
+  share `settings.toml`. A window applies only its own change to what
+  another one saved, so hosts another window added or removed stay; if two
+  windows edit the same host, the later save sets all of that host's
+  fields. Each preference keeps the value of the window that changed it
+  last, the workspace (open terminals, layout) is that of the window that
+  saved it last, and a window shows hosts changed in another one only after
+  a restart. Two windows on the same session attach to it as two tmux
+  clients. Details in
+  [SECURITY.md](SECURITY.md#several-windows-at-the-same-time).
 - **Automatic recovery** covers hosts with a key file or ssh-agent whose last
   connection needed no passphrase. Password and passphrase hosts reconnect
   by hand; when only the live updates stopped, **Restore updates** in the
@@ -488,7 +516,17 @@ workflow attaches them, with the `.sha256` of the disk image, to the release
 of the tag and writes a Windows and a macOS part into its text, creating the
 release if there is none. A manual run with **release** on makes the release
 builds of a branch without publishing them; a manual run naming an existing
-tag builds that tag and attaches the packages its release still lacks.
+tag builds that tag and attaches only the files its release still lacks. A
+published file is never replaced by different content: a platform whose files
+are all attached stays as it is, and if a platform is only partly attached, an
+attached file whose digest differs from the new build, or that has no digest,
+stops the run before anything is attached. To rebuild such a file on purpose,
+delete it from the release by hand and run the workflow again. Only the run
+of the tag itself records a build provenance for the files it attaches
+(`actions/attest-build-provenance`, see
+[Before you download](#before-you-download)); a manual run that names a tag
+but starts from another ref, such as a branch, would record that ref as the
+source, so it attaches without provenance and says so in a warning.
 
 ### Why not `cargo build --release`
 

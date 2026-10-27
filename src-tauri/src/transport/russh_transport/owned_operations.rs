@@ -186,6 +186,10 @@ impl Operations {
         result
     }
 
+    /// Ungebundener Attach: `open_attach_pending` ohne Nonce, sofort
+    /// bestaetigt. Ohne Nonce gibt es keinen Wrapper-Strom, und `confirm` gibt
+    /// die Erlaubnis fuer unveroeffentlichte Kanaele ohne Await-Punkt nach dem
+    /// Entschaerfen der Lease frei.
     pub(super) async fn open_attach(
         &self,
         line: String,
@@ -193,55 +197,9 @@ impl Operations {
         rows: u16,
         control: OperationControl,
     ) -> anyhow::Result<PtyHandle> {
-        let mut lease = control.caller_lease();
-        let phase = Arc::new(Mutex::new(PtyPhase::Admission));
-        let result = async {
-            control.with_active(|| ()).map_err(|error| PtyError {
-                phase: PtyPhase::Admission,
-                reason: error.into(),
-            })?;
-            let (slot, unpublished) = self.admit_pty(&control).await?;
-            let (reply, receiver) = oneshot::channel();
-            if !self.spawn(pty_actor(
-                self.core.clone(),
-                line,
-                cols,
-                rows,
-                control.clone(),
-                phase.clone(),
-                slot,
-                unpublished,
-                reply,
-                None,
-            )) {
-                return Err(PtyError {
-                    phase: PtyPhase::Admission,
-                    reason: PtyReason::Unavailable,
-                }
-                .into());
-            }
-            match control.wait(receiver).await {
-                Ok(Ok(result)) => result
-                    .map(|handoff| {
-                        drop(handoff.unpublished);
-                        handoff.handle
-                    })
-                    .map_err(anyhow::Error::from),
-                Ok(Err(_)) => Err(PtyError {
-                    phase: *phase.lock().unwrap(),
-                    reason: PtyReason::Transport,
-                }
-                .into()),
-                Err(error) => Err(PtyError {
-                    phase: *phase.lock().unwrap(),
-                    reason: error.into(),
-                }
-                .into()),
-            }
-        }
-        .await;
-        lease.disarm();
-        result
+        self.open_attach_pending(line, cols, rows, control, None)
+            .await
+            .map(PendingPty::confirm)
     }
 
     pub(super) async fn open_attach_pending(

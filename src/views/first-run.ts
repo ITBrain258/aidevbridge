@@ -1,31 +1,27 @@
-// Erststart-Ansicht (Task 13; Umbau Shell-Task 11, Spec §4.2):
+// Erststart-Ansicht (Spec §4.2):
 // zeigt Vorschlaege aus `~/.ssh/config` (`suggest_hosts()`) und ein
 // Anmeldungsformular, danach `run_preflight` sichtbar mit einem Haekchen je
 // Pruefung; ein blockierender Befund zeigt die Meldung aus
 // `blocking_problem()` und laesst das Fortfahren nicht zu.
 //
-// Umbau Shell-Task 11: das fruehere EIGENE Formular (Schluesselpfad als
-// blosses Textfeld) ist ersetzt durch `host-form.ts`s Anmeldungsmenue
-// (Shell-Task 8) -- das schliesst die erste Luecke aus Shell-Task 11: ein
-// angeklickter Vorschlag mit gesetzter
-// `identity_file` reicht den Schluessel jetzt tatsaechlich als
-// `initial.auth` weiter, statt ihn stillschweigend zu verlieren (vorher
-// uebernahm `loadSuggestions` nur hostname/user/port ins Formular, NIE den
-// Schluesselpfad -- der Nutzer landete beim Verbinden auf ssh-agent, einem
-// unter Windows 11 ab Werk deaktivierten Dienst).
+// Das Formular ist `host-form.ts`s Anmeldungsmenue: ein angeklickter
+// Vorschlag mit gesetzter `identity_file` reicht den Schluessel als
+// `initial.auth` weiter, statt ihn stillschweigend zu verlieren -- ohne den
+// Schluesselpfad landete der Nutzer beim Verbinden auf ssh-agent, einem
+// unter Windows 11 ab Werk deaktivierten Dienst.
 //
-// UI v2, Aufgabe 11 (Spec 9.2, 9.5, 9.6): die Ansicht ist ein Willkommen aus
+// UI v2 (Spec 9.2, 9.5, 9.6): die Ansicht ist ein Willkommen aus
 // Markenblock, Karte und Fusszeile. Ein Vorschlag ist eine ZEILE mit genau
 // einem Connect-Knopf und verbindet DIREKT (`valueFromSuggestion`), statt das
 // Formular zu fuellen -- der Umweg ueber `initial.auth` bleibt fuer die
 // beiden Faelle, in denen der Vorschlag NICHT blind verbinden darf: ohne
-// `user` (Rust verlangt ihn), oder bereits gespeichert (Fix-Runde 1, Befund
-// 1 -- Duplikat-Warnung, Spec 9.4). Das Formular liegt zugeklappt hinter
+// `user` (Rust verlangt ihn), oder bereits gespeichert (Duplikat-Warnung,
+// Spec 9.4). Das Formular liegt zugeklappt hinter
 // "Add a host manually" und steht nur dann offen da, wenn es gar keine
 // Vorschlaege gibt. `compact` laesst im "Add host"-Dialog weg, was der
 // Dialogkopf schon traegt.
 //
-// UI v2, Aufgabe 12 (Spec 9.3 bis 9.5): was NACH dem Connect passiert,
+// UI v2 (Spec 9.3 bis 9.5): was NACH dem Connect passiert,
 // bleibt in derselben Karte. Der `code` eines gescheiterten `connect_host`
 // entscheidet, ob unter der angeklickten Vorschlagszeile ein Geheimnisfeld
 // erscheint (`credential-field.ts`, Spec 9.3) oder eine Fehlerflaeche mit
@@ -43,7 +39,7 @@
 // abdriften koennte.
 
 import { invoke } from "@tauri-apps/api/core";
-import en from "../i18n/en.json";
+import { t } from "../i18n/t";
 import { icon } from "../icons";
 import { appVersionLine } from "../version";
 import { buildCredentialField } from "./credential-field";
@@ -56,17 +52,6 @@ import {
 } from "./host-form";
 import { hostInitials } from "./initials";
 import type { HostEntry, SshConfigHost } from "./types";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
 
 interface PreflightReportPayload {
   tmux_version: string | null;
@@ -110,7 +95,7 @@ export interface FirstRunOptions {
   onRuntimeOwnershipChange?: (runtimeId: string, owned: boolean) => void;
 }
 
-// Review-Befund (Minor): `label` traegt bewusst einen NEUTRALEN
+// `label` traegt bewusst einen NEUTRALEN
 // Pruefgegenstand ("tmux (>= 3.0)"), keine positive Behauptung ("tmux is
 // installed") -- ein "✗" vor einer positiven Behauptung ("✗ tmux is
 // installed (>= 3.0)") liest sich wie ein Widerspruch in sich selbst. Vor
@@ -120,8 +105,8 @@ export interface FirstRunOptions {
 function checkRow(label: string, ok: boolean, detail?: string): HTMLLIElement {
   const li = document.createElement("li");
   li.className = ok ? "preflight-check preflight-check-ok" : "preflight-check preflight-check-fail";
-  // Spec 9.4: Icon im 16er-Kasten; das Zustandswort bleibt der bisherige
-  // Glyphentext, jetzt nur fuer Hilfstechnik (Aufgabe 12) -- so
+  // Spec 9.4: Icon im 16er-Kasten; das Zustandswort ist der Glyphentext,
+  // nur fuer Hilfstechnik -- so
   // bleiben die Textzusicherungen ("✓ base64") wortwoertlich gueltig.
   const box = document.createElement("span");
   box.className = "icon-box";
@@ -164,7 +149,7 @@ function specFieldsFromAuth(
  * Ansicht kann ZWEIMAL gleichzeitig im Dokument stehen -- das Willkommen in
  * `#grid` und daneben ein kompakter "Add host"-Dialog. Eine feste `id` waere
  * damit doppelt vergeben, und `aria-controls` beider Aufklapper zeigte auf
- * dasselbe (das erste) Element (Gesamt-Review, Minor 9). */
+ * dasselbe (das erste) Element. */
 let checksIdCounter = 0;
 
 export function mountFirstRun(container: HTMLElement, options: FirstRunOptions): FirstRunHandle {
@@ -175,9 +160,9 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   root.className = options.compact ? "first-run-view first-run-view--compact" : "first-run-view";
 
   // --- Marke (Spec 9.2, Punkte 1-3), im Dialog ausgeblendet (9.6) ---
-  // Die fruehere Ueberschrift `firstRun.heading` entfaellt in BEIDEN
+  // Keine Ueberschrift `firstRun.heading` in BEIDEN
   // Varianten: im Willkommen traegt der Name sie, im Dialog der Dialogkopf
-  // (Spec 13.4) -- zwei Titel uebereinander waren doppelt gemoppelt.
+  // (Spec 13.4) -- zwei Titel uebereinander waeren doppelt gemoppelt.
   const brand = document.createElement("div");
   brand.className = "first-run-brand";
   brand.hidden = options.compact === true;
@@ -206,10 +191,10 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   card.appendChild(loadingNotice);
 
   // --- Vorschlagsliste aus ~/.ssh/config ---
-  // Nachtrag B, Punkt 1: die `<h3>` sind Abschnittslabels (Designsystem
+  // Die `<h3>` sind Abschnittslabels (Designsystem
   // §3.2: `--ab-fs-xs`, 600, Grossbuchstaben, `letter-spacing`), dieselbe
   // ROLLE wie `.sb-head h1` ("HOSTS") in der Seitenleiste -- eine bereits
-  // etablierte Konvention, keine neue. Nachtrag C (Befund 6): dieselbe Rolle
+  // etablierte Konvention, keine neue. Dieselbe Rolle
   // heisst hier NICHT dieselbe Schriftgroesse -- `.sb-head h1` setzt
   // `--ab-fs-sm`, diese Klasse das von §3.2 geforderte `--ab-fs-xs`.
   const suggestedHeading = document.createElement("h3");
@@ -223,7 +208,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   suggestedList.hidden = true;
   card.appendChild(suggestedList);
 
-  // --- Anmeldungsformular (Shell-Task 8: `host-form.ts`), zugeklappt hinter
+  // --- Anmeldungsformular (`host-form.ts`), zugeklappt hinter
   // dem Umschalter (Spec 9.2): mit Vorschlaegen ist der kurze Weg der
   // Regelfall, das Formular der Ausnahmefall. Ohne Vorschlaege gibt es
   // nichts umzuschalten -- dann steht das Formular offen da und der
@@ -265,13 +250,12 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   preflightBlocked.setAttribute("role", "alert");
   preflightSection.appendChild(preflightBlocked);
 
-  // Nachtrag B, Punkt 1: eine Zeile fuer beide Schaltflaechen statt zweier
-  // gestapelter Bloecke -- reine Umhuellung, keine Logikaenderung: dieselben
-  // beiden Knoten, derselbe Elternteil (`preflightSection`), nur mit einem
+  // Eine Zeile fuer beide Schaltflaechen statt zweier gestapelter Bloecke:
+  // dieselben beiden Knoten unter `preflightSection`, nur mit einem
   // gemeinsamen Layout-Container dazwischen.
   const preflightActions = document.createElement("div");
   preflightActions.className = "first-run-preflight-actions";
-  // Review-Befund (Important 2, Task 13): OHNE diesen Button war ein
+  // OHNE diesen Button waere ein
   // blockierender Preflight-Befund eine Sackgasse. Immer sichtbar, sobald
   // `preflightSection` selbst sichtbar ist: es gibt IMMER einen Weg zurueck
   // zum Formular, nie nur einen Weg vorwaerts oder gar keinen.
@@ -336,17 +320,15 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   let saveInFlight = false;
   let existingHosts: { hostname: string; user: string; port: number }[] = [];
   let hostFormHandle: HostFormHandle | null = null;
-  /** Nachtrag C (Befund 4): laeuft gerade ein `connect_host`? Der Waechter
-   * gegen doppeltes Absenden lebte bislang AUSSCHLIESSLICH im DOM
-   * (`submitButton.disabled`, siehe `connect()`) -- ein neu gemountetes
-   * Formular brachte deshalb einen frischen, FREIGEGEBENEN Knopf mit, auch
-   * mitten in einem laufenden Versuch.
+  /** Laeuft gerade ein `connect_host`? Lebte der Waechter gegen doppeltes
+   * Absenden AUSSCHLIESSLICH im DOM (`submitButton.disabled`, siehe
+   * `connect()`), braechte ein neu gemountetes Formular einen frischen,
+   * FREIGEGEBENEN Knopf mit, auch mitten in einem laufenden Versuch.
    *
-   * Fix-Runde 1, Befund 2: `mountForm` hat seit Aufgabe 11 nur noch EINEN
-   * Aufrufer, `openForm` -- ein Vorschlagsklick fuehrt nicht mehr hierher
-   * (er verbindet direkt oder oeffnet das Formular ueber denselben
-   * `openForm`-Weg, wenn `user` fehlt oder der Vorschlag ein Duplikat ist).
-   * Die Variable bleibt trotzdem noetig, fuer zwei verbleibende Faelle: (1)
+   * `mountForm` hat nur EINEN Aufrufer, `openForm` -- ein Vorschlagsklick
+   * fuehrt nicht hierher (er verbindet direkt oder oeffnet das Formular ueber
+   * denselben `openForm`-Weg, wenn `user` fehlt oder der Vorschlag ein
+   * Duplikat ist). Die Variable deckt zwei Faelle: (1)
    * eine SCHNELLE Doppelabsendung -- der Vorschlags-Knopf-Handler prueft sie
    * DIREKT (`if (disposed || connectInFlight) return;`), bevor ein zweiter
    * Verbindungsversuch ueberhaupt startet, und faengt so auch ein Ereignis
@@ -400,7 +382,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   });
 
   /** Woher ein Verbindungsversuch kommt -- entscheidet, wo Zustand und
-   * Fehler erscheinen (Formular: wie bisher; Vorschlag: in der Zeile). */
+   * Fehler erscheinen (Formular: in der Karte; Vorschlag: in der Zeile). */
   type ConnectSource =
     | { kind: "form" }
     | { kind: "suggestion"; host: SshConfigHost; li: HTMLLIElement; button: HTMLButtonElement; meta: HTMLElement };
@@ -419,7 +401,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     };
   }
 
-  /** Nachtrag B, Punkt 1: "jeder Eintrag zeigt Alias UND user@host:port, kein
+  /** "Jeder Eintrag zeigt Alias UND user@host:port, kein
    * bloser Knopf" -- baut die Zweitzeile aus den vier ohnehin optionalen
    * Feldern des DTOs, ohne eine dieser Optionalitaeten zu behaupten weg
    * (kein erfundener Nutzername, kein erfundener Port).
@@ -478,7 +460,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
         const value = valueFromSuggestion(host);
         if (value === null) {
           // Ohne user kann niemand blind verbinden -- Formular vorbelegt oeffnen.
-          // Konsumstelle fuer `identity_file` (Shell-Task 11):
+          // Konsumstelle fuer `identity_file`:
           // traegt der Vorschlag einen Schluesselpfad, gibt `initial.auth`
           // ihm den Vorrang vor der Erkennungsreihenfolge (siehe
           // `host-form.ts::applyPreselection`) -- OHNE das faellt das Menue
@@ -491,12 +473,10 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
           openForm(initial, "user");
           return;
         }
-        // Fix-Runde 1, Befund 1 (Important): `existingHosts`
-        // (aus `list_hosts`) wird HIER erst gegengeprueft -- vorher ging ein
-        // Vorschlag, der bereits gespeichert ist, direkt in `connect()`, und
-        // die Duplikat-Warnung aus Spec 9.4 lebt ausschliesslich in
-        // `host-form.ts`, das dieser Pfad seit Aufgabe 11 gar nicht mehr
-        // durchlaeuft. Ein Treffer oeffnet deshalb das vorbelegte Formular
+        // `existingHosts` (aus `list_hosts`) wird HIER gegengeprueft: die
+        // Duplikat-Warnung aus Spec 9.4 lebt ausschliesslich in
+        // `host-form.ts`, das dieser Pfad sonst gar nicht durchlaeuft. Ein
+        // Treffer oeffnet deshalb das vorbelegte Formular
         // (dasselbe `openForm`, das auch der "ohne user"-Zweig oben nutzt) --
         // NUR dort traegt der Absenden-Knopf die Warnung, ein blindes
         // `connect()` haette sie dem Nutzer stillschweigend vorenthalten.
@@ -513,12 +493,12 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
       });
       row.appendChild(button);
       // Spec 9.2: ein Klick auf die Zeile leitet an den einzigen Knopf weiter.
-      // Kein `event.stopPropagation()` im Knopf-Handler noetig (Fix-Runde 1,
-      // Befund 4): der Filter `event.target.closest("button")` hier reicht
+      // Kein `event.stopPropagation()` im Knopf-Handler noetig: der Filter
+      // `event.target.closest("button")` hier reicht
       // bereits aus, um eine Rueckkopplung (Zeilenklick -> `button.click()`
       // -> erneuter Zeilenklick) zu verhindern -- `stopPropagation()`
       // schluckte den Klick zusaetzlich VOR `document`, wo die Seitenleiste
-      // ihren Klick-ausserhalb-Handler registriert, und liess ein offenes
+      // ihren Klick-ausserhalb-Handler registriert, und liesse ein offenes
       // Seitenleistenmenue faelschlich offen stehen.
       row.addEventListener("click", (event) => {
         if (event.target instanceof Element && event.target.closest("button")) return;
@@ -544,8 +524,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     if (disposed) return;
 
     // Eine fehlende/unlesbare ~/.ssh/config ist kein Fehler dieses
-    // Formulars -- nur die Vorschlagsliste bleibt leer, dasselbe Verhalten
-    // wie vor diesem Umbau.
+    // Formulars -- nur die Vorschlagsliste bleibt leer.
     const hosts = suggestedResult.status === "fulfilled" ? suggestedResult.value : [];
     lastSuggestions = hosts;
     renderSuggestions(hosts);
@@ -596,7 +575,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
 
     const { key_path, passphrase, password } = specFieldsFromAuth(value.auth);
 
-    // Nachtrag A (Review Important 2): sperrt den Absenden-Knopf, BEVOR der
+    // Sperrt den Absenden-Knopf, BEVOR der
     // erste `await` unten die Kontrolle abgibt -- alles vor diesem Punkt
     // laeuft synchron innerhalb desselben Aufrufs, der den Klick/das Enter
     // ausloeste, ein zweiter, unmittelbar nachfolgender Absendeversuch (z. B.
@@ -608,7 +587,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     // Aufrufe ueberschriebe beim spaeteren Aufloesen die vom juengeren
     // bereits uebernommene Verbindung).
     //
-    // Nachtrag C (Befund 4): `connectInFlight` fuehrt denselben Zustand
+    // `connectInFlight` fuehrt denselben Zustand
     // ausserhalb des DOM mit -- der Knopf allein traegt ihn nur bis zum
     // naechsten `mountForm`, siehe dessen Kommentar.
     connectInFlight = true;
@@ -620,7 +599,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     // stille Sackgasse).
     for (const b of suggestedList.querySelectorAll<HTMLButtonElement>("button")) b.disabled = true;
     if (source.kind === "suggestion") {
-      // Aufgabe 12: die Fehler-/Feldflaeche des VORIGEN Versuchs verschwindet
+      // Die Fehler-/Feldflaeche des VORIGEN Versuchs verschwindet
       // hier, nicht erst beim naechsten Fehler -- sonst stapelten sich zwei
       // Flaechen unter derselben Zeile (Retry aus der Flaeche heraus fuehrt
       // ebenfalls durch diese Stelle).
@@ -663,28 +642,29 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
         if (connectedHostId === hostId) connectedHostId = null;
       }
       if (disposed || attempt !== attemptGeneration) return;
-      // Task 8 (Spec §4.8): `connect_host` liefert seit diesem Task
+      // Spec §4.8: `connect_host` liefert
       // `ConnectError { code, message }` statt einer blossen Zeichenkette
-      // -- ein bloßes `String(error)` zeigte hier sonst `"[object
+      // -- ein blosses `String(error)` zeigte hier sonst `"[object
       // Object]"` statt der Meldung. Dasselbe Muster wie `main.ts`s
-      // `onNewSession`/`onConnectHost`-Fehlerauswertung: `message`
+      // `connectHost`-Fehlerauswertung: `message`
       // ausgelesen, wenn vorhanden, sonst der Fehler selbst als Text.
       const code = (error as { code?: unknown } | null)?.code;
       const message = String((error as { message?: unknown } | null)?.message ?? error);
       if (source.kind === "suggestion") {
-        // Aufgabe 12 (Spec 9.3): der Fehler bleibt IN der Zeile, die der
+        // Spec 9.3: der Fehler bleibt IN der Zeile, die der
         // Nutzer angeklickt hat -- `code` entscheidet, ob dort ein
         // Geheimnis fehlt (Feld) oder etwas anderes schiefging (Flaeche).
         const wantsSecret =
           code === "passphrase_required" ||
           code === "password_required" ||
-          // Aufgabe 12: ohne Schluessel ist ein abgelehnter Agent der
+          // Ohne Schluessel ist ein abgelehnter Agent der
           // Windows-Normalfall (Dienst ab Werk aus) -- Passwort anbieten.
           // `auth_rejected` ist hier der richtige Zweig fuer den Sonderfall,
           // kein falscher Treffer: `src-tauri/src/commands.rs::classify_connect_error`
           // bildet `AuthError::PasswordWrong`/`PassphraseWrong` auf
           // `password_required`/`passphrase_required` ab, `auth_rejected`
-          // bleibt fuer `MethodNotOffered`/`KeyUnreadable`/`AgentUnavailable`
+          // bekommen nur die dort aufgezaehlten uebrigen Anmeldefehler (etwa
+          // `MethodNotOffered` oder `AgentUnavailable`)
           // -- ein falsch getipptes Passwort landet also nie in dieser
           // Flaeche, sondern immer im Geheimnisfeld oben.
           (code === "auth_rejected" && value.auth.kind === "agent");
@@ -699,13 +679,13 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
       }
       return;
     } finally {
-      // IMMER wieder freigeben, auch im Fehlerfall (Review Important 2) --
+      // IMMER wieder freigeben, auch im Fehlerfall --
       // sonst waere das Formular nach einem blossen Tippfehler (falscher
       // Hostname, falscher Port) dauerhaft tot, ohne jede Moeglichkeit zur
       // Korrektur. `hostFormHandle` kann inzwischen ein ANDERES Formular
       // sein als das, welches diesen Versuch ausloeste (Klick auf den
       // Umschalter "Add a host manually" waehrend des Wartens, ueber
-      // `openForm` frisch gemountet -- Fix-Runde 1, Befund 2) -- freigegeben
+      // `openForm` frisch gemountet) -- freigegeben
       // wird trotzdem, und zwar richtigerweise: der Versuch ist beendet, und
       // das jetzt sichtbare Formular ist das, das der Nutzer vor sich hat.
       connectInFlight = false;
@@ -766,7 +746,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
 
   /** Box und Meldung sind in beiden Followups gleich; nur die Toenung und
    * das, was darunter steht, unterscheiden sich. `role="status"` plus
-   * `aria-live="polite"` bleiben an der Meldung (Gesamtreview, Minor 10). */
+   * `aria-live="polite"` bleiben an der Meldung. */
   function followupBox(message: string, danger: boolean): { box: HTMLDivElement; note: HTMLParagraphElement } {
     const box = document.createElement("div");
     box.className = danger
@@ -906,16 +886,14 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   /** Gibt die eigene Reservierung oder aufgebaute SSH-Verbindung wieder frei --
    * best effort, dasselbe Muster wie `main.ts`s `onDisconnectHost()`.
    *
-   * Abschlussreview (Critical): diese drei Zeilen standen zuvor NUR in
-   * `goBack()`. Der Zurueck-Knopf raeumte damit sauber auf, die beiden
-   * SPAETER ergaenzten Fluchtwege aus der Ueberlagerung aber nicht: die
-   * Schliessen-Schaltflaeche und der dokumentweite Escape-Handler
-   * (`closeDialog()` in `dialog.ts`) laufen ausschliesslich ueber `dispose()`.
-   * Wer nach einem erfolgreichen `connect_host` waehrend des Preflight
-   * Escape drueckte, liess eine vollstaendig aufgebaute russh-Sitzung samt
-   * Keepalive-Aufgabe zurueck -- unerreichbar fuer die Oberflaeche, weil
-   * ihre Laufzeit-ID nirgends sonst im Frontend existiert (kein
-   * Seitenleisteneintrag, kein `AppState`-Host). Jede Wiederholung leckte
+   * Gerufen von `goBack()` UND von `dispose()`: die Fluchtwege aus der
+   * Ueberlagerung, die Schliessen-Schaltflaeche und der dokumentweite
+   * Escape-Handler (`closeDialog()` in `dialog.ts`), laufen ausschliesslich
+   * ueber `dispose()`. Wer nach einem erfolgreichen `connect_host` waehrend des
+   * Preflight Escape drueckte, liesse sonst eine vollstaendig aufgebaute
+   * russh-Sitzung samt Keepalive-Aufgabe zurueck -- unerreichbar fuer die
+   * Oberflaeche, weil ihre Laufzeit-ID nirgends sonst im Frontend existiert
+   * (kein Seitenleisteneintrag, kein `AppState`-Host). Jede Wiederholung leckte
    * eine weitere.
    *
    * Fire-and-forget statt `await`: `dispose()` ist synchron (Schnittstelle
@@ -932,7 +910,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     void invoke("disconnect_host", { hostId: idToClose }).catch(() => {});
   }
 
-  /** Review-Befund (Important 2, Task 13): fuehrt aus einem blockierten
+  /** Fuehrt aus einem blockierten
    * (oder fehlgeschlagenen) Preflight zurueck zum Formular UND schliesst
    * die bereits geoeffnete SSH-Verbindung. */
   function goBack(): void {
@@ -947,12 +925,12 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     preflightBlocked.textContent = "";
     preflightList.replaceChildren();
     // Die Ueberschrift nennt beim naechsten Versuch einen ANDEREN Host --
-    // bis dahin steht wieder der neutrale Text da (Aufgabe 12).
+    // bis dahin steht wieder der neutrale Text da.
     preflightHeading.textContent = t("firstRun.preflight.heading");
     // Die Gegenrichtung zum Erfolgspfad oben: dorthin zurueck, wo der
     // Versuch begann. Ueberschrift und Liste kommen IMMER zurueck -- sie
     // standen schon beim Mounten da, auch ohne Vorschlaege zeigt die Liste
-    // dann die "No hosts found"-Zeile (B9, Aufgabe 17). Nur der Umschalter
+    // dann die "No hosts found"-Zeile. Nur der Umschalter
     // bleibt an Vorschlaege gebunden: ohne sie gaebe es nichts umzuschalten,
     // das Formular stand von Anfang an offen. Das Formular selbst nur, wenn
     // der Versuch aus ihm kam.
@@ -997,8 +975,8 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
           tmux_socket: null,
           history_limit: null,
           key_path: value.auth.kind === "key" ? value.auth.path : null,
-          // Task 8 (Spec §4.8): ohne dieses Feld verlor `add_host_impl` die
-          // gewaehlte Anmeldeart -- ein per Passwort verbundener Host fiel
+          // Spec §4.8: ohne dieses Feld verloere `add_host_impl` die
+          // gewaehlte Anmeldeart -- ein per Passwort verbundener Host fiele
           // nach dem naechsten Programmstart still auf ssh-agent zurueck
           // (`AuthChoice.kind` und `AuthKind` sind bereits deckungsgleich
           // benannt, siehe `host-form.ts`).
@@ -1009,7 +987,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
       });
       if (disposed || attempt !== attemptGeneration || connectedHostId !== handedOverHostId) return;
       // Besitzuebergabe, und zwar GENAU HIER -- vor dem Rueckruf, und nur
-      // auf dem Erfolgspfad (Abschlussreview, Critical): `onHostReady`
+      // auf dem Erfolgspfad: `onHostReady`
       // fuehrt in main.ts unmittelbar zu einem `dispose()` dieser Ansicht
       // (ueber `closeDialog()` bei der "Add host"-Ueberlagerung, ueber
       // `ensureGridMounted()` beim Erststart im Rasterbereich). Wuerde

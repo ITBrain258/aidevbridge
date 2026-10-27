@@ -16,7 +16,7 @@
 // bewussten Abweichung: die Hinweisleiste verwendet `<button>` statt der
 // dortigen `<a>` fuer "Retry"/"Copy diagnostics". Ein Link ohne `href` ist
 // kein Tab-Stopp und reagiert nicht auf Enter/Space -- das verstoesst gegen
-// die Tastaturpflicht dieser Aufgabe. Gleiche Klasse (`host-notice-link`),
+// die Tastaturpflicht. Gleiche Klasse (`host-notice-link`),
 // damit das Aussehen erhalten bleibt.
 
 import { AppState, isOpenable, sessionKeyOf, socketOf, type Host, type HostState, type Session, type SessionSocket } from "../state/app-state";
@@ -31,25 +31,14 @@ import { titleWithShortcut } from "./shortcut-title";
 import { agentStatusView, buildStatusPill } from "./status-pill";
 import { buildTileNumber } from "./tile-number";
 import { createWaitingLane, openOptions } from "./waiting-lane";
-import en from "../i18n/en.json";
-
-type TranslationKey = keyof typeof en;
-
-function t(key: TranslationKey, params?: Record<string, string>): string {
-  const template = en[key];
-  if (!params) return template;
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.split(`{${name}}`).join(value),
-    template,
-  );
-}
+import { t } from "../i18n/t";
 
 export interface SidebarOptions {
   /** `secret.passphrase`/`secret.password` sind gesetzt, wenn der Nutzer in
    * der Hinweisleiste eines fehlgeschlagenen Hosts das entsprechende Feld
    * ausgefuellt hat (siehe `buildHostNotice`) -- ob ein Feld angeboten wird,
    * entscheidet `host.errorCode` (nur nach Anmeldefehlern), welches,
-   * `host.authKind` (Task 8, Spec §4.8). Ohne Eingabe bleibt `secret`
+   * `host.authKind` (Spec §4.8). Ohne Eingabe bleibt `secret`
    * `undefined`, wie beim Umschaltknopf (`buildConnectToggle`). Nur im
    * Arbeitsspeicher, nie in `settings.toml`. */
   onConnectHost: (hostId: string, secret?: { passphrase?: string; password?: string }) => void;
@@ -92,17 +81,17 @@ export interface SidebarHandle {
   /** Der aktive Host der Seitenleiste -- derselbe, dessen Karte die
    * Aktionsleiste zeigt (`sb-host-block--active`), oder `null` ohne Hosts.
    * Nur waehrend eines Drucks in der Liste bleibt die Markierung bis nach dem
-   * Klick stehen (Abnahme B2); diese Antwort folgt dem Fokus sofort.
+   * Klick stehen; diese Antwort folgt dem Fokus sofort.
    * Schritt 3 der Zielhost-Kette von Strg+Umschalt+N (UX-Spec §7.9). */
   activeHostId(): string | null;
 }
 
-/** Stabiler Bezeichner EINES Bedienelements, der ein Neuzeichnen ueberlebt
- * (Abschlussreview, Important 3). `render()` baut den ganzen Baum bei jeder
+/** Stabiler Bezeichner EINES Bedienelements, der ein Neuzeichnen ueberlebt.
+ * `render()` baut den ganzen Baum bei jeder
  * Benachrichtigung neu auf; das fokussierte Element wird dabei aus dem DOM
- * entfernt und der Fokus faellt auf `<body>` zurueck. Formal blieb alles
- * erreichbar (jede Zeile ist ein echter `<button>`), praktisch begann der
- * Tab-Weg nach JEDER Aktion wieder ganz oben im Dokument -- hinter 5xN
+ * entfernt und der Fokus faellt auf `<body>` zurueck. Formal bliebe ohne ihn
+ * alles erreichbar (jede Zeile ist ein echter `<button>`), praktisch begaenne
+ * der Tab-Weg nach JEDER Aktion wieder ganz oben im Dokument -- hinter 5xN
  * Host-Schaltflaechen. Ueber diesen Bezeichner (bewusst ein WERT, keine
  * Elementreferenz -- die Referenz ist nach `replaceChildren()` tot) findet
  * `render()` das Gegenstueck im frisch gebauten Baum wieder.
@@ -133,7 +122,7 @@ function asksForSecret(host: Host): boolean {
  * die zwei sichtbaren Kanaele der Drei-Kanal-Regel (der dritte, Fuellung,
  * steckt in der Klasse selbst, siehe `styles.css`). NIE nur die Klasse ohne
  * diesen Text, sonst waere Form/Farbe die einzige Absicherung eines
- * Zustands -- genau das, was diese Aufgabe ausschliesst.
+ * Zustands -- genau das, was die Drei-Kanal-Regel ausschliesst.
  *
  * Gegenprobe-Marker: wird der `appendChild(text)`-Aufruf unten entfernt,
  * muss GENAU der Test "zeigt jeden Zustand mit Form UND Text, nie mit Farbe
@@ -174,11 +163,12 @@ function appendIconLabel(button: HTMLButtonElement, label: string, iconName: Ico
   button.appendChild(text);
 }
 
-/** Task 16, Punkt B: die Pille sagt "Online"/"Offline" statt
- * "Connected"/"Disconnected". Bei 240 px Leistenbreite blieben dem Hostnamen
- * neben der langen Fassung nur rund 40 px -- IP-Adressen wurden abgeschnitten.
- * Seit Aufgabe 16 tragen `sidebar.pill.*` die Pillenwoerter.
- * "Connecting…"/"Failed" sind schon kurz und behalten ihre eigenen Schluessel. */
+/** UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt B: die Pille sagt
+ * "Online"/"Offline" statt "Connected"/"Disconnected". Bei 240 px Leistenbreite
+ * blieben dem Hostnamen neben der langen Fassung nur rund 40 px -- IP-Adressen
+ * wurden abgeschnitten. `sidebar.pill.*` tragen die Pillenwoerter.
+ * "Connecting…"/"Failed" sind schon kurz und behalten ihre eigenen
+ * Schluessel. */
 function hostIndicator(state: HostState): { cls: string; label: string } {
   switch (state) {
     case "connected":
@@ -192,7 +182,7 @@ function hostIndicator(state: HostState): { cls: string; label: string } {
   }
 }
 
-/** Nachtrag B, Punkt 3 (Designsystem §8.4): eine gesperrte Eingabe ist ein
+/** Designsystem §8.4: eine gesperrte Eingabe ist ein
  * EIGENER Zustand mit eigener Geometrie (Dreieck, 8x8 -- nicht das kleine
  * 6x6-Quadrat von offen/geschlossen), nicht nur eine gefaerbte Variante von
  * "offen". Sie ueberdeckt deshalb `session.open` in dieser Funktion: eine
@@ -226,8 +216,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   heading.textContent = t("sidebar.heading");
   head.appendChild(heading);
 
-  // UI v2 §7.2: der Add-Knopf steht seit Aufgabe 8 IM KOPF, zwischen
-  // Ueberschrift und Zahnrad -- der Fuss traegt nur noch die Versionszeile.
+  // UI v2 §7.2: der Add-Knopf steht IM KOPF, zwischen
+  // Ueberschrift und Zahnrad -- der Fuss traegt nur die Versionszeile.
   const addButton = document.createElement("button");
   addButton.type = "button";
   addButton.className = "sb-btn";
@@ -287,12 +277,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     },
   });
 
-  // Der Fuss traegt seit Aufgabe 8 NUR NOCH die Versionszeile -- Version und
-  // Commit, still am Fuss der Seitenleiste (Task 9), dieselbe Zeichenkette
+  // Der Fuss traegt NUR die Versionszeile -- Version und
+  // Commit, still am Fuss der Seitenleiste, dieselbe Zeichenkette
   // wie in `Copy diagnostics` oben und aus derselben Quelle
-  // (`appVersionLine()`). Der Stil kommt aus `.sb-version` in `styles.css`;
-  // die frueheren Inline-Stile waren nur noetig, solange `styles.css` fuer
-  // jene Aufgabe unveraendert bleiben musste.
+  // (`appVersionLine()`). Der Stil kommt aus `.sb-version` in `styles.css`.
   const foot = document.createElement("div");
   foot.className = "sb-foot";
   const versionLine = document.createElement("div");
@@ -498,8 +486,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     menuEl = document.createElement("div");
     menuEl.className = "sb-menu";
     menuEl.setAttribute("role", "menu");
-    // "Reload sessions" steht seit UX-Spec §7.8 als Icon-Knopf in der Leiste
-    // (`buildReloadButton`), nicht mehr hier.
+    // "Reload sessions" steht nach UX-Spec §7.8 als Icon-Knopf in der Leiste
+    // (`buildReloadButton`), nicht hier.
     menuEl.appendChild(
       buildMenuItem(t("sidebar.action.editEllipsis"), () => opts.onEditHost(hostId)),
     );
@@ -509,7 +497,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     menuEl.appendChild(separator);
     menuEl.appendChild(
       buildMenuItem(t("sidebar.action.removeEllipsis"), () => {
-        // Das Ellipsenzeichen im Namen war seit Task 2 ein Versprechen: der
+        // Das Ellipsenzeichen im Namen ist ein Versprechen: der
         // Eintrag fragt nach, statt sofort zu handeln. Hier wird es
         // eingeloest -- er oeffnet die Leiste, `opts.onRemoveHost` ruft erst
         // deren "Remove"-Knopf.
@@ -564,10 +552,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // zwischenzeitlich neu gebaut worden sein, `.focus()` auf dem alten
     // Knoten waere ein Nichts und der Fokus landete auf <body>.
     const button = moreButtonFor(hostId);
-    // ERST fokussieren, DANN das Attribut zuruecksetzen: seit der
-    // Seitenleisten-Umstellung haelt
+    // ERST fokussieren, DANN das Attribut zuruecksetzen:
     // `.sb-host-block:not(.sb-host-block--active):not(.sb-host-block--held):not(:focus-within):not(:has(.host-actions [aria-expanded="true"])) .host-actions`
-    // (styles.css) die Knopfleiste eines nicht aktiven Hosts nur wegen des
+    // (styles.css) haelt die Knopfleiste eines nicht aktiven Hosts nur wegen des
     // offenen Menues sichtbar. In der umgekehrten Reihenfolge waere der
     // Knopf im Moment des `focus()` bereits `display: none` -- der Fokus
     // landete auf <body>, statt dorthin zurueckzukehren, wo das Menue
@@ -603,11 +590,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     return button;
   }
 
-  /** Ein Icon-Knopf der Sessionzeile (Task 16, Punkt A), beschriftet ueber
-   * `appendIconLabel`. Er traegt die Klasse `host-action-btn` ausdruecklich
-   * NICHT -- er liegt in `.session-acts` und wird dort gesucht. Die Knoepfe
-   * der Hostleiste bauen `buildConnectToggle`, `buildNewSessionButton`,
-   * `buildReloadButton` und `buildMoreButton`. */
+  /** Ein Icon-Knopf der Sessionzeile (UI-v2-Spec, Sichtpruefung 2026-09-07,
+   * Punkt A), beschriftet ueber `appendIconLabel`. Er traegt die Klasse
+   * `host-action-btn` ausdruecklich NICHT -- er liegt in `.session-acts` und
+   * wird dort gesucht. Die Knoepfe der Hostleiste bauen `buildConnectToggle`,
+   * `buildNewSessionButton`, `buildReloadButton` und `buildMoreButton`. */
   function buildActionButton(
     label: string,
     focusKeyValue: string,
@@ -628,15 +615,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
 
   /** Sichtbare Knoepfe plus ein Aufklappmenue (Entwurf §1.2): sichtbar
    * bleibt, was man im Betrieb braucht -- der Verbindungsumschalter, "New
-   * session" und seit UX-Spec §7.8 "Reload sessions", die beiden letzten als
+   * session" und nach UX-Spec §7.8 "Reload sessions", die beiden letzten als
    * Icon-Knoepfe --, hinter dem `⋯` liegt, was man selten tut (Bearbeiten,
    * Entfernen).
-   *
-   * Der frueher hier stehende Kommentar begruendete fuenf flache Knoepfe
-   * mit einem Aufgabentext ("keine Kontextmenues ueber die im Interface
-   * genannten Aktionen hinaus"), der in keinem Entwurf, keinem Plan und
-   * keinem Commit dieses Projekts auffindbar ist -- und dem die inzwischen
-   * getroffene Entscheidung ausdruecklich widerspricht.
    *
    * Eigenes `<div>`, NEBEN der Host-Zeile, nie darin -- ein `<button>` im
    * `<button>` waere ungueltig und fuer Tastaturfokus nicht sinnvoll
@@ -651,20 +632,18 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     return actions;
   }
 
-  /** "New session" ist seit Aufgabe 19 (Fixrunde
-   * 1) ein Icon-Knopf `plus`: erst so passen Umschalter, "New session",
-   * "Reload sessions" und `⋯` bei 240 px in eine Zeile. Der Name steht in
-   * `aria-label`, der Tooltip nennt das Kuerzel aus der aktiven Tabelle
-   * (UX-Spec §8.4) -- das loest den frueheren Entscheid ab, am Host kein
-   * Kuerzel zu nennen, weil Strg+Umschalt+N zuerst den Host der fokussierten
-   * Kachel nimmt (§7.9).
+  /** "New session" ist ein Icon-Knopf `plus`: erst so passen Umschalter,
+   * "New session", "Reload sessions" und `⋯` bei 240 px in eine Zeile. Der
+   * Name steht in `aria-label`, der Tooltip nennt das Kuerzel aus der aktiven
+   * Tabelle (UX-Spec §8.4), auch wenn Strg+Umschalt+N zuerst den Host der
+   * fokussierten Kachel nimmt (§7.9).
    *
-   * Task 16, Punkt E (Spec 11.2, natives `disabled`): eine neue Session
-   * braucht eine lebende Verbindung. Bis dahin stand der Knopf an jedem Host
-   * und beantwortete den Klick mit einer Fehlermeldung -- die Absage gehoert
-   * an den Knopf, nicht hinter ihn. Die Wache in `main.ts` (`onNewSession`)
-   * bleibt: der Tastaturweg `Ctrl+Shift+N` kommt nicht ueber diesen Knopf, und
-   * zwischen Oeffnen und Absenden des Dialogs kann die Verbindung fallen. */
+   * UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt E (Spec 11.2, natives
+   * `disabled`): eine neue Session braucht eine lebende Verbindung. Die Absage
+   * gehoert an den Knopf, nicht als Fehlermeldung hinter ihn. Die Wache in
+   * `main.ts` (`onNewSession`) bleibt: der Tastaturweg `Ctrl+Shift+N` kommt
+   * nicht ueber diesen Knopf, und zwischen Oeffnen und Absenden des Dialogs
+   * kann die Verbindung fallen. */
   function buildNewSessionButton(host: Host): HTMLButtonElement {
     const label = t("sidebar.action.newSession");
     const button = document.createElement("button");
@@ -684,12 +663,12 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   }
 
   /** UX-Spec §7.8: "Reload sessions" ist ein Icon-Knopf `refresh-cw` der
-   * Leiste, vor dem `⋯`, kein Menueeintrag mehr. Geometrie und Roving wie
+   * Leiste, vor dem `⋯`, kein Menueeintrag. Geometrie und Roving wie
    * seine Nachbarn (`host-action-btn`, quadratisch ueber `host-icon-btn`),
    * beschriftet wie die Icon-Knoepfe der Sessionzeile. Der Tooltip ist der
    * blosse Name: die Aktion hat kein Kuerzel (§8.4).
    *
-   * Nur am verbundenen Host bedienbar, wie "New session" daneben (Fixrunde 1):
+   * Nur am verbundenen Host bedienbar, wie "New session" daneben:
    * sonst taete der Klick nichts -- `refreshSessions` (main.ts) setzt an einem
    * getrennten Host gar keinen Aufruf ab, und diese Wache bleibt als zweite
    * Linie stehen. Ebenso gesperrt, solange die Steuerung nicht bereit ist
@@ -712,8 +691,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
 
   /** Der `⋯`-Knopf. `⋯` ist ein Ornament, kein Text -- der zugaengliche Name
    * kommt aus i18n, das Glyph traegt `aria-hidden` (dasselbe Muster wie das
-   * `+` am "Add host"-Knopf im KOPF; der Fuss traegt seit Aufgabe 8 nur noch
-   * die Versionszeile). */
+   * `+` am "Add host"-Knopf im Kopf). */
   function buildMoreButton(host: Host): HTMLButtonElement {
     const button = document.createElement("button");
     button.type = "button";
@@ -760,16 +738,17 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * Hoechstens eine, aus demselben Grund wie oben. */
   let pendingKillKey: string | null = null;
 
-  /** Fokussiert ein Element, das eine Sessionaktion sein KANN (Task 16, Punkt
-   * A). Der Umweg ist noetig, weil `.session-acts` per `visibility: hidden`
-   * verborgen ist, solange die Zeile weder ausgewaehlt noch beruehrt ist noch
-   * den Fokus traegt -- und ein Browser fokussiert nichts unter
-   * `visibility: hidden`. Beide Wege, die einen dieser Knoepfe programmatisch
-   * ansteuern (`closeKillConfirm` und `render()`s Fokusrettung), kommen aus
-   * einem Zustand OHNE Fokus in der Zeile: das vorangegangene `render()` hat
-   * den alten Knoten entfernt, der Fokus liegt auf <body>. Der Ruf ginge ins
-   * Leere, und der Nutzer, der eben per Tastatur gearbeitet hat, staende auf
-   * <body> -- der naechste Tabulator begaenne ganz oben im Dokument.
+  /** Fokussiert ein Element, das eine Sessionaktion sein KANN (UI-v2-Spec,
+   * Sichtpruefung 2026-09-07, Punkt A). Der Umweg ist noetig, weil
+   * `.session-acts` per `visibility: hidden` verborgen ist, solange die Zeile
+   * weder ausgewaehlt noch beruehrt ist noch den Fokus traegt -- und ein
+   * Browser fokussiert nichts unter `visibility: hidden`. Beide Wege, die einen
+   * dieser Knoepfe programmatisch ansteuern (`closeKillConfirm` und `render()`s
+   * Fokusrettung), kommen aus einem Zustand OHNE Fokus in der Zeile: das
+   * vorangegangene `render()` hat den alten Knoten entfernt, der Fokus liegt
+   * auf <body>. Der Ruf ginge ins Leere, und der Nutzer, der eben per Tastatur
+   * gearbeitet hat, staende auf <body> -- der naechste Tabulator begaenne ganz
+   * oben im Dokument.
    *
    * Erst die ZEILE fokussieren schaltet `:focus-within` und damit die
    * Sichtbarkeit ein; der zweite Ruf trifft dann ein sichtbares Element.
@@ -883,11 +862,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     //
     // Kein achter i18n-Schluessel -- beschrieben wird der Text, der ohnehin
     // schon dasteht. Die Kennungen sind ueber `host.id` vereindeutigt: das
-    // ist seit Paket 2.5 immer die `settings.toml`-ID aus `new_host_id`
-    // (`commands.rs`, Format `host_<hex>`) und nicht mehr `next_host_id`s
-    // `h<n>`. Entscheidend ist beide Male dasselbe -- das Format enthaelt
-    // kein Leerzeichen, das die Liste in `aria-describedby` zerteilen
-    // koennte. Gleichzeitig offen ist ohnehin nur EINE Rueckfrage.
+    // ist die `settings.toml`-ID aus `new_host_id` (`commands.rs`, Format
+    // `host_<hex>`). Entscheidend: das Format enthaelt kein Leerzeichen, das
+    // die Liste in `aria-describedby` zerteilen koennte. Gleichzeitig offen
+    // ist ohnehin nur EINE Rueckfrage.
     const questionId = `ab-confirm-q-${host.id}`;
     const noteId = `ab-confirm-n-${host.id}`;
 
@@ -897,7 +875,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // Uebersetzung, nicht dieser Datei.
     question.textContent = t("sidebar.confirmRemove.question", { host: host.label });
     bar.appendChild(question);
-    // Ein `<span>` statt des blossen Textknotens von frueher, damit der Satz
+    // Ein `<span>` statt eines blossen Textknotens, damit der Satz
     // eine Kennung tragen kann. Inline und ohne eigene Regel in `styles.css`
     // -- am Umbruch aendert sich nichts.
     const note = document.createElement("span");
@@ -912,7 +890,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const cancelButton = document.createElement("button");
     cancelButton.type = "button";
     // Additiv wie bei den Hinweisknoepfen oben: die Rolle aus dem
-    // Knopfsystem (Spec 11.2), die bisherige Klasse bleibt Vertrag.
+    // Knopfsystem (Spec 11.2), die eigene Klasse bleibt Vertrag.
     cancelButton.className = "host-confirm-btn btn btn--secondary btn--row";
     cancelButton.tabIndex = -1;
     cancelButton.dataset.focusKey = focusKey("confirm", host.id, "cancel");
@@ -1084,31 +1062,25 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     notice.appendChild(title);
     notice.appendChild(noticeMessage(host.error ?? ""));
 
-    // Abschlussreview (Important 1): OHNE dieses Feld war jeder erneute
-    // Verbindungsversuch auf einen gespeicherten, PASSPHRASEGESCHUETZTEN
-    // Schluessel eine Sackgasse -- `onConnectHost` reichte fest
-    // `passphrase: null` durch, die Seitenleiste bot nur den Umschaltknopf,
-    // und das Backend meldete jedes Mal `AuthError::PassphraseRequired`
-    // ohne jede Eingabemoeglichkeit. Unter Windows 11 ist das der
-    // NORMALFALL, nicht der Sonderfall: der ssh-agent-Dienst ist dort ab
-    // Werk deaktiviert. Ein Plan-1-Commit hatte das in `host-list.ts`
-    // bereits geschlossen; die Datei entfiel in Task 9, das Feld ging in
-    // Task 11 mit den `hostList.*`-Schluesseln unbemerkt mit.
+    // OHNE dieses Feld waere jeder erneute Verbindungsversuch auf einen
+    // gespeicherten, PASSPHRASEGESCHUETZTEN Schluessel eine Sackgasse: das
+    // Backend meldete jedes Mal `AuthError::PassphraseRequired` ohne jede
+    // Eingabemoeglichkeit. Unter Windows 11 ist das der NORMALFALL, nicht der
+    // Sonderfall: der ssh-agent-Dienst ist dort ab Werk deaktiviert.
     //
-    // Task 8 (Spec §4.8): welches Feld angeboten wird, entscheidet seither
-    // `host.authKind` statt nur `host.keyPath` -- vorher gab es nur ZWEI
-    // Faelle ("Schluessel gespeichert" -> Passphrasefeld, sonst nichts), und
-    // ein per Passwort gespeicherter Host bekam ebenfalls nichts, obwohl
-    // GENAU ER die Sackgasse dieser Aufgabe ist (`AuthError::PasswordWrong`
-    // ohne jede Eingabemoeglichkeit).
+    // Spec §4.8: welches Feld angeboten wird, entscheidet `host.authKind`
+    // statt nur `host.keyPath` -- auch ein per Passwort gespeicherter Host
+    // bekommt sein Feld, sonst stuende er vor `AuthError::PasswordWrong` ohne
+    // jede Eingabemoeglichkeit.
     //
-    // Gesamtreview M0 (Befund 1): das Passwortfeld gilt auch fuer
+    // Das Passwortfeld gilt auch fuer
     // `authKind === "agent"`. Ein Host ohne gespeicherte Anmeldeart UND ohne
     // `key_path` wird von `effective_auth_kind()` (Rust) als "agent"
-    // gemeldet -- das trifft jeden Host, der VOR Task 8 per Passwort
-    // angelegt wurde, denn `auth_kind` existiert in seiner `settings.toml`
-    // schlicht nicht. Ohne dieses Feld lief sein erneuter Verbindungsversuch
-    // in dieselbe Sackgasse wie oben: nur die Agent-Fehlermeldung
+    // gemeldet -- das trifft jeden Host, der per Passwort angelegt wurde, als
+    // `settings.toml` die Anmeldeart noch nicht speicherte: `auth_kind`
+    // existiert in seiner `settings.toml` schlicht nicht. Ohne dieses Feld
+    // liefe sein erneuter Verbindungsversuch in dieselbe Sackgasse wie oben:
+    // nur die Agent-Fehlermeldung
     // ("ssh-agent not reachable ... Set-Service ssh-agent ..."), kein Weg
     // zum Passwort. Das Feld steht bewusst nur in der Hinweisleiste eines
     // GESCHEITERTEN Hosts, nicht dauerhaft an der Hostzeile: ein
@@ -1121,7 +1093,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // nicht fokussiert ist: `onConnectHost` setzt den Zustand auf
     // "connecting", die Leiste verschwindet dabei samt Feld, und ein
     // erneuter Fehlschlag baut sie LEER wieder auf. Steht der Fokus WEITERHIN
-    // in diesem Feld (Befund 11 -- z. B. eine Zustandsaenderung an einem
+    // in diesem Feld (MVP-Spec M0.4, Befund 11 der Bewertung 2026-09-04 --
+    // z. B. eine Zustandsaenderung an einem
     // ANDEREN Host loest ein Neuzeichnen aus, waehrend der Nutzer hier noch
     // tippt), ueberlebt der getippte Wert das Neuzeichnen (siehe `render()`s
     // Fokusrettung unten) -- er lebt aber weiterhin NUR im DOM, nie im
@@ -1157,7 +1130,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
 
     const retryButton = document.createElement("button");
     retryButton.type = "button";
-    // Knopfsystem ADDITIV zur bisherigen Klasse (Spec 11.2): `.btn`-Rolle
+    // Knopfsystem ADDITIV zur eigenen Klasse (Spec 11.2): `.btn`-Rolle
     // fuer die Optik, `host-notice-link` bleibt als Vertrag der Tests und
     // fuer die Geometrie der Hinweisleiste stehen.
     retryButton.className = "host-notice-link btn btn--secondary btn--row";
@@ -1319,10 +1292,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     return notice;
   }
 
-  /** Host-qualifiziert ueber `sessionKey()` (nicht per Namensvergleich) --
-   * genau die Absicherung, die im Aufgabentext gefordert ist: zwei Hosts
-   * duerfen gleichnamige Sessions tragen, ein Klick muss den EIGENEN Host
-   * melden. */
+  /** Host-qualifiziert ueber `sessionKey()` (nicht per Namensvergleich):
+   * zwei Hosts duerfen gleichnamige Sessions tragen, ein Klick muss den
+   * EIGENEN Host melden. */
   function buildSessionRow(host: Host, session: Session): HTMLElement {
     const wrap = document.createElement("div");
     wrap.className = "sb-session-row";
@@ -1338,7 +1310,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     row.dataset.sessionKey = key;
     row.dataset.focusKey = focusKey("session", key, "row");
 
-    // Aufgabe 8: Form links im 14er-Kasten (rechtsbuendig unter dem
+    // Form links im 14er-Kasten (rechtsbuendig unter dem
     // Kuerzelquadrat, Spec 7.4), Wort rechts im Meta-Feld als zweiter Platz
     // nach dem Agentenplatz (Spec 7.6, bis M1 nicht gerendert).
     const { cls, label: stateLabel } = sessionIndicator(session, isReconnecting(host));
@@ -1375,11 +1347,12 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const label = document.createElement("span");
     label.className = "row-label";
     label.textContent = session.name;
-    // Task 16, Punkt B: die Leiste ist schmal, `.row-label` kuerzt mit
-    // Ellipse -- der native Tooltip macht den vollen Namen wieder lesbar
-    // (v1 §9 Nr. 11 erlaubt `title` ausdruecklich). Der Name deckt den
-    // groessten Teil der Zeile, und sein eigener `title` verdeckt den der
-    // Zeile: darum steht der Hinweis auch hier, hinter dem vollen Namen.
+    // UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt B: die Leiste ist schmal,
+    // `.row-label` kuerzt mit Ellipse -- der native Tooltip macht den vollen
+    // Namen wieder lesbar (v1 §9 Nr. 11 erlaubt `title` ausdruecklich). Der
+    // Name deckt den groessten Teil der Zeile, und sein eigener `title`
+    // verdeckt den der Zeile: darum steht der Hinweis auch hier, hinter dem
+    // vollen Namen.
     label.title = `${session.name}\n${hint}`;
     row.appendChild(label);
 
@@ -1419,12 +1392,12 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     });
     wrap.appendChild(row);
 
-    // Task 16, Punkt A: die zwei Aktionen liegen seither in EINEM Behaelter
-    // rechts IN der Zeile (absolut gesetzt, siehe styles.css) statt als
-    // Geschwister neben ihr. Unbedingt angehaengt, auch wenn er leer bleibt
-    // (getrennter Host, geschlossene Session): eine Bedingung mehr spart hier
-    // ein leeres, unsichtbares `<span>` und kostet eine Sonderregel in jeder
-    // Suche darunter.
+    // UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt A: die zwei Aktionen liegen
+    // in EINEM Behaelter rechts IN der Zeile (absolut gesetzt, siehe
+    // styles.css) statt als Geschwister neben ihr. Unbedingt angehaengt, auch
+    // wenn er leer bleibt (getrennter Host, geschlossene Session): eine
+    // Bedingung mehr spart hier ein leeres, unsichtbares `<span>` und kostet
+    // eine Sonderregel in jeder Suche darunter.
     const acts = document.createElement("span");
     acts.className = "session-acts";
     wrap.appendChild(acts);
@@ -1452,9 +1425,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
 
     // UNABHAENGIG von `session.open`, und das ist der Punkt: die verwaisten
     // Sessions, um die es hier geht, sind nie offen -- genau sie soll man
-    // loswerden koennen. Bis zu diesem Paket gab es aus der Anwendung
-    // heraus ueberhaupt keinen Weg, eine angelegte Session je wieder zu
-    // beenden.
+    // loswerden koennen.
     //
     // ABER NUR bei verbundenem Host: `kill_session` braucht die Laufzeit-ID.
     // Ohne diese Wache stuende der Knopf auch an einer Sessionzeile eines
@@ -1513,11 +1484,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // FESTE Kennungen, ohne den Schluessel darin -- und das ist kein Stil,
     // sondern der Unterschied zwischen wirksam und wirkungslos:
     // `aria-describedby` ist eine LEERZEICHENGETRENNTE ID-Liste, und ein
-    // Sessionname DARF seit B2 Leerzeichen enthalten. Mit `ab-kill-q-h1/deploy
+    // Sessionname DARF Leerzeichen enthalten. Mit `ab-kill-q-h1/deploy
     // log 2` zerfiele die Liste in sechs Bruchstuecke, von denen keines
     // aufloest -- der Screenreader saegte beim Fokussprung nur "Cancel,
     // Schaltflaeche", und der Satz "This cannot be undone" kaeme nie an.
-    // Genau bei den Namen also, die dieses Paket erst moeglich macht.
     //
     // `buildRemoveConfirm` daneben darf `host.id` einsetzen, weil dessen
     // Format (`host_<hex>`) kein Leerzeichen enthalten KANN -- die dortige
@@ -1568,7 +1538,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       // Die waere zwar im Moment der Rueckkehr noch da -- `onKillSession` ist
       // asynchron --, verschwindet aber, sobald die frische Sessionliste
       // eintrifft; erst dann fiele `render()`s Fokusrettung auf die Hostzeile
-      // zurueck (Fixrunde 3). Die Hostzeile ueberlebt beide Schritte.
+      // zurueck. Die Hostzeile ueberlebt beide Schritte.
       render();
       focusByKey(focusKey("host", host.id, "row"));
     });
@@ -1659,8 +1629,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const label = document.createElement("span");
     label.className = "row-label";
     label.textContent = host.label;
-    // Task 16, Punkt B, wie an der Sessionzeile: gerade IP-Adressen wurden
-    // neben der Zustandspille abgeschnitten.
+    // UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt B, wie an der Sessionzeile:
+    // gerade IP-Adressen wuerden neben der Zustandspille abgeschnitten.
     label.title = host.label;
     row.appendChild(label);
 
@@ -1682,7 +1652,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       : waitingSessions([host], (h, s) => state.isSessionStatusCurrent(h.id, s.name, socketOf(s))).length;
     const reconnecting = isReconnecting(host);
     if (waiting > 0) {
-      // Aufgabe 19, Fixrunde 1: die Waiting-Pille tritt
+      // Die Waiting-Pille tritt
       // auch an die Stelle der Zustandspille. Ein aktueller Wartestatus setzt
       // eine lebende Verbindung voraus ("Online"), und neben beiden Pillen
       // bliebe dem Hostnamen bei 240 px kaum Platz. Den Zustand traegt die
@@ -1699,8 +1669,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
             : t("sidebar.host.sessionCount", { count: String(count) });
         meta.appendChild(countEl);
       }
-      // Spec 7.3: Form und Wort stehen seit UI v2 zusammen in einer Pille --
-      // dieselben zwei Kanaele wie zuvor (`appendIndicator` schreibt beide),
+      // Spec 7.3: Form und Wort stehen nach UI v2 zusammen in einer Pille --
+      // zwei Kanaele (`appendIndicator` schreibt beide),
       // nur mit einer eigenen Flaeche darum. Die Klasse traegt den Zustand
       // mit, damit die Fuellung der Pille ohne einen zweiten Schalter in
       // `styles.css` je Zustand anders ausfallen kann.
@@ -1870,14 +1840,15 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       // erreicht sie, und ohne Rueckweg waeren sie eine Sackgasse.
       // Knopfleiste und Hinweisleiste gehen die Liste nichts an.
       //
-      // Seit B3 sind es ZWEI Knoepfe (Schliessen und Beenden), und bei einer
+      // Es sind ZWEI Knoepfe (Schliessen und Beenden), und bei einer
       // geschlossenen Session nur einer -- deshalb ein Modell statt einer
       // festen Verdrahtung auf `.session-close-btn`: `→` geht zum naechsten
       // Knopf, `←` zum vorigen und vom ersten zurueck in die Zeile.
       //
-      // Ueber `.session-acts` abgegrenzt, nicht mehr ueber die Klasse
-      // `host-action-btn` (Task 16, Punkt A: die Icon-Knoepfe tragen sie
-      // nicht mehr). Die Abgrenzung MUSS bleiben: die Beenden-Rueckfrage ist
+      // Ueber `.session-acts` abgegrenzt, nicht ueber die Klasse
+      // `host-action-btn`: die Icon-Knoepfe tragen sie nicht (siehe
+      // `buildActionButton`). Die Abgrenzung MUSS bleiben: die
+      // Beenden-Rueckfrage ist
       // ebenfalls ein Kind von `.sb-session-row` und bringt zwei eigene
       // Knoepfe mit, die ihr eigenes Zwei-Nachbarn-Modell haben.
       if (!(active instanceof HTMLElement)) return;
@@ -1915,9 +1886,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
           // zerstoererische steht hinter ihm, `→` landet nicht zuerst auf
           // ihm. Bei einer geschlossenen ist "End session…" der einzige und
           // damit unvermeidlich der erste -- die Reihenfolge kann dort
-          // nichts ausrichten, die Last traegt allein die Rueckfrage. Der
-          // frueher hier stehende Satz behauptete die Zusage fuer beide
-          // Faelle; sie gilt nur fuer den ersten.
+          // nichts ausrichten, die Last traegt allein die Rueckfrage.
           // Hier braucht es KEINEN Umweg ueber `focusSessionAction`: die
           // Zeile hat den Fokus, `:focus-within` steht also schon, und die
           // Aktionen sind sichtbar.
@@ -2043,7 +2012,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * UX-Spec §7.9). */
   function activeHostId(): string | null {
     const active = document.activeElement;
-    // Abnahme B2, Nachtrag: das Menue haengt an `root`, nicht an `list`. Ohne
+    // Das Menue haengt an `root`, nicht an `list`. Ohne
     // diese Zeile fiele die Ableitung bei Fokus darin auf die fokussierte
     // Kachel zurueck, und deren Leiste erschiene unter dem offenen Menue --
     // nach dem Aufholen eines Klicks auf `⋯` und bei jedem Neuzeichnen.
@@ -2057,9 +2026,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * an). Die Sichtbarkeit selbst regelt styles.css ueber diese Klasse plus
    * `:focus-within`; die Roving-Logik bleibt unangetastet. */
   function applyActiveHostClass(): void {
-    // Waehrend eines Drucks gilt die eingefrorene Markierung (Abnahme B2,
-    // unten), auch fuer Bloecke, die ein Neuzeichnen eben neu gebaut hat --
-    // ebenso der gehaltene Block.
+    // Waehrend eines Drucks gilt die eingefrorene Markierung (siehe "Ein
+    // Druck in der Liste" unten), auch fuer Bloecke, die ein Neuzeichnen eben
+    // neu gebaut hat -- ebenso der gehaltene Block.
     const active = frozenHostId !== undefined ? frozenHostId : activeHostId();
     for (const block of list.querySelectorAll<HTMLElement>(".sb-host-block")) {
       const hostId = blockHostId(block);
@@ -2073,14 +2042,14 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     return node?.closest(".sb-host-block")?.querySelector<HTMLElement>(".row-host")?.dataset.hostId ?? null;
   }
 
-  // --- Ein Druck in der Liste (Abnahme B2) -------------------------------
+  // --- Ein Druck in der Liste ---------------------------------------------
   //
   // Die Zeile nimmt beim Druck den Fokus, und der `focusin`-Abgleich markierte
-  // ihren Host sofort als aktiv: dessen Knopfleiste erschien, die des bisher
-  // aktiven verschwand, und die Zeilen rueckten noch VOR dem Loslassen um eine
-  // Leistenhoehe. Das Loslassen traf eine andere Zeile, der Klick ging an einen
-  // gemeinsamen Vorfahren, und der erste Klick auf eine Zeile eines nicht
-  // aktiven Hosts war verloren.
+  // ihren Host sonst sofort als aktiv: dessen Knopfleiste erschiene, die des
+  // bisher aktiven verschwaende, und die Zeilen rueckten noch VOR dem
+  // Loslassen um eine Leistenhoehe. Das Loslassen traefe eine andere Zeile,
+  // der Klick ginge an einen gemeinsamen Vorfahren, und der erste Klick auf
+  // eine Zeile eines nicht aktiven Hosts waere verloren.
   //
   // Waehrend eines Drucks der primaeren Taste bleibt deshalb stehen, welche
   // Leisten beim Druck zu sehen WAREN: die Markierung haelt den Host, der
@@ -2136,8 +2105,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     true,
   );
 
-  /** Der zweite Druck eines Doppelklicks nimmt keinen Fokus (Nachpruefung am
-   * Fenster, B6). Sein Klick tut nichts (oben), sein `mousedown` aber zog den
+  /** Der zweite Druck eines Doppelklicks nimmt keinen Fokus. Sein Klick tut
+   * nichts (oben), sein `mousedown` aber zoege den
    * Fokus auf das Element darunter -- nach dem Aufholen oft die Nachbarzeile
    * oder "New session" -- statt ihn dort zu lassen, wo der erste Klick ihn
    * hinsetzte, meist im Terminal der gewaehlten Kachel. Getippte Buchstaben
@@ -2222,11 +2191,12 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
 
   /** Die BEDIENBAREN Knoepfe EINER Knopfleiste -- die eine Definition, an die
    * sich Roving, Tastaturhorcher und `focusin`-Abgleich gleichermassen halten
-   * (Task 16, Punkt E). Seit "New session" an einem getrennten Host
-   * `disabled` ist, gibt es zwei Mengen; wuerde eine der drei Stellen ueber
-   * die volle Menge zaehlen und eine andere ueber diese, liefen ihre Indizes
-   * auseinander und `←` bliebe am `⋯`-Knopf haengen. Ein deaktivierter Knopf
-   * nimmt keinen Fokus an -- ein Halt auf ihm waere eine Sackgasse. */
+   * (UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt E). Weil "New session" an
+   * einem getrennten Host `disabled` ist, gibt es zwei Mengen; wuerde eine der
+   * drei Stellen ueber die volle Menge zaehlen und eine andere ueber diese,
+   * liefen ihre Indizes auseinander und `←` bliebe am `⋯`-Knopf haengen. Ein
+   * deaktivierter Knopf nimmt keinen Fokus an -- ein Halt auf ihm waere eine
+   * Sackgasse. */
   function toolbarButtonsOf(actions: HTMLElement): HTMLElement[] {
     return Array.from(actions.querySelectorAll<HTMLButtonElement>("button")).filter(
       (b) => !b.disabled,
@@ -2253,13 +2223,12 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   }
 
   /** Die Knoepfe der Leiste des BESITZENDEN Hosts -- abgeleitet wie
-   * `menuItems()` und `listEntries()`, nicht von aussen hereingereicht.
-   * `moveToolbarTo` nahm die Knopfmenge frueher als Parameter entgegen und
-   * begrenzte gegen die FOKUSSIERTE Leiste, waehrend `applyToolbarRoving`
-   * anschliessend die des besitzenden Hosts fokussierte -- zwei Quellen fuer
-   * dieselbe Frage. Der `focusin`-Abgleich unten sorgt dafuer, dass beide
-   * dasselbe bedeuten; diese Ableitung sorgt dafuer, dass es nur noch eine
-   * gibt. */
+   * `menuItems()` und `listEntries()`, nicht von aussen hereingereicht. Als
+   * Parameter begrenzte `moveToolbarTo` gegen die FOKUSSIERTE Leiste,
+   * waehrend `applyToolbarRoving` die des besitzenden Hosts fokussiert --
+   * zwei Quellen fuer dieselbe Frage. Der `focusin`-Abgleich unten sorgt
+   * dafuer, dass beide dasselbe bedeuten; diese Ableitung sorgt dafuer, dass
+   * es nur eine gibt. */
   function toolbarButtons(): HTMLElement[] {
     const hostId = owningHostId();
     if (hostId === null) return [];
@@ -2299,7 +2268,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const actions = target.closest<HTMLElement>(".host-actions");
     if (actions === null || !list.contains(actions)) return;
     // Ueber `toolbarButtonsOf`, wie das Roving selbst: `toolbarIndex` zaehlt
-    // in DIESER Menge (Task 16, Punkt E).
+    // in DIESER Menge (siehe `toolbarButtonsOf`).
     const index = toolbarButtonsOf(actions).indexOf(target);
     if (index === -1) return;
     const hostRow = actions.closest(".sb-host-block")?.querySelector<HTMLElement>(".row-host");
@@ -2337,8 +2306,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     if (!(active instanceof HTMLElement)) return;
     const actions = active.closest<HTMLElement>(".host-actions");
     if (actions === null) return;
-    // Dieselbe Menge wie `moveToolbarTo` gleich darunter zaehlt (Task 16,
-    // Punkt E) -- sonst zeigte `current + 1` in eine andere Reihe.
+    // Dieselbe Menge wie `moveToolbarTo` gleich darunter zaehlt (siehe
+    // `toolbarButtonsOf`) -- sonst zeigte `current + 1` in eine andere Reihe.
     const buttons = toolbarButtonsOf(actions);
     const current = buttons.indexOf(active);
     if (current === -1) return;
@@ -2353,7 +2322,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     }
   });
 
-  /** Abschlussreview (Important 3): rettet den Tastaturfokus ueber das
+  /** Rettet den Tastaturfokus ueber das
    * vollstaendige Neuzeichnen hinweg. Gemerkt wird der stabile BEZEICHNER
    * (`data-focus-key`, siehe `focusKey`), nicht die Elementreferenz -- die
    * ist nach `replaceChildren()` aus dem Dokument entfernt und `.focus()`
@@ -2366,8 +2335,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * einem laufenden Terminal an sich.
    *
    * Ist das Gegenstueck deaktiviert oder findet sich der Bezeichner nicht
-   * wieder, faengt die Hostzeile desselben Hosts den Fokus auf (Aufgabe 19,
-   * Fixrunde 3) -- sie ist kein zerstoererisches Ziel. Ist auch sie fort (der
+   * wieder, faengt die Hostzeile desselben Hosts den Fokus auf -- sie ist
+   * kein zerstoererisches Ziel. Ist auch sie fort (der
    * Host wurde gerade entfernt), wird NICHTS fokussiert: ein geratener Nachbar
    * waere eine stille Fehlbedienungsquelle -- der Nutzer haette den Fokus auf
    * einem Element, das er nicht angesteuert hat, mit "Remove" in Reichweite. */
@@ -2416,7 +2385,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const keyToRestore =
       active instanceof HTMLElement && el.contains(active) ? (active.dataset.focusKey ?? null) : null;
 
-    // Befund 11: ein getippter Wert (Passphrase/Passwort in der
+    // MVP-Spec M0.4, Befund 11 der Bewertung 2026-09-04: ein getippter Wert
+    // (Passphrase/Passwort in der
     // Hinweisleiste, siehe `buildHostNotice`) ueberlebt ein Neuzeichnen NUR,
     // solange das Feld fokussiert ist -- derselbe Wachhund wie `keyToRestore`
     // oben (dieselbe `active`-Quelle), zusaetzlich auf `HTMLInputElement`
@@ -2471,7 +2441,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       // nicht aktiv markiert ist -- und das ist er nach dem Neubau oben noch
       // nicht (siehe dort). Fuer jedes andere Ziel ist es ein blosses `focus()`.
       //
-      // Fixrunde 3: `focus()` auf einem deaktivierten Gegenstueck taete nichts
+      // `focus()` auf einem deaktivierten Gegenstueck taete nichts
       // (der Host trennte, waehrend "New session" den Fokus hatte), und ein
       // fehlendes (sein Hinweis, seine Session ist fort) gibt es nicht -- in
       // beiden Faellen fiele der Fokus auf <body>. Dann nimmt ihn die Hostzeile
