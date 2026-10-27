@@ -275,16 +275,23 @@ instance, kept by GitHub apart from the release files and notes, and ties
 the file's SHA-256 to this repository, the workflow, the tag and its commit.
 Check it with the
 [GitHub CLI](https://cli.github.com/manual/gh_attestation_verify), version
-2.49 or newer (`--source-ref` needs 2.68 or newer):
+2.68 or newer:
 
 ```sh
-gh attestation verify aidevbridge-<version>-windows-x64.zip --repo ITBrain258/aidevbridge --source-ref refs/tags/v<version>
+gh attestation verify aidevbridge-<version>-windows-x64.zip --repo ITBrain258/aidevbridge --signer-workflow ITBrain258/aidevbridge/.github/workflows/packages.yml --source-ref refs/tags/v<version>
 ```
 
 It must print `Verification succeeded!` and name
 `.github/workflows/packages.yml@refs/tags/v<version>` as the build workflow.
-`--source-ref` is optional; it also requires the tag of that release, so a
-file built for another version doesn't pass. The command fetches the
+`--signer-workflow` requires that this repository's `packages.yml` signed the
+provenance, and `--source-ref` requires the tag of that release, so a file
+built by another workflow or for another version doesn't pass. GitHub CLI
+2.49 to 2.67 lacks `--source-ref`; there,
+`gh attestation verify <file> --repo ITBrain258/aidevbridge` is the
+fallback. It only checks that a workflow of this repository made the
+provenance, not which workflow nor from which tag or branch, so a
+provenance from another workflow or another ref of this repository passes
+it as well. The command fetches the
 provenance from the GitHub API and therefore needs the GitHub CLI signed in
 to a GitHub account (`gh auth login`, or a token in `GH_TOKEN`); any account
 will do. A manual run that names a tag but starts from another ref, such as

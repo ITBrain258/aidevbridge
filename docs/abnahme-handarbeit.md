@@ -603,7 +603,7 @@ zeigen: die Konsole bei echten Rechten und echter CSP, die Eingabe beim
     Hand mit **release** starten. Beim Tag: Der Lauf ersetzt keine Datei,
     der Schritt zur Build-Provenienz zeigt je angehängte Datei eine
     Attestierung, und
-    `gh attestation verify <Datei> --repo ITBrain258/aidevbridge --source-ref refs/tags/v<Version>`
+    `gh attestation verify <Datei> --repo ITBrain258/aidevbridge --signer-workflow ITBrain258/aidevbridge/.github/workflows/packages.yml --source-ref refs/tags/v<Version>`
     meldet für ZIP und DMG „Verification succeeded!“.
 12. **Lizenzseiten.** Im Ordner `licenses` von ZIP, Installer und App.
     Erwartung: `crypto-bigint-0.7.10-LICENSE-MIT.txt`,
