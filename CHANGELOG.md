@@ -9,7 +9,7 @@ dem Namen agentbridge.
 ### Added
 
 - CI: Der Workflow `audit.yml` prueft `Cargo.lock` und `package-lock.json` woechentlich, bei jeder Aenderung eines Lockfiles und auf Knopfdruck auf bekannte Sicherheitsmeldungen. RUSTSEC-2023-0071 (`rsa`) ist mit Begruendung ausgenommen, siehe `SECURITY.md`.
-- Releases: Die Dateien, die der Lauf eines Tags an das Release haengt, tragen eine Build-Provenienz von GitHub. `gh attestation verify <Datei> --repo ITBrain258/aidevbridge --signer-workflow ITBrain258/aidevbridge/.github/workflows/packages.yml --source-ref refs/tags/v<Version>` prueft sie samt Workflow und Tag (GitHub CLI 2.68 oder neuer). Die Provenienz nennt den Commit, aus dem der Lauf gebaut hat, auch wenn der Tag waehrend des Laufs verschoben wird. Fruehere Releases haben keine.
+- Releases: Die Dateien, die der Lauf eines Tags an das Release haengt, tragen eine Build-Provenienz von GitHub. `gh attestation verify <Datei> --repo ITBrain258/aidevbridge --signer-workflow ITBrain258/aidevbridge/.github/workflows/packages.yml --source-ref refs/tags/v<Version>` prueft sie samt Workflow und Tag (GitHub CLI 2.68 oder neuer). Beim Push eines Tags nennt die Provenienz den gebauten Commit, auch wenn der Tag waehrend des Laufs verschoben wird. Fruehere Releases haben keine.
 
 ### Changed
 

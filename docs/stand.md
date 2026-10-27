@@ -376,6 +376,10 @@ In dieser Reihenfolge:
    2023 Privacy Scaling Explorations Team“, den die Auswahl seit dem 12.09.
    nicht als Hinweis führt (in 0.7.5 und 0.7.10 gleich). Vor dem nächsten
    Release entscheiden, ob er als Copyright-Hinweis der Komponente dazukommt.
+   Nach den letzten Korrekturen sind fünf weitere eigene Quellen neu gebunden
+   (`commands.rs`, `settings.rs`, zwei Testdateien der Commands und
+   `src/main.ts`, ohne neues Fremdmaterial) und die macOS-Auswahl erneut
+   abgeleitet; `prepare` und `check` sind für beide grün.
 7. **Echte Abnahmen:**
    - die [Handabnahme](abnahme-handarbeit.md) am Windows-Fenster: echte
      Tastatur, Rechtsklick, Skalierung 100 und 150 % am echten Bildschirm,
@@ -479,15 +483,14 @@ In dieser Reihenfolge:
       Messung auf tmux 3.0a, 3.3a, 3.4 und 3.6.
     - **Temp-Dateien von `settings.toml`:** Seit `3a34e5b` entfernt der
       Start liegen gebliebene `settings.toml.<pid>.<n>.tmp`, die älter als
-      zehn Minuten sind. Das ersetzt die Notiz aus Batch 6, die ein
-      Aufräumen beim Start ausschloss, weil es die Temp-Datei einer gerade
-      speichernden zweiten Instanz löschen könnte; die Frist lässt diese
-      stehen.
+      zehn Minuten sind. Die Frist lässt die Temp-Datei einer zweiten
+      Instanz stehen, die gerade speichert.
     - In `src/styles.css` stehen noch private Verlaufsmarker in Kommentaren:
-      29 Zeilen mit Markern wie „Shell-Task 11“, „Fixrunde 2“ oder „Review
-      Runde 1, Befund 2“, 23 davon nach dem Muster von
-      `src/source-hygiene.test.ts`, dazu Formen wie „Nachtrag B“. Batch 15
-      bereinigte nur `.ts`-Dateien; diese Runde lässt sie aus.
+      mindestens 29 Zeilen mit Markern wie „Shell-Task 11“, „Fixrunde 2“,
+      „Abschlussreview“ oder „Review Runde 1, Befund 2“, 23 davon nach dem
+      Muster von `src/source-hygiene.test.ts`; dazu Formen wie „Nachtrag B“
+      oder „Review Runde 2“, die keines der Muster zählt. Die Bereinigung
+      dieser Runde galt nur `.ts`- und `.rs`-Dateien.
     - Der Vermerk in `safegcd.rs` von crypto-bigint (Punkt 6) wartet weiter
       auf die Entscheidung, ob er als Copyright-Hinweis dazukommt.
 
