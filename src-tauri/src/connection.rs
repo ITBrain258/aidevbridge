@@ -126,7 +126,6 @@ impl HostConnection {
             .await?;
             control.with_active(|| ())?;
             let pin = policy.pin().ok_or(PairIdentityRejected)?;
-            policy.established();
             let (changed, _) = watch::channel(());
             Ok(Arc::new(Self {
                 id,
@@ -518,7 +517,6 @@ impl RepairAttempt {
             "control reconnection is no longer current"
         );
         self.control.with_active(|| {
-            policy.established();
             state.control = Some(transport);
             state.repair = None;
             state.health = ControlHealth::Ready;

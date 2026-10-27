@@ -43,7 +43,6 @@ pub(crate) struct PairHostKeyPolicy {
     initial: Mutex<Option<Arc<dyn HostKeyPolicy>>>,
     pin: Mutex<Option<HostKeyPin>>,
     rejected: AtomicBool,
-    established: AtomicBool,
 }
 
 impl PairHostKeyPolicy {
@@ -59,7 +58,6 @@ impl PairHostKeyPolicy {
             initial: Mutex::new(Some(initial)),
             pin: Mutex::new(None),
             rejected: AtomicBool::new(false),
-            established: AtomicBool::new(false),
         }
     }
 
@@ -69,10 +67,6 @@ impl PairHostKeyPolicy {
 
     pub(crate) fn rejected(&self) -> bool {
         self.rejected.load(Ordering::Acquire)
-    }
-
-    pub(crate) fn established(&self) {
-        self.established.store(true, Ordering::Release);
     }
 
     fn reject(&self) -> bool {
@@ -91,11 +85,7 @@ impl HostKeyPolicy for PairHostKeyPolicy {
         if let Some(pin) = pin {
             let matches = pin.matches(host, port, algorithm, key);
             let accept = || if matches { true } else { self.reject() };
-            return if self.established.load(Ordering::Acquire) {
-                accept()
-            } else {
-                self.control.with_active(accept).unwrap_or(false)
-            };
+            return self.control.with_active(accept).unwrap_or(false);
         }
         if self.control.with_active(|| ()).is_err() {
             return false;
@@ -127,7 +117,6 @@ pub(crate) struct RepairHostKeyPolicy {
     known_hosts: String,
     control: ConnectControl,
     rejected: AtomicBool,
-    established: AtomicBool,
 }
 
 impl RepairHostKeyPolicy {
@@ -137,16 +126,11 @@ impl RepairHostKeyPolicy {
             known_hosts,
             control,
             rejected: AtomicBool::new(false),
-            established: AtomicBool::new(false),
         }
     }
 
     pub(crate) fn rejected(&self) -> bool {
         self.rejected.load(Ordering::Acquire)
-    }
-
-    pub(crate) fn established(&self) {
-        self.established.store(true, Ordering::Release);
     }
 }
 
@@ -162,11 +146,7 @@ impl HostKeyPolicy for RepairHostKeyPolicy {
             }
             allowed
         };
-        if self.established.load(Ordering::Acquire) {
-            accept()
-        } else {
-            self.control.with_active(accept).unwrap_or(false)
-        }
+        self.control.with_active(accept).unwrap_or(false)
     }
 }
 
