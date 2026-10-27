@@ -42,6 +42,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { t } from "../i18n/t";
 import { icon } from "../icons";
 import { appVersionLine } from "../version";
+import { isAndroid } from "../platform";
 import { buildCredentialField } from "./credential-field";
 import {
   matchesExistingHost,
@@ -509,6 +510,13 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     }
   }
 
+  /** Steht der Abschnitt der Vorschlaege da? Android (Spec 2026-10-27 §5.3)
+   * hat keine `~/.ssh/config` des Nutzers; eine leere Liste dort waere nur
+   * ein Hinweis auf eine Datei, die es nicht gibt. */
+  function suggestionsShown(): boolean {
+    return lastSuggestions.length > 0 || !isAndroid();
+  }
+
   async function loadInitialData(): Promise<void> {
     // Beide Aufrufe VOR dem ersten Mount von `host-form.ts` abgewartet
     // (nicht nacheinander mit Zwischen-Mount): `HostFormOptions.existing`
@@ -549,8 +557,8 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
         : [];
 
     loadingNotice.hidden = true;
-    suggestedHeading.hidden = false;
-    suggestedList.hidden = false;
+    suggestedHeading.hidden = !suggestionsShown();
+    suggestedList.hidden = !suggestionsShown();
     // Startfokus (Spec 9.5): gibt es Vorschlaege, ist der erste Connect-Knopf
     // der wahrscheinlichste naechste Griff und das Formular bleibt
     // zugeklappt; gibt es keine, ist das Formular der einzige Weg -- es steht
@@ -928,15 +936,16 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     // bis dahin steht wieder der neutrale Text da.
     preflightHeading.textContent = t("firstRun.preflight.heading");
     // Die Gegenrichtung zum Erfolgspfad oben: dorthin zurueck, wo der
-    // Versuch begann. Ueberschrift und Liste kommen IMMER zurueck -- sie
-    // standen schon beim Mounten da, auch ohne Vorschlaege zeigt die Liste
-    // dann die "No hosts found"-Zeile. Nur der Umschalter
+    // Versuch begann. Ueberschrift und Liste kommen zurueck, wie sie beim
+    // Mounten standen -- auch ohne Vorschlaege zeigt die Liste dann die
+    // "No hosts found"-Zeile, nur auf Android nicht (`suggestionsShown`).
+    // Nur der Umschalter
     // bleibt an Vorschlaege gebunden: ohne sie gaebe es nichts umzuschalten,
     // das Formular stand von Anfang an offen. Das Formular selbst nur, wenn
     // der Versuch aus ihm kam.
     const hadSuggestions = lastSuggestions.length > 0;
-    suggestedHeading.hidden = false;
-    suggestedList.hidden = false;
+    suggestedHeading.hidden = !suggestionsShown();
+    suggestedList.hidden = !suggestionsShown();
     manualToggle.hidden = !hadSuggestions;
     hostFormContainer.hidden = lastSource?.kind !== "form";
     // `aria-expanded` folgt dem, was tatsaechlich sichtbar ist -- sonst

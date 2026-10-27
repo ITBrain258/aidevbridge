@@ -516,6 +516,13 @@ textarea,
   display: none;
 }
 
+/* Auf dem Telefon ist jede Kachel schmal, und breiter wird sie nicht: Der
+   Hinweis "narrow" (Spec 2026-10-19 §8.4) stuende immer da und sagte nichts,
+   was sich aendern liesse. */
+#app.compact .tile-narrow {
+  display: none;
+}
+
 .compact-bar-toggle {
   flex: 0 0 auto;
   gap: var(--ab-space-3);
