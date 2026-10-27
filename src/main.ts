@@ -453,7 +453,7 @@ export function main(): void {
   let firstRunInGridHandle: FirstRunHandle | null = null;
   // Die Dialoghuelle dieses Laufs (`views/dialog.ts`): je `main()` eine
   // eigene, damit die offene Ueberlagerung, ihr Fokus-Rueckkehrziel und die
-  // TOFU-Sperre wie zuvor an diesem Lauf haengen und nicht am Modul.
+  // TOFU-Sperre an diesem Lauf haengen und nicht am Modul.
   const dialogs = mountDialogShell(elements.dialogRoot, elements.app);
   const { openDialog, closeDialog } = dialogs;
 
@@ -1048,8 +1048,9 @@ export function main(): void {
 
   /** Die Liste des Standard-Sockets (Spec 2026-10-25 §6.2, §7): ihr Fehler
    * gilt nur fuer sie; ist der Schalter aus, hat der Host dort keine Sessions.
-   * Ohne Teil trotz Verlangen (die Antwortform vor dem Standard-Socket) bleibt
-   * sein Stand, wie er war. Eine Serverversion ohne Messung ergibt eine leere
+   * Fehlt der Teil, obwohl der Schalter jetzt an ist, ging die Frage noch bei
+   * ausgeschaltetem Schalter hinaus (Rust laesst ihn nur dann weg); sein Stand
+   * bleibt dann, wie er war. Eine Serverversion ohne Messung ergibt eine leere
    * Gruppe. */
   function writeDefaultSessions(hostId: string, listed: SocketSessionsDto | null): void {
     if (listed === null) {
@@ -1816,18 +1817,17 @@ export function main(): void {
       return;
     }
 
-    // Ein Aufruf fuer einen getrennten oder noch
-    // verbindenden Host liefe mit der (moeglicherweise laengst veralteten) ID
-    // ins Leere, mit einer fuer den Nutzer nicht deutbaren Backend-Meldung
-    // ("host not connected"). Sichtbar erklaeren statt das ins Backend
-    // durchreichen.
+    // Ein Aufruf fuer einen getrennten oder noch verbindenden Host liefe mit
+    // der (moeglicherweise laengst veralteten) ID ins Leere, mit einer fuer
+    // den Nutzer nicht deutbaren Backend-Meldung ("host not connected").
+    // Sichtbar erklaeren statt das ins Backend durchreichen.
     // `sidebar.ts` deaktiviert den Knopf "New session" an einem nicht
     // verbundenen Host (UI-v2-Spec, Sichtpruefung 2026-09-07, Punkt E) --
-    // diese Wache bleibt trotzdem: der
-    // Akkord `Ctrl+Shift+N` (`newSessionOnTargetHost`, Schritt 1 und 2 der
-    // Kette nehmen auch einen getrennten Host) kommt nicht ueber jenen Knopf,
-    // und die Verbindung kann zwischen Oeffnen und Absenden des Dialogs fallen
-    // (siehe `createSession`s gleichlautende Wache).
+    // diese Wache bleibt trotzdem: der Akkord `Ctrl+Shift+N`
+    // (`newSessionOnTargetHost`, Schritt 1 und 2 der Kette nehmen auch einen
+    // getrennten Host) kommt nicht ueber jenen Knopf, und die Verbindung kann
+    // zwischen Oeffnen und Absenden des Dialogs fallen (siehe
+    // `createSession`s gleichlautende Wache).
     // `!host.runtimeId` gehoert in DIESELBE Bedingung, nicht in eine zweite
     // darunter: beides heisst fuer den Nutzer dasselbe ("dieser Host hat
     // gerade keine Verbindung"), und die Verengung macht die Laufzeit-ID fuer
@@ -2643,11 +2643,11 @@ export function main(): void {
 
     document.body.appendChild(banner);
 
-    // Optik-Runde vom 24.10.: der neutrale Hinweis (die Grenze, Spec
-    // 2026-10-19 §5.3) verdeckte bei 9 Kacheln die Koepfe der ersten beiden,
-    // bis der Nutzer ihn schloss. Er schliesst sich jetzt nach
-    // `NEUTRAL_NOTICE_MS` selbst und beim naechsten Druck in eine Kachel. Ein
-    // Fehler bleibt stehen, bis der Nutzer ihn schliesst.
+    // Spec 2026-10-19 §5.3, Nachtrag 2026-10-24 (Optik-Runde): der neutrale
+    // Hinweis (die Grenze) schliesst sich nach `NEUTRAL_NOTICE_MS` selbst und
+    // beim naechsten Druck in eine Kachel; stehen bleibend verdeckte er bei 9
+    // Kacheln die Koepfe der ersten beiden. Ein Fehler bleibt stehen, bis der
+    // Nutzer ihn schliesst.
     let neutral = false;
     let hideTimer: number | undefined;
     const hide = () => {
