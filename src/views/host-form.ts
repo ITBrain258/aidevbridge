@@ -1,27 +1,22 @@
-// Anmeldungsmenue statt drei Feldern (Shell-Task 8, Spec §9): ersetzt
-// Schluesselpfad/Passphrase/Passwort durch EIN Menue mit den gefundenen
-// Schluesseln, `ssh-agent`, `Password` und `Choose file...`.
+// Anmeldungsmenue statt drei Feldern (Spec §9): EIN Menue mit den gefundenen
+// Schluesseln, `ssh-agent`, `Password` und `Choose file...` statt
+// Schluesselpfad/Passphrase/Passwort.
 //
-// Der Fehler, den das behebt: `resolve_auth_method` (commands.rs) gab einem
-// gefuellten Schluesselpfad STILLEN Vorrang vor einem Passwort, und ein
-// LEERES Schluesselfeld bedeutete "ssh-agent" -- ein unter Windows 11 ab
-// Werk DEAKTIVIERTER Dienst. Bei drei gleichzeitig sichtbaren Feldern (siehe
-// `first-run.ts`) ist diese Regel fuer den Nutzer unsichtbar. Am 2026-07-28
-// landete die Abnahme deshalb zweimal auf einem gespeicherten Host, der sich
-// nie verbinden liess (Befund B3). `resolve_auth_method` selbst bleibt
-// UNVERAENDERT -- es bleibt die Rueckfallabsicherung, falls doch einmal
+// Warum: `resolve_auth_method` (commands.rs) gibt einem gefuellten
+// Schluesselpfad STILLEN Vorrang vor einem Passwort, und ein LEERES
+// Schluesselfeld bedeutet "ssh-agent" -- ein unter Windows 11 ab Werk
+// DEAKTIVIERTER Dienst. Bei drei gleichzeitig sichtbaren Feldern ist diese
+// Regel fuer den Nutzer unsichtbar; am 2026-07-28 landete die Abnahme
+// deshalb zweimal auf einem gespeicherten Host, der sich nie verbinden liess.
+// `resolve_auth_method` bleibt die Rueckfallabsicherung, falls doch einmal
 // mehrere Felder ankommen.
 //
-// `initial.auth` ist die vorgesehene Konsumstelle fuer
-// `SshConfigHost.identity_file` (Shell-Task 6): ein Aufrufer, der einen
-// Vorschlag mit gesetzter `IdentityFile` uebernimmt, reicht
-// `{kind: "key", path: identity_file, passphrase: ""}` als `initial.auth`
-// herein, und `applyPreselection()` unten gibt ihr Vorrang vor der
-// Erkennungsreihenfolge. Diese Datei verdrahtet `identity_file` NICHT selbst
-// gegen `suggest_hosts` -- `first-run.ts` steht nicht in der Dateiliste
-// dieser Aufgabe. Sie liefert den Mechanismus, den der naechste Aufrufer
-// (voraussichtlich die Vorschlagsliste bzw. der "Edit host"-Weg aus
-// Shell-Task 9b) benutzt.
+// `initial.auth` ist die Konsumstelle fuer `SshConfigHost.identity_file`:
+// ein Aufrufer, der einen Vorschlag mit gesetzter `IdentityFile` uebernimmt
+// (`first-run.ts`), reicht `{kind: "key", path: identity_file, passphrase:
+// ""}` als `initial.auth` herein, und `applyPreselection()` unten gibt ihr
+// Vorrang vor der Erkennungsreihenfolge. Diese Datei verdrahtet
+// `identity_file` NICHT selbst gegen `suggest_hosts`.
 
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -67,15 +62,14 @@ export interface HostFormOptions {
 
 export interface HostFormHandle {
   dispose(): void;
-  /** Nachtrag A (Review Important 2): der Aufrufer (`first-run.ts`) sperrt
-   * damit den Absenden-Knopf fuer die Dauer eines laufenden `connect_host`
-   * -- ohne diese Sperre startete ein gewoehnlicher Doppelklick (oder ein
-   * zweites Enter) auf "Connect" einen ZWEITEN `connect_host`-Aufruf, bevor
-   * der erste aufgeloest hatte, und der AELTERE der beiden Aufrufe konnte
-   * beim spaeteren Aufloesen die vom juengeren bereits uebernommene
-   * Verbindung kommentarlos ueberschreiben -- derselbe Lecktyp wie der
-   * dispose()-waehrend-in-flight-Fall, nur ueber einen anderen Ausloeser
-   * erreicht. */
+  /** Der Aufrufer (`first-run.ts`) sperrt damit den Absenden-Knopf fuer die
+   * Dauer eines laufenden `connect_host` -- ohne diese Sperre startete ein
+   * gewoehnlicher Doppelklick (oder ein zweites Enter) auf "Connect" einen
+   * ZWEITEN `connect_host`-Aufruf, bevor der erste aufgeloest hatte, und der
+   * AELTERE der beiden Aufrufe koennte beim spaeteren Aufloesen die vom
+   * juengeren bereits uebernommene Verbindung kommentarlos ueberschreiben --
+   * derselbe Lecktyp wie der dispose()-waehrend-in-flight-Fall, nur ueber einen
+   * anderen Ausloeser erreicht. */
   setSubmitDisabled(disabled: boolean): void;
 }
 
@@ -111,12 +105,12 @@ function baseName(path: string): string {
   return segments[segments.length - 1] || path;
 }
 
-/** Aufgabe 17, Punkt B7: dieselbe Dreifachpruefung (Hostname/User/Port)
- * brauchte `first-run.ts` fuer den direkten Verbindungspfad eines
- * Vorschlags mit `user` ein zweites Mal. `mountHostForm`s eigenes
- * `isDuplicate` unten ist ueber `opts.existing` geschlossen und laesst sich
- * deshalb nicht direkt exportieren -- diese modul-oeffentliche Fassung
- * nimmt die Liste als Parameter und dient beiden Aufrufern. */
+/** Dieselbe Dreifachpruefung (Hostname/User/Port) braucht `first-run.ts` fuer
+ * den direkten Verbindungspfad eines Vorschlags mit `user` ein zweites Mal.
+ * `mountHostForm`s eigenes `isDuplicate` unten ist ueber `opts.existing`
+ * geschlossen und laesst sich deshalb nicht direkt exportieren -- diese
+ * modul-oeffentliche Fassung nimmt die Liste als Parameter und dient beiden
+ * Aufrufern. */
 export function matchesExistingHost(
   entry: { hostname: string; user: string; port: number },
   existing: { hostname: string; user: string; port: number }[],
@@ -216,11 +210,10 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   authHint.textContent = t("hostForm.auth.keyHint");
   form.appendChild(authHint);
 
-  // Deaktivierter Platzhalter (Review-Befund, Important): NUR eingefuegt,
-  // wenn `applyPreselection()` unten keine sinnvolle Vorauswahl hat --
-  // siehe dort. Nicht von Anfang an im DOM, damit der Normalfall (Schluessel
-  // gefunden oder identity_file vorhanden) keinen zusaetzlichen, nie
-  // ausgewaehlten Eintrag im Menue zeigt.
+  // Deaktivierter Platzhalter: NUR eingefuegt, wenn `applyPreselection()` unten
+  // keine sinnvolle Vorauswahl hat -- siehe dort. Nicht von Anfang an im DOM,
+  // damit der Normalfall (Schluessel gefunden oder identity_file vorhanden)
+  // keinen zusaetzlichen, nie ausgewaehlten Eintrag im Menue zeigt.
   const placeholderOption = document.createElement("option");
   placeholderOption.value = PLACEHOLDER_VALUE;
   placeholderOption.disabled = true;
@@ -277,11 +270,11 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     opts.mode === "control-repair" ? "control.repairSubmit" : opts.mode === "edit" ? "hostForm.save" : "connect.submit",
   );
 
-  // Eigener rechtsbuendiger Aktionen-Container statt eines direkten Form-
-  // Kindes (Aufraeumpunkt Aufgabe 14): das Formular ist Spalten-Flex, ein
-  // Knopf direkt darin rendert volle Breite -- derselbe Container wie bei
-  // `.host-key-prompt-actions`/`.session-dialog-actions` (siehe dortige
-  // Regel weiter unten in styles.css).
+  // Eigener rechtsbuendiger Aktionen-Container statt eines direkten
+  // Form-Kindes: das Formular ist Spalten-Flex, ein Knopf direkt darin rendert
+  // volle Breite -- derselbe Container wie bei
+  // `.host-key-prompt-actions`/`.session-dialog-actions` (siehe dortige Regel
+  // weiter unten in styles.css).
   // Spec 2026-10-25 §10.1: ob die App die Sessions auf tmux' Standard-Socket
   // dieses Hosts zeigt. Vorgabe an, auch fuer bestehende Hosts.
   const showDefaultLabel = document.createElement("label");
@@ -335,9 +328,8 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     const isPassword = value === PASSWORD_VALUE;
 
     // `insertBefore(..., actions)`, nicht `submitButton`: der Knopf steckt
-    // seit dem Aktionen-Container (oben) nicht mehr direkt im Formular --
-    // `submitButton` waere hier kein gueltiger Referenzknoten von `form`
-    // mehr.
+    // im Aktionen-Container (oben), nicht direkt im Formular -- `submitButton`
+    // waere hier kein gueltiger Referenzknoten von `form`.
     if (isKey) {
       if (!passphraseLabel.isConnected) form.insertBefore(passphraseLabel, fieldsEnd);
     } else {
@@ -412,15 +404,14 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     } else if (discoveredKeys.length > 0) {
       value = `${KEY_VALUE_PREFIX}${discoveredKeys[0].path}`;
     } else {
-      // Review-Befund (Important): weder eine identity_file-Angabe noch ein
-      // gefundener Schluessel -- es gibt KEINE sinnvolle Vorauswahl. Auf
-      // `ssh-agent` zurueckzufallen hiesse, dem Nutzer eine Entscheidung
-      // unterzuschieben, die er nicht getroffen hat, UND ihn genau auf den
-      // unter Windows 11 ab Werk deaktivierten Dienst zu lenken -- die
-      // Sackgasse, gegen die dieser Task existiert (Spec §9.2: "ssh-agent
-      // bleibt ein gleichrangiger Eintrag im Menue -- eine Wahl, keine
-      // Voreinstellung"). Das Menue steht stattdessen auf einem
-      // deaktivierten Platzhalter; der submit-Handler unten weist ein
+      // Weder eine identity_file-Angabe noch ein gefundener Schluessel -- es
+      // gibt KEINE sinnvolle Vorauswahl. Auf `ssh-agent` zurueckzufallen
+      // hiesse, dem Nutzer eine Entscheidung unterzuschieben, die er nicht
+      // getroffen hat, UND ihn genau auf den unter Windows 11 ab Werk
+      // deaktivierten Dienst zu lenken -- die Sackgasse, gegen die dieses Menue
+      // existiert (Spec §9.2: "ssh-agent bleibt ein gleichrangiger Eintrag im
+      // Menue -- eine Wahl, keine Voreinstellung"). Das Menue steht stattdessen
+      // auf einem deaktivierten Platzhalter; der submit-Handler unten weist ein
       // Absenden in diesem Zustand zurueck.
       //
       // Gegenprobe-Marker: wird dieser Zweig durch `value = AGENT_VALUE;`
@@ -524,26 +515,24 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     }
     if (value === AGENT_VALUE) return { kind: "agent" };
     if (value === PASSWORD_VALUE) return { kind: "password", password: passwordInput.value };
-    // Platzhalter (Review-Befund, Important -- kein Schluessel gefunden,
-    // keine identity_file, noch nichts gewaehlt), Trennlinie oder
-    // "choose-file": kein gueltiger Absendezustand. Der Platzhalter-Fall
-    // wird im submit-Handler in eine sichtbare Meldung uebersetzt
-    // (`hostForm.auth.required`) und ist getestet; Trennlinie/"choose-file"
-    // bleiben reine Absicherung -- der change-Handler loest "choose-file"
-    // sofort wieder auf (siehe `handleChooseFile`), beide sind im Test
-    // nicht erreichbar.
+    // Platzhalter (kein Schluessel gefunden, keine identity_file, noch nichts
+    // gewaehlt), Trennlinie oder "choose-file": kein gueltiger Absendezustand.
+    // Der Platzhalter-Fall wird im submit-Handler in eine sichtbare Meldung
+    // uebersetzt (`hostForm.auth.required`) und ist getestet;
+    // Trennlinie/"choose-file" bleiben reine Absicherung -- der change-Handler
+    // loest "choose-file" sofort wieder auf (siehe `handleChooseFile`), beide
+    // sind im Test nicht erreichbar.
     return null;
   }
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     if (disposed) return;
-    // Nachtrag A (Review Important 2): waehrend der Knopf gesperrt ist,
-    // laeuft bereits ein Aufruf fuer eine vorherige Absendung -- ein
-    // zweites `submit` (Doppelklick, zweites Enter, oder wie im Test direkt
-    // dispatcht) darf `opts.onSubmit` kein zweites Mal aufrufen. Ueber den
-    // Knopf selbst geprueft (keine zweite, separat gefuehrte
-    // `submitting`-Variable): der Aufrufer setzt/loescht exakt dieses
+    // Waehrend der Knopf gesperrt ist, laeuft bereits ein Aufruf fuer eine
+    // vorherige Absendung -- ein zweites `submit` (Doppelklick, zweites Enter,
+    // oder wie im Test direkt dispatcht) darf `opts.onSubmit` kein zweites Mal
+    // aufrufen. Ueber den Knopf selbst geprueft (keine zweite, separat
+    // gefuehrte `submitting`-Variable): der Aufrufer setzt/loescht exakt dieses
     // Attribut per `setSubmitDisabled`, ein einziger Wahrheitsort.
     if (submitButton.disabled) return;
 
@@ -573,19 +562,17 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     }
 
     // Geheimnis-Disziplin (Spec §8.5): der Wert steckt bereits im gerade
-    // gebauten `auth`-Objekt -- das Eingabefeld selbst muss ihn ab jetzt
-    // nicht mehr im DOM vorhalten. Das raeumt HIER, nach erfolgreicher
-    // LOKALER Validierung und VOR jedem Verbindungsversuch, nicht erst nach
-    // einer erfolgreichen Verbindung: `onSubmit` ist synchron (feste
-    // Schnittstelle), diese Funktion sieht das Ergebnis eines spaeteren
-    // `connect_host` gar nicht. Schlaegt die Verbindung danach an einem
-    // falschen Passwort fehl, muss der Nutzer es neu eintippen -- anders als
-    // ein Weg, der erst nach ERFOLGREICHEM Verbinden raeumt und bei einem
-    // Fehlschlag ausdruecklich stehen laesst (so verfuhr die inzwischen
-    // entfernte `host-list.ts::connect`, Task 13; ersetzt durch
-    // `sidebar.ts`, Shell-Task 9). Der Unterschied ist architektonisch durch
-    // die synchrone `onSubmit`-Signatur bedingt, nicht durch eine andere
-    // Haltung zu Geheimnissen.
+    // gebauten `auth`-Objekt -- das Eingabefeld selbst muss ihn ab jetzt nicht
+    // mehr im DOM vorhalten. Das raeumt HIER, nach erfolgreicher LOKALER
+    // Validierung und VOR jedem Verbindungsversuch, nicht erst nach einer
+    // erfolgreichen Verbindung: `onSubmit` ist synchron (feste Schnittstelle),
+    // diese Funktion sieht das Ergebnis eines spaeteren `connect_host` gar
+    // nicht. Schlaegt die Verbindung danach an einem falschen Passwort fehl,
+    // muss der Nutzer es neu eintippen -- anders als ein Weg, der erst nach
+    // ERFOLGREICHEM Verbinden raeumt und bei einem Fehlschlag ausdruecklich
+    // stehen laesst. Der Unterschied ist architektonisch durch die synchrone
+    // `onSubmit`-Signatur bedingt, nicht durch eine andere Haltung zu
+    // Geheimnissen.
     passphraseInput.value = "";
     passwordInput.value = "";
 
