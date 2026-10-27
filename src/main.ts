@@ -944,7 +944,6 @@ export function main(): void {
 
   /** Die Lage, unter der ein Lesen der Sessionliste begann. */
   interface ListRead {
-    controlGeneration: number;
     /** Die Verbindung ist nicht mehr dieselbe oder die Kontrollgeneration hat
      * gewechselt: die Antwort gehoert nicht mehr zum aktuellen Stand. */
     superseded(): boolean;
@@ -962,7 +961,6 @@ export function main(): void {
     const superseded = (): boolean =>
       !isCurrentConnection(connection) || state.controlForHost(hostId).generation !== controlGeneration;
     return {
-      controlGeneration,
       superseded,
       failureSuperseded: (failure) =>
         superseded() ||
