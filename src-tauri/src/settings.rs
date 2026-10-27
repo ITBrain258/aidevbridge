@@ -1,4 +1,4 @@
-//! Hostverwaltung und Voreinstellungen (Task 13). KEIN Session-Zustand --
+//! Hostverwaltung und Voreinstellungen. KEIN Session-Zustand --
 //! Randbedingung des Projekts: `settings.toml` traegt Hosts und
 //! Voreinstellungen, niemals laufende Sessions (die leben ausschliesslich im
 //! Arbeitsspeicher der Anwendung bzw. auf dem entfernten `tmux`-Server).
@@ -414,33 +414,31 @@ pub struct HostEntry {
     pub tmux_socket: String,
     #[serde(default = "default_history")]
     pub history_limit: u32,
-    // M-D (Abschlussreview): Spec §12.1 sieht `key_path` in `settings.toml`
-    // bereits vor (siehe Beispiel dort) -- bislang gab es dafuer schlicht
-    // kein Feld. `#[serde(default)]` (-> `None`), NICHT ein Pflichtfeld: eine
+    // Spec §12.1 sieht `key_path` in `settings.toml` vor (siehe Beispiel
+    // dort). `#[serde(default)]` (-> `None`), NICHT ein Pflichtfeld: eine
     // ECHTE, bereits existierende `settings.toml` eines Nutzers hat diesen
-    // Schluessel noch nie geschrieben. Ohne den Default waere jede
-    // bestehende Installation ab diesem Update ein Parsefehler
-    // (`list_hosts` schlaegt fehl, der Nutzer sieht die Fehler-Banner-Ansicht
-    // statt seiner gespeicherten Hosts) -- dasselbe Muster wie `port`/
-    // `tmux_socket`/`history_limit` oben. NUR ein Schluesselpfad wird
-    // gespeichert (kein Passwort, keine Passphrase -- Randbedingung des
-    // Befunds: Geheimnisse gehoeren laut Spec §8.5 in `Secrets`/DPAPI, nicht
-    // in diese Klartextdatei, und v1 hat noch keinen `Secrets`-Speicher).
+    // Schluessel womoeglich nie geschrieben. Ohne den Default waere jede
+    // solche Installation ein Parsefehler (`list_hosts` schlaegt fehl, der
+    // Nutzer sieht die Fehler-Banner-Ansicht statt seiner gespeicherten Hosts)
+    // -- dasselbe Muster wie `port`/`tmux_socket`/`history_limit` oben. NUR
+    // ein Schluesselpfad wird gespeichert (kein Passwort, keine Passphrase --
+    // Geheimnisse gehoeren laut Spec §8.5 in `Secrets`/DPAPI, nicht in diese
+    // Klartextdatei, und v1 hat noch keinen `Secrets`-Speicher).
     #[serde(default)]
     pub key_path: Option<String>,
-    // Task 8 (Spec §4.8): welche Anmeldeart der Nutzer fuer diesen Host
-    // GEWAEHLT hat -- `key_path` allein sagt das nicht mehr eindeutig, seit
-    // ein Host auch per Passwort gespeichert werden kann (weder Schluessel
-    // noch Passphrase/Passwort selbst landen hier, siehe `key_path`s
-    // Kommentar oben: Geheimnisse gehoeren in `Secrets`/DPAPI, nicht in diese
+    // Spec §4.8: welche Anmeldeart der Nutzer fuer diesen Host GEWAEHLT hat --
+    // `key_path` allein sagt das nicht mehr eindeutig, seit ein Host auch per
+    // Passwort gespeichert werden kann (weder Schluessel noch
+    // Passphrase/Passwort selbst landen hier, siehe `key_path`s Kommentar
+    // oben: Geheimnisse gehoeren in `Secrets`/DPAPI, nicht in diese
     // Klartextdatei). `#[serde(default)]` aus demselben Grund wie bei
     // `key_path`: eine ECHTE, bereits existierende `settings.toml` hat dieses
-    // Feld noch nie geschrieben, ohne den Default waere das ab diesem Update
-    // ein Parsefehler. Ein serde-Default kann nicht vom Nachbarfeld
-    // `key_path` abhaengen (kein Zugriff auf Geschwisterfelder waehrend der
+    // Feld womoeglich nie geschrieben, ohne den Default waere das ein
+    // Parsefehler. Ein serde-Default kann nicht vom Nachbarfeld `key_path`
+    // abhaengen (kein Zugriff auf Geschwisterfelder waehrend der
     // Feld-Deserialisierung) -- deshalb bleibt dieses Feld bei einer alten
-    // Datei `None`, und `effective_auth_kind()` unten leitet die Anmeldeart
-    // in diesem Fall aus `key_path` ab, statt sie hier zu erraten.
+    // Datei `None`, und `effective_auth_kind()` unten leitet die Anmeldeart in
+    // diesem Fall aus `key_path` ab, statt sie hier zu erraten.
     #[serde(default)]
     pub auth_kind: Option<AuthKind>,
     /// Schalter "Show tmux sessions" (Spec 2026-10-25 §10.1): Ist er aus,
@@ -456,15 +454,14 @@ fn default_show_default_socket() -> bool {
 
 impl HostEntry {
     /// Liefert die Anmeldeart, die dieser Host TATSAECHLICH verwendet --
-    /// `auth_kind`, wenn gesetzt (jeder Schreibweg seit Task 8 setzt es),
-    /// sonst aus `key_path` abgeleitet (jede Datei aus der Zeit davor):
-    /// gesetzt heisst `Key`, sonst `Agent` (der bisherige stille Rueckfall,
-    /// siehe `resolve_auth_method` in `commands.rs`). Ein per Passwort
-    /// gespeicherter Host aus dieser Vorzeit ist darueber nicht von einem
-    /// Agent-Host zu unterscheiden -- den gab es vor diesem Task ohnehin nie
-    /// (`password: null` war in `main.ts` bislang fest verdrahtet), das ist
-    /// also keine neue Grenze, nur eine, die fuer neue Schreibvorgaenge ab
-    /// jetzt geschlossen ist.
+    /// `auth_kind`, wenn gesetzt (jeder Schreibweg setzt es), sonst aus
+    /// `key_path` abgeleitet (aeltere Dateien ohne das Feld): gesetzt heisst
+    /// `Key`, sonst `Agent` (derselbe Rueckfall wie `resolve_auth_method` in
+    /// `commands.rs`). Ein per Passwort gespeicherter Host ist in einer
+    /// solchen Datei darueber nicht von einem Agent-Host zu unterscheiden --
+    /// Dateien ohne `auth_kind` stammen aus Versionen, die keine
+    /// Passwort-Hosts speichern konnten, und jeder neue Schreibvorgang setzt
+    /// das Feld.
     pub fn effective_auth_kind(&self) -> AuthKind {
         self.auth_kind.unwrap_or(if self.key_path.is_some() {
             AuthKind::Key
@@ -1182,14 +1179,13 @@ mod tests {
         assert_eq!(parse_settings(toml).unwrap().version, 1);
     }
 
-    // --- Review-Ergaenzung: ein fehlendes `version`-Feld ist
-    // ein Parsefehler, keine stillschweigende Annahme von Version 0. Ohne
-    // diesen Test wuerde ein `#[serde(default)]` auf `version` (das eine
-    // spaetere Bearbeitung versehentlich ergaenzen koennte, z. B. um
-    // `toml::from_str` bei EINEM fehlenden Feld "grosszuegiger" zu machen)
-    // grün bleiben, obwohl es genau die falsche Richtung waere: eine Datei
-    // ohne Versionsangabe wuerde dann als Version 0 (aeltestes Format)
-    // geparst, nicht als Fehler erkannt.
+    // --- Ein fehlendes `version`-Feld ist ein Parsefehler, keine
+    // stillschweigende Annahme von Version 0. Ohne diesen Test wuerde ein
+    // `#[serde(default)]` auf `version` (das eine spaetere Bearbeitung
+    // versehentlich ergaenzen koennte, z. B. um `toml::from_str` bei EINEM
+    // fehlenden Feld "grosszuegiger" zu machen) gruen bleiben, obwohl es genau
+    // die falsche Richtung waere: eine Datei ohne Versionsangabe wuerde dann
+    // als Version 0 (aeltestes Format) geparst, nicht als Fehler erkannt.
     #[test]
     fn missing_version_key_is_a_parse_error_not_defaulted_to_zero() {
         let toml = "hosts = []\n";
@@ -1223,7 +1219,7 @@ user = \"u\"
         assert_eq!(h.port, 22);
         assert_eq!(h.tmux_socket, "agentbridge");
         assert_eq!(h.history_limit, 10_000);
-        // M-D: eine ECHTE, bereits existierende settings.toml eines Nutzers
+        // Eine ECHTE, bereits existierende settings.toml eines Nutzers
         // hat `key_path` nie geschrieben -- ohne `#[serde(default)]` waere
         // das oben bereits ein Parsefehler, nicht erst diese Assertion.
         assert_eq!(h.key_path, None);
@@ -1254,18 +1250,17 @@ user = \"u\"
         let s = Settings {
             version: CURRENT_VERSION,
             hosts: vec![
-                // M-D-Sonde: frueheren toml-Versionen wurde
-                // nachgesagt, `Option::None`-Feldwerte beim Serialisieren mit
-                // "unsupported None value" abzulehnen. Empirisch gegen die
-                // hier gepinnte toml 0.8.2 (Cargo.lock) WIDERLEGT: `save_to`
-                // laesst ein `None`-Feld schlicht aus der TOML-Ausgabe weg,
-                // kein `skip_serializing_if` noetig (per temporaerem
-                // Debug-Log gegen die tatsaechlich geschriebene Datei
-                // geprueft). `key_path: None` ist trotzdem der
-                // HAEUFIGERE Fall (ssh-agent/Passwort-Hosts) und bleibt
-                // deshalb im Test -- ein Test nur mit `Some(..)` haette diese
-                // Annahme nie geprueft, in welche Richtung auch immer sie
-                // ausgegangen waere.
+                // Sonde: frueheren toml-Versionen wurde nachgesagt,
+                // `Option::None`-Feldwerte beim Serialisieren mit "unsupported
+                // None value" abzulehnen. Empirisch gegen die hier gepinnte
+                // toml 0.8.2 (Cargo.lock) WIDERLEGT: `save_to` laesst ein
+                // `None`-Feld schlicht aus der TOML-Ausgabe weg, kein
+                // `skip_serializing_if` noetig (per temporaerem Debug-Log
+                // gegen die tatsaechlich geschriebene Datei geprueft).
+                // `key_path: None` ist trotzdem der HAEUFIGERE Fall
+                // (ssh-agent/Passwort-Hosts) und bleibt deshalb im Test -- ein
+                // Test nur mit `Some(..)` haette diese Annahme nie geprueft,
+                // in welche Richtung auch immer sie ausgegangen waere.
                 HostEntry {
                     id: "h1".into(),
                     label: "Dev VM".into(),
@@ -1466,16 +1461,16 @@ user = \"u\"
         let _ = std::fs::remove_file(&path);
     }
 
-    // --- Task 8 (Spec §4.8): Anmeldeart speichern ---
+    // --- Spec §4.8: Anmeldeart speichern ---
 
-    /// Die Datei beginnt mit `version = 1`, nicht direkt mit `[[hosts]]`:
-    /// ohne `version`-Schluessel waere sie bereits VOR dieser Aenderung ein
-    /// Parsefehler ("missing field version", siehe
+    /// Die Datei beginnt mit `version = 1`, nicht direkt mit `[[hosts]]`: ohne
+    /// `version`-Schluessel waere sie ohnehin ein Parsefehler ("missing field
+    /// version", siehe
     /// `missing_version_key_is_a_parse_error_not_defaulted_to_zero` oben),
     /// nicht spezifisch fuer das fehlende `auth_kind`. Mit `version = 1`
-    /// prueft der Test tatsaechlich das, was Spec §4.8 verlangt:
-    /// eine ECHTE, bereits existierende `settings.toml` (die `version` immer
-    /// geschrieben hat, aber `auth_kind` noch nie kannte) bleibt lesbar, und
+    /// prueft der Test tatsaechlich das, was Spec §4.8 verlangt: eine ECHTE,
+    /// bereits existierende `settings.toml` (die `version` immer geschrieben
+    /// hat, aber `auth_kind` noch nie kannte) bleibt lesbar, und
     /// `effective_auth_kind()` leitet die Anmeldeart aus `key_path` ab.
     #[test]
     fn old_settings_without_auth_kind_still_load_and_derive_the_kind() {
@@ -1709,8 +1704,8 @@ theme = "slate"
             .workspace
     }
 
-    /// Review Focus 3, Richtung alt -> neu: die Datei eines bestehenden
-    /// Nutzers (Hosts, `[ui] theme`, nichts Neues) laedt mit allen Standards.
+    /// Richtung alt -> neu: die Datei eines bestehenden Nutzers (Hosts, `[ui]
+    /// theme`, nichts Neues) laedt mit allen Standards.
     #[test]
     fn old_file_without_the_new_fields_loads_with_every_default() {
         let s = parse_settings(OLD_FILE).unwrap();
@@ -1744,9 +1739,9 @@ theme = "slate"
         );
     }
 
-    /// Review Focus 3, "neue Felder fehlen": ein vorhandener Abschnitt, dem
-    /// einzelne neue Felder fehlen, faellt Feld fuer Feld auf den Standard
-    /// zurueck -- eine halb handbearbeitete Datei kippt nicht.
+    /// "Neue Felder fehlen": ein vorhandener Abschnitt, dem einzelne neue
+    /// Felder fehlen, faellt Feld fuer Feld auf den Standard zurueck -- eine
+    /// halb handbearbeitete Datei kippt nicht.
     #[test]
     fn new_fields_missing_from_a_present_section_fall_back_one_by_one() {
         let s = parse_settings(
@@ -1808,8 +1803,8 @@ theme = "slate"
         let _ = std::fs::remove_file(&path);
     }
 
-    /// Review Focus 3, Richtung neu -> alt: die laufende alte App muss eine
-    /// Datei der neuen Version weiter lesen koennen.
+    /// Richtung neu -> alt: die laufende alte App muss eine Datei der neuen
+    /// Version weiter lesen koennen.
     #[test]
     fn a_file_of_the_new_version_stays_readable_for_the_previous_build() {
         let path = unique_temp_path("previous-reader");
@@ -2008,8 +2003,8 @@ theme = "slate"
         assert_eq!(sessions, ["a", "b", "c", "d", "e", "f", "g", "i", "j"]);
     }
 
-    /// Review von Task 6: eine von Hand beschaedigte Kachel macht die Datei
-    /// nicht unlesbar. Die Hostliste bleibt, nur die Kachel faellt weg.
+    /// Eine von Hand beschaedigte Kachel macht die Datei nicht unlesbar. Die
+    /// Hostliste bleibt, nur die Kachel faellt weg.
     #[test]
     fn a_tile_without_a_session_does_not_make_the_file_unreadable() {
         let s = parse_settings(
