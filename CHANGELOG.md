@@ -6,6 +6,11 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Fixed
+
+- Ein Terminal oeffnet auch dann, wenn auf demselben tmux-Server gerade eine andere Session entsteht oder endet, etwa bei zweimal "New session" kurz nacheinander. Bisher scheiterte das Oeffnen mit "attach identity changed"; jetzt liest die Bestaetigung nach dem Anhaengen erneut, hoechstens viermal. Aendert sich die gewaehlte Session selbst, scheitert es weiter sofort.
+- Statusabfrage: Die App liest tmux' Standard-Socket neben dem eigenen Socket statt danach, und die naechste Abfrage beginnt 2 s nach dem Beginn der vorigen statt 2 s nach ihrem Ende, fruehestens 0,5 s danach. Unter vier ungebremst ausgebenden Kacheln zeigt die Seitenleiste einen wartenden Agenten wieder binnen 4 s (gemessen hoechstens 3,3 s statt bis 5,0 s).
+
 ### Changed
 
 - CI: Der Workflow `packages.yml` ersetzt `macos.yml` und baut bei einem Tag `v*` alle Installer: MSI, Setup-EXE und ZIP mit `npm run build:windows` auf Windows und das DMG auf macOS. Jedes Paket wird auf einem frischen Runner installiert und gestartet, bis das Fenster erscheint; danach haengt der Workflow alle an das Release des Tags und schreibt je einen Abschnitt fuer Windows und macOS in dessen Text (`scripts/release-notes.mjs`). Ein Handlauf mit einem bestehenden Tag haengt an, was dessen Release noch fehlt.

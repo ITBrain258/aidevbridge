@@ -1,0 +1,6 @@
+agentbridge default motion-studio error connecting to /tmp/tmux-1000/abtest_20261027_m31 (No such file or directory)
+server: 1 Zeilen sha256=faf091b8a0961d17
+sessions: 3 Zeilen sha256=cbea89c7d5fda3ab
+show -g: 61 Zeilen sha256=4b2a23daf47d1fd2
+show -gw: 67 Zeilen sha256=f2cca2727c15024b
+show -s: 31 Zeilen sha256=e45ec9dcb975d02f
