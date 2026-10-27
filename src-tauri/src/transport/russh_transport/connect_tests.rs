@@ -173,8 +173,8 @@ impl russh::server::Handler for PasswordServer {
     }
 }
 
-fn server_config() -> Arc<russh::server::Config> {
-    Arc::new(russh::server::Config {
+fn server_settings() -> russh::server::Config {
+    russh::server::Config {
         keys: vec![russh::keys::load_secret_key(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("tests/fixtures/rsa-signing/rsa2048-pkcs1.pem"),
@@ -184,7 +184,11 @@ fn server_config() -> Arc<russh::server::Config> {
         auth_rejection_time: Duration::ZERO,
         inactivity_timeout: None,
         ..Default::default()
-    })
+    }
+}
+
+fn server_config() -> Arc<russh::server::Config> {
+    Arc::new(server_settings())
 }
 
 async fn callback_or_auth_stall(callback: bool, cancel: bool) {
@@ -725,4 +729,157 @@ async fn controlled_resolver_fallback_cannot_reset_an_exhausted_network_budget()
         .await;
     assert!(matches!(result, Err(ConnectError::NetworkTimeout)));
     assert_eq!(calls, 1);
+}
+
+/// Vertraut jedem Schluessel und zaehlt, wie oft russh die Policy fragt.
+struct CountingPolicy(Arc<AtomicUsize>);
+
+#[async_trait]
+impl HostKeyPolicy for CountingPolicy {
+    async fn decide(&self, _: &str, _: u16, _: &str, _: &str) -> bool {
+        self.0.fetch_add(1, Ordering::SeqCst);
+        true
+    }
+}
+
+/// Hat der Server so viele Bytes geschrieben, beginnt er einen neuen
+/// Schluesselaustausch mit demselben Hostschluessel.
+const REKEY_WRITE_LIMIT: usize = 32 * 1024;
+const LARGE_OUTPUT: usize = REKEY_WRITE_LIMIT + REKEY_WRITE_LIMIT / 2;
+
+/// Jeder Austausch rechnet auf beiden Seiten in einer 3072-Bit-Gruppe; im
+/// Debug-Build dauert der Test so einige Sekunden. Die Frist faengt nur ein
+/// Haengen ab und darf auf einem belasteten CI-Runner nicht vorher greifen.
+const REKEY_TEST_END: Duration = Duration::from_secs(60);
+
+/// Nimmt jedes Passwort an und beantwortet den Exec "large" mit mehr Bytes
+/// als `REKEY_WRITE_LIMIT`, jeden anderen mit "small". `exchanges` zaehlt die
+/// Schluesselaustausche: der Server bietet nur den
+/// Diffie-Hellman-Gruppenaustausch an, und dessen Gruppe holt russh bei jedem
+/// Austausch, dem ersten wie jedem Rekey, beim Handler.
+struct RekeyServer {
+    exchanges: Arc<AtomicUsize>,
+}
+
+impl russh::server::Handler for RekeyServer {
+    type Error = russh::Error;
+
+    async fn auth_password(
+        &mut self,
+        _: &str,
+        _: &str,
+    ) -> Result<russh::server::Auth, Self::Error> {
+        Ok(russh::server::Auth::Accept)
+    }
+
+    async fn channel_open_session(
+        &mut self,
+        _: russh::Channel<russh::server::Msg>,
+        reply: russh::server::ChannelOpenHandle,
+        _: &mut russh::server::Session,
+    ) -> Result<(), Self::Error> {
+        reply.accept().await;
+        Ok(())
+    }
+
+    async fn exec_request(
+        &mut self,
+        channel: russh::ChannelId,
+        command: &[u8],
+        session: &mut russh::server::Session,
+    ) -> Result<(), Self::Error> {
+        session.channel_success(channel)?;
+        let output = if command == b"large" {
+            vec![b'r'; LARGE_OUTPUT]
+        } else {
+            b"small".to_vec()
+        };
+        session.data(channel, output)?;
+        session.exit_status_request(channel, 0)?;
+        session.eof(channel)?;
+        session.close(channel)
+    }
+
+    async fn lookup_dh_gex_group(
+        &mut self,
+        _: &russh::client::GexParams,
+    ) -> Result<Option<russh::kex::dh::groups::DhGroup>, Self::Error> {
+        self.exchanges.fetch_add(1, Ordering::SeqCst);
+        // Die kleinste Gruppe, die der Client annimmt (mindestens 3072 Bit).
+        Ok(Some(russh::kex::dh::groups::DH_GROUP15))
+    }
+}
+
+/// russh 0.63.2 ruft `check_server_key` nur beim ersten
+/// Schluesselaustausch. Ein Rekey mit demselben Hostschluessel laesst die
+/// Sitzung nutzbar und fragt die Policy nicht erneut. Ruft ein kuenftiges
+/// russh sie auch beim Rekey, faellt dieser Test auf; dann muessen Policy und
+/// Zeitbudget neu entworfen werden (siehe `Handler::check_server_key`).
+#[tokio::test]
+async fn a_same_key_rekey_keeps_the_session_usable_and_asks_the_policy_once() {
+    let (listener, spec) = listener().await;
+    let exchanges = Arc::new(AtomicUsize::new(0));
+    let config = Arc::new(russh::server::Config {
+        limits: russh::Limits::new(REKEY_WRITE_LIMIT, 1 << 30, Duration::from_secs(3600)),
+        preferred: russh::Preferred {
+            kex: std::borrow::Cow::Borrowed(&[
+                russh::kex::DH_GEX_SHA256,
+                russh::kex::EXTENSION_SUPPORT_AS_SERVER,
+                russh::kex::EXTENSION_OPENSSH_STRICT_KEX_AS_SERVER,
+            ]),
+            ..Default::default()
+        },
+        ..server_settings()
+    });
+    let handler = RekeyServer {
+        exchanges: exchanges.clone(),
+    };
+    let server = tokio::spawn(async move {
+        let (peer, _) = listener.accept().await?;
+        russh::server::run_stream(config, peer, handler)
+            .await?
+            .await
+    });
+    let decisions = Arc::new(AtomicUsize::new(0));
+    let transport = timeout(
+        REKEY_TEST_END,
+        RusshTransport::connect(
+            &spec,
+            Arc::new(CountingPolicy(decisions.clone())),
+            &password(),
+        ),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert_eq!(exchanges.load(Ordering::SeqCst), 1);
+    assert_eq!(decisions.load(Ordering::SeqCst), 1);
+
+    let large = timeout(
+        REKEY_TEST_END,
+        transport.exec_controlled("large", OperationControl::new(REKEY_TEST_END)),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert_eq!((large.code, large.stdout.len()), (0, LARGE_OUTPUT));
+    // Der Rekey beginnt nach der grossen Ausgabe. Die Antwort auf diesen Exec
+    // haelt der Server zurueck, bis der Austausch abgeschlossen ist.
+    let small = timeout(
+        REKEY_TEST_END,
+        transport.exec_controlled("small", OperationControl::new(REKEY_TEST_END)),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert_eq!((small.code, small.stdout.as_str()), (0, "small"));
+    assert_eq!(
+        exchanges.load(Ordering::SeqCst),
+        2,
+        "the server did not rekey exactly once"
+    );
+    assert_eq!(decisions.load(Ordering::SeqCst), 1);
+    assert!(transport.is_usable());
+    transport.abort();
+    let _ = timeout(REKEY_TEST_END, server).await.unwrap();
 }

@@ -186,6 +186,15 @@ impl client::Handler for Handler {
     /// russh-0.63.2/src/cert.rs) -- `hash_alg` ist der fuer die
     /// Signaturpruefung ausgehandelte RSA-Hash und fuer die
     /// Host-Key-Entscheidung hier irrelevant.
+    ///
+    /// russh 0.63.2 ruft diese Methode nur beim ersten Schluesselaustausch
+    /// einer Verbindung. Bei einem Rekey prueft es den Hostschluessel nicht
+    /// erneut; das ist eine bewusst hingenommene Grenze (siehe SECURITY.md).
+    /// Ruft ein kuenftiges russh sie auch beim Rekey, muessen die Policy und
+    /// das Zeitbudget aus `wait_total` neu entworfen werden: beide gehoeren
+    /// zum Verbindungsversuch, dessen Frist dann laengst abgelaufen ist, und
+    /// jede lange Sitzung endete bei ihrem ersten Rekey. Der Rekey-Test in
+    /// `russh_transport/connect_tests.rs` faellt in diesem Fall auf.
     async fn check_server_key(
         &mut self,
         server_public_key: &russh::keys::PublicKeyOrCertificate,
