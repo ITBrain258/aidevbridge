@@ -231,10 +231,11 @@ In dieser Reihenfolge:
    Frontend-Zustand, Oberfläche) sind erledigt und mit 0.2.2 ausgeliefert;
    offen ist Schritt 6, die Abnahme am Fenster an 0.2.2, Tor §1 Punkt 1 bis
    6). Bekannte Grenzen: Die Statusabfrage liest den Standard-Socket in der
-   Form des tmux im `PATH` (README); mit der Thread-Zahl, die CONTRIBUTING
-   vorgibt, scheitern zwölf Live-Befehlstests an der Zulassung der
-   Schlüsselvorbereitung (acht Plätze je Prozess), mit `--test-threads=4`
-   laufen alle; die übrige Windows-Politur nach S3.2 (Protokolldatei, globaler
+   Form des tmux im `PATH` (README); Live-Tests brauchen `--test-threads=4`,
+   wie CONTRIBUTING es vorgibt, weil die Schlüsselvorbereitung je
+   Prozess nur acht Aufträge zulässt: Mit der voreingestellten Thread-Zahl
+   scheitern rund zwölf Live-Befehlstests an dieser Zulassung; die übrige
+   Windows-Politur nach S3.2 (Protokolldatei, globaler
    Diagnosetext; Mindestgröße, Fensterlage und Icon sind erledigt), dazu ein
    neues Logozeichen für den Erststart (Entscheidung vom 21.10.); die
    Rust-Meldung RUSTSEC-2023-0071 zu `rsa`, eingeordnet in
@@ -343,7 +344,13 @@ In dieser Reihenfolge:
      Oberfläche zäh (Statuslatenz p95 5,0 s, Ereignisschleife p95 215 ms);
      der Renderer ist der Engpass. Offen, ob ein binärer Ausgabekanal statt
      JSON-Zahlenfeldern oder weniger Neuzeichnen das behebt; auf Entscheidung
-     des Maintainers vom 24.10. mit eigener Messung und eigenem Plan.
+     des Maintainers vom 24.10. mit eigener Messung und eigenem Plan. Ein
+     Kandidat für diese Messung (F2 im
+     [Umsetzungsplan vom 26.10.](plans/2026-10-26-review-umsetzung.md)) ist
+     die Sperre in `TerminalPump::forward`: Sie hält `state.terminals` und
+     `state.hosts`, während sie die Ausgabe an den WebView sendet. Zu messen
+     sind die Haltedauer dieser Sperre, die Latenz von `send_input` und die
+     Wartezeiten der synchronen Befehle auf dem Hauptthread.
    - Eine große Einfügung hält die Seite an, solange Chromium die
      Zwischenablage liest und xterm sie verarbeitet: gemessen am 24.10. rund
      0,33 s je MB (8 MB: 2,6 s), danach laufen Eingabe, Größenänderung und
