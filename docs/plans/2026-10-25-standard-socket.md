@@ -193,6 +193,16 @@ Text. Nach dem Schliessen hing am Testserver nur der zweite Client; `status`
 blieb an. Offen bleibt der Lauf am Fenster mit dem Maintainer auf dem echten
 Standard-Socket (Tor §1 Punkt 1 bis 6).
 
+**Abnahme am 25.10.** an `v0.2.2` ([Bericht](../messungen/messung-2026-10-25-m31-abnahme.md)): Punkt 1 bis 3
+hat der Maintainer mit der MSI abgenommen, Punkt 4 und 5 sind in einer
+Testinstanz am echten Standard-Socket beider VMs bestanden. Punkt 6 ist nicht
+bestanden: Unter vier flutenden Kacheln kamen 3 von 10 Waiting-Wechseln später
+als 4 s (höchstens 4,97 s), weil die Abfrage mit dem Standard-Socket 0,5 s
+länger dauert und nicht 0,17 s wie in Schritt 1 gemessen. Ohne Standard-Socket
+lag einer von drei bei 4,15 s. Dazu ein Befund aus 0.2.0: Das Anhängen
+scheitert, wenn auf demselben Server gerade eine Session entsteht oder endet.
+Wie es mit beidem weitergeht, entscheidet der Maintainer.
+
 - Live-Test aus Schritt 3 gegen beide VMs.
 - Lauf am Fenster mit dem Maintainer (Spec §8, Tor §1 Punkt 1 bis 6), mit dem
   Vergleich von `show -g`, `-gw`, `-s`, `-t`, `show-hooks -g` und

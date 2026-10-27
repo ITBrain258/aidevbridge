@@ -1,0 +1,9 @@
+{"i":0,"ok":false,"ms":1454,"detail":"attach identity changed"}
+{"i":1,"ok":false,"ms":1471,"detail":"attach identity changed"}
+{"i":2,"ok":false,"ms":1453,"detail":"attach identity changed"}
+{"i":3,"ok":false,"ms":1374,"detail":"attach identity changed"}
+{"i":4,"ok":true,"ms":5104,"detail":null}
+{"i":5,"ok":false,"ms":1350,"detail":"attach identity changed"}
+{"i":6,"ok":true,"ms":5105,"detail":null}
+{"i":7,"ok":false,"ms":1327,"detail":"attach identity changed"}
+ergebnis 2/8 geoeffnet
