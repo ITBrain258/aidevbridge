@@ -15,6 +15,7 @@ import { clipboardKeyAction, decodeOsc52 } from "./terminal-clipboard";
 import type { OpenQueue } from "./terminal-open-queue";
 import { clampFontSize, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { currentTheme, themeParts, type AccentId, type BaseId, type ThemeId } from "./theme";
+import { consumeModifiers, takeKeySequence, type TouchKeyId } from "./touch-keys";
 import { openTerminalMenu, type TerminalMenuItem, type TerminalMenuTexts } from "./views/terminal-menu";
 import {
   EMPTY_SEARCH_TEXTS,
@@ -81,6 +82,10 @@ export interface TerminalHandle {
    * `setHidden(false)` plant selbst nichts, den Refit beim Zurueckholen loest
    * das Raster aus. */
   setHidden(hidden: boolean): void;
+  /** Spec 2026-10-27 §5.2: eine Taste der Touch-Leiste, mit dem Merker fuer
+   * Strg und Alt. Geht ueber `term.input` denselben Weg wie getippte
+   * Eingabe, also auch durch Puffer und Sperre. */
+  sendTouchKey(id: TouchKeyId): void;
 }
 
 /** UX-Spec §6.9: jeder Fehlerpfad des Terminals hat seinen eigenen Text --
@@ -1060,10 +1065,12 @@ export function mountTerminal(
   }
 
   // Jede Eingabe kommt hier an, auch `term.paste` und xterms eigene Antworten
-  // auf Anfragen des Programms.
+  // auf Anfragen des Programms. Ein vorgemerktes Strg oder Alt der
+  // Touch-Leiste (Spec 2026-10-27 §5.2) gilt fuer die naechste getippte
+  // Eingabe; ohne Merker, also immer auf dem Desktop, bleibt sie unveraendert.
   term.onData((data) => {
     if (disposed || channelClosed) return;
-    const encoded = new TextEncoder().encode(data);
+    const encoded = new TextEncoder().encode(consumeModifiers(data));
     if (!attached) {
       pendingInput?.push(encoded);
       return;
@@ -1451,6 +1458,13 @@ export function mountTerminal(
       // es ruft dies bei jeder Lage, auch waehrend die Seitenleiste gezogen wird.
       if (disposed) return;
       hidden = value;
+    },
+    sendTouchKey(id) {
+      // Wache wie bei `setTheme`. Strg und Alt liefern keine Bytes, sie
+      // schalten nur den Merker um.
+      if (disposed) return;
+      const sequence = takeKeySequence(id, term.modes.applicationCursorKeysMode);
+      if (sequence) term.input(sequence, true);
     },
     dispose() {
       disposed = true;
