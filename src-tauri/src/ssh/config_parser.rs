@@ -172,7 +172,7 @@ fn is_concrete_pattern(pattern: &str) -> bool {
 /// Loest eine fuehrende `~/`-Tilde in einem `IdentityFile`-Wert gegen
 /// `dirs::home_dir()` auf. Anders als Arbeitsverzeichnisse auf dem
 /// ENTFERNTEN Rechner (dort MUSS der Pfad absolut sein und eine Tilde wird
-/// nie aufgeloest, siehe `remote::command::build_in_dir`) ist ein
+/// nie aufgeloest, siehe `settings::is_absolute_remote_path`) ist ein
 /// `IdentityFile` ein LOKALER Pfad: dieser Prozess kann und muss ihn selbst
 /// aufloesen, bevor er die SSH-Schicht erreicht -- eine woertlich
 /// weitergereichte Tilde waere dort schlicht ein nicht existierender

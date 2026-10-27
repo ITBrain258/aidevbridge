@@ -474,10 +474,11 @@ impl Drop for ConnectAttempt {
 /// Orchestrierungs-Mechanismus (siehe `wait_for_room_cancel_or_stall`).
 struct OpenTerminal {
     open_id: String,
-    // `Arc`, nicht `PtyHandle` direkt (Task 10, Nachtrag): `send_input_impl`
-    // und `resize_terminal_impl` muessen einen Verweis aus dieser Map
-    // ziehen koennen, der die `state.terminals`-Sperre ueberlebt, OHNE den
-    // Eintrag selbst aus der Map zu entfernen (der Eintrag bleibt ja offen).
+    // `Arc`, nicht `PtyHandle` direkt (Task 10, Nachtrag):
+    // `send_input_tagged_impl` und `resize_terminal_tagged_impl` muessen
+    // einen Verweis aus dieser Map ziehen koennen, der die
+    // `state.terminals`-Sperre ueberlebt, OHNE den Eintrag selbst aus der
+    // Map zu entfernen (der Eintrag bleibt ja offen).
     // Ein `Arc::clone()` ist billig und laesst sich waehrend die Sperre
     // noch gehalten wird ziehen; die Sperre faellt danach sofort, das
     // eigentliche `write()`/`resize()` laeuft komplett ohne sie (siehe
@@ -485,7 +486,8 @@ struct OpenTerminal {
     // bewusst `&self` statt `self` entgegen (siehe dort) -- sonst koennte
     // `close_entry` beim Abraeumen nicht garantieren, den `PtyHandle` per
     // Wert aus dem `Arc` zurueckzubekommen, wenn just in diesem Moment noch
-    // ein `send_input_impl`/`resize_terminal_impl` einen zweiten Klon haelt.
+    // ein `send_input_tagged_impl`/`resize_terminal_tagged_impl` einen
+    // zweiten Klon haelt.
     pty: Arc<PtyHandle>,
     ack: Arc<AckGate>,
     cancel: Arc<Notify>,
@@ -1771,12 +1773,16 @@ fn operation_error(transport: &CommandTransport, error: &anyhow::Error) -> Opera
 }
 
 /// Hostdaten, die in eine Fernzeile gehen -- `cwd`, `path`, Sessionnamen --
-/// werden HIER, an der Command-Grenze, geprueft, nicht erst per `assert!` in
-/// `remote::build`/`build_in_dir` (Bewertung H6/H9): ein Panic dort haengt
-/// den Tauri-`invoke` fuer immer, statt dem WebView ein `Err(...)` zu
-/// liefern. `build`/`build_in_dir` selbst bleiben unveraendert -- 30
-/// Aufrufer von `build`, aber nur eine Handvoll Stellen, an denen ueberhaupt
-/// Hostdaten (statt fest verdrahteter Literale wie `"git"`) hineinfliessen.
+/// werden HIER, an der Command-Grenze, geprueft (Bewertung H6/H9). Die Regel
+/// "absoluter Pfad" stammt aus Gesamtspec §8.2 und gilt hier (und fuer
+/// `cwd` noch einmal in `create_command`), nicht in `remote::build`: das
+/// prueft per `assert!` nur NUL-Bytes (`encode_prelude`) und ein nicht
+/// leeres argv, und ein Panic dort haengt den Tauri-`invoke` fuer immer,
+/// statt dem WebView ein `Err(...)` zu liefern. `cwd` erreicht den Host als
+/// Argument von `tmux new-session -c` ueber `remote::build`. `build` bleibt
+/// eine Programmier-Invariante -- viele Aufrufer, aber nur eine Handvoll
+/// Stellen, an denen ueberhaupt Hostdaten (statt fest verdrahteter Literale
+/// wie `"git"`) hineinfliessen.
 ///
 /// Ein Pfad gilt als akzeptabel, wenn er absolut ist (beginnt mit `/`) und
 /// kein Steuerzeichen enthaelt -- NUL wuerde die C-String-Weitergabe in der
@@ -1835,9 +1841,11 @@ pub async fn create_session_impl(
     }
 
     // H6/H9: VOR dem Host-Lookup, damit dieser Fehlerzweig ohne bestehende
-    // Verbindung erreichbar bleibt (siehe Testmodul) -- und damit ein
-    // ungueltiges `cwd` nie bis zu `remote::build_in_dir`s `assert!` kommt,
-    // wo ein Panic den `invoke` haengen liesse, statt ihn aufzuloesen.
+    // Verbindung erreichbar bleibt (siehe Testmodul). `cwd` geht als
+    // Argument von `tmux new-session -c` durch `remote::build`, dessen
+    // `assert!` nur NUL-Bytes abfaengt (ein Panic liesse den `invoke`
+    // haengen); die Regel "absoluter Pfad ohne Steuerzeichen" (Gesamtspec
+    // §8.2) gilt hier und in `create_command`.
     if !is_acceptable_remote_path(&cwd) {
         return Err(SessionError::other(
             "working directory must be an absolute path without control characters",
@@ -2398,7 +2406,7 @@ impl<S: OutputSink> TerminalPump<S> {
     }
 }
 // Task 10, Nachtrag (gemeldeter, damals bewusst nicht behobener Fund):
-// `send_input_impl` und `resize_terminal_impl` hielten den
+// `send_input_tagged_impl` und `resize_terminal_tagged_impl` hielten den
 // `state.terminals`-Guard bislang ueber eine GEWOEHNLICHE `let`-Bindung
 // (kein `if let`/`while let`/`match`-Scrutinee -- `clippy::
 // significant_drop_in_scrutinee` greift hier deshalb nicht) bis zum Ende
@@ -2466,18 +2474,8 @@ pub async fn send_input_tagged_impl(
     pty.write(&bytes).await.map_err(|e| e.to_string())
 }
 
-/// Dieselbe Form und derselbe Fix wie `send_input_impl` direkt oberhalb --
-/// siehe dessen Kommentar.
-pub async fn resize_terminal_impl(
-    state: &Arc<AppState>,
-    host_id: String,
-    session: String,
-    cols: u16,
-    rows: u16,
-) -> Result<(), String> {
-    resize_terminal_tagged_impl(state, host_id, SocketKind::App, session, cols, rows, None).await
-}
-
+/// Dieselbe Form und derselbe Fix wie `send_input_tagged_impl` direkt
+/// oberhalb -- siehe den Kommentar vor `send_input_impl`.
 pub async fn resize_terminal_tagged_impl(
     state: &Arc<AppState>,
     host_id: String,
@@ -4263,18 +4261,6 @@ fn status_poll(
         .collect(),
         agents_ok,
         titles_ok: polled.titles_ok,
-    }
-}
-
-pub async fn poll_status_impl(
-    state: &Arc<AppState>,
-    host_id: String,
-) -> Result<StatusPollDto, OperationErrorDto> {
-    let polled = poll_sockets_impl(state, host_id, false).await?;
-    match (polled.own.poll, polled.own.error) {
-        (Some(poll), _) => Ok(poll),
-        (None, Some(error)) => Err(error),
-        (None, None) => unreachable!("a socket poll has a result or an error"),
     }
 }
 
@@ -7155,9 +7141,9 @@ mod tests {
 
     // --- is_acceptable_remote_path (Task 7, H6/H9): Hostdaten, die in eine
     // Fernzeile gehen (cwd, path, Sessionname), werden AN DER COMMAND-GRENZE
-    // geprueft, nicht erst per `assert!` in `remote::build`/`build_in_dir` --
-    // ein Panic dort haengt den Tauri-`invoke` (der WebView bekaeme nie eine
-    // Antwort), statt einen `Err(...)` aufzuloesen. ---
+    // geprueft, nicht erst per `assert!` in `remote::build` -- ein Panic dort
+    // haengt den Tauri-`invoke` (der WebView bekaeme nie eine Antwort), statt
+    // einen `Err(...)` aufzuloesen. ---
 
     /// Die Regel selbst (und ihr vollstaendiger Test) steht in
     /// `settings::is_absolute_remote_path`; dies sind die Grenzfaelle an der
@@ -7175,9 +7161,8 @@ mod tests {
         assert!(!is_acceptable_remote_path("/tmp/a\x1bb"));
     }
 
-    /// Der eigentliche Beleg: ein relatives `cwd` liefert einen `Err(..)` MIT
-    /// erklaerendem Text, statt die Anwendung per `assert!` in
-    /// `remote::build_in_dir`/`build` abstuerzen zu lassen (H6/H9). Laeuft
+    /// Der eigentliche Beleg: ein relatives `cwd` liefert schon an der
+    /// Command-Grenze einen `Err(..)` MIT erklaerendem Text (H6/H9). Laeuft
     /// OHNE VM -- die Pruefung steht vor dem ersten Zugriff auf `state.hosts`,
     /// deshalb genuegt ein nicht verbundener `host_id`.
     #[tokio::test]

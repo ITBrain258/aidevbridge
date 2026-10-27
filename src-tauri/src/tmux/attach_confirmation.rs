@@ -270,43 +270,6 @@ pub(crate) fn parse_clients(
     }
     Ok(records)
 }
-#[cfg(test)]
-pub(crate) fn registered<'a>(
-    rows: &'a [ClientRecord],
-    w: &WrapperIdentity,
-    binding: PaneIdentity,
-) -> Result<Option<&'a ClientRecord>, Unverified> {
-    if rows.iter().any(|r| r.binding.server != binding.server) {
-        return Err(Unverified::Changed);
-    }
-    let Some(row) = rows.iter().find(|r| r.pid == w.pid) else {
-        return Ok(None);
-    };
-    if row.binding != binding || row.tty != w.tty {
-        return Err(Unverified::Changed);
-    }
-    match row.uid {
-        Some(uid) if uid != w.uid => return Err(Unverified::Changed),
-        Some(_) => {}
-        None => return Err(Unverified::Process),
-    }
-    if row.flags.is_empty() {
-        return Err(Unverified::FlagsUnavailable);
-    }
-    if row.active != [1, 1, 0, 0, 0]
-        || !row.flags.contains("attached")
-        || row.flags.iter().any(|f| {
-            matches!(
-                f.as_str(),
-                "active-pane" | "suspended" | "read-only" | "control-mode" | "no-output"
-            )
-        })
-    {
-        return Err(Unverified::ClientMode);
-    }
-    Ok(Some(row))
-}
-
 pub(crate) fn registered_with_process<'a>(
     rows: &'a [ClientRecord],
     w: &WrapperIdentity,

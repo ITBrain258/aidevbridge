@@ -58,9 +58,9 @@ pub struct Listing {
 /// Anfuehrungszeichen ausbrechen noch als Option gelesen werden.
 ///
 /// Leeres `$1` bedeutet Heimatverzeichnis (Spec §3.3): dieses Projekt
-/// loest Tilden nirgends auf, und `build_in_dir` besteht per `assert!` auf
-/// einem absoluten Pfad -- ohne diese Aufloesung muesste der Baum bei `/`
-/// beginnen.
+/// loest Tilden nirgends auf, und jeder andere Pfad muss absolut sein
+/// (Gesamtspec §8.2, an der Command-Grenze per `is_acceptable_remote_path`
+/// geprueft) -- ohne diese Aufloesung muesste der Baum bei `/` beginnen.
 ///
 /// Bewusst POSIX statt `find -printf` (GNU): der Preflight prueft GNU-find
 /// nicht, und ein Skript, das auf einer schlanken VM still nichts liefert,

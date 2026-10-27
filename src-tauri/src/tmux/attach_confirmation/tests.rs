@@ -133,7 +133,8 @@ fn empty_client_flags_are_unverified_not_legacy_safe() {
         tty: "/dev/pts/3".into(),
     };
     assert_eq!(
-        registered(&rows, &w, pane()).unwrap_err(),
+        registered_with_process(&rows, &w, pane(), &exec("P|10|20|1000|3|/dev/pts/3|S\n"))
+            .unwrap_err(),
         Unverified::FlagsUnavailable
     );
 }
@@ -174,7 +175,9 @@ fn matching_flags_and_uid_register_the_wrapper() {
         tty_nr: 3,
         tty: "/dev/pts/3".into(),
     };
-    let row = registered(&rows, &w, pane()).unwrap().unwrap();
+    let row = registered_with_process(&rows, &w, pane(), &exec("P|10|20|1000|3|/dev/pts/3|S\n"))
+        .unwrap()
+        .unwrap();
     assert_eq!(row.pid, 10);
     assert_eq!(row.tty, "/dev/pts/3");
 }
@@ -188,23 +191,21 @@ fn mismatched_uid_pid_or_mode_is_changed_or_client_mode() {
         tty_nr: 3,
         tty: "/dev/pts/3".into(),
     };
+    let process = exec("P|10|20|1000|3|/dev/pts/3|S\n");
     let uid = parse_clients(&exec(&j_line("attached", "7")), OWN_PID).unwrap();
     assert_eq!(
-        registered(&uid, &w, pane()).unwrap_err(),
+        registered_with_process(&uid, &w, pane(), &process).unwrap_err(),
         Unverified::Changed
     );
     let control = parse_clients(&exec(&j_line("attached,control-mode", "1000")), OWN_PID).unwrap();
     assert_eq!(
-        registered(&control, &w, pane()).unwrap_err(),
+        registered_with_process(&control, &w, pane(), &process).unwrap_err(),
         Unverified::ClientMode
     );
     let missing = parse_clients(&exec(&j_line("attached", "1000")), OWN_PID).unwrap();
+    // Ohne `client_uid` in der Zeile belegt allein die gepruefte
+    // `/proc`-Antwort die UID des Wrappers.
     let no_uid = parse_clients(&exec(&j_line("attached", "")), OWN_PID).unwrap();
-    assert_eq!(
-        registered(&no_uid, &w, pane()).unwrap_err(),
-        Unverified::Process
-    );
-    let process = exec("P|10|20|1000|3|/dev/pts/3|S\n");
     let row = registered_with_process(&no_uid, &w, pane(), &process)
         .unwrap()
         .unwrap();
@@ -215,7 +216,12 @@ fn mismatched_uid_pid_or_mode_is_changed_or_client_mode() {
         tty: w.tty.clone(),
         ..w
     };
-    assert!(registered(&missing, &other, pane()).unwrap().is_none());
+    let other_process = exec("P|11|20|1000|3|/dev/pts/3|S\n");
+    assert!(
+        registered_with_process(&missing, &other, pane(), &other_process)
+            .unwrap()
+            .is_none()
+    );
 }
 
 /// `list-clients` nennt alle Clients des Servers, auch fremde. tmux 3.6 zeigt
@@ -238,10 +244,6 @@ fn a_foreign_client_with_no_detach_on_destroy_does_not_break_the_listing() {
         let rows = parse_clients(&exec(&listing), OWN_PID).unwrap();
         assert_eq!(rows.len(), 1, "only the own row is kept");
         assert_eq!(
-            registered(&rows, &w, pane()).unwrap().map(|row| row.pid),
-            Some(10)
-        );
-        assert_eq!(
             registered_with_process(&rows, &w, pane(), &process)
                 .unwrap()
                 .map(|row| row.pid),
@@ -250,7 +252,9 @@ fn a_foreign_client_with_no_detach_on_destroy_does_not_break_the_listing() {
     }
     // Die gemessene tmux-3.6-Zeile des eigenen Clients bleibt unveraendert.
     let rows = parse_clients(&exec(&j_line("attached,focused,UTF-8", "1000")), OWN_PID).unwrap();
-    assert!(registered(&rows, &w, pane()).unwrap().is_some());
+    assert!(registered_with_process(&rows, &w, pane(), &process)
+        .unwrap()
+        .is_some());
 }
 
 /// Spec 2026-10-25 §6.2: Auf dem Standard-Socket haengen fremde Clients jeder
@@ -287,8 +291,11 @@ fn foreign_clients_of_any_kind_leave_the_own_row_standing() {
         tty_nr: 3,
         tty: "/dev/pts/3".into(),
     };
+    let process = exec(&format!("P|{OWN_PID}|20|1000|3|/dev/pts/3|S\n"));
     assert_eq!(
-        registered(&rows, &w, pane()).unwrap().map(|row| row.pid),
+        registered_with_process(&rows, &w, pane(), &process)
+            .unwrap()
+            .map(|row| row.pid),
         Some(OWN_PID)
     );
     assert!(parse_clients(&exec(&foreign), OWN_PID).unwrap().is_empty());

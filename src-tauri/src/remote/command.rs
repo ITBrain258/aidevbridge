@@ -71,6 +71,12 @@ pub fn build(argv: &[&str]) -> String {
 
 /// Wie [`build`], wechselt aber vorher in ein absolutes Verzeichnis.
 /// Das Verzeichnis liegt in `A0`, die Argumente beginnen bei `A1`.
+///
+/// Vorgesehen fuer `cd -- "$REPO" && git worktree add` (Gesamtspec §8.2,
+/// Anforderung A5) und noch ohne Produktaufrufer. Das Arbeitsverzeichnis
+/// einer Session laeuft NICHT hierueber, sondern als Argument von
+/// `tmux new-session -c` durch [`build`]; dessen Regel "absoluter Pfad"
+/// prueft die Command-Grenze in `commands.rs`.
 pub fn build_in_dir(cwd: &str, argv: &[&str]) -> String {
     assert!(
         cwd.starts_with('/'),
