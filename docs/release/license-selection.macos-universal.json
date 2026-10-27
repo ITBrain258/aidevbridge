@@ -96,7 +96,7 @@
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
         "bytes": 107789,
-        "sha256": "d508fec988b11f84b73318beff5f113b84c45d1e3768d65550fd5396828ad748"
+        "sha256": "a7197d075fe4b489710276f56e87892a247f6a4c7380b86f33d6d4ab06f71736"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -530,8 +530,8 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 140129,
-        "sha256": "a6e2a5e785b9d893eb6ef5636faa75a77ee7a35c439b2d882d560c51cd8e5ccc"
+        "bytes": 140073,
+        "sha256": "91663ec690667d8dbc1557ccad0455017c08c2e85d0c27d45fac0f015a6993c7"
       },
       {
         "path": "src/state/app-state.ts",
@@ -678,8 +678,8 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 140129,
-            "sha256": "a6e2a5e785b9d893eb6ef5636faa75a77ee7a35c439b2d882d560c51cd8e5ccc"
+            "bytes": 140073,
+            "sha256": "91663ec690667d8dbc1557ccad0455017c08c2e85d0c27d45fac0f015a6993c7"
           },
           {
             "path": "src/state/app-state.ts",
@@ -919,8 +919,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 177013,
-            "sha256": "f46bf715fce8b4c3385e281b3879a23f2f567b920ec975379f1bad24ffb24467"
+            "bytes": 178444,
+            "sha256": "e20dda960685044db016d25f828a0ae835b912431b827458ae49cd273fc8dafa"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -934,13 +934,13 @@
           },
           {
             "path": "src-tauri/src/commands/terminal_ownership_tests.rs",
-            "bytes": 21389,
-            "sha256": "1f1f9ab9b30853622c43a20435b47f0593aec424287353e9ed9ba4c352f982c3"
+            "bytes": 22593,
+            "sha256": "04de00113e7bd820a4d2132c470ac445704870ece29204dec0b7690f19b3ce9e"
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 108490,
-            "sha256": "b18f940b23046768270f09050f9e048d27b002ed12acf6b6261884984a90025b"
+            "bytes": 108522,
+            "sha256": "4c9930884652837eb2e592937f6aa77c170114881a981a7bffea6d882d29720d"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -999,8 +999,8 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 118905,
-            "sha256": "66e88d1129d4379aa01fb5b11162e7a086c7f100473717cd3e196a8c5c6a5e43"
+            "bytes": 121675,
+            "sha256": "d341ecc5b3a6f56c81b76c04c92be6ac41129559c83dc024ab73d6fce6fde09d"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
