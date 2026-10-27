@@ -399,11 +399,46 @@ async fn a_bound_kill_without_a_measured_version_is_not_reported_done() {
     )
     .await
     .unwrap_err();
-    assert!(
-        message.starts_with("The remote operation may have taken effect"),
-        "{message}"
+    assert_eq!(
+        message,
+        "The remote operation may have taken effect, but its final outcome could not be \
+         confirmed. Refresh the session list before trying again. The end of the selected \
+         session could not be verified; it may already have ended."
     );
-    assert!(message.contains("may already have ended"), "{message}");
+    assert_eq!(fixture.command_count(), 2, "kill and version, no list");
+    finish(fixture, state).await;
+}
+
+/// Quittiert tmux den gebundenen Kill mit "no server", setzt
+/// `operation_error` keinen Vorsatz zum offenen Ausgang. Bleibt das Ende
+/// danach unbewiesen, bittet die Meldung trotzdem um eine frische Liste.
+#[tokio::test]
+async fn a_bound_kill_answered_with_no_server_and_left_unverified_asks_for_a_refresh() {
+    let (fixture, state) = connected().await;
+    fixture.script_control(vec![
+        (
+            Some(1),
+            "",
+            "no server running on /tmp/tmux-1000/hermetic_socket\n",
+        ),
+        (Some(127), "", "sh: tmux: not found"),
+    ]);
+    let message = kill_session_impl(
+        &state,
+        "hermetic-h0".into(),
+        SocketKind::App,
+        "victim".into(),
+        Some(0),
+        Some(50),
+        Some(1000),
+    )
+    .await
+    .unwrap_err();
+    assert_eq!(
+        message,
+        "The end of the selected session could not be verified; it may already have ended. \
+         Refresh the session list before trying again."
+    );
     assert_eq!(fixture.command_count(), 2, "kill and version, no list");
     finish(fixture, state).await;
 }

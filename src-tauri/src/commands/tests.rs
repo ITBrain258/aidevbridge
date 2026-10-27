@@ -2559,11 +2559,14 @@ async fn end_bound_session(transport: &dyn Transport) -> anyhow::Result<()> {
     .await
 }
 
+/// Nur die Ursache: Die Bitte um eine frische Liste setzt die
+/// Command-Grenze davor oder dahinter, genau einmal.
 fn assert_unverified_bound_kill(error: &anyhow::Error) {
-    let message = error.to_string();
-    assert!(message.contains("could not be verified"), "{error:#}");
-    assert!(message.contains("may already have ended"), "{error:#}");
-    assert!(message.contains("Refresh the session list"), "{error:#}");
+    assert_eq!(
+        error.to_string(),
+        "The end of the selected session could not be verified; it may already have ended.",
+        "{error:#}"
+    );
 }
 
 #[tokio::test]

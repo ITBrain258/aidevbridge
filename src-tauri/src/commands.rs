@@ -1740,6 +1740,9 @@ impl std::fmt::Display for OperationErrorDto {
     }
 }
 
+/// Die Bitte nach einem Eingriff mit offenem Ausgang.
+const REFRESH_SESSION_LIST: &str = "Refresh the session list before trying again.";
+
 fn operation_error(transport: &CommandTransport, error: &anyhow::Error) -> OperationErrorDto {
     let code = if transport.unknown_outcome() {
         "outcome_unknown"
@@ -1754,7 +1757,7 @@ fn operation_error(transport: &CommandTransport, error: &anyhow::Error) -> Opera
         }
     };
     let message = if code == "outcome_unknown" {
-        format!("The remote operation may have taken effect, but its final outcome could not be confirmed. Refresh the session list before trying again. {error}")
+        format!("The remote operation may have taken effect, but its final outcome could not be confirmed. {REFRESH_SESSION_LIST} {error}")
     } else {
         error.to_string()
     };
@@ -2606,7 +2609,7 @@ pub async fn kill_session_impl(
                 deadline,
             )
             .await
-            .map_err(|e| operation_error(&transport, &e).message)
+            .map_err(|e| bound_kill_error(&transport, &e))
         }
         _ => kill_session_and_verify(&client, &transport, &session)
             .await
@@ -2631,9 +2634,25 @@ async fn kill_session_and_verify(
     Ok(())
 }
 
-/// Ein gebundener Kill, dessen Ende sich nicht pruefen liess.
-const UNVERIFIED_BOUND_KILL: &str = "the end of the selected session could not be verified; \
-     it may already have ended. Refresh the session list before trying again.";
+/// Ein gebundener Kill, dessen Ende sich nicht pruefen liess. Nur die
+/// Ursache; die Bitte um eine frische Liste setzt `bound_kill_error` genau
+/// einmal dazu.
+const UNVERIFIED_BOUND_KILL: &str =
+    "The end of the selected session could not be verified; it may already have ended.";
+
+/// Meldung eines gescheiterten gebundenen Kills. Hat das kill-session mit
+/// Exit 0 geendet, setzt `operation_error` den Vorsatz zum offenen Ausgang
+/// samt Bitte um eine frische Liste davor. Hat tmux es mit "no server"
+/// quittiert, fehlt dieser Vorsatz; ist das Ende dann unbewiesen, kommt die
+/// Bitte hier hinter die Ursache.
+fn bound_kill_error(transport: &CommandTransport, error: &anyhow::Error) -> String {
+    let OperationErrorDto { code, message, .. } = operation_error(transport, error);
+    if code != "outcome_unknown" && error.to_string() == UNVERIFIED_BOUND_KILL {
+        format!("{message} {REFRESH_SESSION_LIST}")
+    } else {
+        message
+    }
+}
 
 async fn kill_session_bound_and_verify(
     client: &OwnTmuxClient,
@@ -2647,9 +2666,9 @@ async fn kill_session_bound_and_verify(
         .await?;
     // Die Pruefliste braucht eine gemessene Version. Scheitert die Abfrage
     // oder ist die Antwort ungemessen, bleibt das Ende unbewiesen: ein
-    // Fehler, nie ein Erfolg. Hat tmux den Kill mit "no server" quittiert,
-    // kommt die Meldung ohne den Vorsatz zum offenen Ausgang beim Nutzer an;
-    // sie sagt deshalb selbst, dass die Session schon beendet sein kann.
+    // Fehler, nie ein Erfolg. Die Meldung sagt selbst, dass die Session schon
+    // beendet sein kann: Hat tmux den Kill mit "no server" quittiert, fehlt
+    // der Vorsatz zum offenen Ausgang (siehe `bound_kill_error`).
     let version = transport
         .exec_with_deadline(&client.version_command(), COMMAND_TIMEOUT)
         .await
