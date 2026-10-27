@@ -144,11 +144,12 @@ To resolve: drop the fallback once no supported host needs it.
 ### No host key check on rekey
 
 During a long session, SSH renews its keys (rekey), and the server presents
-its host key again. russh 0.63.2, which aidevbridge uses, checks the host
-key against `known_hosts` only in the first key exchange of a connection;
-on a rekey it doesn't compare the presented key with the first one.
-Upstream russh's main branch behaves the same way. OpenSSH does check the
-host key again on a rekey.
+its host key again. russh 0.63.2, which aidevbridge uses, asks the app's
+handler to check the host key only in the first key exchange of a
+connection, and the app checks it there against `known_hosts`. On a rekey
+russh doesn't ask again and doesn't compare the presented key with the
+first one itself. Upstream russh's main branch behaves the same way.
+OpenSSH does check the host key again on a rekey.
 
 Why it is accepted: the rekey messages travel inside the existing
 connection, encrypted and authenticated with its current session keys. Only
@@ -177,7 +178,7 @@ a local `cargo audit` still reports it. Where you can, use an ed25519 key.
 
 To resolve: update `rsa` as soon as a fixed release exists.
 
-### Known advisories in code the app doesn't run
+### Known advisories for the vendored russh and expected audit warnings
 
 GitHub reports two advisories for the vendored `russh` 0.63.2:
 
