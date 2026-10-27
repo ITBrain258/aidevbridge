@@ -21,8 +21,9 @@ Code-Reviews vom 26.10. an 0.2.3 ([Plan](plans/2026-10-26-review-umsetzung.md)),
 noch ohne Release: Sicherheits- und Fehlerkorrekturen in Backend und
 Frontend, eine gehärtete CI mit Audit und Build-Provenienz, `SECURITY.md` mit
 bekannten Grenzen und akzeptierten Risiken; beide Lizenzauswahlen sind am
-27.10. neu gebunden. Offen sind die Entscheidungen U1 bis U5, die
-Handabnahme und die CI auf drei Systemen (Punkt 10).
+27.10. neu gebunden. U1, U2 und U5 sind nach Empfehlung entschieden, U3 und
+U4 warten auf den Maintainer; offen sind außerdem die Handabnahme und die
+CI auf drei Systemen (Punkt 10).
 
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
 steht im [README](../README.md#what-it-is), die Änderungen im
@@ -85,17 +86,24 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
   eigenen russh-Patch; mehrere Instanzen, ohne Single-Instance-Plugin, dafür
   mit dauerhaftem Schreiben und Zusammenführen von `settings.toml`.
 - **Ausgeschlossen:** S2 und S5; OSC 52 bleibt damit unberührt.
-- **Offen:**
-  - U1: die WiX- und NSIS-Quellen im portablen ZIP. Empfehlung: so lassen.
-  - U2: die Apple-Secrets im Environment von `npm ci` und `tauri build`.
-    Empfehlung: Restrisiko und Vorbedingung dokumentieren und die Signatur
-    auslagern, bevor die Secrets hinterlegt werden. Bis dahin nennt
-    `SECURITY.md` als Weg nur Signatur und Notarisierung.
-  - U3: `commands.rs` in `hosts.rs` und `inventory.rs` teilen (Batch 9).
-    Empfehlung: ja, wenn gerade kein anderer Branch `commands.rs` ändert.
-  - U4: die Prüfung beim Rekey bei russh upstream vorschlagen; nur nach
-    ausdrücklichem OK des Maintainers.
-  - U5: die Vorauseingabe behalten. Entschieden wird an der
+- **Stand der Fragen U1 bis U5 am 27.10.:**
+  - U1, nach Empfehlung A: Das portable ZIP behält die WiX- und
+    NSIS-Quellarchive. Ein eigener Lizenzsatz für das ZIP kann mit der
+    nächsten Neuableitung der Lizenzen kommen. Der Maintainer kann noch
+    widersprechen.
+  - U2, nach Empfehlung a: Die Vorbedingung steht in `SECURITY.md` und in
+    Punkt 9. Bevor `APPLE_*`-Secrets hinterlegt werden, wandern Signatur und
+    Notarisierung in einen eigenen Schritt oder Job, der nur die gebaute App
+    bekommt, denn der Bauschritt führt die Lifecycle-Skripte von npm, die
+    `build.rs` und die Proc-Makros mit den Secrets im Environment aus. Der
+    Maintainer kann noch widersprechen.
+  - U3, offen: Batch 9 (`commands.rs` in `commands/hosts.rs` und
+    `commands/inventory.rs` teilen) ist nicht gelaufen und braucht das Ja
+    des Maintainers; die beiden neuen Dateien kämen dann in die Lizenzbäume
+    (Punkt 10).
+  - U4: Die Prüfung beim Rekey wird bei russh upstream nur nach
+    ausdrücklichem OK des Maintainers vorgeschlagen; eingereicht ist nichts.
+  - U5: Die Vorauseingabe bleibt. Endgültig entschieden wird an der
     [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610),
     Schritt 3.
 
@@ -437,20 +445,47 @@ In dieser Reihenfolge:
    Verbinden mit Schlüssel, ssh-agent und Passwort, Abfrage zum lokalen
    Netz, Kopieren und Einfügen, Schriften, Fensterlage, Neustart. Offen
    bleiben Mac-Kürzel mit ⌘ und, sobald Secrets da sind, ein Lauf mit
-   Developer ID und Notarisierung.
+   Developer ID und Notarisierung. Vorbedingung dafür (U2): Signatur und
+   Notarisierung laufen in einem eigenen Schritt oder Job, der nur die
+   gebaute App bekommt; erst danach werden die `APPLE_*`-Secrets hinterlegt
+   ([`SECURITY.md`](../SECURITY.md), „Unsigned binaries and checking a
+   download“).
 10. **Review vom 26.10.:** Offen sind die
     [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610)
     am Windows-Fenster (die macOS-Punkte, sobald ein Mac bereitsteht), die
     CI auf Windows, Ubuntu und macOS nach dem Push (unter Windows auch der
     TOFU-Test, der das Anhängen an `known_hosts` über einen Ordner scheitern
-    lässt) und die Entscheidungen U1 bis U5 (oben). Batch 9 folgt nur nach
-    U3; seine neuen Dateien `commands/hosts.rs` und `commands/inventory.rs`
-    sind dann in den Baum `src-tauri/src` beider Auswahlen aufzunehmen.
-    `integration_default_socket.rs` braucht einen Testhost mit tmux 3.3a
-    oder 3.6: Auf 3.4 liest die App den Standard-Socket bewusst nicht, und
-    der Listentest meldet dort ein SKIP; sein voller Lauf steht aus. In
-    `src/styles.css` stehen noch private Verlaufsmarker in Kommentaren
-    (Batch 15 bereinigte nur `.ts`-Dateien).
+    lässt), U3 und U4 und ein etwaiger Widerspruch zu U1, U2 und U5 (oben).
+    Batch 9 folgt nur nach U3; seine neuen Dateien `commands/hosts.rs` und
+    `commands/inventory.rs` sind dann in den Baum `src-tauri/src` beider
+    Auswahlen aufzunehmen. `integration_default_socket.rs` braucht einen
+    Testhost mit tmux 3.3a oder 3.6: Auf 3.4 liest die App den
+    Standard-Socket bewusst nicht, und der Listentest meldet dort ein SKIP;
+    sein voller Lauf steht aus. Außerdem offen:
+    - **`#` vor `[` im Startordner:** Die umgesetzte Regel verdoppelt jede
+      Folge von `#` im Startordner, außer einer Folge direkt vor `[`. Ab
+      tmux 3.3a ist `##[` eine Stilmarke, die wörtlich stehen bleibt
+      ([Messung](messungen/messung-2026-10-26-tmux-cwd-format.md)); bloßes
+      Verdoppeln hätte solche Pfade gebrochen. Der Maintainer bestätigt die
+      Regel noch.
+    - **Fehler, Startordner mit `;` am Ende:** tmux liest ein Element der
+      Befehlszeile, das auf `;` endet, als Trenner zwischen Befehlen; die
+      Session startet dann im Ordner ohne das `;`. Befehle lassen sich so
+      nicht einschleusen, der Inhalt bleibt ein Argument. Möglicher Weg:
+      ein `;` am Ende im Argument von `-c` als `\;` schreiben, nach einer
+      Messung auf tmux 3.0a, 3.3a, 3.4 und 3.6.
+    - **Temp-Dateien von `settings.toml`:** Seit `3a34e5b` entfernt der
+      Start liegen gebliebene `settings.toml.<pid>.<n>.tmp`, die älter als
+      zehn Minuten sind. Das ersetzt die Notiz aus Batch 6, die ein
+      Aufräumen beim Start ausschloss, weil es die Temp-Datei einer gerade
+      speichernden zweiten Instanz löschen könnte; die Frist lässt diese
+      stehen.
+    - In `src/styles.css` stehen noch private Verlaufsmarker in Kommentaren
+      (23 Zeilen nach dem Muster von `src/source-hygiene.test.ts`, dazu
+      weitere wie „Nachtrag B“ oder „Review Runde 1, Befund 2“). Batch 15
+      bereinigte nur `.ts`-Dateien; diese Runde lässt sie aus.
+    - Der Vermerk in `safegcd.rs` von crypto-bigint (Punkt 6) wartet weiter
+      auf die Entscheidung, ob er als Copyright-Hinweis dazukommt.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

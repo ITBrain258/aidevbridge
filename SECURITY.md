@@ -306,6 +306,16 @@ the files as unsigned.
 To resolve: code signing for the Windows packages, and a Developer ID
 signature with notarization for the macOS app.
 
+The workflow is prepared to sign and notarize the macOS app as soon as the
+Apple secrets (`APPLE_*`) are stored in the repository; none is stored
+today. Before they are, signing and notarization must move into a separate
+step or job that gets only the built app. Today the secrets would go to the
+step that builds the disk image, and that step also runs `npm ci` with the
+lifecycle scripts of the npm dependencies and `tauri build` with the build
+scripts (`build.rs`) and procedural macros of all Rust dependencies. Any of
+that code could read the signing certificate, its password and the
+notarization key from its environment.
+
 ### Several windows at the same time
 
 You can start aidevbridge more than once; each start opens its own window,
