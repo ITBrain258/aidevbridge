@@ -28,8 +28,8 @@ concurrency:
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') && !inputs.tag }}
 env:
   # The source to build: the named tag of a manual run, otherwise the event's ref.
-  # Voll qualifiziert, damit checkout nicht zuerst einen gleichnamigen Branch
-  # nimmt. Jeder Job, der den Tag nutzt, prueft ihn vor checkout und Bau.
+  # Fully qualified, so that checkout does not take a branch of the same name
+  # first. Every job that uses the tag checks it before checkout and build.
   SOURCE_REF: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
   # The tag whose release receives the packages; empty for previews and test runs.
   PUBLISH_TAG: ${{ inputs.tag || (startsWith(github.ref, 'refs/tags/v') && github.ref_name) || '' }}
@@ -397,6 +397,17 @@ jobs:
           if [ ! -s "$RUNNER_TEMP/upload.txt" ]; then
             echo "Nothing to attach to $PUBLISH_TAG." >> "$GITHUB_STEP_SUMMARY"
           fi
+      # GitHub expressions compare strings without regard to case, so they
+      # would take a run on refs/tags/V0.2.4 for one on the tag v0.2.4. The
+      # decision is made here in bash, which compares exactly.
+      - name: Check whether the run's ref is the tag to publish
+        id: ref
+        run: |
+          if [[ "$GITHUB_REF" == "refs/tags/$PUBLISH_TAG" ]]; then
+            echo "on_tag=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "on_tag=false" >> "$GITHUB_OUTPUT"
+          fi
       # Die Provenienz traegt Ref und Commit des Laufs ein (github.ref,
       # github.sha), nicht die des gebauten Tags. Beide stimmen nur, wenn der
       # Lauf auf dem Tag selbst laeuft; ein Handlauf von einem Branch, der den
@@ -405,7 +416,7 @@ jobs:
       # dieser Lauf hochladen will; scheitert der Upload danach, bleibt deren
       # Attestierung trotzdem bestehen.
       - name: Record the build provenance of the files to attach
-        if: steps.plan.outputs.files != '' && github.ref == format('refs/tags/{0}', env.PUBLISH_TAG)
+        if: steps.plan.outputs.files != '' && steps.ref.outputs.on_tag == 'true'
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: ${{ steps.plan.outputs.files }}
@@ -434,11 +445,12 @@ jobs:
           fi
           printf 'Attached to %s:\n' "$tag" >> "$GITHUB_STEP_SUMMARY"
           for f in "${upload[@]}"; do echo "- $(basename "$f")" >> "$GITHUB_STEP_SUMMARY"; done
-      # Steht nach dem Upload, damit die Warnung nur erscheint, wenn wirklich
-      # Dateien ohne Provenienz am Release haengen.
+      # Runs after the upload, and also after a failed one, which may have
+      # attached part of the files already: the warning appears whenever this
+      # run put or tried to put files without provenance on the release.
       - name: Note the attached files without build provenance
-        if: steps.plan.outputs.files != '' && github.ref != format('refs/tags/{0}', env.PUBLISH_TAG)
+        if: ${{ !cancelled() && steps.plan.outputs.files != '' && steps.ref.outputs.on_tag == 'false' }}
         run: |
-          msg="The files attached to $PUBLISH_TAG in this run carry no build provenance, because the run's ref $GITHUB_REF is not refs/tags/$PUBLISH_TAG."
+          msg="The files this run attached or attempted to attach to $PUBLISH_TAG carry no build provenance, because the run's ref $GITHUB_REF is not refs/tags/$PUBLISH_TAG."
           echo "::warning::$msg"
           echo "$msg" >> "$GITHUB_STEP_SUMMARY"
