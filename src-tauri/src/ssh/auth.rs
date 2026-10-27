@@ -377,10 +377,15 @@ where
         } else {
             None
         };
+        // Jeder Fehler bricht die Schleife ab, auch eine abgelehnte Signatur:
+        // nach einer gescheiterten Signaturanfrage wartet die russh-Session
+        // nur noch auf die Signatur und verwirft alles andere, die naechste
+        // Identitaet wuerde haengen. Weitere Identitaeten probieren geht erst
+        // mit einem russh-Patch.
         let result = handle
             .authenticate_publickey_with(user, key, hash, &mut agent)
             .await
-            .map_err(|_| AuthError::HostUnreachable)?;
+            .map_err(agent_sign_error)?;
         match result {
             russh::client::AuthResult::Success => return Ok(()),
             // Review-Befund 1 (Task 6): partial_success ZUERST pruefen und
@@ -402,6 +407,20 @@ where
     Err(classify_publickey_failure(false, "publickey (agent)"))
 }
 
+/// Ordnet den Fehler einer Agent-Anmeldung zu. `Send` heisst, die
+/// SSH-Session selbst ist weg: ein Verbindungsfehler. `Key` kommt vom Agenten:
+/// eine verweigerte Signatur (SSH_AGENT_FAILURE, etwa nach abgelehnter
+/// `ssh-add -c`-Rueckfrage oder bei einem FIDO-Schluessel ohne Beruehrung),
+/// aber auch IO- und Protokollfehler des Agenten. Sie alle zaehlen als
+/// Signaturfehler; `SigningFailed` ist ein Anmeldefehler und beendet damit die
+/// automatische Wiederverbindung, statt bei jedem Versuch erneut nachzufragen.
+fn agent_sign_error(error: russh::AgentAuthError) -> AuthError {
+    match error {
+        russh::AgentAuthError::Send(_) => AuthError::HostUnreachable,
+        russh::AgentAuthError::Key(_) => AuthError::SigningFailed,
+    }
+}
+
 /// Bildet `server-sig-algs` (aus `Handle::best_supported_rsa_hash()`, EXT_INFO
 /// nach RFC 8308) auf den Hash ab, der fuer eine RSA-Publickey-Auth benutzt
 /// werden soll. `None` (der Server sagt gar nichts, weil er kein EXT_INFO
@@ -416,6 +435,9 @@ pub fn choose_rsa_hash(
     negotiated: Result<Option<Option<russh::keys::HashAlg>>, russh::Error>,
 ) -> Option<russh::keys::HashAlg> {
     match negotiated {
+        // `Some(None)` gibt es nur, wenn der Server kein rsa-sha2-* anbietet;
+        // dann signiert russh mit `ssh-rsa`/SHA-1. Dieser Rueckfall bleibt
+        // bewusst erhalten und steht in SECURITY.md als akzeptiertes Risiko.
         Ok(Some(inner)) => inner,
         Ok(None) | Err(_) => Some(russh::keys::HashAlg::Sha256),
     }
@@ -617,6 +639,7 @@ pub(crate) async fn authenticate_prepared<H: client::Handler>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
     const ENCRYPTED_PKCS8: &str =
         include_str!("../../tests/fixtures/rsa-signing/russh-rsa-pkcs8-encrypted.pem");
@@ -1206,5 +1229,195 @@ sJWR7W+cGvJ/vLsw==
         .await
         .expect("connect_agent_at ist haengengeblieben statt sofort einen Fehler zu melden");
         assert!(matches!(result, Err(AuthError::AgentUnavailable(_))));
+    }
+
+    #[test]
+    fn agent_sign_error_separates_a_lost_session_from_a_refused_signature() {
+        assert!(matches!(
+            agent_sign_error(russh::AgentAuthError::Send(russh::SendError {})),
+            AuthError::HostUnreachable
+        ));
+        for agent_error in [
+            russh::keys::Error::AgentFailure,
+            russh::keys::Error::AgentProtocolError,
+            russh::keys::Error::IO(std::io::ErrorKind::UnexpectedEof.into()),
+        ] {
+            assert!(matches!(
+                agent_sign_error(russh::AgentAuthError::Key(agent_error)),
+                AuthError::SigningFailed
+            ));
+        }
+    }
+
+    // --- Agent-Weg gegen einen echten russh-Server im Prozess. Server und
+    // Agent haengen an `tokio::io::duplex`, damit der Test ohne Socket, Pipe
+    // oder echten ssh-agent auch in der Windows-CI laeuft.
+
+    struct AnyHostKey;
+
+    impl russh::client::Handler for AnyHostKey {
+        type Error = russh::Error;
+        async fn check_server_key(
+            &mut self,
+            _: &russh::keys::PublicKeyOrCertificate,
+        ) -> Result<bool, Self::Error> {
+            Ok(true)
+        }
+    }
+
+    /// Bietet jeden Schluessel per PK_OK an, sodass der Client wirklich
+    /// signieren muss; eine Signatur nimmt er nie an.
+    struct OfferingServer {
+        offered: Arc<AtomicUsize>,
+    }
+
+    impl russh::server::Handler for OfferingServer {
+        type Error = russh::Error;
+        async fn auth_publickey_offered(
+            &mut self,
+            _: &str,
+            _: &russh::keys::PublicKey,
+        ) -> Result<russh::server::Auth, Self::Error> {
+            self.offered.fetch_add(1, Ordering::SeqCst);
+            Ok(russh::server::Auth::Accept)
+        }
+        async fn auth_publickey(
+            &mut self,
+            _: &str,
+            _: &russh::keys::PublicKey,
+        ) -> Result<russh::server::Auth, Self::Error> {
+            Ok(russh::server::Auth::reject())
+        }
+    }
+
+    /// Minimaler ssh-agent nach draft-miller-ssh-agent: listet die
+    /// uebergebenen Identitaeten und lehnt jede Signatur mit
+    /// SSH_AGENT_FAILURE ab, wie nach einer abgelehnten `ssh-add -c`-Rueckfrage
+    /// oder einem FIDO-Schluessel ohne Beruehrung.
+    async fn refusing_agent(
+        mut io: tokio::io::DuplexStream,
+        identities: Vec<Vec<u8>>,
+        sign_requests: Arc<AtomicUsize>,
+    ) -> std::io::Result<()> {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        const FAILURE: u8 = 5;
+        const REQUEST_IDENTITIES: u8 = 11;
+        const IDENTITIES_ANSWER: u8 = 12;
+        const SIGN_REQUEST: u8 = 13;
+        fn put_string(out: &mut Vec<u8>, value: &[u8]) {
+            out.extend_from_slice(&(value.len() as u32).to_be_bytes());
+            out.extend_from_slice(value);
+        }
+        loop {
+            let mut length = [0u8; 4];
+            if io.read_exact(&mut length).await.is_err() {
+                // Der Client hat seine Seite geschlossen.
+                return Ok(());
+            }
+            let mut request = vec![0u8; u32::from_be_bytes(length) as usize];
+            io.read_exact(&mut request).await?;
+            let mut answer = Vec::new();
+            match request.first() {
+                Some(&REQUEST_IDENTITIES) => {
+                    answer.push(IDENTITIES_ANSWER);
+                    answer.extend_from_slice(&(identities.len() as u32).to_be_bytes());
+                    for blob in &identities {
+                        put_string(&mut answer, blob);
+                        put_string(&mut answer, b"refusing-agent-fixture");
+                    }
+                }
+                Some(&SIGN_REQUEST) => {
+                    sign_requests.fetch_add(1, Ordering::SeqCst);
+                    answer.push(FAILURE);
+                }
+                _ => answer.push(FAILURE),
+            }
+            io.write_all(&(answer.len() as u32).to_be_bytes()).await?;
+            io.write_all(&answer).await?;
+            io.flush().await?;
+        }
+    }
+
+    #[tokio::test]
+    async fn agent_refused_signature_is_a_signing_failure_and_ends_the_identity_loop() {
+        use std::time::Duration;
+
+        let host_key = russh::keys::decode_secret_key(PLAIN_PKCS8, None).unwrap();
+        // Zwei Identitaeten: nach der abgelehnten ersten darf die zweite
+        // nicht mehr versucht werden.
+        let identities = [(ED25519_AESCTR_KEY, "test"), (ED25519_KEY, "blabla")]
+            .into_iter()
+            .map(|(source, password)| {
+                russh::keys::decode_secret_key(source, Some(password))
+                    .unwrap()
+                    .public_key()
+                    .to_bytes()
+                    .unwrap()
+            })
+            .collect();
+        let offered = Arc::new(AtomicUsize::new(0));
+        let sign_requests = Arc::new(AtomicUsize::new(0));
+        let server_config = Arc::new(russh::server::Config {
+            keys: vec![host_key],
+            auth_rejection_time: Duration::ZERO,
+            auth_rejection_time_initial: Some(Duration::ZERO),
+            inactivity_timeout: None,
+            ..Default::default()
+        });
+        let (client_io, server_io) = tokio::io::duplex(64 * 1024);
+        let handler = OfferingServer {
+            offered: offered.clone(),
+        };
+        let mut server = tokio::spawn(async move {
+            russh::server::run_stream(server_config, server_io, handler)
+                .await?
+                .await
+        });
+        let (agent_io, agent_peer) = tokio::io::duplex(64 * 1024);
+        let agent = tokio::spawn(refusing_agent(
+            agent_peer,
+            identities,
+            sign_requests.clone(),
+        ));
+
+        let mut client = tokio::time::timeout(
+            Duration::from_secs(10),
+            russh::client::connect_stream(Default::default(), client_io, AnyHostKey),
+        )
+        .await
+        .expect("hermetic handshake deadline")
+        .unwrap();
+        let result = tokio::time::timeout(
+            Duration::from_secs(10),
+            authenticate_with_agent(
+                &mut client,
+                "fixture-user",
+                russh::keys::agent::client::AgentClient::connect(agent_io),
+            ),
+        )
+        .await
+        .expect("a refused agent signature must end the attempt promptly");
+
+        assert!(
+            matches!(result, Err(AuthError::SigningFailed)),
+            "refused agent signature classified as {result:?}"
+        );
+        assert_eq!(offered.load(Ordering::SeqCst), 1, "only the first identity");
+        assert_eq!(sign_requests.load(Ordering::SeqCst), 1);
+
+        // Erst das Ende des Handles loest die Session aus dem Warten auf die
+        // Signatur; danach muss auch der Server das Ende sehen.
+        drop(client);
+        let ended = tokio::time::timeout(Duration::from_secs(3), &mut server).await;
+        if ended.is_err() {
+            server.abort();
+            panic!("server session remained open after the client handle was dropped");
+        }
+        ended.unwrap().expect("server task must not panic").ok();
+        tokio::time::timeout(Duration::from_secs(3), agent)
+            .await
+            .expect("fake agent must see the closed client side")
+            .expect("fake agent task must not panic")
+            .unwrap();
     }
 }
