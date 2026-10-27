@@ -125,6 +125,19 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
 
 ## Letzte Prüfung
 
+Am 27.10.2026 für den Branch der Review-Umsetzung mit den Korrekturen aus
+der M3.1-Abnahme (`fix/m31-abnahme` hineingeführt) und vier Korrekturen aus
+der Durchsicht beider Pull Requests: Einfügen vor dem Anhängen wird
+verworfen statt gepuffert, `ui_settings` wird nacheinander geschrieben, der
+Releasetext nennt auch eine schon vollständige Plattform mit gleichen Bytes,
+und ein Handlauf mit Tag teilt die Warteschlange mit dem Lauf des Tags. Auf
+dem Rechner mit 8 GB Arbeitsspeicher: `tsc`, 2800 Frontend-Tests in 52
+Dateien, Vite-Build und 115 Skripttests grün; Rust fmt, Clippy mit
+`-D warnings` und `cargo test --lib` mit `-j 2` grün, 647
+Bibliothekstests. Integrations- und Live-Tests liefen dafür nicht neu. Die
+Lizenzauswahl ist für die seit dem Neubinden geänderten Quellen vor dem
+nächsten Release neu zu binden; offen bleibt die Handabnahme §10 am Fenster.
+
 Am 27.10.2026 für den Branch der Review-Umsetzung, in einem Linux-Container
 als root (kein Windows, kein macOS): Rust fmt, Clippy mit `-D warnings` und
 `cargo test --locked --all --no-fail-fast` grün, 642 Bibliothekstests; 2797
