@@ -1,6 +1,7 @@
 // Erzeugt src/icons.ts aus lucide-static. Aufruf: npm run gen:icons
 // Die 18 Namen sind die Liste aus der UI-v2-Spec §13.1 plus "trash-2"
-// (Nachtrag Task 16: "End session…" ist ein Icon-Knopf in der Sessionzeile)
+// (Sichtpruefung 2026-09-07 der UI-v2-Spec: "End session…" ist ein
+// Icon-Knopf in der Sessionzeile)
 // plus "chevron-up" und "case-sensitive" (UX-Spec §6.6: Suchleiste, vorheriger
 // Treffer und "Aa"); ein fehlendes SVG ist ein harter Fehler, kein leeres Icon.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -32,7 +33,7 @@ const entries = NAMES.map((name) => `  "${name}": ${JSON.stringify(innerMarkup(n
 
 const out = `// GENERIERT von scripts/gen-icons.mjs aus lucide-static -- nicht von Hand aendern.
 // Lizenz: THIRD_PARTY_LICENSES.md (Lucide, ISC; aus Feather uebernommene Icons MIT).
-// UI-v2-Spec §13.1 plus Nachtrag Task 16 (\`trash-2\`) plus die Suchleiste
+// UI-v2-Spec §13.1 plus Sichtpruefung 2026-09-07 (\`trash-2\`) plus die Suchleiste
 // (\`chevron-up\`, \`case-sensitive\`): 18 Icons,
 // \`icon(name, size)\` liefert ein dekoratives SVG in currentColor mit
 // Strichstaerke 1,75. Jedes Icon steht neben Text oder traegt am umgebenden

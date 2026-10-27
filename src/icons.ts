@@ -1,6 +1,6 @@
 // GENERIERT von scripts/gen-icons.mjs aus lucide-static -- nicht von Hand aendern.
 // Lizenz: THIRD_PARTY_LICENSES.md (Lucide, ISC; aus Feather uebernommene Icons MIT).
-// UI-v2-Spec §13.1 plus Nachtrag Task 16 (`trash-2`) plus die Suchleiste
+// UI-v2-Spec §13.1 plus Sichtpruefung 2026-09-07 (`trash-2`) plus die Suchleiste
 // (`chevron-up`, `case-sensitive`): 18 Icons,
 // `icon(name, size)` liefert ein dekoratives SVG in currentColor mit
 // Strichstaerke 1,75. Jedes Icon steht neben Text oder traegt am umgebenden
