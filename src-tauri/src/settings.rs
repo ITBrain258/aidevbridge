@@ -885,9 +885,12 @@ pub fn save_to(path: &Path, s: &Settings) -> anyhow::Result<()> {
 /// zwischen Lesen und Ersetzen jedes Mal erneut geaendert hat.
 const UPDATE_ATTEMPTS: usize = 3;
 
+/// Reiht die [`update_at`]-Aufrufe eines Prozesses hintereinander.
+static UPDATE_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 /// Lesen-Aendern-Schreiben an `settings.toml`, sicher gegen eine zweite
 /// Instanz der App, die dieselbe Datei zur selben Zeit schreibt. Mehrere
-/// Instanzen bleiben bewusst moeglich; es gibt weder Sperre noch
+/// Instanzen bleiben bewusst moeglich; es gibt weder Dateisperre noch
 /// Einzelinstanz-Plugin.
 ///
 /// Ablauf je Versuch: Datei lesen und den SHA-256 der gelesenen Bytes merken
@@ -913,10 +916,22 @@ const UPDATE_ATTEMPTS: usize = 3;
 /// Zwischen der letzten Pruefung und dem `rename` bleibt ein sehr kurzes
 /// Fenster ohne Schutz: Ohne Sperre gibt es auf Dateiebene kein atomares
 /// Vergleichen-und-Ersetzen.
+///
+/// Innerhalb eines Prozesses laufen alle Aufrufe nacheinander
+/// (`UPDATE_LOCK`): Die Settings-Commands laufen auf Worker-Threads, und
+/// ohne diese Reihenfolge koennten sich zwei Speichervorgaenge desselben
+/// Fensters gegenseitig als fremde Instanz sehen, bis die Versuche
+/// aufgebraucht sind, oder einer den anderen im Fenster vor dem `rename`
+/// ueberschreiben.
 pub fn update_at<T>(
     path: &Path,
     mut change: impl FnMut(&mut Settings) -> anyhow::Result<T>,
 ) -> anyhow::Result<T> {
+    // Der Mutex schuetzt keine Daten, nur die Reihenfolge; nach einer Panik in
+    // `change` ist er weiter brauchbar, die Datei prueft der Fingerabdruck.
+    let _serial = UPDATE_LOCK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     for _ in 0..UPDATE_ATTEMPTS {
         let (mut settings, loaded) = read_settings(path)?;
         let value = change(&mut settings)?;
@@ -1216,8 +1231,8 @@ fn write_stage(stage: WriteStage) -> std::io::Result<()> {
 /// Eingriffspunkt fuer Tests: ein Fehler an einer Stelle des Schreibablaufs
 /// oder eine "zweite Instanz", die die Datei zwischen Lesen und Ersetzen
 /// schreibt. Ohne Rechte-Tricks, denn die Tests laufen auch als root. Je
-/// Thread, damit parallel laufende Tests einander nicht stoeren; die
-/// Settings-Commands laufen synchron im Thread des Tests.
+/// Thread, damit parallel laufende Tests einander nicht stoeren; die Tests
+/// rufen die `_impl`-Funktionen der Settings-Commands im eigenen Thread.
 #[cfg(test)]
 pub(crate) mod write_hook {
     use super::WriteStage;
@@ -1556,6 +1571,50 @@ user = \"u\"
         assert!(!ran);
         assert!(format!("{error:#}").contains(NEWER_FILE_TEXT), "{error:#}");
         assert_eq!(std::fs::read_to_string(&path).unwrap(), "version = 99\n");
+        assert_eq!(names_in(&dir), ["settings.toml"]);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Die Settings-Commands laufen auf Worker-Threads, mehrere koennen also
+    /// gleichzeitig `update_at` rufen. Innerhalb eines Prozesses darf dabei
+    /// keine Aenderung verloren gehen und keiner den Konflikt "anderes
+    /// Fenster" melden. Die Pause in `change` laesst alle Aufrufe dieselbe
+    /// Datei lesen, bevor der erste schreibt.
+    #[test]
+    fn update_at_keeps_every_change_of_concurrent_callers_in_one_process() {
+        const CALLERS: usize = 8;
+        let (dir, path) = fresh_settings_dir("in_process_concurrent");
+        save_to(&path, &Settings::default()).unwrap();
+        let start = std::sync::Barrier::new(CALLERS);
+        let results: Vec<anyhow::Result<()>> = std::thread::scope(|scope| {
+            let callers: Vec<_> = (0..CALLERS)
+                .map(|i| {
+                    let (path, start) = (&path, &start);
+                    scope.spawn(move || {
+                        start.wait();
+                        update_at(path, |current| {
+                            std::thread::sleep(Duration::from_millis(20));
+                            current.hosts.push(host_entry(&format!("t{i}")));
+                            Ok(())
+                        })
+                    })
+                })
+                .collect();
+            callers.into_iter().map(|c| c.join().unwrap()).collect()
+        });
+
+        for result in results {
+            result.unwrap();
+        }
+        let mut ids: Vec<String> = load_from(&path)
+            .unwrap()
+            .hosts
+            .into_iter()
+            .map(|host| host.id)
+            .collect();
+        ids.sort();
+        let expected: Vec<String> = (0..CALLERS).map(|i| format!("t{i}")).collect();
+        assert_eq!(ids, expected);
         assert_eq!(names_in(&dir), ["settings.toml"]);
         std::fs::remove_dir_all(&dir).unwrap();
     }

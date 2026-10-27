@@ -3161,9 +3161,8 @@ pub fn add_host_impl(settings_path: &Path, entry: NewHostEntryDto) -> Result<Hos
 }
 
 #[tauri::command]
-pub fn add_host(entry: NewHostEntryDto) -> Result<HostEntry, String> {
-    let path = settings::settings_path().map_err(settings_error)?;
-    add_host_impl(&path, entry)
+pub async fn add_host(entry: NewHostEntryDto) -> Result<HostEntry, String> {
+    off_main_thread(move |path| add_host_impl(path, entry)).await
 }
 
 /// Aendert einen gespeicherten Host an Ort und Stelle, per Lesen-Aendern-
@@ -3207,9 +3206,8 @@ pub fn update_host_impl(
 }
 
 #[tauri::command]
-pub fn update_host(id: String, entry: NewHostEntryDto) -> Result<HostEntry, String> {
-    let path = settings::settings_path().map_err(settings_error)?;
-    update_host_impl(&path, &id, entry)
+pub async fn update_host(id: String, entry: NewHostEntryDto) -> Result<HostEntry, String> {
+    off_main_thread(move |path| update_host_impl(path, &id, entry)).await
 }
 
 /// Eine Kachel des Arbeitsplatzes auf dem Draht (`settings::TileEntry`).
@@ -3446,14 +3444,29 @@ pub fn ui_settings_impl(
     .map_err(settings_error)
 }
 
-/// Synchron wie `add_host` und `remove_host` (kein `async`): Tauri fuehrt
-/// synchrone Commands seriell aus, so bleibt Lesen-Aendern-Schreiben an
-/// `settings.toml` innerhalb einer Instanz frei von Ueberschneidungen (Spec
-/// §12.4); gegen eine zweite Instanz schuetzt `settings::update_at`.
+/// Die Commands, die `settings.toml` schreiben (`add_host`, `update_host`,
+/// `remove_host`, `ui_settings`), sind `async` und schreiben auf dem
+/// Blocking-Pool. Synchrone Commands laufen auf dem Hauptthread, der auch das
+/// Fenster zeichnet, und jedes Speichern wartet auf `sync_all` fuer Datei und
+/// Ordner (unter macOS `F_FULLFSYNC`): Als synchroner Command liesse es das
+/// Fenster so lange stehen.
+/// Gleichzeitige Speichervorgaenge eines Fensters reiht `settings::update_at`
+/// selbst hintereinander (Spec §12.4); die Commands halten keinen Zustand im
+/// Speicher, der eine bestimmte Reihenfolge braucht.
+async fn off_main_thread<T: Send + 'static>(
+    work: impl FnOnce(&Path) -> Result<T, String> + Send + 'static,
+) -> Result<T, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let path = settings::settings_path().map_err(settings_error)?;
+        work(&path)
+    })
+    .await
+    .map_err(|error| format!("could not read or save the settings: {error}"))?
+}
+
 #[tauri::command]
-pub fn ui_settings(patch: Option<UiSettingsPatchDto>) -> Result<UiSettingsDto, String> {
-    let path = settings::settings_path().map_err(settings_error)?;
-    ui_settings_impl(&path, patch)
+pub async fn ui_settings(patch: Option<UiSettingsPatchDto>) -> Result<UiSettingsDto, String> {
+    off_main_thread(move |path| ui_settings_impl(path, patch)).await
 }
 
 /// Entfernt einen Host aus `settings.toml` per `id`. Kein Fehler, wenn `id`
@@ -3481,9 +3494,8 @@ pub fn remove_host_impl(settings_path: &Path, id: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn remove_host(id: String) -> Result<(), String> {
-    let path = settings::settings_path().map_err(settings_error)?;
-    remove_host_impl(&path, &id)
+pub async fn remove_host(id: String) -> Result<(), String> {
+    off_main_thread(move |path| remove_host_impl(path, &id)).await
 }
 
 /// Serialisierbare Sicht auf `preflight::PreflightReport` fuer den WebView
