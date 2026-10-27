@@ -43,7 +43,7 @@
 //! generisch, ein einfacher kanalbasierter Sink -- wie `ChannelSink` in
 //! `integration_commands.rs` -- ersetzt `AppHandle` verlustfrei). Aus
 //! demselben Grund wie bei `connect_host` laufen `add_host`/`remove_host`
-//! in den drei Review-Sequenzen unten ebenfalls nicht ueber IPC, sondern
+//! in den drei Bearbeitungssequenzen unten ebenfalls nicht ueber IPC, sondern
 //! ueber `add_host_impl`/`remove_host_impl` mit einem temporaeren
 //! `settings_path` -- der echte Command schriebe sonst
 //! `%APPDATA%\io.github.itbrain258.aidevbridge\settings.toml` des Bedienrechners.
@@ -101,7 +101,7 @@ fn vm_host() -> Option<String> {
     common::configured_test_host("AIDEVBRIDGE_VM_HOST")
 }
 
-/// Abschlussreview (Important 6): OHNE `#[ignore]` kehrte jeder dieser
+/// OHNE `#[ignore]` kehrte jeder dieser
 /// Tests bei fehlendem `AIDEVBRIDGE_VM_HOST` einfach zurueck, und
 /// `cargo test` meldete "9 passed" -- exakt dieselbe Zeile wie nach einem
 /// echten VM-Lauf. 1348 Zeilen Abnahmecode waren damit auf einen Blick
@@ -576,10 +576,9 @@ vm_test!(
                     panic!("Verbindung zu einem geschlossenen Port haette fehlschlagen muessen")
                 }
                 Ok(Err(e)) => e,
-                // Abschlussreview (Important 6): hier stand zuvor ein
-                // Rueckfall auf die EIGENE Zeichenkette des Tests
-                // ("connect attempt to a closed port timed out"). Die ging
-                // dann in `messages` ein und balancierte
+                // Kein Rueckfall auf eine EIGENE Zeichenkette des Tests
+                // (etwa "connect attempt to a closed port timed out"): sie
+                // ginge in `messages` ein und balancierte
                 // `assert_eq!(messages.len(), ran.len())` kuenstlich aus --
                 // ausgerechnet der Zweig, der die Meldung des PRODUKTS auf
                 // Unterscheidbarkeit pruefen soll, pruefte damit den
@@ -820,12 +819,12 @@ vm_test!(
          Unterscheidbarkeit. Ausgefuehrt: {ran:?}, aber nur {} verschiedene Meldungen",
             messages.len()
         );
-        // Abschlussreview (Important 6): hier stand `assert!(ran.len() >= 6)`
-        // -- eine Zusicherung, die NIE fehlschlagen konnte. Sechs der sieben
-        // Zweige oben pushen unbedingt (nur "agent unavailable" ist
-        // adaptiv), `ran.len()` war an dieser Stelle also mindestens 6, egal
-        // was die Zweige gemessen hatten. Sie las sich wie eine Deckungs-
-        // untergrenze und war in Wahrheit eine Tautologie.
+        // Bewusst kein `assert!(ran.len() >= 6)` -- eine Zusicherung, die NIE
+        // fehlschlagen koennte. Sechs der sieben Zweige oben pushen
+        // unbedingt (nur "agent unavailable" ist adaptiv), `ran.len()` ist an
+        // dieser Stelle also mindestens 6, egal was die Zweige gemessen
+        // haben. Sie laese sich wie eine Deckungsuntergrenze und waere in
+        // Wahrheit eine Tautologie.
         //
         // Was stattdessen tatsaechlich fehlschlagen KANN: jeder der sieben
         // Zweige muss sich am Ende entweder als ausgefuehrt ODER als
@@ -1594,7 +1593,7 @@ vm_test!(
 );
 
 // =======================================================================
-// Drei Sequenzen, die ein frueherer Review ausdruecklich verlangte
+// Drei Bearbeitungssequenzen der Hostverwaltung
 // (frontend-seitig bereits in `src/main.test.ts`/`src/views/session-
 // dialog.test.ts` abgedeckt -- hier ist die Backend-Haelfte: dieselbe
 // Befehlsreihenfolge, tatsaechlich gegen die VM gefahren).
