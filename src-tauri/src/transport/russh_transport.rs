@@ -175,13 +175,12 @@ impl client::Handler for Handler {
     /// Wir ueberschreiben bewusst und delegieren an die Policy — niemals
     /// bedingungslos `Ok(true)` zurueckgeben.
     ///
-    /// Seit russh 0.63 (Task 5b) uebergibt der Trait
-    /// `&PublicKeyOrCertificate` statt `&PublicKey` -- der Server koennte
-    /// statt eines blossen Schluessels ein SSH-Zertifikat vorweisen.
-    /// Zertifikate sind kein Auth-Weg dieser App (Spec 8.4): der Zweig
-    /// liefert `Ok(false)`, niemals blind akzeptieren (V20). Der
-    /// `PublicKey`-Variantenname ist unveraendert, nur ihre Form wechselte
-    /// von einer Tupel-Variante `PublicKey(key)` (0.62) zu einer
+    /// Seit russh 0.63 uebergibt der Trait `&PublicKeyOrCertificate` statt
+    /// `&PublicKey` -- der Server koennte statt eines blossen Schluessels ein
+    /// SSH-Zertifikat vorweisen. Zertifikate sind kein Auth-Weg dieser App
+    /// (Spec 8.4): der Zweig liefert `Ok(false)`, niemals blind akzeptieren
+    /// (V20). Der `PublicKey`-Variantenname ist unveraendert, nur ihre Form
+    /// wechselte von einer Tupel-Variante `PublicKey(key)` (0.62) zu einer
     /// Struct-Variante `PublicKey { key, hash_alg }` (0.63, siehe
     /// russh-0.63.2/src/cert.rs) -- `hash_alg` ist der fuer die
     /// Signaturpruefung ausgehandelte RSA-Hash und fuer die
@@ -581,9 +580,8 @@ impl ExecOutput {
 
 /// Bildet ein SSH-Signal (`ChannelMsg::ExitSignal`) auf seine POSIX-Nummer
 /// unter Linux ab -- die einzige Zielplattform der Remote-VMs (Spec §1).
-/// Genutzt fuer die `128 + Signalnummer`-Konvention in `Transport::exec`
-/// (M-A, Abschlussreview): dieselbe, die `$?` in bash nach einem
-/// signalbedingten Tod zeigt.
+/// Genutzt fuer die `128 + Signalnummer`-Konvention in `Transport::exec`:
+/// dieselbe, die `$?` in bash nach einem signalbedingten Tod zeigt.
 ///
 /// `Sig::name()`/`Sig::from_name()` sind in russh 0.62 crate-privat
 /// (`lib_inner.rs`) -- deshalb bilden wir hier selbst ab, statt sie
@@ -615,13 +613,11 @@ fn posix_signal_number(sig: &Sig) -> u32 {
 
 /// Die tatsaechlich in `Transport::exec` verwendete Funktion: `128 +
 /// posix_signal_number(sig)`. Eigene Funktion statt der Ausdruck inline im
-/// Match-Arm (Review-Nachtrag): eine fruehere Testfassung rechnete
-/// `128 + posix_signal_number(..)` im TEST nach, statt gegen den in `exec()`
-/// tatsaechlich verwendeten Wert zu pruefen -- ein Test, der die Arithmetik
-/// selbst dupliziert, bleibt gruen, selbst wenn `exec()`s Match-Arm die
-/// Konvention aendert oder ganz entfernt. Mit
-/// dieser Funktion pruefen die Tests unten denselben Code, der auch in
-/// `exec()` laeuft.
+/// Match-Arm: ein Test, der `128 + posix_signal_number(..)` selbst
+/// nachrechnet, statt gegen den in `exec()` tatsaechlich verwendeten Wert zu
+/// pruefen, bleibt gruen, selbst wenn `exec()`s Match-Arm die Konvention
+/// aendert oder ganz entfernt. Mit dieser Funktion pruefen die Tests unten
+/// denselben Code, der auch in `exec()` laeuft.
 fn signal_exit_code(sig: &Sig) -> u32 {
     128 + posix_signal_number(sig)
 }
@@ -683,9 +679,9 @@ mod tests {
         assert_eq!(output.finish().unwrap().code, 143);
     }
 
-    /// Der zweite billige Waechter fuer B0, Gegenstueck zu
-    /// `kill_session_targets_the_name_exactly_and_not_by_prefix`. Der
-    /// VM-Test dazu (`integration_pty.rs`) kehrt ohne gesetztes
+    /// Der zweite billige Waechter gegen Praefixtreffer, Gegenstueck zu
+    /// `kill_session_targets_the_name_exactly_and_not_by_prefix`. Der VM-Test
+    /// dazu (`integration_pty.rs`) kehrt ohne gesetztes
     /// `AIDEVBRIDGE_TEST_HOST` still zurueck und ist dann gruen, ohne etwas
     /// geprueft zu haben -- dieser hier laeuft immer.
     #[test]
@@ -700,13 +696,13 @@ mod tests {
         );
     }
 
-    /// Abschlussreview (Important 4), Gegenprobe zum haeufigsten Fehlerfall
-    /// ueberhaupt: ein Verbindungsversuch, der schon VOR jeder
-    /// Authentifizierung scheitert (falscher Hostname, ausgeschaltete VM,
-    /// totes Netz), muss `AuthError::HostUnreachable` in der Fehlerkette
-    /// tragen -- sonst faellt `auth_error_message` (commands.rs) auf
-    /// `e.to_string()` zurueck und der Nutzer liest deutschen Text in einer
-    /// verbindlich englischen Oberflaeche.
+    /// Gegenprobe zum haeufigsten Fehlerfall ueberhaupt: ein
+    /// Verbindungsversuch, der schon VOR jeder Authentifizierung scheitert
+    /// (falscher Hostname, ausgeschaltete VM, totes Netz), muss
+    /// `AuthError::HostUnreachable` in der Fehlerkette tragen -- sonst faellt
+    /// `auth_error_message` (commands.rs) auf `e.to_string()` zurueck und der
+    /// Nutzer liest deutschen Text in einer verbindlich englischen
+    /// Oberflaeche.
     ///
     /// Hermetisch: `127.0.0.1:1` ist auf jeder Maschine unbelegt und
     /// antwortet sofort mit RST (Connection refused) -- kein Netz, keine VM,
@@ -791,7 +787,7 @@ mod tests {
     /// keinen Erfolg (0) vortaeuschen. Ruft `signal_exit_code` auf, nicht
     /// `posix_signal_number` plus einer im Test wiederholten `128 +` --
     /// sonst wuerde diese Assertion gruen bleiben, selbst wenn `exec()`s
-    /// Match-Arm den `128 +`-Offset verliert (Review-Nachtrag).
+    /// Match-Arm den `128 +`-Offset verliert.
     #[test]
     fn signal_exit_code_falls_back_to_a_nonzero_value_for_unknown_custom_signals() {
         assert_eq!(
