@@ -1,4 +1,4 @@
-// TOFU-Rueckfrage (Task 13, Nachtrag vom 2026-07-25): zeigt die vom Backend
+// TOFU-Rueckfrage (Nachtrag vom 2026-07-25): zeigt die vom Backend
 // per `hostkey://request` gemeldete Rueckfrage an und beantwortet sie ueber
 // `respond_host_key`. Wird EINMALIG, GLOBAL gemountet (siehe `main.ts`) --
 // unabhaengig davon, welche Ansicht (Erststart, Hostliste, Terminal) gerade
@@ -9,24 +9,23 @@
 // Zeigt AUSSCHLIESSLICH den Fingerabdruck (`SHA256:...`), NIEMALS einen
 // rohen Base64-Schluessel -- die Nutzlast von `hostkey://request`
 // (`HostKeyRequest` in `commands.rs`) traegt den rohen Schluessel gar nicht
-// erst, nur `fingerprint`. Diese Ansicht kann die Eigenschaft 3 des
-// TOFU-Nachtrags deshalb strukturell nicht verletzen, nicht nur durch
-// Disziplin (siehe Testmodul).
+// erst, nur `fingerprint`. Diese Ansicht kann deshalb strukturell keinen
+// rohen Schluessel zeigen, nicht nur durch Disziplin (siehe Testmodul).
 //
 // Ruft `respond_host_key` NIEMALS von selbst auf -- nur ein Klick auf
 // "Trust and continue" oder "Reject" loest den Aufruf aus (siehe
 // Testmodul: kein invoke() vor einem Klick).
 //
-// Review-Nachtrag (zwei Important-Befunde):
+// Zwei Zusagen zum Ausgang einer Rueckfrage:
 //
 // (a) Ein Fehlschlag von `respond_host_key` (z. B. weil das Backend die
-// Anfrage inzwischen selbst per Zeitablauf aufgegeben hat) wird jetzt ueber
+// Anfrage inzwischen selbst per Zeitablauf aufgegeben hat) wird ueber
 // `showNotice` sichtbar gemacht UND bleibt sichtbar, bis der Nutzer
-// "Dismiss" klickt -- vorher wurde die Meldung im selben Funktionsaufruf
-// (`finally { renderNext() }`, synchron, ohne `await` dazwischen) sofort
-// wieder aus dem DOM entfernt, bevor der Browser sie je rendern konnte.
+// "Dismiss" klickt -- ein `finally { renderNext() }` im selben
+// Funktionsaufruf (synchron, ohne `await` dazwischen) entfernte die Meldung
+// sonst sofort wieder aus dem DOM, bevor der Browser sie je rendern konnte.
 //
-// (b) Jede Anfrage traegt jetzt `expires_at_unix_ms` (siehe
+// (b) Jede Anfrage traegt `expires_at_unix_ms` (siehe
 // `HostKeyRequest`s Doc-Kommentar in `commands.rs`) -- eine absolute
 // Unix-Zeit, zu der das Backend das Warten fuer GENAU DIESE Anfrage
 // aufgibt. Diese Ansicht zeigt daraus eine live aktualisierte Restzeit an
@@ -58,11 +57,11 @@ interface HostKeyRequestPayload {
   key_type: string;
   fingerprint: string;
   expires_at_unix_ms: number;
-  /** Schluesseltypen, unter denen dieser Host bereits bekannt ist (H8,
-   * Kritikrunde: `known_hosts::key_types_for`). Leer bei einem echten
-   * Erstkontakt -- nicht leer, wenn der Server einen ANDEREN Typ anbietet
-   * als den/die bereits hinterlegten (siehe `buildDialog`: nur dann
-   * erscheint der zusaetzliche Hinweis). */
+  /** Schluesseltypen, unter denen dieser Host bereits bekannt ist (MVP-Spec
+   * M0.3, H8: `known_hosts::key_types_for`). Leer bei einem echten Erstkontakt
+   * -- nicht leer, wenn der Server einen ANDEREN Typ anbietet als den/die
+   * bereits hinterlegten (siehe `buildDialog`: nur dann erscheint der
+   * zusaetzliche Hinweis). */
   known_key_types: string[];
 }
 
@@ -93,13 +92,13 @@ export interface HostKeyPromptOptions {
    * dabei false/true flackern und den Aufrufer mitten in einem Uebergang
    * handeln lassen).
    *
-   * Der Grund, warum es diesen Rueckruf gibt (Validierung, Critical): die
-   * Rueckfrage kann VOR einer offenen Dialog-Ueberlagerung erscheinen
-   * (`dialog.ts::openDialog`, z. B. "Add host"). Sie liegt seit demselben
-   * Befund darueber (Stapelleiter in `styles.css`), aber die Ueberlagerung
-   * bringt zwei Dinge mit, die kein z-index aufhebt: ihre Fokus-Falle und
-   * ihre Tab-Erreichbarkeit. Beides muss der Aufrufer stilllegen, solange
-   * hier etwas steht -- und er kann das nur, wenn er es erfaehrt.
+   * Der Grund, warum es diesen Rueckruf gibt: die Rueckfrage kann VOR einer
+   * offenen Dialog-Ueberlagerung erscheinen (`dialog.ts::openDialog`, z. B.
+   * "Add host"). Sie liegt darueber (Stapelleiter in `styles.css`), aber die
+   * Ueberlagerung bringt zwei Dinge mit, die kein z-index aufhebt: ihre
+   * Fokus-Falle und ihre Tab-Erreichbarkeit. Beides muss der Aufrufer
+   * stilllegen, solange hier etwas steht -- und er kann das nur, wenn er es
+   * erfaehrt.
    *
    * Bewusst KEIN Zustand, den der Aufrufer selbst abfragen kann: eine
    * `isOpen()`-Methode muesste er pollen, und genau der Moment des
@@ -119,14 +118,13 @@ export interface HostKeyPromptOptions {
  * inzwischen mehrere eingegangen sind -- Warteschlange statt Ueberschreiben,
  * damit keine Rueckfrage stillschweigend verloren geht).
  *
- * Mountet zusaetzlich einen von `root` UNABHAENGIGEN Hinweis-Banner direkt
- * in `document.body` fuer `hostkey://persist-failed` (Review-Befund,
- * Important 3): Der Anfrage-Dialog in `root` nutzt `root.childElementCount
- * === 0` als "gerade nichts angezeigt"-Signal, um zu entscheiden, ob eine
- * neu eintreffende Anfrage sofort gerendert werden darf (siehe unten) --
- * ein Persistenzfehler-Hinweis, der stattdessen in `root` selbst haengen
- * wuerde, wuerde dieses Signal verfaelschen und eine WARTENDE, echte
- * Rueckfrage stillschweigend in der Warteschlange stecken lassen, obwohl
+ * Mountet zusaetzlich einen von `root` UNABHAENGIGEN Hinweis-Banner direkt in
+ * `document.body` fuer `hostkey://persist-failed`: Der Anfrage-Dialog in `root`
+ * nutzt `root.childElementCount === 0` als "gerade nichts angezeigt"-Signal, um
+ * zu entscheiden, ob eine neu eintreffende Anfrage sofort gerendert werden darf
+ * (siehe unten) -- ein Persistenzfehler-Hinweis, der stattdessen in `root`
+ * selbst haengen wuerde, wuerde dieses Signal verfaelschen und eine WARTENDE,
+ * echte Rueckfrage stillschweigend in der Warteschlange stecken lassen, obwohl
  * der Nutzer gerade nur einen unabhaengigen Hinweis sieht.
  */
 export function mountHostKeyPrompt(
@@ -293,14 +291,11 @@ export function mountHostKeyPrompt(
       if (disposed || currentRequest !== req) return;
       rememberClosed(req);
       // Die Rueckfrage selbst ist beim Backend ggf. schon per Zeitablauf
-      // aufgegeben worden (Eigenschaft 2: kein Antwort-Fenster nach
-      // `prompt_timeout`) -- ein Fehlschlag hier hat dann keine Wirkung
-      // mehr auf die laengst abgelehnte Verbindung, wird aber trotzdem
-      // sichtbar gemacht (und bleibt sichtbar, bis der Nutzer sie
-      // wegklickt), statt still zu verschwinden (Review-Befund, Important
-      // 1a: `finally { renderNext() }` loeschte diese Meldung frueher im
-      // selben synchronen Durchlauf, bevor der Browser sie je zeichnen
-      // konnte).
+      // aufgegeben worden (kein Antwort-Fenster nach `prompt_timeout`) -- ein
+      // Fehlschlag hier hat dann keine Wirkung mehr auf die laengst abgelehnte
+      // Verbindung, wird aber trotzdem sichtbar gemacht (und bleibt sichtbar,
+      // bis der Nutzer sie wegklickt), statt still zu verschwinden (siehe
+      // Kopfkommentar, Punkt (a)).
       showNotice(t("hostKeyPrompt.respondError", { message: String(error) }));
     }
   }
@@ -325,13 +320,13 @@ export function mountHostKeyPrompt(
     // Enter beantwortete sie ungelesen). Von hier aus fuehrt Tab in die
     // beiden Schaltflaechen.
     dialog.tabIndex = -1;
-    // Tastatur/Hilfstechnik (H-Nachtrag): `role="alertdialog"` allein macht
-    // den Dialog fuer unterstuetzende Technologien noch nicht ausdruecklich
-    // MODAL, und ohne `aria-labelledby` fehlt ihm ein zugeordneter Name --
-    // beides ergaenzt hier, `heading.id` erst NACH dem Anhaengen an `dialog`
-    // gesetzt, damit die ID sich nicht mit einer frueheren Anzeige
-    // ueberschneidet (`clear()` entfernt den vorigen Knoten vollstaendig,
-    // bevor `buildDialog` erneut laeuft).
+    // Tastatur/Hilfstechnik: `role="alertdialog"` allein macht den Dialog fuer
+    // unterstuetzende Technologien noch nicht ausdruecklich MODAL, und ohne
+    // `aria-labelledby` fehlt ihm ein zugeordneter Name -- beides ergaenzt
+    // hier, `heading.id` erst NACH dem Anhaengen an `dialog` gesetzt, damit die
+    // ID sich nicht mit einer frueheren Anzeige ueberschneidet (`clear()`
+    // entfernt den vorigen Knoten vollstaendig, bevor `buildDialog` erneut
+    // laeuft).
     dialog.setAttribute("aria-modal", "true");
 
     const heading = document.createElement("h2");
@@ -389,7 +384,7 @@ export function mountHostKeyPrompt(
       body.appendChild(otherTypeNotice);
     }
 
-    // Restzeit-Anzeige (Review-Befund, Important 1b): eine sicherheitsrele-
+    // Restzeit-Anzeige (Kopfkommentar, Punkt (b)): eine sicherheitsrele-
     // vante Entscheidung mit Zeitlimit sollte das Limit nicht verstecken --
     // sonst verschwindet der Dialog fuer den Nutzer scheinbar grundlos,
     // sobald die Frist ablaeuft. Aktualisiert sich jede Sekunde aus
@@ -435,7 +430,7 @@ export function mountHostKeyPrompt(
 
     root.appendChild(dialog);
 
-    // Self-close bei Ablauf (Review-Befund, Important 1b): niemand muss
+    // Self-close bei Ablauf (Kopfkommentar, Punkt (b)): niemand muss
     // klicken, damit ein abgelaufener Dialog verschwindet -- er schliesst
     // sich selbst (siehe `dropExpired`).
     expiryTimer = setTimeout(() => {
@@ -443,12 +438,12 @@ export function mountHostKeyPrompt(
     }, remainingMs);
 
     // Erst melden, dann fokussieren (siehe `syncOpen`s Kommentar zur
-    // Reihenfolge). Der Fokus MUSS hier hin (Validierung, Critical): steht
-    // dahinter eine Dialog-Ueberlagerung offen, liegt der Fokus in DEREN
-    // Fokus-Falle -- ein blosses Ueberlagern per z-index machte die
-    // Rueckfrage sichtbar und anklickbar, aber nicht bedienbar, und die
-    // Vorgabe "die gesamte Oberflaeche ist mit der Tastatur allein
-    // bedienbar" gaelte ausgerechnet an einer Sicherheitsentscheidung nicht.
+    // Reihenfolge). Der Fokus MUSS hier hin: steht dahinter eine
+    // Dialog-Ueberlagerung offen, liegt der Fokus in DEREN Fokus-Falle -- ein
+    // blosses Ueberlagern per z-index machte die Rueckfrage sichtbar und
+    // anklickbar, aber nicht bedienbar, und die Vorgabe "die gesamte
+    // Oberflaeche ist mit der Tastatur allein bedienbar" gaelte ausgerechnet an
+    // einer Sicherheitsentscheidung nicht.
     syncOpen();
     dialog.focus();
   }
@@ -459,9 +454,9 @@ export function mountHostKeyPrompt(
     const remainingMs = req.expires_at_unix_ms - Date.now();
     if (remainingMs <= 0) {
       // Die Frist ist bereits abgelaufen, WAEHREND diese Anfrage noch in
-      // der Warteschlange stand (die verschaerfende Situation aus dem
-      // Befund: eine zweite Rueckfrage, deren eigene 60-Sekunden-Frist im
-      // Backend unsichtbar weiterlief, waehrend die erste noch offen war).
+      // der Warteschlange stand (etwa eine zweite Rueckfrage, deren eigene
+      // 60-Sekunden-Frist im Backend unsichtbar weiterlief, waehrend die
+      // erste noch offen war).
       // Das Backend hat `decide()` fuer sie laengst per Zeitablauf beendet
       // und den Eintrag vergessen -- ein `respond_host_key`-Aufruf fuer
       // diese `request_id` wuerde nur noch den Fehlerpfad treffen. Gar
@@ -503,29 +498,21 @@ export function mountHostKeyPrompt(
     else renderNext();
   });
 
-  // Persistenzfehler-Hinweis (Review-Befund, Important 3): bewusst NICHT in
-  // `root` (siehe Doc-Kommentar oben), sondern ein eigener, unabhaengiger
-  // Knoten direkt in `document.body`. Ein solcher Hinweis kann eintreffen,
-  // NACHDEM die eigentliche Rueckfrage fuer diese Anfrage bereits
-  // beantwortet und aus `root` entfernt wurde (`decide()` ruft
-  // `sink.notify_persist_failed` erst NACH der Antwort auf, siehe
-  // `commands.rs`) -- oder waehrend `root` gerade eine VOELLIG ANDERE,
+  // Persistenzfehler-Hinweis: bewusst NICHT in `root` (siehe Doc-Kommentar
+  // oben), sondern ein eigener, unabhaengiger Knoten direkt in `document.body`.
+  // Ein solcher Hinweis kann eintreffen, NACHDEM die eigentliche Rueckfrage
+  // fuer diese Anfrage bereits beantwortet und aus `root` entfernt wurde
+  // (`decide()` ruft `sink.notify_persist_failed` erst NACH der Antwort auf,
+  // siehe `commands.rs`) -- oder waehrend `root` gerade eine VOELLIG ANDERE,
   // noch offene Rueckfrage zeigt. Beides darf den Anfrage-Dialog nicht
   // verdraengen.
   // Aussehen und Position leben in `src/styles.css`
   // (`.host-key-persist-failure-banner`) -- NICHT hier inline, siehe dessen
-  // Kommentar: ein inline gesetztes `style.display` gewann frueher IMMER
-  // gegen die `[hidden]`-UA-Regel, unabhaengig davon, ob `.hidden` gesetzt
-  // war (Nachtrag A). `hidden` unten wirkt jetzt tatsaechlich, weil
-  // `display: flex` in der CSS-Klasse selbst gescopt ist --
-  // `.host-key-persist-failure-banner:not([hidden])` --, NICHT ueber eine
-  // globale `!important`-Regel: ein erster Anlauf mit `[hidden] { display:
-  // none !important }` wurde in der Gegenprobe verworfen, weil eine
-  // `!important`-Autoren-Regel jede NICHT-`!important` Autoren-Deklaration
-  // schlaegt (auch ein wieder eingefuehrtes inline `style.display`) -- die
-  // Gegenprobe waere damit strukturell nie rot geworden. Kein globaler
-  // Schirm also: wer hier ein inline `style.display` wieder eintraegt,
-  // hebelt `hidden` wieder aus, genau wie vor diesem Nachtrag.
+  // Kommentar: eine Autoren-Regel mit `display` gewinnt gegen die
+  // `[hidden]`-UA-Regel. `display: flex` steht deshalb nur in
+  // `.host-key-persist-failure-banner:not([hidden])`; dazu stellt die globale
+  // Regel `[hidden] { display: none !important }` in styles.css `hidden`
+  // ueberall wieder her.
   const persistFailureBanner = document.createElement("div");
   persistFailureBanner.className = "host-key-persist-failure-banner";
   persistFailureBanner.setAttribute("role", "alert");
