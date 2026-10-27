@@ -906,8 +906,9 @@ describe("mountTerminal: jeder Fehlerpfad meldet seine Art (UX-Spec §6.9)", () 
   });
 });
 
-// Bekannte Fehler des Rasters, behoben am 24.10.: eine grosse Einfuegung ging
-// als ein `send_input` hinaus und hielt die Seite Sekunden lang an.
+// Eingabe ueber `INPUT_CHUNK_BYTES` geht in Teilen der Reihe nach hinaus, nicht
+// als ein `send_input`: als ein Aufruf hielt eine grosse Einfuegung die Seite
+// rund 0,8 s je MB an (gemessen am 24.10., `docs/stand.md`).
 describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
   /** Jeder `send_input` wartet, bis der Test ihn beantwortet. */
   function heldSends(): { bytes: () => number[][]; answer: (ok?: boolean) => Promise<void> } {

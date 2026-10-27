@@ -212,7 +212,7 @@ interface ConnectionLostEventPayload {
 
 /** Vordergrund, Auswahlvordergrund und die 16 ANSI-Farben: in allen Themen
  * gleich (Spec §5.5). Die Flaeche dagegen
- * ist JE THEMA `--ab-term-bg` (siehe `TERMINAL_SURFACES` unten), nicht
+ * ist JE THEMA `--ab-term-bg` (siehe `TERMINAL_BASES` unten), nicht
  * identisch mit `--ab-bg-canvas` -- ohne gesetztes `theme.background` naehme
  * xterm sonst `#000` und die Kachel haette zwei verschiedene Schwarztoene. */
 export const TERMINAL_ANSI = {
