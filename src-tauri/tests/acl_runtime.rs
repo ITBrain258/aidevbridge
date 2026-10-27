@@ -269,13 +269,13 @@ fn the_frontends_core_and_plugin_commands_pass_the_real_acl_resolver() {
     );
 }
 
-/// Was `core:default` zusaetzlich freigab, das Frontend aber nie aufruft,
-/// lehnt die ACL ab.
+/// Was `core:default` ueber die Liste hinaus freigaebe, das Frontend aber
+/// nie aufruft, lehnt die ACL ab.
 ///
 /// Gegenstueck zum Test darueber und zur woertlichen Liste in
 /// `tests/capabilities_acl.rs`: jene haelt die Eintraege fest, dieser
-/// belegt, dass die Laufzeit aus ihnen wirklich nicht mehr ableitet.
-/// Kommt ein Sammelrecht zurueck, lassen diese Befehle die ACL passieren
+/// belegt am echten Aufloeser, dass aus ihnen nichts Weiteres folgt. Steht
+/// ein Sammelrecht in der Capability, passieren diese Befehle die ACL
 /// (`app|version` liefe sogar erfolgreich durch), und der Test wird rot.
 #[test]
 fn core_commands_the_frontend_never_uses_are_denied() {
