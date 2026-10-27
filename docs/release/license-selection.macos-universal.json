@@ -38,14 +38,15 @@
     "docs/release/license-frontend-output-2026-09-12.json",
     "docs/release/license-mpl-selection-2026-09-12.json",
     "docs/release/license-frontend-vite-6.4.4-2026-10-22.json",
+    "docs/release/license-rust-crypto-tokio-2026-10-26.json",
     "docs/release/license-macos-universal-2026-10-25.json"
   ],
   "inputs": {
     "files": [
       {
         "path": "Cargo.lock",
-        "bytes": 153541,
-        "sha256": "fcc126d58d59450f2553cb3655d0958178dffd95bfa2f8f85165397e9b0bcce3"
+        "bytes": 153542,
+        "sha256": "fbb8502c5981e0948cd98a8f9a30e5874daa3b688b718e35dd5a5f3cf0567b15"
       },
       {
         "path": "Cargo.toml",
@@ -89,13 +90,13 @@
       },
       {
         "path": "docs/release/license-inventory-2026-10-25-macos-rust.json",
-        "bytes": 187441,
-        "sha256": "96736e66c66b97ca17a9dca4efc70927a46291693b686ec37efe21669c5bf60e"
+        "bytes": 187442,
+        "sha256": "4f7183aca88372c560e7902389b62d9da8dbd0ec60f352f4eadf40de897f8325"
       },
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
-        "bytes": 107056,
-        "sha256": "c5915d63cafbcd9e96e0e203b0ff99ea99391887be8fb2485506c556ef25607c"
+        "bytes": 107789,
+        "sha256": "d508fec988b11f84b73318beff5f113b84c45d1e3768d65550fd5396828ad748"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -111,6 +112,11 @@
         "path": "docs/release/license-russh-support-2026-09-12.json",
         "bytes": 30730,
         "sha256": "ce29333939523ae3beb944d46303b57a9e9beb1f42f7166b599f5e14ea491b24"
+      },
+      {
+        "path": "docs/release/license-rust-crypto-tokio-2026-10-26.json",
+        "bytes": 11100,
+        "sha256": "df43384f73524e64c9715a116dc6033d149f95e04480c3a047d77118bbfa4afc"
       },
       {
         "path": "docs/release/license-rust-stdlib-2026-09-12.json",
@@ -464,8 +470,8 @@
       },
       {
         "path": "scripts/gen-icons.mjs",
-        "bytes": 2891,
-        "sha256": "e2060b8c592d534a064fbde72ee569443e64a9fbcf708847516dae2c4ab0fe47"
+        "bytes": 2925,
+        "sha256": "46e3771f6c623331ff316be08e51f9352280c6df277881cae25632c4e201d141"
       },
       {
         "path": "scripts/release-licenses.mjs",
@@ -479,8 +485,8 @@
       },
       {
         "path": "src-tauri/Cargo.toml",
-        "bytes": 5397,
-        "sha256": "8c6a2d1aa2825998a52eb0fffb6da3ac68d706072a61e26f189d3b9d43284939"
+        "bytes": 5276,
+        "sha256": "084514008b882da56fd111e93075ff0f6762a4fcfc437ea4737930ae84c1c9b8"
       },
       {
         "path": "src-tauri/Info.plist",
@@ -494,8 +500,8 @@
       },
       {
         "path": "src-tauri/tauri.conf.json",
-        "bytes": 1460,
-        "sha256": "1015817b1838c8108a98e1c98bf1dc3264ed83ea6d371ed157f626646a16ff1a"
+        "bytes": 1510,
+        "sha256": "7704c843aed054a9b7f4292c337d9d1c42e6cf41e57eb6cfc5c9c79cb5a0f551"
       },
       {
         "path": "src-tauri/tauri.release.macos.json",
@@ -514,33 +520,33 @@
       },
       {
         "path": "src/icons.ts",
-        "bytes": 3936,
-        "sha256": "1e411fc2265f99328001a14246b5df5dcc1b8a0514fa9450d3530b0e861cbcea"
+        "bytes": 3944,
+        "sha256": "8ac5f4cff6578707aec73b746fbb7d7c8a212b3efd941209eeb8b7ca09f331d8"
       },
       {
         "path": "src/keymap.ts",
-        "bytes": 17991,
-        "sha256": "25964d583b6c8861771b1010dfb09f12286ebdd6bb89e1269a218eb30b701753"
+        "bytes": 17652,
+        "sha256": "2e673e1baa74aedf95ee99e018aee089563a4f5b4bd37189817cd79130d41ab4"
       },
       {
         "path": "src/main.ts",
-        "bytes": 144420,
-        "sha256": "36d8f4407bdc35b9eca61aa5315d10795a885cf68e5fbcf98026ad445e5a8d41"
+        "bytes": 140129,
+        "sha256": "a6e2a5e785b9d893eb6ef5636faa75a77ee7a35c439b2d882d560c51cd8e5ccc"
       },
       {
         "path": "src/state/app-state.ts",
-        "bytes": 52889,
-        "sha256": "35836ab588909e95ad0ede091816a976ac4346540401f19227a3263f90b84a73"
+        "bytes": 53573,
+        "sha256": "89d25b88fef29fb541ac103baa4e72edc4c76531b09d3d1f8a4cf08459a523eb"
       },
       {
         "path": "src/state/dir-tree.ts",
-        "bytes": 9390,
-        "sha256": "a1e78c6ff683ced258bb224ccbd3d0d96700c1bd0dc8f1d99fd1f2fcbd00addb"
+        "bytes": 9293,
+        "sha256": "678a4aa1f352cd760e0b440709ada07c282659ca5e7938a3b105fc877a47855a"
       },
       {
         "path": "src/state/tile-assignment.ts",
-        "bytes": 4304,
-        "sha256": "1173afbc6e2dac68177bcadbf51a5bf6a76b0ef5e43b3bb53c3608f49722d6b4"
+        "bytes": 4299,
+        "sha256": "bf04a664a3e686c4a12776b128d6e1ef1f794e4b4b9223306a3cdfbd6d033226"
       },
       {
         "path": "src/styles.css",
@@ -549,8 +555,8 @@
       },
       {
         "path": "src/terminal.ts",
-        "bytes": 70319,
-        "sha256": "184b76a4b543089a92c4c44df4e07b257f0e1f239d8df38186f0606acb0e0e8c"
+        "bytes": 71954,
+        "sha256": "acf8c23cbb04e3514b6528e7511c412ed042eb348a08e8c2471bdbd62750727c"
       },
       {
         "path": "src/theme.ts",
@@ -564,38 +570,38 @@
       },
       {
         "path": "src/views/credential-field.ts",
-        "bytes": 1815,
-        "sha256": "286a3609114df98acbf3aa0c1af61af652525e4eae2e2b7442148772591881f7"
+        "bytes": 1758,
+        "sha256": "22fe90ae2d22063ad19e17edebed19ac19a1b3413117bef982ae52854e110d3d"
       },
       {
         "path": "src/views/directory-tree.ts",
-        "bytes": 35668,
-        "sha256": "63552d32fa73f161309bb1e876f5a0a53d34b64e5e156b57fdcd389482ae8145"
+        "bytes": 34838,
+        "sha256": "6f22d9dd5b13b4ee3a1d8814e923c323239fb4bde39de6425ea85cdf44b657e9"
       },
       {
         "path": "src/views/first-run.ts",
-        "bytes": 49653,
-        "sha256": "c07541bda2f26497f860c5dca15ca06edf5f2eb51666360ac74170c7aa07b25c"
+        "bytes": 47955,
+        "sha256": "3a79fad25c29f160f6fa77a35ae8599942d22b02c64c6ac8446a430c46d7c9cd"
       },
       {
         "path": "src/views/grid.ts",
-        "bytes": 108936,
-        "sha256": "d7ef9ea661683b430b376b560912e405fcbab1488039fb4f5b5e303ce1739d6a"
+        "bytes": 107909,
+        "sha256": "fa949848144e8a1bff28947fb89030dc7d215582b809969c75e11d6b803075e7"
       },
       {
         "path": "src/views/host-form.ts",
-        "bytes": 26597,
-        "sha256": "60600758c8aa046e439252778adfa8a00fadbb5bcf4902d5dc5496ead46e3b4b"
+        "bytes": 25564,
+        "sha256": "722ee65d2f1c6a94d6e3ded4f488a7eaf4a456165b907976bf47b5371b05c12a"
       },
       {
         "path": "src/views/host-key-prompt.ts",
-        "bytes": 27648,
-        "sha256": "ecbdacca58358b89f045780276c28758af3bc37e61aaa1c98ad49635bbde0237"
+        "bytes": 26375,
+        "sha256": "1c1103a72ada9d805076595bdea9c4fb8d07d222132f234fd95a8a4cb5b5d4a1"
       },
       {
         "path": "src/views/initials.ts",
-        "bytes": 2549,
-        "sha256": "7f8ecc3f4d3b28951c398ff7624fd94dc07b0ebaafe10fa85cf883178b7e1694"
+        "bytes": 2581,
+        "sha256": "7cab35f2395c5ea97547a5b09dc7c5dd09f4a6e81958fc0eeb017ee9b6b2c893"
       },
       {
         "path": "src/views/menu-position.ts",
@@ -604,23 +610,23 @@
       },
       {
         "path": "src/views/session-dialog.ts",
-        "bytes": 22533,
-        "sha256": "f6728e82f1a4a5264f8f07ebff316a2d630e4c1c1e20dd2d82546f8073da5c1b"
+        "bytes": 21979,
+        "sha256": "4dee0d959e34a8478c1b07c3ca0b0804fbd0ed7527dec6206c3121e2ca25dd3a"
       },
       {
         "path": "src/views/settings-dialog.ts",
-        "bytes": 6246,
-        "sha256": "a2050ec55e71f3b9876d2ce481a57ad5ca64eafaedd3cee1cbd5b57205536aa4"
+        "bytes": 6255,
+        "sha256": "caa1ada80f65555b176455eef309a9cd129135a2c340c9687f3a5ebd9d95cc19"
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 126388,
-        "sha256": "c9a55e9e6f6fbd6a336285a6da4d01a893c3486d48c87984cd1b7f40a7d6b243"
+        "bytes": 124292,
+        "sha256": "f2bae2c25c7d35d19951d8fc6731aac25d6b3ac964d3a0a455298e29ec19c358"
       },
       {
         "path": "src/views/types.ts",
-        "bytes": 6718,
-        "sha256": "958f18b0cc330f8b4c2fc5ddac95edfc0b7432a4424e7a9dbba47a0834549c5d"
+        "bytes": 6563,
+        "sha256": "06dbef4a1c71003690a79579f713c55972924d726e72bfcec12f84f69cf9329b"
       },
       {
         "path": "tsconfig.json",
@@ -651,29 +657,34 @@
             "sha256": "2873b394109b87e6203fbb4392e9d3292086b85735b7b6ace5c7586961fa2f6e"
           },
           {
+            "path": "src/i18n/t.ts",
+            "bytes": 1200,
+            "sha256": "d883187163a3ea7b7779ab44734a05f60fd06006bfcafeedf3391019e88bdfe8"
+          },
+          {
             "path": "src/icons.ts",
-            "bytes": 3936,
-            "sha256": "1e411fc2265f99328001a14246b5df5dcc1b8a0514fa9450d3530b0e861cbcea"
+            "bytes": 3944,
+            "sha256": "8ac5f4cff6578707aec73b746fbb7d7c8a212b3efd941209eeb8b7ca09f331d8"
           },
           {
             "path": "src/keyboard.ts",
-            "bytes": 17045,
-            "sha256": "403d106ce23eeb5d993d74d35c5c437ce73d8f1a30087f2d44c6331a6d9d3265"
+            "bytes": 17001,
+            "sha256": "a06eb7a545b74d66754cfbeb2dbe92e29f45989c3ee6e65e917e591e91dbb87c"
           },
           {
             "path": "src/keymap.ts",
-            "bytes": 17991,
-            "sha256": "25964d583b6c8861771b1010dfb09f12286ebdd6bb89e1269a218eb30b701753"
+            "bytes": 17652,
+            "sha256": "2e673e1baa74aedf95ee99e018aee089563a4f5b4bd37189817cd79130d41ab4"
           },
           {
             "path": "src/main.ts",
-            "bytes": 144420,
-            "sha256": "36d8f4407bdc35b9eca61aa5315d10795a885cf68e5fbcf98026ad445e5a8d41"
+            "bytes": 140129,
+            "sha256": "a6e2a5e785b9d893eb6ef5636faa75a77ee7a35c439b2d882d560c51cd8e5ccc"
           },
           {
             "path": "src/state/app-state.ts",
-            "bytes": 52889,
-            "sha256": "35836ab588909e95ad0ede091816a976ac4346540401f19227a3263f90b84a73"
+            "bytes": 53573,
+            "sha256": "89d25b88fef29fb541ac103baa4e72edc4c76531b09d3d1f8a4cf08459a523eb"
           },
           {
             "path": "src/state/attention.ts",
@@ -682,8 +693,8 @@
           },
           {
             "path": "src/state/dir-tree.ts",
-            "bytes": 9390,
-            "sha256": "a1e78c6ff683ced258bb224ccbd3d0d96700c1bd0dc8f1d99fd1f2fcbd00addb"
+            "bytes": 9293,
+            "sha256": "678a4aa1f352cd760e0b440709ada07c282659ca5e7938a3b105fc877a47855a"
           },
           {
             "path": "src/state/reconnect.ts",
@@ -697,13 +708,13 @@
           },
           {
             "path": "src/state/tile-assignment.ts",
-            "bytes": 4304,
-            "sha256": "1173afbc6e2dac68177bcadbf51a5bf6a76b0ef5e43b3bb53c3608f49722d6b4"
+            "bytes": 4299,
+            "sha256": "bf04a664a3e686c4a12776b128d6e1ef1f794e4b4b9223306a3cdfbd6d033226"
           },
           {
             "path": "src/state/ui-settings-sync.ts",
-            "bytes": 7208,
-            "sha256": "f62b927dc192e85d14aa087e10b3e6b4f8e0f192a3a2338e406b30346f2d494e"
+            "bytes": 7212,
+            "sha256": "daa84243690afbe428d27990ea711fca60b1e7b077450f3827eda3424305501f"
           },
           {
             "path": "src/state/workspace.ts",
@@ -732,8 +743,8 @@
           },
           {
             "path": "src/terminal.ts",
-            "bytes": 70319,
-            "sha256": "184b76a4b543089a92c4c44df4e07b257f0e1f239d8df38186f0606acb0e0e8c"
+            "bytes": 71954,
+            "sha256": "acf8c23cbb04e3514b6528e7511c412ed042eb348a08e8c2471bdbd62750727c"
           },
           {
             "path": "src/theme.ts",
@@ -747,43 +758,43 @@
           },
           {
             "path": "src/views/credential-field.ts",
-            "bytes": 1815,
-            "sha256": "286a3609114df98acbf3aa0c1af61af652525e4eae2e2b7442148772591881f7"
+            "bytes": 1758,
+            "sha256": "22fe90ae2d22063ad19e17edebed19ac19a1b3413117bef982ae52854e110d3d"
           },
           {
             "path": "src/views/dialog.ts",
-            "bytes": 18097,
-            "sha256": "496ea2c6a87b5098802801c24148eccccd14411032be605fc3430420ba261349"
+            "bytes": 17746,
+            "sha256": "ab2635ea3fb191d048c5f225643bd5bf9066ab31427f7ddb355b8c87e1d1ff3c"
           },
           {
             "path": "src/views/directory-tree.ts",
-            "bytes": 35668,
-            "sha256": "63552d32fa73f161309bb1e876f5a0a53d34b64e5e156b57fdcd389482ae8145"
+            "bytes": 34838,
+            "sha256": "6f22d9dd5b13b4ee3a1d8814e923c323239fb4bde39de6425ea85cdf44b657e9"
           },
           {
             "path": "src/views/first-run.ts",
-            "bytes": 49653,
-            "sha256": "c07541bda2f26497f860c5dca15ca06edf5f2eb51666360ac74170c7aa07b25c"
+            "bytes": 47955,
+            "sha256": "3a79fad25c29f160f6fa77a35ae8599942d22b02c64c6ac8446a430c46d7c9cd"
           },
           {
             "path": "src/views/grid.ts",
-            "bytes": 108936,
-            "sha256": "d7ef9ea661683b430b376b560912e405fcbab1488039fb4f5b5e303ce1739d6a"
+            "bytes": 107909,
+            "sha256": "fa949848144e8a1bff28947fb89030dc7d215582b809969c75e11d6b803075e7"
           },
           {
             "path": "src/views/host-form.ts",
-            "bytes": 26597,
-            "sha256": "60600758c8aa046e439252778adfa8a00fadbb5bcf4902d5dc5496ead46e3b4b"
+            "bytes": 25564,
+            "sha256": "722ee65d2f1c6a94d6e3ded4f488a7eaf4a456165b907976bf47b5371b05c12a"
           },
           {
             "path": "src/views/host-key-prompt.ts",
-            "bytes": 27648,
-            "sha256": "ecbdacca58358b89f045780276c28758af3bc37e61aaa1c98ad49635bbde0237"
+            "bytes": 26375,
+            "sha256": "1c1103a72ada9d805076595bdea9c4fb8d07d222132f234fd95a8a4cb5b5d4a1"
           },
           {
             "path": "src/views/initials.ts",
-            "bytes": 2549,
-            "sha256": "7f8ecc3f4d3b28951c398ff7624fd94dc07b0ebaafe10fa85cf883178b7e1694"
+            "bytes": 2581,
+            "sha256": "7cab35f2395c5ea97547a5b09dc7c5dd09f4a6e81958fc0eeb017ee9b6b2c893"
           },
           {
             "path": "src/views/menu-position.ts",
@@ -792,68 +803,68 @@
           },
           {
             "path": "src/views/quick-open.ts",
-            "bytes": 14648,
-            "sha256": "f4cfc77a9096c068c599294dc6945ff08e2e1d4de51f9b2098550914322bc4f0"
+            "bytes": 14338,
+            "sha256": "6ba161c1ae40e83b25116b3e490256e31bc8265f7b482b77b4633e72c4211038"
           },
           {
             "path": "src/views/session-dialog.ts",
-            "bytes": 22533,
-            "sha256": "f6728e82f1a4a5264f8f07ebff316a2d630e4c1c1e20dd2d82546f8073da5c1b"
+            "bytes": 21979,
+            "sha256": "4dee0d959e34a8478c1b07c3ca0b0804fbd0ed7527dec6206c3121e2ca25dd3a"
           },
           {
             "path": "src/views/settings-about.ts",
-            "bytes": 3462,
-            "sha256": "b10a66c467fc744bf43a5926e0982f565ed57bc0b4081617a24c27fb25cf9096"
+            "bytes": 3405,
+            "sha256": "e9c555f47bb9495948f008d55de80a373c549dd0b7d40f7df6edf828421cd9cd"
           },
           {
             "path": "src/views/settings-appearance.ts",
-            "bytes": 6970,
-            "sha256": "d32af508ce9cabfdb52d885b71447e8e7096aa5fb0b724144dbe8aee77c512dc"
+            "bytes": 6709,
+            "sha256": "35266fceb58b81fde0fcafc53c9e87502e26705f81553080e28374ed79a46d1a"
           },
           {
             "path": "src/views/settings-dialog.ts",
-            "bytes": 6246,
-            "sha256": "a2050ec55e71f3b9876d2ce481a57ad5ca64eafaedd3cee1cbd5b57205536aa4"
+            "bytes": 6255,
+            "sha256": "caa1ada80f65555b176455eef309a9cd129135a2c340c9687f3a5ebd9d95cc19"
           },
           {
             "path": "src/views/settings-general.ts",
-            "bytes": 1344,
-            "sha256": "e5537398f9ea397b0d9117df9d5ffd0285266759478fd8fe283ddaa2932b2fc6"
+            "bytes": 1238,
+            "sha256": "6b0b515bb58c346e5a774a849a53e1019a4f000335487680791b40690f71e75f"
           },
           {
             "path": "src/views/settings-rows.ts",
-            "bytes": 3137,
-            "sha256": "8d541c42d854f36faafe233c78169ba730dbd6c1c9c02583ce6d7a152c97f635"
+            "bytes": 3127,
+            "sha256": "c016539428c47573b3cce1e7ef1660464690e8116983cfd2800417764a72ab17"
           },
           {
             "path": "src/views/settings-shortcuts.ts",
-            "bytes": 10632,
-            "sha256": "31fd47c15249b94a653357e3562b60e0d8911971d8da3a8da9423ff2a664991f"
+            "bytes": 10371,
+            "sha256": "a3ebf33f3e5bd25dd9adc2456077ce8383459f5daa9fcc4b4c0c61e851f932d2"
           },
           {
             "path": "src/views/settings-terminal.ts",
-            "bytes": 6627,
-            "sha256": "df3c4a3ff4c872e8e18c2a6794fe87514e3b6e1fef57008dbcc6a271dff4971e"
+            "bytes": 6570,
+            "sha256": "a2ed620e550388eb4fd9f047f7369cba6b3c7f69d6d78eee5aecc7232d3da8c8"
           },
           {
             "path": "src/views/shortcut-title.ts",
-            "bytes": 895,
-            "sha256": "2aaf4ebe974bedbac0e403258fdbe72be42b852811751f5847891e73c2a7ce34"
+            "bytes": 794,
+            "sha256": "2847785b07d346ac7ebe2755a62dc6791a82387008399205bcd239a2b5c11fd7"
           },
           {
             "path": "src/views/sidebar-resize.ts",
-            "bytes": 8002,
-            "sha256": "2a9de5e0927b83b31fa7f0f797c199ddd3ef4e0fd24d79aec1fdf61444ff4b57"
+            "bytes": 7855,
+            "sha256": "d4eb13c30ee06121de6320cf231a16ac5f07290458add9f35a6afd6c2663ff21"
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 126388,
-            "sha256": "c9a55e9e6f6fbd6a336285a6da4d01a893c3486d48c87984cd1b7f40a7d6b243"
+            "bytes": 124292,
+            "sha256": "f2bae2c25c7d35d19951d8fc6731aac25d6b3ac964d3a0a455298e29ec19c358"
           },
           {
             "path": "src/views/status-pill.ts",
-            "bytes": 3289,
-            "sha256": "103abd6ba65d7b47e3e7c7ba8e75861e6a9cb631bd6dc8f71e00c5fd3bbea3c5"
+            "bytes": 3028,
+            "sha256": "b188fc8ed46579eeadb16677c17123c5acfd228386c00b3f52e2f6eb882d61bd"
           },
           {
             "path": "src/views/switch.ts",
@@ -892,13 +903,13 @@
           },
           {
             "path": "src/views/types.ts",
-            "bytes": 6718,
-            "sha256": "958f18b0cc330f8b4c2fc5ddac95edfc0b7432a4424e7a9dbba47a0834549c5d"
+            "bytes": 6563,
+            "sha256": "06dbef4a1c71003690a79579f713c55972924d726e72bfcec12f84f69cf9329b"
           },
           {
             "path": "src/views/waiting-lane.ts",
-            "bytes": 12115,
-            "sha256": "66f8af5c96bcc7176e90ce46c7c4899f236902c77e37b459ec75cf81ff823930"
+            "bytes": 11818,
+            "sha256": "1d23aaaf3fcd9fd73f584bbd8ccea40ac2b7f4455f20ebc61bc9f70d0972cded"
           }
         ]
       },
@@ -908,13 +919,13 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 283158,
-            "sha256": "5d65c38a9513c1c756fdd7dcbc7ccef34281ad7b0e25b7754f826b49943f67db"
+            "bytes": 177013,
+            "sha256": "f46bf715fce8b4c3385e281b3879a23f2f567b920ec975379f1bad24ffb24467"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
-            "bytes": 18900,
-            "sha256": "37bffd671f8c045a80d35c42c892c18347cca6a5122e782a416e8a31ac469c58"
+            "bytes": 23738,
+            "sha256": "85fccf5ffbd628484fdab9401ce6e1d4b3c71ab180d82239d7a9a808be94e145"
           },
           {
             "path": "src-tauri/src/commands/history_tests.rs",
@@ -923,23 +934,28 @@
           },
           {
             "path": "src-tauri/src/commands/terminal_ownership_tests.rs",
-            "bytes": 20482,
-            "sha256": "a876ec9151708c3f54179c16de919d7651ebbdf0f8f0f6250091b78af98d5e6e"
+            "bytes": 21389,
+            "sha256": "1f1f9ab9b30853622c43a20435b47f0593aec424287353e9ed9ba4c352f982c3"
+          },
+          {
+            "path": "src-tauri/src/commands/tests.rs",
+            "bytes": 108490,
+            "sha256": "b18f940b23046768270f09050f9e048d27b002ed12acf6b6261884984a90025b"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
-            "bytes": 36779,
-            "sha256": "be850b89b750bc739afd8b00be1b3c21fc595bb9d5facf39e0f6fc576f36b428"
+            "bytes": 35539,
+            "sha256": "e7faf7caa1910f3f6e2c82b2013cace83a935dd37c757e49166d7ef5ba5bfe9a"
           },
           {
             "path": "src-tauri/src/connection.rs",
-            "bytes": 23107,
-            "sha256": "c745899c769615ca3f02f42016afdc3c6536e700a9a0fbadd70b2d304fe72ee3"
+            "bytes": 23039,
+            "sha256": "a20c35517f54a7c42936df694f4b7984b2cd5eaa2e2758b1f865ccdbecfa7d72"
           },
           {
             "path": "src-tauri/src/connection/host_key.rs",
-            "bytes": 8713,
-            "sha256": "f34a4e04b3ece6be263b6fbab50fd0bc4b5e5dce28a6aea8fb6fdc26dcc745ad"
+            "bytes": 8123,
+            "sha256": "c09ce47078299e36cee9192674fb35c979db1b37622f551a2eeb71e332fe758f"
           },
           {
             "path": "src-tauri/src/connection/tests.rs",
@@ -948,13 +964,13 @@
           },
           {
             "path": "src-tauri/src/keymap.rs",
-            "bytes": 18791,
-            "sha256": "c4fb2e0d82468e9a2c96bae09a9cf0b43b4ada0f1353f99bba85c65849302cae"
+            "bytes": 18577,
+            "sha256": "25e48f491c4a603d710ce321695d7e0bc758e3360f3762e35b34dbf541cb6643"
           },
           {
             "path": "src-tauri/src/lib.rs",
-            "bytes": 8727,
-            "sha256": "d2e4cd857010bb80a6763f39b7037818452d36c5c398d6e9f9c815d91b49bbbc"
+            "bytes": 8383,
+            "sha256": "08bdbb9a68814f6f1b951e7ee1975b00d05d8eece8ad3d1e8f8b88d320999741"
           },
           {
             "path": "src-tauri/src/main.rs",
@@ -963,18 +979,18 @@
           },
           {
             "path": "src-tauri/src/preflight.rs",
-            "bytes": 19279,
-            "sha256": "85cbd62b2447d3605bec826d2c5b15cf0c333b7b6932c31d9aa267ea6148bc52"
+            "bytes": 19149,
+            "sha256": "f2e228520cab676db74106c33a1e719607ec967b90e993a8dd63bf2dd838d910"
           },
           {
             "path": "src-tauri/src/remote/command.rs",
-            "bytes": 7484,
-            "sha256": "03b4b7281ded605e664459eb866ee9f14e6378de57da4ee99eb1fc8eea17024b"
+            "bytes": 7813,
+            "sha256": "85d201f6e65cb51c82ef2ffe0332b7426326c55f3c737b539fc02aba4c04d17b"
           },
           {
             "path": "src-tauri/src/remote/dirs.rs",
-            "bytes": 14015,
-            "sha256": "80d79f1ec0b0add4ab6c38edbaaf7c2aa5b771458ab2ffcde183d469a38e6387"
+            "bytes": 14073,
+            "sha256": "a7cd3d69e612cb5ab759aac8ece950ee4303b0a24dff5a3c5682d0c0daecdd69"
           },
           {
             "path": "src-tauri/src/remote/mod.rs",
@@ -983,18 +999,18 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 93299,
-            "sha256": "90b110289065ab9681786378cfaae5fe487244c6f47b45af4862b8f9c6cd713c"
+            "bytes": 118905,
+            "sha256": "66e88d1129d4379aa01fb5b11162e7a086c7f100473717cd3e196a8c5c6a5e43"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
-            "bytes": 53094,
-            "sha256": "6ab8f3ceec13ade1e2bfa60db95c058975383a248a0647fe34a35a988b0797a9"
+            "bytes": 61524,
+            "sha256": "1df886c5d2b6173a590c1671f64ffb1640ce277197af4af62e4e3866954fc118"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
-            "bytes": 7695,
-            "sha256": "a07a4164ecf5633b7648cd4d152bb547b28c9e939f5b38f2c8f1af040ce0354f"
+            "bytes": 17912,
+            "sha256": "599fea6b3756ea3a516f1202ad46589db1719c0cfcc4bcf87a66c13cf3479900"
           },
           {
             "path": "src-tauri/src/ssh/keys.rs",
@@ -1003,8 +1019,8 @@
           },
           {
             "path": "src-tauri/src/ssh/known_hosts.rs",
-            "bytes": 49572,
-            "sha256": "ac481ccd64c961c9925fe03155f766bfe8852896a698920f20a1c17a3e4cfd1e"
+            "bytes": 52094,
+            "sha256": "07ecc1cc3c6bacfd475f9f1dd77221a19ca09e09d2ff47f7d1a644c82f4c1a06"
           },
           {
             "path": "src-tauri/src/ssh/mod.rs",
@@ -1033,23 +1049,23 @@
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation.rs",
-            "bytes": 19979,
-            "sha256": "64ba5b2a613b725b3130aa1a2b2b850e53eead6e36f99610568023185ca63298"
+            "bytes": 18883,
+            "sha256": "8a860dce6ff2deb8dd3f8c7db79aa92120916878fb8bc12c195db4d8dcb56166"
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation/tests.rs",
-            "bytes": 14987,
-            "sha256": "20bb7a3b8b4947f93da97e16a1328c067740caed561c8831327b9707368592f1"
+            "bytes": 15349,
+            "sha256": "11e22c5272f78ba9c1cb04348b3ac37934f836e6c3a00be7859c82dfacdbcaaa"
           },
           {
             "path": "src-tauri/src/tmux/client.rs",
-            "bytes": 43943,
-            "sha256": "818b6055a0d30cd54d203db4fb33095409bbc9d884a3a323920de7f18e64d343"
+            "bytes": 44482,
+            "sha256": "8e8e8b618802d807652c2b2c19d44a8b463f993358161bb720fb2ade2881d959"
           },
           {
             "path": "src-tauri/src/tmux/client_observation_tests.rs",
-            "bytes": 21797,
-            "sha256": "b9d1c8ab871d4c260ecb19ed158d54c727e6800a34489681ad8d02c7f00621b8"
+            "bytes": 22091,
+            "sha256": "d872b82365c7349b622135874098f6ebd8a93c383071bf4690ca4df5ed0325fb"
           },
           {
             "path": "src-tauri/src/tmux/history.rs",
@@ -1073,18 +1089,18 @@
           },
           {
             "path": "src-tauri/src/tmux/names.rs",
-            "bytes": 5280,
-            "sha256": "28c4b32c04055ddc35a3afc71bcd12c750ada49744bbbc1c8b44b5e3d8f2b155"
+            "bytes": 5314,
+            "sha256": "a5387aeb1f5f68097f9ebd6e2e0e29584bb5835d815f958d7d7926293f1682be"
           },
           {
             "path": "src-tauri/src/tmux/session_binding.rs",
-            "bytes": 55606,
-            "sha256": "f651589e9de2f2c0c68b8851c5d9e8f9a17d96806fd4e85b63f5244350086845"
+            "bytes": 59330,
+            "sha256": "e6a44a79a82da68e27ac5f9f6a51a0949f1c18b4cbc42bf2aee37e09435649ea"
           },
           {
             "path": "src-tauri/src/tmux/socket.rs",
-            "bytes": 4636,
-            "sha256": "9f4fb7df07f7c9fbe1a3761054ce2fe43387a67b84d9093870536417fabcae5b"
+            "bytes": 6389,
+            "sha256": "ff167a40bf240bd4618a186acaf6197f5382df88b1da4114ae7d4ba96b375ffc"
           },
           {
             "path": "src-tauri/src/transport/abortable_io.rs",
@@ -1098,8 +1114,8 @@
           },
           {
             "path": "src-tauri/src/transport/mod.rs",
-            "bytes": 2328,
-            "sha256": "5df8ae91d13c1d892fd8b202269af4470cf344b123d7d33271db028a7bfd0021"
+            "bytes": 2271,
+            "sha256": "a068a174194ff8120c7db21bcee57ddd678e8855d8a76b9336a88217b4953068"
           },
           {
             "path": "src-tauri/src/transport/operation_control.rs",
@@ -1108,13 +1124,13 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
-            "bytes": 28184,
-            "sha256": "e7fcbf2ee7caed3bee51da5f36f5707bf7e84ced2ffbc114c3ecadad9de63ea4"
+            "bytes": 28630,
+            "sha256": "174dde43c5bd92856b49fed3ce6d8e36149af3cb209c6d1b4bd62c0f0d60c611"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 24795,
-            "sha256": "7be33470c8d3405a899a72ffc017bc03745e172b3889849cad39e600492f5b29"
+            "bytes": 30186,
+            "sha256": "ec84b0c610e62f86b5e552977fd325e3ed15f20a529949f699835a68fcc6ba9c"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
@@ -1123,8 +1139,8 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport/owned_operations.rs",
-            "bytes": 44373,
-            "sha256": "f947438fa4fda1573e14187e2cfdad9bb6f2b6df967aefc71b2723c63ce9213f"
+            "bytes": 43077,
+            "sha256": "2f0b103d624ce0acd89a74778ded35dd0d043f3642dfd2362d4fa48229b028b7"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/pty_output.rs",
@@ -1144,8 +1160,8 @@
         "files": [
           {
             "path": "src-tauri/capabilities/default.json",
-            "bytes": 2205,
-            "sha256": "e3f3b9be989ab1981754a8fa3df42bb4d3843a7aaa555e29cc1c3c604588afb1"
+            "bytes": 3848,
+            "sha256": "48188ac1241c19c40d6a3bcff906113ee6ddd762c28f9da04a309587d20d00da"
           }
         ]
       },
@@ -1908,8 +1924,8 @@
         "package": "aidevbridge@0.2.3",
         "source": null,
         "manifest": {
-          "bytes": 5397,
-          "sha256": "8c6a2d1aa2825998a52eb0fffb6da3ac68d706072a61e26f189d3b9d43284939"
+          "bytes": 5276,
+          "sha256": "084514008b882da56fd111e93075ff0f6762a4fcfc437ea4737930ae84c1c9b8"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -2373,11 +2389,11 @@
         "declared_license": "MIT OR Apache-2.0"
       },
       {
-        "package": "crypto-bigint@0.7.5",
+        "package": "crypto-bigint@0.7.10",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
-          "bytes": 5670,
-          "sha256": "197eac2e9e169e0837bcd9168a08827cc99583b08ec449348a41d0c10a0629fc"
+          "bytes": 5773,
+          "sha256": "50bba1b880a992d323bf1c73dd523a0bda1f6eeea60421b0e135abc5446ee122"
         },
         "declared_license": "Apache-2.0 OR MIT"
       },
@@ -2454,11 +2470,11 @@
         "declared_license": "MIT OR Apache-2.0"
       },
       {
-        "package": "ctutils@0.4.2",
+        "package": "ctutils@0.4.6",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
-          "bytes": 2723,
-          "sha256": "aafad7883015f7b4daf7e2ba40416a0176663c47167ca1a132614db11dcb8639"
+          "bytes": 2740,
+          "sha256": "35aab4982b5099c361e077e7981d3d270b626a7b2e4ad499fa5f28f47e788602"
         },
         "declared_license": "Apache-2.0 OR MIT"
       },
@@ -4767,11 +4783,11 @@
         "declared_license": "MIT"
       },
       {
-        "package": "tokio@1.53.1",
+        "package": "tokio@1.53.3",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
-          "bytes": 17637,
-          "sha256": "e0194904acf8d55946b949cacca2b266051bb2a99844c606829fb0159c39cfb1"
+          "bytes": 17621,
+          "sha256": "6e6a777fce6800a5ed2a0efb672d7751445556ee40d258157938ba4506b78c35"
         },
         "declared_license": "MIT"
       },
@@ -5834,13 +5850,13 @@
         "sha256": "5734ed989dfca1f625b40281ee9f4530f91b2411ec01cb748223e7eb87e201ab"
       },
       {
-        "package": "crypto-bigint@0.7.5",
+        "package": "crypto-bigint@0.7.10",
         "path": "LICENSE-APACHE",
         "bytes": 10849,
         "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
       },
       {
-        "package": "crypto-bigint@0.7.5",
+        "package": "crypto-bigint@0.7.10",
         "path": "LICENSE-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
@@ -5948,13 +5964,13 @@
         "sha256": "63af4bea227c94d021e99427f6ca3a4b8efddadcca93ab6130f708cf6138cf68"
       },
       {
-        "package": "ctutils@0.4.2",
+        "package": "ctutils@0.4.6",
         "path": "LICENSE-APACHE",
         "bytes": 11358,
         "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
       },
       {
-        "package": "ctutils@0.4.2",
+        "package": "ctutils@0.4.6",
         "path": "LICENSE-MIT",
         "bytes": 1082,
         "sha256": "91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae"
@@ -8768,7 +8784,7 @@
         "sha256": "0b83dc40cba89b9922bb84b0a9c7d2768ce37c1d7e138b7424fd4549915778c9"
       },
       {
-        "package": "tokio@1.53.1",
+        "package": "tokio@1.53.3",
         "path": "LICENSE",
         "bytes": 1070,
         "sha256": "253cd04c6714889df2d32f3f64d669179a1c95c76ac43c40882c52eb06bc3552"
@@ -12833,9 +12849,9 @@
       }
     },
     {
-      "id": "cargo:crypto-bigint@0.7.5",
+      "id": "cargo:crypto-bigint@0.7.10",
       "name": "crypto-bigint",
-      "version": "0.7.5",
+      "version": "0.7.10",
       "declared_license": "Apache-2.0 OR MIT",
       "selected_license": "MIT",
       "disposition": "include",
@@ -12852,19 +12868,20 @@
       "documents": [
         "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.5.crate",
-        "https://crates.io/crates/crypto-bigint/0.7.5",
+        "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
+        "https://crates.io/crates/crypto-bigint/0.7.10",
         "https://github.com/RustCrypto/crypto-bigint"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/crypto-bigint@0.7.5",
+        "docs/release/license-rust-crypto-tokio-2026-10-26.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.5.crate",
-        "sha256": "1a52aa3fcda4e6302a9f48734f234d35d4721b96f8fe07d073f07ce9df4f0271"
+        "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
+        "sha256": "9c035cb64cba03dad2fb921f3e218785e8cf9a41790da5eb3a1400f62fa2be11"
       }
     },
     {
@@ -13085,9 +13102,9 @@
       }
     },
     {
-      "id": "cargo:ctutils@0.4.2",
+      "id": "cargo:ctutils@0.4.6",
       "name": "ctutils",
-      "version": "0.4.2",
+      "version": "0.4.6",
       "declared_license": "Apache-2.0 OR MIT",
       "selected_license": "MIT",
       "disposition": "include",
@@ -13098,19 +13115,20 @@
       "documents": [
         "sha256:91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/ctutils/ctutils-0.4.2.crate",
-        "https://crates.io/crates/ctutils/0.4.2",
+        "https://static.crates.io/crates/ctutils/ctutils-0.4.6.crate",
+        "https://crates.io/crates/ctutils/0.4.6",
         "https://github.com/RustCrypto/utils"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/ctutils@0.4.2",
+        "docs/release/license-rust-crypto-tokio-2026-10-26.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/ctutils/ctutils-0.4.2.crate",
-        "sha256": "7d5515a3834141de9eafb9717ad39eea8247b5674e6066c404e8c4b365d2a29e"
+        "url": "https://static.crates.io/crates/ctutils/ctutils-0.4.6.crate",
+        "sha256": "fe3e9d21d39e6f39ff46e03d5b621424f88ee23d8a1672c6bfc9ccc7f2da4f6a"
       }
     },
     {
@@ -20863,9 +20881,9 @@
       }
     },
     {
-      "id": "cargo:tokio@1.53.1",
+      "id": "cargo:tokio@1.53.3",
       "name": "tokio",
-      "version": "1.53.1",
+      "version": "1.53.3",
       "declared_license": "MIT",
       "selected_license": "MIT",
       "disposition": "include",
@@ -20889,19 +20907,20 @@
       "documents": [
         "sha256:253cd04c6714889df2d32f3f64d669179a1c95c76ac43c40882c52eb06bc3552"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/tokio/tokio-1.53.1.crate",
-        "https://crates.io/crates/tokio/1.53.1",
+        "https://static.crates.io/crates/tokio/tokio-1.53.3.crate",
+        "https://crates.io/crates/tokio/1.53.3",
         "https://github.com/tokio-rs/tokio"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/tokio@1.53.1",
+        "docs/release/license-rust-crypto-tokio-2026-10-26.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/tokio/tokio-1.53.1.crate",
-        "sha256": "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed"
+        "url": "https://static.crates.io/crates/tokio/tokio-1.53.3.crate",
+        "sha256": "ce3335fa71841cda333a58d7615b03901380ecf09d59b3296d21f8bbac0dde4e"
       }
     },
     {
@@ -23793,7 +23812,7 @@
     },
     {
       "id": "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
-      "file_name": "crypto-bigint-0.7.5-LICENSE-MIT.txt",
+      "file_name": "crypto-bigint-0.7.10-LICENSE-MIT.txt",
       "bytes": 1082,
       "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
       "sources": [
@@ -23804,7 +23823,7 @@
         }
       ],
       "source_names": [
-        "crypto-bigint@0.7.5/LICENSE-MIT",
+        "crypto-bigint@0.7.10/LICENSE-MIT",
         "pkcs5@0.8.1/LICENSE-MIT",
         "scrypt@0.12.0/LICENSE-MIT",
         "sec1@0.8.1/LICENSE-MIT",
@@ -23813,7 +23832,7 @@
         "ssh-key@0.7.0-rc.11/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/crypto-bigint/0.7.5",
+        "https://crates.io/crates/crypto-bigint/0.7.10",
         "https://github.com/RustCrypto/crypto-bigint",
         "https://crates.io/crates/pkcs5/0.8.1",
         "https://github.com/RustCrypto/formats",
@@ -23912,7 +23931,7 @@
     },
     {
       "id": "sha256:91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae",
-      "file_name": "ctutils-0.4.2-LICENSE-MIT.txt",
+      "file_name": "ctutils-0.4.6-LICENSE-MIT.txt",
       "bytes": 1082,
       "sha256": "91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae",
       "sources": [
@@ -23923,10 +23942,10 @@
         }
       ],
       "source_names": [
-        "ctutils@0.4.2/LICENSE-MIT"
+        "ctutils@0.4.6/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/ctutils/0.4.2",
+        "https://crates.io/crates/ctutils/0.4.6",
         "https://github.com/RustCrypto/utils"
       ]
     },
@@ -26573,7 +26592,7 @@
     },
     {
       "id": "sha256:253cd04c6714889df2d32f3f64d669179a1c95c76ac43c40882c52eb06bc3552",
-      "file_name": "tokio-1.53.1-LICENSE.txt",
+      "file_name": "tokio-1.53.3-LICENSE.txt",
       "bytes": 1070,
       "sha256": "253cd04c6714889df2d32f3f64d669179a1c95c76ac43c40882c52eb06bc3552",
       "sources": [
@@ -26584,10 +26603,10 @@
         }
       ],
       "source_names": [
-        "tokio@1.53.1/LICENSE"
+        "tokio@1.53.3/LICENSE"
       ],
       "source_urls": [
-        "https://crates.io/crates/tokio/1.53.1",
+        "https://crates.io/crates/tokio/1.53.3",
         "https://github.com/tokio-rs/tokio"
       ]
     },
