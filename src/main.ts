@@ -330,18 +330,30 @@ export function main(): void {
    * nicht mehr; gespeichert wird ohnehin seine. */
   let sidebarWidthChosen = false;
 
+  // Jedes Schreiben von `ui_settings` aus diesem Fenster geht erst hinaus, wenn
+  // das vorige beantwortet ist. Das Backend schreibt auf dem Blocking-Pool und
+  // haelt dort keine Reihenfolge ein: Zwei Aufrufe kurz nacheinander, etwa zwei
+  // Themenwechsel, koennten sich ueberholen, und der aeltere Wert stuende
+  // zuletzt in `settings.toml`.
+  let uiSettingsWrites: Promise<unknown> = Promise.resolve();
+  function writeUiSettings(patch: Record<string, unknown>): Promise<UiSettingsDto> {
+    const write = uiSettingsWrites.then(() => invoke<UiSettingsDto>("ui_settings", { patch }));
+    uiSettingsWrites = write.catch(() => {});
+    return write;
+  }
+
   // UX-Spec §9.2: die [ui]-Felder gehen entprellt hinaus, mit nur den
   // geaenderten Feldern (`state/ui-settings-sync.ts`). Das Thema hat seinen
   // eigenen Weg (`persistTheme`), den Arbeitsplatz schreibt `workspaceSync`.
-  const uiSettingsSync = createUiSettingsSync((patch) => invoke<UiSettingsDto>("ui_settings", { patch }));
+  const uiSettingsSync = createUiSettingsSync((patch) => writeUiSettings(patch));
 
   // UX-Spec §7.1: der Arbeitsplatz geht entprellt als ganzer Schnappschuss
   // hinaus, mit einem eigenen Schreiber neben dem der [ui]-Felder. Beide
-  // schicken Teil-Patches; Rust fuehrt `ui_settings` nacheinander aus. Bis
+  // schicken Teil-Patches, nacheinander ueber `writeUiSettings`. Bis
   // `start` (aus `bootstrap`) schreibt er nichts, ohne gelesenen Stand nie.
   const workspaceSync = createWorkspaceSync({
     state,
-    write: (snapshot) => invoke<UiSettingsDto>("ui_settings", { patch: { workspace: snapshot } }).then(() => {}),
+    write: (snapshot) => writeUiSettings({ workspace: snapshot }).then(() => {}),
     // `sidebarCollapsed` steht weiter unten; gelesen wird erst nach `start`.
     sidebarCollapsed: () => sidebarCollapsed,
     setSidebarCollapsed: (collapsed) => setSidebarCollapsed(collapsed),
@@ -425,7 +437,7 @@ export function main(): void {
   }
 
   function persistTheme(theme: ThemeId): void {
-    void invoke<UiSettingsDto>("ui_settings", { patch: { theme } })
+    void writeUiSettings({ theme })
       .then(() => {
         unknownStoredTheme = null;
       })

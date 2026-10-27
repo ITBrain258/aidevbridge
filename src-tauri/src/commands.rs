@@ -3489,9 +3489,12 @@ pub fn ui_settings_impl(
 /// Fenster zeichnet, und jedes Speichern wartet auf `sync_all` fuer Datei und
 /// Ordner (unter macOS `F_FULLFSYNC`): Als synchroner Command liesse es das
 /// Fenster so lange stehen.
-/// Gleichzeitige Speichervorgaenge eines Fensters reiht `settings::update_at`
-/// selbst hintereinander (Spec §12.4); die Commands halten keinen Zustand im
-/// Speicher, der eine bestimmte Reihenfolge braucht.
+/// Gleichzeitige Speichervorgaenge schliesst `settings::update_at` gegenseitig
+/// aus (Spec §12.4), haelt aber nicht ihre Reihenfolge ein: Wer zuerst die
+/// Sperre bekommt, schreibt zuerst. Das Frontend schickt `ui_settings` deshalb
+/// erst nach der Antwort auf den vorigen Aufruf (`writeUiSettings` in
+/// `main.ts`); die Host-Commands kommen aus Dialogen, die auf ihre Antwort
+/// warten.
 async fn off_main_thread<T: Send + 'static>(
     work: impl FnOnce(&Path) -> Result<T, String> + Send + 'static,
 ) -> Result<T, String> {

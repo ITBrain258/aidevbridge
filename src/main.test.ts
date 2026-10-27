@@ -5277,6 +5277,45 @@ describe("Themen (UI v2 §12)", () => {
     expect(writes[writes.length - 1]).toEqual(["ui_settings", { patch: { theme: "turquoise-slate" } }]);
   });
 
+  // Das Backend schreibt auf dem Blocking-Pool ohne feste Reihenfolge; liefen
+  // zwei Schreibaufrufe zugleich, koennte der aeltere Wert zuletzt landen.
+  it("schickt ein Schreiben von ui_settings erst nach der Antwort auf das vorige", async () => {
+    const answers: Array<() => void> = [];
+    themeMocks(() => Promise.resolve({ theme: "turquoise" }));
+    const reads = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation((...call: Parameters<typeof reads>) => {
+      const [command, args] = call;
+      if (command === "ui_settings" && (args as { patch: unknown }).patch !== null) {
+        return new Promise((resolve) => answers.push(() => resolve({ theme: "turquoise" })));
+      }
+      return reads(...call);
+    });
+    main();
+    await flush();
+    const chooseBase = (base: string) => {
+      document.querySelector<HTMLButtonElement>(".sb-head-btn")!.click();
+      document.querySelector<HTMLButtonElement>("#settings-tab-appearance")!.click();
+      const radio = document.querySelector<HTMLInputElement>(`input[name="base"][value="${base}"]`)!;
+      radio.checked = true;
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    };
+    const writes = () =>
+      invokeMock.mock.calls
+        .filter(([command, args]) => command === "ui_settings" && (args as { patch: unknown }).patch !== null)
+        .map(([, args]) => args);
+
+    chooseBase("slate");
+    await flush();
+    chooseBase("graphite");
+    await flush();
+    expect(writes()).toEqual([{ patch: { theme: "turquoise-slate" } }]);
+
+    answers[0]();
+    await flush();
+    expect(writes()).toEqual([{ patch: { theme: "turquoise-slate" } }, { patch: { theme: "turquoise" } }]);
+  });
+
   // Review Fix-Runde 1: Appearance mountet nach einem Bereichswechsel neu und
   // muss das angewandte Thema zeigen, nicht das vom Oeffnen des Dialogs.
   it("die gewaehlte Farbe steht nach einem Wechsel des Bereichs noch da", async () => {
