@@ -20,6 +20,8 @@ dem Namen agentbridge.
 
 ### Fixed
 
+- Ein Terminal oeffnet auch dann, wenn auf demselben tmux-Server gerade eine andere Session entsteht oder endet, etwa bei zweimal "New session" kurz nacheinander. Bisher scheiterte das Oeffnen mit "attach identity changed"; jetzt liest die Bestaetigung nach dem Anhaengen erneut, hoechstens viermal. Aendert sich die gewaehlte Session selbst, scheitert es weiter sofort.
+- Statusabfrage: Die App liest tmux' Standard-Socket neben dem eigenen Socket statt danach, und die naechste Abfrage beginnt 2 s nach dem Beginn der vorigen statt 2 s nach ihrem Ende, fruehestens 0,5 s danach. Unter vier ungebremst ausgebenden Kacheln zeigt die Seitenleiste einen wartenden Agenten wieder binnen 4 s (gemessen hoechstens 3,3 s statt bis 5,0 s).
 - Tastendruecke zwischen dem Klick auf eine Session und dem Anhaengen gehen nicht mehr verloren, ebenso Einfuegen und die Antworten des Terminals auf die Abfragen von tmux: Die Kachel puffert sie und sendet sie nach dem Anhaengen in derselben Reihenfolge. Scheitert das Oeffnen, wird die Kachel vorher geschlossen oder gesperrt oder bricht die Verbindung ab, verwirft sie den Puffer.
 - Ein Fehler in einem Teil der Oberflaeche haelt die uebrigen nicht mehr an. Scheitert das Lauschen auf Terminalereignisse, meldet die Kachel einen Oeffnungsfehler und gibt ihren Platz unter den Oeffnungen ihres Hosts frei, statt still zu warten.
 - Meldungen setzen jeden Wert genau einmal ein: Ein Hostname oder Anzeigename wie `a{message}` steht woertlich in der Meldung, statt ein zweites Mal ersetzt zu werden.

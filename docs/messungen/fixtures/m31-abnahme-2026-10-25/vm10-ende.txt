@@ -1,0 +1,6 @@
+drwx------ 2 master master    4096 Oct 25 hh:mm .
+drwxrwxrwt 1 root   root   5636096 Oct 25 hh:mm ..
+srwxrwx--- 1 master master       0 Oct 25 hh:mm agentbridge
+1099139 tmux -L agentbridge … (Prozess einer anderen App, nicht Teil der Messung)
+2170799 tmux -L agentbridge … (Prozess einer anderen App, nicht Teil der Messung)
+error connecting to /tmp/tmux-1000/default (No such file or directory)

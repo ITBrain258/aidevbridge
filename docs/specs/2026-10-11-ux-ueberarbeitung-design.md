@@ -203,6 +203,14 @@ Polltakt: Je Host beginnt der nächste Poll frühestens 2 s nach dem Ende des
 vorigen. Läuft für den Host gerade `list_sessions`, setzt der Poll aus. Die Liste
 wartet nie auf den Poll.
 
+**Nachtrag vom 27.10.2026, Polltakt:** Der nächste Poll beginnt 2 s nach dem
+Beginn des vorigen, frühestens 0,5 s nach seinem Ende; zwei Polls eines Hosts
+laufen weiter nie zugleich, und ein wegen `list_sessions` ausgesetzter Poll
+zählt als Takt. Gemessen ab dem Ende wuchs der Takt mit der Dauer jeder Abfrage,
+unter vier flutenden Kacheln auf rund 4,5 s, und die Grenze von 4 s des M1-Tors
+hielt nicht mehr ([M3.1-Abnahme](../messungen/messung-2026-10-25-m31-abnahme.md)).
+„Alle 2 s“ war schon die Vorgabe der MVP-Spec.
+
 Die Sessionliste lädt nur bei einer neuen Kontrollgeneration neu (nach einer
 Reparatur), nicht bei jedem Zustandswechsel. Veraltet ist sie nur bei
 `degraded`, `reconnecting` und `authentication_required`.

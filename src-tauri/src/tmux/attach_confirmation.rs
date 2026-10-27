@@ -4,7 +4,7 @@ use super::inventory::{
     InventoryOutcome, InventoryQuery, PaneId, ServerIdentity, SessionId, WindowId,
     MAX_INVENTORY_BYTES,
 };
-use super::session_binding::{self, BindingQuery, PaneIdentity};
+use super::session_binding::{self, BindingQuery, PaneIdentity, UnverifiedReason};
 use super::socket::SocketKind;
 use crate::{remote, transport::ExecResult};
 use std::collections::BTreeSet;
@@ -19,6 +19,11 @@ pub(crate) enum Unverified {
     Frame,
     #[error("attach identity changed")]
     Changed,
+    /// Only the session list of the server moved during the check: another
+    /// session was created, ended or renamed. The selected binding is not in
+    /// question, so the caller may check again.
+    #[error("the session list changed during the attach check")]
+    ListingChanged,
     #[error("client flags are unavailable; legacy compatibility is not yet established")]
     FlagsUnavailable,
     #[error("attach client mode is not supported")]
@@ -535,7 +540,11 @@ impl SocketBinding {
         let l1 = session_binding::parse_list(&results[4]).map_err(|_| Unverified::Frame)?;
         let bound =
             session_binding::correlate(&l0, &r0, &i, &r1, &l1, self.selected.session_id, None)
-                .map_err(|_| Unverified::Changed)?;
+                .map_err(|reason| match reason {
+                    UnverifiedReason::ListingChanged
+                    | UnverifiedReason::ListingInventoryMismatch => Unverified::ListingChanged,
+                    _ => Unverified::Changed,
+                })?;
         if bound.selected != self.selected {
             return Err(Unverified::Changed);
         }

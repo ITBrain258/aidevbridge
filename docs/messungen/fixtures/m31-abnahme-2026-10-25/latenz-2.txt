@@ -1,0 +1,18 @@
+14:26:20.354 JSON none                         -> Seite -
+14:26:22.079 JSON idle                         -> Seite 14:26:26.024  +3.94 s
+14:26:32.001 JSON busy                         -> Seite 14:26:34.954  +2.95 s
+14:26:34.469 JSON waiting/permission prompt    -> Seite 14:26:39.049  +4.58 s
+14:26:43.923 JSON idle                         -> Seite 14:26:47.804  +3.88 s
+14:26:54.960 JSON busy                         -> Seite 14:26:56.424  +1.46 s
+14:26:56.191 JSON waiting/permission prompt    -> Seite 14:27:01.011  +4.82 s
+14:27:01.128 JSON busy                         -> Seite 14:27:22.373  +21.24 s
+14:27:03.018 JSON idle                         -> Seite 14:27:05.241  +2.22 s
+14:27:13.185 JSON busy                         -> Seite 14:27:22.373  +9.19 s
+14:27:14.881 JSON waiting/permission prompt    -> Seite 14:27:18.071  +3.19 s
+14:27:20.096 JSON busy                         -> Seite 14:27:22.373  +2.28 s
+14:27:21.275 JSON idle                         -> Seite 14:27:26.460  +5.18 s
+14:27:33.375 JSON busy                         -> Seite 14:27:34.594  +1.22 s
+14:27:37.479 JSON idle                         -> Seite 14:27:38.701  +1.22 s
+14:28:45.494 JSON busy                         -> Seite 14:28:47.864  +2.37 s
+14:28:50.251 JSON idle                         -> Seite 14:28:52.281  +2.03 s
+14:29:58.688 JSON none                         -> Seite -

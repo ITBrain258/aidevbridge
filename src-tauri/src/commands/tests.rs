@@ -136,6 +136,138 @@ async fn one_poll_reads_both_sockets_and_claude_once() {
     );
 }
 
+/// Antwortet nach dem Inhalt der Zeile statt nach ihrer Reihenfolge und
+/// haelt das Inventar des eigenen Sockets fest, bis der Standard-Socket
+/// gefragt wurde.
+struct GatedPollTransport {
+    default_asked: tokio::sync::Notify,
+}
+
+#[async_trait]
+impl Transport for GatedPollTransport {
+    async fn exec_with_deadline(
+        &self,
+        line: &str,
+        _timeout: Duration,
+    ) -> anyhow::Result<ExecResult> {
+        let argv = crate::remote::command::decoded_argv(line);
+        let has = |s: &str| argv.iter().any(|arg| arg == s);
+        Ok(poll_exec(
+            if argv.iter().any(|arg| arg.contains("claude")) {
+                "[]"
+            } else if has("aidevbridge-panes") {
+                ""
+            } else if has("-V") {
+                "tmux 3.6\n"
+            } else if has("dflt") {
+                self.default_asked.notify_one();
+                DEFAULT_INVENTORY
+            } else {
+                self.default_asked.notified().await;
+                POLL_INVENTORY
+            },
+        ))
+    }
+    async fn dispose(&self) {}
+}
+
+/// Abnahme vom 25.10.: Nacheinander verlaengerte der Standard-Socket jede
+/// Abfrage um seine eigene Dauer. Er laeuft jetzt neben dem eigenen
+/// Socket; nacheinander wartete das eigene Inventar hier ewig.
+#[tokio::test]
+async fn the_default_socket_is_read_while_the_own_socket_waits() {
+    let default = TmuxSocket::default_named("dflt");
+    let t = GatedPollTransport {
+        default_asked: tokio::sync::Notify::new(),
+    };
+    let polled = tokio::time::timeout(
+        Duration::from_secs(2),
+        poll_sockets_with(
+            &t,
+            &sock(),
+            Some(&default),
+            tokio::time::Instant::now() + COMMAND_TIMEOUT,
+        ),
+    )
+    .await
+    .expect("the default socket waited for the own socket")
+    .unwrap();
+    assert_eq!(polled.own.unwrap().sessions.len(), 2);
+    assert_eq!(polled.default.unwrap().unwrap().sessions.len(), 1);
+}
+
+// --- Bestaetigung nach dem Anhaengen (Abnahme vom 25.10., Befund 1) ---
+
+const CONFIRM_LIST: &str = "L|50|1000|$0|dev\n";
+const CONFIRM_RESOLVE: &str = "R|50|1000|$0|@0|%0|10|1|1\n";
+const CONFIRM_INVENTORY: &str = "B|50|1000\nQ|$0|1\nP|$0|@0|%0|10|1|1|0|0|0|1|0|1\nE|50|1000\n";
+
+fn confirm_binding() -> SocketBinding {
+    let named = poll_exec("S|50|1000|$0|/tmp/ab/tmux.sock\n");
+    let selected = PaneIdentity {
+        server: ServerIdentity {
+            pid: 50,
+            start_time: 1000,
+        },
+        session_id: SessionId(0),
+        window_id: WindowId(0),
+        pane_id: PaneId(0),
+        pane_pid: 10,
+    };
+    SocketBinding::from_responses(&named, &named, selected, SocketKind::App).unwrap()
+}
+
+/// Eine Runde der fuenf Lesungen; `last_list` ist die zweite Liste.
+fn confirm_round(resolved_after: &str, last_list: &str) -> Vec<ExecResult> {
+    [
+        CONFIRM_LIST,
+        CONFIRM_RESOLVE,
+        CONFIRM_INVENTORY,
+        resolved_after,
+        last_list,
+    ]
+    .into_iter()
+    .map(poll_exec)
+    .collect()
+}
+
+const CHURNED_LIST: &str = "L|50|1000|$0|dev\nL|50|1000|$1|zz1\n";
+
+#[tokio::test]
+async fn the_attach_check_reads_again_when_only_the_list_moved() {
+    let mut script = confirm_round(CONFIRM_RESOLVE, CHURNED_LIST);
+    script.extend(confirm_round(CONFIRM_RESOLVE, CONFIRM_LIST));
+    let t = ScriptedTransport::new(script);
+    confirm_attached_binding(&t, &confirm_binding(), SessionId(0), || COMMAND_TIMEOUT)
+        .await
+        .unwrap();
+    assert_eq!(*t.calls.lock().unwrap(), 10);
+}
+
+#[tokio::test]
+async fn the_attach_check_gives_up_after_its_attempts() {
+    let script = (0..CONFIRM_ATTEMPTS)
+        .flat_map(|_| confirm_round(CONFIRM_RESOLVE, CHURNED_LIST))
+        .collect();
+    let t = ScriptedTransport::new(script);
+    let error = confirm_attached_binding(&t, &confirm_binding(), SessionId(0), || COMMAND_TIMEOUT)
+        .await
+        .unwrap_err();
+    assert_eq!(error, Unverified::ListingChanged.to_string());
+    assert_eq!(*t.calls.lock().unwrap(), 5 * CONFIRM_ATTEMPTS);
+}
+
+/// Aendert sich die gewaehlte Session selbst, bleibt es bei einer Runde.
+#[tokio::test]
+async fn a_changed_selected_session_fails_the_attach_check_at_once() {
+    let t = ScriptedTransport::new(confirm_round("R|50|1000|$0|@0|%3|12|1|1\n", CONFIRM_LIST));
+    let error = confirm_attached_binding(&t, &confirm_binding(), SessionId(0), || COMMAND_TIMEOUT)
+        .await
+        .unwrap_err();
+    assert_eq!(error, Unverified::Changed.to_string());
+    assert_eq!(*t.calls.lock().unwrap(), 5);
+}
+
 /// Kein Server auf dem Standard-Socket ist ein vollstaendiges, leeres
 /// Ergebnis, wenn tmux genau den vorhergesagten Pfad nennt; jeder andere
 /// Fehler dort trifft nur diesen Socket (Spec 2026-10-25 §6.3).

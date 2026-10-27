@@ -257,7 +257,8 @@ the app as one more client of that session:
   panes (`tmux display-message`, program files from `/proc` and, while
   Codex runs, the `tui` keys of its settings; no command lines), one short
   `claude` process and, while agents run, one read-only `/proc` lookup,
-  whatever the number of sessions.
+  whatever the number of sessions. With "Show tmux sessions" on, one more
+  tmux command and title read cover tmux's default socket, at the same time.
 
 ## Privacy
 
