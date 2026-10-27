@@ -38,7 +38,7 @@ Auf dem Branch `feat/android` (Worktree
 - **Store-Eintrag** in `fastlane/metadata/android/` (Deutsch und Englisch):
   Titel, Kurz- und Langbeschreibung, Änderungstext, Icon 512 × 512,
   Feature-Grafik 1024 × 500. Datenschutzerklärung `PRIVACY.md`.
-- **Testpakete** der aktuellen Fassung (arm64, signiert):
+- **Testpakete** der aktuellen Fassung (arm64, armv7 und x86_64, signiert):
   `C:\Users\test\Desktop\aidevbridge-android\` (siehe B3).
 
 Was fehlt und nur du tun kannst: Konten anlegen und bestätigen, Bildschirmfotos
@@ -93,7 +93,7 @@ Auf diesem PC startet der Android-Emulator nicht: Die VM reicht keine
 Virtualisierung durch. Die Ansicht fürs Telefon ist deshalb bisher nur in
 einer Vorschau im Browser geprüft. Am echten Telefon:
 
-1. `C:\Users\test\Desktop\aidevbridge-android\aidevbridge-android-arm64.apk`
+1. `C:\Users\test\Desktop\aidevbridge-android\aidevbridge-android.apk`
    aufs Telefon kopieren (Kabel, Cloud, Mail an dich selbst) und dort öffnen;
    Android fragt einmal, ob diese Quelle Apps installieren darf.
    Oder per Kabel: Telefon in den Entwickleroptionen auf „USB-Debugging“,
@@ -242,7 +242,7 @@ CI.
 2. **App-Signatur:** „Play App Signing“ mit von Google erstelltem Schlüssel
    annehmen (Voreinstellung). Dein Schlüssel ist ab dann der Upload-Schlüssel.
 3. App Bundle hochladen:
-   `C:\Users\test\Desktop\aidevbridge-android\aidevbridge-android-arm64.aab`
+   `C:\Users\test\Desktop\aidevbridge-android\aidevbridge-android.aab`
    (Testbau dieses Branches, Version 0.2.3) oder besser das signierte AAB aus
    dem ersten Release-Lauf der CI (E2, Artefakt `android-signed`).
 4. Release-Name z. B. `0.3.0`, Versionshinweise aus `changelogs/default.txt`.
