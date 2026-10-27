@@ -330,10 +330,12 @@ the app as one more client of that session:
   reconnect attempt.
 - **Several windows:** aidevbridge can run more than once, and all windows
   share `settings.toml`. A window applies only its own change to what
-  another one saved, so it keeps the other window's hosts; each preference
-  and the workspace (open terminals, layout) are those of the window that
-  saved them last, and hosts added in another window appear after a
-  restart. Two windows on the same session attach to it as two tmux
+  another one saved, so hosts another window added or removed stay; if two
+  windows edit the same host, the later save sets all of that host's
+  fields. Each preference keeps the value of the window that changed it
+  last, the workspace (open terminals, layout) is that of the window that
+  saved it last, and a window shows hosts changed in another one only after
+  a restart. Two windows on the same session attach to it as two tmux
   clients. Details in
   [SECURITY.md](SECURITY.md#several-windows-at-the-same-time).
 - **Automatic recovery** covers hosts with a key file or ssh-agent whose last

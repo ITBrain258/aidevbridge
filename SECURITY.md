@@ -322,10 +322,12 @@ lock: a save of another window that lands exactly there is overwritten.
 
 As a result:
 
-- hosts another window added, edited or removed stay as that window left
-  them; a window reads the host list only when it starts, so it shows them
-  after a restart;
-- each preference has the value of the window that changed it last;
+- a host another window added stays, and a host it removed stays removed;
+  a window reads the host list only when it starts, so it shows such
+  changes after a restart;
+- if two windows edit the same host, the later save sets all of that
+  host's fields, also those the other window changed;
+- each preference keeps the value of the window that changed it last;
 - the workspace (open terminals, layout, recent folders) is saved as a
   whole, so the next start restores the workspace of the window that saved
   it last; the window position is that of the window that quit last.

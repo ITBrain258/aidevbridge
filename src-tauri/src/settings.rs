@@ -908,10 +908,11 @@ static UPDATE_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 /// laufen; sein Ergebnis stammt aus dem Versuch, der geschrieben hat. Ein
 /// Fehler aus `change` bricht sofort ab, ohne zu schreiben.
 ///
-/// Folge fuer mehrere Fenster: Hosts, die eine andere Instanz hinzugefuegt
-/// oder bearbeitet hat, gehen nie verloren, und ein dort entfernter Host
-/// kehrt nicht zurueck. `[ui]` und
-/// `[workspace]` tragen die Werte, die die zuletzt speichernde Instanz
+/// Folge fuer mehrere Fenster: Ein Host, den eine andere Instanz
+/// hinzugefuegt hat, geht nie verloren, und ein dort entfernter Host kehrt
+/// nicht zurueck. Bearbeiten zwei Instanzen denselben Host, setzt das
+/// spaetere Speichern alle Felder des Formulars (`update_host_impl`). `[ui]`
+/// und `[workspace]` tragen die Werte, die die zuletzt speichernde Instanz
 /// geschrieben hat (ein Arbeitsplatz-Patch ersetzt den ganzen Arbeitsplatz).
 /// Zwischen der letzten Pruefung und dem `rename` bleibt ein sehr kurzes
 /// Fenster ohne Schutz: Ohne Sperre gibt es auf Dateiebene kein atomares
