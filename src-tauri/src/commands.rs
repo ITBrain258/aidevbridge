@@ -1,4 +1,4 @@
-//! Tauri-Commands und die Byte-Bruecke zum WebView (Task 10).
+//! Tauri-Commands und die Byte-Bruecke zum WebView.
 //!
 //! Sicherheitsmodell (Spec §8.3): der WebView bekommt ausschliesslich diese
 //! semantischen Commands -- kein `ssh_exec(cmd)`, keine rohe Kommandozeile.
@@ -52,7 +52,7 @@ const MAX_NAME_ATTEMPTS: u32 = 5;
 
 /// Wie lange `TofuPolicy::decide` auf eine Antwort aus `respond_host_key`
 /// wartet, bevor ein unbeantworteter Host-Key als abgelehnt gilt
-/// (TOFU-Nachtrag, Task 13, Eigenschaft 2). 60 Sekunden: waehrend `decide`
+/// (TOFU, Spec §8.1). 60 Sekunden: waehrend `decide`
 /// blockiert, haengt der SSH-Handshake selbst noch VOR der Authentifizierung
 /// (`check_server_key` laeuft vor `authenticate`, siehe
 /// `RusshTransport::connect`) -- OpenSSHs serverseitiges `LoginGraceTime`
@@ -105,7 +105,7 @@ struct PendingHostKey {
 /// SSH-Kanalpaket-Batch liegt weit darunter), ohne dass bei normalem Tempo
 /// staendige Ack-Rundreisen noetig waeren.
 ///
-/// `pub`, nicht nur crate-intern (Review-Befund, Minor): der Integrationstest
+/// `pub`, nicht nur crate-intern: der Integrationstest
 /// `ack_backpressure_actually_stalls_and_then_resumes` in
 /// `tests/integration_commands.rs` bindet Flutgroesse UND Erwartungswert an
 /// diese Konstante, statt feste Zahlen zu wiederholen -- aendert sich das
@@ -128,7 +128,7 @@ pub const ACK_WINDOW_BYTES: u64 = 1 << 20;
 /// im manuellen Durchlauf ohne echten Stillstand, ist DIESE KONSTANTE zu
 /// erhoehen, nicht der Waechter zu entfernen.
 ///
-/// Untere Grenze (Review-Nachtrag): dieser Wert ist eine LEBENDE Uhr unter
+/// Untere Grenze: dieser Wert ist eine LEBENDE Uhr unter
 /// `tests/integration_commands.rs` -- mehrere Tests dort fluten das
 /// Ack-Fenster absichtlich und beobachten den Pumpzustand danach ueber
 /// Fenster von 500 ms bis 10 s (z. B. `ack_backpressure_actually_stalls_
@@ -466,33 +466,31 @@ impl Drop for ConnectAttempt {
 /// Pumpaufgabe der ALTEN Session beim eigenen Aufraeumen nicht den NEUEN
 /// Eintrag aus der Map reissen.
 ///
-/// `cancel` (Review-Befund 2, Important): weckt eine Pumpaufgabe, die
-/// gerade in `AckGate::wait_for_room` haengt, wenn IHR Eintrag abgeraeumt
-/// wird (`close_terminal`, `disconnect_host`, oder ein verdraengendes
-/// `open_terminal`, siehe Befund 1). Ohne dieses Signal wartet
-/// `wait_for_room` auf einen `ack()`, der fuer eine bereits entfernte
-/// Session nie wieder kommt -- die Pumpaufgabe (und ihre `Arc`-Referenzen
-/// auf `AppState`/`AckGate`/`OutputSink`) leckt fuer die restliche
-/// Prozesslaufzeit. Bewusst NICHT Teil von `AckGate` selbst: die
+/// `cancel` weckt eine Pumpaufgabe, die gerade in `AckGate::wait_for_room`
+/// haengt, wenn IHR Eintrag abgeraeumt wird (`close_terminal`,
+/// `disconnect_host`, oder ein verdraengendes `open_terminal`). Ohne dieses
+/// Signal wartet `wait_for_room` auf einen `ack()`, der fuer eine bereits
+/// entfernte Session nie wieder kommt -- die Pumpaufgabe (und ihre
+/// `Arc`-Referenzen auf `AppState`/`AckGate`/`OutputSink`) leckt fuer die
+/// restliche Prozesslaufzeit. Bewusst NICHT Teil von `AckGate` selbst: die
 /// Rueckstaubremse (Kredit-Buchhaltung, Kette bis zum SSH-Fenster) bleibt
 /// unveraendert, das Abbruchsignal ist ein rein aeusserlicher
 /// Orchestrierungs-Mechanismus (siehe `wait_for_room_cancel_or_stall`).
 struct OpenTerminal {
     open_id: String,
-    // `Arc`, nicht `PtyHandle` direkt (Task 10, Nachtrag):
-    // `send_input_tagged_impl` und `resize_terminal_tagged_impl` muessen
-    // einen Verweis aus dieser Map ziehen koennen, der die
-    // `state.terminals`-Sperre ueberlebt, OHNE den Eintrag selbst aus der
-    // Map zu entfernen (der Eintrag bleibt ja offen).
-    // Ein `Arc::clone()` ist billig und laesst sich waehrend die Sperre
-    // noch gehalten wird ziehen; die Sperre faellt danach sofort, das
-    // eigentliche `write()`/`resize()` laeuft komplett ohne sie (siehe
-    // dortige Kommentare). `PtyHandle::close` nimmt seit demselben Nachtrag
-    // bewusst `&self` statt `self` entgegen (siehe dort) -- sonst koennte
-    // `close_entry` beim Abraeumen nicht garantieren, den `PtyHandle` per
-    // Wert aus dem `Arc` zurueckzubekommen, wenn just in diesem Moment noch
-    // ein `send_input_tagged_impl`/`resize_terminal_tagged_impl` einen
-    // zweiten Klon haelt.
+    // `Arc`, nicht `PtyHandle` direkt: `send_input_tagged_impl` und
+    // `resize_terminal_tagged_impl` muessen einen Verweis aus dieser Map
+    // ziehen koennen, der die `state.terminals`-Sperre ueberlebt, OHNE den
+    // Eintrag selbst aus der Map zu entfernen (der Eintrag bleibt ja offen).
+    // Ein `Arc::clone()` ist billig und laesst sich waehrend die Sperre noch
+    // gehalten wird ziehen; die Sperre faellt danach sofort, das eigentliche
+    // `write()`/`resize()` laeuft komplett ohne sie (siehe dortige
+    // Kommentare). `PtyHandle::close` nimmt bewusst `&self` statt `self`
+    // entgegen (siehe dort) -- sonst koennte `close_entry` beim Abraeumen
+    // nicht garantieren, den `PtyHandle` per Wert aus dem `Arc`
+    // zurueckzubekommen, wenn just in diesem Moment noch ein
+    // `send_input_tagged_impl`/`resize_terminal_tagged_impl` einen zweiten
+    // Klon haelt.
     pty: Arc<PtyHandle>,
     ack: Arc<AckGate>,
     cancel: Arc<Notify>,
@@ -714,8 +712,7 @@ fn belongs_to_host(key: &str, host_id: &str) -> bool {
 /// Vergibt `host_id`s der Form `h<n>`, aufsteigend und eindeutig innerhalb
 /// eines Anwendungslaufs. Nicht persistiert (Randbedingung: keine lokale
 /// Datenbank fuer Session-Zustand) -- die dauerhafte Kennung fuer einen
-/// konfigurierten Host lebt in `settings::HostEntry::id` (Task 13), nicht
-/// hier.
+/// konfigurierten Host lebt in `settings::HostEntry::id`, nicht hier.
 fn next_host_id(counter: &AtomicU64) -> String {
     let n = counter.fetch_add(1, Ordering::Relaxed);
     format!("h{n}")
@@ -736,14 +733,12 @@ fn owns_current_entry(current_generation: Option<u64>, my_generation: u64) -> bo
 /// zeigt.
 ///
 /// `AuthError::user_message()` traegt zehn sorgfaeltig formulierte,
-/// paarweise als verschieden getestete Meldungen -- und hatte bis zu diesem
-/// Punkt KEINEN Produktivaufrufer (Design §4.5): `connect_host_with_known_
-/// hosts` gab `e.to_string()` zurueck, also `anyhow`s knappen Display-Text
-/// ("passphrase required"). Am teuersten war der Verlust bei
-/// `AgentUnavailable`, dessen Meldung den PowerShell-Befehl nennt, den
-/// Windows 11 braucht, weil der ssh-agent-Dienst dort standardmaessig
-/// deaktiviert ist. Strukturell dieselbe Klasse wie M-B: getesteter Code
-/// ohne Aufrufer.
+/// paarweise als verschieden getestete Meldungen; dies ist ihr einziger
+/// Produktivaufrufer (Design §4.5). `e.to_string()` liefert nur `anyhow`s
+/// knappen Display-Text ("passphrase required"). Am teuersten waere der
+/// Verlust bei `AgentUnavailable`, dessen Meldung den PowerShell-Befehl
+/// nennt, den Windows 11 braucht, weil der ssh-agent-Dienst dort
+/// standardmaessig deaktiviert ist.
 ///
 /// `downcast_ref` statt eines Textvergleichs: `authenticate` liefert
 /// `Result<(), AuthError>`, und `RusshTransport::connect` konvertiert per
@@ -756,10 +751,10 @@ fn owns_current_entry(current_generation: Option<u64>, my_generation: u64) -> bo
 /// str`, also geht das mit `KeyUnreadable(detail)`, `AgentUnavailable(detail)`
 /// und den uebrigen Varianten mitgefuehrte Detail hier VERLOREN -- der
 /// fehlgeschlagene Pfad, der Betriebssystemfehler, die vom Server angebotene
-/// Methodenliste. Das vorherige `e.to_string()` reichte es durch. Es gibt
-/// keine Logdatei, aus der es sich zurueckholen liesse. Die Meldung ist damit
-/// besser fuer den Nutzer und schlechter fuer einen Fehlerbericht; erst wenn
-/// es dafuer eine Senke gibt (Logdatei oder ein Detailfeld im DTO), lohnt es
+/// Methodenliste. `e.to_string()` haette es durchgereicht. Es gibt keine
+/// Logdatei, aus der es sich zurueckholen liesse. Die Meldung ist damit besser
+/// fuer den Nutzer und schlechter fuer einen Fehlerbericht; erst wenn es
+/// dafuer eine Senke gibt (Logdatei oder ein Detailfeld im DTO), lohnt es
 /// sich, das Detail zusaetzlich zu transportieren.
 fn auth_error_message(e: &anyhow::Error) -> String {
     match e.downcast_ref::<AuthError>() {
@@ -768,7 +763,7 @@ fn auth_error_message(e: &anyhow::Error) -> String {
     }
 }
 
-/// Typisierter Fehler von `connect_host` (Task 8, Spec §4.8):
+/// Typisierter Fehler von `connect_host` (Spec §4.8):
 /// `#[tauri::command]`-Fehlertypen mit `serde::Serialize` kommen im WebView
 /// als gewoehnliches Objekt an (`{ code, message }`), nicht als blosse
 /// Zeichenkette -- dasselbe Muster wie `SessionError` oben, fuer denselben
@@ -779,10 +774,10 @@ fn auth_error_message(e: &anyhow::Error) -> String {
 /// wuerde bei der naechsten Wortlaut-Aenderung still brechen (siehe
 /// `SessionError`s Doc-Kommentar fuer dieselbe Regel).
 ///
-/// `message` ist das, was `connect_host` vor diesem Task als `Err(String)`
-/// lieferte -- `code` kommt als ZUSAETZLICHE Information dazu, keine
-/// Ersetzung. Die Hostschluesseltexte hat die UX-Ueberarbeitung neu gefasst
-/// (Spec §10); die Codes blieben, und nur sie wertet das Frontend aus.
+/// `message` ist die lesbare Fehlermeldung -- `code` kommt als ZUSAETZLICHE
+/// Information dazu, keine Ersetzung. Die Hostschluesseltexte hat die
+/// UX-Ueberarbeitung neu gefasst (Spec §10); die Codes blieben, und nur sie
+/// wertet das Frontend aus.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct ConnectError {
     pub code: &'static str,
@@ -821,19 +816,17 @@ fn connect_failure(error: ConnectFailure) -> ConnectError {
 }
 
 /// Klassifiziert einen gescheiterten `connect_host`-Versuch in `ConnectError`
-/// (Task 8, Spec §4.8) -- `message` ist die bisherige `String`-Fehlermeldung
+/// (Spec §4.8) -- `message` ist die lesbare `String`-Fehlermeldung
 /// (siehe `connect_host_with_known_hosts`s duenne Huelle um
 /// `connect_host_core` unten, die aus Kompatibilitaetsgruenden weiterhin nur
 /// `message` herausreicht), `code` kommt zusaetzlich dazu.
 ///
-/// Nach einem etwaigen Cancel-/Zeitlimitgrund wird `host_key_decision`
-/// vor den Auth-Fehlern geprueft, aus demselben Grund, aus dem
-/// `connect_host_with_known_hosts` das bisher tat: ein von der TOFU-Politik
-/// abgelehnter Host-Schluessel ist KEIN `AuthError` (die Verbindung scheitert
-/// schon vor jedem Auth-Versuch, siehe `TofuPolicy`/`RusshTransport::connect`)
-/// und braucht deshalb eine eigene, hier fest verdrahtete Meldung. Die zwei
-/// Texte stehen in Spec §10 (UX-Ueberarbeitung), der Code bleibt
-/// `host_key_rejected`.
+/// Nach einem etwaigen Cancel-/Zeitlimitgrund wird `host_key_decision` vor den
+/// Auth-Fehlern geprueft: ein von der TOFU-Politik abgelehnter Host-Schluessel
+/// ist KEIN `AuthError` (die Verbindung scheitert schon vor jedem
+/// Auth-Versuch, siehe `TofuPolicy`/`RusshTransport::connect`) und braucht
+/// deshalb eine eigene, hier fest verdrahtete Meldung. Die zwei Texte stehen
+/// in Spec §10 (UX-Ueberarbeitung), der Code bleibt `host_key_rejected`.
 ///
 /// `host` ist der Name, unter dem `known_hosts` den Host fuehrt
 /// (`known_hosts::host_token`: bei Port 22 der Host, sonst `[host]:port`), denn
@@ -865,8 +858,7 @@ fn classify_connect_error(
         // `Known` (der Schluessel stand schon passend in `known_hosts`) und
         // `None` (die Verbindung scheiterte VOR jeder TOFU-Entscheidung, z. B.
         // TCP-Verbindungsaufbau) sind beide KEINE Host-Key-Ablehnung -- der
-        // Fehler liegt dann in der Auth-Klassifikation unten, wie vor
-        // diesem Task.
+        // Fehler liegt dann in der Auth-Klassifikation unten.
         Some(HostKeyDecision::Known) | None => {
             let message = auth_error_message(e);
             let code = match e.downcast_ref::<AuthError>() {
@@ -894,13 +886,11 @@ fn classify_connect_error(
 /// Rateversuch waere eine stille Annahme ueber Nutzerdaten, die dieses DTO
 /// nicht traegt.
 ///
-/// `passphrase`/`password` (M-B, Abschlussreview): bis dahin waren
-/// `AuthMethod::Password` und `AuthMethod::Key{passphrase: Some(..)}`
-/// implementiert und getestet, aber ausserhalb der Modultests nirgends
-/// konstruierbar -- dieses DTO kannte nur `Some(pfad) -> Key{passphrase:
-/// None}` und `None -> Agent`. Direkt als `Zeroizing<String>` deserialisiert
-/// (Spec §8.5, `zeroize`s `serde`-Feature, siehe Cargo.toml-Kommentar) --
-/// ab der Deserialisierung liegt das Geheimnis damit in keinem gewoehnlichen
+/// `passphrase`/`password` sind der einzige Weg, auf dem
+/// `AuthMethod::Password` und `AuthMethod::Key{passphrase: Some(..)}` aus dem
+/// WebView entstehen. Direkt als `Zeroizing<String>` deserialisiert
+/// (Spec §8.5, `zeroize`s `serde`-Feature, siehe Cargo.toml-Kommentar) -- ab
+/// der Deserialisierung liegt das Geheimnis damit in keinem gewoehnlichen
 /// `String` mehr.
 ///
 /// Was das ausdruecklich NICHT heisst, damit die Frage nicht wiederkehrt:
@@ -930,7 +920,7 @@ pub struct HostSpecDto {
     pub password: Option<zeroize::Zeroizing<String>>,
 }
 
-/// Waehlt die `AuthMethod` aus den rohen DTO-Feldern (M-B, Abschlussreview).
+/// Waehlt die `AuthMethod` aus den rohen DTO-Feldern.
 /// Eigene, reine Funktion statt inline in `connect_host_with_known_hosts`:
 /// so ist die Vorrangregel ohne SSH-Verbindung testbar (Spec §13 Ebene 1,
 /// "Unit, ohne I/O") -- `connect_host_with_known_hosts` selbst laesst sich
@@ -990,15 +980,15 @@ pub trait OutputSink: Send + Sync + 'static {
     /// Meldet, dass eine Terminalverbindung endete, OHNE dass zuvor ein
     /// expliziter Schliessvorgang (`close_terminal_impl`, `disconnect_host_
     /// impl`, ein verdraengendes `open_terminal` fuer denselben Schluessel)
-    /// den Eintrag aus `state.terminals` entfernt hatte (M-C,
-    /// Abschlussreview). Aufgerufen genau dort, wo `open_terminal_impl`s
-    /// Pumpaufgabe beim eigenen Aufraeumen feststellt, dass sie selbst noch
-    /// Eigentuemerin des Map-Eintrags ist (`owns_current_entry`) -- alle drei
-    /// gewollten Schliesspfade entfernen den Eintrag VOR diesem Zeitpunkt
-    /// (siehe deren Code), `owns_current_entry` waere dann bereits `false`
-    /// und dieser Aufruf bliebe aus. Ein gewolltes Schliessen erzeugt
-    /// dieses Signal deshalb strukturell nie, nicht nur durch eine
-    /// zusaetzliche Fallunterscheidung, die vergessen werden koennte.
+    /// den Eintrag aus `state.terminals` entfernt hatte. Aufgerufen genau
+    /// dort, wo `open_terminal_impl`s Pumpaufgabe beim eigenen Aufraeumen
+    /// feststellt, dass sie selbst noch Eigentuemerin des Map-Eintrags ist
+    /// (`owns_current_entry`) -- alle drei gewollten Schliesspfade entfernen
+    /// den Eintrag VOR diesem Zeitpunkt (siehe deren Code),
+    /// `owns_current_entry` waere dann bereits `false` und dieser Aufruf
+    /// bliebe aus. Ein gewolltes Schliessen erzeugt dieses Signal deshalb
+    /// strukturell nie, nicht nur durch eine zusaetzliche Fallunterscheidung,
+    /// die vergessen werden koennte.
     ///
     /// Default-Implementierung: no-op -- dasselbe Muster wie
     /// `HostKeyRequestSink::notify_persist_failed`. Bestehende Test-Sinks,
@@ -1049,7 +1039,7 @@ impl OutputSink for AppHandle {
     }
 }
 
-/// Nutzlast von `terminal://connection-lost` (M-C, Abschlussreview) -- siehe
+/// Nutzlast von `terminal://connection-lost` -- siehe
 /// `OutputSink::connection_lost`s Doc-Kommentar fuer die genaue
 /// Unterscheidung zu einem gewollten Schliessen.
 #[derive(Debug, Clone, serde::Serialize)]
@@ -1108,16 +1098,15 @@ impl AckWindow {
 /// Async-Huelle um `AckWindow`: blockiert die Pumpaufgabe, bis genug Platz
 /// da ist, geweckt durch `ack_output`.
 ///
-/// Nimmt an, dass hoechstens EINE Aufgabe gleichzeitig `wait_for_room`
-/// aufruft -- fuer diesen Task zutreffend (genau eine Pumpaufgabe je
-/// offenem Terminal, ein `AckGate` je Terminal). `notify_one()` speichert
-/// ein Weck-Signal, falls `ack()` läuft, bevor die Pumpaufgabe ueberhaupt
-/// wartet (siehe Tokio-Doku zu `Notify::notify_one`) -- das schliesst das
-/// "verlorene Weck-Signal"-Rennen fuer den Einzel-Warter-Fall. Ein zweiter
-/// gleichzeitiger Warter auf demselben `AckGate` waere NICHT fair bedient
-/// (`notify_one` weckt irgendeinen, nicht zwingend den mit dem kleinsten
-/// Bedarf) -- ausserhalb des Anwendungsfalls dieses Moduls, deshalb bewusst
-/// nicht geloest.
+/// Nimmt an, dass hoechstens EINE Aufgabe gleichzeitig `wait_for_room` aufruft
+/// -- zutreffend, weil es genau eine Pumpaufgabe je offenem Terminal gibt, ein
+/// `AckGate` je Terminal. `notify_one()` speichert ein Weck-Signal, falls
+/// `ack()` laeuft, bevor die Pumpaufgabe ueberhaupt wartet (siehe Tokio-Doku
+/// zu `Notify::notify_one`) -- das schliesst das "verlorene
+/// Weck-Signal"-Rennen fuer den Einzel-Warter-Fall. Ein zweiter gleichzeitiger
+/// Warter auf demselben `AckGate` waere NICHT fair bedient (`notify_one` weckt
+/// irgendeinen, nicht zwingend den mit dem kleinsten Bedarf) -- ausserhalb des
+/// Anwendungsfalls dieses Moduls, deshalb bewusst nicht geloest.
 struct AckGate {
     window: std::sync::Mutex<AckWindow>,
     notify: Notify,
@@ -1160,14 +1149,15 @@ impl AckGate {
 }
 
 /// Nutzlast von `hostkey://request` -- eine Rueckfrage an den Nutzer, ob ein
-/// bislang unbekannter Host-Key vertraut werden soll (TOFU-Nachtrag, Task
-/// 13). `fingerprint` ist bereits der SHA256-Fingerabdruck im
-/// `ssh-keygen -lf`-Format (Eigenschaft 3 des Nachtrags) -- NIEMALS der
-/// rohe Base64-Schluessel, den vergleicht niemand von Hand.
+/// bislang unbekannter Host-Key vertraut werden soll (TOFU, Spec §8.1).
+/// `fingerprint` ist bereits der SHA256-Fingerabdruck im
+/// `ssh-keygen -lf`-Format -- NIEMALS der rohe Base64-Schluessel, den
+/// vergleicht niemand von Hand.
 ///
-/// xpires_at_unix_ms mirrors this request's monotonic backend deadline
-/// for the local WebView countdown. Backend acceptance always checks the
-/// monotonic deadline itself; a wall-clock change cannot extend consent.
+/// `expires_at_unix_ms` spiegelt die monotone Backend-Frist dieser Anfrage
+/// fuer den Countdown im WebView. Ob eine Zustimmung noch gilt, prueft das
+/// Backend immer an der monotonen Frist selbst; eine verstellte Wanduhr
+/// verlaengert die Zustimmung nicht.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct HostKeyRequest {
     pub request_id: u64,
@@ -1203,14 +1193,13 @@ pub trait HostKeyRequestSink: Send + Sync + 'static {
     fn terminal_transport_lost(&self, _event: TerminalTransportLostEvent) {}
 
     /// Meldet, dass ein bereits akzeptierter Host-Key NICHT dauerhaft nach
-    /// `known_hosts` geschrieben werden konnte (Review-Befund, Important 3:
-    /// `TofuPolicy::decide` gab diesen Fehlschlag bislang nur per
-    /// `eprintln!` aus -- unsichtbar in einer gepackten Anwendung ohne
-    /// Konsole). Die Verbindung DIESER einen Zustimmung bleibt bestehen
-    /// (siehe `decide()`s Kommentar zum Kompromiss) -- dieses Ereignis
-    /// dient ausschliesslich dazu, den Nutzer darueber zu informieren, dass
-    /// die naechste Verbindung zu diesem Host erneut fragen wird, statt ihn
-    /// vor einem kommentarlos wiederholten Prompt raetseln zu lassen.
+    /// `known_hosts` geschrieben werden konnte (ein `eprintln!` allein waere
+    /// in einer gepackten Anwendung ohne Konsole unsichtbar). Die Verbindung
+    /// DIESER einen Zustimmung bleibt bestehen (siehe `decide()`s Kommentar
+    /// zum Kompromiss) -- dieses Ereignis dient ausschliesslich dazu, den
+    /// Nutzer darueber zu informieren, dass die naechste Verbindung zu diesem
+    /// Host erneut fragen wird, statt ihn vor einem kommentarlos wiederholten
+    /// Prompt raetseln zu lassen.
     ///
     /// Default-Implementierung: no-op. Bestehende Test-Sinks (`PanicSink`,
     /// `RecordingSink`, `ChannelSink`, siehe Testmodul), denen dieses
@@ -1258,8 +1247,8 @@ impl ConnectionEvents for ConnectionEventSink {
     }
 }
 
-/// Nutzlast von `hostkey://persist-failed` (Review-Befund, Important 3) --
-/// siehe `HostKeyRequestSink::notify_persist_failed`s Doc-Kommentar.
+/// Nutzlast von `hostkey://persist-failed` -- siehe
+/// `HostKeyRequestSink::notify_persist_failed`s Doc-Kommentar.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct HostKeyPersistFailure {
     pub host: String,
@@ -1707,7 +1696,7 @@ async fn connect_host_core(
 /// erste Zeile, die der Nutzer liest.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct SessionError {
-    /// Heute genau zwei Werte: `"duplicate"` und `"other"`.
+    /// Genau drei Werte: `"duplicate"`, `"outcome_unknown"` und `"other"`.
     pub kind: String,
     pub message: String,
 }
@@ -1803,8 +1792,8 @@ pub fn is_acceptable_remote_path(p: &str) -> bool {
     settings::is_absolute_remote_path(p)
 }
 
-/// `name`: `None` -> erzeugter Name mit Retry wie bisher. `Some(n)` -> genau
-/// dieser Name, EINMAL, ohne Retry.
+/// `name`: `None` -> erzeugter Name mit Retry. `Some(n)` -> genau dieser Name,
+/// EINMAL, ohne Retry.
 ///
 /// Der fehlende Retry ist die eigentliche Entscheidung:
 /// `create_session_with_retry` reagiert auf `DuplicateName` mit einem neuen
@@ -1863,12 +1852,11 @@ pub async fn create_session_impl(
 
     let client = OwnTmuxClient::new(&state.own_socket);
     let transport = transport.command(deadline);
-    // Jedes Mal, nicht einmalig gecacht: robuster gegen einen tmux-Server,
-    // der zwischen zwei `create_session`-Aufrufen gestorben ist (V21b), auf
-    // Kosten von drei zusaetzlichen Roundtrips je Aufruf. Kehrseite: Task
-    // 8s bekannte Gefahr ("exit-empty bleibt aus, wenn nach prepare_server
-    // nie eine Session gelingt") wird dadurch bei JEDEM Aufruf erneut
-    // durchlaufen, nicht nur beim ersten je Host.
+    // Jedes Mal, nicht einmalig gecacht: robuster gegen einen tmux-Server, der
+    // zwischen zwei `create_session`-Aufrufen gestorben ist (V21b), auf Kosten
+    // von drei zusaetzlichen Roundtrips je Aufruf. Kehrseite: das Fenster, in
+    // dem `exit-empty` aus steht, bis ein `new-session` gelingt (siehe unten),
+    // oeffnet sich bei JEDEM Aufruf erneut, nicht nur beim ersten je Host.
     client
         .prepare_server(&transport, settings::default_history())
         .await
@@ -1877,12 +1865,8 @@ pub async fn create_session_impl(
     // Ab hier steht `exit-empty` auf "off", und nur ein ERFOLGREICHES
     // `new-session` setzt es in derselben Kommandokette zurueck. JEDER
     // Rueckweg von hier muss es deshalb selbst richten -- deswegen die
-    // gemeinsame Auswertung unten statt eines frueheren `return`.
-    //
-    // Die erste Fassung hatte genau hier eine Luecke: der Zweig mit
-    // ERZEUGTEM Namen (der Standardfall, `name: null`) kehrte direkt zurueck
-    // und liess `exit-empty` bei jedem seiner Fehlerausgaenge ausgeschaltet.
-    // Der Zweig mit getipptem Namen raeumte auf, der haeufigere nicht.
+    // gemeinsame Auswertung unten statt eines frueheren `return`, auch fuer
+    // den haeufigeren Zweig mit ERZEUGTEM Namen (`name: null`).
     let outcome = match wanted {
         None => {
             let mut rng = seed_rng();
@@ -2151,7 +2135,7 @@ pub async fn open_terminal_tagged_impl<S: OutputSink>(
 ///
 /// Jeder Fehler, jede Fristueberschreitung und jede unerwartete Antwort heisst
 /// "ohne Verlauf"; das Oeffnen scheitert daran nicht. Den Steuerzustand
-/// aendert ein gescheiterter Befehl auf nutzbarem Transport seit Task 1 nicht.
+/// aendert ein gescheiterter Befehl auf nutzbarem Transport nicht.
 /// Unerwartet ist auch ungueltiges UTF-8: `stdout` waere dann nur eine
 /// verlustbehaftete Umwandlung der Bytes.
 ///
@@ -2191,6 +2175,11 @@ async fn open_terminal_with_history<S: OutputSink>(
     selected: Option<PaneIdentity>,
     history: Option<HistoryRequest>,
 ) -> Result<(), String> {
+    // H6/H9: bewusst nicht die Allowlist aus `create_session_impl`, die nur
+    // fuer Namen gilt, die diese Anwendung selbst erzeugt. Von Hand
+    // angelegte Sessions duerfen Punkte, Grossbuchstaben und Nicht-ASCII
+    // tragen und muessen sich trotzdem oeffnen lassen; gegen H6 reicht der
+    // Ausschluss von leerem Namen und Steuerzeichen.
     if session.is_empty() || session.chars().any(char::is_control) {
         return Err("invalid session name".into());
     }
@@ -2402,38 +2391,35 @@ impl<S: OutputSink> TerminalPump<S> {
                 .send_open(&self.host_id, &self.session, &self.open_id, bytes)
     }
 }
-// Task 10, Nachtrag (gemeldeter, damals bewusst nicht behobener Fund):
-// `send_input_tagged_impl` und `resize_terminal_tagged_impl` hielten den
-// `state.terminals`-Guard bislang ueber eine GEWOEHNLICHE `let`-Bindung
-// (kein `if let`/`while let`/`match`-Scrutinee -- `clippy::
-// significant_drop_in_scrutinee` greift hier deshalb nicht) bis zum Ende
-// der Funktion, also ueber `pty.write(..).await` bzw. `pty.resize(..).await`
-// hinweg. Waehrend diese Sperre gehalten wird, kann KEINE andere
+// `send_input_tagged_impl` und `resize_terminal_tagged_impl` duerfen den
+// `state.terminals`-Guard NICHT ueber `pty.write(..).await` bzw.
+// `pty.resize(..).await` hinweg halten. Als GEWOEHNLICHE `let`-Bindung bis
+// zum Ende der Funktion (kein `if let`/`while let`/`match`-Scrutinee) faengt
+// `clippy::significant_drop_in_scrutinee` das nicht ab, deshalb steht es
+// hier. Waehrend diese Sperre gehalten wird, kann KEINE andere
 // Terminal-Operation auf IRGENDEINER Session laufen -- `open_terminal`,
 // `close_terminal`, `send_input`/`resize_terminal` auf jeder anderen
 // Session, sogar `ack_output_impl`.
 //
 // Wie langsam `pty.write()`/`pty.resize()` tatsaechlich werden koennen:
-// GEPRUEFT, nicht angenommen. Die ursprüngliche Vermutung -- die
+// GEPRUEFT, nicht angenommen. Die naheliegende Vermutung -- die
 // Ack-Rueckstaubremse (Spec §9.1) lasse ueber ein ausgehungertes
-// SSH-Empfangsfenster auch `pty.write()` auf DERSELBEN Session blockieren
-// -- wurde gezielt gegen die echte Test-VM geprueft (Session geflutet,
-// NIE geackt, danach `send_input_impl` auf genau dieser Session
-// aufgerufen) und NICHT bestaetigt: der Aufruf kehrte nach ~125
-// Mikrosekunden zurueck, nicht blockiert. Das ist beim Nachdenken auch
-// plausibel: SSH-Kanal-Flusskontrolle ist PRO RICHTUNG unabhaengig
-// (RFC 4254) -- ein ausgehungertes Server-zu-Client-Fenster (unser
-// Ack-Rueckstand) muss das Client-zu-Server-Fenster (unsere Eingaben)
-// nicht mitbetreffen. Die eigentliche Gefahr bleibt trotzdem real, nur
-// allgemeiner: `pty.write()`/`pty.resize()` sind fremdes Netzwerk-I/O
-// (SSH-Kanalschreiben) und koennen aus ANDEREN Gruenden blockieren --
-// eine haengende/degradierte Verbindung, ein volles TCP-Sendefenster auf
-// dem gemeinsamen Verbindungs-Socket, o.ae. --, genau wie
-// `disconnect_host_impl`s `hosts`-Fund fuer den "haengenden
-// Netzwerk-Close"-Fall bereits zeigte. Haelt `state.terminals` in so
-// einem Moment noch die Sperre, blockiert das trotzdem JEDE andere
-// Terminal-Operation auf JEDER Session -- der Fix unten ist deshalb
-// unabhaengig vom genauen Ausloeser richtig.
+// SSH-Empfangsfenster auch `pty.write()` auf DERSELBEN Session blockieren --
+// wurde gezielt gegen die echte Test-VM geprueft (Session geflutet, NIE
+// geackt, danach `send_input_impl` auf genau dieser Session aufgerufen) und
+// NICHT bestaetigt: der Aufruf kehrte nach ~125 Mikrosekunden zurueck, nicht
+// blockiert. Das ist beim Nachdenken auch plausibel: SSH-Kanal-Flusskontrolle
+// ist PRO RICHTUNG unabhaengig (RFC 4254) -- ein ausgehungertes
+// Server-zu-Client-Fenster (unser Ack-Rueckstand) muss das
+// Client-zu-Server-Fenster (unsere Eingaben) nicht mitbetreffen. Die
+// eigentliche Gefahr bleibt trotzdem real, nur allgemeiner:
+// `pty.write()`/`pty.resize()` sind fremdes Netzwerk-I/O (SSH-Kanalschreiben)
+// und koennen aus ANDEREN Gruenden blockieren -- eine haengende/degradierte
+// Verbindung, ein volles TCP-Sendefenster auf dem gemeinsamen
+// Verbindungs-Socket, o.ae. Haelt `state.terminals` in so einem Moment noch
+// die Sperre, blockiert das trotzdem JEDE andere Terminal-Operation auf JEDER
+// Session -- der Fix unten ist deshalb unabhaengig vom genauen Ausloeser
+// richtig.
 //
 // Fix: NUR ein `Arc::clone()` des `PtyHandle` verlaesst den Block, in dem
 // die Sperre gehalten wird -- der `MutexGuard` `terms` faellt an dessen
@@ -2497,12 +2483,10 @@ pub async fn resize_terminal_tagged_impl(
 /// `byte_count` ist INKREMENTELL (die Groesse des gerade verarbeiteten
 /// Datenpakets), NICHT kumulativ ueber die gesamte Sitzung -- passend zu
 /// Spec §9.1s `term.write(chunk, () => invoke('ack', …))`: ein Aufruf je
-/// `write()`-Callback, mit der Laenge dieses einen Pakets. Ein kuenftiger
-/// Frontend-Code (Task 11), der stattdessen die kumulative Summe schickt,
-/// wuerde `in_flight` zu schnell leerlaufen lassen und die Bremse
-/// stillschweigend abschalten -- kein Test hier kann das erkennen, weil
-/// Task 10 den Frontend-Code nicht schreibt. Muss in Task 11 eingehalten
-/// werden.
+/// `write()`-Callback, mit der Laenge dieses einen Pakets. Ein Frontend, das
+/// stattdessen die kumulative Summe schickt, wuerde `in_flight` zu schnell
+/// leerlaufen lassen und die Bremse stillschweigend abschalten -- kein Test
+/// hier kann das erkennen; das pinnt `src/terminal.test.ts`.
 pub async fn ack_output_impl(
     state: &Arc<AppState>,
     host_id: String,
@@ -2590,9 +2574,9 @@ pub async fn kill_session_impl(
         return Err(FOREIGN_SESSION.into());
     }
     let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
-    // H6/H9, dieselbe Ausnahme von der Allowlist wie in `open_terminal_impl`
-    // -- Begruendung dort: von Hand angelegte Sessions duerfen Punkte und
-    // Nicht-ASCII tragen und muessen sich trotzdem beenden lassen, nur
+    // H6/H9, dieselbe Ausnahme von der Allowlist wie in
+    // `open_terminal_with_history`: von Hand angelegte Sessions duerfen Punkte
+    // und Nicht-ASCII tragen und muessen sich trotzdem beenden lassen, nur
     // Steuerzeichen und der leere Name werden hier abgelehnt.
     if session.is_empty() || session.chars().any(|c| c.is_control()) {
         return Err("invalid session name".into());
@@ -3011,7 +2995,7 @@ pub async fn disconnect_host(
 }
 
 // ---------------------------------------------------------------------
-// Hostverwaltung und TOFU-Rueckfrage (Task 13).
+// Hostverwaltung und TOFU-Rueckfrage.
 // ---------------------------------------------------------------------
 
 /// Liest `~/.ssh/config` und schlaegt daraus konkrete Hosts fuer den
@@ -3049,14 +3033,13 @@ pub fn suggest_hosts() -> Result<Vec<crate::ssh::SshConfigHost>, String> {
 pub fn list_hosts_impl(settings_path: &Path) -> Result<Vec<HostEntry>, String> {
     settings::load_from(settings_path)
         .map(|s| {
-            // Task 8 (Spec §4.8): `auth_kind` kommt hier IMMER als `Some(..)`
-            // an, egal was in `settings.toml` tatsaechlich steht -- eine
-            // Datei aus der Zeit vor diesem Task hat das Feld nie
-            // geschrieben (`None`), `add_host_impl` speichert seit diesem
-            // Task zwar immer `Some(..)`, aber ein von Hand bearbeiteter
-            // Eintrag koennte das Feld ebenso weglassen. `types.ts`s
-            // `HostEntry.auth_kind` ist NICHT optional -- das Frontend darf
-            // an dieser Grenze nie `null` sehen.
+            // Spec §4.8: `auth_kind` kommt hier IMMER als `Some(..)` an, egal
+            // was in `settings.toml` tatsaechlich steht -- eine aeltere Datei
+            // hat das Feld nie geschrieben (`None`), `add_host_impl` speichert
+            // zwar immer `Some(..)`, aber ein von Hand bearbeiteter Eintrag
+            // koennte das Feld ebenso weglassen. `types.ts`s
+            // `HostEntry.auth_kind` ist NICHT optional -- das Frontend darf an
+            // dieser Grenze nie `null` sehen.
             s.hosts
                 .into_iter()
                 .map(|mut h| {
@@ -3086,14 +3069,14 @@ pub struct NewHostEntryDto {
     pub port: u16,
     pub tmux_socket: Option<String>,
     pub history_limit: Option<u32>,
-    // M-D (Abschlussreview): ohne dieses Feld verlor `finishAndPersist`
-    // (first-run.ts) den Schluesselpfad beim Speichern -- ein Nutzer, der
-    // sich mit Schluesseldatei verbindet und den Host speichert, landete ab
-    // dem zweiten Start stillschweigend auf ssh-agent. `#[serde(default)]`:
+    // Ohne dieses Feld verloere `finishAndPersist` (first-run.ts) den
+    // Schluesselpfad beim Speichern -- ein Nutzer, der sich mit
+    // Schluesseldatei verbindet und den Host speichert, landete ab dem
+    // zweiten Start stillschweigend auf ssh-agent. `#[serde(default)]`:
     // Anmeldearten ohne Schluesseldatei lassen das Feld weg.
     #[serde(default)]
     pub key_path: Option<String>,
-    // Task 8 (Spec §4.8): die vom Nutzer GEWAEHLTE Anmeldeart --
+    // Spec §4.8: die vom Nutzer GEWAEHLTE Anmeldeart --
     // `host-form.ts`s `AuthChoice.kind` uebersetzt direkt hierher (die Werte
     // sind bereits deckungsgleich, siehe `AuthKind`s `rename_all =
     // "lowercase"`). `#[serde(default)]`: ein aelterer Frontend-Build (oder
@@ -3129,14 +3112,13 @@ fn new_host_id() -> String {
     format!("host_{:016x}", rng.random::<u64>())
 }
 
-/// Fuegt einen Host zu `settings.toml` hinzu und speichert sofort (Task 13:
-/// keine Session-artige "add now, save later"-Zwischenablage -- Hosts
-/// SIND die Voreinstellungen, die laut Randbedingung dauerhaft in
-/// `settings.toml` leben). Lesen-Aendern-Schreiben ueber
-/// `settings::update_at`: Ein Host, den eine zweite Instanz inzwischen
-/// gespeichert hat, bleibt erhalten. Ladefehler werden durchgereicht,
-/// NIEMALS mit einem frischen Default ueberschrieben (siehe
-/// `settings::load_from`) -- eine zu neue `settings.toml` bleibt
+/// Fuegt einen Host zu `settings.toml` hinzu und speichert sofort (keine
+/// Session-artige "add now, save later"-Zwischenablage -- Hosts SIND die
+/// Voreinstellungen, die laut Randbedingung dauerhaft in `settings.toml`
+/// leben). Lesen-Aendern-Schreiben ueber `settings::update_at`: Ein Host, den
+/// eine zweite Instanz inzwischen gespeichert hat, bleibt erhalten. Ladefehler
+/// werden durchgereicht, NIEMALS mit einem frischen Default ueberschrieben
+/// (siehe `settings::load_from`) -- eine zu neue `settings.toml` bleibt
 /// schreibgeschuetzt, `add_host` schlaegt dann fehl, statt sie zu
 /// ueberschreiben.
 ///
@@ -3159,7 +3141,7 @@ pub fn add_host_impl(settings_path: &Path, entry: NewHostEntryDto) -> Result<Hos
         auth_kind: entry.auth_kind,
         show_default_socket: entry.show_default_socket.unwrap_or(true),
     };
-    // Task 8 (Spec §4.8): IMMER ein konkretes `Some(..)` speichern (und damit
+    // Spec §4.8: IMMER ein konkretes `Some(..)` speichern (und damit
     // auch zurueckgeben, siehe `first-run.ts::finishAndPersist`/
     // `session-dialog.ts::editHost`, die beide direkt mit diesem
     // Rueckgabewert weiterarbeiten, OHNE einen `list_hosts`-Umweg) --
@@ -3589,7 +3571,7 @@ pub fn respond_host_key(
 }
 
 // ---------------------------------------------------------------------
-// Verwaltungsschale (Shell-Task 4): Schluesselauswahl fuer die Anmeldemaske.
+// Verwaltungsschale: Schluesselauswahl fuer die Anmeldemaske.
 // ---------------------------------------------------------------------
 
 /// Listet benutzbare Schluessel in `~/.ssh`. Oeffnet AUSSCHLIESSLICH
@@ -3605,13 +3587,11 @@ pub async fn list_ssh_keys() -> Result<Vec<crate::ssh::keys::SshKeyDto>, String>
 }
 
 // ---------------------------------------------------------------------
-// Verwaltungsschale (Shell-Task 5): Sitzungsliste fuer die Seitenleiste.
+// Verwaltungsschale: Sitzungsliste fuer die Seitenleiste.
 // ---------------------------------------------------------------------
 
 /// Gibt die Namen aller Sessions auf dem App-Socket eines verbundenen Hosts
-/// zurueck. Damit bekommt `TmuxClient::list_session_names` seinen ersten
-/// Aufrufer (Spec §2.4) -- die Funktion existiert seit Plan 1 und wurde nie
-/// gerufen.
+/// zurueck, ueber `TmuxClient::list_session_names` (Spec §2.4).
 ///
 /// Zeigt bewusst ALLE Sessions, nicht nur die in dieser Sitzung angelegten:
 /// eine Session, die einen App-Neustart ueberlebt hat, muss wiederfindbar
@@ -3810,10 +3790,9 @@ pub async fn list_sockets_impl(
 // Socket auflisten als den, auf dem die Sessions liegen -- die Liste bliebe
 // leer, und niemand saehe warum.
 //
-// Dass `HostEntry.tmux_socket` insgesamt ungelesen bleibt, ist ein
-// BESTEHENDER Befund aus Plan 1, kein neuer dieses Tasks. Er wird hier
-// bewusst nicht behoben: ihn zu beheben hiesse, ihn an BEIDEN Stellen
-// gleichzeitig zu beheben, und das gehoert nicht in diesen Umbau.
+// Dass `HostEntry.tmux_socket` insgesamt ungelesen bleibt, legt Spec
+// 2026-10-25 §2 fest ("`HostEntry.tmux_socket` bleibt ungelesen"). Eine
+// Aenderung muesste BEIDE Stellen gleichzeitig umstellen.
 async fn list_own_socket(
     state: &Arc<AppState>,
     transport: &CommandTransport,
