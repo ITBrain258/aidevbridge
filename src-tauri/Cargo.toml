@@ -35,11 +35,12 @@ base64 = "0.22"
 # aequivalent als Krypto-Backend fuer russh -- siehe russh/src/lib.rs: beide
 # Features sind gleichwertig zulaessig ("requires enabling either the `ring`
 # or `aws-lc-rs` feature").
-# The workspace supplies reviewed local patches: Close acknowledgement, the
-# ChannelEndObserver API and a manual receive window for terminal channels
-# (scope: vendor/russh/AGENTBRIDGE-PATCH.md). Keep the exact version until a
-# tested upstream release includes all three; a broader range could silently
-# select an unpatched release during update.
+# The workspace supplies four reviewed local patches: channel Close handling,
+# the ChannelEndObserver API, a manual receive window for terminal channels and
+# reporting a session that ends during authentication as an error (scope:
+# vendor/russh/AGENTBRIDGE-PATCH.md). Keep the exact version until a tested
+# upstream release includes all four; a broader range could silently select
+# an unpatched release during update.
 russh = { version = "=0.63.2", default-features = false, features = ["ring", "flate2", "rsa"] }
 # Use the already locked RSA implementation directly for blinded SSH signatures.
 # Its SHA-2 reexport uses digest 0.11; the fingerprint dependency below is 0.10.
@@ -53,14 +54,13 @@ hmac = "0.13"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "io-util", "net"] }
 async-trait = "0.1"
 anyhow = "1"
-# "serde": M-B (Abschlussreview) -- `HostSpecDto`s `password`/
-# `passphrase`-Felder deserialisieren direkt in `Zeroizing<String>`, damit
-# das Geheimnis AB DER DESERIALISIERUNG in keinem gewoehnlichen, nicht
-# ueberschreibenden `String` mehr liegt (Spec §8.5). Nicht davor: Tauri
-# reicht Befehlsargumente aus einem bereits materialisierten
-# `serde_json::Value` herein -- die vollstaendige Begruendung, warum das so
-# bleibt, steht am `HostSpecDto` selbst. Ohne dieses Feature bietet
-# `zeroize` keine `Deserialize`-Implementierung fuer `Zeroizing<T>` an
+# "serde": `HostSpecDto`s `password`/`passphrase`-Felder deserialisieren
+# direkt in `Zeroizing<String>`, damit das Geheimnis AB DER DESERIALISIERUNG in
+# keinem gewoehnlichen, nicht ueberschreibenden `String` mehr liegt
+# (Spec §8.5). Nicht davor: Tauri reicht Befehlsargumente aus einem bereits
+# materialisierten `serde_json::Value` herein -- die vollstaendige Begruendung,
+# warum das so bleibt, steht am `HostSpecDto` selbst. Ohne dieses Feature
+# bietet `zeroize` keine `Deserialize`-Implementierung fuer `Zeroizing<T>` an
 # (siehe zeroize-1.x/src/lib.rs, `#[cfg(feature = "serde")]`).
 zeroize = { version = "1", features = ["serde"] }
 thiserror = "2"
@@ -72,20 +72,18 @@ thiserror = "2"
 # 0.10 identisch (gegen den lokalen Registry-Cache geprueft), daher "0.10":
 # dedupliziert mit der ohnehin vorhandenen Version, keine Verhaltensaenderung.
 rand = "0.10"
-# War bisher nur [dev-dependencies] (Task 6, dort ausschliesslich fuer
-# ~/.ssh/id_ed25519 in Testhelfern gebraucht). Task 10 braucht denselben
-# Home-Verzeichnis-Lookup jetzt auch im Produktivpfad (~/.ssh/known_hosts
-# fuer `connect_host`, Vorgabe-Schluesselpfad) -- deshalb nach
-# [dependencies] verschoben statt dupliziert. Gleiche Version, kein
-# zusaetzlicher Cargo.lock-Churn.
+# Home-Verzeichnis-Lookup im Produktivpfad (~/.ssh/known_hosts fuer
+# `connect_host`, Vorgabe-Schluesselpfad) und in den Testhelfern
+# (~/.ssh/id_ed25519) -- deshalb unter [dependencies] statt zusaetzlich unter
+# [dev-dependencies].
 dirs = "5"
-# Task 13 (TOFU-Nachtrag): Fingerabdruck-Anzeige braucht SHA-256 ueber die
+# TOFU (Spec §8.1): Fingerabdruck-Anzeige braucht SHA-256 ueber die
 # rohen Schluesselbytes (siehe `ssh::known_hosts::fingerprint`). "0.10":
 # bereits transitiv im Baum (u.a. ueber ed25519-dalek/curve25519-dalek, siehe
 # Cargo.lock) -- dedupliziert mit der ohnehin vorhandenen Version, kein
 # zweiter sha2-Zweig.
 sha2 = "0.10"
-# Task 13: `settings.toml` (Hosts/Voreinstellungen, siehe `settings.rs`).
+# `settings.toml` (Hosts/Voreinstellungen, siehe `settings.rs`).
 # Kein Zusammenhang mit tauri-internem TOML-Gebrauch (Build-/CLI-Tooling,
 # nicht Teil des Laufzeit-Abhaengigkeitsbaums dieser Bibliothek).
 toml = "0.8"
