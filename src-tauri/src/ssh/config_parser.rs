@@ -42,10 +42,12 @@ pub struct SshConfigHost {
 ///   nicht ausgewertet, seine Schluesselwoerter landen bei keinem Vorschlag.
 /// - Innerhalb eines Blocks gilt der ERSTE Wert eines Schluesselworts, wie
 ///   bei OpenSSH; spaetere Wiederholungen aendern nichts. Das gilt auch fuer
-///   einen unbrauchbaren ersten Wert (ein `Port`, der keine Zahl ist, ein
-///   `~/`-Pfad ohne bekanntes Heimatverzeichnis): OpenSSH nimmt dann keinen
-///   spaeteren Wert, sondern bricht mit einem Fehler ab; der Vorschlag
-///   bekommt das Feld leer.
+///   einen ersten Wert, den dieser Parser nicht verwenden kann (ein `Port`,
+///   der keine Zahl ist, ein `~/`-Pfad ohne bekanntes Heimatverzeichnis):
+///   Der Vorschlag bekommt das Feld leer, ein spaeterer Wert fuellt es nicht.
+///   Auch OpenSSH nimmt keinen spaeteren Wert; es loest etwa einen
+///   Dienstnamen wie `ssh` als Port selbst auf oder bricht mit einem Fehler
+///   ab.
 ///
 /// Schluesselwort-Zeilen, die vor dem ersten `Host` stehen, werden verworfen:
 /// In der echten `ssh_config` gelten sie als globale Defaults fuer alle

@@ -44,8 +44,8 @@ pub fn new_session_name(rng: &mut impl rand::Rng) -> String {
 /// ueberleben: der Preflight laesst tmux >= 3.0 zu, und auf 3.3a werden sie
 /// verstuemmelt. Ein Name, der je nach Serverversion anders heisst, ist
 /// genau die stille Ueberraschung, die diese Pruefung verhindern soll.
-/// "buero-deploy" statt "Buero-Deploy" ist der Preis, und er ist bewusst
-/// bezahlt.
+/// Dass ein Name wie "buero-deploy" ohne Umlaut geschrieben werden muss, ist
+/// der Preis, und er ist bewusst bezahlt.
 pub fn session_name_is_acceptable(name: &str) -> bool {
     !name.is_empty()
         && name
