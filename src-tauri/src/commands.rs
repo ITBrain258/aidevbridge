@@ -22,7 +22,7 @@ use crate::ssh::known_hosts::{self, HostKeyDecision};
 use crate::ssh::{AuthError, AuthMethod};
 use crate::tmux::attach_confirmation::{
     absolute_probe, named_probe, parse_clients, process_command, registered_with_process,
-    registration_ready, verify_process, SocketBinding,
+    registration_ready, verify_process, SocketBinding, Unverified,
 };
 use crate::tmux::inventory::{
     InventoryOutcome, MeasuredVersion, PaneId, ServerIdentity, SessionId, WindowId,
@@ -2019,33 +2019,53 @@ async fn open_confirmed_pty(
     if !registered {
         return Err("attach wrapper was not a registered client".into());
     }
-    let list = binding.query().list_command();
-    let resolve = binding.query().resolve_command(selected.session_id);
-    let inventory = binding.query().inventory().command();
-    let l0 = commands
-        .exec_with_deadline(&list, remaining_control(&control))
-        .await
-        .map_err(|error| error.to_string())?;
-    let r0 = commands
-        .exec_with_deadline(&resolve, remaining_control(&control))
-        .await
-        .map_err(|error| error.to_string())?;
-    let inv = commands
-        .exec_with_deadline(&inventory, remaining_control(&control))
-        .await
-        .map_err(|error| error.to_string())?;
-    let r1 = commands
-        .exec_with_deadline(&resolve, remaining_control(&control))
-        .await
-        .map_err(|error| error.to_string())?;
-    let l1 = commands
-        .exec_with_deadline(&list, remaining_control(&control))
-        .await
-        .map_err(|error| error.to_string())?;
-    binding
-        .confirm_inventory(&[l0, r0, inv, r1, l1])
-        .map_err(|error| error.to_string())?;
+    confirm_attached_binding(&commands, &binding, selected.session_id, || {
+        remaining_control(&control)
+    })
+    .await?;
     Ok(pending.confirm())
+}
+
+/// So oft liest die Bestaetigung nach dem Anhaengen hoechstens, wenn sich
+/// zwischendurch nur die Sessionliste des Servers geaendert hat.
+const CONFIRM_ATTEMPTS: u32 = 4;
+
+/// Liste, Aufloesung, Inventar, Aufloesung, Liste nach dem Anhaengen. Entsteht
+/// oder endet waehrenddessen anderswo auf demselben Server eine Session, aendert
+/// das nur die Liste, nicht die gewaehlte Bindung; dann liest die Pruefung
+/// erneut (Abnahme vom 25.10., Befund 1). Jede andere Abweichung ist endgueltig.
+async fn confirm_attached_binding(
+    commands: &dyn Transport,
+    binding: &SocketBinding,
+    session: SessionId,
+    remaining: impl Fn() -> Duration,
+) -> Result<(), String> {
+    let list = binding.query().list_command();
+    let resolve = binding.query().resolve_command(session);
+    let inventory = binding.query().inventory().command();
+    let mut attempt = 1;
+    loop {
+        let mut results = Vec::with_capacity(5);
+        for line in [&list, &resolve, &inventory, &resolve, &list] {
+            results.push(
+                commands
+                    .exec_with_deadline(line, remaining())
+                    .await
+                    .map_err(|error| error.to_string())?,
+            );
+        }
+        let results: [_; 5] = results
+            .try_into()
+            .unwrap_or_else(|_| unreachable!("five reads"));
+        match binding.confirm_inventory(&results) {
+            Err(Unverified::ListingChanged)
+                if attempt < CONFIRM_ATTEMPTS && !remaining().is_zero() =>
+            {
+                attempt += 1;
+            }
+            outcome => return outcome.map_err(|error| error.to_string()),
+        }
+    }
 }
 
 /// Woher `open_terminal` den Verlauf holt (Spec §5.6): nur die Pane-Id aus
@@ -4100,18 +4120,27 @@ async fn poll_sockets_with(
             .as_ref()
             .is_ok_and(|polled| polled.inventory.is_some())
     };
-    let own_polled = poll_socket(transport, own, version, deadline).await;
-    // claude gleich nach dem eigenen Socket, vor dem Standard-Socket: dessen
-    // Inventar und Titel nehmen den eigenen Sessions so nie die Zeit fuer
-    // ihren Status (Spec 2026-10-25 §6.3).
-    let mut agents = None;
-    if observed(&own_polled) {
-        agents = Some(read_claude_agents(transport, deadline).await);
-    }
-    let default_polled = match default {
-        Some(socket) => Some(poll_socket(transport, socket, version, deadline).await),
-        None => None,
+    // claude gleich nach dem eigenen Socket. Der Standard-Socket laeuft
+    // daneben auf eigenen Kanaelen derselben Verbindung: Seine Lesungen
+    // verlaengern die Abfrage nicht um ihre eigene Dauer, sondern nur, wenn
+    // sie laenger brauchen als eigener Socket und claude zusammen (Spec
+    // 2026-10-25 §6.3, Abnahme vom 25.10.: nacheinander 0,5 s mehr).
+    let own_branch = async {
+        let polled = poll_socket(transport, own, version, deadline).await;
+        let agents = if observed(&polled) {
+            Some(read_claude_agents(transport, deadline).await)
+        } else {
+            None
+        };
+        (polled, agents)
     };
+    let default_branch = async {
+        match default {
+            Some(socket) => Some(poll_socket(transport, socket, version, deadline).await),
+            None => None,
+        }
+    };
+    let ((own_polled, mut agents), default_polled) = tokio::join!(own_branch, default_branch);
     if agents.is_none() && default_polled.as_ref().is_some_and(observed) {
         agents = Some(read_claude_agents(transport, deadline).await);
     }
@@ -4584,6 +4613,140 @@ mod tests {
                 .collect::<Vec<_>>(),
             [5]
         );
+    }
+
+    /// Antwortet nach dem Inhalt der Zeile statt nach ihrer Reihenfolge und
+    /// haelt das Inventar des eigenen Sockets fest, bis der Standard-Socket
+    /// gefragt wurde.
+    struct GatedPollTransport {
+        default_asked: tokio::sync::Notify,
+    }
+
+    #[async_trait]
+    impl Transport for GatedPollTransport {
+        async fn exec_with_deadline(
+            &self,
+            line: &str,
+            _timeout: Duration,
+        ) -> anyhow::Result<ExecResult> {
+            let argv = crate::remote::command::decoded_argv(line);
+            let has = |s: &str| argv.iter().any(|arg| arg == s);
+            Ok(poll_exec(
+                if argv.iter().any(|arg| arg.contains("claude")) {
+                    "[]"
+                } else if has("aidevbridge-panes") {
+                    ""
+                } else if has("-V") {
+                    "tmux 3.6\n"
+                } else if has("dflt") {
+                    self.default_asked.notify_one();
+                    DEFAULT_INVENTORY
+                } else {
+                    self.default_asked.notified().await;
+                    POLL_INVENTORY
+                },
+            ))
+        }
+        async fn dispose(&self) {}
+    }
+
+    /// Abnahme vom 25.10.: Nacheinander verlaengerte der Standard-Socket jede
+    /// Abfrage um seine eigene Dauer. Er laeuft jetzt neben dem eigenen
+    /// Socket; nacheinander wartete das eigene Inventar hier ewig.
+    #[tokio::test]
+    async fn the_default_socket_is_read_while_the_own_socket_waits() {
+        let default = TmuxSocket::default_named("dflt");
+        let t = GatedPollTransport {
+            default_asked: tokio::sync::Notify::new(),
+        };
+        let polled = tokio::time::timeout(
+            Duration::from_secs(2),
+            poll_sockets_with(
+                &t,
+                &sock(),
+                Some(&default),
+                tokio::time::Instant::now() + COMMAND_TIMEOUT,
+            ),
+        )
+        .await
+        .expect("the default socket waited for the own socket")
+        .unwrap();
+        assert_eq!(polled.own.unwrap().sessions.len(), 2);
+        assert_eq!(polled.default.unwrap().unwrap().sessions.len(), 1);
+    }
+
+    // --- Bestaetigung nach dem Anhaengen (Abnahme vom 25.10., Befund 1) ---
+
+    const CONFIRM_LIST: &str = "L|50|1000|$0|dev\n";
+    const CONFIRM_RESOLVE: &str = "R|50|1000|$0|@0|%0|10|1|1\n";
+    const CONFIRM_INVENTORY: &str = "B|50|1000\nQ|$0|1\nP|$0|@0|%0|10|1|1|0|0|0|1|0|1\nE|50|1000\n";
+
+    fn confirm_binding() -> SocketBinding {
+        let named = poll_exec("S|50|1000|$0|/tmp/ab/tmux.sock\n");
+        let selected = PaneIdentity {
+            server: ServerIdentity {
+                pid: 50,
+                start_time: 1000,
+            },
+            session_id: SessionId(0),
+            window_id: WindowId(0),
+            pane_id: PaneId(0),
+            pane_pid: 10,
+        };
+        SocketBinding::from_responses(&named, &named, selected, SocketKind::App).unwrap()
+    }
+
+    /// Eine Runde der fuenf Lesungen; `last_list` ist die zweite Liste.
+    fn confirm_round(resolved_after: &str, last_list: &str) -> Vec<ExecResult> {
+        [
+            CONFIRM_LIST,
+            CONFIRM_RESOLVE,
+            CONFIRM_INVENTORY,
+            resolved_after,
+            last_list,
+        ]
+        .into_iter()
+        .map(poll_exec)
+        .collect()
+    }
+
+    const CHURNED_LIST: &str = "L|50|1000|$0|dev\nL|50|1000|$1|zz1\n";
+
+    #[tokio::test]
+    async fn the_attach_check_reads_again_when_only_the_list_moved() {
+        let mut script = confirm_round(CONFIRM_RESOLVE, CHURNED_LIST);
+        script.extend(confirm_round(CONFIRM_RESOLVE, CONFIRM_LIST));
+        let t = ScriptedTransport::new(script);
+        confirm_attached_binding(&t, &confirm_binding(), SessionId(0), || COMMAND_TIMEOUT)
+            .await
+            .unwrap();
+        assert_eq!(*t.calls.lock().unwrap(), 10);
+    }
+
+    #[tokio::test]
+    async fn the_attach_check_gives_up_after_its_attempts() {
+        let script = (0..CONFIRM_ATTEMPTS)
+            .flat_map(|_| confirm_round(CONFIRM_RESOLVE, CHURNED_LIST))
+            .collect();
+        let t = ScriptedTransport::new(script);
+        let error =
+            confirm_attached_binding(&t, &confirm_binding(), SessionId(0), || COMMAND_TIMEOUT)
+                .await
+                .unwrap_err();
+        assert_eq!(error, Unverified::ListingChanged.to_string());
+        assert_eq!(*t.calls.lock().unwrap(), 5 * CONFIRM_ATTEMPTS);
+    }
+
+    /// Aendert sich die gewaehlte Session selbst, bleibt es bei einer Runde.
+    #[tokio::test]
+    async fn a_changed_selected_session_fails_the_attach_check_at_once() {
+        let t = ScriptedTransport::new(confirm_round("R|50|1000|$0|@0|%3|12|1|1\n", CONFIRM_LIST));
+        let error =
+            confirm_attached_binding(&t, &confirm_binding(), SessionId(0), || COMMAND_TIMEOUT)
+                .await
+                .unwrap_err();
+        assert_eq!(error, Unverified::Changed.to_string());
+        assert_eq!(*t.calls.lock().unwrap(), 5);
     }
 
     /// Kein Server auf dem Standard-Socket ist ein vollstaendiges, leeres
