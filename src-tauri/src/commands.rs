@@ -250,15 +250,20 @@ impl AppState {
         }
     }
 
+    /// Die fertige Verbindung zu `host_id`; `None`, wenn der Host unbekannt
+    /// oder erst reserviert ist. Die `hosts`-Sperre gilt nur fuer den
+    /// Nachschlag und ist bei der Rueckgabe schon frei, der Aufrufer kann mit
+    /// dem `Arc` also awaiten. Wer unter derselben Sperre noch mehr pruefen
+    /// muss (etwa zusammen mit `terminals`), liest `hosts` direkt.
+    fn ready_host(&self, host_id: &str) -> Option<Arc<HostConnection>> {
+        let hosts = self.hosts.lock().unwrap();
+        hosts.get(host_id).and_then(HostSlot::ready)
+    }
+
     /// Nur fuer Tests/Diagnose: ob fuer `host_id` eine Verbindung gefuehrt
     /// wird.
     pub async fn has_host(&self, host_id: &str) -> bool {
-        self.hosts
-            .lock()
-            .unwrap()
-            .get(host_id)
-            .and_then(HostSlot::ready)
-            .is_some()
+        self.ready_host(host_id).is_some()
     }
 
     /// Nur fuer Tests/Diagnose: ob fuer `(host_id, session)` ein offener
@@ -1853,11 +1858,7 @@ pub async fn create_session_impl(
     }
 
     let transport = state
-        .hosts
-        .lock()
-        .unwrap()
-        .get(&host_id)
-        .and_then(HostSlot::ready)
+        .ready_host(&host_id)
         .ok_or_else(|| SessionError::other("host not connected"))?;
 
     let client = OwnTmuxClient::new(&state.own_socket);
@@ -2208,11 +2209,7 @@ async fn open_terminal_with_history<S: OutputSink>(
     }
     let tmux_socket = state.tmux_socket(socket);
     let host = state
-        .hosts
-        .lock()
-        .unwrap()
-        .get(&host_id)
-        .and_then(HostSlot::ready)
+        .ready_host(&host_id)
         .ok_or_else(|| "host not connected".to_string())?;
     let attempt = TerminalAttempt::reserve(state, &host_id, socket, &session, &open_id, &host)?;
     let mut pty = if let Some(selected) = selected {
@@ -2602,11 +2599,7 @@ pub async fn kill_session_impl(
     }
 
     let transport = state
-        .hosts
-        .lock()
-        .unwrap()
-        .get(&host_id)
-        .and_then(HostSlot::ready)
+        .ready_host(&host_id)
         .ok_or_else(|| "host not connected".to_string())?;
 
     // VOR dem Toeten, siehe Doc-Kommentar. Dasselbe Muster wie
@@ -2752,13 +2745,13 @@ pub struct RepairAuthDto {
     pub password: Option<zeroize::Zeroizing<String>>,
 }
 
-fn ready_host(state: &Arc<AppState>, host_id: &str) -> Result<Arc<HostConnection>, ConnectError> {
+/// Die Verbindung, deren Kontrollkanal repariert werden soll.
+fn host_to_repair(
+    state: &Arc<AppState>,
+    host_id: &str,
+) -> Result<Arc<HostConnection>, ConnectError> {
     state
-        .hosts
-        .lock()
-        .unwrap()
-        .get(host_id)
-        .and_then(HostSlot::ready)
+        .ready_host(host_id)
         .ok_or_else(|| ConnectError::other("host not connected"))
 }
 
@@ -2766,7 +2759,7 @@ pub fn begin_control_repair_impl(
     state: &Arc<AppState>,
     host_id: String,
 ) -> Result<u64, ConnectError> {
-    ready_host(state, &host_id)?
+    host_to_repair(state, &host_id)?
         .begin_repair()
         .map_err(|error| ConnectError::other(error.to_string()))
 }
@@ -2776,7 +2769,7 @@ pub fn cancel_control_repair_impl(
     host_id: String,
     control_generation: u64,
 ) -> Result<(), ConnectError> {
-    if let Ok(host) = ready_host(state, &host_id) {
+    if let Some(host) = state.ready_host(&host_id) {
         host.cancel_repair(control_generation);
     }
     Ok(())
@@ -2788,7 +2781,7 @@ pub async fn repair_control_impl(
     control_generation: u64,
     auth: RepairAuthDto,
 ) -> Result<(), ConnectError> {
-    let host = ready_host(state, &host_id)?;
+    let host = host_to_repair(state, &host_id)?;
     let mut attempt = host
         .take_repair(control_generation)
         .map_err(|error| ConnectError::other(error.to_string()))?;
@@ -3545,11 +3538,7 @@ pub async fn run_preflight_impl(
 ) -> Result<PreflightReportDto, String> {
     let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
     let transport = state
-        .hosts
-        .lock()
-        .unwrap()
-        .get(&host_id)
-        .and_then(HostSlot::ready)
+        .ready_host(&host_id)
         .ok_or_else(|| "host not connected".to_string())?;
     let transport = transport.command(deadline);
     let report = crate::preflight::run(&transport)
@@ -3772,16 +3761,10 @@ pub async fn list_sockets_impl(
     include_default: bool,
 ) -> Result<SessionListDto, OperationErrorDto> {
     let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
-    // Direktzugriff auf das private Feld ist hier zulaessig und richtig:
-    // dieselbe Datei, dasselbe Modul. `create_session_impl` macht es
-    // identisch -- kein zusaetzlicher Accessor, der nur eine zweite
-    // Zugriffsart auf denselben Zustand waere.
+    // Nur eine fertige Verbindung zaehlt; `ready_host` gibt die
+    // `hosts`-Sperre vor dem ersten `await` wieder frei.
     let transport = state
-        .hosts
-        .lock()
-        .unwrap()
-        .get(&host_id)
-        .and_then(HostSlot::ready)
+        .ready_host(&host_id)
         .ok_or_else(|| OperationErrorDto {
             code: "host_unavailable",
             message: "host not connected".into(),
@@ -4270,13 +4253,9 @@ pub async fn poll_sockets_impl(
     include_default: bool,
 ) -> Result<StatusPollsDto, OperationErrorDto> {
     let deadline = tokio::time::Instant::now() + STATUS_POLL_TIMEOUT;
-    // Same lookup as `list_sessions_impl`: the control connection only.
+    // Same lookup as `list_sockets_impl`: the control connection only.
     let transport = state
-        .hosts
-        .lock()
-        .unwrap()
-        .get(&host_id)
-        .and_then(HostSlot::ready)
+        .ready_host(&host_id)
         .ok_or_else(|| OperationErrorDto {
             code: "host_unavailable",
             message: "host not connected".into(),
@@ -4364,14 +4343,8 @@ pub async fn list_directories_impl(
         return Err("path must be an absolute path without control characters".into());
     }
 
-    // Direktzugriff auf das private Feld, wie in `list_sessions_impl` --
-    // dieselbe Datei, dasselbe Modul, kein zusaetzlicher Accessor.
     let transport = state
-        .hosts
-        .lock()
-        .unwrap()
-        .get(&host_id)
-        .and_then(HostSlot::ready)
+        .ready_host(&host_id)
         .ok_or_else(|| "host not connected".to_string())?;
 
     // `sh -c <skript> sh <pfad>`: `$0` wird `sh`, `$1` der Pfad. Beide
@@ -7434,6 +7407,48 @@ mod tests {
             open_link("https://exa mple.com".into()).await,
             Err(LINK_HAS_SPACE_OR_CONTROL.to_string())
         );
+    }
+
+    /// `ready_host` liefert nur eine fertige Verbindung: ein unbekannter Host
+    /// und ein noch reservierter Versuch geben `None`, ein `Ready`-Eintrag
+    /// genau dessen Verbindung. `has_host` folgt derselben Antwort.
+    #[tokio::test]
+    async fn ready_host_finds_only_a_ready_connection() {
+        let state = Arc::new(AppState::default());
+        assert!(state.ready_host("no-such-host").is_none());
+        assert!(!state.has_host("no-such-host").await);
+
+        let (expiry, _ended) = oneshot::channel();
+        state.hosts.lock().unwrap().insert(
+            "pending-h0".into(),
+            HostSlot::Pending {
+                control: ConnectControl::new(ConnectLimits::default()),
+                expiry,
+            },
+        );
+        assert!(state.ready_host("pending-h0").is_none());
+        assert!(!state.has_host("pending-h0").await);
+
+        let fixture = crate::connection::tests::Fixture::start(2, false, false, false).await;
+        let host = fixture.connect().await.unwrap();
+        state
+            .hosts
+            .lock()
+            .unwrap()
+            .insert("ready-h0".into(), HostSlot::Ready(host.clone()));
+        let found = state.ready_host("ready-h0").expect("ready connection");
+        assert!(Arc::ptr_eq(&found, &host));
+        assert!(state.has_host("ready-h0").await);
+        drop((found, host));
+
+        tokio::time::timeout(
+            Duration::from_secs(8),
+            disconnect_host_impl(&state, "ready-h0".into()),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        fixture.finish(2).await;
     }
 }
 
