@@ -6,7 +6,9 @@ MSI am eigenen Rechner abgenommen („Die selbst angelegten TMUX-Sessions werden
 angezeigt unter TMUX-Sessions bei dem Host“, „Funktioniert soweit alles“). Die
 Punkte 4 bis 6 übernahm auf seinen Auftrag Claude: am Fenster ein Treiber über
 CDP mit echten Maus- und Tastaturereignissen, auf den VMs SSH. Dabei fielen
-zwei Befunde an, die nicht im Tor stehen.
+zwei Befunde an, die nicht im Tor stehen. Beide und Punkt 6 sind seitdem
+korrigiert; die [Nachmessung vom 27.10.](#nachmessung-am-2710-mit-den-korrekturen)
+wiederholt die Läufe mit dem korrigierten Bau.
 
 ## Ergebnis
 
@@ -14,7 +16,7 @@ zwei Befunde an, die nicht im Tor stehen.
 |---|---|---|
 | 4 Nichts verändert | bestanden | auf 192.0.2.20 alle 15 Abschnitte vorher, nach Öffnen, Tippen, zwei Größenänderungen und Schließen und nach allen Latenzläufen gleich, für alle drei Sessions auf dem Standard-Socket |
 | 5 Kein Server bleibt kein Server | bestanden | 192.0.2.10 vor dem Verbinden und nach rund 40 min Abfragen ohne Socket `default` und ohne neuen Server; die eigene Liste blieb aktuell |
-| 6 Statuslatenz 4 s | nicht bestanden | unter vier flutenden Kacheln 3 von 10 Waiting-Wechseln über 4 s, Median 3,46 s, höchstens 4,97 s; ohne Standard-Socket 1 von 3 (4,15 s) |
+| 6 Statuslatenz 4 s | an 0.2.2 nicht bestanden, nach den Korrekturen bestanden | an 0.2.2 unter vier flutenden Kacheln 3 von 10 Waiting-Wechseln über 4 s, Median 3,46 s, höchstens 4,97 s; ohne Standard-Socket 1 von 3 (4,15 s). Am 27.10. mit den Korrekturen 12 von 12 unter 4 s, Median 1,73 s, höchstens 3,30 s |
 
 Befunde: [Anhängen scheitert, wenn auf dem Server gerade eine Session
 entsteht](#befund-1-anhängen-scheitert-wenn-auf-dem-server-eine-session-entsteht)
@@ -166,6 +168,82 @@ der Prototyp zwei Befehle mehr (Inventar und Titel des Standard-Sockets, nach
 zweiten Socket, hier sind es drei auf vm20. Woran die Befehle hier mehr kosten,
 ist offen.
 
+## Nachmessung am 27.10. mit den Korrekturen
+
+Drei Korrekturen auf dem Zweig `fix/m31-abnahme` (über `main` mit 0.2.3):
+
+- **Bestätigung nach dem Anhängen:** Hat sich zwischen den beiden Listen nur
+  die Sessionliste geändert (`ListingChanged` oder `ListingInventoryMismatch`
+  in `correlate`), liest `open_terminal` die fünf Antworten erneut, höchstens
+  viermal innerhalb der Frist. Eine Änderung der gewählten Session scheitert
+  weiter sofort.
+- **Abfrage:** Der Standard-Socket wird neben dem eigenen Socket und
+  `claude agents` gelesen, auf weiteren Kanälen derselben Verbindung, statt
+  danach.
+- **Takt:** Die nächste Abfrage beginnt 2 s nach dem Beginn der vorigen,
+  frühestens 0,5 s nach ihrem Ende (UX-Spec §5.2, Nachtrag vom 27.10.); vorher
+  2 s nach dem Ende.
+
+Aufbau wie oben, Bau aus `62bf523`, Testsocket `abtest_20261027_m31`, vm20 erst
+nach der Momentaufnahme „vorher“ verbunden. Claude Code 2.1.310 wie am 25.10.
+
+**Befund 1.** Viermal „New session“ im Abstand von rund 3 s: alle vier Kacheln
+offen, kein Banner (am 25.10. scheiterten die ersten beiden). Öffnen von `r1`
+mit `trials.mjs`:
+
+| | 25.10. | 27.10. |
+|---|---|---|
+| ohne Schleife | 8 von 8 | 8 von 8 |
+| mit Schleife (`churn.sh`, hier 341 Runden in 75 s) | 2 von 8 | 8 von 8 |
+
+**Punkt 6.** Last wie im Lauf „mit“: `yes` in `f1` bis `f4`, Claude in
+`abnahme` (fremd) und `r1` (eigen), sechs Kacheln, Freigaben abwechselnd.
+Lauf „neu“ mit dem Auftrag vom 25.10., Lauf „neu2“ mit einer `.md`-Datei mit
+Überschrift, weil Claude Code den ersten Auftrag nach einigen Runden ohne
+Rückfrage ausführt; 4 von 16 Runden fragten nicht und zählen nicht.
+
+| Lauf | fremd (`abnahme`) | eigen (`r1`) |
+|---|---|---|
+| neu | 1,67 · 2,03 · 2,36 s | 1,40 · 2,04 · 3,30 s |
+| neu2 | 1,33 · 1,78 · 1,56 s | 0,91 · 1,67 · 2,03 s |
+
+12 von 12 unter 4 s, Median 1,73 s, höchstens 3,30 s. Die Abfragen:
+
+| vm20 | Dauer Median | p90 | Pause bis zur nächsten, Median | Takt |
+|---|---|---|---|---|
+| 25.10., „mit“ | 1893 ms | 2049 ms | 2582 ms | rund 4,5 s |
+| 27.10., neu | 962 ms | 1177 ms | 1178 ms | rund 2,1 s |
+| 27.10., neu2 | 928 ms | 1033 ms | 1215 ms | rund 2,1 s |
+
+vm10 (ohne Standard-Server) brauchte je Abfrage im Median 0,21 s; dort beginnt
+die nächste wie vorgesehen 2 s nach dem Beginn der vorigen (Pause 1,92 s). Die
+Abfrage von vm20 ist um mehr kürzer geworden, als die parallele Lesung allein
+erklärt (am 25.10. ohne Standard-Socket 1349 ms). Der Tag war ein anderer, die
+VM weniger belastet; den Anteil der Korrektur an der Dauer belegt diese
+Messung nicht, die Grenze von 4 s schon.
+
+**Punkt 4 und 5** halten weiter: Auf vm20 waren alle Abschnitte nach den
+Sessions, dem Öffnen von `abnahme`, Claude darin und beiden Läufen gleich
+„vorher“; vm10 hatte nach rund 12 min Abfragen keinen Standard-Socket.
+
+**Nebenbei:** In „neu2“ zeigten `f3` und `f4` je einmal kurz „Reconnecting…“
+und eine Auswertung der Seite brauchte bis 1,8 s; in „neu“ nichts davon,
+höchstens 0,33 s. Das ist derselbe Engpass im Renderer wie am 25.10.
+
+**Tests:** Rust fmt, Clippy mit `-D warnings`, `cargo test --all
+--no-fail-fast` (611 Bibliothekstests, darunter vier neue), 2691
+Frontend-Tests, TypeScript- und Vite-Build und 94 Skripttests grün. Live gegen
+beide VMs auf eigenen Testsockets mit `--test-threads=4` grün (je 43 Tests,
+darunter `integration_default_socket.rs`). Im ersten Lauf auf vm20 scheiterte
+einmal `killing_a_session_deliberately_emits_no_connection_lost_event` in
+`kill_session_impl`; der Grund ist nicht festgehalten. Einzeln lief er dreimal
+grün, der volle Lauf danach auch; den Beenden-Pfad berühren die Korrekturen
+nicht.
+
+Aufgeräumt: Testsocket, die Testsession `abnahme` auf dem Standard-Socket von
+vm20 (diesmal ohne Client), `/tmp/abnahme-m31` und die Socketdateien der
+Live-Tests auf beiden VMs.
+
 ## Rohdaten
 
 Unter [`fixtures/m31-abnahme-2026-10-25/`](fixtures/m31-abnahme-2026-10-25/),
@@ -179,7 +257,8 @@ IPs als Platzhalter, Hostnamen als `<host>`:
 | `net-fluten.jsonl`, `net-mit.jsonl`, `net-ohne.jsonl` | Dauer jeder `poll_status`-Abfrage (`h0` = vm10, `h1` = vm20) |
 | `oeffnen-ohne-schleife.txt`, `oeffnen-mit-schleife.txt` | Befund 1 |
 | `werkzeuge/` | `snap.sh`, `churn.sh`, `vmgate2.sh`, `vm.sh` (VM); `trials.mjs`, `netpoll.mjs`, `netsum.mjs`, `phase.sh` und `lat.mjs` (mit Zustand `null` als `none`) am Rechner, dazu die Werkzeuge vom M1-Tor |
+| `nachmessung-2026-10-27/` | dieselben Dateiarten für die Nachmessung, Läufe `neu` und `neu2`; `phase.sh` mit `SOCK=abtest_20261027_m31 FLOOD="f1 f2 f3 f4"` |
 
-Aufgeräumt: der Testsocket auf vm20 und `/tmp/abnahme-m31` mit den
-Momentaufnahmen. `abnahme` steht noch auf dem Standard-Socket von vm20, weil
-die App des Maintainers sie offen hatte.
+Aufgeräumt am 25.10.: der Testsocket auf vm20 und `/tmp/abnahme-m31` mit den
+Momentaufnahmen. `abnahme` blieb bis zur Nachmessung auf dem Standard-Socket
+von vm20 stehen, weil die App des Maintainers sie offen hatte.

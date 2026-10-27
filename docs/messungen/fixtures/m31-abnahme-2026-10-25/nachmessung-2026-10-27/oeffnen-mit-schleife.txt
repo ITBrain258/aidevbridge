@@ -1,0 +1,9 @@
+{"i":0,"ok":true,"ms":5101,"detail":null}
+{"i":1,"ok":true,"ms":5073,"detail":null}
+{"i":2,"ok":true,"ms":5056,"detail":null}
+{"i":3,"ok":true,"ms":5152,"detail":null}
+{"i":4,"ok":true,"ms":5072,"detail":null}
+{"i":5,"ok":true,"ms":5151,"detail":null}
+{"i":6,"ok":true,"ms":5104,"detail":null}
+{"i":7,"ok":true,"ms":5152,"detail":null}
+ergebnis 8/8 geoeffnet

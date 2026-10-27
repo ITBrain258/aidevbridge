@@ -8,7 +8,8 @@ Release gehängt. Seit dem 26.10. baut der Workflow `packages.yml` bei jedem
 Tag alle Installer, auch MSI, Setup-EXE und ZIP; die Windows-Pakete für 0.2.3
 hängt ein Handlauf mit dem Tag an. Davor: Version `0.2.2`, Release am 25.10.2026 mit
 MSI, Setup-EXE und ZIP, unsigniert. Es bringt die Sessions auf tmux' Standard-Socket (M3.1);
-ihre Abnahme vom 25.10. ist bis auf die Statuslatenz bestanden. `0.2.1`
+ihre Abnahme ist bestanden, die Statuslatenz erst mit den Korrekturen vom
+27.10., die noch in keinem Release sind. `0.2.1`
 erschien am selben Tag. Das erste Release, `0.2.0`, erschien am 22.10. auf
 Entscheidung des Maintainers vor dem M1-Tor und vor der Installerabnahme;
 Installerabnahme, M1- und M2-Tor sind seitdem bestanden (gemeldet am 24.10.).
@@ -74,11 +75,24 @@ Nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md):
 | M1 Statuspunkt | abgeschlossen, Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel. Seit 23.10. gemessen gegen Claude Code 2.1.309 und Codex 0.163.0/0.164.0 ([Messung](messungen/messung-2026-10-23-agentversionen.md)), Agent über `/proc/<pid>/exe`, Codex-Einstellungen gelesen, Größengrenzen, VM-Test mit Attrappen |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Steuerzustand nur bei echtem Verlust, Selbstheilung für Schlüssel- und Agent-Hosts und Verlauf beim Anhängen; Arbeitsplatz, Schnellöffnen, Namensvorschlag, Anzeigename, ziehbare Seitenleiste; fünf Einstellungsbereiche; tmux 3.6 |
 | Dynamisches Raster | Schritt 0, 1 und 3 abgeschlossen nach der [Spec vom 19.10.](specs/2026-10-19-dynamisches-raster-design.md): bis zu 9 Kacheln, höchstens 8 je Host, je Host höchstens 4 Öffnungen zugleich („Opening…“), Tauschen per Zug am Kopf, Größe per Spalt, Maximieren verbirgt die übrigen Kacheln statt sie zu schließen, Wartet-Spur mit Wartezeit, Kachelnummer in Liste und Spur |
-| M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme am 25.10. bestanden bis auf die Statuslatenz unter Last ([Bericht](messungen/messung-2026-10-25-m31-abnahme.md)) |
+| M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme bestanden ([Bericht](messungen/messung-2026-10-25-m31-abnahme.md)): Punkt 1 bis 5 am 25.10., die Statuslatenz unter Last erst mit den Korrekturen vom 27.10. (parallele Abfrage, Takt ab dem Beginn), die mit dem nächsten Release kommen |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger lokaler Lauf für 0.2.2 nach dem Neubinden der Lizenzauswahl. Seit 26.10. baut der Workflow `packages.yml` sie bei jedem Tag, installiert jedes Paket auf einem frischen Runner, startet die App und hängt sie an das Release |
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 400 Komponenten, `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
 
 ## Letzte Prüfung
+
+Am 27.10.2026 für die Korrekturen aus der M3.1-Abnahme (Zweig
+`fix/m31-abnahme` über `main` mit 0.2.3), auf dem Rechner mit 8 GB
+Arbeitsspeicher: Rust fmt, Clippy mit `-D warnings` und `cargo test --all
+--no-fail-fast` grün, 611 Bibliothekstests; 2691 Frontend-Tests in 49 Dateien,
+TypeScript- und Vite-Build und 94 Skripttests grün. Live gegen beide Test-VMs
+auf eigenen Testsockets mit `--test-threads=4` grün, je 43 Tests; im ersten
+Lauf auf 192.0.2.20 scheiterte einmal
+`killing_a_session_deliberately_emits_no_connection_lost_event`, danach
+einzeln dreimal und im vollen Lauf grün. Am Fenster einer Testinstanz am echten
+Standard-Socket die [Nachmessung](messungen/messung-2026-10-25-m31-abnahme.md#nachmessung-am-2710-mit-den-korrekturen).
+`node scripts/release-licenses.mjs check` meldet die geänderten Quellen als
+ungebunden; das Neubinden gehört wie immer zum nächsten Release.
 
 Am 25.10.2026 für 0.2.2, auf dem Rechner mit 8 GB Arbeitsspeicher: 2691
 Frontend-Tests in 49 Dateien, TypeScript- und Vite-Build und 76 Skripttests
@@ -230,14 +244,17 @@ In dieser Reihenfolge:
    und die Schritte 2 bis 5 (Socket als Typ, Backend je Socket,
    Frontend-Zustand, Oberfläche) sind erledigt und mit 0.2.2 ausgeliefert;
    die [Abnahme](messungen/messung-2026-10-25-m31-abnahme.md) an 0.2.2 am selben Tag: Punkt 1 bis 5
-   bestanden, Punkt 6 nicht. Unter vier flutenden Kacheln kommen 3 von 10
-   Statuswechseln später als 4 s (höchstens 4,97 s); die Abfrage dauert mit dem
-   Standard-Socket 0,5 s länger, nicht 0,17 s. Ohne ihn lag einer von drei bei
-   4,15 s, die Grenze ist also schon vorher knapp. Ebenfalls dort gefunden, seit
-   0.2.0: Das Anhängen scheitert mit „attach identity changed“, wenn auf
-   demselben Server gerade eine Session entsteht oder endet, etwa bei zwei
-   „New session“ kurz nacheinander (nachgestellt: 6 von 8 Versuchen
-   scheitern). Wie es mit beidem weitergeht, entscheidet der Maintainer).
+   bestanden, Punkt 6 nicht: Unter vier flutenden Kacheln kamen 3 von 10
+   Statuswechseln später als 4 s (höchstens 4,97 s), weil die Abfrage mit dem
+   Standard-Socket 0,5 s länger dauerte und erst 2 s nach ihrem Ende die
+   nächste begann. Ebenfalls dort gefunden, seit 0.2.0: Das Anhängen scheiterte
+   mit „attach identity changed“, wenn auf demselben Server gerade eine Session
+   entstand oder endete, etwa bei zwei „New session“ kurz nacheinander. Seit
+   dem 27.10. (noch in keinem Release) liest
+   die Bestätigung dann erneut, die Abfrage liest den Standard-Socket parallel,
+   und der Takt zählt ab dem Beginn der vorigen Abfrage (UX-Spec §5.2,
+   Nachtrag). Nachmessung: 12 von 12 Wechseln unter 4 s, höchstens 3,30 s;
+   Öffnen unter wechselnden Sessions 8 von 8 statt 2 von 8).
    Bekannte Grenzen: Die Statusabfrage liest den Standard-Socket in der
    Form des tmux im `PATH` (README); mit der Thread-Zahl, die CONTRIBUTING
    vorgibt, scheitern zwölf Live-Befehlstests an der Zulassung der
