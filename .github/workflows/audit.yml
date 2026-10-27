@@ -3,8 +3,9 @@ name: Audit
 # Sicherheitsmeldungen: woechentlich, weil neue Meldungen ohne jede Aenderung
 # hier erscheinen, bei jeder Aenderung einer Lock-Datei und auf Abruf. Kein
 # Teil der Pruefungen, die ein Pull Request bestehen muss (die laufen in
-# ci.yml). Pfadabhaengigkeiten wie das vendorte russh haben keinen Eintrag in
-# den Datenbanken und bleiben ungeprueft; siehe SECURITY.md.
+# ci.yml). cargo audit gleicht nur Pakete mit einer Registry-Quelle ab;
+# Pfadabhaengigkeiten wie das vendorte russh unter vendor/russh deckt es nicht
+# ab. Die fuer diese Kopie bekannten Meldungen fuehrt SECURITY.md.
 on:
   schedule:
     - cron: '23 4 * * 1'
