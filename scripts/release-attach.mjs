@@ -20,8 +20,10 @@ const sha256Of = bytes => crypto.createHash('sha256').update(bytes).digest('hex'
 // - Alle Dateien sind da: die Gruppe bleibt, wie sie ist, auch wenn der neue
 //   Bau andere Hashes hat. Ein Neubau desselben Tags ist selten bitgleich,
 //   und ein Handlauf, der den Tag nennt, soll trotzdem die fehlende andere
-//   Plattform anhaengen koennen. Der Text nennt schon die veroeffentlichten
-//   Hashes.
+//   Plattform anhaengen koennen. Haben alle genau die Bytes des neuen Baus,
+//   schreibt der Lauf ihren Abschnitt im Text noch einmal: Brach ein frueherer
+//   Lauf nach dem Hochladen und vor dem Text ab, etwa beim Wiederholen des
+//   Publish-Jobs mit denselben Artefakten, fehlten dort sonst ihre Hashes.
 // - Keine Datei ist da: die ganze Gruppe wird hochgeladen.
 // - Ein Teil ist da: nur wenn jede vorhandene Datei genau die Bytes des neuen
 //   Baus hat, kommen die fehlenden dazu. Ein abweichender oder fehlender
@@ -45,13 +47,16 @@ export function attachPlan({ groups, assets }) {
   }
   const published = new Map(assets.map(item => [item.name, typeof item.digest === 'string' ? item.digest : null]));
   const upload = [], notes = [], skipped = [], conflicts = [];
+  const sameBytes = file => published.get(file.name)?.toLowerCase() === `sha256:${file.sha256}`;
   for (const { name: group, files } of groups) {
     const missing = files.filter(file => !published.has(file.name));
-    if (missing.length === 0) { skipped.push(group); continue; }
+    if (missing.length === 0) {
+      skipped.push(group);
+      if (files.every(sameBytes)) notes.push(group);
+      continue;
+    }
     for (const file of files) {
-      if (!published.has(file.name)) continue;
-      const digest = published.get(file.name);
-      if (digest?.toLowerCase() !== `sha256:${file.sha256}`) conflicts.push({ group, name: file.name, sha256: file.sha256, digest });
+      if (published.has(file.name) && !sameBytes(file)) conflicts.push({ group, name: file.name, sha256: file.sha256, digest: published.get(file.name) });
     }
     upload.push(...missing.map(file => file.path));
     notes.push(group);

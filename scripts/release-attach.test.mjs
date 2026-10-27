@@ -65,6 +65,26 @@ test('a complete group from an earlier build is kept and the missing group still
   assert.deepEqual(plan.conflicts, []);
 });
 
+test('a complete group with the same bytes keeps its files and gets its section written again', () => {
+  // Der Publish-Job wird mit denselben Artefakten wiederholt, nachdem der
+  // erste Versuch Windows hochlud und vor dem Releasetext abbrach.
+  const assets = windows.files.map(f => asset(f));
+  const plan = attachPlan({ groups, assets });
+  assert.deepEqual(plan.upload, paths(macos));
+  assert.deepEqual(plan.notes, ['windows', 'macos']);
+  assert.deepEqual(plan.skipped, ['windows']);
+  assert.deepEqual(plan.conflicts, []);
+});
+
+test('a release that has every file with the same bytes gets no upload, only the text', () => {
+  const assets = [...windows.files, ...macos.files].map(f => asset(f));
+  const plan = attachPlan({ groups, assets });
+  assert.deepEqual(plan.upload, []);
+  assert.deepEqual(plan.notes, ['windows', 'macos']);
+  assert.deepEqual(plan.skipped, ['windows', 'macos']);
+  assert.deepEqual(plan.conflicts, []);
+});
+
 test('a partial group with the same bytes gets only its missing files', () => {
   // Gross- und Kleinschreibung des Hex-Werts zaehlt nicht.
   const assets = [asset(macos.files[0], `sha256:${sha('d').toUpperCase()}`), asset(windows.files[1])];
@@ -167,12 +187,22 @@ test('the program writes the upload list and the notes arguments for every missi
 });
 
 test('the program leaves out a group the release already has and says so', t => {
+  const { cwd } = workspace(t);
+  // Von einem frueheren Bau: der Text nennt schon dessen Hashes.
+  const run = attach(cwd, WINDOWS.map(([name]) => ({ name, digest: `sha256:${'9'.repeat(64)}` })));
+  assert.equal(run.status, 0);
+  assert.match(run.stdout, /The Windows packages are attached already\./);
+  assert.equal(read(cwd, 'upload.txt'), lines([path.join('mac', DMG), path.join('mac', `${DMG}.sha256`)]));
+  assert.equal(read(cwd, 'notes-args.txt'), lines(['--macos', 'mac/release-manifest.json']));
+});
+
+test('the program writes the text again for a group the release has with the same bytes', t => {
   const { cwd, sha } = workspace(t);
   const run = attach(cwd, WINDOWS.map(([name]) => ({ name, digest: `sha256:${sha[name]}` })));
   assert.equal(run.status, 0);
   assert.match(run.stdout, /The Windows packages are attached already\./);
   assert.equal(read(cwd, 'upload.txt'), lines([path.join('mac', DMG), path.join('mac', `${DMG}.sha256`)]));
-  assert.equal(read(cwd, 'notes-args.txt'), lines(['--macos', 'mac/release-manifest.json']));
+  assert.equal(read(cwd, 'notes-args.txt'), lines(['--windows', 'win/release-manifest.json', '--macos', 'mac/release-manifest.json']));
 });
 
 test('a local file with other bytes than its manifest names stops the program', t => {

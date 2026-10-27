@@ -23,8 +23,10 @@ on:
         default: ''
 permissions:
   contents: read
+# A manual run naming a tag shares the group of that tag's push, so that the
+# two never attach to the same release at the same time.
 concurrency:
-  group: packages-${{ inputs.tag || github.ref }}
+  group: packages-${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') && !inputs.tag }}
 env:
   # The source to build: the named tag of a manual run, otherwise the event's
@@ -400,6 +402,13 @@ jobs:
           if [ ! -s "$RUNNER_TEMP/upload.txt" ]; then
             echo "Nothing to attach to $PUBLISH_TAG." >> "$GITHUB_STEP_SUMMARY"
           fi
+          # A group the release has with exactly this build's bytes gets its
+          # section written again, also when nothing is left to upload.
+          if [ -s "$RUNNER_TEMP/notes-args.txt" ]; then
+            echo "notes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "notes=false" >> "$GITHUB_OUTPUT"
+          fi
       # GitHub expressions compare strings without regard to case, so they
       # would take a run on refs/tags/V0.2.4 for one on the tag v0.2.4. The
       # decision is made here in bash, which compares exactly.
@@ -426,7 +435,7 @@ jobs:
         with:
           subject-path: ${{ steps.plan.outputs.files }}
       - name: Attach the packages the release still lacks, or create the release
-        if: steps.plan.outputs.files != ''
+        if: steps.plan.outputs.files != '' || steps.plan.outputs.notes == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -442,7 +451,9 @@ jobs:
           if [ "$EXISTS" = true ]; then
             node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).body ?? "")' "$RUNNER_TEMP/release.json" > "$RUNNER_TEMP/body.md"
             node scripts/release-notes.mjs "$version" --body "$RUNNER_TEMP/body.md" "${args[@]}" > "$RUNNER_TEMP/notes.md"
-            gh release upload "$tag" "${upload[@]}"
+            if [ "${#upload[@]}" -gt 0 ]; then
+              gh release upload "$tag" "${upload[@]}"
+            fi
             gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md"
           else
             node scripts/release-notes.mjs "$version" "${args[@]}" > "$RUNNER_TEMP/notes.md"
