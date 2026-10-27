@@ -16,6 +16,14 @@ Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
 einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
 privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
 
+Auf dem Branch `claude/intelligent-rubin-jygw4u` liegt die Umsetzung des
+Code-Reviews vom 26.10. an 0.2.3 ([Plan](plans/2026-10-26-review-umsetzung.md)),
+noch ohne Release: Sicherheits- und Fehlerkorrekturen in Backend und
+Frontend, eine gehärtete CI mit Audit und Build-Provenienz, `SECURITY.md` mit
+bekannten Grenzen und akzeptierten Risiken; beide Lizenzauswahlen sind am
+27.10. neu gebunden. Offen sind die Entscheidungen U1 bis U5, die
+Handabnahme und die CI auf drei Systemen (Punkt 10).
+
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
 steht im [README](../README.md#what-it-is), die Änderungen im
 [CHANGELOG](../CHANGELOG.md). Die Doku liegt flach unter `docs/` (`specs/`,
@@ -64,6 +72,33 @@ Nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md):
   veröffentlicht die CI alle Pakete, auch die für Windows; von Hand lädt der
   Maintainer nichts mehr hoch.
 
+## Entscheidungen vom 26.10.2026 (Code-Review)
+
+Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
+
+- **Leitlinie:** Funktionierendes wird nicht eingeschränkt. Kostet eine
+  Härtung Funktion, bleibt die Funktion, und das Restrisiko steht in
+  [`SECURITY.md`](../SECURITY.md) unter „Known limitations and accepted
+  risks“.
+- **Bleibt so:** der SHA-1-Rückfall bei Servern, die nur `ssh-rsa`
+  anbieten; keine erneute Prüfung des Hostschlüssels beim Rekey, ohne
+  eigenen russh-Patch; mehrere Instanzen, ohne Single-Instance-Plugin, dafür
+  mit dauerhaftem Schreiben und Zusammenführen von `settings.toml`.
+- **Ausgeschlossen:** S2 und S5; OSC 52 bleibt damit unberührt.
+- **Offen:**
+  - U1: die WiX- und NSIS-Quellen im portablen ZIP. Empfehlung: so lassen.
+  - U2: die Apple-Secrets im Environment von `npm ci` und `tauri build`.
+    Empfehlung: Restrisiko und Vorbedingung dokumentieren und die Signatur
+    auslagern, bevor die Secrets hinterlegt werden. Bis dahin nennt
+    `SECURITY.md` als Weg nur Signatur und Notarisierung.
+  - U3: `commands.rs` in `hosts.rs` und `inventory.rs` teilen (Batch 9).
+    Empfehlung: ja, wenn gerade kein anderer Branch `commands.rs` ändert.
+  - U4: die Prüfung beim Rekey bei russh upstream vorschlagen; nur nach
+    ausdrücklichem OK des Maintainers.
+  - U5: die Vorauseingabe behalten. Entschieden wird an der
+    [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610),
+    Schritt 3.
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -77,8 +112,29 @@ Nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md):
 | M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme am Fenster offen |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger lokaler Lauf für 0.2.2 nach dem Neubinden der Lizenzauswahl. Seit 26.10. baut der Workflow `packages.yml` sie bei jedem Tag, installiert jedes Paket auf einem frischen Runner, startet die App und hängt sie an das Release |
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 400 Komponenten, `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
+| Review vom 26.10. | umgesetzt auf dem Branch `claude/intelligent-rubin-jygw4u` nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Noch kein Release |
 
 ## Letzte Prüfung
+
+Am 27.10.2026 für den Branch der Review-Umsetzung, in einem Linux-Container
+als root (kein Windows, kein macOS): Rust fmt, Clippy mit `-D warnings` und
+`cargo test --locked --all --no-fail-fast` grün, 640 Bibliothekstests; 2797
+Frontend-Tests in 52 Dateien, `tsc`, Vite-Build und 112 Skripttests grün,
+drei davon nur unter Windows und hier übersprungen. `cargo audit` meldet nur
+RUSTSEC-2023-0071 und die zehn erwarteten Warnungen aus `SECURITY.md`,
+`npm audit` nichts; `vendor/` ist unverändert. Nach dem Neubinden sind
+`prepare` und `check` für beide Lizenzauswahlen grün. Live gegen einen
+lokalen OpenSSH-Host (9.6, tmux 3.4) auf eigenen Testsockets mit
+`--test-threads=4`: `integration_commands` 23, `socket_abort_probe` 13,
+`integration_transport` 8 (mit RSA-Schlüssel), `test_environment` 7,
+`integration_tmux` 6, `capabilities_acl` 6, `acl_runtime` 4,
+`integration_pty` 4, `integration_status_title` und `integration_preflight`
+je 1 grün; in `integration_default_socket.rs` scheitert der Listentest, der
+tmux 3.3a oder 3.6 braucht (Punkt 10). VM-Abnahme 11 von 11, der
+ssh-agent-Zweig mangels Agent übersprungen; vorher scheiterten unter Linux
+neun der elf, weil der Test die Windows-Herkunft der App fest einsetzte und
+`list_sessions` als bloße Liste las. Offen sind die CI auf Windows und macOS
+und das Fenster.
 
 Am 25.10.2026 für 0.2.2, auf dem Rechner mit 8 GB Arbeitsspeicher: 2691
 Frontend-Tests in 49 Dateien, TypeScript- und Vite-Build und 76 Skripttests
@@ -294,6 +350,21 @@ In dieser Reihenfolge:
    Benutzername des Bauprofils in den Panic-Pfaden der Binaries. Das ist
    hingenommen. Der Lieferlauf weist `RUSTFLAGS` und `.cargo/config.toml`
    ab; ein Lauf mit neutralem `CARGO_HOME` wäre der Weg, das zu ändern.
+   Am 27.10. sind nach dem Code-Review beide Auswahlen neu gebunden:
+   crypto-bigint 0.7.10, ctutils 0.4.6 und tokio 1.53.3 tragen dieselben
+   Lizenzen und byte-gleiche Lizenztexte
+   ([Nachweis](release/license-rust-crypto-tokio-2026-10-26.json)) und sind
+   in der Windows-Auswahl von Hand nachgeführt; dazu 65 geänderte gebundene
+   Eingänge (eigene Quellen, `Cargo.lock`, CSP in `tauri.conf.json`,
+   Capability, Kommentare in `src-tauri/Cargo.toml` und
+   `scripts/gen-icons.mjs`); außer den drei Crates bringt keiner neues
+   Fremdmaterial. `src/i18n/t.ts` und `src-tauri/src/commands/tests.rs` sind
+   in ihre Bäume aufgenommen. Die macOS-Auswahl ist neu abgeleitet; `prepare` und `check`
+   sind für beide grün. Offen: crypto-bigint trägt in
+   `src/modular/safegcd.rs` für übernommenen Code den Vermerk „Copyright (c)
+   2023 Privacy Scaling Explorations Team“, den die Auswahl seit dem 12.09.
+   nicht als Hinweis führt (in 0.7.5 und 0.7.10 gleich). Vor dem nächsten
+   Release entscheiden, ob er als Copyright-Hinweis der Komponente dazukommt.
 7. **Echte Abnahmen:**
    - die [Handabnahme](abnahme-handarbeit.md) am Windows-Fenster: echte
      Tastatur, Rechtsklick, Skalierung 100 und 150 % am echten Bildschirm,
@@ -367,6 +438,19 @@ In dieser Reihenfolge:
    Netz, Kopieren und Einfügen, Schriften, Fensterlage, Neustart. Offen
    bleiben Mac-Kürzel mit ⌘ und, sobald Secrets da sind, ein Lauf mit
    Developer ID und Notarisierung.
+10. **Review vom 26.10.:** Offen sind die
+    [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610)
+    am Windows-Fenster (die macOS-Punkte, sobald ein Mac bereitsteht), die
+    CI auf Windows, Ubuntu und macOS nach dem Push (unter Windows auch der
+    TOFU-Test, der das Anhängen an `known_hosts` über einen Ordner scheitern
+    lässt) und die Entscheidungen U1 bis U5 (oben). Batch 9 folgt nur nach
+    U3; seine neuen Dateien `commands/hosts.rs` und `commands/inventory.rs`
+    sind dann in den Baum `src-tauri/src` beider Auswahlen aufzunehmen.
+    `integration_default_socket.rs` braucht einen Testhost mit tmux 3.3a
+    oder 3.6: Auf 3.4 liest die App den Standard-Socket bewusst nicht, und
+    der Listentest scheitert dort, statt zu überspringen. In
+    `src/styles.css` stehen noch private Verlaufsmarker in Kommentaren
+    (Batch 15 bereinigte nur `.ts`-Dateien).
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

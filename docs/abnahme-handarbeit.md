@@ -504,6 +504,133 @@ Eintrag `m1-drei` entfernen und die Probedateien löschen (`/tmp/m1-*`,
 | 11 Tausch und Maximieren | | |
 | 12 M2-Aufwachen | | |
 
+## 10. Änderungen aus dem Code-Review vom 26.10.
+
+Einmal vor dem nächsten Tag, am Stand mit allen Änderungen aus dem
+[Umsetzungsplan](plans/2026-10-26-review-umsetzung.md). Was Tests nicht
+zeigen: die Konsole bei echten Rechten und echter CSP, die Eingabe beim
+Öffnen, die Meldungen am Fenster und zwei Fenster an einer `settings.toml`.
+
+**Vorbereitung**
+
+- Für Schritt 1 ein Debug-Bau mit eingebettetem Frontend:
+  `npm run tauri build -- --debug --no-bundle`. Er nutzt `csp`, nicht
+  `devCsp`, und öffnet die Devtools selbst. Für die übrigen Schritte das
+  Release-Paket aus `npm run build:windows`.
+- Ein Testhost mit tmux 3.3a oder 3.6, etwa 192.0.2.20, mit Schlüssel oder
+  ssh-agent. Für Schritt 3 eine Session mit einem Agent, der zurückfragt
+  (siehe Punkt 9), und ein Host mit spürbarer Latenz.
+- Für Schritt 6 und 7 eine Testinstanz mit eigenem
+  `AIDEVBRIDGE_SETTINGS_DIR` (siehe Voraussetzungen), damit die eigene
+  `settings.toml` unberührt bleibt.
+
+**Schritte**
+
+1. **Rechte und CSP.** Im Debug-Bau mit offener Konsole: ein Terminal mit
+   WebGL öffnen und tippen, die Suche benutzen, das Farbthema wechseln, alle
+   Dialoge öffnen und schließen (Add host, Edit host, New session,
+   Einstellungen), eine TOFU-Rückfrage beantworten, im Anmeldungsmenü
+   „Choose file…“ für eine Schlüsseldatei nutzen, einen Link mit Ctrl+Klick
+   öffnen, danach Kacheln und Dialoge schließen. Ctrl+Shift+I schließt und
+   öffnet die Devtools.
+   Erwartung: keine CSP-Verletzung, kein „not allowed“, keine unbehandelte
+   Rejection in der Konsole.
+2. **Titel und Taskleiste.** Eine Session wartend werden lassen, während
+   das Fenster keinen Fokus hat.
+   Erwartung: Der Fenstertitel lautet „(1) aidevbridge“, die Taskleiste
+   blinkt einmal und hört beim Fokussieren auf; wartet niemand mehr, steht
+   wieder „aidevbridge“.
+3. **Eingabe beim Öffnen.** Auf dem Host mit Latenz eine Session öffnen und
+   sofort `echo hallo` und Enter tippen. Gleich nach einem weiteren Klick
+   mehr als 64 KiB einfügen; einmal das Emoji-Panel (Win+.) oder eine IME
+   benutzen, während die Kachel öffnet. Dann eine wartende Claude-Session
+   aus der Wartet-Spur öffnen und sofort tippen.
+   Erwartung: Jedes Zeichen kommt genau einmal an, in der getippten
+   Reihenfolge. Aus der Wartet-Spur landen die Tasten nach dem Neuzeichnen
+   im Prompt des Agents. Dieser Fall ist der Veto-Punkt des Maintainers
+   (U5): Stört die gepufferte Eingabe dort, fällt die Entscheidung, ob sie
+   bleibt.
+4. **Abgelehnte Agent-Signatur** (nur mit passender Hardware). Einen
+   FIDO-Schlüssel (sk-ed25519) in den ssh-agent laden, mit Anmeldung über
+   den Agent verbinden und den Schlüssel nicht berühren; alternativ unter
+   macOS `ssh-add -c <Schlüssel>` und die Bestätigung ablehnen.
+   Erwartung: „Secure signing failed. Try again or choose another
+   authentication method.“ statt „Host not reachable…“ und keine weitere
+   Bestätigungsabfrage. Gegenprobe: Mit bestätigter Signatur verbindet der
+   Host, ein unerreichbarer Host meldet weiter „Host not reachable“.
+5. **Hostnamen.** Im Host-Dialog nacheinander `user@host`, `a b` und `*`
+   als Hostnamen speichern, dann einen bestehenden Host auf `user@host`
+   ändern.
+   Erwartung: jedes Mal „This host name can't be used. Enter only the host
+   name or address, without a user name, spaces or any of , * ? ! [ ] | @ #
+   / or backslash.“; nichts wird gespeichert, der alte Eintrag bleibt,
+   `~/.ssh/known_hosts` ist unverändert. Ein DNS-Name, eine IPv4- und eine
+   IPv6-Adresse (auch Link-Local mit `%<Schnittstelle>`) verbinden wie bisher.
+6. **Speichern und zwei Fenster.** Die Seitenleiste ziehen und mit
+   Ctrl+Mausrad zoomen. Dann die Testinstanz zweimal starten, in der einen
+   Host X, in der anderen Host Y anlegen, beide beenden und eine neu
+   starten.
+   Erwartung: Ziehen und Zoomen ohne Stocken. Beide Hosts sind da, und im
+   Ordner der `settings.toml` liegt keine `settings.toml.*.tmp`.
+7. **ssh_config.** In der Testinstanz ohne Hosts eine `~/.ssh/config` mit
+   einem `IdentityFile` in Anführungszeichen, dessen Pfad ein Leerzeichen
+   enthält (etwa `"C:\Users\Max Muster\.ssh\id_ed25519"`), einer Zeile mit
+   zwei Mustern (`Host lab1 lab2`) und einem `Match`-Block dahinter anlegen
+   und den Erststart öffnen.
+   Erwartung: Vorschläge für `lab1` und `lab2`; die Werte aus dem
+   `Match`-Block landen bei keinem Host davor; der Vorschlag mit dem Pfad
+   verbindet.
+8. **`#` im Startordner.** Auf dem Host `mkdir -p ~/C#Project` und dort eine
+   neue Session anlegen. Optional zusätzlich
+   `mkdir '/tmp/#(cd;touch zz_cwd_marker)'` und dort eine Session.
+   Erwartung: `pwd` zeigt `…/C#Project` bzw. genau den zweiten Ordner, und
+   `ls ~/zz_cwd_marker` findet nichts.
+9. **Rekey.** Eine Session über mehrere Stunden oder mehr als 1 GB Ausgabe
+   offen halten. Optional; den Rekey mit gleichem Schlüssel deckt ein
+   Loopback-Test ab.
+   Erwartung: Die Verbindung bleibt, Eingabe und Ausgabe laufen weiter.
+10. **Rauchtest.** Verbinden, Liste mit eigenen Sessions und „tmux
+    sessions“, eine Session des Standard-Sockets öffnen, ein Fehlerbanner
+    mit „Copy details“ und „Dismiss“, den Host neu verbinden lassen, viele
+    Öffnungen auf einem Host bis zum Kapazitätshinweis. Optional in der
+    Testinstanz einen Host mit dem Anzeigenamen `a{message}` anlegen,
+    `settings.toml` schreibgeschützt machen und den Host entfernen.
+    Erwartung: alles wie bisher, die Kacheln hängen sich nach dem
+    Neuverbinden wieder an; die Meldung lautet „Could not remove
+    'a{message}': …“ mit dem Namen wörtlich.
+11. **CI und Release.** Nach dem Push: CI auf Windows, Ubuntu und macOS grün,
+    der Workflow „Audit“ grün. Vor dem nächsten Tag einmal `packages.yml` von
+    Hand mit **release** starten. Beim Tag: Der Lauf ersetzt keine Datei,
+    der Schritt zur Build-Provenienz zeigt je angehängte Datei eine
+    Attestierung, und
+    `gh attestation verify <Datei> --repo ITBrain258/aidevbridge --source-ref refs/tags/v<Version>`
+    meldet für ZIP und DMG „Verification succeeded!“.
+12. **Lizenzseiten.** Im Ordner `licenses` von ZIP, Installer und App.
+    Erwartung: `crypto-bigint-0.7.10-LICENSE-MIT.txt`,
+    `ctutils-0.4.6-LICENSE-MIT.txt` und `tokio-1.53.3-LICENSE.txt` liegen
+    dort, und `index.html` nennt diese Versionen.
+
+Auf macOS, sobald ein Mac bereitsteht: Web Inspector ohne CSP-Fehler,
+ssh-agent über `SSH_AUTH_SOCK`, Dock und Fenstertitel, Speichern ohne
+Stocken.
+
+| Schritt | Ergebnis | Notiz |
+|---|---|---|
+| Datum, Build, Testhost (tmux) | | |
+| 1 Rechte und CSP | | |
+| 2 Titel und Taskleiste | | |
+| 3 Eingabe beim Öffnen (U5) | | |
+| 4 Abgelehnte Agent-Signatur | | |
+| 5 Hostnamen | | |
+| 6 Speichern und zwei Fenster | | |
+| 7 ssh_config | | |
+| 8 `#` im Startordner | | |
+| 9 Rekey | | |
+| 10 Rauchtest | | |
+| 11 CI und Release | | |
+| 12 Lizenzseiten | | |
+| macOS | | |
+
 ---
 
 ## Log

@@ -6,9 +6,33 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Added
+
+- CI: Der Workflow `audit.yml` prueft `Cargo.lock` und `package-lock.json` woechentlich, bei jeder Aenderung eines Lockfiles und auf Knopfdruck auf bekannte Sicherheitsmeldungen. RUSTSEC-2023-0071 (`rsa`) ist mit Begruendung ausgenommen, siehe `SECURITY.md`.
+- Releases: Die Dateien, die der Lauf eines Tags an das Release haengt, tragen eine Build-Provenienz von GitHub. `gh attestation verify <Datei> --repo ITBrain258/aidevbridge` prueft sie (GitHub CLI 2.49 oder neuer). Fruehere Releases haben keine.
+
 ### Changed
 
 - CI: Der Workflow `packages.yml` ersetzt `macos.yml` und baut bei einem Tag `v*` alle Installer: MSI, Setup-EXE und ZIP mit `npm run build:windows` auf Windows und das DMG auf macOS. Jedes Paket wird auf einem frischen Runner installiert und gestartet, bis das Fenster erscheint; danach haengt der Workflow alle an das Release des Tags und schreibt je einen Abschnitt fuer Windows und macOS in dessen Text (`scripts/release-notes.mjs`). Ein Handlauf mit einem bestehenden Tag haengt an, was dessen Release noch fehlt.
+- CI: Alle Actions sind per Commit gepinnt, Dependabot haelt sie aktuell, und Checkouts behalten keine Zugangsdaten. Das Veroeffentlichen ersetzt keine Datei mehr: Fehlt einer Plattform ein Teil ihrer Dateien und weicht eine schon angehaengte Datei vom neuen Bau ab oder hat keinen Digest, bricht der Lauf ab, bevor er etwas anhaengt.
+- `SECURITY.md` fuehrt bekannte Grenzen und akzeptierte Risiken an einer Stelle, je mit Begruendung und Weg zur Loesung: den SHA-1-Rueckfall bei Servern, die nur `ssh-rsa` anbieten, die fehlende erneute Pruefung des Hostschluessels beim Rekey, RUSTSEC-2023-0071, den russh-Servercode, die unsignierten Pakete und mehrere Fenster zugleich. Sie beschreibt auch die macOS-Lieferung.
+
+### Fixed
+
+- Tastendruecke zwischen dem Klick auf eine Session und dem Anhaengen gehen nicht mehr verloren, ebenso Einfuegen und die Antworten des Terminals auf die Abfragen von tmux: Die Kachel puffert sie und sendet sie nach dem Anhaengen in derselben Reihenfolge. Scheitert das Oeffnen, wird die Kachel vorher geschlossen oder gesperrt oder bricht die Verbindung ab, verwirft sie den Puffer.
+- Ein Fehler in einem Teil der Oberflaeche haelt die uebrigen nicht mehr an. Scheitert das Lauschen auf Terminalereignisse, meldet die Kachel einen Oeffnungsfehler und gibt ihren Platz unter den Oeffnungen ihres Hosts frei, statt still zu warten.
+- Meldungen setzen jeden Wert genau einmal ein: Ein Hostname oder Anzeigename wie `a{message}` steht woertlich in der Meldung, statt ein zweites Mal ersetzt zu werden.
+- Ein Hostname, der nie einer sein kann, wird vor dem Verbinden und vor dem Speichern mit einer klaren Meldung abgewiesen: leer, mit Leerzeichen, Steuerzeichen oder einem der Zeichen `, * ? ! [ ] | @ # / \`, etwa `user@host`. `~/.ssh/known_hosts` bekommt so keine Zeile, die OpenSSH als Muster liest. IPv6-Adressen mit Zone, `_` und internationale Namen gehen weiter.
+- Lehnt der ssh-agent eine Signatur ab (abgelehnte Bestaetigung bei `ssh-add -c`, FIDO-Schluessel ohne Beruehrung), meldet die App "Secure signing failed" statt "Host not reachable" und versucht es nicht mehr automatisch erneut.
+- Laesst sich nach dem Beenden einer Session nicht pruefen, ob sie wirklich endete, meldet die App das und bittet, die Sessionliste neu zu laden, statt die Session als beendet zu zeigen.
+- Die Vorschlaege aus `~/.ssh/config` beim ersten Start lesen die Datei wie OpenSSH: `Match`-Bloecke, `Schluessel=Wert`, Werte in Anfuehrungszeichen (etwa ein `IdentityFile`-Pfad mit Leerzeichen) und mehrere Muster in einer `Host`-Zeile. Es gilt der erste Wert; ist er unbrauchbar, bleibt das Feld leer.
+- `settings.toml` wird dauerhaft geschrieben, ueber eine eigene temporaere Datei, die vor dem Umbenennen auf die Platte gebracht wird. Jede Aenderung liest die Datei neu und fuehrt nur sich selbst aus; schrieb ein anderes Fenster der App dazwischen, wiederholt sie sich auf dem neuen Inhalt und meldet nach drei Versuchen den Konflikt, ohne zu schreiben. Hosts eines anderen Fensters gehen so nicht mehr verloren. Temporaere Dateien eines abgebrochenen Speicherns, die aelter als zehn Minuten sind, entfernt der naechste Start.
+
+### Security
+
+- Ein Startordner mit `#` (etwa `C#Project`) startet eine neue Session jetzt genau dort. tmux wertete `#` im Startordner als Format aus: Solche Ordner starteten still in `$HOME`, und ein Ordner namens `#(befehl)` fuehrte den Befehl auf dem Host aus.
+- Abhaengigkeiten im SSH-Pfad aktualisiert: crypto-bigint 0.7.10, ctutils 0.4.6 und tokio 1.53.3 beheben RUSTSEC-2026-0387, RUSTSEC-2026-0385 und RUSTSEC-2026-0386. Lizenzen und Lizenztexte bleiben gleich (`docs/release/license-rust-crypto-tokio-2026-10-26.json`).
+- Die WebView hat nur noch die Rechte, die das Frontend nutzt (Ereignisse, Fenstertitel, Aufmerksamkeit, Dateiauswahl), statt `core:default`. Die Content-Security-Policy erlaubt keine `blob:`-Worker und keine `data:`-Schriften mehr und setzt `base-uri`, `form-action` und `object-src` auf `'none'`.
 
 ## [0.2.3] - 2026-10-25
 
