@@ -352,7 +352,17 @@ fn invoke_raw(
             cmd: cmd.into(),
             callback: tauri::ipc::CallbackFn(0),
             error: tauri::ipc::CallbackFn(1),
-            url: "http://tauri.localhost".parse().unwrap(),
+            // Die lokale Herkunft der App wie in `acl_runtime.rs`: unter
+            // Windows (und Android) `http://tauri.localhost`, sonst
+            // `tauri://localhost`. Mit der jeweils anderen gilt die Anfrage
+            // als entfernt, und die Capability lehnt jeden Befehl ab.
+            url: if cfg!(windows) || cfg!(target_os = "android") {
+                "http://tauri.localhost"
+            } else {
+                "tauri://localhost"
+            }
+            .parse()
+            .unwrap(),
             body: tauri::ipc::InvokeBody::Json(body),
             headers: Default::default(),
             invoke_key: INVOKE_KEY.to_string(),
@@ -1063,10 +1073,14 @@ vm_test!(
 
         // list_sessions -- echtes IPC, in genau dieser Reihenfolge (main.ts:
         // "Reihenfolge verbindlich: list_sessions MUSS vor openSession
-        // laufen", main.ts:468). Seit dem 13.09.2026 liefert es je Session ein
-        // Objekt mit Namen, numerischen IDs und Status, keine blossen Namen.
-        let rows: Vec<serde_json::Value> =
+        // laufen", main.ts:468). Es liefert `SessionListDto` mit dem eigenen
+        // Socket unter `own` und je Session ein Objekt mit Namen,
+        // numerischen IDs und Status, keine blossen Namen.
+        let listed: serde_json::Value =
             invoke_ok(&wv, "list_sessions", serde_json::json!({"hostId": host_id}));
+        let rows = listed["own"]["sessions"]
+            .as_array()
+            .unwrap_or_else(|| panic!("list_sessions ohne own.sessions: {listed:?}"));
         let names: Vec<&str> = rows
             .iter()
             .filter_map(|row| row["display_name"].as_str())
