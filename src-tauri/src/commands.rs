@@ -160,11 +160,10 @@ const HISTORY_MAX_BYTES: usize = 2 * 1024 * 1024;
 const HISTORY_CHUNK_BYTES: usize = 32 * 1024;
 
 /// Zustand der laufenden Anwendung. `Arc`-verwaltet (nicht Tauris eigenes
-/// `manage`/`State`-Lifetime direkt), damit die Pumpaufgabe in
-/// `open_terminal_impl` eine `'static`-Kopie fuer `tokio::spawn` bekommt,
-/// ohne auf einen `AppHandle` angewiesen zu sein -- das haelt die
-/// `_impl`-Funktionen Tauri-frei und damit ausserhalb einer laufenden
-/// Anwendung testbar.
+/// `manage`/`State`-Lifetime direkt), damit die Pumpaufgabe (`TerminalPump`)
+/// einen `'static`-Verweis bekommt, ohne auf einen `AppHandle` angewiesen zu
+/// sein -- das haelt die `_impl`-Funktionen Tauri-frei und damit ausserhalb
+/// einer laufenden Anwendung testbar.
 pub struct AppState {
     /// Der eigene Socket der App fuer alle tmux-Aufrufe dieses Zustands.
     /// Produktiv `settings::default_socket()`, im Debug-Bau ersetzbar (siehe
@@ -654,7 +653,7 @@ enum PumpDecision {
 /// Unit-Tests oben kurze Werte einsetzen koennen, ohne dreissig Sekunden zu
 /// warten, und damit die Pro-Aufruf-Semantik in der Signatur sichtbar ist.
 ///
-/// Von der Pumpaufgabe in `open_terminal_impl` TATSAECHLICH aufgerufen
+/// Von der Pumpaufgabe (`TerminalPump::forward`) TATSAECHLICH aufgerufen
 /// (nicht nur eine Testkopie) -- siehe die Unit-Tests im Testmodul fuer die
 /// Gegenprobe, dass diese Funktion tatsaechlich abbricht bzw. den Waechter
 /// feuert, statt fuer immer zu warten.
@@ -981,7 +980,7 @@ pub trait OutputSink: Send + Sync + 'static {
     /// expliziter Schliessvorgang (`close_terminal_impl`, `disconnect_host_
     /// impl`, ein verdraengendes `open_terminal` fuer denselben Schluessel)
     /// den Eintrag aus `state.terminals` entfernt hatte. Aufgerufen genau
-    /// dort, wo `open_terminal_impl`s Pumpaufgabe beim eigenen Aufraeumen
+    /// dort, wo die Pumpaufgabe (`TerminalPump`) beim eigenen Aufraeumen
     /// feststellt, dass sie selbst noch Eigentuemerin des Map-Eintrags ist
     /// (`owns_current_entry`) -- alle drei gewollten Schliesspfade entfernen
     /// den Eintrag VOR diesem Zeitpunkt (siehe deren Code),
@@ -1886,7 +1885,7 @@ pub async fn create_session_impl(
     if outcome.is_err() && transport.can_cleanup() {
         // Ohne diese Zeile bliebe der Server auch nach seiner letzten
         // Session stehen -- gegen die Zusage in `prepare_server`s Kommentar,
-        // und mit "Session beenden" (B3) sichtbar. Ein Fehlschlag beim
+        // und mit "Session beenden" sichtbar. Ein Fehlschlag beim
         // Zuruecksetzen darf die Meldung an den Nutzer nicht ersetzen: sie
         // ist die wichtigere.
         //
