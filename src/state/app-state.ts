@@ -78,9 +78,9 @@ export interface Host {
    * `null` heisst "unter dieser ID kann nichts mehr laufen" -- gesetzt beim
    * ausdruecklichen Trennen (`setRuntimeId` unten). Bei `failed` bleibt die
    * alte ID ABSICHTLICH stehen, obwohl die Verbindung tot ist: die Kachel
-   * soll mit ihrer Sperrleiste offen bleiben (Zusage aus Paket 1), und erst
-   * der naechste ERFOLGREICHE Aufbau tauscht die ID. Ein Feld, das nur
-   * "lebendig oder nicht" hiesse, koennte das nicht.
+   * soll mit ihrer Sperrleiste offen bleiben, und erst der naechste
+   * ERFOLGREICHE Aufbau tauscht die ID. Ein Feld, das nur "lebendig oder
+   * nicht" hiesse, koennte das nicht.
    *
    * Nur die Aufrufe ins Backend, die eine LEBENDE VERBINDUNG meinen,
    * benutzen dieses Feld: `open_terminal`, `close_terminal`, `send_input`,
@@ -88,17 +88,17 @@ export interface Host {
    * `list_directories`, `disconnect_host`. Die Aufrufe, die einen
    * GESPEICHERTEN EINTRAG meinen (`remove_host`, `add_host`), nehmen `id`.
    *
-   * Zwei getrennte Felder statt eines: bis Paket 2.5 trug `id` nach einem
-   * erfolgreichen Verbinden die Laufzeit-ID, und weil sie in jeden Fokus-
-   * und Kachelschluessel eingeht, verschob ein blosses Verbinden die
-   * Identitaet der Hostzeile unter dem Nutzer weg. */
+   * Zwei getrennte Felder statt eines: truege `id` nach einem erfolgreichen
+   * Verbinden die Laufzeit-ID, verschoebe ein blosses Verbinden die
+   * Identitaet der Hostzeile unter dem Nutzer, denn `id` geht in jeden
+   * Fokus- und Kachelschluessel ein. */
   runtimeId: string | null;
   label: string;
   hostname: string;
   user: string;
   port: number;
   keyPath: string | null;
-  /** Anmeldeart (Task 8, Spec §4.8) -- ohne dieses Feld unterschied sich ein
+  /** Anmeldeart (Spec §4.8) -- ohne dieses Feld unterschiede sich ein
    * per Passwort gespeicherter Host nach einem Neustart nicht von einem
    * ssh-agent-Host: `keyPath` allein sagt nur "kein Schluessel gespeichert",
    * nicht "der Nutzer wollte Passwort statt Agent". `hostFromEntry`
@@ -107,8 +107,8 @@ export interface Host {
    * PFLICHT, nicht optional wie `tmuxSocket`/`historyLimit` unten: die
    * Anmeldeart steuert bereits die Laufzeitverbindung. Ein optionales Feld wuerde in
    * `sidebar.ts` einen `host.authKind ?? "agent"`-Rueckfall erzwingen und
-   * damit genau den stillen Agent-Rueckfall wieder einfuehren, den diese
-   * Aufgabe beseitigt. */
+   * damit genau den stillen Agent-Rueckfall wieder einfuehren, den dieses
+   * Feld verhindert. */
   authKind: "key" | "agent" | "password";
   state: HostState;
   error: string | null;
@@ -128,10 +128,10 @@ export interface Host {
   lastCwd: string;
   /** `hostFromEntry` (`main.ts`) laedt beide Felder aus `list_hosts`;
    * `editHost` erhaelt damit auch manuell gespeicherte Sonderwerte.
-   * Noch keine Laufzeitoptionen: Create/List/Attach/Kill nutzen den
-   * App-Socket, neue Panes die globale History-Vorgabe. Die Verdrahtung
-   * folgt mit M2/M3 und dem Schutz fremder Sessions. Optional fuer Hosts,
-   * die ohne persistierten Eintrag konstruiert werden. */
+   * Keine Laufzeitoptionen: Create/List/Attach/Kill nutzen den eigenen
+   * Socket, neue Panes die globale History-Vorgabe; `HostEntry.tmux_socket`
+   * bleibt ungelesen (Spec 2026-10-25 §2). Optional fuer Hosts, die ohne
+   * persistierten Eintrag konstruiert werden. */
   tmuxSocket?: string;
   historyLimit?: number;
   /** Schalter "Show tmux sessions" (Spec 2026-10-25 §10.1): aus, liest die
@@ -189,7 +189,7 @@ export class AppState {
   hosts: Host[] = [];
   /** Die Kacheln in Anzeigereihenfolge (Spec 2026-10-19 §4.1): die Position
    * ist der Index, die Nummer im Kachelkopf Position + 1. Jede traegt eine
-   * Session; leere Plaetze gibt es nicht mehr. */
+   * Session; leere Plaetze gibt es nicht. */
   tiles: Tile[] = [];
   /** `id` der maximierten Kachel. */
   maximizedTile: number | null = null;
@@ -546,9 +546,9 @@ export class AppState {
     this.#hostReconnects.delete(hostId);
     this.#unsupportedDefault.delete(hostId);
     this.hosts = this.hosts.filter((h) => h.id !== hostId);
-    // Traegt (Abschlussreview, Important 2): `submitEdit` (`main.ts`) ruft
-    // `removeHost` direkt, und NUR diese Schleife nimmt dabei die Kacheln
-    // des Hosts weg. Ueber eine Kopie, weil `splice` die Liste verkuerzt.
+    // Nimmt jede Kachel des Hosts weg, auch wenn der Aufrufer sie nicht vorher
+    // geschlossen hat (`onRemoveHost` in `main.ts` trennt zuerst und schliesst
+    // sie dabei schon). Ueber eine Kopie, weil `splice` die Liste verkuerzt.
     // Fokus und Maximiert raeumt `#forgetTile` wie beim Schliessen.
     for (const tile of [...this.tiles]) {
       if (!tile.sessionKey.startsWith(`${hostId}/`)) continue;
@@ -559,16 +559,15 @@ export class AppState {
     this.#notify();
   }
 
-  /** Nachtrag C (Befund 3): eine Session, deren Kachel geraeumt wird, ist
-   * weder offen noch gesperrt -- der Kanal, auf den sich BEIDE Flags
-   * beziehen, existiert danach nicht mehr (`grid.ts::reconcile` disposed den
-   * `TerminalHandle`, sobald `sessionKey` faellt). Bislang loeschte
-   * `closeTile` nur `open`; `inputLocked` blieb stehen und `setSessions`
-   * trug es durch jeden tmux-Poll weiter, also auch ueber ein
-   * "Sessions neu laden" hinweg. Die Seitenleiste (`sessionIndicator`)
-   * prueft `inputLocked` VOR `open` und zeigte deshalb dauerhaft Dreieck +
-   * "Input locked" statt des hohlen Quadrats + "Closed", das Designsystem
-   * §8.4 fuer eine geschlossene Session vorschreibt.
+  /** Eine Session, deren Kachel geraeumt wird, ist weder offen noch
+   * gesperrt -- der Kanal, auf den sich BEIDE Flags beziehen, existiert
+   * danach nicht mehr (`grid.ts::reconcile` disposed den
+   * `TerminalHandle`, sobald `sessionKey` faellt). Bliebe `inputLocked`
+   * stehen, truege `setSessions` es durch jeden tmux-Poll weiter, also auch
+   * ueber ein "Sessions neu laden" hinweg. Die Seitenleiste
+   * (`sessionIndicator`) prueft `inputLocked` VOR `open` und zeigte dann
+   * dauerhaft Dreieck + "Input locked" statt des hohlen Quadrats + "Closed",
+   * das Designsystem §8.4 fuer eine geschlossene Session vorschreibt.
    *
    * Ueber `sessionKey()` und nicht per String-Zerlegung gesucht: der
    * Schluessel ist ausserhalb dieser Datei ein opaker Wert, sein Format
@@ -613,12 +612,12 @@ export class AppState {
    * Host-Objekt samt `sessions` (siehe dort), beim Wiederverbinden eines
    * Hosts mit bereits stehender Sessionliste waere das ein Verlust.
    *
-   * `null` heisst "keine lebende Verbindung mehr" und wird ausschliesslich
-   * beim ausdruecklichen Trennen gesetzt. Bei `failed` bleibt die alte ID
-   * bewusst STEHEN: die Kachel soll mit ihrer Sperrleiste offen bleiben
-   * (Paket 1), und erst der naechste ERFOLGREICHE Verbindungsaufbau tauscht
-   * die ID -- was `grid.ts::reconcile` als "andere Verbindung" erkennt und
-   * die Kachel neu montieren laesst. */
+   * `null` heisst "keine lebende Verbindung mehr" und wird ausschliesslich beim
+   * ausdruecklichen Trennen gesetzt. Bei `failed` bleibt die alte ID bewusst
+   * STEHEN: die Kachel soll mit ihrer Sperrleiste offen bleiben (siehe
+   * `Host.runtimeId`), und erst der naechste ERFOLGREICHE Verbindungsaufbau
+   * tauscht die ID -- was `grid.ts::reconcile` als "andere Verbindung" erkennt
+   * und die Kachel neu montieren laesst. */
   setRuntimeId(hostId: string, runtimeId: string | null): void {
     const host = this.hosts.find((h) => h.id === hostId);
     if (!host) return;
@@ -817,8 +816,8 @@ export class AppState {
     // Ueber `closeTile` geraeumt und nicht per Hand: dort haengen
     // `#releaseSession`, das Aufheben einer Maximierung DIESER Kachel und
     // das Raeumen des Fokus mit dran. Ein zweiter Aufraeumweg daneben waere
-    // genau die Divergenz, die dieses Feld schon zweimal hatte (siehe
-    // `#releaseSession`s Kommentar).
+    // genau die Divergenz zwischen `open` und `inputLocked`, vor der
+    // `#releaseSession`s Kommentar warnt.
     //
     // VOR dem Neuaufbau von `host.sessions`, damit `closeTile`s
     // `#releaseSession` die Session noch findet -- danach waere sie aus der
@@ -1062,10 +1061,9 @@ export class AppState {
   }
 
   /** Die Session einer NEUEN Kachel bekommt einen frischen Kanal: offen, und
-   * eine Sperre aus einem frueheren Kanal gilt nicht mehr (Nachtrag B,
-   * Punkt 3). Wer eine schon gezeigte Session waehlt, ersetzt keinen Kanal;
-   * dort bleibt die Sperrleiste mit "Reconnect" stehen (Validierung,
-   * Important 2). */
+   * eine Sperre aus einem frueheren Kanal gilt nicht mehr. Wer eine schon
+   * gezeigte Session waehlt, ersetzt keinen Kanal; dort bleibt die
+   * Sperrleiste mit "Reconnect" stehen. */
   #markOpened(hostId: string, name: string, socket: SessionSocket): void {
     const session = this.#session(hostId, name, socket);
     if (!session) return;
