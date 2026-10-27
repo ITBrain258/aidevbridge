@@ -1572,9 +1572,8 @@ pub async fn connect_host_impl(
     spec: HostSpecDto,
 ) -> Result<String, ConnectError> {
     let mut attempt = ConnectAttempt::take(state, host_id)?;
-    let known_hosts_path = dirs::home_dir()
+    let known_hosts_path = crate::paths::ssh_dir()
         .ok_or_else(|| ConnectError::other("could not determine home directory"))?
-        .join(".ssh")
         .join("known_hosts");
     let known_hosts_text = attempt
         .control
@@ -2807,9 +2806,8 @@ pub async fn repair_control_impl(
     let mut attempt = host
         .take_repair(control_generation)
         .map_err(|error| ConnectError::other(error.to_string()))?;
-    let known_hosts_path = dirs::home_dir()
+    let known_hosts_path = crate::paths::ssh_dir()
         .ok_or_else(|| ConnectError::other("could not determine home directory"))?
-        .join(".ssh")
         .join("known_hosts");
     let known_hosts = attempt
         .control
@@ -3041,9 +3039,8 @@ pub async fn disconnect_host(
 /// Fehler -- eine leere Vorschlagsliste ist ein gueltiges Bild (der Nutzer
 /// nutzt dann nur das manuelle Formular).
 pub fn suggest_hosts_impl() -> Result<Vec<crate::ssh::SshConfigHost>, String> {
-    let path = dirs::home_dir()
+    let path = crate::paths::ssh_dir()
         .ok_or_else(|| "could not determine home directory".to_string())?
-        .join(".ssh")
         .join("config");
     let text = std::fs::read_to_string(&path).unwrap_or_default();
     Ok(crate::ssh::config_parser::parse(&text))
@@ -3633,10 +3630,72 @@ pub fn respond_host_key(
 /// `known_hosts`; derselbe Massstab gilt im Produktivpfad.
 #[tauri::command]
 pub async fn list_ssh_keys() -> Result<Vec<crate::ssh::keys::SshKeyDto>, String> {
-    let dir = dirs::home_dir()
-        .ok_or_else(|| "Home directory not found".to_string())?
-        .join(".ssh");
+    let dir = crate::paths::ssh_dir().ok_or_else(|| "Home directory not found".to_string())?;
     Ok(crate::ssh::keys::list_keys_in(&dir))
+}
+
+/// Android (Spec 2026-10-27 §5.3): erzeugt einen ed25519-Schluessel im
+/// `.ssh`-Ordner der App und liefert die Zeile fuer `authorized_keys`. Der
+/// Kommentar nennt App und Datum, damit der Schluessel auf dem Host
+/// wiederzuerkennen ist.
+#[tauri::command]
+pub async fn generate_ssh_key(
+    comment: String,
+) -> Result<crate::ssh::key_files::GeneratedKeyDto, String> {
+    let dir = crate::paths::ssh_dir().ok_or_else(|| "Home directory not found".to_string())?;
+    tauri::async_runtime::spawn_blocking(move || {
+        crate::ssh::key_files::generate_into(&dir, comment.trim())
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+
+/// Android (Spec 2026-10-27 §5.3): uebernimmt die in der Dateiauswahl
+/// gewaehlte Schluesseldatei in den `.ssh`-Ordner der App. `source` ist dort
+/// eine `content://`-URI, die nur das fs-Plugin oeffnen kann; auf dem Desktop
+/// ein Pfad.
+#[tauri::command]
+pub async fn import_ssh_key<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    source: String,
+) -> Result<crate::ssh::keys::SshKeyDto, String> {
+    let dir = crate::paths::ssh_dir().ok_or_else(|| "Home directory not found".to_string())?;
+    tauri::async_runtime::spawn_blocking(move || {
+        let bytes = read_picked_file(&app, &source)?;
+        crate::ssh::key_files::import_into(&dir, &bytes)
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+
+/// Liest hoechstens eine Schluesseldatei mehr als erlaubt, damit
+/// `import_into` eine zu grosse Datei erkennt, ohne sie ganz zu laden.
+fn read_picked_file<R: tauri::Runtime>(
+    app: &tauri::AppHandle<R>,
+    source: &str,
+) -> Result<zeroize::Zeroizing<Vec<u8>>, String> {
+    use std::io::Read;
+    #[cfg(target_os = "android")]
+    let file = {
+        use tauri_plugin_fs::FsExt;
+        let path: tauri_plugin_fs::FilePath =
+            source.parse().map_err(|_| "Invalid file".to_string())?;
+        let mut options = tauri_plugin_fs::OpenOptions::new();
+        options.read(true);
+        app.fs().open(path, options)
+    };
+    #[cfg(not(target_os = "android"))]
+    let file = {
+        let _ = app;
+        std::fs::File::open(source)
+    };
+    let mut bytes = zeroize::Zeroizing::new(Vec::new());
+    file.and_then(|file| {
+        file.take(crate::ssh::key_files::MAX_KEY_FILE_BYTES as u64 + 1)
+            .read_to_end(&mut bytes)
+    })
+    .map_err(|error| format!("could not read the file: {error}"))?;
+    Ok(bytes)
 }
 
 // ---------------------------------------------------------------------

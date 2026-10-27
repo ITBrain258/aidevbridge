@@ -88,7 +88,18 @@ sha2 = "0.10"
 # nicht Teil des Laufzeit-Abhaengigkeitsbaums dieser Bibliothek).
 toml = "0.8"
 tauri-plugin-dialog = "2.7.2"
+
+# Fensterlage und -groesse gibt es nur auf dem Desktop; der Krate ist auf
+# Android und iOS leer (`#![cfg(not(any(target_os = "android", ...)))]`).
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-window-state = "2"
+
+# Android: Die Dateiauswahl liefert eine `content://`-URI statt eines Pfads.
+# Nur die Rust-Seite liest sie, ueber `FsExt::fs().open` (`ssh::key_files`);
+# der WebView bekommt kein `fs:`-Recht. Dieselbe Version, die
+# tauri-plugin-dialog ohnehin zieht (Cargo.lock), also kein neuer Krate.
+[target.'cfg(target_os = "android")'.dependencies]
+tauri-plugin-fs = "2.5.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "test-util"] }

@@ -45,8 +45,9 @@ fn type_rank(key_type: &str) -> u8 {
 /// Liest den Kurztyp aus dem OpenSSH-Praefix der `.pub`-Zeile
 /// (`ssh-ed25519`, `ssh-rsa`, `ecdsa-sha2-nistp256` usw.). Unbekannte
 /// Praefixe behalten ihren Rohwert -- besser ein unerwarteter String in der
-/// Liste als eine stillschweigend verworfene Zeile.
-fn short_type(prefix: &str) -> String {
+/// Liste als eine stillschweigend verworfene Zeile. Auch fuer die Namen
+/// uebernommener Schluessel (`key_files::import_into`).
+pub(crate) fn short_type(prefix: &str) -> String {
     match prefix {
         "ssh-ed25519" => "ed25519".to_string(),
         "ssh-rsa" => "rsa".to_string(),

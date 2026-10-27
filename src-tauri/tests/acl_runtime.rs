@@ -80,6 +80,8 @@ const COMMANDS: &[&str] = &[
     "list_directories",
     "ui_settings",
     "open_link",
+    "generate_ssh_key",
+    "import_ssh_key",
 ];
 
 /// Baut die App auf dem `MockRuntime` -- ohne Invoke-Handler, siehe
@@ -207,6 +209,9 @@ fn a_command_without_an_allow_entry_is_actually_denied() {
 /// - `set_title`/`request_user_attention`: `getCurrentWindow()` in
 ///   `src/main.ts`.
 /// - `dialog|open`: `@tauri-apps/plugin-dialog` in `src/views/host-form.ts`.
+/// - `app|register_listener`/`app|remove_listener`: `onBackButtonPress` aus
+///   `@tauri-apps/api/app` in `src/views/compact-shell.ts` (Android: die
+///   Zurueck-Geste schliesst die Seitenleiste, Spec 2026-10-27 §5.1).
 /// - `internal_toggle_devtools`: das Ctrl+Shift+I-Skript, das Tauri nur im
 ///   Debug-Bau einspielt. Im ueblichen Debug-Testbau ist der Command
 ///   registriert. In einem Release-Testbau (`cargo test --release`) fehlt
@@ -218,6 +223,8 @@ const FRONTEND_PLUGIN_COMMANDS: &[&str] = &[
     "plugin:window|set_title",
     "plugin:window|request_user_attention",
     "plugin:dialog|open",
+    "plugin:app|register_listener",
+    "plugin:app|remove_listener",
     "plugin:webview|internal_toggle_devtools",
 ];
 

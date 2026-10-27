@@ -56,7 +56,7 @@ pub struct SshConfigHost {
 /// unberuecksichtigt: `Include`, `%`-Tokens, das Zusammenfuehren mehrfach
 /// vorkommender `Host`-Bloecke und mehrere `IdentityFile`-Werte.
 pub fn parse(text: &str) -> Vec<SshConfigHost> {
-    parse_with_home(text, dirs::home_dir().as_deref())
+    parse_with_home(text, crate::paths::home_dir().as_deref())
 }
 
 /// Testbarer Kern von [`parse`]: `home` ist das Heimatverzeichnis, gegen das
