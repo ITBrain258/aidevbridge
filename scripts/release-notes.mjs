@@ -84,6 +84,41 @@ export function macosSection({ version, file, sha256, signing }) {
   ].join('\n');
 }
 
+// The Android part (docs/specs/2026-10-27-android-design.md): one universal
+// APK for arm64, armv7 and x86_64, signed with the project's release key.
+// Google Play builds its own APKs from the App Bundle and signs them with
+// Google's key, so the two cannot replace each other.
+export function androidSection({ version, file, sha256, certificate }) {
+  checkVersion(version);
+  ensure(file === `aidevbridge-${version}-android.apk`, `Unexpected file name: ${file}`);
+  checkSha(sha256);
+  ensure(/^([A-F0-9]{2}:){31}[A-F0-9]{2}$/.test(certificate ?? ''), 'Invalid certificate digest');
+  const [start, end] = markers('android');
+  return [
+    start,
+    '## Android',
+    '',
+    'Android 7.0 or newer, phones and tablets (arm64, armv7, x86_64).',
+    '',
+    '| File | What it is |',
+    '| --- | --- |',
+    `| \`${file}\` | App package. Open it on the device and allow the installation from this source. |`,
+    '',
+    '- **Google Play or this file, not both.** The Play Store version is signed by Google; this file is signed with the project\'s own key. Android refuses to update one with the other; switching means uninstalling first, which removes the saved hosts and keys.',
+    '- Apps such as Obtainium can install and update this file directly from the releases page.',
+    '',
+    'SHA-256 of the file and of the signing certificate:',
+    '',
+    '```text',
+    `${sha256}  ${file}`,
+    `certificate SHA-256: ${certificate}`,
+    '```',
+    '',
+    `\`apksigner verify --print-certs ${file}\` from the Android SDK prints the certificate digest.`,
+    end,
+  ].join('\n');
+}
+
 // Replaces the marked part of `platform` or appends it after a blank line.
 export function mergeSection(body, platform, section) {
   const [START, END] = markers(platform);
@@ -96,8 +131,9 @@ export function mergeSection(body, platform, section) {
   return trimmed ? `${trimmed}\n\n${section}\n` : `${section}\n`;
 }
 
-// Sections from the manifests of release-windows-artifacts.mjs and release-macos-artifacts.mjs.
-export function sections({ version, windows, macos }) {
+// Sections from the manifests of release-windows-artifacts.mjs and
+// release-macos-artifacts.mjs, and from the one the Android workflow writes.
+export function sections({ version, windows, macos, android }) {
   const result = [];
   if (windows) {
     ensure(windows.contract?.version === version && windows.status === 'artifacts_built_and_zip_verified', 'The Windows manifest is not a release build of this version');
@@ -108,6 +144,11 @@ export function sections({ version, windows, macos }) {
     ensure(macos.contract?.version === version && macos.status === 'artifacts_built_and_verified', 'The macOS manifest is not a release build of this version');
     const dmg = macos.artifacts.find(a => a.kind === 'dmg') ?? {};
     result.push(['macos', macosSection({ version, file: dmg.path, sha256: dmg.sha256, signing: macos.contract.signing?.mode })]);
+  }
+  if (android) {
+    ensure(android.contract?.version === version && android.status === 'signed_and_verified', 'The Android manifest is not a release build of this version');
+    const apk = android.artifacts?.find(a => a.kind === 'apk') ?? {};
+    result.push(['android', androidSection({ version, file: apk.path, sha256: apk.sha256, certificate: android.contract.certificate })]);
   }
   ensure(result.length > 0, 'No platform to describe');
   return result;
@@ -123,16 +164,16 @@ export function releaseBody({ version, body, parts }) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
-    const usage = 'Usage: node scripts/release-notes.mjs <version> [--body <current release text>] [--windows <release-manifest.json>] [--macos <release-manifest.json>]';
+    const usage = 'Usage: node scripts/release-notes.mjs <version> [--body <current release text>] [--windows <release-manifest.json>] [--macos <release-manifest.json>] [--android <android-manifest.json>]';
     const [version, ...rest] = process.argv.slice(2);
     const options = {};
     for (let i = 0; i < rest.length; i += 2) {
-      ensure(['--body', '--windows', '--macos'].includes(rest[i]) && rest[i + 1] && !options[rest[i]], usage);
+      ensure(['--body', '--windows', '--macos', '--android'].includes(rest[i]) && rest[i + 1] && !options[rest[i]], usage);
       options[rest[i]] = rest[i + 1];
     }
     ensure(version, usage);
     const manifest = file => file && JSON.parse(fs.readFileSync(file, 'utf8'));
-    const parts = sections({ version, windows: manifest(options['--windows']), macos: manifest(options['--macos']) });
+    const parts = sections({ version, windows: manifest(options['--windows']), macos: manifest(options['--macos']), android: manifest(options['--android']) });
     process.stdout.write(releaseBody({ version, body: options['--body'] && fs.readFileSync(options['--body'], 'utf8'), parts }));
   } catch (error) { process.stderr.write(`release-notes: ${error.message}\n`); process.exitCode = 1; }
 }
