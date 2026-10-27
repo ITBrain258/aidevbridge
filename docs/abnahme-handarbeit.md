@@ -546,12 +546,17 @@ zeigen: die Konsole bei echten Rechten und echter CSP, die Eingabe beim
    blinkt einmal und hört beim Fokussieren auf; wartet niemand mehr, steht
    wieder „aidevbridge“.
 3. **Eingabe beim Öffnen.** Auf dem Host mit Latenz eine Session öffnen und
-   sofort `echo hallo` und Enter tippen. Gleich nach einem weiteren Klick
-   mehr als 64 KiB einfügen; einmal das Emoji-Panel (Win+.) oder eine IME
-   benutzen, während die Kachel öffnet. Dann eine wartende Claude-Session
+   sofort `echo hallo` und Enter tippen; einmal das Emoji-Panel (Win+.) oder
+   eine IME benutzen, während die Kachel öffnet. Gleich nach einem weiteren
+   Klick einen mehrzeiligen Text einfügen, etwa die zwei Zeilen `echo eins`
+   und `echo zwei`, einmal mit Ctrl+V und einmal über den Rechtsklick. Nach
+   dem Anhängen mehr als 64 KiB einfügen. Dann eine wartende Claude-Session
    aus der Wartet-Spur öffnen und sofort tippen.
-   Erwartung: Jedes Zeichen kommt genau einmal an, in der getippten
-   Reihenfolge. Aus der Wartet-Spur landen die Tasten nach dem Neuzeichnen
+   Erwartung: Jedes getippte Zeichen kommt genau einmal an, in der getippten
+   Reihenfolge. Eine Einfügung vor dem Anhängen kommt nicht an, und keine
+   ihrer Zeilen läuft; nach dem Anhängen fügt die Shell denselben Text als
+   Block ein, ohne ihn auszuführen. Die große Einfügung kommt vollständig an.
+   Aus der Wartet-Spur landen die Tasten nach dem Neuzeichnen
    im Prompt des Agents. Dieser Fall ist der Veto-Punkt des Maintainers
    (U5): Stört die gepufferte Eingabe dort, fällt die Entscheidung, ob sie
    bleibt.

@@ -603,8 +603,9 @@ export function mountTerminal(
     void navigator.clipboard.readText().then(
       (text) => {
         // Leer nicht: bei Bracketed Paste schickte `term.paste("")` trotzdem
-        // die Klammern ans Programm.
-        if (disposed || text === "") return;
+        // die Klammern ans Programm. Vor dem Anhaengen auch nicht, aus dem
+        // Grund beim `paste`-Lauscher unter `term.onData`.
+        if (disposed || text === "" || !attached) return;
         term.paste(text);
       },
       (error: unknown) => {
@@ -989,9 +990,10 @@ export function mountTerminal(
   // einer Meldung statt einer je Teil.
   let inputTail: Promise<void> | null = null;
 
-  /** Eingabe, die vor dem Anhaengen ankommt: Tastendruecke, Einfuegungen und
-   * die Antworten, die xterm selbst erzeugt (auf DA-, XTVERSION- oder
-   * OSC-10/11-Anfragen, die tmux beim Anhaengen schickt). Das Backend kennt
+  /** Eingabe, die vor dem Anhaengen ankommt: Tastendruecke und die Antworten,
+   * die xterm selbst erzeugt (auf DA-, XTVERSION- oder OSC-10/11-Anfragen, die
+   * tmux beim Anhaengen schickt). Einfuegungen kommen gar nicht erst hierher
+   * (siehe der `paste`-Lauscher unter `term.onData`). Das Backend kennt
    * diesen Kanal erst nach seiner Antwort auf `open_terminal`; ein
    * `send_input` davor scheiterte, und die Eingabe waere still verloren. Nach
    * dem Anhaengen geht der Puffer einmal hinaus, in Tipp-Reihenfolge und vor
@@ -1068,6 +1070,22 @@ export function mountTerminal(
     }
     enqueueInput(encoded, false);
   });
+
+  // Vor dem Anhaengen verwirft die Kachel jede Einfuegung, statt sie zu
+  // puffern. xterm klammert eine Einfuegung nur, wenn das Programm Bracketed
+  // Paste eingeschaltet hat, und das erfaehrt eine frische Kachel erst mit der
+  // ersten Ausgabe von tmux. Gepuffert ginge mehrzeiliger Text ungeklammert
+  // hinaus, und die Shell fuehrte jede Zeile einzeln aus. Die Einfuegung aus
+  // dem Menue prueft dasselbe in `pasteFromClipboard`.
+  el.addEventListener(
+    "paste",
+    (event) => {
+      if (attached || inSearchOverlay(event)) return;
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    { capture: true, signal },
+  );
 
   let disposed = false;
   // MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04: sobald

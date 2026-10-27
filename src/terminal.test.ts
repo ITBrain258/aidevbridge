@@ -84,6 +84,8 @@ const hoisted = vi.hoisted(() => {
     terminals: [] as Array<{
       ownSelection: string | null;
       element: HTMLElement | undefined;
+      /** xterms verstecktes Textfeld, nach `open()`; dorthin fuegt Chromium ein. */
+      textarea: HTMLTextAreaElement | null;
       /** Dasselbe Objekt wie `term.options`: Schriftgroesse beim Bau und nach
        * `setFontSize` (UX-Spec §6.7). */
       options: Record<string, unknown>;
@@ -1185,6 +1187,51 @@ describe("mountTerminal: Eingabe vor dem Anhaengen geht nicht verloren", () => {
 
     await io.answerSend();
     expect(io.sent()).toEqual([bytesOf(reply), [120]]);
+  });
+
+  // xterm klammert eine Einfuegung nur bei eingeschaltetem Bracketed Paste,
+  // und das meldet tmux erst mit seiner ersten Ausgabe. Gepuffert ginge
+  // mehrzeiliger Text ungeklammert hinaus, und die Shell fuehrte jede Zeile aus.
+  it("verwirft eine native Einfuegung vor dem Anhaengen, bevor xterm sie sieht, und laesst sie danach durch", async () => {
+    const io = holdOpenAndInput();
+    const container = document.createElement("div");
+    mount(container, "host-1", "sess-1");
+    await flush();
+    const textarea = hoisted.terminals[0].textarea!;
+    const seenByXterm = vi.fn();
+    textarea.addEventListener("paste", seenByXterm);
+    const paste = () => {
+      const event = new Event("paste", { bubbles: true, cancelable: true });
+      textarea.dispatchEvent(event);
+      return event;
+    };
+
+    expect(paste().defaultPrevented).toBe(true);
+    expect(seenByXterm).not.toHaveBeenCalled();
+
+    io.open.resolve();
+    await flush();
+    expect(paste().defaultPrevented).toBe(false);
+    expect(seenByXterm).toHaveBeenCalledOnce();
+  });
+
+  it("fuegt aus dem Menue erst nach dem Anhaengen ein", async () => {
+    const io = holdOpenAndInput();
+    clipboardReadText.mockResolvedValue("ls\nrm -r build\n");
+    const { xtermEl } = setupTile();
+    await flush();
+
+    rightClick(xtermEl);
+    menuItem("Paste").click();
+    await flush();
+    expect(hoisted.pasteCalls).toEqual([]);
+
+    io.open.resolve();
+    await flush();
+    rightClick(xtermEl);
+    menuItem("Paste").click();
+    await flush();
+    expect(hoisted.pasteCalls).toEqual(["ls\nrm -r build\n"]);
   });
 });
 
@@ -3918,6 +3965,8 @@ describe("mountTerminal: Menueeintraege und Modus Copy/Paste (UX-Spec §6.3)", (
   it("Paste liest die Zwischenablage und fuegt sie per term.paste ein", async () => {
     clipboardReadText.mockResolvedValue("from clipboard");
     const { xtermEl } = setupTile();
+    // Erst angehaengt: davor fuegt die Kachel nichts ein.
+    await flush();
     rightClick(xtermEl);
 
     menuItem("Paste").click();
@@ -4066,6 +4115,7 @@ describe("mountTerminal: Menueeintraege und Modus Copy/Paste (UX-Spec §6.3)", (
     clipboardReadText.mockResolvedValue("from clipboard");
     const { xtermEl } = setupTile();
     hoisted.blankSelection = blank;
+    await flush();
 
     rightClick(xtermEl);
     await flush();
@@ -4090,6 +4140,7 @@ describe("mountTerminal: Menueeintraege und Modus Copy/Paste (UX-Spec §6.3)", (
   it("liest die Einstellung \"Right click\" bei jedem Rechtsklick, auch nach dem Mounten", async () => {
     const { xtermEl } = setupTile();
     clipboardReadText.mockResolvedValue("from clipboard");
+    await flush();
 
     rightClick(xtermEl);
     expect(terminalMenu()).not.toBeNull();
