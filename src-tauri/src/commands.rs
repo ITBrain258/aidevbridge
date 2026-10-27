@@ -2655,6 +2655,10 @@ async fn kill_session_and_verify(
     Ok(())
 }
 
+/// Ein gebundener Kill, dessen Ende sich nicht pruefen liess.
+const UNVERIFIED_BOUND_KILL: &str = "the end of the selected session could not be verified; \
+     it may already have ended. Refresh the session list before trying again.";
+
 async fn kill_session_bound_and_verify(
     client: &OwnTmuxClient,
     transport: &dyn Transport,
@@ -2665,13 +2669,17 @@ async fn kill_session_bound_and_verify(
     client
         .kill_session_bound(transport, server, session)
         .await?;
+    // Die Pruefliste braucht eine gemessene Version. Scheitert die Abfrage
+    // oder ist die Antwort ungemessen, bleibt das Ende unbewiesen: ein
+    // Fehler, nie ein Erfolg. Hat tmux den Kill mit "no server" quittiert,
+    // kommt die Meldung ohne den Vorsatz zum offenen Ausgang beim Nutzer an;
+    // sie sagt deshalb selbst, dass die Session schon beendet sein kann.
     let version = transport
         .exec_with_deadline(&client.version_command(), COMMAND_TIMEOUT)
         .await
-        .ok()
-        .and_then(|result| MeasuredVersion::from_response(&result));
-    let Some(version) = version else {
-        return Ok(());
+        .map_err(|error| error.context(UNVERIFIED_BOUND_KILL))?;
+    let Some(version) = MeasuredVersion::from_response(&version) else {
+        anyhow::bail!(UNVERIFIED_BOUND_KILL);
     };
     let observed = match client.observe_sessions(transport, version, deadline).await {
         Ok(observed) => observed,
@@ -6881,6 +6889,57 @@ mod tests {
             "{error:#}"
         );
         assert_eq!(calls, 4);
+    }
+
+    /// Nach einem gelungenen gebundenen Kill erlaubt nur ein gemessenes
+    /// `tmux -V` die Pruefliste. Jede andere Antwort laesst den Ausgang offen.
+    async fn end_bound_session_with_version(version: ExecResult) -> (anyhow::Result<()>, u32) {
+        let t = ScriptedTransport::new(vec![created(), version]);
+        let result = kill_session_bound_and_verify(
+            &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
+            &t,
+            crate::tmux::inventory::ServerIdentity {
+                pid: 50,
+                start_time: 1000,
+            },
+            crate::tmux::inventory::SessionId(0),
+            tokio::time::Instant::now() + std::time::Duration::from_secs(10),
+        )
+        .await;
+        let calls = *t.calls.lock().unwrap();
+        (result, calls)
+    }
+
+    fn assert_unverified_bound_kill(error: &anyhow::Error) {
+        let message = error.to_string();
+        assert!(message.contains("could not be verified"), "{error:#}");
+        assert!(message.contains("may already have ended"), "{error:#}");
+        assert!(message.contains("Refresh the session list"), "{error:#}");
+    }
+
+    #[tokio::test]
+    async fn ending_a_bound_session_without_tmux_for_the_version_is_not_reported_done() {
+        let (result, calls) = end_bound_session_with_version(ExecResult {
+            utf8_valid: true,
+            code: 127,
+            stderr: "sh: tmux: not found".into(),
+            ..created()
+        })
+        .await;
+        assert_unverified_bound_kill(&result.unwrap_err());
+        assert_eq!(calls, 2, "kill and version, no list");
+    }
+
+    #[tokio::test]
+    async fn ending_a_bound_session_on_an_unmeasured_tmux_is_not_reported_done() {
+        let (result, calls) = end_bound_session_with_version(ExecResult {
+            utf8_valid: true,
+            stdout: "tmux 3.5a\n".into(),
+            ..created()
+        })
+        .await;
+        assert_unverified_bound_kill(&result.unwrap_err());
+        assert_eq!(calls, 2, "kill and version, no list");
     }
 
     #[tokio::test]

@@ -379,6 +379,35 @@ async fn an_unconfirmed_kill_ends_its_message_with_a_readable_ssh_sentence() {
     finish(fixture, state).await;
 }
 
+#[tokio::test]
+async fn a_bound_kill_without_a_measured_version_is_not_reported_done() {
+    let (fixture, state) = connected().await;
+    // Das gebundene kill-session gelingt, `tmux -V` liefert keine gemessene
+    // Version: die Pruefliste kann nicht laufen, der Ausgang bleibt offen.
+    fixture.script_control(vec![
+        (Some(0), "", ""),
+        (Some(127), "", "sh: tmux: not found"),
+    ]);
+    let message = kill_session_impl(
+        &state,
+        "hermetic-h0".into(),
+        SocketKind::App,
+        "victim".into(),
+        Some(0),
+        Some(50),
+        Some(1000),
+    )
+    .await
+    .unwrap_err();
+    assert!(
+        message.starts_with("The remote operation may have taken effect"),
+        "{message}"
+    );
+    assert!(message.contains("may already have ended"), "{message}");
+    assert_eq!(fixture.command_count(), 2, "kill and version, no list");
+    finish(fixture, state).await;
+}
+
 /// Spec 2026-10-19 §8.1 (Schritt 3), Ersetzen an der Grenze: Mit acht offenen
 /// Terminals sind alle PTY-Plaetze belegt. Schliessen und sofort Oeffnen
 /// wartet, bis der alte Kanal zu ist, statt an der Kanalgrenze zu scheitern.
