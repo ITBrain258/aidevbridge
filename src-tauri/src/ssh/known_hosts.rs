@@ -66,9 +66,8 @@ pub(crate) fn is_acceptable_hostname(host: &str) -> bool {
             .any(|c| c.is_whitespace() || c.is_control() || NEVER_IN_A_HOSTNAME.contains(&c))
 }
 
-/// Haengt `line` an die Datei unter `path` an (TOFU-Nachtrag, Task 13:
-/// Eigenschaft 4). Erstellt Datei und Elternverzeichnis, falls sie noch
-/// nicht existieren.
+/// Haengt `line` an die Datei unter `path` an (TOFU, Spec §8.1). Erstellt
+/// Datei und Elternverzeichnis, falls sie noch nicht existieren.
 ///
 /// Bestehende Zeilen werden NIE gelesen, veraendert oder neu geschrieben --
 /// dieser Pfad oeffnet die Datei ausschliesslich mit `.append(true)`
@@ -85,10 +84,9 @@ pub(crate) fn is_acceptable_hostname(host: &str) -> bool {
 /// `missing_trailing_newline_would_merge_entries_without_the_fix`).
 ///
 /// Nimmt bewusst KEINE `HostKeyDecision` entgegen -- der Aufrufer
-/// (`commands::TofuPolicy::decide`) ruft diese Funktion nur im
-/// `Unknown`-Zweig nach einer expliziten Nutzerzustimmung auf. Es gibt
-/// hier keinen Parameter, ueber den ein `Mismatch` versehentlich denselben
-/// Weg nehmen koennte (Eigenschaft 1 des TOFU-Nachtrags).
+/// (`commands::TofuPolicy::decide`) ruft diese Funktion nur im `Unknown`-Zweig
+/// nach einer expliziten Nutzerzustimmung auf. Es gibt hier keinen Parameter,
+/// ueber den ein `Mismatch` versehentlich denselben Weg nehmen koennte.
 pub fn append_entry(path: &Path, line: &str) -> anyhow::Result<()> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
@@ -123,11 +121,10 @@ pub fn append_entry(path: &Path, line: &str) -> anyhow::Result<()> {
 }
 
 /// SHA256-Fingerabdruck im Format, das `ssh-keygen -lf` ausgibt (z. B.
-/// `SHA256:cd4xJCbJywoyJ+atpjT31411tIy9KUZajEpme8VfVOc`) -- TOFU-Nachtrag
-/// Eigenschaft 3: der Nutzer bekommt diesen kurzen, mit einer anderen
-/// Quelle (Server-Admin, Cloud-Konsole) vergleichbaren String angezeigt,
-/// NIEMALS den rohen Base64-Schluessel selbst (den vergleicht niemand von
-/// Hand ueber 68+ Zeichen).
+/// `SHA256:cd4xJCbJywoyJ+atpjT31411tIy9KUZajEpme8VfVOc`) -- der Nutzer bekommt
+/// diesen kurzen, mit einer anderen Quelle (Server-Admin, Cloud-Konsole)
+/// vergleichbaren String angezeigt, NIEMALS den rohen Base64-Schluessel selbst
+/// (den vergleicht niemand von Hand ueber 68+ Zeichen).
 ///
 /// `key_b64` ist Standard-Base64 (wie es `known_hosts`-Zeilen und
 /// `PublicKey::public_key_base64()` liefern); der Fingerabdruck ist SHA256
@@ -709,8 +706,8 @@ mod tests {
     /// OpenSSH liest ein Hostfeld, das mit `|` beginnt, als einen einzigen
     /// Hash und schreibt gehashte Namen nie in eine Kommaliste. Hier zaehlt
     /// jeder Eintrag der Liste fuer sich (`host_field_matches`): der
-    /// woertliche Alias passt wie bisher, in beiden Reihenfolgen, und der
-    /// gehashte passt nur auf genau sein Token (Host und Port).
+    /// woertliche Alias passt, in beiden Reihenfolgen, und der gehashte passt
+    /// nur auf genau sein Token (Host und Port).
     #[test]
     fn hashed_alias_in_a_comma_list_matches_only_its_exact_token() {
         for field in [
@@ -834,8 +831,8 @@ mod tests {
         }
     }
 
-    // --- Punkt 2 des Reviews: Hostvergleich muss case-insensitiv sein, ---
-    // --- der Key-Vergleich ausdruecklich nicht.                        ---
+    // --- Hostvergleich muss case-insensitiv sein, ---
+    // --- der Key-Vergleich ausdruecklich nicht.   ---
 
     const KH_CASE: &str = "HOST.example ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKEYC\n";
 
@@ -861,7 +858,7 @@ mod tests {
         );
     }
 
-    // --- Punkt 1 des Reviews: @revoked und @cert-authority. ---
+    // --- @revoked und @cert-authority. ---
 
     const KH_REVOKED: &str = "@revoked 192.0.2.40 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIREVOKED\n";
 
@@ -1092,7 +1089,7 @@ mod tests {
         );
     }
 
-    // --- Punkt 4 des Reviews: fehlende Abdeckung. ---
+    // --- Weitere Abdeckung. ---
 
     // Zwei separate Zeilen fuer denselben Host (z. B. nach Key-Rotation, alte
     // Zeile noch nicht aufgeraeumt): Findet sich der praesentierte Key in
@@ -1143,7 +1140,7 @@ mod tests {
         );
     }
 
-    // --- append_entry (TOFU-Nachtrag, Task 13) ---
+    // --- append_entry (TOFU, Spec §8.1) ---
 
     fn unique_temp_path(tag: &str) -> std::path::PathBuf {
         let nanos = std::time::SystemTime::now()
@@ -1176,7 +1173,7 @@ mod tests {
         let _ = std::fs::remove_file(&path);
     }
 
-    /// Der eigentliche Beweis fuer Eigenschaft 4 des Nachtrags: fehlt der
+    /// Der eigentliche Beweis fuer das reine Anhaengen: fehlt der
     /// Zeilenumbruch am Dateiende, wird er VOR der neuen Zeile ergaenzt --
     /// sonst verschmilzt sie mit der letzten bestehenden Zeile zu einem
     /// einzigen, ungueltigen Eintrag. Gegenprobe: mit der
@@ -1192,7 +1189,7 @@ mod tests {
             content, "192.0.2.20 ssh-ed25519 AAAAEXISTING\n192.0.2.62 ssh-ed25519 AAAANEW\n",
             "ohne die Ergaenzung waeren die beiden Zeilen zu einer verschmolzen"
         );
-        // Die urspruengliche Zeile muss als eigenstaendige, unveraenderte
+        // Die bestehende Zeile muss als eigenstaendige, unveraenderte
         // Zeile wiederzufinden sein -- nicht als Praefix eines laengeren
         // verschmolzenen Strings.
         assert!(content
@@ -1233,7 +1230,7 @@ mod tests {
         let _ = std::fs::remove_file(&path);
     }
 
-    // --- fingerprint (TOFU-Nachtrag, Task 13) ---
+    // --- fingerprint (TOFU, Spec §8.1) ---
 
     /// Bekannter, unabhaengig nachrechenbarer Vektor: SHA256("") base64
     /// (ohne Padding) ist der oft zitierte Konstantenwert
