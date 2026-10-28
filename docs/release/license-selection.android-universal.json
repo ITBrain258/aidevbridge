@@ -86,7 +86,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 134122,
-        "sha256": "b5dfdffd6a90bb23a5e44b0cce899ad8dded5b0b2d1766a8a0d5439ffa309aa0"
+        "sha256": "f851c80ebcbae860dc7b380872f2eb5b42bd6a1ee837aa822d2a23461cecd802"
       },
       {
         "path": "docs/release/license-frontend-output-2026-09-12.json",
@@ -540,8 +540,8 @@
       },
       {
         "path": "scripts/release-license-select-android.mjs",
-        "bytes": 77741,
-        "sha256": "5ebd472f06e516631bfddad7d07005073f5421dd4fc586e6aeb0c748dd99fd47"
+        "bytes": 78035,
+        "sha256": "e51a808fdb0c4d26109f6a047b51eedb7f1e80166961cf6eb6f6c352ce062dd4"
       },
       {
         "path": "scripts/release-licenses.mjs",
@@ -560,18 +560,18 @@
       },
       {
         "path": "src-tauri/gen/android/app/build.gradle.kts",
-        "bytes": 4012,
-        "sha256": "88ca58a7391a2bf9b3611fa8e8032b05cee63a2256e323722de8b574652d1df1"
+        "bytes": 3906,
+        "sha256": "d1134bb816c006390a1d89f4bb5308f55e31ee07f45201bf5bdc594ca0a7e756"
       },
       {
         "path": "src-tauri/gen/android/app/gradle.lockfile",
-        "bytes": 176612,
-        "sha256": "4c9d4233c409028602addd99bad177fc30960f277981f6506ee8c69944febbeb"
+        "bytes": 176357,
+        "sha256": "3720a86c61bb98b0819e9469098d07803815ebc3c131e6882d45ee0520aac7f3"
       },
       {
         "path": "src-tauri/gen/android/app/proguard-rules.pro",
-        "bytes": 770,
-        "sha256": "48c84bd2ac064ce2665b62a6e7c0e87f3b4fe259708a76e16625c2b43e1bc078"
+        "bytes": 750,
+        "sha256": "56fd960cf225f6ca40f982b13a5dbb0d8bc3dfde13ff76422825c6070d0a1890"
       },
       {
         "path": "src-tauri/gen/android/app/src/main/AndroidManifest.xml",
@@ -580,23 +580,23 @@
       },
       {
         "path": "src-tauri/gen/android/build.gradle.kts",
-        "bytes": 399,
-        "sha256": "cd94755ee6c460dbdea4c422fdcbd2ebcbef3eeb2464551c32d45f471ee67f37"
+        "bytes": 377,
+        "sha256": "f8d6b8ac33de9acbe318595de7be4500fec1009f8ea0edc508fd998cc15294c5"
       },
       {
         "path": "src-tauri/gen/android/buildSrc/build.gradle.kts",
-        "bytes": 368,
-        "sha256": "89d0c34b09973c7619961da6322d9d771124b8c8ae2d694514baa198ce6ca2dc"
+        "bytes": 345,
+        "sha256": "11818be939b3aa44d691228f8666fba5efc796cdc1b4fb8072ab7c91bc056eb0"
       },
       {
         "path": "src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties",
-        "bytes": 239,
-        "sha256": "7d4289d8bee6c1bb3b43ee14fe99d981262e3225d4e8fe6228095ac72e88ce6e"
+        "bytes": 233,
+        "sha256": "5f8448f8760a88f7dfa64fad849012828706c6ce8e11041bb0640faa1e230f0e"
       },
       {
         "path": "src-tauri/gen/android/settings.gradle",
-        "bytes": 55,
-        "sha256": "1e3c40be3954a42dc0053f86227dd28971636ea0f2ca380d9c87a378123c468f"
+        "bytes": 52,
+        "sha256": "99856053f245337d20d308dbeaf9cd7250ad0c186ebbb6866ab46a6e7005ee19"
       },
       {
         "path": "src-tauri/tauri.conf.json",

@@ -385,8 +385,8 @@
     },
     "gradle_lockfile": {
       "path": "src-tauri/gen/android/app/gradle.lockfile",
-      "bytes": 176612,
-      "sha256": "4c9d4233c409028602addd99bad177fc30960f277981f6506ee8c69944febbeb",
+      "bytes": 176357,
+      "sha256": "3720a86c61bb98b0819e9469098d07803815ebc3c131e6882d45ee0520aac7f3",
       "runtime_classpath": "universalReleaseRuntimeClasspath",
       "libraries": 79
     }

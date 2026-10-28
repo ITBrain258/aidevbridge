@@ -510,7 +510,12 @@ export function deriveSelection(root, { metadata = androidMetadata(root), roles 
   const windowsInventoryTexts = JSON.parse(readFile(root, WINDOWS_INVENTORY)).candidate_texts_by_sha256;
   const pkgVersion = JSON.parse(readFile(root, 'package.json')).version;
   ensure(windows.scope.product_version === pkgVersion, 'Rebind the Windows selection for this version first');
-  for (const file of ANDROID_FILES.filter(f => f !== INVENTORY && f !== REPORT)) ensure(fs.existsSync(path.join(root, ...file.split('/'))), `Missing Android delivery input: ${file}`);
+  for (const file of ANDROID_FILES.filter(f => f !== INVENTORY && f !== REPORT)) {
+    ensure(fs.existsSync(path.join(root, ...file.split('/'))), `Missing Android delivery input: ${file}`);
+    // Git checks these files out with LF everywhere (.gitattributes); Gradle on
+    // Windows writes CRLF. Bound CRLF bytes would fail every other checkout.
+    ensure(!readFile(root, file).includes(13), `${file} has CRLF line endings; check it out again with LF before deriving`);
+  }
   const packages = new Map(metadata.packages.map(p => [`${p.name}@${p.version}`, p]));
   ensure(packages.size === metadata.packages.length, 'Ambiguous package name/version');
   const lockChecksums = new Map();
