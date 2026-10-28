@@ -304,15 +304,48 @@ vom Telefon ersetzen sie besser (Plan, Schritt 12).
 
 ## 8 Lizenzen
 
-Wie die Desktop-Pakete muss die Android-App die Lizenztexte der enthaltenen
-Fremdsoftware mitliefern: die Rust-Krates des Android-Baus, die
-Rust-Standardbibliothek für drei Android-Ziele, das Frontend-Bündel
-(`THIRD_PARTY_LICENSES.md`) und die Android-Bibliotheken aus Gradle (AndroidX,
-Material, Kotlin-Standardbibliothek; Apache 2.0). **Offen, vor der ersten
-Veröffentlichung:** eine Android-Lizenzauswahl nach dem Muster der
-macOS-Auswahl ableiten und binden und ihren Satz als `licenses/` in die
-Assets der App legen; bis dahin verweist der Store-Eintrag auf das
-Repository.
+Wie die Desktop-Pakete liefert die Android-App die Lizenztexte der
+enthaltenen Fremdsoftware mit, als `assets/licenses/` in APK und App Bundle.
+Die Auswahl `docs/release/license-selection.android-universal.json` (am
+28.10. abgeleitet, 486 Komponenten, 226 Texte) entsteht wie die macOS-Auswahl
+aus der Windows-Auswahl, mit `scripts/release-license-select-android.mjs`:
+
+- **Rust-Krates** der drei Android-Ziele, Rollen mit dem Linux-Runner als
+  Bau-Host (ein kleiner rustc-Wrapper gibt ihn auf anderen Rechnern vor).
+  Gemeinsame Pakete behalten die Windows-Entscheidung; die 35 nur für
+  Android haben je eine eigene. Vier Krates ohne Lizenzdatei bekommen den
+  Text ihres Repositorys zum Veröffentlichungs-Commit bzw. die schon
+  geprüften Texte von tao.
+- **MPL-2.0 in der App:** Auf Android hängt wry zur Laufzeit an dom_query
+  und damit an cssparser, selectors und dtoa-short; unter Windows liefen sie
+  nur beim Bauen. Sie, cssparser-macros (dessen Expansionen in ihnen stecken)
+  und vorsichtshalber option-ext sind mit MPL-2.0-Text und dem Ort der
+  unveränderten Quelle (crates.io, SHA-256 aus `Cargo.lock`, MPL §3.2)
+  eingeschlossen.
+- **Rust-Standardbibliothek** der drei Ziele wie bei macOS; auf Android
+  linkt std die libunwind des NDK.
+- **NDK:** libunwind und compiler-rt-Builtins (LLVM-NOTICE des NDK) und die
+  Bionic-Startobjekte `crtbegin_so.o`/`crtend_so.o` (NOTICE des NDK), beide
+  NDK 29.0.14206865. Die gebauten Bibliotheken hängen nur an
+  Android-Systembibliotheken (libc, libm, libdl, liblog, libandroid).
+- **Java/Kotlin:** jede der 79 Bibliotheken des Release-Klassenpfads aus
+  `src-tauri/gen/android/app/gradle.lockfile`, alle Apache-2.0. Texte, die
+  ein Artefakt mitbringt (AndroidX, Jackson samt NOTICE), werden übernommen,
+  weil Androids Paketierung `META-INF`-Lizenzdateien weglässt; dazu die
+  NOTICE-Dateien von Kotlin, kotlinx.coroutines und kotlinx.serialization und
+  Kotlins Drittanbieter-Index (GWT, Guava, Boost) zum jeweiligen Tag.
+- **Frontend und npm** unverändert wie unter Windows.
+
+Gradle sperrt die Abhängigkeiten über die Lockdatei: Eine neue oder
+geänderte Bibliothek lässt den Bau scheitern, bis die Lockdatei neu
+geschrieben ist, und dann `release-licenses.mjs check android-universal`, bis
+die Auswahl neu abgeleitet ist. Der Release-Lauf von `android.yml` bereitet
+den Ordner aus der Auswahl vor, legt ihn in die Assets und vergleicht nach
+dem Bau jede Datei in der APK; Vorschau-Bauten tragen nur einen Hinweis.
+
+Die Windows- und die macOS-Auswahl binden die eigenen Quellbäume; sie sind
+vor dem nächsten Release ohnehin neu zu binden und erfassen dann auch die
+Android-Dateien dieses Branches.
 
 ## 9 Entscheidungen für den Maintainer
 

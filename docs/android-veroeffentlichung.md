@@ -38,8 +38,13 @@ Auf dem Branch `feat/android` (Worktree
 - **Store-Eintrag** in `fastlane/metadata/android/` (Deutsch und Englisch):
   Titel, Kurz- und Langbeschreibung, Änderungstext, Icon 512 × 512,
   Feature-Grafik 1024 × 500. Datenschutzerklärung `PRIVACY.md`.
-- **Testpakete** der aktuellen Fassung (arm64, armv7 und x86_64, signiert):
+- **Testpakete** der aktuellen Fassung (arm64, armv7 und x86_64, signiert,
+  mit den Lizenztexten in `assets/licenses/`):
   `C:\Users\test\Desktop\aidevbridge-android\` (siehe B3).
+- **Lizenzauswahl für Android** (`docs/release/license-selection.android-universal.json`):
+  Rust-Krates, NDK-Teile und alle Java-/Kotlin-Bibliotheken; der Release-Lauf
+  legt die Texte in die App und prüft sie (Spec §8).
+- **Pull Request #10** mit allem oben; CI und erster Android-Bau grün.
 
 Was fehlt und nur du tun kannst: Konten anlegen und bestätigen, Bildschirmfotos
 vom echten Gerät, der Test am Telefon und das Zusammenführen des Branches.
@@ -48,17 +53,10 @@ vom echten Gerät, der Test am Telefon und das Zusammenführen des Branches.
 
 ## B Am PC, einmalig
 
-### B1 Branch prüfen und nach GitHub bringen
+### B1 Pull Request
 
-```powershell
-cd C:\Users\test\Desktop\Projekt\aidevbridge
-git log --oneline main..feat/android
-git push -u origin feat/android
-gh pr create --base main --head feat/android --fill
-```
-
-Der Pull Request startet `ci.yml` und die Android-Vorschau aus `android.yml`.
-Wenn beide grün sind und B3 gut aussah: zusammenführen.
+Erledigt: `feat/android` ist gepusht, Pull Request #10 offen, CI und
+Android-Vorschau grün. Zusammenführen erst nach Test und Abnahme (B3).
 
 ### B2 Windows-Entwicklermodus (für lokale Android-Bauten)
 
@@ -80,6 +78,17 @@ npm run tauri -- android build --apk --aab --target aarch64
 Ergebnis, signiert mit deinem Schlüssel:
 `src-tauri\gen\android\app\build\outputs\apk\universal\release\app-universal-release.apk`
 und `...\bundle\universalRelease\app-universal-release.aab`.
+
+Ein lokal gebautes Paket enthält die Lizenztexte nur, wenn sie vorher in den
+Assets liegen. Für ein Paket, das du weitergibst oder hochlädst, vor dem Bau:
+
+```powershell
+node scripts/release-licenses.mjs prepare android-universal
+New-Item -ItemType Directory -Force src-tauri\gen\android\app\src\main\assets\licenses | Out-Null
+Copy-Item -Recurse -Force out\release-notices-android\* src-tauri\gen\android\app\src\main\assets\licenses\
+```
+
+Die Release-Läufe der CI machen das selbst.
 
 **Android Studio** (optional): beim ersten Start „Custom“ wählen und als SDK
 `%LOCALAPPDATA%\Android\Sdk` angeben (ist schon eingerichtet), dann

@@ -32,9 +32,12 @@ Auf dem Branch `feat/android` liegt die Android-App nach der
 [Spec vom 27.10.](specs/2026-10-27-android-design.md), noch ohne Release und
 ohne Abnahme am Gerät: Backend und Oberfläche für Android, Signatur, Workflow
 `android.yml` bis Google Play, Store-Eintrag und
-[Anleitung](android-veroeffentlichung.md). Offen sind die Schritte des
-Maintainers (Play-Konto, Test am Telefon, Bildschirmfotos, Secrets) und die
-Android-Lizenzauswahl ([Plan](plans/2026-10-27-android.md), Phase 6).
+[Anleitung](android-veroeffentlichung.md) und seit 28.10. eine eigene
+Lizenzauswahl (`license-selection.android-universal.json`), deren Texte als
+`assets/licenses/` in APK und App Bundle gehen. Offen sind die Schritte des
+Maintainers (Play-Konto, Test am Telefon, Bildschirmfotos, Secrets) und das
+Neubinden aller drei Auswahlen vor dem Release
+([Plan](plans/2026-10-27-android.md), Phase 6).
 
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
 steht im [README](../README.md#what-it-is), die Änderungen im
