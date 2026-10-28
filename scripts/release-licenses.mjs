@@ -12,6 +12,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 export const PLATFORMS = Object.freeze({
   'windows-x64': Object.freeze({ selection: 'docs/release/license-selection.windows-x64.json', output: 'out/release-notices', target: 'x86_64-pc-windows-msvc', cargo_targets: Object.freeze(['x86_64-pc-windows-msvc']), label: 'Windows x64 application' }),
   'macos-universal': Object.freeze({ selection: 'docs/release/license-selection.macos-universal.json', output: 'out/release-notices-macos', target: 'universal-apple-darwin', cargo_targets: Object.freeze(['aarch64-apple-darwin', 'x86_64-apple-darwin']), label: 'macOS application (Apple silicon and Intel)' }),
+  'android-universal': Object.freeze({ selection: 'docs/release/license-selection.android-universal.json', output: 'out/release-notices-android', target: 'android-universal', cargo_targets: Object.freeze(['aarch64-linux-android', 'armv7-linux-androideabi', 'x86_64-linux-android']), label: 'Android application (arm64, armv7 and x86_64)' }),
 });
 export const DEFAULT_PLATFORM = 'windows-x64';
 const usage = `Usage: node scripts/release-licenses.mjs prepare|check [${Object.keys(PLATFORMS).join('|')}]`;

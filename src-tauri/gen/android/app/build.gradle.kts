@@ -84,6 +84,15 @@ rust {
     rootDirRel = "../../../"
 }
 
+// Jede Java- und Kotlin-Bibliothek der App steht mit Version in
+// `gradle.lockfile`; weicht die Aufloesung davon ab, bricht der Bau ab. Die
+// Android-Lizenzauswahl bindet diese Datei (Spec 2026-10-27 §8): Eine neue
+// oder geaenderte Bibliothek braucht eine neue Lizenzentscheidung.
+// Neu schreiben: `gradlew :app:dependencies --write-locks`.
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 dependencies {
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("androidx.appcompat:appcompat:1.7.1")

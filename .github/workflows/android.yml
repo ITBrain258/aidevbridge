@@ -77,6 +77,22 @@ jobs:
           "$sdkmanager" --install "platforms;android-36" "build-tools;$BUILD_TOOLS" "ndk;$NDK_VERSION" > /dev/null
           echo "NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
       - run: npm ci
+      # The third-party license texts travel in the APK as assets/licenses
+      # (docs/specs/2026-10-27-android-design.md §8). A release takes them
+      # from the bound selection, which refuses any changed input; a preview
+      # carries a note instead, as the macOS preview does.
+      - name: License texts for the APK
+        run: |
+          set -euo pipefail
+          assets=src-tauri/gen/android/app/src/main/assets/licenses
+          mkdir -p "$assets"
+          if [ -n "$PUBLISH_TAG" ]; then
+            cargo fetch --locked
+            node scripts/release-licenses.mjs prepare android-universal
+            cp -R out/release-notices-android/. "$assets/"
+          else
+            printf 'aidevbridge preview build of commit %s.\n\nThis build is for testing and not for distribution. It does not carry the\nthird-party license texts; release builds do, in this folder.\n' "$GITHUB_SHA" > "$assets/README.txt"
+          fi
       - name: Build
         run: |
           set -euo pipefail
@@ -85,6 +101,28 @@ jobs:
           else
             npm run tauri -- android build --ci --apk --target aarch64
           fi
+      # Every prepared file must be in the APK with its bytes. Android's
+      # packaging skips assets whose names start with a dot, which leaves out
+      # only the helper's ownership marker.
+      - name: Check the license texts in the APK
+        run: |
+          set -euo pipefail
+          apk=src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+          if [ -z "$PUBLISH_TAG" ]; then
+            unzip -p "$apk" assets/licenses/README.txt > /dev/null
+            exit 0
+          fi
+          node scripts/release-licenses.mjs check android-universal
+          cd out/release-notices-android
+          expected=0
+          while IFS= read -r -d '' file; do
+            name="${file#./}"
+            unzip -p "../../$apk" "assets/licenses/$name" | cmp -s - "$name" || { echo "::error::assets/licenses/$name differs or is missing"; exit 1; }
+            expected=$((expected + 1))
+          done < <(find . -type f ! -name '.*' -print0)
+          actual=$(unzip -Z1 "../../$apk" | grep -c '^assets/licenses/')
+          [ "$actual" -eq "$expected" ] || { echo "::error::The APK has $actual license files, expected $expected"; exit 1; }
+          echo "APK carries the $expected files of the Android license selection" >> "$GITHUB_STEP_SUMMARY"
       - name: Collect the unsigned files
         run: |
           set -euo pipefail
