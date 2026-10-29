@@ -50,8 +50,8 @@
     "files": [
       {
         "path": ".github/workflows/android.yml",
-        "bytes": 20515,
-        "sha256": "e532a55ad11b19dfec6ccbc3c8bda09dc1c001c1c23950628124816ea9a25fb2"
+        "bytes": 20691,
+        "sha256": "1a138622f4e42d6754b6e02e5196163f9e1e5719e0b86e20a686b1403feabcf3"
       },
       {
         "path": "Cargo.lock",
