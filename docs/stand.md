@@ -1,6 +1,18 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.3`, Release am 26.10.2026: Sie bringt die
+**Stand:** Version `0.2.4`, Release am 29.10.2026: das erste Release mit
+Android und mit den Korrekturen aus dem Review vom 26.10., dazu Wischen im
+Terminal und Terminals ohne Scrollbalken. Der Tag `v0.2.4` steht auf
+`c279bce`. Erstmals lief alles auf einem Tag: `packages.yml` hat MSI,
+Setup-EXE, ZIP und das DMG gebaut, auf frischen Runnern (Windows, Apple
+silicon, Intel) installiert und gestartet und angehängt; `android.yml` hat
+APK und App Bundle für drei ABIs gebaut, im eigenen Job mit dem
+Upload-Schlüssel signiert (Zertifikat `07:EA:32:E6…5E:2D`) und die APK samt
+Build-Provenienz angehängt (`gh attestation verify` geprüft). Das App Bundle
+liegt als Artefakt des Laufs bereit, solange kein Play-Dienstkonto
+hinterlegt ist. Alle drei Lizenzauswahlen sind für 0.2.4 gebunden.
+
+Davor: Version `0.2.3`, Release am 26.10.2026: Sie bringt die
 macOS-Lieferung (Universal-DMG, ad-hoc signiert); die App selbst ist
 unverändert. Der Tag `v0.2.3` steht auf `95b17ae`; der Workflow hat das DMG
 gebaut, auf Apple silicon und Intel installiert und gestartet und an das
