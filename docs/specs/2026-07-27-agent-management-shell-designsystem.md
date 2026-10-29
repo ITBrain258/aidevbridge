@@ -365,7 +365,8 @@ Tiefenillusion.
 `scrollbar-width: thin; scrollbar-color: var(--ab-border-strong) transparent`. Der
 **xterm-Viewport-Scrollbalken bleibt unangetastet** — bei 5000 Zeilen Scrollback ist er eine
 Positionsanzeige, kein Zierrat, und er darf nicht bei Nicht-Hover verschwinden. Durch
-`color-scheme: dark` ist er ohne weiteres Zutun dunkel.
+`color-scheme: dark` ist er ohne weiteres Zutun dunkel. *Seit 29.10.2026 entfällt der
+Terminalbalken ganz (§9, Regel 9).*
 
 ---
 
@@ -897,7 +898,10 @@ Zwölf Bewegungen, die 2026 naheliegen und hier falsch wären:
 8. **Keine Skeleton-Loader, keine Shimmer-Animation.** Eine SSH-Verbindung steht in unter zwei
    Sekunden oder meldet einen Fehler. Ein Skeleton wäre eine Lüge über die Wartezeit.
 9. **Keine ausblendenden Scrollbalken im xterm-Viewport.** Bei 5000 Zeilen Scrollback ist der
-   Balken eine Positionsanzeige.
+   Balken eine Positionsanzeige. *Aufgehoben am 29.10.2026 (Entscheidung des Maintainers): Das
+   Terminal hat keinen Scrollbalken mehr. Gescrollt wird mit dem Mausrad, durch Wischen oder in
+   tmux; das Ziehen durch den Verlauf war ohne Nutzen. Die 14 px gehen an die Spalten
+   (`terminal-fit.ts`).*
 10. **Keine eigene Fensterdekoration / kein Frameless-Fenster mit nachgebauter Titelleiste.**
     Bricht Snap Layouts, Aero Snap, Fenster-Rundung und die Systemmenü-Konventionen von
     Windows 11 — für ein Werkzeug, das neben Explorer und Windows Terminal steht, ist das

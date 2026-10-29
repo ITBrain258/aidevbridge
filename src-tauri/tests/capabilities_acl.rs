@@ -33,7 +33,7 @@ const TAURI_CONF_JSON: &str = include_str!("../tauri.conf.json");
 /// Als Zahl im Test, nicht abgeleitet: ein neuer Command macht diesen Test
 /// bewusst rot. Das ist der Zweck -- er soll jemanden zwingen, alle fuenf
 /// Listen anzufassen, nicht sich stillschweigend anpassen.
-const EXPECTED_COMMAND_COUNT: usize = 26;
+const EXPECTED_COMMAND_COUNT: usize = 28;
 
 /// Extrahiert die Commands aus `generate_handler![...]`.
 ///
@@ -320,6 +320,8 @@ fn the_core_permissions_the_webview_needs_are_present() {
         "core:window:allow-set-title",
         "core:window:allow-request-user-attention",
         "core:webview:allow-internal-toggle-devtools",
+        "core:app:allow-register-listener",
+        "core:app:allow-remove-listener",
         "dialog:allow-open",
     ]
     .into_iter()

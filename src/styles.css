@@ -95,6 +95,11 @@
   --ab-control-h:      32px;
   --ab-dialog-head-h:  44px;
   --ab-focus-w:        2px;
+  /* Android (Spec 2026-10-27 §5.1, §5.2): Kopfleiste der kompakten Ansicht
+     und Tasten der Touch-Leiste, gross genug fuer einen Finger. */
+  --ab-compact-bar-h:  44px;
+  --ab-touch-key-h:    38px;
+  --ab-touch-key-w:    42px;
 
   /* --- Erhebung --- */
   --ab-shadow-card:  0 6px 18px rgba(0, 0, 0, 0.35);
@@ -385,6 +390,176 @@ textarea,
 
 #app.sidebar-collapsed #sidebar {
   display: none;
+}
+
+/* Touch-Leiste (Spec 2026-10-27 §5.2, `views/touch-keys-bar.ts`), nur auf
+   Android gemountet: eine zweite Zeile unter dem Raster, ueber die Breite des
+   Rasters. Die Seitenleiste reicht ueber beide Zeilen. Eingeklappt gibt es nur
+   eine Spalte, `-2 / -1` ist dann die erste. */
+#app.has-touch-keys {
+  grid-template-rows: 1fr auto;
+}
+
+#app.has-touch-keys #sidebar {
+  grid-row: 1 / -1;
+}
+
+#app.has-touch-keys #grid {
+  grid-row: 1;
+}
+
+#app.has-touch-keys .touch-keys {
+  grid-row: 2;
+  grid-column: -2 / -1;
+}
+
+.touch-keys {
+  display: flex;
+  gap: var(--ab-space-2);
+  min-width: 0;
+  padding-top: var(--ab-canvas-gap);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.touch-key {
+  flex: 0 0 auto;
+  min-width: var(--ab-touch-key-w);
+  height: var(--ab-touch-key-h);
+  padding: 0 var(--ab-space-4);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-sm);
+  background-color: var(--ab-bg-card);
+  color: var(--ab-text-primary);
+  font-family: var(--ab-font-mono);
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  /* Kein Doppeltipp-Zoom, der den zweiten Tipp verschluckte. */
+  touch-action: manipulation;
+  box-sizing: border-box;
+}
+
+.touch-key:active {
+  background-color: var(--ab-bg-active);
+}
+
+/* Vorgemerktes Strg oder Alt. */
+.touch-key[aria-pressed="true"] {
+  border-color: var(--ab-accent);
+  background-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+}
+
+/* Kompakte Ansicht (Spec 2026-10-27 §5.1, `views/compact-shell.ts`), nur auf
+   Android gemountet; `COMPACT_QUERY` (Telefon hochkant und quer) setzt dort
+   die Klasse `compact`. Eine Spalte: oben die Kopfleiste, darunter das Raster
+   ueber die ganze Breite, ohne Leinwandrand. Ausserhalb davon ist die
+   Kopfleiste unsichtbar. */
+.compact-bar {
+  display: none;
+}
+
+#app.compact {
+  grid-template-columns: 1fr;
+  grid-template-rows: var(--ab-compact-bar-h) 1fr;
+  padding: 0;
+  column-gap: 0;
+}
+
+#app.compact.has-touch-keys {
+  grid-template-rows: var(--ab-compact-bar-h) 1fr auto;
+}
+
+#app.compact .compact-bar {
+  display: flex;
+  grid-row: 1;
+  grid-column: 1;
+  align-items: center;
+  gap: var(--ab-space-4);
+  min-width: 0;
+  padding: 0 var(--ab-space-4);
+  border-bottom: var(--ab-border-w) solid var(--ab-line);
+  background-color: var(--ab-bg-panel);
+  box-sizing: border-box;
+}
+
+#app.compact #grid {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+#app.compact.has-touch-keys .touch-keys {
+  grid-row: 3;
+  grid-column: 1;
+  padding: var(--ab-space-2);
+}
+
+/* Die Seitenleiste als Schublade unter der Kopfleiste: Sie ueberdeckt das
+   Raster, statt es zu verkleinern, die Terminals behalten ihre Groesse
+   (V12). Ebene 20 der Stapelleiter. Der Ziehgriff hat hier keinen Sinn. */
+#app.compact #sidebar {
+  position: fixed;
+  top: var(--ab-compact-bar-h);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: none;
+  background-color: var(--ab-bg-canvas);
+}
+
+#app.compact.compact-sessions-open #sidebar {
+  display: block;
+}
+
+#app.compact .sb-resize {
+  display: none;
+}
+
+/* Auf dem Telefon ist jede Kachel schmal, und breiter wird sie nicht: Der
+   Hinweis "narrow" (Spec 2026-10-19 §8.4) stuende immer da und sagte nichts,
+   was sich aendern liesse. */
+#app.compact .tile-narrow {
+  display: none;
+}
+
+/* Ebenso das Kuerzel im Kopf der Wartet-Spur: Strg+Umschalt+A gibt es auf
+   dem Telefon nur mit einer Hardwaretastatur. */
+#app.compact .sb-lane-head kbd {
+  display: none;
+}
+
+/* Auf Android rollt ein Zug mit dem Finger das Terminal (`touch-scroll.ts`,
+   Spec 2026-10-27 §5.5), nicht die Seite. Ohne `none` finge der Browser den
+   Zug selbst ab, und ab dann liesse sich `touchmove` nicht mehr anhalten. Ein
+   Tipp oeffnet weiter die Tastatur. */
+#app.has-touch-keys .tile-terminal {
+  touch-action: none;
+}
+
+.compact-bar-toggle {
+  flex: 0 0 auto;
+  gap: var(--ab-space-3);
+}
+
+.compact-bar-waiting {
+  padding: 0 var(--ab-space-3);
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-warn-bg);
+  color: var(--ab-warn);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+}
+
+.compact-bar-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ab-text-secondary);
+  font-size: var(--ab-fs-md);
+  line-height: var(--ab-lh-md);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Ziehgriff der Seitenleiste (UX-Spec §7.8, `views/sidebar-resize.ts`): am
@@ -760,6 +935,30 @@ textarea,
   font-size: var(--ab-fs-xs);
   line-height: var(--ab-lh-xs);
   color: var(--ab-text-muted);
+}
+
+/* Android (Spec 2026-10-27 §5.3): der oeffentliche Schluessel eines eben
+   erzeugten Schluessels, zum Kopieren nach `authorized_keys`. Das Feld bricht
+   die lange Zeile an jeder Stelle um, der Knopf steht rechts darunter. */
+.host-form-public-key:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ab-space-4);
+}
+
+.host-form-public-key label {
+  align-self: stretch;
+}
+
+.host-form-public-key textarea {
+  width: 100%;
+  font-family: var(--ab-font-mono);
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  word-break: break-all;
+  resize: none;
+  box-sizing: border-box;
 }
 
 /* Eine WARNUNG (Spec §9.4: "Warnung statt Ablehnung"), keine harte
@@ -2821,6 +3020,10 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
                                           (`.row-host`, klebt gegen `.sb-list`)
      10  Such-Overlay im Terminal      -- gehoert INNERHALB einer Kachel
                                           (`.terminal-search-overlay`)
+     20  Seitenleiste als Schublade    -- nur in der kompakten Ansicht
+                                          (Android): ueber dem Raster, unter
+                                          den Menues der Seitenleiste
+                                          (`#app.compact #sidebar`)
      50  Host- und Terminalmenue       -- ueber der klebenden Hostzeile (1)
                                           und den Sessionzeilen, unter der
                                           Dialog-Ueberlagerung (100): bei
@@ -3452,15 +3655,14 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   height: 14px;
 }
 
-/* ===== xterm-Scrollbalken (v2 §13.3) =====================================
-   xterm 6 baut seinen Balken als DOM-Overlay (`ScrollbarVisibility.Auto`) und
-   blendet ihn per `.invisible.fade` in 800 ms aus; `::-webkit-scrollbar`
-   trifft dort nichts. Farben kommen aus dem ITheme (terminal.ts). Dieser
-   Selektor ist das vierte Gate in styles.test.ts. */
-.tile-terminal .xterm .xterm-scrollable-element > .invisible {
-  opacity: 1;
-  pointer-events: auto;
-  transition: none;
+/* ===== Kein Scrollbalken im Terminal (29.10.2026) ========================
+   Hebt v2 §13.3 und Regel 9 des Designsystems auf: Gescrollt wird mit dem
+   Mausrad, durch Wischen oder in tmux. xterm 6 baut seinen Balken als
+   DOM-Overlay ueber die letzten Spalten; `::-webkit-scrollbar` trifft dort
+   nichts. Den frei werdenden Platz rechnet `terminal-fit.ts` den Spalten zu.
+   Dieser Selektor ist das vierte Gate in styles.test.ts. */
+.tile-terminal .xterm .xterm-scrollable-element > .scrollbar {
+  display: none;
 }
 
 /* ===== Seitenleistenkopf: Zahnrad (v2 §7.2) ===== */

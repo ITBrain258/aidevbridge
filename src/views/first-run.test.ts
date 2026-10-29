@@ -199,6 +199,24 @@ describe("mountFirstRun: Vorschlagsliste aus suggest_hosts", () => {
     expect(container.textContent).toContain("No hosts found in ~/.ssh/config");
   });
 
+  it("laesst auf Android den leeren Abschnitt der Vorschlaege weg (Spec 2026-10-27 §5.3)", async () => {
+    const agent = vi
+      .spyOn(navigator, "userAgent", "get")
+      .mockReturnValue("Mozilla/5.0 (Linux; Android 16; Pixel 7; wv) AppleWebKit/537.36 Chrome/141.0.0.0 Mobile Safari/537.36");
+    try {
+      invokeMock.mockImplementation(scriptedInvoke({ suggest_hosts: Promise.resolve([]) }));
+
+      const { container } = mount();
+      await flush();
+
+      expect(container.querySelector<HTMLElement>(".first-run-suggested-list")?.hidden).toBe(true);
+      expect(container.querySelector<HTMLElement>(".first-run-section-label")?.hidden).toBe(true);
+      expect(container.querySelector(".host-form-view")).not.toBeNull();
+    } finally {
+      agent.mockRestore();
+    }
+  });
+
   // Der Schluesselpfad eines Vorschlags mit gesetzter `identity_file`
   // landet unveraendert als `key_path` in `connect_host` -- seit Aufgabe 11
   // fuehrt dieser Weg nicht mehr ueber das Anmeldungsmenue des Formulars,

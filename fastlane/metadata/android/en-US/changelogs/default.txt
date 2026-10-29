@@ -1,0 +1,1 @@
+First Android release: hosts and tmux sessions with agent status, a terminal with a key bar for Esc, Tab, Ctrl, Alt and the arrows, SSH keys generated or imported on the device, and a layout for phones.

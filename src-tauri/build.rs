@@ -51,6 +51,8 @@ fn main() {
             "list_directories",
             "ui_settings",
             "open_link",
+            "generate_ssh_key",
+            "import_ssh_key",
         ]),
     ))
     .expect("tauri_build::try_build ist fehlgeschlagen");

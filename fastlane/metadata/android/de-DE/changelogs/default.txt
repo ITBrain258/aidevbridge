@@ -1,0 +1,1 @@
+Erste Android-Version: Hosts und tmux-Sessions mit Agentenzustand, ein Terminal mit Tastenleiste für Esc, Tab, Strg, Alt und die Pfeile, SSH-Schlüssel auf dem Gerät erzeugen oder importieren, und eine Ansicht fürs Telefon.

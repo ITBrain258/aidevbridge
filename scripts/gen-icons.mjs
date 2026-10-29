@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 const NAMES = [
   "plus", "settings", "chevron-right", "chevron-down", "maximize-2", "minimize-2", "x",
   "search", "refresh-cw", "copy", "triangle-alert", "check", "terminal", "key-round", "lock",
-  "trash-2", "chevron-up", "case-sensitive",
+  "trash-2", "chevron-up", "case-sensitive", "menu",
 ];
 
 const root = fileURLToPath(new URL("..", import.meta.url));

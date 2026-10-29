@@ -6,10 +6,12 @@ describe("icons (Spec 13.1)", () => {
   // geworden, "End session…" braucht dafuer einen Papierkorb ("trash-2").
   // 18 seit der Suchleiste (UX-Spec §6.6): "chevron-up" fuer den vorigen
   // Treffer (der naechste ist "chevron-down"), "case-sensitive" fuer "Aa".
-  it("kennt genau die 18 Namen", () => {
+  // 19 seit der kompakten Ansicht (Spec 2026-10-27 §5.1): "menu" oeffnet die
+  // Seitenleiste.
+  it("kennt genau die 19 Namen", () => {
     expect([...ICON_NAMES].sort()).toEqual([
       "case-sensitive", "check", "chevron-down", "chevron-right", "chevron-up", "copy",
-      "key-round", "lock", "maximize-2", "minimize-2", "plus", "refresh-cw", "search",
+      "key-round", "lock", "maximize-2", "menu", "minimize-2", "plus", "refresh-cw", "search",
       "settings", "terminal", "trash-2", "triangle-alert", "x",
     ]);
   });

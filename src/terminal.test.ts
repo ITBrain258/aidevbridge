@@ -141,6 +141,11 @@ const hoisted = vi.hoisted(() => {
     /** Die Zeilen des Puffers, aus dem `terminal.ts` den sichtbaren Text eines
      * OSC-8-Links liest (`buffer.active.getLine`). */
     bufferLines: [] as string[],
+    /** Was `term.buffer.active.type` meldet: "alternate", solange ein Programm
+     * den zweiten Bildschirm nutzt. */
+    bufferType: "normal" as "normal" | "alternate",
+    /** Jeder `term.scrollLines(n)`-Aufruf (Wischen, Spec 2026-10-27 §5.5). */
+    scrollLinesCalls: [] as number[],
   };
 });
 
@@ -210,6 +215,7 @@ vi.mock("@xterm/xterm", () => {
     get buffer() {
       return {
         active: {
+          type: hoisted.bufferType,
           getLine: (y: number) => {
             const text = hoisted.bufferLines[y];
             if (text === undefined) return undefined;
@@ -234,6 +240,9 @@ vi.mock("@xterm/xterm", () => {
     }
     selectAll(): void {
       hoisted.selectAllCalls += 1;
+    }
+    scrollLines(amount: number): void {
+      hoisted.scrollLinesCalls.push(amount);
     }
     get modes(): { mouseTrackingMode: typeof hoisted.mouseTrackingMode } {
       return { mouseTrackingMode: hoisted.mouseTrackingMode };
@@ -360,6 +369,7 @@ import {
 } from "./terminal";
 import { createOpenQueue, type OpenQueue } from "./terminal-open-queue";
 import { DEFAULT_TERMINAL_PREFS, onTerminalPrefsChanged, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
+import { clearModifiers } from "./touch-keys";
 import type { TerminalMenuTexts } from "./views/terminal-menu";
 import type { TerminalSearchTexts } from "./views/terminal-search";
 import { mountSidebar } from "./views/sidebar";
@@ -466,6 +476,8 @@ beforeEach(() => {
   hoisted.webLinks.options = undefined;
   hoisted.lastOptions = undefined;
   hoisted.bufferLines = [];
+  hoisted.bufferType = "normal";
+  hoisted.scrollLinesCalls.length = 0;
   // `mockReset()`, nicht nur `mockClear()`: mindestens ein Test unten setzt
   // eine eigene `invoke`-Implementierung (Fehlerpfad-Test fuer
   // `open_terminal`). `mockClear()` loescht nur den Aufrufverlauf, nicht
@@ -2953,6 +2965,157 @@ describe("mountTerminal: Schriftgroesse (UX-Spec §6.7)", () => {
       off();
       vi.useRealTimers();
     }
+  });
+});
+
+// Spec 2026-10-27 §5.5: Wischen rollt das Terminal, nur auf Android. Die Geste
+// selbst (Schwelle, Reste, Auslauf) prueft `touch-scroll.test.ts`; hier geht
+// es darum, was eine gewischte Zeile bewirkt. Ohne Layout misst jsdom keine
+// Zeile, die Hoehe ist deshalb Schrift mal Zeilenabstand: 13 x 1,15 = 14,95 px.
+describe("mountTerminal: Wischen auf Android (Spec 2026-10-27 §5.5)", () => {
+  const ANDROID_UA =
+    "Mozilla/5.0 (Linux; Android 16; Pixel 7; wv) AppleWebKit/537.36 Chrome/141.0.0.0 Mobile Safari/537.36";
+  let agent: MockInstance<() => string> | undefined;
+  let container: HTMLElement;
+
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    agent?.mockRestore();
+    agent = undefined;
+    container.remove();
+  });
+
+  /** Ein Touch-Ereignis mit einem Finger; jsdom baut keine `Touch`-Objekte. */
+  function touch(target: EventTarget, type: string, y: number, x = 30): Event {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "touches", { value: type === "touchend" ? [] : [{ clientX: x, clientY: y }] });
+    target.dispatchEvent(event);
+    return event;
+  }
+
+  function mountOnAndroid(): { handle: TerminalHandle; xtermEl: HTMLElement } {
+    agent = vi.spyOn(navigator, "userAgent", "get").mockReturnValue(ANDROID_UA);
+    const handle = mount(container, "host-1", "sess-1");
+    return { handle, xtermEl: hoisted.terminals[0].element! };
+  }
+
+  function wheelsAt(target: HTMLElement): WheelEvent[] {
+    const seen: WheelEvent[] = [];
+    target.addEventListener("wheel", (event) => seen.push(event));
+    return seen;
+  }
+
+  it("rollt im eigenen Verlauf mit dem Finger: nach unten aeltere Zeilen, eine je Zeilenhoehe", () => {
+    const { xtermEl } = mountOnAndroid();
+
+    touch(xtermEl, "touchstart", 100);
+    // 8 px Schwelle, dann 30 px: zwei ganze Zeilen.
+    const move = touch(xtermEl, "touchmove", 138);
+    touch(xtermEl, "touchend", 138);
+
+    expect(hoisted.scrollLinesCalls).toEqual([-2]);
+    expect(move.defaultPrevented).toBe(true);
+  });
+
+  it("schickt bei `mouse on` je Zeile ein Mausrad-Ereignis an die Stelle, an der der Finger aufsetzte", () => {
+    hoisted.mouseTrackingMode = "vt200";
+    const { xtermEl } = mountOnAndroid();
+    const wheels = wheelsAt(xtermEl);
+
+    touch(xtermEl, "touchstart", 100, 42);
+    touch(xtermEl, "touchmove", 138, 50);
+
+    expect(hoisted.scrollLinesCalls).toEqual([]);
+    expect(wheels.map((event) => [event.deltaY, event.deltaMode, event.clientX, event.clientY])).toEqual([
+      [-1, WheelEvent.DOM_DELTA_LINE, 42, 100],
+      [-1, WheelEvent.DOM_DELTA_LINE, 42, 100],
+    ]);
+  });
+
+  // xterm macht daraus Pfeiltasten, wie beim Mausrad am Desktop.
+  it("schickt im zweiten Bildschirm ebenso Mausrad-Ereignisse, nach oben gewischt mit positivem Delta", () => {
+    hoisted.bufferType = "alternate";
+    const { xtermEl } = mountOnAndroid();
+    const wheels = wheelsAt(xtermEl);
+
+    touch(xtermEl, "touchstart", 200);
+    touch(xtermEl, "touchmove", 177);
+
+    expect(hoisted.scrollLinesCalls).toEqual([]);
+    expect(wheels.map((event) => event.deltaY)).toEqual([1]);
+  });
+
+  it("rollt auf dem Desktop nicht und laesst das Ereignis unberuehrt", () => {
+    mount(container, "host-1", "sess-1");
+    const xtermEl = hoisted.terminals[0].element!;
+
+    touch(xtermEl, "touchstart", 100);
+    const move = touch(xtermEl, "touchmove", 200);
+
+    expect(hoisted.scrollLinesCalls).toEqual([]);
+    expect(move.defaultPrevented).toBe(false);
+  });
+
+  it("rollt nach dem Entsorgen nicht mehr", () => {
+    const { handle, xtermEl } = mountOnAndroid();
+    handle.dispose();
+
+    touch(xtermEl, "touchstart", 100);
+    touch(xtermEl, "touchmove", 200);
+
+    expect(hoisted.scrollLinesCalls).toEqual([]);
+  });
+});
+
+// Spec 2026-10-27 §5.2, Befund der Durchsicht vom 29.10.: Die reinen
+// Funktionen prueft `touch-keys.test.ts`; hier, dass `terminal.ts` sie
+// verdrahtet: Tasten der Leiste und der Merker fuer getippte Eingabe.
+describe("mountTerminal: Touch-Leiste (Spec 2026-10-27 §5.2)", () => {
+  afterEach(() => {
+    clearModifiers();
+  });
+
+  function sentBytes(): number[][] {
+    return invokeMock.mock.calls
+      .filter(([command]) => command === "send_input")
+      .map(([, args]) => (args as { bytes: number[] }).bytes);
+  }
+
+  it("schickt eine Taste der Leiste denselben Weg wie getippte Eingabe", async () => {
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    handle.sendTouchKey("up");
+    await flush();
+
+    expect(sentBytes()).toEqual([[0x1b, 0x5b, 0x41]]);
+  });
+
+  it("wendet ein vorgemerktes Strg auf das naechste getippte Zeichen an und loest es dann", async () => {
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    handle.sendTouchKey("ctrl");
+    hoisted.dataListener?.("c");
+    hoisted.dataListener?.("c");
+    await flush();
+
+    expect(sentBytes()).toEqual([[0x03], [0x63]]);
+  });
+
+  it("schickt nach dem Entsorgen nichts mehr", async () => {
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    handle.dispose();
+
+    handle.sendTouchKey("esc");
+    await flush();
+
+    expect(sentBytes()).toEqual([]);
   });
 });
 

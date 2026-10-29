@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Dunkel wie die App, auch hinter Status- und Navigationsleiste und
+         beim Start, bevor der WebView sein erstes Bild zeigt. -->
+    <style name="Theme.aidevbridge" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowBackground">@color/canvas</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
+</resources>

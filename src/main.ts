@@ -78,6 +78,9 @@ import { mountSettingsDialog } from "./views/settings-dialog";
 import { openQuickOpen, quickOpenItems, quickOpenLabels, type QuickOpenItem } from "./views/quick-open";
 import type { UiSettingsDto } from "./views/types";
 import { appVersionLine } from "./version";
+import { isAndroid } from "./platform";
+import { mountCompactShell, type CompactShellHandle } from "./views/compact-shell";
+import { mountTouchKeysBar, type TouchKeysBarHandle } from "./views/touch-keys-bar";
 
 function required<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -309,6 +312,23 @@ export function main(): void {
   // `openDialog` in `views/dialog.ts`: Ueberlagerungen liegen
   // AUSSERHALB von `elements.grid`, sie verdraengen das Raster nicht).
   let gridHandle: GridHandle | null = null;
+
+  // Spec 2026-10-27 §5.1 und §5.2: nur auf Android gesetzt, siehe weiter
+  // unten bei `mountCompactShell`.
+  let compactShell: CompactShellHandle | null = null;
+  let touchKeys: TouchKeysBarHandle | null = null;
+
+  /** Kopfzeile der kompakten Ansicht: Session und Host der fokussierten
+   * Kachel. */
+  function focusedSessionLabel(): string | null {
+    const key = state.focusedSessionKey();
+    if (key === null) return null;
+    for (const host of state.hosts) {
+      const session = host.sessions.find((candidate) => sessionKeyOf(candidate) === key);
+      if (session) return t("compact.title", { session: session.name, host: host.label });
+    }
+    return null;
+  }
 
   /** Rohwert aus settings.toml, wenn er kein bekanntes Thema war (Hinweis im Dialog, §12.1). */
   let unknownStoredTheme: string | null = null;
@@ -2275,6 +2295,9 @@ export function main(): void {
       return;
     }
     noteForeignOpen(hostId, name, socket, result);
+    // Spec 2026-10-27 §5.1: die gewaehlte Session soll man sehen, auch wenn
+    // sie schon in der fokussierten Kachel lag.
+    compactShell?.setSessionsOpen(false);
     // Designsystem §7.5 und Spec 2026-10-19 §6.2: der Tastaturfokus folgt
     // der Kachel, und sie leuchtet auf. Hier und nicht in `grid.ts`s
     // `render()`: DIES ist die Benutzerabsicht (siehe
@@ -2786,10 +2809,25 @@ export function main(): void {
     },
   });
 
+  // Spec 2026-10-27 §5.1 und §5.2, nur auf Android: die kompakte Ansicht fuer
+  // schmale Bildschirme und die Touch-Leiste unter dem Raster. Der Desktop
+  // bekommt keins von beiden, sein DOM bleibt, wie es ist.
+  if (isAndroid()) {
+    compactShell = mountCompactShell({
+      app: elements.app,
+      state,
+      waitingCount: () => waitingSessions(state.hosts, statusCurrent).length,
+      focusedLabel: focusedSessionLabel,
+    });
+    touchKeys = mountTouchKeysBar(elements.app, (key) => gridHandle?.sendTouchKey(key));
+  }
+
   window.addEventListener("focus", onWindowFocus);
   window.addEventListener("online", onOnline);
   stopBackgroundWork = () => {
     backgroundStopped = true;
+    compactShell?.dispose();
+    touchKeys?.dispose();
     uninstallKeyboard();
     offTerminalPrefs();
     // Ein ausstehender Schreibvorgang gehoert diesem Lauf; in der App laeuft

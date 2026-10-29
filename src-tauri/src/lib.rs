@@ -7,6 +7,7 @@
 pub mod commands;
 pub mod connection;
 pub mod keymap;
+pub mod paths;
 pub mod preflight;
 pub mod remote;
 pub mod settings;
@@ -18,12 +19,15 @@ pub mod transport;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Umzug der `settings.toml` aus 0.1.2: vor allem anderen, damit das
-    // erste Laden die umgezogene Datei schon sieht.
+    // erste Laden die umgezogene Datei schon sieht. Auf Android gibt es
+    // keinen alten Ordner, und die Ordner der App kennt erst `setup`.
+    #[cfg(desktop)]
     settings::migrate_legacy_settings();
     // Reste abgebrochener Schreibvorgaenge neben `settings.toml`; ein Fehler
-    // dabei haelt den Start nicht auf.
+    // dabei haelt den Start nicht auf. Auf Android im `setup`.
+    #[cfg(desktop)]
     settings::remove_stale_temp_files();
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         // Das Fenster `main` entsteht hier statt automatisch aus
         // tauri.conf.json (dort `"create": false`, Spec §8.5): nur der Builder
         // kennt `enable_clipboard_access`. Ohne sie erteilt wry WebView2 die
@@ -42,6 +46,16 @@ pub fn run() {
         // einer Konsole, die erst jemand aufklappen muss. Genau daran ist die
         // Fehlersuche am 2026-07-29 dreimal gescheitert.
         .setup(|app| {
+            // Android (Spec 2026-10-27 §4.2): `~/.ssh` und `settings.toml`
+            // liegen im privaten Datenordner der App, den erst der
+            // Pfadaufloeser kennt. Vor dem Fenster, denn dessen erste
+            // Befehle lesen schon die Hosts.
+            #[cfg(mobile)]
+            {
+                use tauri::Manager;
+                paths::init_mobile(app.path().app_data_dir()?);
+                settings::remove_stale_temp_files();
+            }
             let config = &app.config().app.windows[0];
             let window = tauri::WebviewWindowBuilder::from_config(app, config)?
                 .enable_clipboard_access()
@@ -49,7 +63,8 @@ pub fn run() {
             // `build()` hat die gespeicherte Lage schon hergestellt (das
             // `on_window_ready` von window-state, siehe oben); erst danach
             // laesst sich die Groesse pruefen. Ein maximiertes Fenster fuellt
-            // den Bildschirm ohnehin.
+            // den Bildschirm ohnehin, ein mobiles immer.
+            #[cfg(desktop)]
             if !window.is_maximized()? {
                 let size = window
                     .inner_size()?
@@ -75,18 +90,27 @@ pub fn run() {
         // default.json) faellt NICHT in die Command-Zaehlung
         // (`EXPECTED_COMMAND_COUNT` in tests/capabilities_acl.rs) -- es ist
         // kein `#[tauri::command]` dieser App, sondern ein Plugin-Recht.
-        .plugin(tauri_plugin_dialog::init())
-        // Fensterlage, -groesse und der maximierte Zustand ueberleben den Neustart
-        // (Roadmap S3.2). Das Plugin haengt sich an die Fensterereignisse und
-        // schreibt beim Beenden nach `app_config_dir()/.window-state.json` --
-        // unter Windows `%APPDATA%\io.github.itbrain258.aidevbridge\.window-state.json`,
-        // nach dem Identifier aus tauri.conf.json. Seit der Umbenennung liegt
-        // `settings.toml` im selben Ordner (`settings::SETTINGS_DIR_NAME`),
-        // den auch der Deinstaller kennt. Die Werte aus `tauri.conf.json`
-        // gelten damit nur noch beim ALLERERSTEN Start. Rein serverseitig --
-        // der WebView ruft davon nichts auf, deshalb braucht die ACL keinen
-        // Eintrag (siehe capabilities/default.json).
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_dialog::init());
+    // Fensterlage, -groesse und der maximierte Zustand ueberleben den Neustart
+    // (Roadmap S3.2), nur auf dem Desktop. Das Plugin haengt sich an die
+    // Fensterereignisse und schreibt beim Beenden nach
+    // `app_config_dir()/.window-state.json` -- unter Windows
+    // `%APPDATA%\io.github.itbrain258.aidevbridge\.window-state.json`, nach dem
+    // Identifier aus tauri.conf.json. Seit der Umbenennung liegt
+    // `settings.toml` im selben Ordner (`settings::SETTINGS_DIR_NAME`), den
+    // auch der Deinstaller kennt. Die Werte aus `tauri.conf.json` gelten damit
+    // nur noch beim ALLERERSTEN Start. Rein serverseitig -- der WebView ruft
+    // davon nichts auf, deshalb braucht die ACL keinen Eintrag (siehe
+    // capabilities/default.json). Plugins starten in `Builder::build`, vor
+    // `setup`, gleich wo sie in der Kette stehen.
+    #[cfg(desktop)]
+    let builder = builder.plugin(tauri_plugin_window_state::Builder::default().build());
+    // Android: liest die `content://`-URI der Dateiauswahl beim Import eines
+    // Schluessels (`ssh::key_files`). Nur serverseitig; die ACL gibt dem
+    // WebView kein `fs:`-Recht.
+    #[cfg(target_os = "android")]
+    let builder = builder.plugin(tauri_plugin_fs::init());
+    builder
         .manage(std::sync::Arc::new(commands::AppState::from_env()))
         .invoke_handler(tauri::generate_handler![
             commands::begin_connect,
@@ -123,6 +147,9 @@ pub fn run() {
             commands::list_directories,
             commands::ui_settings,
             commands::open_link,
+            // Android: Schluessel auf dem Geraet (Spec 2026-10-27 §5.3).
+            commands::generate_ssh_key,
+            commands::import_ssh_key,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -132,7 +159,9 @@ pub fn run() {
 /// in physischen Pixeln her und prueft dabei die Mindestgroesse aus
 /// tauri.conf.json nicht, die Windows nur beim Ziehen erzwingt. Gespeichert
 /// bei 100 % und hergestellt bei 150 % laege das Fenster darunter. Liefert
-/// die angehobene logische Groesse, `None`, wenn sie schon reicht.
+/// die angehobene logische Groesse, `None`, wenn sie schon reicht. Nur auf
+/// dem Desktop gerufen.
+#[cfg_attr(mobile, allow(dead_code))]
 fn raised_to_minimum(
     size: tauri::LogicalSize<f64>,
     min_width: Option<f64>,

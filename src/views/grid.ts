@@ -35,6 +35,7 @@ import {
 import { mountTerminal, type TerminalErrorKind, type TerminalHandle } from "../terminal";
 import { createOpenQueue } from "../terminal-open-queue";
 import type { ThemeId } from "../theme";
+import type { TouchKeyId } from "../touch-keys";
 import { icon, type IconName } from "../icons";
 import { DEFAULT_KEYMAP, type KeymapAction } from "../keymap";
 import { titleWithShortcut } from "./shortcut-title";
@@ -139,6 +140,10 @@ export interface GridHandle {
    * Aktion, nicht mit dem Zustand. Ein Kachelziel setzt er nicht (UX-Spec
    * §7.4): das `focusin` des Terminals ist nur ein Fokuswechsel. */
   focusActiveTile(): void;
+  /** Spec 2026-10-27 §5.2: eine Taste der Touch-Leiste an das Terminal der
+   * fokussierten, sichtbaren Kachel. Nimmt keinen Fokus: eine Taste wie Esc
+   * soll die Bildschirmtastatur nicht oeffnen. */
+  sendTouchKey(key: TouchKeyId): void;
   /** Spec §12.2: reicht das Thema an jede gemountete Kachel durch. Kein fit(),
    * kein resize_terminal -- xterm zeichnet nur den sichtbaren Schirm neu. */
   applyTerminalTheme(theme: ThemeId): void;
@@ -2188,6 +2193,14 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       // `AppState` erzwingt das aber nicht.
       if (!state.visibleTileIds().includes(id)) return;
       views.get(id)?.handle?.focus();
+    },
+    sendTouchKey(key) {
+      // Dieselbe Wahl wie `focusActiveTile`: nur die fokussierte, sichtbare
+      // Kachel bekommt die Taste; ohne sie geht sie nirgends hin.
+      if (disposed) return;
+      const id = state.focusedTile;
+      if (id === null || !state.visibleTileIds().includes(id)) return;
+      views.get(id)?.handle?.sendTouchKey(key);
     },
     applyTerminalTheme(theme) {
       // Wache wie bei `focusActiveTile`: nach dem Entsorgen sind die Handles

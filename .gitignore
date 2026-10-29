@@ -16,3 +16,8 @@ desktop.ini
 .claude/worktrees/
 .claude/settings.local.json
 CLAUDE.local.md
+
+# Signaturschluessel gehoeren nie ins Repository (SECURITY.md, Android).
+*.jks
+*.keystore
+*.p12

@@ -417,12 +417,12 @@ describe("Fokus (Spec 6.9)", () => {
   });
 });
 
-describe("viertes Gate: xterm-Scrollbalken bleibt sichtbar (Spec 13.3)", () => {
-  it("ueberschreibt .invisible mit opacity 1, pointer-events auto, transition none", () => {
-    const body = ruleBody(".tile-terminal .xterm .xterm-scrollable-element > .invisible");
-    expect(body).toMatch(/opacity:\s*1;/);
-    expect(body).toMatch(/pointer-events:\s*auto;/);
-    expect(body).toMatch(/transition:\s*none;/);
+// Seit 29.10.2026 hat das Terminal keinen Scrollbalken mehr (hebt Spec 13.3
+// auf); den Platz bekommen die Spalten (`terminal-fit.ts`).
+describe("viertes Gate: kein xterm-Scrollbalken im Terminal", () => {
+  it("blendet den Balken aus und holt ihn nirgends zurueck", () => {
+    expect(ruleBody(".tile-terminal .xterm .xterm-scrollable-element > .scrollbar")).toMatch(/display:\s*none;/);
+    expect(css).not.toMatch(/xterm-scrollable-element > \.(invisible|visible)/);
   });
 });
 

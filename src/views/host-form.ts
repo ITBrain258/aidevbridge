@@ -21,6 +21,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { t } from "../i18n/t";
+import { isAndroid } from "../platform";
 
 export type AuthChoice =
   | { kind: "key"; path: string; passphrase: string }
@@ -55,6 +56,10 @@ export interface HostFormOptions {
    * endpoint metadata. `edit`: a saved host is edited; the submit button
    * says "Save" (UX-Spec §7.7). Without a mode the form adds a host. */
   mode?: "control-repair" | "edit";
+  /** Spec 2026-10-27 §5.3: das Menue fuer Android -- ohne ssh-agent, mit
+   * "Generate new key..." und mit einem "Choose file...", das die gewaehlte
+   * Datei in die App uebernimmt. Ohne Angabe entscheidet `isAndroid()`. */
+  android?: boolean;
   initial?: Partial<HostFormValue>;
   existing: { hostname: string; user: string; port: number }[];
   onSubmit: (value: HostFormValue) => void;
@@ -82,6 +87,8 @@ const KEY_VALUE_PREFIX = "key:";
 const AGENT_VALUE = "agent";
 const PASSWORD_VALUE = "password";
 const CHOOSE_FILE_VALUE = "choose-file";
+/** Nur auf Android (Spec 2026-10-27 §5.3). */
+const GENERATE_VALUE = "generate-key";
 /** Kein Eintrag, sondern das Fehlen einer Wahl -- siehe `ensurePlaceholderOption`. */
 const PLACEHOLDER_VALUE = "";
 
@@ -205,9 +212,11 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   authLabel.appendChild(authSelect);
   form.appendChild(authLabel);
 
+  const android = opts.android ?? isAndroid();
+
   const authHint = document.createElement("p");
   authHint.className = "host-form-hint";
-  authHint.textContent = t("hostForm.auth.keyHint");
+  authHint.textContent = t(android ? "hostForm.auth.keyHintAndroid" : "hostForm.auth.keyHint");
   form.appendChild(authHint);
 
   // Deaktivierter Platzhalter: NUR eingefuegt, wenn `applyPreselection()` unten
@@ -238,7 +247,47 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   chooseFileOption.value = CHOOSE_FILE_VALUE;
   chooseFileOption.textContent = t("hostForm.auth.chooseFile");
 
-  authSelect.append(separatorOption, agentOption, passwordOption, chooseFileOption);
+  // Android (Spec 2026-10-27 §5.3): dort gibt es keinen ssh-agent, dafuer
+  // einen Schluessel, den die App selbst erzeugt.
+  const generateOption = document.createElement("option");
+  generateOption.value = GENERATE_VALUE;
+  generateOption.textContent = t("hostForm.auth.generate");
+
+  if (android) {
+    authSelect.append(separatorOption, passwordOption, chooseFileOption, generateOption);
+  } else {
+    authSelect.append(separatorOption, agentOption, passwordOption, chooseFileOption);
+  }
+
+  // Der oeffentliche Schluessel eines eben erzeugten Schluessels, zum
+  // Kopieren nach `authorized_keys` auf dem Host. Schreibgeschuetzt, aber
+  // markierbar, falls die Zwischenablage nicht erreichbar ist.
+  const publicKeyBox = document.createElement("div");
+  publicKeyBox.className = "host-form-public-key";
+  publicKeyBox.hidden = true;
+  const publicKeyLabel = document.createElement("label");
+  publicKeyLabel.textContent = t("hostForm.publicKey.label");
+  const publicKeyText = document.createElement("textarea");
+  publicKeyText.readOnly = true;
+  publicKeyText.rows = 3;
+  publicKeyText.spellcheck = false;
+  publicKeyLabel.appendChild(publicKeyText);
+  const copyPublicKey = document.createElement("button");
+  copyPublicKey.type = "button";
+  copyPublicKey.className = "btn btn--secondary";
+  copyPublicKey.textContent = t("hostForm.publicKey.copy");
+  copyPublicKey.addEventListener("click", () => {
+    publicKeyText.select();
+    void navigator.clipboard
+      ?.writeText(publicKeyText.value)
+      .then(() => {
+        if (!disposed) copyPublicKey.textContent = t("hostForm.publicKey.copied");
+      })
+      .catch(() => {});
+  });
+  publicKeyBox.append(publicKeyLabel, copyPublicKey);
+  // Nur auf Android: Der Desktop erzeugt keine Schluessel, sein DOM bleibt.
+  if (android) form.appendChild(publicKeyBox);
 
   // Passphrase-/Passwortfeld werden bei Bedarf tatsaechlich aus dem DOM
   // entfernt statt nur per `.hidden` versteckt -- ein verstecktes, aber
@@ -316,8 +365,13 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     authSelect.setAttribute("aria-describedby", warningEl.id);
   }
 
+  /** Steht in der Meldung, dass Erzeugen oder Uebernehmen scheiterte? Das gilt
+   * nur bis zur naechsten Wahl im Menue (`clearAuthRequired`). */
+  let keyFailureShown = false;
+
   /** Leert die Meldung und nimmt die Markierung vom Menue. */
   function clearWarning(): void {
+    keyFailureShown = false;
     warningEl.textContent = "";
     authSelect.removeAttribute("aria-invalid");
     authSelect.removeAttribute("aria-describedby");
@@ -344,8 +398,12 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   }
 
   function addKeyOption(key: SshKeyDto): void {
+    const value = `${KEY_VALUE_PREFIX}${key.path}`;
+    // Ein eben erzeugter Schluessel kann schon im Menue stehen, wenn die Liste
+    // erst danach ankommt.
+    if (Array.from(authSelect.options).some((option) => option.value === value)) return;
     const option = document.createElement("option");
-    option.value = `${KEY_VALUE_PREFIX}${key.path}`;
+    option.value = value;
     option.title = key.path;
     option.textContent = key.comment
       ? `${key.file_name} — ${key.key_type} · ${key.comment}`
@@ -381,7 +439,12 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   }
 
   let discoveredKeys: SshKeyDto[] = [];
-  let lastSelectedValue = AGENT_VALUE;
+  // Der erste waehlbare Eintrag: ssh-agent auf dem Desktop, Password auf
+  // Android (dort gibt es keinen ssh-agent).
+  let lastSelectedValue = authSelect.value;
+  /** Hat der Nutzer im Menue gewaehlt, bevor `list_ssh_keys` antwortete? Dann
+   * ueberschreibt die Vorauswahl seine Wahl nicht mehr. */
+  let userChose = false;
 
   // Vorauswahl (Spec §9.2): eine `initial.auth`-Angabe (siehe Modulkommentar
   // oben -- der Konsum von `identity_file`) gewinnt VOR der
@@ -439,19 +502,25 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     if (disposed) return;
     discoveredKeys = keys;
     for (const key of keys) addKeyOption(key);
-    applyPreselection();
+    if (!userChose) applyPreselection();
   }
   void loadKeys();
 
-  /** Eine gewaehlte Anmeldeart behebt den Feldfehler "keine Anmeldeart";
-   * eine Duplikat-Warnung im selben Knoten bleibt dagegen stehen. */
+  /** Eine gewaehlte Anmeldeart behebt den Feldfehler "keine Anmeldeart" und
+   * eine Meldung ueber ein gescheitertes Erzeugen oder Uebernehmen; eine
+   * Duplikat-Warnung im selben Knoten bleibt dagegen stehen. */
   function clearAuthRequired(): void {
-    if (authSelect.getAttribute("aria-invalid") === "true") clearWarning();
+    if (authSelect.getAttribute("aria-invalid") === "true" || keyFailureShown) clearWarning();
   }
 
   authSelect.addEventListener("change", () => {
+    userChose = true;
     if (authSelect.value === CHOOSE_FILE_VALUE) {
       void handleChooseFile();
+      return;
+    }
+    if (authSelect.value === GENERATE_VALUE) {
+      void handleGenerateKey();
       return;
     }
     lastSelectedValue = authSelect.value;
@@ -476,6 +545,13 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
       void error;
     }
     if (disposed) return;
+    if (typeof picked === "string" && picked.length > 0 && android) {
+      // Spec 2026-10-27 §5.3: Die Wahl ist eine `content://`-URI, die nach
+      // dieser Wahl nicht mehr lesbar ist; die App uebernimmt die Datei in
+      // ihren `.ssh`-Ordner und meldet sich mit dem neuen Pfad.
+      await importKey(picked, previous);
+      return;
+    }
     if (typeof picked === "string" && picked.length > 0) {
       authSelect.value = findOrAddKeyOption(picked);
       clearAuthRequired();
@@ -484,6 +560,50 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     }
     lastSelectedValue = authSelect.value;
     updateVisibleFields(authSelect.value);
+  }
+
+  /** Waehlt einen neuen Schluessel der App im Menue, sonst den vorigen
+   * Eintrag; der Fehler steht dann in der einen Meldung des Formulars. */
+  function selectNewKey(key: SshKeyDto | null, previous: string, failure: string | null): void {
+    if (disposed) return;
+    if (key) {
+      addKeyOption(key);
+      authSelect.value = `${KEY_VALUE_PREFIX}${key.path}`;
+      clearAuthRequired();
+    } else {
+      authSelect.value = previous;
+      if (failure !== null) {
+        warningEl.textContent = failure;
+        keyFailureShown = true;
+      }
+    }
+    lastSelectedValue = authSelect.value;
+    updateVisibleFields(authSelect.value);
+  }
+
+  async function importKey(source: string, previous: string): Promise<void> {
+    try {
+      const key = await invoke<SshKeyDto>("import_ssh_key", { source });
+      selectNewKey(key, previous, null);
+    } catch (error) {
+      selectNewKey(null, previous, t("hostForm.auth.importFailed", { message: String(error) }));
+    }
+  }
+
+  async function handleGenerateKey(): Promise<void> {
+    const previous = lastSelectedValue;
+    try {
+      const generated = await invoke<{ key: SshKeyDto; public_key: string }>("generate_ssh_key", {
+        comment: "aidevbridge@android",
+      });
+      selectNewKey(generated.key, previous, null);
+      if (disposed) return;
+      publicKeyText.value = generated.public_key;
+      copyPublicKey.textContent = t("hostForm.publicKey.copy");
+      publicKeyBox.hidden = false;
+    } catch (error) {
+      selectNewKey(null, previous, t("hostForm.auth.generateFailed", { message: String(error) }));
+    }
   }
 
   function isDuplicate(hostname: string, user: string, port: number): boolean {

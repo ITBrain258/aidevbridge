@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod config_parser;
+pub mod key_files;
 pub mod keys;
 pub mod known_hosts;
 mod rsa_signer;

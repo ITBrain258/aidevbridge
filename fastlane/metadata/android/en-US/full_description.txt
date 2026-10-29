@@ -1,0 +1,19 @@
+aidevbridge connects to your own Linux machines over SSH, lists their tmux sessions and shows which coding agent is waiting for you. Open a session and you are in a live terminal, the same session you left on your desktop.
+
+<b>What it does</b>
+• Hosts and sessions in one list, with the status of each agent: Waiting, Busy, Idle or Ended. Waiting sessions collect at the top, oldest first, with their wait time.
+• A full terminal (xterm.js) with a key bar for Esc, Tab, Ctrl, Alt, arrows, Home/End and Page Up/Down, and up to 5,000 lines of tmux history when a session opens.
+• Keeps going through network changes: hosts with a key reconnect by themselves and reattach their terminals.
+• Keys on the device: generate an ed25519 key in the app and add its public key to the host, or import an existing private key file. Password login works too.
+• Host keys are checked on first contact (trust on first use) and remembered.
+
+<b>Nothing on the host</b>
+No daemon, no hook, no configuration change: only SSH, tmux 3.0 or newer and the agent you start yourself. Agent status is recognized for Claude Code and Codex; any other program runs in the terminal as usual.
+
+<b>Private by design</b>
+No account, no cloud, no analytics, no ads. The app talks only to the hosts you add. Hosts, keys and known host keys stay in the app's private storage and are excluded from Android backups. Passwords and key passphrases are never stored.
+
+<b>Open source</b>
+aidevbridge is free software under the MIT or Apache 2.0 license. The same app runs on Windows and macOS. Source code, issues and releases: https://github.com/ITBrain258/aidevbridge
+
+The project is in early development; please report problems as an issue on GitHub.

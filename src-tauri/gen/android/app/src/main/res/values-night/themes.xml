@@ -1,0 +1,8 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Wie values/themes.xml: die App ist immer dunkel. -->
+    <style name="Theme.aidevbridge" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowBackground">@color/canvas</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
+</resources>

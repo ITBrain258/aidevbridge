@@ -13,9 +13,9 @@
 //! (und beim naechsten Speichern die neuen Teile weglaesst, hingenommen).
 //!
 //! Bewusst Tauri-frei (kein `AppHandle`, kein `tauri::path`-Resolver): der
-//! Pfad kommt aus `dirs::config_dir()`, demselben Mechanismus, den
-//! `ssh::known_hosts`/`commands::connect_host_impl` schon fuer
-//! `dirs::home_dir()` verwenden -- dieses Modul bleibt damit ohne laufende
+//! Pfad kommt aus `paths::config_dir()` (auf dem Desktop `dirs::config_dir()`),
+//! demselben Mechanismus, den `commands::connect_host_impl` fuer
+//! `paths::home_dir()` verwendet -- dieses Modul bleibt damit ohne laufende
 //! Anwendung testbar (`load_from`/`save_to` nehmen den Pfad explizit
 //! entgegen, siehe Testmodul). Im Debug-Bau kann `AIDEVBRIDGE_SETTINGS_DIR`
 //! den Ordner ersetzen (Spec §9.3, siehe `settings_path`). Beim Start kopiert
@@ -652,7 +652,7 @@ fn settings_path_from(raw_dir: Option<&str>) -> anyhow::Result<PathBuf> {
         (Some(raw), None) if cfg!(debug_assertions) => {
             anyhow::bail!("{SETTINGS_DIR_ENV} must be an absolute directory: {raw:?}")
         }
-        _ => dirs::config_dir()
+        _ => crate::paths::config_dir()
             .ok_or_else(|| anyhow::anyhow!("could not determine the configuration directory"))?
             .join(SETTINGS_DIR_NAME),
     };
@@ -680,7 +680,7 @@ pub fn migrate_legacy_settings() {
         cfg!(debug_assertions),
         test_env(SETTINGS_DIR_ENV).as_deref(),
         test_env(LEGACY_SETTINGS_DIR_ENV).as_deref(),
-        dirs::config_dir(),
+        crate::paths::config_dir(),
     ) else {
         return;
     };

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { markers, windowsSection, macosSection, mergeSection, sections, releaseBody } from './release-notes.mjs';
+import { markers, windowsSection, macosSection, androidSection, mergeSection, sections, releaseBody } from './release-notes.mjs';
 
 const sha = c => c.repeat(64);
 const winFiles = { setup: { path: 'aidevbridge-0.3.0-windows-x64-setup.exe', sha256: sha('a') }, msi: { path: 'aidevbridge-0.3.0-windows-x64.msi', sha256: sha('b') }, zip: { path: 'aidevbridge-0.3.0-windows-x64.zip', sha256: sha('c') } };
@@ -57,6 +57,31 @@ test('the parts come from the build manifests of the same version', () => {
   assert.throws(() => sections({ version: '0.3.1', windows: windowsManifest }), /not a release build of this version/);
   assert.throws(() => sections({ version: '0.3.0', macos: { ...macosManifest, status: 'preview_built_and_verified_not_for_distribution' } }), /not a release build/);
   assert.throws(() => sections({ version: '0.3.0' }), /No platform/);
+});
+
+const certificate = Array.from({ length: 32 }, () => 'AB').join(':');
+const androidManifest = { status: 'signed_and_verified', contract: { version: '0.3.0', certificate }, artifacts: [{ kind: 'apk', path: 'aidevbridge-0.3.0-android.apk', sha256: sha('e') }] };
+const android = () => androidSection({ version: '0.3.0', file: 'aidevbridge-0.3.0-android.apk', sha256: sha('e'), certificate });
+
+test('the Android part names the APK, its hash and the signing certificate', () => {
+  const text = android();
+  const [start, end] = markers('android');
+  assert.ok(text.startsWith(`${start}\n## Android\n`) && text.endsWith(end));
+  assert.match(text, new RegExp(`${sha('e')}  aidevbridge-0\\.3\\.0-android\\.apk`));
+  assert.match(text, new RegExp(`certificate SHA-256: ${certificate}`));
+  assert.match(text, /Google Play or this file, not both/);
+  assert.throws(() => androidSection({ version: '0.3.0', file: 'app-universal-release.apk', sha256: sha('e'), certificate }), /Unexpected file name/);
+  assert.throws(() => androidSection({ version: '0.3.0', file: 'aidevbridge-0.3.0-android.apk', sha256: sha('e'), certificate: 'abc' }), /certificate digest/);
+});
+
+test('the Android part comes after the desktop parts and only from a signed build of the same version', () => {
+  assert.deepEqual(sections({ version: '0.3.0', windows: windowsManifest, macos: macosManifest, android: androidManifest }), [['windows', win()], ['macos', mac()], ['android', android()]]);
+  assert.deepEqual(sections({ version: '0.3.0', android: androidManifest }), [['android', android()]]);
+  assert.throws(() => sections({ version: '0.3.0', android: { ...androidManifest, status: 'unsigned' } }), /not a release build/);
+  assert.throws(() => sections({ version: '0.3.1', android: androidManifest }), /not a release build of this version/);
+  const body = releaseBody({ version: '0.3.0', parts: sections({ version: '0.3.0', windows: windowsManifest }) });
+  const merged = releaseBody({ version: '0.3.0', body, parts: [['android', android()]] });
+  assert.equal(releaseBody({ version: '0.3.0', body: merged, parts: sections({ version: '0.3.0', windows: windowsManifest }) }), merged);
 });
 
 test('a release the workflow creates links the changelog of its tag; an existing text is kept', () => {

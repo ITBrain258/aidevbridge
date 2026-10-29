@@ -3,7 +3,6 @@
 // kein Canvas-Renderer mehr, Fallback ist der DOM-Renderer).
 
 import { Terminal, type IBufferRange, type ITheme } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
 import { WebglAddon } from "@xterm/addon-webgl";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { SearchAddon } from "@xterm/addon-search";
@@ -12,9 +11,13 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { fontSizeKeyChange, isAppChord, isPlainCtrlAppKey, matchAction } from "./keymap";
 import { clipboardKeyAction, decodeOsc52 } from "./terminal-clipboard";
+import { FitWithoutScrollbar } from "./terminal-fit";
 import type { OpenQueue } from "./terminal-open-queue";
 import { clampFontSize, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { currentTheme, themeParts, type AccentId, type BaseId, type ThemeId } from "./theme";
+import { isAndroid } from "./platform";
+import { consumeModifiers, takeKeySequence, type TouchKeyId } from "./touch-keys";
+import { attachTouchScroll, type TouchOrigin } from "./touch-scroll";
 import { openTerminalMenu, type TerminalMenuItem, type TerminalMenuTexts } from "./views/terminal-menu";
 import {
   EMPTY_SEARCH_TEXTS,
@@ -81,6 +84,10 @@ export interface TerminalHandle {
    * `setHidden(false)` plant selbst nichts, den Refit beim Zurueckholen loest
    * das Raster aus. */
   setHidden(hidden: boolean): void;
+  /** Spec 2026-10-27 §5.2: eine Taste der Touch-Leiste, mit dem Merker fuer
+   * Strg und Alt. Geht ueber `term.input` denselben Weg wie getippte
+   * Eingabe, also auch durch Puffer und Sperre. */
+  sendTouchKey(id: TouchKeyId): void;
 }
 
 /** UX-Spec §6.9: jeder Fehlerpfad des Terminals hat seinen eigenen Text --
@@ -491,7 +498,8 @@ export function mountTerminal(
     (term.element ?? el).removeAttribute("title");
   }
 
-  const fit = new FitAddon();
+  // Ohne Scrollbalken: die volle Breite fuer Spalten (`terminal-fit.ts`).
+  const fit = new FitWithoutScrollbar();
   term.loadAddon(fit);
 
   // Unicode Version 11 fuer korrekte Breiten von Breitzeichen/Emoji --
@@ -909,6 +917,52 @@ export function mountTerminal(
     { capture: true, passive: false, signal },
   );
 
+  // Wischen rollt das Terminal (Spec 2026-10-27 §5.5), nur auf Android:
+  // xterm.js 6 selbst reagiert auf keinen Finger.
+  if (isAndroid()) {
+    attachTouchScroll(el, { rowHeight: touchRowHeight, scroll: scrollByTouch }, signal);
+  }
+
+  /** Hoehe einer Zeile in CSS-Pixeln. xterm macht `.xterm-screen` genau Zeilen
+   * mal Zeilenhoehe hoch; vor dem ersten Bild ist es 0, dann gilt die Schrift
+   * mal Zeilenabstand. */
+  function touchRowHeight(): number {
+    const screen = term.element?.querySelector(".xterm-screen");
+    const height = screen ? screen.getBoundingClientRect().height : 0;
+    if (height > 0 && term.rows > 0) return height / term.rows;
+    return (term.options.fontSize ?? 13) * (term.options.lineHeight ?? 1);
+  }
+
+  /** Eine gewischte Zeile. Im eigenen Verlauf des Terminals rollt sie genau
+   * eine Zeile mit dem Finger. Nutzt ein Programm die Maus (tmux mit
+   * `mouse on`) oder den zweiten Bildschirm, gibt es hier keinen Verlauf: Dann
+   * geht je Zeile ein Mausrad-Ereignis an xterm, das es wie am Desktop
+   * weitergibt, als Mausrad an tmux (das in seinem Verlauf blaettert) oder als
+   * Pfeiltaste. Es geht an die Stelle, an der der Finger aufsetzte, denn tmux
+   * waehlt daran den Bereich, der rollt. */
+  function scrollByTouch(rows: number, origin: TouchOrigin): void {
+    if (disposed) return;
+    if (term.modes.mouseTrackingMode === "none" && term.buffer.active.type === "normal") {
+      term.scrollLines(rows);
+      return;
+    }
+    const xtermEl = term.element;
+    if (!xtermEl) return;
+    const target = origin.target instanceof Node && xtermEl.contains(origin.target) ? origin.target : xtermEl;
+    for (let i = 0; i < Math.abs(rows); i++) {
+      target.dispatchEvent(
+        new WheelEvent("wheel", {
+          bubbles: true,
+          cancelable: true,
+          deltaMode: WheelEvent.DOM_DELTA_LINE,
+          deltaY: Math.sign(rows),
+          clientX: origin.clientX,
+          clientY: origin.clientY,
+        }),
+      );
+    }
+  }
+
   // Copy on select (UX-Spec §6.4): kopiert wird beim Loslassen der linken
   // Taste, NIE bei `onSelectionChange` -- auch die Suche setzt eine Markierung
   // und ueberschriebe sonst die Zwischenablage des Nutzers. Die Markierung
@@ -1060,10 +1114,12 @@ export function mountTerminal(
   }
 
   // Jede Eingabe kommt hier an, auch `term.paste` und xterms eigene Antworten
-  // auf Anfragen des Programms.
+  // auf Anfragen des Programms. Ein vorgemerktes Strg oder Alt der
+  // Touch-Leiste (Spec 2026-10-27 §5.2) gilt fuer die naechste getippte
+  // Eingabe; ohne Merker, also immer auf dem Desktop, bleibt sie unveraendert.
   term.onData((data) => {
     if (disposed || channelClosed) return;
-    const encoded = new TextEncoder().encode(data);
+    const encoded = new TextEncoder().encode(consumeModifiers(data));
     if (!attached) {
       pendingInput?.push(encoded);
       return;
@@ -1451,6 +1507,13 @@ export function mountTerminal(
       // es ruft dies bei jeder Lage, auch waehrend die Seitenleiste gezogen wird.
       if (disposed) return;
       hidden = value;
+    },
+    sendTouchKey(id) {
+      // Wache wie bei `setTheme`. Strg und Alt liefern keine Bytes, sie
+      // schalten nur den Merker um.
+      if (disposed) return;
+      const sequence = takeKeySequence(id, term.modes.applicationCursorKeysMode);
+      if (sequence) term.input(sequence, true);
     },
     dispose() {
       disposed = true;

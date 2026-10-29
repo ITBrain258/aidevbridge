@@ -65,7 +65,8 @@ xterm.js.
   [GitHub CLI](https://cli.github.com/) 2.68 or newer, signed in to any
   GitHub account (`gh auth login`), run
   `gh attestation verify <file> --repo ITBrain258/aidevbridge --signer-workflow ITBrain258/aidevbridge/.github/workflows/packages.yml --source-ref refs/tags/v<version>`.
-  It must print `Verification succeeded!`. GitHub CLI 2.49 to 2.67 lacks
+  It must print `Verification succeeded!`. The Android APK comes from
+  `android.yml`; for it, name that workflow in `--signer-workflow`. GitHub CLI 2.49 to 2.67 lacks
   `--source-ref`; there, `gh attestation verify <file> --repo ITBrain258/aidevbridge`
   is the fallback. It only checks that a workflow of this repository made
   the provenance, not that it was `packages.yml` nor that the file was built

@@ -6,7 +6,7 @@
 // Strichstaerke 1,75. Jedes Icon steht neben Text oder traegt am umgebenden
 // Knopf `title` und `aria-label` (§13.2).
 
-export const ICON_NAMES = ["plus","settings","chevron-right","chevron-down","maximize-2","minimize-2","x","search","refresh-cw","copy","triangle-alert","check","terminal","key-round","lock","trash-2","chevron-up","case-sensitive"] as const;
+export const ICON_NAMES = ["plus","settings","chevron-right","chevron-down","maximize-2","minimize-2","x","search","refresh-cw","copy","triangle-alert","check","terminal","key-round","lock","trash-2","chevron-up","case-sensitive","menu"] as const;
 export type IconName = (typeof ICON_NAMES)[number];
 
 const PATHS: Record<IconName, string> = {
@@ -28,6 +28,7 @@ const PATHS: Record<IconName, string> = {
   "trash-2": "<path d=\"M10 11v6\" /><path d=\"M14 11v6\" /><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /><path d=\"M3 6h18\" /><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />",
   "chevron-up": "<path d=\"m18 15-6-6-6 6\" />",
   "case-sensitive": "<path d=\"m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16\" /><path d=\"M22 9v7\" /><path d=\"M3.304 13h6.392\" /><circle cx=\"18.5\" cy=\"12.5\" r=\"3.5\" />",
+  "menu": "<path d=\"M4 5h16\" /><path d=\"M4 12h16\" /><path d=\"M4 19h16\" />",
 };
 
 export function icon(name: IconName, size = 16): SVGSVGElement {

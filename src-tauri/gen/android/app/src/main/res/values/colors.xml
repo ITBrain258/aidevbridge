@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Leinwand und Akzent des Standardthemas (ab-bg-canvas, ab-accent in src/styles.css). -->
+    <color name="canvas">#FF15171C</color>
+    <color name="accent">#FF2DD4BF</color>
+</resources>
