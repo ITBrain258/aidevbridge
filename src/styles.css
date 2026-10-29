@@ -451,8 +451,8 @@ textarea,
 }
 
 /* Kompakte Ansicht (Spec 2026-10-27 §5.1, `views/compact-shell.ts`), nur auf
-   Android gemountet; dieselbe Grenze wie `COMPACT_QUERY` setzt dort die
-   Klasse `compact`. Eine Spalte: oben die Kopfleiste, darunter das Raster
+   Android gemountet; `COMPACT_QUERY` (Telefon hochkant und quer) setzt dort
+   die Klasse `compact`. Eine Spalte: oben die Kopfleiste, darunter das Raster
    ueber die ganze Breite, ohne Leinwandrand. Ausserhalb davon ist die
    Kopfleiste unsichtbar. */
 .compact-bar {

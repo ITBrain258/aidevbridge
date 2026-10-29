@@ -369,6 +369,7 @@ import {
 } from "./terminal";
 import { createOpenQueue, type OpenQueue } from "./terminal-open-queue";
 import { DEFAULT_TERMINAL_PREFS, onTerminalPrefsChanged, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
+import { clearModifiers } from "./touch-keys";
 import type { TerminalMenuTexts } from "./views/terminal-menu";
 import type { TerminalSearchTexts } from "./views/terminal-search";
 import { mountSidebar } from "./views/sidebar";
@@ -3067,6 +3068,54 @@ describe("mountTerminal: Wischen auf Android (Spec 2026-10-27 §5.5)", () => {
     touch(xtermEl, "touchmove", 200);
 
     expect(hoisted.scrollLinesCalls).toEqual([]);
+  });
+});
+
+// Spec 2026-10-27 §5.2, Befund der Durchsicht vom 29.10.: Die reinen
+// Funktionen prueft `touch-keys.test.ts`; hier, dass `terminal.ts` sie
+// verdrahtet: Tasten der Leiste und der Merker fuer getippte Eingabe.
+describe("mountTerminal: Touch-Leiste (Spec 2026-10-27 §5.2)", () => {
+  afterEach(() => {
+    clearModifiers();
+  });
+
+  function sentBytes(): number[][] {
+    return invokeMock.mock.calls
+      .filter(([command]) => command === "send_input")
+      .map(([, args]) => (args as { bytes: number[] }).bytes);
+  }
+
+  it("schickt eine Taste der Leiste denselben Weg wie getippte Eingabe", async () => {
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    handle.sendTouchKey("up");
+    await flush();
+
+    expect(sentBytes()).toEqual([[0x1b, 0x5b, 0x41]]);
+  });
+
+  it("wendet ein vorgemerktes Strg auf das naechste getippte Zeichen an und loest es dann", async () => {
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    handle.sendTouchKey("ctrl");
+    hoisted.dataListener?.("c");
+    hoisted.dataListener?.("c");
+    await flush();
+
+    expect(sentBytes()).toEqual([[0x03], [0x63]]);
+  });
+
+  it("schickt nach dem Entsorgen nichts mehr", async () => {
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    handle.dispose();
+
+    handle.sendTouchKey("esc");
+    await flush();
+
+    expect(sentBytes()).toEqual([]);
   });
 });
 

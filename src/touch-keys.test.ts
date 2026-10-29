@@ -59,6 +59,15 @@ describe("ctrlChar", () => {
     expect(ctrlChar("_")).toBe("\x1f");
     expect(ctrlChar(" ")).toBe("\x00");
     expect(ctrlChar("?")).toBe("\x7f");
+    expect(ctrlChar("/")).toBe("\x1f");
+  });
+
+  // Befund der Durchsicht vom 29.10.: `toUpperCase` machte aus Zeichen
+  // ausserhalb von ASCII Buchstaben (`ß` -> `SS`, also ^S = XOFF).
+  it("laesst Zeichen ausserhalb von ASCII unberuehrt, auch wenn ihr Grossbuchstabe ASCII ist", () => {
+    expect(ctrlChar("ß")).toBeNull();
+    expect(ctrlChar("ǰ")).toBeNull();
+    expect(ctrlChar("ﬁ")).toBeNull();
   });
 
   it("laesst alles andere ohne Strg", () => {

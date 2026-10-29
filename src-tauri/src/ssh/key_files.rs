@@ -6,7 +6,8 @@
 //! ssh-agent, und die Dateiauswahl liefert eine `content://`-URI, die nur
 //! waehrend dieser Wahl lesbar ist. Beide Wege schreiben deshalb eine private
 //! Datei und ihre `.pub` nach `paths::ssh_dir()`; `keys::list_keys_in` fuehrt
-//! sie danach wie jeden anderen Schluessel. Der Desktop ruft beides nicht auf.
+//! sie danach wie jeden anderen Schluessel. Der Desktop ruft beides nicht auf,
+//! und `commands::android_only` weist es dort ab.
 //!
 //! Ausnahme von der Regel in `keys` (Spec §8.2, private Dateien nie lesen):
 //! Die uebernommene Datei muss gelesen werden, sonst liesse sich weder ihre
@@ -69,7 +70,7 @@ pub fn import_into(dir: &Path, source: &[u8]) -> Result<SshKeyDto, String> {
             .to_string(),
     );
     let public = public_key_of(&text)?;
-    let key_type = super::keys::short_type(public.algorithm().as_str());
+    let key_type = file_safe(&super::keys::short_type(public.algorithm().as_str()));
     let public_key = public
         .to_openssh()
         .map_err(|error| format!("could not encode the public key: {error}"))?;
@@ -81,6 +82,22 @@ pub fn import_into(dir: &Path, source: &[u8]) -> Result<SshKeyDto, String> {
         &public_key,
     )?;
     Ok(dto(&path, &key_type, &comment))
+}
+
+/// Die Art geht in den Dateinamen. Ein unbekannter Algorithmus heisst, was in
+/// der Datei steht (`name@domain`, beliebiges ASCII, auch `/` und `..`);
+/// ohne diese Kuerzung landete eine praeparierte Datei ausserhalb von `dir`.
+fn file_safe(key_type: &str) -> String {
+    key_type
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect()
 }
 
 /// Der oeffentliche Schluessel einer privaten Datei. Das OpenSSH-Format
@@ -246,6 +263,33 @@ mod tests {
         assert_eq!(imported.key_type, "ed25519");
         let loaded = std::fs::read_to_string(&imported.path).unwrap();
         assert!(russh::keys::decode_secret_key(&loaded, Some("secret")).is_ok());
+    }
+
+    // Befund der Durchsicht vom 29.10.: Der Name eines unbekannten Algorithmus
+    // ging ungekuerzt in den Dateinamen.
+    #[test]
+    fn an_unknown_algorithm_name_cannot_leave_the_directory() {
+        use russh::keys::ssh_key::private::{KeypairData, OpaqueKeypair};
+        use russh::keys::ssh_key::public::OpaquePublicKey;
+        use russh::keys::ssh_key::AlgorithmName;
+        let algorithm = Algorithm::Other(AlgorithmName::new("x/../../escape@b").unwrap());
+        let public = OpaquePublicKey::new(vec![1, 2, 3], algorithm);
+        let key = PrivateKey::new(
+            KeypairData::Other(OpaqueKeypair::new(vec![4, 5, 6], public)),
+            "c",
+        )
+        .unwrap();
+        let text = key.to_openssh(LineEnding::LF).unwrap();
+        let root = tmpdir("unknown_algorithm");
+        let d = root.join("ssh");
+        let imported = import_into(&d, text.as_bytes()).unwrap();
+        assert_eq!(imported.file_name, "imported_x_______escape_b");
+        assert_eq!(Path::new(&imported.path).parent(), Some(d.as_path()));
+        let names: Vec<_> = std::fs::read_dir(&root)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .collect();
+        assert_eq!(names, ["ssh"]);
     }
 
     #[test]

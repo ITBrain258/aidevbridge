@@ -112,13 +112,17 @@ export function keySequence(id: TouchKeyId, mods: Readonly<Record<Modifier, bool
 }
 
 /** Strg plus Zeichen nach der Tabelle der Terminals: Buchstaben und `@[\]^_`
- * werden zum Steuerzeichen, Leertaste zu NUL und `?` zu DEL. Fuer alles
- * andere `null`: das Zeichen geht dann ohne Strg hinaus. */
+ * werden zum Steuerzeichen, Leertaste zu NUL, `?` zu DEL und `/` wie `_` zu
+ * US. Fuer alles andere `null`: das Zeichen geht dann ohne Strg hinaus. */
 export function ctrlChar(ch: string): string | null {
   if (ch === " ") return "\x00";
   if (ch === "?") return "\x7f";
+  if (ch === "/") return "\x1f";
+  // Nur ASCII: `toUpperCase` machte sonst aus dem scharfen S (U+00DF) ein
+  // `SS` und daraus ^S.
+  if (ch.length !== 1 || ch.charCodeAt(0) > 0x7f) return null;
   const code = ch.toUpperCase().charCodeAt(0);
-  if (ch.length === 1 && code >= 0x40 && code <= 0x5f) return String.fromCharCode(code & 0x1f);
+  if (code >= 0x40 && code <= 0x5f) return String.fromCharCode(code & 0x1f);
   return null;
 }
 

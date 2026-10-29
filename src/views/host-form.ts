@@ -286,7 +286,8 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
       .catch(() => {});
   });
   publicKeyBox.append(publicKeyLabel, copyPublicKey);
-  form.appendChild(publicKeyBox);
+  // Nur auf Android: Der Desktop erzeugt keine Schluessel, sein DOM bleibt.
+  if (android) form.appendChild(publicKeyBox);
 
   // Passphrase-/Passwortfeld werden bei Bedarf tatsaechlich aus dem DOM
   // entfernt statt nur per `.hidden` versteckt -- ein verstecktes, aber
@@ -364,8 +365,13 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     authSelect.setAttribute("aria-describedby", warningEl.id);
   }
 
+  /** Steht in der Meldung, dass Erzeugen oder Uebernehmen scheiterte? Das gilt
+   * nur bis zur naechsten Wahl im Menue (`clearAuthRequired`). */
+  let keyFailureShown = false;
+
   /** Leert die Meldung und nimmt die Markierung vom Menue. */
   function clearWarning(): void {
+    keyFailureShown = false;
     warningEl.textContent = "";
     authSelect.removeAttribute("aria-invalid");
     authSelect.removeAttribute("aria-describedby");
@@ -392,8 +398,12 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   }
 
   function addKeyOption(key: SshKeyDto): void {
+    const value = `${KEY_VALUE_PREFIX}${key.path}`;
+    // Ein eben erzeugter Schluessel kann schon im Menue stehen, wenn die Liste
+    // erst danach ankommt.
+    if (Array.from(authSelect.options).some((option) => option.value === value)) return;
     const option = document.createElement("option");
-    option.value = `${KEY_VALUE_PREFIX}${key.path}`;
+    option.value = value;
     option.title = key.path;
     option.textContent = key.comment
       ? `${key.file_name} — ${key.key_type} · ${key.comment}`
@@ -429,7 +439,12 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   }
 
   let discoveredKeys: SshKeyDto[] = [];
-  let lastSelectedValue = AGENT_VALUE;
+  // Der erste waehlbare Eintrag: ssh-agent auf dem Desktop, Password auf
+  // Android (dort gibt es keinen ssh-agent).
+  let lastSelectedValue = authSelect.value;
+  /** Hat der Nutzer im Menue gewaehlt, bevor `list_ssh_keys` antwortete? Dann
+   * ueberschreibt die Vorauswahl seine Wahl nicht mehr. */
+  let userChose = false;
 
   // Vorauswahl (Spec §9.2): eine `initial.auth`-Angabe (siehe Modulkommentar
   // oben -- der Konsum von `identity_file`) gewinnt VOR der
@@ -487,17 +502,19 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     if (disposed) return;
     discoveredKeys = keys;
     for (const key of keys) addKeyOption(key);
-    applyPreselection();
+    if (!userChose) applyPreselection();
   }
   void loadKeys();
 
-  /** Eine gewaehlte Anmeldeart behebt den Feldfehler "keine Anmeldeart";
-   * eine Duplikat-Warnung im selben Knoten bleibt dagegen stehen. */
+  /** Eine gewaehlte Anmeldeart behebt den Feldfehler "keine Anmeldeart" und
+   * eine Meldung ueber ein gescheitertes Erzeugen oder Uebernehmen; eine
+   * Duplikat-Warnung im selben Knoten bleibt dagegen stehen. */
   function clearAuthRequired(): void {
-    if (authSelect.getAttribute("aria-invalid") === "true") clearWarning();
+    if (authSelect.getAttribute("aria-invalid") === "true" || keyFailureShown) clearWarning();
   }
 
   authSelect.addEventListener("change", () => {
+    userChose = true;
     if (authSelect.value === CHOOSE_FILE_VALUE) {
       void handleChooseFile();
       return;
@@ -555,7 +572,10 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
       clearAuthRequired();
     } else {
       authSelect.value = previous;
-      if (failure !== null) warningEl.textContent = failure;
+      if (failure !== null) {
+        warningEl.textContent = failure;
+        keyFailureShown = true;
+      }
     }
     lastSelectedValue = authSelect.value;
     updateVisibleFields(authSelect.value);

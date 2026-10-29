@@ -111,4 +111,60 @@ describe("Anmeldungsmenue auf Android", () => {
       "ssh-ed25519 AAAAC3Nz aidevbridge@android",
     );
   });
+
+  it("der Desktop hat das Feld fuer den oeffentlichen Schluessel nicht im DOM", async () => {
+    const { el } = await mount(false);
+    expect(el.querySelector(".host-form-public-key")).toBeNull();
+  });
+
+  // Befunde der Durchsicht vom 29.10.
+  it("nimmt die Meldung eines gescheiterten Imports weg, sobald ein Schluessel gewaehlt ist", async () => {
+    openMock.mockResolvedValue("content://x/1");
+    invokeMock.mockImplementation((cmd: string) => {
+      if (cmd === "import_ssh_key") return Promise.reject("The file is not a private key");
+      if (cmd === "generate_ssh_key") return Promise.resolve({ key: APP_KEY, public_key: "ssh-ed25519 AAAA x" });
+      return Promise.resolve([]);
+    });
+    const { el, auth } = await mount();
+    choose(auth, "choose-file");
+    await flush();
+    expect(el.querySelector("[role=alert]")?.textContent).not.toBe("");
+
+    choose(auth, "generate-key");
+    await flush();
+
+    expect(auth.value).toBe(`key:${APP_KEY.path}`);
+    expect(el.querySelector("[role=alert]")?.textContent).toBe("");
+  });
+
+  it("behaelt einen Schluessel, der vor der Schluesselliste erzeugt wurde, und fuehrt ihn nur einmal", async () => {
+    let answerList: (keys: unknown[]) => void = () => undefined;
+    invokeMock.mockImplementation((cmd: string) => {
+      if (cmd === "list_ssh_keys") return new Promise((resolve) => (answerList = resolve));
+      if (cmd === "generate_ssh_key") return Promise.resolve({ key: APP_KEY, public_key: "ssh-ed25519 AAAA x" });
+      return Promise.resolve(null);
+    });
+    const { auth } = await mount();
+    choose(auth, "generate-key");
+    await flush();
+    expect(auth.value).toBe(`key:${APP_KEY.path}`);
+
+    answerList([IMPORTED, APP_KEY]);
+    await flush();
+
+    expect(auth.value).toBe(`key:${APP_KEY.path}`);
+    expect(Array.from(auth.options).filter((option) => option.value === `key:${APP_KEY.path}`)).toHaveLength(1);
+  });
+
+  it("faellt nach einem gescheiterten Erzeugen vor der Schluesselliste auf Password zurueck", async () => {
+    invokeMock.mockImplementation((cmd: string) => {
+      if (cmd === "list_ssh_keys") return new Promise(() => undefined);
+      if (cmd === "generate_ssh_key") return Promise.reject("disk full");
+      return Promise.resolve(null);
+    });
+    const { auth } = await mount();
+    choose(auth, "generate-key");
+    await flush();
+    expect(auth.value).toBe("password");
+  });
 });

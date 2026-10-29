@@ -3634,6 +3634,19 @@ pub async fn list_ssh_keys() -> Result<Vec<crate::ssh::keys::SshKeyDto>, String>
     Ok(crate::ssh::keys::list_keys_in(&dir))
 }
 
+/// Schluessel erzeugen und uebernehmen gibt es nur auf Android (Spec
+/// 2026-10-27 §5.3). Auf dem Desktop ruft die Oberflaeche beides nie auf;
+/// die Wache haelt eine uebernommene Seite davon ab, darueber in das echte
+/// `~/.ssh` zu schreiben oder beliebige Pfade zu oeffnen (unter Windows auch
+/// UNC-Pfade, die eine SMB-Anmeldung samt NTLM-Hash ausloesen).
+fn android_only() -> Result<(), String> {
+    if cfg!(target_os = "android") {
+        Ok(())
+    } else {
+        Err("Only available on Android".to_string())
+    }
+}
+
 /// Android (Spec 2026-10-27 §5.3): erzeugt einen ed25519-Schluessel im
 /// `.ssh`-Ordner der App und liefert die Zeile fuer `authorized_keys`. Der
 /// Kommentar nennt App und Datum, damit der Schluessel auf dem Host
@@ -3642,6 +3655,7 @@ pub async fn list_ssh_keys() -> Result<Vec<crate::ssh::keys::SshKeyDto>, String>
 pub async fn generate_ssh_key(
     comment: String,
 ) -> Result<crate::ssh::key_files::GeneratedKeyDto, String> {
+    android_only()?;
     let dir = crate::paths::ssh_dir().ok_or_else(|| "Home directory not found".to_string())?;
     tauri::async_runtime::spawn_blocking(move || {
         crate::ssh::key_files::generate_into(&dir, comment.trim())
@@ -3659,6 +3673,7 @@ pub async fn import_ssh_key<R: tauri::Runtime>(
     app: tauri::AppHandle<R>,
     source: String,
 ) -> Result<crate::ssh::keys::SshKeyDto, String> {
+    android_only()?;
     let dir = crate::paths::ssh_dir().ok_or_else(|| "Home directory not found".to_string())?;
     tauri::async_runtime::spawn_blocking(move || {
         let bytes = read_picked_file(&app, &source)?;
@@ -3689,13 +3704,32 @@ fn read_picked_file<R: tauri::Runtime>(
         let _ = app;
         std::fs::File::open(source)
     };
-    let mut bytes = zeroize::Zeroizing::new(Vec::new());
+    // Vorab gross genug: Ein wachsender Vec liesse beim Umkopieren Teile des
+    // Schluessels ungeloescht im freigegebenen Speicher.
+    let mut bytes = zeroize::Zeroizing::new(Vec::with_capacity(
+        crate::ssh::key_files::MAX_KEY_FILE_BYTES + 1,
+    ));
     file.and_then(|file| {
         file.take(crate::ssh::key_files::MAX_KEY_FILE_BYTES as u64 + 1)
             .read_to_end(&mut bytes)
     })
     .map_err(|error| format!("could not read the file: {error}"))?;
     Ok(bytes)
+}
+
+// Befund der Durchsicht vom 29.10.: Beide Befehle waren auch auf dem Desktop
+// erreichbar.
+#[cfg(all(test, not(target_os = "android")))]
+mod android_only_tests {
+    #[test]
+    fn the_desktop_neither_generates_nor_imports_keys() {
+        assert!(super::android_only().is_err());
+        let generated = tauri::async_runtime::block_on(super::generate_ssh_key("x".to_string()));
+        assert_eq!(
+            generated.err().as_deref(),
+            Some("Only available on Android")
+        );
+    }
 }
 
 // ---------------------------------------------------------------------

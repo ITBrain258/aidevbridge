@@ -18,9 +18,13 @@ import type { AppState } from "../state/app-state";
 import { icon } from "../icons";
 import { t } from "../i18n/t";
 
-/** Bis zu dieser Breite ist die Ansicht kompakt: jedes Telefon hochkant und
- * die meisten quer. Dieselbe Grenze steht in `styles.css`. */
-export const COMPACT_QUERY = "(max-width: 720px)";
+/** Kompakt ist die Ansicht bis 720 px Breite (jedes Telefon hochkant) und bei
+ * einem Bildschirm bis 500 px Hoehe (jedes Telefon quer: 780 bis 930 px
+ * breit, aber kaum 430 px hoch; Seitenleiste und Leinwandrand liessen dem
+ * Terminal zu wenig). Gemessen wird dafuer der Bildschirm (`device-height`),
+ * nicht das Fenster: Die Tastatur verkleinert das Fenster, und ein Tablet quer
+ * sprang sonst bei jedem Tippen in die kompakte Ansicht. */
+export const COMPACT_QUERY = "(max-width: 720px), (max-device-height: 500px)";
 
 export interface CompactShellOptions {
   /** `#app`: traegt die Klassen `compact` und `compact-sessions-open`. */
