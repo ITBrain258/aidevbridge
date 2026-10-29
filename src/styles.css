@@ -3655,15 +3655,14 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   height: 14px;
 }
 
-/* ===== xterm-Scrollbalken (v2 §13.3) =====================================
-   xterm 6 baut seinen Balken als DOM-Overlay (`ScrollbarVisibility.Auto`) und
-   blendet ihn per `.invisible.fade` in 800 ms aus; `::-webkit-scrollbar`
-   trifft dort nichts. Farben kommen aus dem ITheme (terminal.ts). Dieser
-   Selektor ist das vierte Gate in styles.test.ts. */
-.tile-terminal .xterm .xterm-scrollable-element > .invisible {
-  opacity: 1;
-  pointer-events: auto;
-  transition: none;
+/* ===== Kein Scrollbalken im Terminal (29.10.2026) ========================
+   Hebt v2 §13.3 und Regel 9 des Designsystems auf: Gescrollt wird mit dem
+   Mausrad, durch Wischen oder in tmux. xterm 6 baut seinen Balken als
+   DOM-Overlay ueber die letzten Spalten; `::-webkit-scrollbar` trifft dort
+   nichts. Den frei werdenden Platz rechnet `terminal-fit.ts` den Spalten zu.
+   Dieser Selektor ist das vierte Gate in styles.test.ts. */
+.tile-terminal .xterm .xterm-scrollable-element > .scrollbar {
+  display: none;
 }
 
 /* ===== Seitenleistenkopf: Zahnrad (v2 §7.2) ===== */

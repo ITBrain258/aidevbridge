@@ -3,7 +3,6 @@
 // kein Canvas-Renderer mehr, Fallback ist der DOM-Renderer).
 
 import { Terminal, type IBufferRange, type ITheme } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
 import { WebglAddon } from "@xterm/addon-webgl";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { SearchAddon } from "@xterm/addon-search";
@@ -12,6 +11,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { fontSizeKeyChange, isAppChord, isPlainCtrlAppKey, matchAction } from "./keymap";
 import { clipboardKeyAction, decodeOsc52 } from "./terminal-clipboard";
+import { FitWithoutScrollbar } from "./terminal-fit";
 import type { OpenQueue } from "./terminal-open-queue";
 import { clampFontSize, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { currentTheme, themeParts, type AccentId, type BaseId, type ThemeId } from "./theme";
@@ -498,7 +498,8 @@ export function mountTerminal(
     (term.element ?? el).removeAttribute("title");
   }
 
-  const fit = new FitAddon();
+  // Ohne Scrollbalken: die volle Breite fuer Spalten (`terminal-fit.ts`).
+  const fit = new FitWithoutScrollbar();
   term.loadAddon(fit);
 
   // Unicode Version 11 fuer korrekte Breiten von Breitzeichen/Emoji --
