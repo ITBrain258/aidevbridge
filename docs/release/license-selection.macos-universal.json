@@ -13,7 +13,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.2.3",
+    "product_version": "0.2.4",
     "bundle_targets": [
       "app",
       "dmg"
@@ -45,8 +45,8 @@
     "files": [
       {
         "path": "Cargo.lock",
-        "bytes": 153542,
-        "sha256": "fbb8502c5981e0948cd98a8f9a30e5874daa3b688b718e35dd5a5f3cf0567b15"
+        "bytes": 153562,
+        "sha256": "dcc7996d9a8e2946f9e9fd2628c3a3428256f7579655497b3b1e47c93ac5a5c5"
       },
       {
         "path": "Cargo.toml",
@@ -65,8 +65,8 @@
       },
       {
         "path": "THIRD_PARTY_LICENSES.md",
-        "bytes": 13275,
-        "sha256": "71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "bytes": 14149,
+        "sha256": "1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       },
       {
         "path": "docs/release/license-and-unicode-2026-09-12.json",
@@ -456,12 +456,12 @@
       {
         "path": "package-lock.json",
         "bytes": 78998,
-        "sha256": "c3100180d9dffe6c7d68f0cf06fd018c390a29f290737454a470bc2982e49aad"
+        "sha256": "6f40bf1490885685ce1fbd151a12cb3f67a35b4c162f2fee88d439cefbb4e1d5"
       },
       {
         "path": "package.json",
         "bytes": 1342,
-        "sha256": "3578e69a25bb1ccf652167858fd36c62c072a2d01bdb72db79dc1ff38879d2e3"
+        "sha256": "0b63f5fc5424ec720b844caec570f2c23cd1d742766b4f05cb31c4b6d18118b7"
       },
       {
         "path": "rust-toolchain.toml",
@@ -470,13 +470,13 @@
       },
       {
         "path": "scripts/gen-icons.mjs",
-        "bytes": 2925,
-        "sha256": "46e3771f6c623331ff316be08e51f9352280c6df277881cae25632c4e201d141"
+        "bytes": 2933,
+        "sha256": "27bb189a527c991c98bf155e3a98abfc925a9ffa3f8bc7f3017b471d0517882d"
       },
       {
         "path": "scripts/release-licenses.mjs",
-        "bytes": 24352,
-        "sha256": "bc41924bc10a9b1e2c7f1eeaf47c5363f5005b747c0d0b84ea37d79c1875e47a"
+        "bytes": 24694,
+        "sha256": "8f7ee4acaf1fb701700a94a7a78c32763ba18e0dd5428da80a0d4e6442e5fdf6"
       },
       {
         "path": "scripts/release-macos-artifacts.mjs",
@@ -485,8 +485,8 @@
       },
       {
         "path": "src-tauri/Cargo.toml",
-        "bytes": 5276,
-        "sha256": "084514008b882da56fd111e93075ff0f6762a4fcfc437ea4737930ae84c1c9b8"
+        "bytes": 5872,
+        "sha256": "91edc2180142749141e5890fa9bfcfe37d89d4469d6f4608d60dc5d7f1392995"
       },
       {
         "path": "src-tauri/Info.plist",
@@ -495,13 +495,13 @@
       },
       {
         "path": "src-tauri/build.rs",
-        "bytes": 3514,
-        "sha256": "83ff58f6906c3f09515180788014b43c8a295fdff60671de8a87ce063e76217a"
+        "bytes": 3576,
+        "sha256": "cdfbc92d023ffa1f6e9146f2ec7183309d5201b004474ffdff15e8a446346d77"
       },
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1510,
-        "sha256": "7704c843aed054a9b7f4292c337d9d1c42e6cf41e57eb6cfc5c9c79cb5a0f551"
+        "sha256": "36ac2e3ecd005c871b7246e616bc0b0d17d4d2271351d3c86cc70a2aa98e633b"
       },
       {
         "path": "src-tauri/tauri.release.macos.json",
@@ -515,13 +515,13 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 17858,
-        "sha256": "2873b394109b87e6203fbb4392e9d3292086b85735b7b6ace5c7586961fa2f6e"
+        "bytes": 18635,
+        "sha256": "0fdeb2f8cd8e122e21883f5deb6dd82bbca555517179bcfc727d633786d48fcb"
       },
       {
         "path": "src/icons.ts",
-        "bytes": 3944,
-        "sha256": "8ac5f4cff6578707aec73b746fbb7d7c8a212b3efd941209eeb8b7ca09f331d8"
+        "bytes": 4033,
+        "sha256": "d7023c68a721efc7d94f7a2e53fc1d6ca936d3220ba915aba203e9da40b5d7a6"
       },
       {
         "path": "src/keymap.ts",
@@ -530,8 +530,8 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 140073,
-        "sha256": "91663ec690667d8dbc1557ccad0455017c08c2e85d0c27d45fac0f015a6993c7"
+        "bytes": 143039,
+        "sha256": "4099dc94d3f51ec49de54a1d381b252b649048ec0494cd472ddd17a9cfe34003"
       },
       {
         "path": "src/state/app-state.ts",
@@ -550,13 +550,13 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 141852,
-        "sha256": "4b4d11d4fb465e0d6a42674cb18f109e4bd7fdcc78ae096b78353a2d4b7590ea"
+        "bytes": 147325,
+        "sha256": "9c37635add6c53f37fda3da1a09027af6c168e6e1840750a8fb0c5f62ef7f698"
       },
       {
         "path": "src/terminal.ts",
-        "bytes": 71954,
-        "sha256": "acf8c23cbb04e3514b6528e7511c412ed042eb348a08e8c2471bdbd62750727c"
+        "bytes": 75834,
+        "sha256": "fa2a1a8f3b4402749b1b4f45e3d45f214633c50378bd573ab14738867d8cc2dd"
       },
       {
         "path": "src/theme.ts",
@@ -580,18 +580,18 @@
       },
       {
         "path": "src/views/first-run.ts",
-        "bytes": 47955,
-        "sha256": "3a79fad25c29f160f6fa77a35ae8599942d22b02c64c6ac8446a430c46d7c9cd"
+        "bytes": 48402,
+        "sha256": "e5f096e5bc61145325781535f4cf3fa9899e0af05b087c4e67fc19611d025309"
       },
       {
         "path": "src/views/grid.ts",
-        "bytes": 107909,
-        "sha256": "fa949848144e8a1bff28947fb89030dc7d215582b809969c75e11d6b803075e7"
+        "bytes": 108560,
+        "sha256": "b9b5de24429c96dcab238e4e39c20dbf94d1742374dd862bfef5ac59810f3e64"
       },
       {
         "path": "src/views/host-form.ts",
-        "bytes": 25564,
-        "sha256": "722ee65d2f1c6a94d6e3ded4f488a7eaf4a456165b907976bf47b5371b05c12a"
+        "bytes": 30669,
+        "sha256": "37f494ce7f73da391e4cb91fe76ab5af2f75e073b83c41f2f2eb13d026fc29ca"
       },
       {
         "path": "src/views/host-key-prompt.ts",
@@ -653,8 +653,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 17858,
-            "sha256": "2873b394109b87e6203fbb4392e9d3292086b85735b7b6ace5c7586961fa2f6e"
+            "bytes": 18635,
+            "sha256": "0fdeb2f8cd8e122e21883f5deb6dd82bbca555517179bcfc727d633786d48fcb"
           },
           {
             "path": "src/i18n/t.ts",
@@ -663,8 +663,8 @@
           },
           {
             "path": "src/icons.ts",
-            "bytes": 3944,
-            "sha256": "8ac5f4cff6578707aec73b746fbb7d7c8a212b3efd941209eeb8b7ca09f331d8"
+            "bytes": 4033,
+            "sha256": "d7023c68a721efc7d94f7a2e53fc1d6ca936d3220ba915aba203e9da40b5d7a6"
           },
           {
             "path": "src/keyboard.ts",
@@ -678,8 +678,13 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 140073,
-            "sha256": "91663ec690667d8dbc1557ccad0455017c08c2e85d0c27d45fac0f015a6993c7"
+            "bytes": 143039,
+            "sha256": "4099dc94d3f51ec49de54a1d381b252b649048ec0494cd472ddd17a9cfe34003"
+          },
+          {
+            "path": "src/platform.ts",
+            "bytes": 594,
+            "sha256": "bde53d0a6da634f64605d44e1db320fc8f4eb6043593d785fc538c985d507e4b"
           },
           {
             "path": "src/state/app-state.ts",
@@ -723,13 +728,18 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 141852,
-            "sha256": "4b4d11d4fb465e0d6a42674cb18f109e4bd7fdcc78ae096b78353a2d4b7590ea"
+            "bytes": 147325,
+            "sha256": "9c37635add6c53f37fda3da1a09027af6c168e6e1840750a8fb0c5f62ef7f698"
           },
           {
             "path": "src/terminal-clipboard.ts",
             "bytes": 3407,
             "sha256": "0513258c48a04a03ff63a5727a3ec4b27cb34f76bb64bd211cf0619efc9e8e73"
+          },
+          {
+            "path": "src/terminal-fit.ts",
+            "bytes": 2027,
+            "sha256": "d71d41ba1bde166cefeab56394c4473b4bf1d3f420d7ec3601b02c18ba279dc4"
           },
           {
             "path": "src/terminal-open-queue.ts",
@@ -743,8 +753,8 @@
           },
           {
             "path": "src/terminal.ts",
-            "bytes": 71954,
-            "sha256": "acf8c23cbb04e3514b6528e7511c412ed042eb348a08e8c2471bdbd62750727c"
+            "bytes": 75834,
+            "sha256": "fa2a1a8f3b4402749b1b4f45e3d45f214633c50378bd573ab14738867d8cc2dd"
           },
           {
             "path": "src/theme.ts",
@@ -752,9 +762,24 @@
             "sha256": "23b23a3347307b98506d6cc2acc5ff0ba23112ce633f91775179274d1ca86e44"
           },
           {
+            "path": "src/touch-keys.ts",
+            "bytes": 6521,
+            "sha256": "9d9fb4b1ec9655c95ffee970d24ded642e2e9d781a20f04f258681576dbfba16"
+          },
+          {
+            "path": "src/touch-scroll.ts",
+            "bytes": 6464,
+            "sha256": "30670697ad6a3dcaabb070d891f2deaf41730e93a32c6ed94b6ca3a4d8bdb2d5"
+          },
+          {
             "path": "src/version.ts",
             "bytes": 569,
             "sha256": "e471a85cfc505fe8cd1b89472632662ce91ec7b13e526d273a3016728c6918f6"
+          },
+          {
+            "path": "src/views/compact-shell.ts",
+            "bytes": 7783,
+            "sha256": "628d6d7bb0170a79a42b8106d97a1120ff9d87f619ed6da46417235d9b3ee621"
           },
           {
             "path": "src/views/credential-field.ts",
@@ -773,18 +798,18 @@
           },
           {
             "path": "src/views/first-run.ts",
-            "bytes": 47955,
-            "sha256": "3a79fad25c29f160f6fa77a35ae8599942d22b02c64c6ac8446a430c46d7c9cd"
+            "bytes": 48402,
+            "sha256": "e5f096e5bc61145325781535f4cf3fa9899e0af05b087c4e67fc19611d025309"
           },
           {
             "path": "src/views/grid.ts",
-            "bytes": 107909,
-            "sha256": "fa949848144e8a1bff28947fb89030dc7d215582b809969c75e11d6b803075e7"
+            "bytes": 108560,
+            "sha256": "b9b5de24429c96dcab238e4e39c20dbf94d1742374dd862bfef5ac59810f3e64"
           },
           {
             "path": "src/views/host-form.ts",
-            "bytes": 25564,
-            "sha256": "722ee65d2f1c6a94d6e3ded4f488a7eaf4a456165b907976bf47b5371b05c12a"
+            "bytes": 30669,
+            "sha256": "37f494ce7f73da391e4cb91fe76ab5af2f75e073b83c41f2f2eb13d026fc29ca"
           },
           {
             "path": "src/views/host-key-prompt.ts",
@@ -902,6 +927,11 @@
             "sha256": "47ebbe841f4054a8c5add93ed693cf2f50bb4883f3c9605c9d44be8e2b4cc58d"
           },
           {
+            "path": "src/views/touch-keys-bar.ts",
+            "bytes": 2537,
+            "sha256": "46bde2a7ce285e70d5b1264bcc9e456102827d3888e230c11b4c51a9cd7032a6"
+          },
+          {
             "path": "src/views/types.ts",
             "bytes": 6563,
             "sha256": "06dbef4a1c71003690a79579f713c55972924d726e72bfcec12f84f69cf9329b"
@@ -919,8 +949,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 178444,
-            "sha256": "e20dda960685044db016d25f828a0ae835b912431b827458ae49cd273fc8dafa"
+            "bytes": 183419,
+            "sha256": "c56a9f84cf848036e286e7956b5f13307e454c246bbd6ebb0dcec129fb5874f0"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -939,8 +969,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 108522,
-            "sha256": "4c9930884652837eb2e592937f6aa77c170114881a981a7bffea6d882d29720d"
+            "bytes": 113044,
+            "sha256": "bbdc3de90ae2a2f813991809188d91914b4ba98fbd07d84c2432d537242d8e0f"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -969,13 +999,18 @@
           },
           {
             "path": "src-tauri/src/lib.rs",
-            "bytes": 8383,
-            "sha256": "08bdbb9a68814f6f1b951e7ee1975b00d05d8eece8ad3d1e8f8b88d320999741"
+            "bytes": 9717,
+            "sha256": "3cad0b6afe7d5be2999c5e28933cfcdac69c915126d0f2b8a2dff9075958227b"
           },
           {
             "path": "src-tauri/src/main.rs",
             "bytes": 186,
             "sha256": "41cc2017480447287d7274c5c31a89421362b52a820b57425a15378704636f12"
+          },
+          {
+            "path": "src-tauri/src/paths.rs",
+            "bytes": 1767,
+            "sha256": "2648be9af5145b30032059dac9b4166315efae83b4f9ae8fddde6803f343c0fd"
           },
           {
             "path": "src-tauri/src/preflight.rs",
@@ -999,8 +1034,8 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 121675,
-            "sha256": "d341ecc5b3a6f56c81b76c04c92be6ac41129559c83dc024ab73d6fce6fde09d"
+            "bytes": 121707,
+            "sha256": "8d153b315c052f44ce28b615d2c0fa06722fa25affea1a2c858fac76671dee9a"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
@@ -1009,13 +1044,18 @@
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
-            "bytes": 17912,
-            "sha256": "599fea6b3756ea3a516f1202ad46589db1719c0cfcc4bcf87a66c13cf3479900"
+            "bytes": 17920,
+            "sha256": "4bc31414dae7441215cd55d4afb3d77307bf991109b5f65fd1f50616eb6e4aad"
+          },
+          {
+            "path": "src-tauri/src/ssh/key_files.rs",
+            "bytes": 12169,
+            "sha256": "a97edeee69ff620930559c3491ac8a6c3be32e2846418db7ac65685a58cd8353"
           },
           {
             "path": "src-tauri/src/ssh/keys.rs",
-            "bytes": 7343,
-            "sha256": "b1ae79d52c7919e0da337465688d33580c3d740df9b75c54986a07bb9896b06b"
+            "bytes": 7431,
+            "sha256": "2e5163e578275bfa82c3c92a7930bebbb39307e11a5fd11034147adbf80cad75"
           },
           {
             "path": "src-tauri/src/ssh/known_hosts.rs",
@@ -1024,8 +1064,8 @@
           },
           {
             "path": "src-tauri/src/ssh/mod.rs",
-            "bytes": 236,
-            "sha256": "963510aa1ba353da1c657c917fac5873f39d8af9f5a68744a3619165b1557565"
+            "bytes": 255,
+            "sha256": "49da644e681028888729445cc381e4e2901415064d6c5f9993a0fa18eb6e84c7"
           },
           {
             "path": "src-tauri/src/ssh/rsa_signer.rs",
@@ -1049,8 +1089,8 @@
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation.rs",
-            "bytes": 18883,
-            "sha256": "8a860dce6ff2deb8dd3f8c7db79aa92120916878fb8bc12c195db4d8dcb56166"
+            "bytes": 19402,
+            "sha256": "dc9bb694b40fa3821620c742309f39cf4ab76e0a7b31f4bb7dd16a17dbd3b4d0"
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation/tests.rs",
@@ -1160,8 +1200,8 @@
         "files": [
           {
             "path": "src-tauri/capabilities/default.json",
-            "bytes": 3848,
-            "sha256": "48188ac1241c19c40d6a3bcff906113ee6ddd762c28f9da04a309587d20d00da"
+            "bytes": 4341,
+            "sha256": "18ffdebe30e6970fb15bd34ba258da0e7fb97f140d659395296fc9ce3d81c3e9"
           }
         ]
       },
@@ -1213,6 +1253,16 @@
             "path": "src-tauri/permissions/autogenerated/disconnect_host.toml",
             "bytes": 390,
             "sha256": "42094636ea14504ab27d4f07906b5359ffd43c06f1817953a8ebc014c8ab3812"
+          },
+          {
+            "path": "src-tauri/permissions/autogenerated/generate_ssh_key.toml",
+            "bytes": 396,
+            "sha256": "d2287ee2103253826ca0f3fd81a6665eb0bd51a41b6a0e7045f5b94fad312b9c"
+          },
+          {
+            "path": "src-tauri/permissions/autogenerated/import_ssh_key.toml",
+            "bytes": 384,
+            "sha256": "dae8f95ac7fc4ede149f1d6d71f2a3ede79a4c0591b09f2293c37abaf06b4006"
           },
           {
             "path": "src-tauri/permissions/autogenerated/kill_session.toml",
@@ -1921,11 +1971,11 @@
         "declared_license": "Unlicense OR MIT"
       },
       {
-        "package": "aidevbridge@0.2.3",
+        "package": "aidevbridge@0.2.4",
         "source": null,
         "manifest": {
-          "bytes": 5276,
-          "sha256": "084514008b882da56fd111e93075ff0f6762a4fcfc437ea4737930ae84c1c9b8"
+          "bytes": 5872,
+          "sha256": "91edc2180142749141e5890fa9bfcfe37d89d4469d6f4608d60dc5d7f1392995"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5262,25 +5312,25 @@
         "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
       },
       {
-        "package": "aidevbridge@0.2.3",
+        "package": "aidevbridge@0.2.4",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.2.3",
+        "package": "aidevbridge@0.2.4",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.2.3",
+        "package": "aidevbridge@0.2.4",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.2.3",
+        "package": "aidevbridge@0.2.4",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11369,9 +11419,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.2.3",
+      "id": "cargo:aidevbridge@0.2.4",
       "name": "aidevbridge",
-      "version": "0.2.3",
+      "version": "0.2.4",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",
@@ -22210,7 +22260,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices. For the window-title and attention calls the bundle also contains window.js, dpi.js and image.js; they carry the same Commons Conservancy header, which THIRD_PARTY_LICENSES.md lists.",
       "decision_basis": [
@@ -22228,7 +22278,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22262,7 +22312,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22280,7 +22330,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22298,7 +22348,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22316,7 +22366,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22334,7 +22384,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Bundled for Ctrl+click links. Its MIT text and copyright line (identical bytes to addon-search) and the two module headers shared with the other xterm packages are retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -22353,7 +22403,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22371,7 +22421,7 @@
       "selected_license": "ISC AND MIT (Feather)",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Icon geometries copied into src/icons.ts (ICON_NAMES, generated by scripts/gen-icons.mjs) and the triangle-alert geometry inlined as a CSS mask in src/styles.css; the full ISC and Feather MIT texts are retained.",
       "decision_basis": [
@@ -22389,7 +22439,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Only the emitted modulepreload polyfill; no wholesale Vite build dependency payload.",
       "decision_basis": [
@@ -22458,7 +22508,7 @@
       "selected_license": "0BSD",
       "disposition": "include",
       "documents": [
-        "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6"
+        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
       ],
       "reason": "Re-decided on 2026-10-20: the production JS contains __classPrivateFieldGet and __classPrivateFieldSet, reached through @tauri-apps/api/window -> image.js (Image extends Resource from core.js); the earlier exclusion no longer holds. The verbatim Microsoft notice of the vendored file (0BSD terms, no attribution duty) is retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -27006,10 +27056,10 @@
       ]
     },
     {
-      "id": "sha256:71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6",
+      "id": "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9",
       "file_name": "THIRD_PARTY_LICENSES.md",
-      "bytes": 13275,
-      "sha256": "71e77b92f5b7b873ef0d1a5bcc53476f767c4ed3b61b0ef4c582c510424d14c6",
+      "bytes": 14149,
+      "sha256": "1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9",
       "sources": [
         {
           "kind": "file",
