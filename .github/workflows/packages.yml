@@ -1,14 +1,15 @@
 name: Packages
 # Builds the installers and installs and starts each one on a fresh runner.
-# Every push and pull request makes a preview of the macOS disk image (no
-# license texts, never published). A tag v*, a manual run with "release" or a
+# Every push to main and every pull request makes a preview of the macOS disk
+# image (no license texts, never published); a branch runs through its pull
+# request only, so that a commit does not occupy the macOS runners twice. A tag v*, a manual run with "release" or a
 # manual run naming a tag makes the release builds for Windows (setup EXE, MSI,
 # ZIP) and macOS (universal DMG), which need the bound license selections. On a
 # tag, or a manual run naming one, the packages go to the GitHub release of
 # that tag; the release is created if there is none yet.
 on:
   push:
-    branches: ['**']
+    branches: [main]
     tags: ['v*']
   pull_request:
   workflow_dispatch:
