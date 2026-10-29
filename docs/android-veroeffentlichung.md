@@ -311,7 +311,9 @@ Das legt das GitHub-Environment `android-release` an, erlaubt es nur Tags
 `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Nur
 die Jobs `sign` und `play` eines Tag-Laufs sehen sie. Die Regel „nur Tags“ ist
 der eigentliche Schutz: Ohne sie könnte jeder Workflow eines Branches im
-Repository das Environment nennen und den Schlüssel lesen.
+Repository das Environment nennen und den Schlüssel lesen. Dazu kommt das
+Ruleset „Release tags v*“ (Settings → Rules → Rulesets, seit 29.10.): Nur ein
+Admin darf solche Tags anlegen, verschieben oder löschen.
 
 Mit `-RequireApproval` wartet zusätzlich jeder dieser Läufe auf deine
 Freigabe unter **Actions → Lauf → Review deployments**, je Release zweimal

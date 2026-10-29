@@ -344,6 +344,9 @@ npm, Gradle and every Rust build script, gets no secret; the same rule as for
 the planned Developer ID signing on macOS. `scripts/android-github-secrets.ps1`
 allows the environment for tags `v*` only: without that rule, any workflow on
 any branch of this repository could name the environment and read the key.
+A repository ruleset ("Release tags v*") lets only an admin create, move or
+delete such a tag, so a workflow or a token without admin rights cannot get
+code signed by tagging it.
 
 ### Several windows at the same time
 
