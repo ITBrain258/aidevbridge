@@ -1,0 +1,1 @@
+Wischen rollt das Terminal, mit Schwung. Das Terminal hat keinen Scrollbalken mehr und gewinnt zwei Spalten. Telefone im Querformat bekommen die kompakte Ansicht. Die App ist rund ein Drittel kleiner. Strg auf der Tastenleiste macht aus Zeichen außerhalb von ASCII keine Steuerzeichen mehr, und das Schlüsselformular nimmt eine alte Fehlermeldung nach einem gelungenen Import weg.

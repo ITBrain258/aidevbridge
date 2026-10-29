@@ -44,7 +44,8 @@ Auf dem Branch `feat/android` (Worktree
 - **Lizenzauswahl für Android** (`docs/release/license-selection.android-universal.json`):
   Rust-Krates, NDK-Teile und alle Java-/Kotlin-Bibliotheken; der Release-Lauf
   legt die Texte in die App und prüft sie (Spec §8).
-- **Pull Request #10** mit allem oben; CI und erster Android-Bau grün.
+- **Pull Request #10** mit allem oben, seit 29.10. in `main`; seit 0.2.4
+  hängt die APK an jedem Release.
 
 Was fehlt und nur du tun kannst: Konten anlegen und bestätigen, Bildschirmfotos
 vom echten Gerät, der Test am Telefon und das Zusammenführen des Branches.
@@ -55,8 +56,9 @@ vom echten Gerät, der Test am Telefon und das Zusammenführen des Branches.
 
 ### B1 Pull Request
 
-Erledigt: `feat/android` ist gepusht, Pull Request #10 offen, CI und
-Android-Vorschau grün. Zusammenführen erst nach Test und Abnahme (B3).
+Erledigt: Pull Request #10 ist nach Test am Telefon und unabhängiger
+Durchsicht am 29.10. in `main` gemergt, die Secrets für das Signieren liegen
+im Environment `android-release` (D1).
 
 ### B2 Windows-Entwicklermodus (für lokale Android-Bauten)
 

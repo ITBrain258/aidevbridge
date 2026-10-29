@@ -2,15 +2,16 @@
 
 ![aidevbridge: hosts and sessions in the sidebar, terminals in a grid](docs/images/screenshot.png)
 
-aidevbridge is a desktop app for Windows and macOS for coding agents that run
-in tmux sessions on your own Linux machines. It connects over SSH, shows the
+aidevbridge is an app for Windows, macOS and Android for coding agents that
+run in tmux sessions on your own Linux machines. It connects over SSH, shows the
 sessions of several hosts in one window and tells you which agent is waiting
 for you. Nothing is installed on the hosts.
 
 The project is in early development. Releases appear on the
 [Releases page](https://github.com/ITBrain258/aidevbridge/releases); the
-Windows packages are not code-signed, and the macOS disk image, new with the
-release after 0.2.2, is signed ad-hoc only. [docs/stand.md](docs/stand.md) tracks
+Windows packages are not code-signed, the macOS disk image is signed ad-hoc
+only, and the Android app, new with 0.2.4, is on the releases page and in a
+closed test on Google Play. [docs/stand.md](docs/stand.md) tracks
 the status and the open items, [CHANGELOG.md](CHANGELOG.md) the changes (both
 in German).
 
@@ -54,7 +55,7 @@ xterm.js.
   yourself. There is no exception for a single app.
 - **Check the file.** Every release lists the SHA-256 of each package, taken
   from the `release-manifest.json` of its build. In PowerShell,
-  `Get-FileHash .\aidevbridge-0.2.2-windows-x64-setup.exe -Algorithm SHA256`
+  `Get-FileHash .\aidevbridge-<version>-windows-x64-setup.exe -Algorithm SHA256`
   (or the name of the file you downloaded) must print the same value. It prints upper-case letters where the release
   lists lower-case ones; letter case does not matter.
 - **Optional, stronger: check the build provenance.** From the release after
@@ -117,16 +118,16 @@ see [Supported agents and detected states](#supported-agents-and-detected-states
 
 ## Install
 
-aidevbridge runs on Windows 10 and 11 (x64). Release 0.2.2 comes in three
+aidevbridge runs on Windows 10 and 11 (x64). Each release comes in three
 forms with the same program; pick one:
 
-- `aidevbridge-0.2.2-windows-x64-setup.exe`: the setup program. It installs
-  for your Windows account and needs no administrator rights.
-- `aidevbridge-0.2.2-windows-x64.msi`: the Windows Installer package, for
-  example for `msiexec /i aidevbridge-0.2.2-windows-x64.msi`. It installs for
-  all users and asks for administrator rights.
-- `aidevbridge-0.2.2-windows-x64.zip`: no installation. Extract the whole ZIP
-  into a folder and start `aidevbridge.exe`.
+- `aidevbridge-<version>-windows-x64-setup.exe`: the setup program. It
+  installs for your Windows account and needs no administrator rights.
+- `aidevbridge-<version>-windows-x64.msi`: the Windows Installer package, for
+  example for `msiexec /i aidevbridge-<version>-windows-x64.msi`. It installs
+  for all users and asks for administrator rights.
+- `aidevbridge-<version>-windows-x64.zip`: no installation. Extract the whole
+  ZIP into a folder and start `aidevbridge.exe`.
 
 The window is drawn by Microsoft Edge WebView2, which current Windows 10 and
 11 already include. Both installers download and install WebView2 if it is
@@ -142,6 +143,19 @@ WebKit, which is part of macOS. The license texts are inside the app
 the app asks once for access to the local network when it connects to a host
 there; allow it, or hosts on your network stay unreachable. To remove the app,
 move it to the Trash.
+
+**Android** 7.0 or newer gets `aidevbridge-<version>-android.apk` from 0.2.4
+on; Android asks once whether the app you open it from may install apps. A
+Google Play version is in a closed test. The two are signed differently:
+uninstall one before installing the other, which removes the hosts and keys
+stored in the app. On a phone the app shows one terminal at a time, with the
+sessions in a drawer, a key bar for Esc, Tab, Ctrl, Alt and the arrows, and
+swipe scrolling. There is no ssh-agent on Android: when you add a host, choose
+**Generate new key…** and add the line it shows to `~/.ssh/authorized_keys`
+on the host, or **Choose file…** to import an existing private key, or
+**Password**. Android stops the connections when the app has been in the
+background for a while; on return, hosts with a key reconnect by themselves.
+The license texts are inside the app (`assets/licenses/`).
 
 There is no automatic update. To hear about new versions, watch the
 repository's releases on GitHub (Watch → Custom → Releases).

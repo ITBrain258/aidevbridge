@@ -30,6 +30,9 @@ fun signingValue(property: String, env: String): String? =
 
 android {
     compileSdk = 36
+    // Dasselbe NDK wie fuer die Rust-Bibliothek (android.yml, NDK_VERSION);
+    // es zieht auch die Symboltabelle fuer Play heraus (release unten).
+    ndkVersion = "29.0.14206865"
     signingConfigs {
         val storePath = signingValue("storeFile", "ANDROID_KEYSTORE_PATH")
         if (storePath != null) {
@@ -56,14 +59,17 @@ android {
             isDebuggable = true
             isJniDebuggable = true
             isMinifyEnabled = false
-            packaging {                jniLibs.keepDebugSymbols.add("*/arm64-v8a/*.so")
-                jniLibs.keepDebugSymbols.add("*/armeabi-v7a/*.so")
-                jniLibs.keepDebugSymbols.add("*/x86/*.so")
-                jniLibs.keepDebugSymbols.add("*/x86_64/*.so")
-            }
+            // Hier stand aus der Tauri-Vorlage `packaging { jniLibs
+            // .keepDebugSymbols... }`. `packaging` gilt aber fuer alle
+            // Build-Typen, nicht nur fuer diesen: Auch die Release-App behielt
+            // die Symboltabelle, und fuer Play wurde nichts herausgezogen.
         }
         getByName("release") {
             signingConfigs.findByName("release")?.let { signingConfig = it }
+            // Die Symboltabelle der Rust-Bibliothek geht ins App Bundle, nicht
+            // in die App: Play zeigt Abstuerze im nativen Teil dann mit
+            // Funktionsnamen statt nur mit Adressen.
+            ndk.debugSymbolLevel = "SYMBOL_TABLE"
             isMinifyEnabled = true
             proguardFiles(
                 *fileTree(".") { include("**/*.pro") }

@@ -1,0 +1,1 @@
+Swipe to scroll the terminal, with momentum. The terminal has no scrollbar any more and gains two columns. Phones in landscape get the compact layout. The app is about a third smaller. Ctrl on the key bar no longer turns letters outside ASCII into control characters, and the key form clears an old error after a successful import.
