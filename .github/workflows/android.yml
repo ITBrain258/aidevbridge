@@ -137,9 +137,11 @@ jobs:
           }
           check "$apk" assets/licenses/
           check "$outputs/bundle/universalRelease/app-universal-release.aab" base/assets/licenses/
-      # Google Play requires native libraries whose LOAD segments are aligned
-      # to 16 KB pages (Android 15 and newer). zipalign -P 16 in the sign job
-      # only places them in the zip; this checks the libraries themselves.
+      # Google Play requires 64-bit native libraries (arm64-v8a, x86_64) whose
+      # LOAD segments are aligned to 16 KB pages (Android 15 and newer); only
+      # 64-bit devices have 16 KB pages, so armeabi-v7a keeps 4 KB. zipalign
+      # -P 16 in the sign job only places them in the zip; this checks the
+      # libraries themselves.
       - name: Check the 16 KB alignment of the native libraries
         run: |
           set -euo pipefail
@@ -157,9 +159,9 @@ jobs:
               fi
             done < <("$readelf" -lW "$lib" | awk '$1 == "LOAD" { print $NF }')
             count=$((count + 1))
-          done < <(find "$libs" -name '*.so' -print0)
-          [ "$count" -gt 0 ] || { echo "::error::The APK has no native library"; exit 1; }
-          echo "$count native libraries aligned to 16 KB pages" >> "$GITHUB_STEP_SUMMARY"
+          done < <(find "$libs/lib" \( -path '*/arm64-v8a/*' -o -path '*/x86_64/*' \) -name '*.so' -print0)
+          [ "$count" -gt 0 ] || { echo "::error::The APK has no 64-bit native library"; exit 1; }
+          echo "$count 64-bit native libraries aligned to 16 KB pages" >> "$GITHUB_STEP_SUMMARY"
       - name: Collect the unsigned files
         run: |
           set -euo pipefail

@@ -267,8 +267,11 @@ nach dem Vorbild von Termux:
   vor einem Tag, denn sonst liefe der Release-Pfad erst beim Tag selbst.
 - **Prüfungen im Build-Job:** Die Lizenztexte stehen Byte für Byte in APK
   und App Bundle (aus dem Play die ausgelieferten Pakete baut). Jede native
-  Bibliothek hat ihre LOAD-Segmente auf 16 KB ausgerichtet (`llvm-readelf`;
-  `zipalign -P 16` im Sign-Job ordnet nur die Zip-Einträge).
+  64-Bit-Bibliothek (arm64-v8a, x86_64) hat ihre LOAD-Segmente auf 16 KB
+  ausgerichtet (`llvm-readelf`; `zipalign -P 16` im Sign-Job ordnet nur die
+  Zip-Einträge). armeabi-v7a bleibt bei 4 KB: 16-KB-Seiten gibt es nur auf
+  64-Bit-Geräten, und Play verlangt sie nur dort (der erste Probelauf vom
+  29.10. hatte die 32-Bit-Bibliothek fälschlich mitgeprüft).
 - `publish` teilt sich mit dem Publish-Job von `packages.yml` eine
   Concurrency-Gruppe je Tag: Beide lesen und schreiben den Release-Text, und
   gleichzeitig verlöre einer den Abschnitt des anderen.
