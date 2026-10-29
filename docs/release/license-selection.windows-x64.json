@@ -544,13 +544,13 @@
       },
       {
         "path": "package-lock.json",
-        "bytes": 79012,
-        "sha256": "923b5f151111dafc4fbc420dcf49e41c9c99e4994cc92d435424aa5f4a301193"
+        "bytes": 79007,
+        "sha256": "de6cf196b77ba286887f22c2d5fee2d9cb767c6b305e7bf820dfe98aa2874b06"
       },
       {
         "path": "package.json",
-        "bytes": 1356,
-        "sha256": "e5fd46de41ba24b98bfe1cf0be530c4705c1b09d152b001d3707f4b72cd8c8ef"
+        "bytes": 1351,
+        "sha256": "a312586a767ad4a7d0d1c07e82ab82abc49d15c8c5690ad697bc91d1d40d5f84"
       },
       {
         "path": "rust-toolchain.toml",
