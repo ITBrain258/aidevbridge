@@ -130,16 +130,33 @@ export function macosMetadata(root) {
 }
 
 // cargo tree resolves build scripts and proc macros for the host. Off an Apple
-// silicon host, a rustc wrapper reports BUILD_HOST and passes it as the default
-// target, so host cfgs evaluate as on the release runner.
+// silicon host, a small rustc wrapper reports BUILD_HOST and passes it as the
+// default target, so host cfgs evaluate as on the release runner. The wrapper
+// is a Rust program, as in release-license-select-android.mjs, so that it runs
+// on every host, Windows included (the former shell script did not).
 function hostEnvironment(root) {
   if (process.platform === 'darwin' && process.arch === 'arm64') return { env: process.env, cleanup() {} };
-  ensure(process.platform !== 'win32', 'Run this on macOS or Linux');
   const rustc = run(root, 'rustup', ['which', '--toolchain', TOOLCHAIN, 'rustc']).trim();
   const dir = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'aidevbridge-macos-host-'));
-  const wrapper = path.join(dir, 'rustc');
-  fs.writeFileSync(wrapper, `#!/bin/sh\nfor a in "$@"; do [ "$a" = "-vV" ] && { "${rustc}" -vV | sed 's/^host: .*/host: ${BUILD_HOST}/'; exit 0; }; done\nfor a in "$@"; do case "$a" in --target|--target=*) exec "${rustc}" "$@";; esac; done\nexec "${rustc}" --target ${BUILD_HOST} "$@"\n`, { mode: 0o755 });
-  return { env: { ...process.env, RUSTC: wrapper, CARGO_TARGET_DIR: path.join(dir, 'target') }, cleanup: () => fs.rmSync(dir, { recursive: true }) };
+  fs.writeFileSync(path.join(dir, 'wrapper.rs'), `use std::process::{exit, Command};
+fn main() {
+    let real = std::env::var("AIDEVBRIDGE_REAL_RUSTC").unwrap();
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.iter().any(|a| a == "-vV") {
+        let out = Command::new(&real).arg("-vV").output().unwrap();
+        for line in String::from_utf8_lossy(&out.stdout).lines() {
+            if line.starts_with("host: ") { println!("host: ${BUILD_HOST}"); } else { println!("{line}"); }
+        }
+        exit(0);
+    }
+    let mut cmd = Command::new(&real);
+    if !args.iter().any(|a| a == "--target" || a.starts_with("--target=")) { cmd.arg("--target").arg("${BUILD_HOST}"); }
+    exit(cmd.args(&args).status().unwrap().code().unwrap_or(1));
+}
+`);
+  const wrapper = path.join(dir, process.platform === 'win32' ? 'rustc-host.exe' : 'rustc-host');
+  run(root, rustc, ['-O', '-o', wrapper, path.join(dir, 'wrapper.rs')]);
+  return { env: { ...process.env, RUSTC: wrapper, AIDEVBRIDGE_REAL_RUSTC: rustc, CARGO_TARGET_DIR: path.join(dir, 'target') }, cleanup: () => fs.rmSync(dir, { recursive: true, force: true }) };
 }
 
 // Same classification as release-license-inventory.mjs, for both Apple targets.
@@ -188,6 +205,14 @@ function licenseCandidates(dir) {
 // License candidates plus the texts a decision selects under another name (NOTICES.md).
 const boundFiles = (key, dir) => [...new Set([...licenseCandidates(dir), ...(NEW_CRATES[key].files ?? [])])].sort();
 
+// `ar t` lists the members of an archive. Windows has no `ar`; there the NDK's
+// llvm-ar (NDK_HOME, as for the Android selection) prints the same list.
+function arTool() {
+  if (process.platform !== 'win32') return 'ar';
+  ensure(process.env.NDK_HOME, 'Set NDK_HOME: on Windows the NDK\'s llvm-ar lists the members of compiler_builtins');
+  return path.join(process.env.NDK_HOME, 'toolchains', 'llvm', 'prebuilt', 'windows-x86_64', 'bin', 'llvm-ar.exe');
+}
+
 function stdlibEvidence(root) {
   const sysroot = run(root, 'rustup', ['run', TOOLCHAIN, 'rustc', '--print', 'sysroot']).trim();
   const library = path.join(sysroot, 'lib/rustlib/src/rust/library');
@@ -204,7 +229,7 @@ function stdlibEvidence(root) {
     ensure(fs.existsSync(dir), `rust-std for ${target} is missing: rustup target add --toolchain ${TOOLCHAIN} ${target}`);
     const rlibs = fs.readdirSync(dir).filter(n => n.endsWith('.rlib')).sort();
     const builtins = rlibs.find(n => /^libcompiler_builtins-[0-9a-f]+\.rlib$/.test(n));
-    const members = run(root, 'ar', ['t', path.join(dir, builtins)]).split(/\r?\n/).filter(Boolean);
+    const members = run(root, arTool(), ['t', path.join(dir, builtins)]).split(/\r?\n/).filter(Boolean);
     targets[target] = { rlibs, compiler_builtins_native_objects: members.filter(m => m.endsWith('.o') && !m.startsWith('compiler_builtins-')).length };
   }
   return {
