@@ -206,7 +206,29 @@ SSH-Verbindungen brechen ab. Beim Zurückkehren greift die vorhandene
 Selbstheilung (Spec 2026-10-11): Hosts mit Schlüssel verbinden sich neu und
 hängen ihre Terminals wieder an. Hosts mit Passwort fragen erneut.
 
-### 5.5 Grenzen der ersten Fassung
+### 5.5 Wischen im Terminal
+
+xterm.js 6 rollt nicht mit dem Finger: Die Geste von VS Code ist eingebaut,
+aber an kein Element gehängt. `touch-scroll.ts` übernimmt das im Terminal,
+nach dem Vorbild von Termux:
+
+- Ab 8 px ist ein Zug Wischen; darunter bleibt er ein Tipp, der wie bisher
+  den Fokus legt und die Tastatur öffnet. Ab der Schwelle hält
+  `preventDefault` die nachgeschobenen Mausereignisse an, `.tile-terminal`
+  hat auf Android `touch-action: none`.
+- Je Zeilenhöhe eine Zeile, Reste wandern in die nächste. Finger nach unten
+  zeigt ältere Ausgabe.
+- Schnelles Loslassen läuft aus (Zeitkonstante 325 ms, ab 0,3 px/ms); ein
+  neuer Finger hält es an.
+- Was eine Zeile bewirkt, entscheidet `terminal.ts` wie beim Mausrad am
+  Desktop: Im eigenen Verlauf rollt `term.scrollLines` genau eine Zeile.
+  Nutzt ein Programm die Maus (tmux mit `mouse on`) oder den zweiten
+  Bildschirm, geht je Zeile ein Rad-Ereignis an xterm, an die Stelle, an der
+  der Finger aufsetzte. xterm gibt es als Mausrad an tmux weiter (tmux rollt
+  dann je Ereignis in seinem Verlauf) oder als Pfeiltaste.
+- Zwei Finger rollen nicht; langes Drücken öffnet weiter das Terminalmenü.
+
+### 5.6 Grenzen der ersten Fassung
 
 - Kein Halten der Verbindung im Hintergrund (Vordergrunddienst) und keine
   Benachrichtigung, wenn ein Agent wartet. Beides wäre der nächste Schritt;

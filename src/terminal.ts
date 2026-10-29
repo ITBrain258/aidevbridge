@@ -15,7 +15,9 @@ import { clipboardKeyAction, decodeOsc52 } from "./terminal-clipboard";
 import type { OpenQueue } from "./terminal-open-queue";
 import { clampFontSize, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { currentTheme, themeParts, type AccentId, type BaseId, type ThemeId } from "./theme";
+import { isAndroid } from "./platform";
 import { consumeModifiers, takeKeySequence, type TouchKeyId } from "./touch-keys";
+import { attachTouchScroll, type TouchOrigin } from "./touch-scroll";
 import { openTerminalMenu, type TerminalMenuItem, type TerminalMenuTexts } from "./views/terminal-menu";
 import {
   EMPTY_SEARCH_TEXTS,
@@ -913,6 +915,52 @@ export function mountTerminal(
     },
     { capture: true, passive: false, signal },
   );
+
+  // Wischen rollt das Terminal (Spec 2026-10-27 §5.5), nur auf Android:
+  // xterm.js 6 selbst reagiert auf keinen Finger.
+  if (isAndroid()) {
+    attachTouchScroll(el, { rowHeight: touchRowHeight, scroll: scrollByTouch }, signal);
+  }
+
+  /** Hoehe einer Zeile in CSS-Pixeln. xterm macht `.xterm-screen` genau Zeilen
+   * mal Zeilenhoehe hoch; vor dem ersten Bild ist es 0, dann gilt die Schrift
+   * mal Zeilenabstand. */
+  function touchRowHeight(): number {
+    const screen = term.element?.querySelector(".xterm-screen");
+    const height = screen ? screen.getBoundingClientRect().height : 0;
+    if (height > 0 && term.rows > 0) return height / term.rows;
+    return (term.options.fontSize ?? 13) * (term.options.lineHeight ?? 1);
+  }
+
+  /** Eine gewischte Zeile. Im eigenen Verlauf des Terminals rollt sie genau
+   * eine Zeile mit dem Finger. Nutzt ein Programm die Maus (tmux mit
+   * `mouse on`) oder den zweiten Bildschirm, gibt es hier keinen Verlauf: Dann
+   * geht je Zeile ein Mausrad-Ereignis an xterm, das es wie am Desktop
+   * weitergibt, als Mausrad an tmux (das in seinem Verlauf blaettert) oder als
+   * Pfeiltaste. Es geht an die Stelle, an der der Finger aufsetzte, denn tmux
+   * waehlt daran den Bereich, der rollt. */
+  function scrollByTouch(rows: number, origin: TouchOrigin): void {
+    if (disposed) return;
+    if (term.modes.mouseTrackingMode === "none" && term.buffer.active.type === "normal") {
+      term.scrollLines(rows);
+      return;
+    }
+    const xtermEl = term.element;
+    if (!xtermEl) return;
+    const target = origin.target instanceof Node && xtermEl.contains(origin.target) ? origin.target : xtermEl;
+    for (let i = 0; i < Math.abs(rows); i++) {
+      target.dispatchEvent(
+        new WheelEvent("wheel", {
+          bubbles: true,
+          cancelable: true,
+          deltaMode: WheelEvent.DOM_DELTA_LINE,
+          deltaY: Math.sign(rows),
+          clientX: origin.clientX,
+          clientY: origin.clientY,
+        }),
+      );
+    }
+  }
 
   // Copy on select (UX-Spec §6.4): kopiert wird beim Loslassen der linken
   // Taste, NIE bei `onSelectionChange` -- auch die Suche setzt eine Markierung

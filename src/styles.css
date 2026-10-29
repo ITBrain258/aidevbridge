@@ -529,6 +529,14 @@ textarea,
   display: none;
 }
 
+/* Auf Android rollt ein Zug mit dem Finger das Terminal (`touch-scroll.ts`,
+   Spec 2026-10-27 §5.5), nicht die Seite. Ohne `none` finge der Browser den
+   Zug selbst ab, und ab dann liesse sich `touchmove` nicht mehr anhalten. Ein
+   Tipp oeffnet weiter die Tastatur. */
+#app.has-touch-keys .tile-terminal {
+  touch-action: none;
+}
+
 .compact-bar-toggle {
   flex: 0 0 auto;
   gap: var(--ab-space-3);
