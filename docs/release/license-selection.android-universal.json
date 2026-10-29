@@ -86,7 +86,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 134122,
-        "sha256": "f851c80ebcbae860dc7b380872f2eb5b42bd6a1ee837aa822d2a23461cecd802"
+        "sha256": "210783b9186db7f806710b2420aa57f1b47b2fb2f2f4973101a40a378048710e"
       },
       {
         "path": "docs/release/license-frontend-output-2026-09-12.json",
@@ -645,13 +645,13 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 146942,
-        "sha256": "ca92ede5d235017ba03890d8e3840bd3d09b0de9b7843c335a1065b8d4635292"
+        "bytes": 147317,
+        "sha256": "27350dafabfc1559020240193fb061377d773e7cf6b9cc2892fa615b8477e3c4"
       },
       {
         "path": "src/terminal.ts",
-        "bytes": 73629,
-        "sha256": "766c5cccdcd7996cdf8216dbc81583f8db9539cf0df455cf2875d8b1177131a6"
+        "bytes": 75834,
+        "sha256": "fa2a1a8f3b4402749b1b4f45e3d45f214633c50378bd573ab14738867d8cc2dd"
       },
       {
         "path": "src/theme.ts",
@@ -823,13 +823,18 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 146942,
-            "sha256": "ca92ede5d235017ba03890d8e3840bd3d09b0de9b7843c335a1065b8d4635292"
+            "bytes": 147317,
+            "sha256": "27350dafabfc1559020240193fb061377d773e7cf6b9cc2892fa615b8477e3c4"
           },
           {
             "path": "src/terminal-clipboard.ts",
             "bytes": 3407,
             "sha256": "0513258c48a04a03ff63a5727a3ec4b27cb34f76bb64bd211cf0619efc9e8e73"
+          },
+          {
+            "path": "src/terminal-fit.ts",
+            "bytes": 2027,
+            "sha256": "d71d41ba1bde166cefeab56394c4473b4bf1d3f420d7ec3601b02c18ba279dc4"
           },
           {
             "path": "src/terminal-open-queue.ts",
@@ -843,8 +848,8 @@
           },
           {
             "path": "src/terminal.ts",
-            "bytes": 73629,
-            "sha256": "766c5cccdcd7996cdf8216dbc81583f8db9539cf0df455cf2875d8b1177131a6"
+            "bytes": 75834,
+            "sha256": "fa2a1a8f3b4402749b1b4f45e3d45f214633c50378bd573ab14738867d8cc2dd"
           },
           {
             "path": "src/theme.ts",
@@ -855,6 +860,11 @@
             "path": "src/touch-keys.ts",
             "bytes": 6325,
             "sha256": "d69aac08c0f41234229f44efc8a3754ac93109d90483886976b1404f7d0e1c07"
+          },
+          {
+            "path": "src/touch-scroll.ts",
+            "bytes": 6464,
+            "sha256": "30670697ad6a3dcaabb070d891f2deaf41730e93a32c6ed94b6ca3a4d8bdb2d5"
           },
           {
             "path": "src/version.ts",

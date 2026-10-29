@@ -237,7 +237,7 @@
             "sha256": "4a73856c6b87bfaa7b6fc5963796f21941f85f9bb3de36f688f70b5c5ceca44b"
           },
           "built_library": {
-            "sha256": "4a3e03dde0cf06fc34834a9da8768d3cb420b63d7d2a2e992b674b9a66323bb5",
+            "sha256": "e243b3cc1ed3819d38ecd6acf23a78f6c542ac0f8df5e8845386dc18f9ac9307",
             "needed": [
               "libandroid.so",
               "libc.so",
