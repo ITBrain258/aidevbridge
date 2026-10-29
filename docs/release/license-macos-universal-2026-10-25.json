@@ -14,13 +14,13 @@
     "features": [
       "tauri/custom-protocol"
     ],
-    "product_version": "0.2.3"
+    "product_version": "0.2.4"
   },
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1070627,
-    "sha256": "2d9ca70231ffca5ae95cf53b6c5335bcd3983c2e6f2b3a43ab4403bad764d422"
+    "bytes": 1064328,
+    "sha256": "70adb462a5408bc6d18034ef546c20e40801b038147d3500771ddf2f1bdd4926"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -30,7 +30,7 @@
     "Frontend and npm decisions are reused unchanged: the same dist is bundled on both platforms."
   ],
   "evidence": {
-    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
     "library_cargo_lock": {
       "bytes": 9834,
       "sha256": "02120dd57c4c5fd70c81fd92472681c8de5cc2dd78258276da37bb2253666061"
@@ -190,12 +190,13 @@
       "crates": [
         "block2@0.6.2",
         "dispatch2@0.3.1",
-        "objc2@0.6.4",
+        "objc2@0.6.5",
         "objc2-app-kit@0.3.2",
         "objc2-core-foundation@0.3.2",
         "objc2-encode@4.1.0",
         "objc2-exception-helper@0.1.1",
         "objc2-foundation@0.3.2",
+        "objc2-quartz-core@0.3.2",
         "objc2-web-kit@0.3.2"
       ]
     },
@@ -221,6 +222,11 @@
         "macos": "build-or-proc-macro-only-in-this-tree"
       },
       {
+        "id": "cargo:miniz_oxide@0.8.9",
+        "windows": "build-or-proc-macro-only-in-this-tree",
+        "macos": "normal-runtime-candidate"
+      },
+      {
         "id": "cargo:parking_lot_core@0.9.12",
         "windows": "normal-runtime-candidate",
         "macos": "build-or-proc-macro-only-in-this-tree"
@@ -229,6 +235,11 @@
         "id": "cargo:parking_lot@0.12.5",
         "windows": "normal-runtime-candidate",
         "macos": "build-or-proc-macro-only-in-this-tree"
+      },
+      {
+        "id": "cargo:png@0.18.1",
+        "windows": "build-or-proc-macro-only-in-this-tree",
+        "macos": "normal-runtime-candidate"
       },
       {
         "id": "cargo:scopeguard@1.2.0",
@@ -248,24 +259,24 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:aes-gcm@0.11.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:aes-gcm@0.11.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.11.0 to 0.11.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.11.0 to 0.11.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:aes@0.9.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:aes@0.9.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.9.1 to 0.9.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.9.1 to 0.9.3 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:aho-corasick@1.1.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:aho-corasick@1.1.5",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.4 to 1.1.5 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.4 to 1.1.5 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:alloc-no-stdlib@2.0.4",
-        "windows": "Explicit BSD-3-Clause selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit BSD-3-Clause selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:alloc-no-stdlib@3.0.0",
+        "windows": "Explicit BSD-3-Clause selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.0.4 to 3.0.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit BSD-3-Clause selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.0.4 to 3.0.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:anyhow@1.0.104",
@@ -273,9 +284,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:argon2@0.6.0-rc.8",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:argon2@0.6.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.0-rc.8 to 0.6.0 on 2026-10-29; MIT text: copyright years 2021-2024 -> 2021-2026, same terms; the new text ships.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.0-rc.8 to 0.6.0 on 2026-10-29; MIT text: copyright years 2021-2024 -> 2021-2026, same terms; the new text ships."
       },
       {
         "id": "cargo:base16ct@1.0.0",
@@ -288,6 +299,11 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
+        "id": "cargo:base64@0.23.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. MIT OR Apache-2.0; MIT with the original text, as for base64 0.22.1.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. MIT OR Apache-2.0; MIT with the original text, as for base64 0.22.1."
+      },
+      {
         "id": "cargo:base64ct@1.8.3",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
@@ -298,14 +314,19 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:bitflags@2.13.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:bitflags@1.3.2",
+        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
+        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:blake2@0.11.0-rc.6",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:bitflags@2.13.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.13.1 to 2.13.2 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.13.1 to 2.13.2 on 2026-10-29; same declared license, role and byte-identical license files."
+      },
+      {
+        "id": "cargo:blake2@0.11.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.11.0-rc.6 to 0.11.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.11.0-rc.6 to 0.11.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:block-buffer@0.10.4",
@@ -348,14 +369,14 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:cfb@0.7.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:cfb@0.14.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.3 to 0.14.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.3 to 0.14.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:cfg-if@1.0.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:cfg-if@1.0.5",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.4 to 1.0.5 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.4 to 1.0.5 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:chacha20@0.10.2",
@@ -383,9 +404,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:cookie@0.18.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:cookie@0.18.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:cpubits@0.1.1",
@@ -398,24 +419,24 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:cpufeatures@0.3.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:cpufeatures@0.3.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.0 to 0.3.1 on 2026-10-29; MIT text: copyright years 2020-2025 -> 2020-2026, same terms; the new text ships.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.0 to 0.3.1 on 2026-10-29; MIT text: copyright years 2020-2025 -> 2020-2026, same terms; the new text ships."
       },
       {
-        "id": "cargo:crc32fast@1.5.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:crc32fast@1.5.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.5.0 to 1.5.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.5.0 to 1.5.3 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:crossbeam-channel@0.5.16",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. The original complete third-party notice file is retained as source-family disclosure, including its matching.go and Go notices; this does not assert that its test fixtures are application payload.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. The original complete third-party notice file is retained as source-family disclosure, including its matching.go and Go notices; this does not assert that its test fixtures are application payload."
+        "id": "cargo:crossbeam-channel@0.5.17",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. The original complete third-party notice file is retained as source-family disclosure, including its matching.go and Go notices; this does not assert that its test fixtures are application payload. Updated from 0.5.16 to 0.5.17 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. The original complete third-party notice file is retained as source-family disclosure, including its matching.go and Go notices; this does not assert that its test fixtures are application payload. Updated from 0.5.16 to 0.5.17 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:crossbeam-utils@0.8.22",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:crossbeam-utils@0.8.23",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.22 to 0.8.23 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.22 to 0.8.23 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:crypto-bigint@0.7.10",
@@ -438,9 +459,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:ctor@0.8.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:ctor@1.0.13",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.0 to 1.0.13 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.0 to 1.0.13 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:ctr@0.10.1",
@@ -448,9 +469,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:ctutils@0.4.6",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files."
+        "id": "cargo:ctutils@0.4.7",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files. Updated from 0.4.6 to 0.4.7 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files. Updated from 0.4.6 to 0.4.7 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:curve25519-dalek@5.0.0",
@@ -458,19 +479,34 @@
         "macos": "Explicit BSD-3-Clause selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:data-encoding@2.11.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:data-encoding@2.11.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.0 to 2.11.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.0 to 2.11.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:der@0.8.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:defmt-macros@1.2.0",
+        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
+        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:deranged@0.5.8",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:defmt-parser@1.1.0",
+        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
+        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
+      },
+      {
+        "id": "cargo:defmt@1.2.0",
+        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
+        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
+      },
+      {
+        "id": "cargo:der@0.8.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.1 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.1 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files."
+      },
+      {
+        "id": "cargo:deranged@0.5.9",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.5.8 to 0.5.9 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.5.8 to 0.5.9 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:des@0.9.0",
@@ -503,19 +539,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:dirs@6.0.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
-      },
-      {
-        "id": "cargo:dtor-proc-macro@0.0.6",
-        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
-        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
-      },
-      {
-        "id": "cargo:dtor@0.3.0",
-        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
-        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
+        "id": "cargo:dirs@7.0.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 6.0.0 to 7.0.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 6.0.0 to 7.0.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:ecdsa@0.17.0",
@@ -533,19 +559,19 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:elliptic-curve@0.14.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:elliptic-curve@0.14.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.14.1 to 0.14.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.14.1 to 0.14.3 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:equivalent@1.0.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:equivalent@1.0.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.2 to 1.0.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.2 to 1.0.3 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:erased-serde@0.4.10",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:erased-serde@0.4.11",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.10 to 0.4.11 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.10 to 0.4.11 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:fdeflate@0.3.7",
@@ -558,9 +584,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:flate2@1.1.9",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:flate2@1.1.10",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.9 to 1.1.10 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.9 to 1.1.10 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:fnv@1.0.7",
@@ -573,44 +599,44 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:futures-channel@0.3.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:futures-channel@0.3.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:futures-core@0.3.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:futures-core@0.3.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:futures-executor@0.3.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:futures-executor@0.3.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:futures-io@0.3.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:futures-io@0.3.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:futures-sink@0.3.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:futures-sink@0.3.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:futures-task@0.3.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:futures-task@0.3.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:futures-util@0.3.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:futures-util@0.3.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:futures@0.3.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:futures@0.3.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:generic-array@0.14.7",
@@ -618,9 +644,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:generic-array@1.4.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:generic-array@1.4.5",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.4.4 to 1.4.5 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.4.4 to 1.4.5 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:getrandom@0.2.17",
@@ -683,14 +709,14 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:http@1.4.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:http@1.5.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.4.2 to 1.5.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.4.2 to 1.5.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:hybrid-array@0.4.13",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:hybrid-array@0.4.15",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.13 to 0.4.15 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.13 to 0.4.15 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:idna_adapter@1.2.2",
@@ -703,19 +729,19 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:indexmap@2.14.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:indexmap@2.14.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.14.0 to 2.14.2 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.14.0 to 2.14.2 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:infer@0.19.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:infer@0.22.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.19.0 to 0.22.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.19.0 to 0.22.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:inout@0.2.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:inout@0.2.5",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.2 to 0.2.5 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.2 to 0.2.5 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:itoa@1.0.18",
@@ -723,19 +749,29 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:json-patch@3.0.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:jiff-core@0.1.1",
+        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
+        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:jsonptr@0.6.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:jiff@0.2.38",
+        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
+        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:keccak@0.2.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:json-patch@4.2.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 3.0.1 to 4.2.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 3.0.1 to 4.2.0 on 2026-10-29; same declared license, role and byte-identical license files."
+      },
+      {
+        "id": "cargo:jsonptr@0.7.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.3 to 0.7.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.3 to 0.7.1 on 2026-10-29; same declared license, role and byte-identical license files."
+      },
+      {
+        "id": "cargo:keccak@0.2.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.0 to 0.2.2 on 2026-10-29; MIT text: copyright line now \"2018-2026 The RustCrypto Project Developers\", same terms; the new text ships.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.0 to 0.2.2 on 2026-10-29; MIT text: copyright line now \"2018-2026 The RustCrypto Project Developers\", same terms; the new text ships."
       },
       {
         "id": "cargo:kem@0.3.0",
@@ -743,19 +779,19 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:keyboard-types@0.7.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:keyboard-types@0.8.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.0 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.0 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:libc@0.2.189",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:libc@0.2.191",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.189 to 0.2.191 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.189 to 0.2.191 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:litemap@0.8.2",
-        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:litemap@0.8.3",
+        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.2 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.2 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:lock_api@0.4.14",
@@ -763,9 +799,9 @@
         "macos": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered."
       },
       {
-        "id": "cargo:log@0.4.33",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:log@0.4.34",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.33 to 0.4.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.33 to 0.4.34 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:md5@0.8.1",
@@ -784,18 +820,23 @@
       },
       {
         "id": "cargo:miniz_oxide@0.8.9",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-10-29: Now used by build tools only; the runtime uses miniz_oxide 0.9.1. The conservative inclusion stays.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-10-29: Now used by build tools only; the runtime uses miniz_oxide 0.9.1. The conservative inclusion stays."
       },
       {
-        "id": "cargo:mio@1.2.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:miniz_oxide@0.9.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. MIT OR Zlib OR Apache-2.0; license files byte-identical to 0.8.9; MIT as there.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. MIT OR Zlib OR Apache-2.0; license files byte-identical to 0.8.9; MIT as there."
       },
       {
-        "id": "cargo:ml-kem@0.3.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:mio@1.2.4",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.2.2 to 1.2.4 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.2.2 to 1.2.4 on 2026-10-29; same declared license, role and byte-identical license files."
+      },
+      {
+        "id": "cargo:ml-kem@0.3.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.2 to 0.3.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.2 to 0.3.3 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:module-lattice@0.2.3",
@@ -803,9 +844,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:muda@0.19.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:muda@0.20.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.19.3 to 0.20.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.19.3 to 0.20.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:num-bigint@0.5.1",
@@ -818,9 +859,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:num-integer@0.1.46",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:num-integer@0.1.47",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.1.46 to 0.1.47 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.1.46 to 0.1.47 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:num-traits@0.2.19",
@@ -833,9 +874,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:open@5.4.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:open@5.4.5",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 5.4.0 to 5.4.5 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 5.4.0 to 5.4.5 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:option-ext@0.2.0",
@@ -923,9 +964,14 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:plist@1.10.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:plist@1.10.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.10.0 to 1.10.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.10.0 to 1.10.3 on 2026-10-29; same declared license, role and byte-identical license files."
+      },
+      {
+        "id": "cargo:png@0.18.1",
+        "windows": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered. Updated from 0.17.16 to 0.18.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.17.16 to 0.18.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:poly1305@0.9.1",
@@ -938,14 +984,14 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:potential_utf@0.1.5",
-        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:potential_utf@0.1.6",
+        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.1.5 to 0.1.6 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.1.5 to 0.1.6 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:powerfmt@0.2.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:powerfmt@0.2.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.0 to 0.2.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.0 to 0.2.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:primefield@0.14.0",
@@ -958,9 +1004,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:quick-xml@0.41.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:quick-xml@0.42.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.41.0 to 0.42.0 on 2026-10-29; MIT text: line endings CRLF -> LF only; the new bytes ship.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.41.0 to 0.42.0 on 2026-10-29; MIT text: line endings CRLF -> LF only; the new bytes ship."
       },
       {
         "id": "cargo:rand_core@0.10.1",
@@ -968,9 +1014,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:rand@0.10.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:rand@0.10.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.10.2 to 0.10.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.10.2 to 0.10.3 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:raw-window-handle@0.6.2",
@@ -978,19 +1024,19 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:ref-cast-impl@1.0.26",
+        "id": "cargo:ref-cast-impl@1.0.27",
         "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
         "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:ref-cast@1.0.26",
+        "id": "cargo:ref-cast@1.0.27",
         "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
         "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:regex-automata@0.4.16",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:regex-automata@0.4.18",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.16 to 0.4.18 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.16 to 0.4.18 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:regex-syntax@0.8.11",
@@ -1008,9 +1054,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:rfd@0.16.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:rfd@0.17.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only; no build of this app compiles it.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only; no build of this app compiles it."
       },
       {
         "id": "cargo:rsa@0.10.0-rc.18",
@@ -1038,7 +1084,7 @@
         "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:schemars@1.2.1",
+        "id": "cargo:schemars@1.2.3",
         "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
         "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
@@ -1058,8 +1104,8 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:selectors@0.36.1",
-        "windows": "The runtime tauri-utils-4d632c158e0e1088 feature set lacks html-manipulation-2 and dom_query; the separate build instance 54acc9ea301d56b2 has them. dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output.",
+        "id": "cargo:selectors@0.38.0",
+        "windows": "The runtime tauri-utils-4d632c158e0e1088 feature set lacks html-manipulation-2 and dom_query; the separate build instance 54acc9ea301d56b2 has them. dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output. Updated from 0.36.1 to 0.38.0 on 2026-10-29; Still build-only in this graph; the exclusion reasoning stands. No license lines changed.",
         "macos": "The runtime tauri-utils instance for both macOS targets has only the features brotli, compression, resources and walkdir; html-manipulation-2 and dom_query belong to the separate build-host instance used by tauri-build and tauri-codegen. dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output."
       },
       {
@@ -1073,9 +1119,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:serde_json@1.0.151",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:serde_json@1.0.154",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.151 to 1.0.154 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.151 to 1.0.154 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:serde_spanned@0.6.9",
@@ -1083,14 +1129,14 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:serde_spanned@1.1.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:serde_spanned@1.1.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1 to 1.1.2 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1 to 1.1.2 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
       },
       {
-        "id": "cargo:serde_with@3.21.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:serde_with@3.24.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 3.21.0 to 3.24.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 3.21.0 to 3.24.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:serde-untagged@0.1.9",
@@ -1123,19 +1169,19 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:sha2@0.11.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
-      },
-      {
-        "id": "cargo:sha3@0.11.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:sha2@0.11.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.11.0 to 0.11.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.11.0 to 0.11.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:sha3@0.12.0",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+      },
+      {
+        "id": "cargo:shake@0.1.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. MIT OR Apache-2.0 (RustCrypto); MIT with the original text.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. MIT OR Apache-2.0 (RustCrypto); MIT with the original text."
       },
       {
         "id": "cargo:signature@3.0.0",
@@ -1153,9 +1199,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:smallvec@1.15.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:smallvec@1.16.4",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.15.2 to 1.16.4 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.15.2 to 1.16.4 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:socket2@0.6.5",
@@ -1163,9 +1209,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:spki@0.8.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:spki@0.8.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.0 to 0.8.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.0 to 0.8.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:sponge-cursor@0.1.0",
@@ -1198,59 +1244,54 @@
         "macos": "Explicit BSD-3-Clause selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:tao@0.35.3",
-        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tao@0.37.2",
+        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.35.3 to 0.37.2 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.35.3 to 0.37.2 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:tauri-plugin-dialog@2.7.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tauri-plugin-dialog@2.8.4",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.7.2 to 2.8.4 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.7.2 to 2.8.4 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:tauri-plugin-fs@2.5.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tauri-plugin-fs@2.7.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.1 to 2.7.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.1 to 2.7.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:tauri-plugin-opener@2.5.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tauri-plugin-opener@2.7.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.4 to 2.7.2 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.4 to 2.7.2 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:tauri-plugin-window-state@2.4.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tauri-plugin-window-state@2.5.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.4.1 to 2.5.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.4.1 to 2.5.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:tauri-runtime-wry@2.11.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tauri-runtime-wry@2.12.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.4 to 2.12.3 on 2026-10-29; License files renamed with the same bytes.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.4 to 2.12.3 on 2026-10-29; License files renamed with the same bytes."
       },
       {
-        "id": "cargo:tauri-runtime@2.11.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tauri-runtime@2.12.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.3 to 2.12.2 on 2026-10-29; License files renamed with the same bytes.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.3 to 2.12.2 on 2026-10-29; License files renamed with the same bytes."
       },
       {
-        "id": "cargo:tauri-utils@2.9.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tauri-utils@2.10.2",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.9.3 to 2.10.2 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig changed without license lines.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.9.3 to 2.10.2 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig changed without license lines."
       },
       {
-        "id": "cargo:tauri@2.11.5",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tauri@2.12.5",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.5 to 2.12.5 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.5 to 2.12.5 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines."
       },
       {
-        "id": "cargo:thiserror@1.0.69",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
-      },
-      {
-        "id": "cargo:thiserror@2.0.19",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:thiserror@2.0.21",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.0.19 to 2.0.21 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.0.19 to 2.0.21 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:time-core@0.1.9",
@@ -1258,29 +1299,24 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:time@0.3.54",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:time@0.3.55",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.54 to 0.3.55 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.54 to 0.3.55 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:tinystr@0.8.3",
-        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:tinystr@0.8.5",
+        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.3 to 0.8.5 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.3 to 0.8.5 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:tinyvec_macros@0.1.1",
+        "id": "cargo:tinyvec@1.13.3",
         "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
         "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
-        "id": "cargo:tinyvec@1.12.0",
-        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
-        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
-      },
-      {
-        "id": "cargo:tokio@1.53.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files."
+        "id": "cargo:tokio@1.54.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files. Updated from 1.53.3 to 1.54.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files. Updated from 1.53.3 to 1.54.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:toml_datetime@0.6.3",
@@ -1288,9 +1324,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:toml_datetime@1.1.1+spec-1.1.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:toml_datetime@1.1.2+spec-1.1.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1+spec-1.1.0 to 1.1.2+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1+spec-1.1.0 to 1.1.2+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
       },
       {
         "id": "cargo:toml_edit@0.20.2",
@@ -1298,14 +1334,14 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:toml_parser@1.1.2+spec-1.1.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:toml_parser@1.1.5+spec-1.1.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.2+spec-1.1.0 to 1.1.5+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.2+spec-1.1.0 to 1.1.5+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
       },
       {
-        "id": "cargo:toml_writer@1.1.2+spec-1.1.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:toml_writer@1.1.3+spec-1.1.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.2+spec-1.1.0 to 1.1.3+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.2+spec-1.1.0 to 1.1.3+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
       },
       {
         "id": "cargo:toml@0.8.2",
@@ -1313,12 +1349,12 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:toml@1.1.3+spec-1.1.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:toml@1.1.8+spec-1.1.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.3+spec-1.1.0 to 1.1.8+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.3+spec-1.1.0 to 1.1.8+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
       },
       {
-        "id": "cargo:tray-icon@0.24.1",
+        "id": "cargo:tray-icon@0.25.1",
         "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
         "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
@@ -1329,11 +1365,6 @@
       },
       {
         "id": "cargo:typenum@1.20.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
-      },
-      {
-        "id": "cargo:unicode-segmentation@1.13.3",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
@@ -1353,19 +1384,24 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:urlpattern@0.3.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:urlpattern@0.6.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.0 to 0.6.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.0 to 0.6.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:utf8_iter@1.0.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:utf_types@1.0.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Apache-2.0 OR MIT; MIT with the original text and the COPYRIGHT notice.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Apache-2.0 OR MIT; MIT with the original text and the COPYRIGHT notice."
       },
       {
-        "id": "cargo:uuid@1.24.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:utf8_iter@1.1.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.4 to 1.1.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.4 to 1.1.0 on 2026-10-29; same declared license, role and byte-identical license files."
+      },
+      {
+        "id": "cargo:uuid@1.29.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.24.0 to 1.29.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.24.0 to 1.29.0 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:walkdir@2.5.0",
@@ -1373,9 +1409,14 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:window-vibrancy@0.6.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:web-time@1.1.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. MIT OR Apache-2.0; MIT with the original text.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. MIT OR Apache-2.0; MIT with the original text."
+      },
+      {
+        "id": "cargo:window-vibrancy@0.8.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.0 to 0.8.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.0 to 0.8.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:winnow@0.5.40",
@@ -1393,19 +1434,19 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:writeable@0.6.3",
-        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:writeable@0.6.4",
+        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.3 to 0.6.4 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.3 to 0.6.4 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:wry@0.55.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:wry@0.57.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.55.1 to 0.57.1 on 2026-10-29; build.rs adds a macOS-only cfg check; no license or notice lines.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.55.1 to 0.57.1 on 2026-10-29; build.rs adds a macOS-only cfg check; no license or notice lines."
       },
       {
-        "id": "cargo:yoke@0.8.3",
-        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:yoke@0.8.4",
+        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.3 to 0.8.4 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.3 to 0.8.4 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:zerofrom@0.1.8",
@@ -1413,19 +1454,24 @@
         "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:zeroize@1.9.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:zeroize@1.9.1",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.9.0 to 1.9.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.9.0 to 1.9.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:zerotrie@0.2.4",
-        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:zerotrie@0.2.5",
+        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.4 to 0.2.5 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.2.4 to 0.2.5 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:zerovec@0.11.6",
-        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:zerovec@0.11.9",
+        "windows": "Explicit Unicode-3.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.11.6 to 0.11.9 on 2026-10-29; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Unicode-3.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.11.6 to 0.11.9 on 2026-10-29; same declared license, role and byte-identical license files."
+      },
+      {
+        "id": "cargo:zlib-rs@0.6.8",
+        "windows": "Outside the locked Windows release normal/build graph (development or other target). No source/code from this package is selected for the application payload.",
+        "macos": "Outside the locked macOS release normal/build graph (development or other target). No source/code from this package is selected for the application payload."
       },
       {
         "id": "cargo:zmij@1.0.23",
@@ -1434,58 +1480,46 @@
       }
     ],
     "dropped": [
-      "cargo:pageant@0.2.4",
+      "cargo:jiff-tzdb-platform@0.1.3",
+      "cargo:jiff-tzdb@0.1.9",
+      "cargo:pageant@0.2.5",
       "cargo:softbuffer@0.4.8",
-      "cargo:tracing@0.1.44",
       "cargo:tracing-attributes@0.1.31",
       "cargo:tracing-core@0.1.36",
-      "cargo:vswhom@0.1.0",
+      "cargo:tracing@0.1.44",
+      "cargo:unicode-segmentation@1.13.3",
       "cargo:vswhom-sys@0.1.3",
-      "cargo:webview2-com@0.38.2",
+      "cargo:vswhom@0.1.0",
       "cargo:webview2-com-macros@0.8.1",
-      "cargo:webview2-com-sys@0.38.2",
+      "cargo:webview2-com-sys@0.39.1",
+      "cargo:webview2-com@0.39.1",
       "cargo:winapi-util@0.1.11",
-      "cargo:windows@0.61.3",
-      "cargo:windows@0.62.2",
-      "cargo:windows_x86_64_msvc@0.48.5",
-      "cargo:windows_x86_64_msvc@0.52.6",
-      "cargo:windows_x86_64_msvc@0.53.1",
-      "cargo:windows-collections@0.2.0",
       "cargo:windows-collections@0.3.2",
-      "cargo:windows-core@0.61.2",
       "cargo:windows-core@0.62.2",
-      "cargo:windows-future@0.2.1",
       "cargo:windows-future@0.3.2",
       "cargo:windows-implement@0.60.2",
       "cargo:windows-interface@0.59.3",
-      "cargo:windows-link@0.1.3",
       "cargo:windows-link@0.2.1",
-      "cargo:windows-numerics@0.2.0",
       "cargo:windows-numerics@0.3.1",
-      "cargo:windows-result@0.3.4",
       "cargo:windows-result@0.4.1",
-      "cargo:windows-strings@0.4.2",
       "cargo:windows-strings@0.5.1",
       "cargo:windows-sys@0.48.0",
-      "cargo:windows-sys@0.59.0",
-      "cargo:windows-sys@0.60.2",
       "cargo:windows-sys@0.61.2",
       "cargo:windows-targets@0.48.5",
-      "cargo:windows-targets@0.52.6",
-      "cargo:windows-targets@0.53.5",
-      "cargo:windows-threading@0.1.0",
       "cargo:windows-threading@0.2.1",
       "cargo:windows-version@0.1.7",
-      "cargo:winreg@0.55.0",
-      "native:webview2-sdk-loader",
-      "native:msvc-windows-runtime",
-      "prerequisite:webview2-evergreen",
+      "cargo:windows@0.62.2",
+      "cargo:windows_x86_64_msvc@0.48.5",
+      "cargo:winreg@0.56.0",
       "installer:nsis-engine-and-standard-plugins",
       "installer:nsis-lzma-decoder",
       "installer:nsis-modern-ui-2",
-      "installer:nsisdl",
       "installer:nsis-tauri-utils",
-      "installer:wix-ui"
+      "installer:nsisdl",
+      "installer:wix-ui",
+      "native:msvc-windows-runtime",
+      "native:webview2-sdk-loader",
+      "prerequisite:webview2-evergreen"
     ],
     "added": [
       "cargo:base64@0.21.7",
@@ -1509,10 +1543,10 @@
       "cargo:objc2-exception-helper@0.1.1",
       "cargo:objc2-foundation@0.3.2",
       "cargo:objc2-io-surface@0.3.2",
+      "cargo:objc2-quartz-core@0.3.2",
       "cargo:objc2-web-kit@0.3.2",
-      "cargo:objc2@0.6.4",
-      "cargo:png@0.18.1",
-      "cargo:swift-rs@1.0.7",
+      "cargo:objc2@0.6.5",
+      "cargo:swift-rs@1.0.9",
       "rust-toolchain:8",
       "rust-toolchain:9",
       "rust-toolchain:10",

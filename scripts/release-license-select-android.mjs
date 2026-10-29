@@ -78,19 +78,24 @@ const ABSENT = ['.cargo/config', '.cargo/config.toml', 'src-tauri/.cargo/config'
 // Every cargo package that exists only in the Android graph. `files` are the
 // complete original texts selected from the package root. `repo` names a text
 // of the package's repository at its publish commit, for crates that ship none.
+// 2026-10-29 (Tauri 2.12): android_system_properties, combine, http-body-util,
+// hyper, hyper-util, ipnet, reqwest, tokio-util, toml_edit and want moved to new
+// versions with byte-identical selected texts (android_system_properties only
+// rewrote its declaration as MIT OR Apache-2.0; toml_edit only filled the
+// copyright placeholder of its Apache-2.0 appendix, which is not selected).
 export const NEW_CRATES = {
-  'android_system_properties@0.1.5': { files: ['LICENSE-MIT'] },
+  'android_system_properties@0.1.6': { files: ['LICENSE-MIT'] },
   'atomic-waker@1.1.2': { files: ['LICENSE-MIT', 'LICENSE-THIRD-PARTY'], note: 'LICENSE-THIRD-PARTY retains the Apache-2.0 notice of the futures and Tokio code the crate derives from (Copyright 2016 Alex Crichton, 2017 The Tokio Authors).' },
   'cesu8@1.1.0': { files: ['COPYRIGHT-RUST.txt'], spdxMit: true, note: 'The crate ships only COPYRIGHT-RUST.txt, the Rust project copyright file for the code it derives from Rust std; it is retained verbatim with the canonical SPDX MIT text it names.' },
   'cfg_aliases@0.2.2': { files: ['LICENSE', 'NOTICES.md'], note: 'The original NOTICES.md for the tectonic_cfg_support code that cfg_aliases reuses is retained.' },
-  'combine@4.6.7': { files: ['LICENSE'] },
+  'combine@4.6.9': { files: ['LICENSE'] },
   'http-body@1.1.0': { files: ['LICENSE'] },
-  'http-body-util@0.1.4': { files: ['LICENSE'] },
+  'http-body-util@0.1.5': { files: ['LICENSE'] },
   'httparse@1.10.1': { files: ['LICENSE-MIT'] },
-  'hyper@1.11.0': { files: ['LICENSE'] },
-  'hyper-util@0.1.20': { files: ['LICENSE'] },
+  'hyper@1.12.0': { files: ['LICENSE'] },
+  'hyper-util@0.1.21': { files: ['LICENSE'] },
   'iana-time-zone@0.1.65': { files: ['LICENSE-MIT'] },
-  'ipnet@2.12.0': { files: ['LICENSE-MIT'] },
+  'ipnet@2.12.2': { files: ['LICENSE-MIT'] },
   'is-docker@0.2.0': { files: ['LICENSE'] },
   'is-wsl@0.4.0': { files: ['LICENSE'] },
   'jni@0.21.1': { files: ['LICENSE-MIT'] },
@@ -99,21 +104,26 @@ export const NEW_CRATES = {
   'jni-sys-macros@0.4.1': { repo: 'jni-sys-mit', note: 'The crate ships no license file; the LICENSE-MIT of its repository at the publish commit 64d77b7 (.cargo_vcs_info.json) is selected.' },
   'ndk@0.9.0': { repo: 'ndk-mit', note: 'The crate ships no license file; the LICENSE-MIT of its repository at the publish commit 49bbbba (.cargo_vcs_info.json) is selected.' },
   'ndk-sys@0.6.0+11769913': { repo: 'ndk-mit', note: 'The crate ships no license file; the LICENSE-MIT of its repository at the publish commit 49bbbba (.cargo_vcs_info.json) is selected. The bindings are generated from the NDK headers, which the NDK NOTICE covers (native:android-ndk-crt).' },
+  'ndk-context@0.1.1': { repo: 'ndk-mit', note: 'New with Tauri 2.12 (2026-10-29). The crate ships no license file; its repository at the publish commit 10f2ba3 (.cargo_vcs_info.json, rust-mobile/ndk, formerly android-ndk-rs) has a LICENSE-MIT byte-identical to the one at 49bbbba, which is selected.' },
   'nix@0.31.3': { files: ['LICENSE'] },
   'num_enum@0.7.6': { files: ['LICENSE-MIT'] },
   'num_enum_derive@0.7.6': { files: ['LICENSE-MIT'] },
   'proc-macro-crate@3.5.0': { files: ['LICENSE-MIT'] },
-  'reqwest@0.13.4': { files: ['LICENSE-MIT'] },
+  'reqwest@0.13.5': { files: ['LICENSE-MIT'] },
   'sync_wrapper@1.0.2': { files: ['LICENSE'], license: 'Apache-2.0', note: 'Apache-2.0 is the only license offered; the crate ships the complete text and no NOTICE file.' },
-  'tao-macros@0.1.3': { sameAs: 'tao@0.35.3', note: 'The crate ships no license file. The tao repository at tag tao-macros-v0.1.3 (340684d) carries LICENSE and LICENSE.spdx byte-identical to the texts selected for tao 0.35.3; the Apache-2.0 selection of tao is reused.' },
-  'tokio-util@0.7.19': { files: ['LICENSE'] },
-  'toml_edit@0.25.13+spec-1.1.0': { files: ['LICENSE-MIT'] },
+  'tao-macros@0.1.4': { files: ['LICENSE-MIT'], note: 'Since 0.1.4 the crate ships LICENSE-APACHE, LICENSE-MIT and LICENSE.spdx; MIT with its own original text.' },
+  // Left the Windows graph with Tauri 2.12 but still used on Android (jni 0.21); the Windows
+  // decision until then was MIT with the original text, kept here.
+  'thiserror@1.0.69': { files: ['LICENSE-MIT'] },
+  'thiserror-impl@1.0.69': { files: ['LICENSE-MIT'] },
+  'tokio-util@0.7.20': { files: ['LICENSE'] },
+  'toml_edit@0.25.17+spec-1.1.0': { files: ['LICENSE-MIT'] },
   'tower@0.5.3': { files: ['LICENSE'] },
   'tower-http@0.6.11': { files: ['LICENSE'] },
   'tower-layer@0.3.3': { files: ['LICENSE'] },
   'tower-service@0.3.3': { files: ['LICENSE'] },
   'try-lock@0.2.5': { files: ['LICENSE'] },
-  'want@0.3.1': { files: ['LICENSE'] },
+  'want@0.3.2': { files: ['LICENSE'] },
 };
 
 // Every library of the release runtime classpath. `archive` names license or
@@ -188,6 +198,8 @@ export const MAVEN = {
   'com.fasterxml.jackson.core:jackson-annotations:2.15.3': apache('https://github.com/FasterXML/jackson-annotations', { archive: ['META-INF/LICENSE', 'META-INF/NOTICE'] }),
   'com.fasterxml.jackson.core:jackson-core:2.15.3': apache('https://github.com/FasterXML/jackson-core', { archive: ['META-INF/LICENSE', 'META-INF/NOTICE'] }),
   'com.fasterxml.jackson.core:jackson-databind:2.15.3': apache('https://github.com/FasterXML/jackson-databind', { archive: ['META-INF/LICENSE', 'META-INF/NOTICE'] }),
+  // New with Tauri 2.12's Android module (2026-10-29); its org.json dependency is excluded there.
+  'com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.15.3': apache('https://github.com/FasterXML/jackson-datatypes-misc', { archive: ['META-INF/LICENSE', 'META-INF/NOTICE'] }),
   'com.fasterxml.jackson:jackson-bom:2.15.3': { bom: true },
   'com.google.android.material:material:1.13.0': apache('https://github.com/material-components/material-components-android'),
   'com.google.errorprone:error_prone_annotations:2.15.0': apache('https://github.com/google/error-prone'),
@@ -218,13 +230,15 @@ const ANDROID_REASONS = {};
 // Packages the Windows selection excludes that the Android library contains:
 // on Android, wry depends on dom_query at run time
 // ([target.'cfg(target_os = "android")'.dependencies.dom_query] in wry
-// 0.55.1), and with it on its MPL-2.0 CSS parser and selector matcher.
-const DOM_QUERY = 'On Android, wry 0.55.1 depends on dom_query at run time (a target_os = "android" dependency), so this package is compiled into libaidevbridge_lib.so.';
+// 0.57.1), and with it on its MPL-2.0 CSS parser and selector matcher.
+const DOM_QUERY = 'On Android, wry 0.57.1 depends on dom_query at run time (a target_os = "android" dependency), so this package is compiled into libaidevbridge_lib.so.';
 const ANDROID_INCLUDES = {
-  'cssparser@0.36.0': { files: ['LICENSE'], reason: `${DOM_QUERY} dom_query uses it to tokenize and parse selectors, directly and through selectors.` },
-  'selectors@0.36.1': { text: `${LICENSES}/selectors-0.36.1-LICENSE-MPL-2.0.txt`, reason: `${DOM_QUERY} dom_query matches selectors to DOM nodes with it. The crate ships no license file; the MPL-2.0 text already selected for it is retained.` },
+  // 2026-10-29 (Tauri 2.12): cssparser 0.36.0 -> 0.37.0, cssparser-macros 0.6.1 -> 0.7.1 (LICENSE byte-identical)
+  // and selectors 0.36.1 -> 0.38.0 (still MPL-2.0 without a license file); same use by dom_query.
+  'cssparser@0.37.0': { files: ['LICENSE'], reason: `${DOM_QUERY} dom_query uses it to tokenize and parse selectors, directly and through selectors.` },
+  'selectors@0.38.0': { text: `${LICENSES}/selectors-0.36.1-LICENSE-MPL-2.0.txt`, reason: `${DOM_QUERY} dom_query matches selectors to DOM nodes with it. The crate ships no license file; the MPL-2.0 text already selected for it is retained.` },
   'dtoa-short@0.3.5': { files: ['LICENSE'], reason: `${DOM_QUERY} cssparser formats numbers with it.` },
-  'cssparser-macros@0.6.1': { files: ['LICENSE'], reason: 'A proc macro that runs on the build host, but its expansions (MAX_LENGTH constants, byte dispatch tables and matches) are compiled into cssparser and selectors, which the Android library contains; included conservatively.' },
+  'cssparser-macros@0.7.1': { files: ['LICENSE'], reason: 'A proc macro that runs on the build host, but its expansions (MAX_LENGTH constants, byte dispatch tables and matches) are compiled into cssparser and selectors, which the Android library contains; included conservatively.' },
   'option-ext@0.2.0': { files: ['LICENSE.txt'], reason: 'dirs-sys compiles xdg_user_dirs.rs for Android (unix, not macOS or iOS), whose user_dir.contains instantiates OptionExt. The app calls no dirs function on Android (src-tauri/src/paths.rs), so the instantiation may not survive linking; included conservatively.' },
 };
 

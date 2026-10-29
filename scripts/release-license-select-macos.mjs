@@ -48,7 +48,9 @@ const ABSENT = ['.cargo/config', '.cargo/config.toml', 'src-tauri/.cargo/config'
 
 // Every package that exists only in the macOS graph. `files` are the complete
 // original texts selected from the package root; `objc2` crates ship no text.
-const OBJC2_CRATES = ['block2@0.6.2', 'dispatch2@0.3.1', 'objc2@0.6.4', 'objc2-app-kit@0.3.2', 'objc2-core-foundation@0.3.2', 'objc2-encode@4.1.0', 'objc2-exception-helper@0.1.1', 'objc2-foundation@0.3.2', 'objc2-web-kit@0.3.2'];
+// 2026-10-29 (Tauri 2.12): objc2 0.6.4 -> 0.6.5 and the new objc2-quartz-core
+// 0.3.2 ship no license file either; same repository and declarations.
+const OBJC2_CRATES = ['block2@0.6.2', 'dispatch2@0.3.1', 'objc2@0.6.5', 'objc2-app-kit@0.3.2', 'objc2-core-foundation@0.3.2', 'objc2-encode@4.1.0', 'objc2-exception-helper@0.1.1', 'objc2-foundation@0.3.2', 'objc2-quartz-core@0.3.2', 'objc2-web-kit@0.3.2'];
 export const NEW_CRATES = {
   'base64@0.21.7': { files: ['LICENSE-MIT'] },
   'cfg_aliases@0.2.2': { files: ['LICENSE', 'NOTICES.md'], note: 'The original NOTICES.md for the tectonic_cfg_support code that cfg_aliases reuses is retained.' },
@@ -64,8 +66,8 @@ export const NEW_CRATES = {
   'nix@0.31.3': { files: ['LICENSE'] },
   'objc2-core-graphics@0.3.2': { outside: true },
   'objc2-io-surface@0.3.2': { outside: true },
-  'png@0.18.1': { files: ['LICENSE-MIT'] },
-  'swift-rs@1.0.7': { files: ['LICENSE-MIT'] },
+  // 1.0.7 -> 1.0.9 on 2026-10-29: LICENSE-MIT byte-identical.
+  'swift-rs@1.0.9': { files: ['LICENSE-MIT'] },
   ...Object.fromEntries(OBJC2_CRATES.map(id => [id, { objc2: true }])),
 };
 
@@ -79,7 +81,7 @@ const WINDOWS_WORDS = /Windows|WebView2|COFF|\bPE\b|\bEXE\b|\bPDB\b|MSVC/;
 // decision stands for macOS on the evidence given here.
 const MACOS_REASONS = {
   'option-ext@0.2.0': 'Both dirs-sys versions unconditionally declare extern crate option_ext, so the dependency tree alone does not exclude it. Their only OptionExt use is user_dir.contains in xdg_user_dirs.rs, whose module is gated by cfg(all(unix, not(any(target_os = "macos", target_os = "ios")))) and is therefore not compiled for either macOS target. option-ext consists of a generic trait and generic impl only, with no initializer or non-generic runtime payload. The Windows COFF size evidence is not repeated for macOS; the caller/cfg proof carries the decision.',
-  'selectors@0.36.1': 'The runtime tauri-utils instance for both macOS targets has only the features brotli, compression, resources and walkdir; html-manipulation-2 and dom_query belong to the separate build-host instance used by tauri-build and tauri-codegen. dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output.',
+  'selectors@0.38.0': 'The runtime tauri-utils instance for both macOS targets has only the features brotli, compression, resources and walkdir; html-manipulation-2 and dom_query belong to the separate build-host instance used by tauri-build and tauri-codegen. dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output.',
 };
 
 // The Rust 1.97.1 standard library as the installed aarch64/x86_64-apple-darwin

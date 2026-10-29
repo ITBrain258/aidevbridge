@@ -62,8 +62,11 @@ test('the committed selection covers the three ABIs and decides every Android-on
   for (const id of ['native:android-ndk-llvm-runtime', 'native:android-ndk-crt', 'native:android-system-libraries']) assert.ok(ids.has(id), id);
   const included = selection.components.filter(c => c.disposition === 'include');
   assert.ok(included.every(c => c.documents.length > 0));
-  for (const id of ['cargo:cssparser@0.36.0', 'cargo:selectors@0.36.1', 'cargo:dtoa-short@0.3.5']) {
-    const component = selection.components.find(c => c.id === id);
+  // By name, not version: the MPL-2.0 crates stay runtime on Android across updates.
+  for (const name of ['cssparser', 'selectors', 'dtoa-short']) {
+    const component = selection.components.find(c => c.id.startsWith('cargo:') && c.name === name);
+    const id = component?.id ?? name;
+    assert.ok(component, name);
     assert.equal(component.disposition, 'include', id);
     assert.equal(component.selected_license, 'MPL-2.0', id);
     assert.match(component.reason, /Source Code Form is available at https:\/\/static\.crates\.io\//, id);
