@@ -187,7 +187,7 @@ PERFORMANCE OF THIS SOFTWARE.
 
 ## Vite (generated modulepreload polyfill)
 
-Source: package `vite` 6.4.4. The frontend contains Vite's generated modulepreload polyfill. The Vite core MIT text from `node_modules/vite/LICENSE.md` follows verbatim.
+Source: package `vite` 6.4.5. The frontend contains Vite's generated modulepreload polyfill. The Vite core MIT text from `node_modules/vite/LICENSE.md` follows verbatim.
 
 MIT License
 

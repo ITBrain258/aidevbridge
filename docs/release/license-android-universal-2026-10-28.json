@@ -21,8 +21,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1072562,
-    "sha256": "7dbb803bf59b591d862075a1ab821f1a218d5a76912bea9bed9a81dcc269cb66"
+    "bytes": 1072895,
+    "sha256": "317f25df04094ab388e360f2b42b4bf7850f94f72cbf08d39f745178e7ca8462"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the Android graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",

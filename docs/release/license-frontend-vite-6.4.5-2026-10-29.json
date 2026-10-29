@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-10-29T21:00:00.000Z",
+  "scope": "Vite 6.4.4 to 6.4.5 (security update of a build tool, GHSA-8g5g-mxqh-grgj: server.fs.deny bypassed with queries, dev server only); whether the frontend output and the selected Vite notice change. Not final application compliance or installer delivery.",
+  "basis": "docs/release/license-frontend-output-2026-09-12.json",
+  "packages": {
+    "6.4.4": {
+      "url": "https://registry.npmjs.org/vite/-/vite-6.4.4.tgz",
+      "archive_bytes": 635040,
+      "archive_sha256": "09242e9a1f45c17ef96402dc1b39cfcf93b6a65a5bc965622641be50830fa71b"
+    },
+    "6.4.5": {
+      "url": "https://registry.npmjs.org/vite/-/vite-6.4.5.tgz",
+      "archive_bytes": 635617,
+      "archive_sha256": "09a0d95895b0346a872d3dd0325a8fefb4243361111aa7fceab8d6510e5c2cf6",
+      "lock_integrity": "sha512-4enwjFfi4IwtEh0w+jPzpLVOFQiPHmmzPxcHXQOyEur47o6u0jE573DmGpjA+7irXoMLYRZD5ZaFUEneS3abPg==",
+      "package_json": {
+        "path": "node_modules/vite/package.json",
+        "bytes": 5251,
+        "sha256": "0ac6ea0598168f203cad40e7b6e0f892987109262a296e29abf039f1b26099ee"
+      }
+    }
+  },
+  "license_text": {
+    "path": "LICENSE.md",
+    "6.4.4_sha256": "008938a3441801ca3960f8e3ccb4c0738e7996442a53063141d57d3769a7344d",
+    "6.4.5_sha256": "008938a3441801ca3960f8e3ccb4c0738e7996442a53063141d57d3769a7344d",
+    "equal": true
+  },
+  "modulepreload_polyfill_source": {
+    "method": "The same 3122-byte range as in license-frontend-vite-6.4.4-2026-10-22.json: it starts 113 bytes before \"function polyfill()\" in the chunk that contains it.",
+    "6.4.4": {
+      "path": "dist/node/chunks/dep-3O3b9SCF.js",
+      "polyfill_bytes": 3122,
+      "polyfill_sha256": "982010151b1773565e6fedd1285d8e40fafbc7d1830ad03272d5137e7261a074"
+    },
+    "6.4.5": {
+      "path": "dist/node/chunks/dep-CkSfqg8D.js",
+      "polyfill_bytes": 3122,
+      "polyfill_sha256": "982010151b1773565e6fedd1285d8e40fafbc7d1830ad03272d5137e7261a074"
+    },
+    "equal": true
+  },
+  "frontend_output": {
+    "command": "npm run build (tsc && vite build), same checkout at v0.2.4 (c279bce), the locked Vite 6.4.4 versus Vite 6.4.5 installed with npm install --save-dev vite@^6.4.5",
+    "6.4.4": [
+      {
+        "path": "dist/assets/index-yuygRRil.js",
+        "bytes": 763965,
+        "sha256": "72817108619adae0d32618c8fcd292dbd4845d08d12429a97aac1075c8e76db9"
+      },
+      {
+        "path": "dist/assets/index-BMC3bw61.css",
+        "bytes": 67322,
+        "sha256": "c1f76583afbd94a1481a2a2b453eb210320b3485b2943442487a44dbcb959f45"
+      },
+      {
+        "path": "dist/index.html",
+        "bytes": 1945,
+        "sha256": "9ec613d98d2c33006a53c5cb2671b893af2d436fc21f9259ee952f43813de138"
+      }
+    ],
+    "6.4.5": [
+      {
+        "path": "dist/assets/index-yuygRRil.js",
+        "bytes": 763965,
+        "sha256": "72817108619adae0d32618c8fcd292dbd4845d08d12429a97aac1075c8e76db9"
+      },
+      {
+        "path": "dist/assets/index-BMC3bw61.css",
+        "bytes": 67322,
+        "sha256": "c1f76583afbd94a1481a2a2b453eb210320b3485b2943442487a44dbcb959f45"
+      },
+      {
+        "path": "dist/index.html",
+        "bytes": 1945,
+        "sha256": "9ec613d98d2c33006a53c5cb2671b893af2d436fc21f9259ee952f43813de138"
+      }
+    ],
+    "equal": true
+  },
+  "decision": "Unchanged decision for Vite: the frontend still contains only the generated modulepreload polyfill, byte for byte as with 6.4.4, under the same MIT text. The component moves to npm:vite@6.4.5 and THIRD_PARTY_LICENSES.md names 6.4.5."
+}
