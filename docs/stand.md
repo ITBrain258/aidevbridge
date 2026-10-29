@@ -36,10 +36,16 @@ ohne Abnahme: Backend und Oberfläche für Android, Signatur, Workflow
 Lizenzauswahl (`license-selection.android-universal.json`), deren Texte als
 `assets/licenses/` in APK und App Bundle gehen. Am 29.10. lief die App
 erstmals auf einem Telefon des Maintainers; das dort fehlende Wischen im
-Terminal ist nachgerüstet (Spec §5.5). In der Play Console steht ein
-geschlossener Test mit 0.2.3. Offen sind die Schritte des Maintainers (12
-Tester über 14 Tage, Bildschirmfotos, Secrets) und das Neubinden aller drei
-Auswahlen vor dem Release ([Plan](plans/2026-10-27-android.md), Phase 6).
+Terminal ist nachgerüstet (Spec §5.5), der Scrollbalken im Terminal entfällt
+auf allen Plattformen. Eine unabhängige Durchsicht am selben Tag fand unter
+anderem einen Fehler, der jedes Android-Release am Signieren gestoppt hätte
+(`jarsigner -strict`), und einen Pfadausbruch beim Schlüsselimport; beides
+ist behoben, der Release-Pfad lässt sich jetzt ohne Tag probeweise bauen.
+In der Play Console steht ein geschlossener Test mit 0.2.3. Offen sind die
+Schritte des Maintainers (12 Tester über 14 Tage, Bildschirmfotos, Secrets),
+der Probelauf des Release-Pfads nach dem Merge und das Neubinden der
+Windows- und macOS-Auswahl vor dem Release
+([Plan](plans/2026-10-27-android.md), Phase 6).
 
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
 steht im [README](../README.md#what-it-is), die Änderungen im

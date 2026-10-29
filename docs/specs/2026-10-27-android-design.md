@@ -144,7 +144,10 @@ Alles Folgende gilt nur auf Android (`platform.ts`: User-Agent enthält
 
 ### 5.1 Kompakte Ansicht
 
-Bis 720 px Breite (`COMPACT_QUERY`, jedes Telefon hochkant):
+Bis 720 px Breite (jedes Telefon hochkant) und auf Bildschirmen bis 500 px
+Höhe (jedes Telefon quer), zusammen `COMPACT_QUERY`. Für die Höhe zählt der
+Bildschirm (`device-height`), nicht das Fenster, das die Tastatur verkleinert:
+Ein Tablet quer bleibt so auch beim Tippen beim Desktop-Layout.
 
 - `#app` hat eine Spalte: oben eine Kopfleiste (Knopf „Sessions“ mit Zahl der
   Wartenden, Name der fokussierten Session), darunter das Raster ohne
@@ -171,6 +174,8 @@ Eine Zeile unter dem Raster, waagerecht rollbar: Esc, Tab, Ctrl, Alt, ←, ↓, 
   (DECCKM) als SS3, sonst CSI, mit Umschaltern als `CSI 1;<m>`.
 - Ctrl und Alt rasten ein: Ein Tipp merkt den Umschalter für die nächste Taste
   vor, ob aus der Leiste oder von der Bildschirmtastatur, danach fällt er ab.
+  Strg macht nur aus ASCII-Zeichen Steuerzeichen (Buchstaben, `@[\]^_`,
+  Leertaste, `?`, und `/` wie `_` zu US); `ß` oder `ä` gehen unverändert.
   `terminal.ts` wendet ihn in `term.onData` an; Escape-Folgen (Antworten von
   xterm, Tasten einer echten Tastatur) bleiben unberührt.
 - Kein Knopf nimmt den Fokus (`pointerdown` mit `preventDefault`): Die
@@ -192,8 +197,13 @@ Anmeldungsmenü zeigt dort statt „ssh-agent“:
   fs-Plugin (höchstens 64 KiB), prüft, dass es ein privater Schlüssel ist, den
   die Anmeldung laden kann (OpenSSH-Format auch verschlüsselt, PEM nur
   unverschlüsselt), und legt ihn als `imported_<art>` samt abgeleiteter
-  `.pub` ab. Nichts wird überschrieben.
+  `.pub` ab. Nichts wird überschrieben. Die Art kürzt `file_safe` auf
+  `[A-Za-z0-9_-]`: Ein unbekannter Algorithmus heißt, was in der Datei steht,
+  auch mit `/` und `..`.
 - Danach führt `list_ssh_keys` beide wie jeden anderen Schlüssel.
+- Beide Befehle antworten auf dem Desktop nur mit einem Fehler
+  (`android_only`): Dort öffneten sie sonst beliebige Pfade, unter Windows
+  auch UNC-Pfade mit SMB-Anmeldung, und schrieben ins echte `~/.ssh`.
 
 Ausnahme von Spec §8.2 (private Dateien nie lesen): Die übernommene Datei muss
 gelesen werden, sonst ließen sich weder ihre Art prüfen noch die `.pub`
@@ -238,6 +248,11 @@ nach dem Vorbild von Termux:
 - Tasten der Leiste wiederholen sich beim Halten nicht.
 - Jedes Öffnen der Tastatur ändert die Terminalgröße (§4.6, V12).
 - Strg+Umschalt-Kürzel gibt es nur mit einer Hardwaretastatur.
+- Zurück-Geste ohne offene Schublade auf Android 7 bis 11: Dort beendet
+  Android die Aktivität; erst ab Android 12 legt die Geste die Startaktivität
+  nur in den Hintergrund. Ob Tauri nach dem Beenden sauber neu aufbaut, ist
+  auf einem solchen Gerät noch zu prüfen; sonst bekommt `MainActivity` einen
+  Rückruf mit `moveTaskToBack`.
 
 ## 6 Bau, Signatur, Veröffentlichung
 
@@ -247,6 +262,16 @@ nach dem Vorbild von Termux:
   APK für arm64, als Artefakt des Laufs, nie veröffentlicht.
 - **Release** bei einem Tag `v*` oder einem Handlauf mit Tag: AAB und
   universelle APK für drei ABIs, dann die Jobs `sign`, `publish` und `play`.
+- **Probelauf** von Hand mit `release`: baut wie ein Release, prüft
+  Lizenztexte und Ausrichtung, signiert und veröffentlicht nichts. Der Test
+  vor einem Tag, denn sonst liefe der Release-Pfad erst beim Tag selbst.
+- **Prüfungen im Build-Job:** Die Lizenztexte stehen Byte für Byte in APK
+  und App Bundle (aus dem Play die ausgelieferten Pakete baut). Jede native
+  Bibliothek hat ihre LOAD-Segmente auf 16 KB ausgerichtet (`llvm-readelf`;
+  `zipalign -P 16` im Sign-Job ordnet nur die Zip-Einträge).
+- `publish` teilt sich mit dem Publish-Job von `packages.yml` eine
+  Concurrency-Gruppe je Tag: Beide lesen und schreiben den Release-Text, und
+  gleichzeitig verlöre einer den Abschnitt des anderen.
 
 ### 6.2 Signatur
 
@@ -262,7 +287,11 @@ nach dem Vorbild von Termux:
   und Proc-Makros aus und bekommt keine Secrets. Erst der Job `sign` bekommt
   die fertigen Dateien und den Schlüssel, aus dem GitHub-Environment
   `android-release`, und führt nur `zipalign`, `apksigner` und `jarsigner`
-  aus. `scripts/android-github-secrets.ps1` legt die Secrets an.
+  aus; die Build-Tools lädt ein Schritt davor, der den Schlüssel nicht sieht.
+  `scripts/android-github-secrets.ps1` legt die Secrets an und erlaubt das
+  Environment nur Tags `v*`, auf Wunsch mit Freigabe durch den Maintainer.
+  `jarsigner -verify` läuft ohne `-strict`, das jeden selbstsignierten
+  Upload-Schlüssel mit Exit 4 ablehnte (Befund der Durchsicht vom 29.10.).
 - **Play App Signing:** Google erzeugt und verwahrt den App-Signaturschlüssel.
   Geht der Upload-Schlüssel verloren, setzt der Play-Support ihn zurück; die
   GitHub-APK bräuchte dann einen neuen Schlüssel und eine Neuinstallation.

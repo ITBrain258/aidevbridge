@@ -1,6 +1,6 @@
 # aidevbridge im Google Play Store: Anleitung
 
-Stand 27.10.2026. Diese Anleitung führt von dem, was auf dem Branch
+Stand 29.10.2026. Diese Anleitung führt von dem, was auf dem Branch
 `feat/android` schon fertig ist, bis zur App im Play Store und zu jedem
 späteren Update. Die Entscheidungen dahinter stehen in der
 [Spec](specs/2026-10-27-android-design.md), der Stand der Schritte im
@@ -86,9 +86,13 @@ Assets liegen. Für ein Paket, das du weitergibst oder hochlädst, vor dem Bau:
 node scripts/release-licenses.mjs prepare android-universal
 New-Item -ItemType Directory -Force src-tauri\gen\android\app\src\main\assets\licenses | Out-Null
 Copy-Item -Recurse -Force out\release-notices-android\* src-tauri\gen\android\app\src\main\assets\licenses\
+node scripts/release-licenses.mjs check android-universal
 ```
 
-Die Release-Läufe der CI machen das selbst.
+`prepare` lehnt eine geänderte Eingabe ab (dann zuerst die Auswahl neu
+binden, siehe E1) und überschreibt keinen abweichenden alten Ordner
+`out\release-notices-android`; den vorher löschen. Die Release-Läufe der CI
+machen das alles selbst.
 
 **Android Studio** (optional): beim ersten Start „Custom“ wählen und als SDK
 `%LOCALAPPDATA%\Android\Sdk` angeben (ist schon eingerichtet), dann
@@ -237,9 +241,8 @@ dessen Zugangsdaten hier eintragen.
    selbst einträgt, und nur Ende-zu-Ende-verschlüsselt per SSH; Google nimmt
    so übertragene Daten von der Angabepflicht aus. An dich oder Dritte geht
    nichts.
-2. „Sind alle Nutzerdaten bei der Übertragung verschlüsselt?“ → Ja.
-3. „Können Nutzer das Löschen ihrer Daten anfordern?“ → Es werden keine Daten
-   erhoben; Hinweis: Deinstallieren oder Host in der App entfernen.
+2. Damit ist der Fragebogen fertig: Die Fragen nach Verschlüsselung und
+   Löschung stellt Play nur nach einem „Ja“.
 
 ### C6 Erste Version hochladen (interner Test)
 
@@ -253,7 +256,7 @@ CI.
 3. App Bundle hochladen:
    `C:\Users\test\Desktop\aidevbridge-android\aidevbridge-android.aab`
    (Testbau dieses Branches, Version 0.2.3) oder besser das signierte AAB aus
-   dem ersten Release-Lauf der CI (E2, Artefakt `android-signed`).
+   dem Lauf eines Tags (Abschnitt E, Artefakt `android-signed`).
 4. Release-Name z. B. `0.3.0`, Versionshinweise aus `changelogs/default.txt`.
 5. **Speichern → Release überprüfen → Roll-out für internen Test starten.**
 6. **Tester:** E-Mail-Liste anlegen (bis 100), Link zum Beitreten an dich und
@@ -272,7 +275,7 @@ geschlossener Test mit **mindestens 12 Testern** **14 Tage am Stück** lief.
    Group oder E-Mail-Liste mit mindestens 12 Personen (Kollegen, Freunde;
    jede braucht ein Google-Konto und ein Android-Gerät).
 2. Release aus dem internen Test in den geschlossenen Test übernehmen
-   („Release hochstufen“) oder in E2 den Track `alpha` wählen.
+   („Release hochstufen“) oder die Spur `alpha` fest einstellen (D3).
 3. Jeder Tester öffnet den Beitrittslink, nimmt teil, installiert die App und
    behält sie 14 Tage. Fällt die Zahl darunter, beginnt die Frist neu.
 4. Danach erscheint im **Dashboard „Produktionszugriff beantragen“**: ein
@@ -301,14 +304,17 @@ Nachdem `feat/android` in `main` ist, im Repository:
 pwsh -File scripts/android-github-secrets.ps1
 ```
 
-Das legt das GitHub-Environment `android-release` an und darin die vier
-Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
-`ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Nur die Jobs `sign` und `play`
-sehen sie.
+Das legt das GitHub-Environment `android-release` an, erlaubt es nur Tags
+`v*` und setzt darin die vier Secrets `ANDROID_KEYSTORE_BASE64`,
+`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Nur
+die Jobs `sign` und `play` eines Tag-Laufs sehen sie. Die Regel „nur Tags“ ist
+der eigentliche Schutz: Ohne sie könnte jeder Workflow eines Branches im
+Repository das Environment nennen und den Schlüssel lesen.
 
-Empfohlen: **GitHub → Settings → Environments → android-release →
-Deployment branches and tags → Selected: Tag `v*`.** Dann kann nur ein Tag
-den Schlüssel benutzen.
+Mit `-RequireApproval` wartet zusätzlich jeder dieser Läufe auf deine
+Freigabe unter **Actions → Lauf → Review deployments**, je Release zweimal
+(Signieren, Upload zu Play). Prüfen lässt sich beides unter **GitHub →
+Settings → Environments → android-release**.
 
 ### D2 Zugang der CI zu Google Play
 
@@ -340,34 +346,48 @@ stufst du in der Play Console hoch. Wer direkt veröffentlichen will:
 **GitHub → Settings → Secrets and variables → Actions → Variables:**
 `PLAY_TRACK` = `production` (oder `alpha` für den geschlossenen Test).
 Solange die App noch nie geprüft wurde, verlangt Play Entwürfe: dann
-`PLAY_RELEASE_STATUS` = `draft` und den Entwurf in der Console freigeben.
+`PLAY_RELEASE_STATUS` = `draft` und den Entwurf in der Console freigeben. Ein
+Lauf von Hand nimmt diese Variable mit der Wahl `variable` (Voreinstellung)
+oder eine andere Spur, die du dort wählst.
 
 ---
 
 ## E Jede neue Version
 
-1. Version erhöhen wie bisher: `npm run bump 0.3.0`, `CHANGELOG.md` pflegen.
-2. Optional eigener Store-Text für diese Version:
+1. **Lizenzauswahlen neu binden.** Jede Auswahl (Windows, macOS, Android)
+   bindet die Quellen, Lockdateien und Workflows mit ihren Hashes; nach jeder
+   Änderung daran lehnt der Release-Lauf sie ab. Vor dem Tag deshalb alle drei
+   neu ableiten und mit `node scripts/release-licenses.mjs check <plattform>`
+   prüfen (Plan 26a; Android: `node scripts/release-license-select-android.mjs
+   --write` mit `NDK_HOME`). Das übernimmt Claude, sag einfach Bescheid.
+2. Version erhöhen wie bisher: `npm run bump 0.3.0`, `CHANGELOG.md` pflegen.
+3. Optional eigener Store-Text für diese Version:
    `fastlane/metadata/android/<Sprache>/changelogs/<versionCode>.txt`, mit
    versionCode = Major × 1.000.000 + Minor × 1.000 + Patch (0.3.0 → 3000;
    höchstens 500 Zeichen). Sonst gilt `default.txt`.
-3. Commit, Tag, Push:
+4. **Probelauf ohne Tag:** auf `main` **Actions → Android → Run workflow →
+   release ✓** und ebenso **Packages → release ✓**. Das baut alles wie ein
+   Release und prüft die Lizenztexte, signiert und veröffentlicht aber nichts.
+5. Commit, Tag, Push:
 
    ```powershell
    git tag v0.3.0
    git push origin main v0.3.0
    ```
 
-4. Automatisch: `packages.yml` baut Windows und macOS, `android.yml` baut,
+6. Automatisch: `packages.yml` baut Windows und macOS, `android.yml` baut,
    signiert, hängt `aidevbridge-0.3.0-android.apk` ans Release und lädt das
-   AAB in die Play-Spur.
-5. In der Play Console den Release hochstufen (wenn nicht direkt
+   AAB in die Play-Spur. Mit `-RequireApproval` (D1) wartet der Android-Lauf
+   dabei auf deine Freigabe.
+7. In der Play Console den Release hochstufen (wenn nicht direkt
    `production`).
 
-Ein fehlgeschlagener Play-Upload lässt sich ohne neuen Tag wiederholen:
-**Actions → Android → Run workflow**, Tag `v0.3.0`, Spur wählen. Eine schon
-hochgeladene Version nimmt Play nicht noch einmal an; dann eine neue
-Patch-Version.
+Scheitert ein Job, im Lauf des Tags **Re-run failed jobs**: Das nimmt die
+schon signierten Dateien. Ein neuer Lauf von Hand (**Run workflow**, Tag
+`v0.3.0`) muss unter „Use workflow from“ den Tag wählen, nicht `main`, sonst
+lässt das Environment ihn nicht an den Schlüssel; er baut und signiert neu.
+Eine schon hochgeladene Version nimmt Play nicht noch einmal an; dann eine
+neue Patch-Version.
 
 ---
 
@@ -382,5 +402,7 @@ Patch-Version.
 | Play: „Only releases with status draft may be created on draft app“ | `PLAY_RELEASE_STATUS` = `draft` (D3). |
 | Play: „The caller does not have permission“ | Dienstkonto in der Play Console nicht eingeladen oder ohne Recht für die App (D2 Schritt 4); nach dem Einladen kann es bis zu einem Tag dauern. |
 | Job `sign`: „Secret … is missing“ | D1 ausführen. |
+| Job `sign` eines Laufs von Hand: „… is not allowed to deploy to android-release“ | Das Environment gilt nur für Tags; „Use workflow from“ auf den Tag stellen (E). |
+| Build-Job eines Tags: „release-licenses: Input changed or missing“ | Die Lizenzauswahl ist nicht neu gebunden (E1). Der Tag selbst lässt sich nicht reparieren: neu binden, neue Patch-Version. |
 | App startet, bleibt aber schwarz | `adb logcat -s RustStdoutStderr Tauri chromium` zeigt die Ursache; bitte mitschicken. |
 | Die Play-Version lässt sich nicht über die GitHub-APK installieren | Gewollt: verschiedene Signaturen (Spec §3). Erst deinstallieren. |

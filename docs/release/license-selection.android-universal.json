@@ -50,8 +50,8 @@
     "files": [
       {
         "path": ".github/workflows/android.yml",
-        "bytes": 17545,
-        "sha256": "85cf6342d3964d30e6e10b43e0c770fdc70edbb58bd409bf335563b95d675ab9"
+        "bytes": 20515,
+        "sha256": "e532a55ad11b19dfec6ccbc3c8bda09dc1c001c1c23950628124816ea9a25fb2"
       },
       {
         "path": "Cargo.lock",
@@ -645,8 +645,8 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 147317,
-        "sha256": "27350dafabfc1559020240193fb061377d773e7cf6b9cc2892fa615b8477e3c4"
+        "bytes": 147325,
+        "sha256": "9c37635add6c53f37fda3da1a09027af6c168e6e1840750a8fb0c5f62ef7f698"
       },
       {
         "path": "src/terminal.ts",
@@ -685,8 +685,8 @@
       },
       {
         "path": "src/views/host-form.ts",
-        "bytes": 29681,
-        "sha256": "045b5d8cf6efea817ebbac765d5b1623854b5fd2dfea05f88d84c82ff79a6beb"
+        "bytes": 30669,
+        "sha256": "37f494ce7f73da391e4cb91fe76ab5af2f75e073b83c41f2f2eb13d026fc29ca"
       },
       {
         "path": "src/views/host-key-prompt.ts",
@@ -823,8 +823,8 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 147317,
-            "sha256": "27350dafabfc1559020240193fb061377d773e7cf6b9cc2892fa615b8477e3c4"
+            "bytes": 147325,
+            "sha256": "9c37635add6c53f37fda3da1a09027af6c168e6e1840750a8fb0c5f62ef7f698"
           },
           {
             "path": "src/terminal-clipboard.ts",
@@ -858,8 +858,8 @@
           },
           {
             "path": "src/touch-keys.ts",
-            "bytes": 6325,
-            "sha256": "d69aac08c0f41234229f44efc8a3754ac93109d90483886976b1404f7d0e1c07"
+            "bytes": 6521,
+            "sha256": "9d9fb4b1ec9655c95ffee970d24ded642e2e9d781a20f04f258681576dbfba16"
           },
           {
             "path": "src/touch-scroll.ts",
@@ -873,8 +873,8 @@
           },
           {
             "path": "src/views/compact-shell.ts",
-            "bytes": 7449,
-            "sha256": "924480c003e31560f1740044511824d470b5733e322b6b38b77f0a5bee86aea6"
+            "bytes": 7783,
+            "sha256": "628d6d7bb0170a79a42b8106d97a1120ff9d87f619ed6da46417235d9b3ee621"
           },
           {
             "path": "src/views/credential-field.ts",
@@ -903,8 +903,8 @@
           },
           {
             "path": "src/views/host-form.ts",
-            "bytes": 29681,
-            "sha256": "045b5d8cf6efea817ebbac765d5b1623854b5fd2dfea05f88d84c82ff79a6beb"
+            "bytes": 30669,
+            "sha256": "37f494ce7f73da391e4cb91fe76ab5af2f75e073b83c41f2f2eb13d026fc29ca"
           },
           {
             "path": "src/views/host-key-prompt.ts",
@@ -1044,8 +1044,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 182130,
-            "sha256": "ab7e6c2bba2bb0e8592d994d29c2a9117803a6112c3644416614cc1978c40a45"
+            "bytes": 183419,
+            "sha256": "c56a9f84cf848036e286e7956b5f13307e454c246bbd6ebb0dcec129fb5874f0"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1144,8 +1144,8 @@
           },
           {
             "path": "src-tauri/src/ssh/key_files.rs",
-            "bytes": 10370,
-            "sha256": "b9a229cff2586cc139a73f3efe5070fdc81066eb25b474ad799c6953ce7fbddb"
+            "bytes": 12169,
+            "sha256": "a97edeee69ff620930559c3491ac8a6c3be32e2846418db7ac65685a58cd8353"
           },
           {
             "path": "src-tauri/src/ssh/keys.rs",

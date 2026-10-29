@@ -293,7 +293,9 @@ It must print `Verification succeeded!` and name
 `.github/workflows/packages.yml@refs/tags/v<version>` as the build workflow.
 `--signer-workflow` requires that this repository's `packages.yml` signed the
 provenance, and `--source-ref` requires the tag of that release, so a file
-built by another workflow or for another version doesn't pass. GitHub CLI
+built by another workflow or for another version doesn't pass. The Android
+APK and App Bundle are built and attested by `android.yml`; for them, use
+`--signer-workflow ITBrain258/aidevbridge/.github/workflows/android.yml`. GitHub CLI
 2.49 to 2.67 lacks `--source-ref`; there,
 `gh attestation verify <file> --repo ITBrain258/aidevbridge` is the
 fallback. It only checks that a workflow of this repository made the
@@ -339,7 +341,9 @@ The release signing key of the Android app reaches only the `sign` and
 `play` jobs of `.github/workflows/android.yml`, through the GitHub
 environment `android-release`. The job that builds the app, and with it runs
 npm, Gradle and every Rust build script, gets no secret; the same rule as for
-the planned Developer ID signing on macOS.
+the planned Developer ID signing on macOS. `scripts/android-github-secrets.ps1`
+allows the environment for tags `v*` only: without that rule, any workflow on
+any branch of this repository could name the environment and read the key.
 
 ### Several windows at the same time
 

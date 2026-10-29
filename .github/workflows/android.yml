@@ -4,7 +4,9 @@ name: Android
 # arm64 (never published). A tag v*, or a manual run naming a tag, builds the
 # release for arm64, armv7 and x86_64, signs it in a job of its own, attaches
 # the APK to the GitHub release of that tag and, once the Play secret exists,
-# uploads the App Bundle to Google Play.
+# uploads the App Bundle to Google Play. A manual run with "release" builds
+# the release the same way, signs and publishes nothing: the test before a
+# tag.
 #
 # The build job has no secrets: it runs npm, the Gradle plugins and every
 # build script and proc macro of the Rust tree. The signing key only reaches
@@ -17,15 +19,19 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      release:
+        description: Release build of this branch (checks the bound license selection, builds APK and App Bundle for all three ABIs; signs and publishes nothing)
+        type: boolean
+        default: false
       tag:
         description: Build the existing tag v<version>, attach the APK to its release and upload to Google Play
         type: string
         default: ''
       play_track:
-        description: Google Play track for the upload (internal, alpha = closed testing, beta = open testing, production)
+        description: Google Play track for the upload (variable = the repository variable PLAY_TRACK, else internal; alpha = closed testing, beta = open testing)
         type: choice
-        options: [internal, alpha, beta, production]
-        default: internal
+        options: [variable, internal, alpha, beta, production]
+        default: variable
 permissions:
   contents: read
 concurrency:
@@ -34,6 +40,8 @@ concurrency:
 env:
   SOURCE_REF: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.sha }}
   PUBLISH_TAG: ${{ inputs.tag || (startsWith(github.ref, 'refs/tags/v') && github.ref_name) || '' }}
+  # Release build: all three ABIs, App Bundle, bound license texts.
+  RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || inputs.release == true || (inputs.tag || '') != '' }}
   NDK_VERSION: 29.0.14206865
   BUILD_TOOLS: 36.0.0
   PACKAGE_NAME: io.github.itbrain258.aidevbridge
@@ -86,7 +94,7 @@ jobs:
           set -euo pipefail
           assets=src-tauri/gen/android/app/src/main/assets/licenses
           mkdir -p "$assets"
-          if [ -n "$PUBLISH_TAG" ]; then
+          if [ "$RELEASE" = true ]; then
             cargo fetch --locked
             node scripts/release-licenses.mjs prepare android-universal
             cp -R out/release-notices-android/. "$assets/"
@@ -96,33 +104,62 @@ jobs:
       - name: Build
         run: |
           set -euo pipefail
-          if [ -n "$PUBLISH_TAG" ]; then
+          if [ "$RELEASE" = true ]; then
             npm run tauri -- android build --ci --apk --aab --target aarch64 armv7 x86_64
           else
             npm run tauri -- android build --ci --apk --target aarch64
           fi
-      # Every prepared file must be in the APK with its bytes. Android's
+      # Every prepared file must be in the APK and in the App Bundle (from
+      # which Google Play builds what it delivers) with its bytes. Android's
       # packaging skips assets whose names start with a dot, which leaves out
       # only the helper's ownership marker.
-      - name: Check the license texts in the APK
+      - name: Check the license texts in APK and App Bundle
         run: |
           set -euo pipefail
-          apk=src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
-          if [ -z "$PUBLISH_TAG" ]; then
+          outputs="$PWD/src-tauri/gen/android/app/build/outputs"
+          apk="$outputs/apk/universal/release/app-universal-release-unsigned.apk"
+          if [ "$RELEASE" != true ]; then
             unzip -p "$apk" assets/licenses/README.txt > /dev/null
             exit 0
           fi
           node scripts/release-licenses.mjs check android-universal
           cd out/release-notices-android
-          expected=0
-          while IFS= read -r -d '' file; do
-            name="${file#./}"
-            unzip -p "../../$apk" "assets/licenses/$name" | cmp -s - "$name" || { echo "::error::assets/licenses/$name differs or is missing"; exit 1; }
-            expected=$((expected + 1))
-          done < <(find . -type f ! -name '.*' -print0)
-          actual=$(unzip -Z1 "../../$apk" | grep -c '^assets/licenses/')
-          [ "$actual" -eq "$expected" ] || { echo "::error::The APK has $actual license files, expected $expected"; exit 1; }
-          echo "APK carries the $expected files of the Android license selection" >> "$GITHUB_STEP_SUMMARY"
+          check() {
+            local archive="$1" prefix="$2" expected=0 actual
+            while IFS= read -r -d '' file; do
+              name="${file#./}"
+              unzip -p "$archive" "$prefix$name" | cmp -s - "$name" || { echo "::error::$prefix$name in $(basename "$archive") differs or is missing"; exit 1; }
+              expected=$((expected + 1))
+            done < <(find . -type f ! -name '.*' -print0)
+            actual=$(unzip -Z1 "$archive" | grep -c "^$prefix")
+            [ "$actual" -eq "$expected" ] || { echo "::error::$(basename "$archive") has $actual license files, expected $expected"; exit 1; }
+            echo "$(basename "$archive") carries the $expected files of the Android license selection" >> "$GITHUB_STEP_SUMMARY"
+          }
+          check "$apk" assets/licenses/
+          check "$outputs/bundle/universalRelease/app-universal-release.aab" base/assets/licenses/
+      # Google Play requires native libraries whose LOAD segments are aligned
+      # to 16 KB pages (Android 15 and newer). zipalign -P 16 in the sign job
+      # only places them in the zip; this checks the libraries themselves.
+      - name: Check the 16 KB alignment of the native libraries
+        run: |
+          set -euo pipefail
+          apk=src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+          readelf="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          libs="$RUNNER_TEMP/native-libs"
+          rm -rf "$libs"
+          unzip -q "$apk" 'lib/*' -d "$libs"
+          count=0
+          while IFS= read -r -d '' lib; do
+            while read -r align; do
+              if [ $((align)) -lt 16384 ]; then
+                echo "::error::${lib#"$libs"/} has a LOAD segment aligned to $align; Google Play needs 16 KB"
+                exit 1
+              fi
+            done < <("$readelf" -lW "$lib" | awk '$1 == "LOAD" { print $NF }')
+            count=$((count + 1))
+          done < <(find "$libs" -name '*.so' -print0)
+          [ "$count" -gt 0 ] || { echo "::error::The APK has no native library"; exit 1; }
+          echo "$count native libraries aligned to 16 KB pages" >> "$GITHUB_STEP_SUMMARY"
       - name: Collect the unsigned files
         run: |
           set -euo pipefail
@@ -130,7 +167,7 @@ jobs:
           out=src-tauri/gen/android/app/build/outputs
           mkdir -p unsigned
           cp "$out/apk/universal/release/app-universal-release-unsigned.apk" "unsigned/aidevbridge-$version-android-unsigned.apk"
-          if [ -n "$PUBLISH_TAG" ]; then
+          if [ "$RELEASE" = true ]; then
             cp "$out/bundle/universalRelease/app-universal-release.aab" "unsigned/aidevbridge-$version-android-unsigned.aab"
             cp "$out/mapping/universalRelease/mapping.txt" unsigned/mapping.txt
           fi
@@ -153,6 +190,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with: { name: android-unsigned, path: unsigned }
+      # A download, so before and outside the step that holds the key.
+      - name: Android build tools
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "build-tools;$BUILD_TOOLS" > /dev/null
       - name: Sign and verify APK and App Bundle
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -167,7 +209,6 @@ jobs:
               exit 1
             fi
           done
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "build-tools;$BUILD_TOOLS" > /dev/null
           tools="$ANDROID_HOME/build-tools/$BUILD_TOOLS"
           version="${PUBLISH_TAG#v}"
           apk="aidevbridge-$version-android.apk"
@@ -188,7 +229,10 @@ jobs:
           "$JAVA_HOME_21_X64/bin/jarsigner" -keystore "$keystore" -storepass:env ANDROID_KEYSTORE_PASSWORD \
             -keypass:env ANDROID_KEY_PASSWORD -sigalg SHA256withRSA -digestalg SHA-256 \
             "signed/$aab" "$ANDROID_KEY_ALIAS" > /dev/null
-          "$JAVA_HOME_21_X64/bin/jarsigner" -verify -strict "signed/$aab" > /dev/null
+          # Without -strict: it turns the warning about a self-signed
+          # certificate into exit 4, and every upload key is self-signed.
+          verified=$("$JAVA_HOME_21_X64/bin/jarsigner" -verify "signed/$aab")
+          grep -qx 'jar verified.' <<< "$verified" || { echo "::error::jarsigner could not verify the App Bundle"; echo "$verified"; exit 1; }
           cp unsigned/mapping.txt signed/mapping.txt
           certificate=$("$tools/apksigner" verify --print-certs "signed/$apk" \
             | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | tr 'a-f' 'A-F' | sed 's/../&:/g; s/:$//')
@@ -214,6 +258,11 @@ jobs:
     needs: sign
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    # packages.yml reads and writes the same release text; one job at a time
+    # per tag, so that neither drops the other's section.
+    concurrency:
+      group: release-text-${{ inputs.tag || github.ref_name }}
+      cancel-in-progress: false
     permissions:
       contents: write
       # Only for the build provenance, as in packages.yml.
@@ -342,7 +391,7 @@ jobs:
           packageName: ${{ env.PACKAGE_NAME }}
           releaseFiles: signed/aidevbridge-*-android.aab
           releaseName: ${{ env.PUBLISH_TAG }}
-          track: ${{ inputs.play_track || vars.PLAY_TRACK || 'internal' }}
+          track: ${{ (inputs.play_track && inputs.play_track != 'variable') && inputs.play_track || vars.PLAY_TRACK || 'internal' }}
           # "draft" until the app has passed its first review; then "completed".
           status: ${{ vars.PLAY_RELEASE_STATUS || 'completed' }}
           whatsNewDirectory: whatsnew
