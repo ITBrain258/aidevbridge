@@ -3712,7 +3712,7 @@ dependencies = [
 
 [[package]]
 name = "russh"
-version = "0.63.2"
+version = "0.65.0"
 dependencies = [
  "aes",
  "bitflags 2.13.2",

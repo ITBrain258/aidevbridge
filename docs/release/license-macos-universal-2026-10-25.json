@@ -19,8 +19,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1067286,
-    "sha256": "02ff70f0f9ff2352961b46f15f69e449a9ceaae080ed6de996ffbee4f5856ecf"
+    "bytes": 1069032,
+    "sha256": "c53c46135986f14ab31a2098a9e036d43446470f9594d4a7f12f6e5ae68f57d7"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -1064,9 +1064,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:russh@0.63.2",
-        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:russh@0.65.0",
+        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:salsa20@0.11.0",

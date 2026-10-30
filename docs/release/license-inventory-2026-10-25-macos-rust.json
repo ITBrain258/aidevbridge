@@ -3143,7 +3143,7 @@
     },
     {
       "name": "russh",
-      "version": "0.63.2",
+      "version": "0.65.0",
       "source": null,
       "declared_spdx": "Apache-2.0",
       "technical_role": "normal-runtime-candidate",
