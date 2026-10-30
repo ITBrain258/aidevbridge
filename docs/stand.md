@@ -22,12 +22,18 @@ Seit dem 30.10. in `main`, noch ohne Release:
   aktiv: Tags `v*` legt nur ein Admin an.
 - **Stufe 1 der Updates (PR #15):** Tauri 2.12 (`tauri` 2.12.5, wry
   0.57.1, tao 0.37.2, `@tauri-apps/api` 2.12.4 und die Plugins) und alle
-  semver-kompatiblen Rust-Crates; das Tauri-CLI bleibt auf 2.11.4
-  (Punkt 12). Alle drei Lizenzauswahlen sind nachgeführt, neu dafür
-  `scripts/release-license-update-cargo.mjs`. Eine unabhängige Durchsicht
-  der 33 von Hand entschiedenen Lizenzfälle fand keinen falschen, aber eine
-  Lücke im Skript (Texte von außerhalb eines Crates zogen ungeprüft mit);
-  sie ist geschlossen, die fünf betroffenen Texte sind nachgeprüft.
+  semver-kompatiblen Rust-Crates. Alle drei Lizenzauswahlen sind
+  nachgeführt, neu dafür `scripts/release-license-update-cargo.mjs`. Eine
+  unabhängige Durchsicht der 33 von Hand entschiedenen Lizenzfälle fand
+  keinen falschen, aber eine Lücke im Skript (Texte von außerhalb eines
+  Crates zogen ungeprüft mit); sie ist geschlossen, die fünf betroffenen
+  Texte sind nachgeprüft.
+- **Stufe 2 (PR #16):** Tauri-CLI 2.12.4 für die Release-Bauten; die
+  Setup-EXE baut es mit NSIS 3.13 statt 3.11, das MSI weiter mit WiX 3.14.1.
+  Lokal gebaute Installer sind ausgelesen und mit denen von 0.2.4
+  verglichen: dieselben Plugins und WiX-Teile, jeweils bytegleich zu den
+  gepinnten Originalen; das mitgelieferte NSIS-Quellarchiv ist jetzt `v313`
+  ([Beleg](release/windows-installer-nsis-3.13-2026-10-30.md)).
 
 Android ist mit 0.2.4 ausgeliefert und lief am 29.10. erstmals auf einem
 Telefon des Maintainers, mit Wischen im Terminal. In der Play Console steht
@@ -146,13 +152,27 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Steuerzustand nur bei echtem Verlust, Selbstheilung für Schlüssel- und Agent-Hosts und Verlauf beim Anhängen; Arbeitsplatz, Schnellöffnen, Namensvorschlag, Anzeigename, ziehbare Seitenleiste; fünf Einstellungsbereiche; tmux 3.6 |
 | Dynamisches Raster | Schritt 0, 1 und 3 abgeschlossen nach der [Spec vom 19.10.](specs/2026-10-19-dynamisches-raster-design.md): bis zu 9 Kacheln, höchstens 8 je Host, je Host höchstens 4 Öffnungen zugleich („Opening…“), Tauschen per Zug am Kopf, Größe per Spalt, Maximieren verbirgt die übrigen Kacheln statt sie zu schließen, Wartet-Spur mit Wartezeit, Kachelnummer in Liste und Spur |
 | M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme bestanden ([Bericht](messungen/messung-2026-10-25-m31-abnahme.md)): Punkt 1 bis 5 am 25.10., die Statuslatenz unter Last erst mit den Korrekturen vom 27.10. (parallele Abfrage, Takt ab dem Beginn), die mit dem nächsten Release kommen |
-| Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger lokaler Lauf für 0.2.2 nach dem Neubinden der Lizenzauswahl. Seit 26.10. baut der Workflow `packages.yml` sie bei jedem Tag, installiert jedes Paket auf einem frischen Runner, startet die App und hängt sie an das Release |
+| Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger lokaler Lauf am 30.10. mit Tauri-CLI 2.12.4 und NSIS 3.13, Installer ausgelesen ([Beleg](release/windows-installer-nsis-3.13-2026-10-30.md)). Seit 26.10. baut der Workflow `packages.yml` sie bei jedem Tag, installiert jedes Paket auf einem frischen Runner, startet die App und hängt sie an das Release |
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 396 Komponenten (Stand Tauri 2.12), `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
 | Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Mit 0.2.4 ausgeliefert |
 | Android | gebaut nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md) und mit 0.2.4 ausgeliefert: Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Wischen im Terminal, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 487 Komponenten, deren Texte als `assets/licenses/` in APK und App Bundle gehen. Am 29.10. erstmals auf einem Telefon des Maintainers gelaufen; eine Abnahme nach Plan steht aus ([Plan](plans/2026-10-27-android.md)) |
-| Abhängigkeiten | Stufe 1 seit 30.10. in `main` (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; die weiteren Stufen stehen unter Punkt 12 |
+| Abhängigkeiten | Stufe 1 seit 30.10. in `main` (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 ebenfalls seit 30.10. (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; die weiteren Stufen stehen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 30.10.2026 für PR #16 (Tauri-CLI 2.12.4, NSIS 3.13): ein vollständiger
+lokaler Lauf von `npm run build:windows`, dessen Setup-EXE und MSI mit
+7-Zip 26.03 und der Windows-Installer-Schnittstelle ausgelesen und mit den
+Installern von 0.2.4 verglichen sind
+([Beleg](release/windows-installer-nsis-3.13-2026-10-30.md)); eine
+unabhängige Durchsicht des Pull Requests fand keinen Blocker. `tsc`, 2872
+Frontend-Tests und 123 Skripttests grün, `check` grün für alle drei
+Auswahlen (402/208, 396/202, 487/228). In der CI auf dem geprüften Stand
+`1175a41` grün: Rust auf drei Systemen, Frontend, Skripte, Audit und beide
+Probeläufe (Windows-Pakete mit NSIS 3.13 auf einem frischen Runner
+installiert und gestartet, DMG auf Apple silicon und Intel, Android für drei
+ABIs). `main` (`508208a`) hat nach dem Merge denselben Dateistand; die
+Push-Läufe dort sind am 30.10. grün.
 
 Am 29. und 30.10.2026 für PR #14 und #15, auf dem Windows-Rechner: `tsc`,
 2872 Frontend-Tests, 729 Rust-Tests, Clippy mit `-D warnings` und 121
@@ -597,20 +617,28 @@ In dieser Reihenfolge:
     ([Anleitung](android-veroeffentlichung.md)).
 12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
-    gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht.
-    - **Tauri-CLI 2.12 mit seinem Bundler:** Er lädt NSIS 3.13 statt 3.11,
-      und die Windows-Auswahl bindet Stub, Plugins, Modern-UI-Hinweis und
-      LZMA-Quellarchiv von NSIS 3.11; auch die MSI- und NSIS-Vorlagen haben
-      sich geändert. Braucht eine eigene Lizenzprüfung mit lokalem
-      Installerbau. Bis dahin verlangen `release-windows-artifacts.mjs` und
-      `release-macos-artifacts.mjs` das CLI 2.11.4.
-    - **Rust 1.99:** Die Toolchain 1.97.1 steckt in den Belegen der
-      Standardbibliothek und in den Prüfungen der Lizenzauswahlen.
+    gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht. Stufe 1
+    (Tauri 2.12) und Stufe 2 (Tauri-CLI 2.12.4, NSIS 3.13) sind erledigt.
+    Die Reihenfolge unten ist die Empfehlung vom 30.10., noch nicht
+    entschieden:
+    - **russh 0.65** (`vendor/russh` steht auf 0.63.2 mit eigenem Patch in
+      neun Dateien): die SSH-Bibliothek, also der sicherheitsnächste Teil.
+      Dabei prüfen, welche der eigenen Änderungen upstream angeboten werden
+      können (U4 braucht dazu das OK des Maintainers).
+    - **Frontend-Werkzeuge:** Vite 8, TypeScript 7, Vitest 5 und jsdom 30
+      (stehen auf 6.4, 5.6, 4.1 und 29). Vite ändert die gebaute Ausgabe,
+      also den Beleg zum Modulepreload-Polyfill.
     - **Kotlin 2 mit AGP 9 und Gradle 9**, zusammen mit den androidx-Updates:
       deren neue Versionen tragen Kotlin-2.1-Metadaten, die das
-      Kotlin-Gradle-Plugin 1.9.25 nicht liest.
-    - **Vitest 5 und jsdom 30.**
-    - **russh 0.65**, mit den eigenen Patches in `vendor/russh`.
+      Kotlin-Gradle-Plugin 1.9.25 nicht liest. Spätestens fällig, wenn
+      Google Play ein neueres Ziel-SDK verlangt.
+    - **Rust 1.99:** Die Toolchain 1.97.1 steckt in den Belegen der
+      Standardbibliothek und in den Prüfungen der Lizenzauswahlen; nötig
+      erst, wenn ein Crate sie verlangt.
+    - Klein: `tauri-build` 2.7.4 meldet `STATIC_VCRUNTIME` (gesetzt von
+      `release-windows-artifacts.mjs`) als veraltet; es linkt weiter
+      statisch, und die Ersatzoption `build.windows.staticVCRuntime` ist
+      standardmäßig an. `lucide-static` (Icons) steht auf 1.41, aktuell 1.65.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 
