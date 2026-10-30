@@ -94,6 +94,29 @@ unter `docs/release/` anlegen (Muster:
 `--third-party` neu binden, `THIRD_PARTY_LICENSES.md` nachziehen, dann
 `npm run licenses:derive` und die Prüfungen wie oben.
 
+## Eingebettete Crates (`vendor/`)
+
+`vendor/russh` ist russh mit eigenen Änderungen; Cargo sieht es als
+Pfad-Paket, `cargo audit` und Dependabot sehen es nicht (dafür der Job
+`vendored` in `audit.yml`). Ein Upstream-Wechsel, wie am 30.10. auf 0.65.0:
+
+1. Altes und neues Paket von crates.io laden und gegen die Prüfsumme des
+   Index prüfen, das alte zusätzlich gegen `UPSTREAM-SHA256SUMS`.
+2. Die eigenen Änderungen dreiseitig übertragen (`git merge-file`:
+   eigene Fassung, altes Paket, neues Paket), Konflikte von Hand lösen,
+   `UPSTREAM-SHA256SUMS` und `AGENTBRIDGE-PATCH.md` neu schreiben, die
+   exakte Version in `src-tauri/Cargo.toml` und den Kommentar im
+   Root-Manifest nachziehen.
+3. Die App testen (`--test-threads=4`) und die Tests des Crates in einem
+   temporären Workspace mit einer Kopie und den Produktions-Features, wie
+   in `AGENTBRIDGE-PATCH.md` beschrieben.
+4. Lizenzen: `node scripts/release-license-update-cargo.mjs --write --date=…`
+   zieht die Komponente um (deklarierte Lizenz und Lizenzdatei gleich),
+   den Beleg mit `--add` binden, `Cargo.lock` mit `--third-party`, den
+   geprüften Baum mit `node scripts/release-license-rebind.mjs --write --tree vendor/russh`,
+   danach `npm run licenses:rebind-own`, `npm run licenses:derive` und
+   `npm run licenses:check`.
+
 ## Android-Bibliotheken
 
 Jede Bibliothek der Release-Laufzeit aus

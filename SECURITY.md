@@ -66,7 +66,7 @@ Out of scope:
 - attacks that already need your user account or administrator rights on
   your machine;
 - vulnerabilities in dependencies that don't affect aidevbridge; please
-  report them upstream. `vendor/russh` is russh 0.63.2 with four local
+  report them upstream. `vendor/russh` is russh 0.65.0 with four local
   changes, described in `vendor/russh/AGENTBRIDGE-PATCH.md`: a received
   channel Close is acknowledged at once and drops the channel's unsent data;
   a channel-end observer reports how a client channel ended; terminal
@@ -155,7 +155,7 @@ To resolve: drop the fallback once no supported host needs it.
 ### No host key check on rekey
 
 During a long session, SSH renews its keys (rekey), and the server presents
-its host key again. russh 0.63.2, which aidevbridge uses, asks the app's
+its host key again. russh 0.65.0, which aidevbridge uses, asks the app's
 handler to check the host key only in the first key exchange of a
 connection, and the app checks it there against `known_hosts`. On a rekey
 russh doesn't ask again and doesn't compare the presented key with the
@@ -191,33 +191,48 @@ To resolve: update `rsa` as soon as a fixed release exists.
 
 ### Known advisories for the vendored russh and expected audit warnings
 
-GitHub reports two advisories for the vendored `russh` 0.63.2:
+Since 30 October 2026 the vendored `russh` is 0.65.0, which fixes every
+advisory published for russh up to then. Three of them reach an SSH client
+and affect aidevbridge 0.2.4 and earlier, which carry russh 0.63.2:
 
-- [GHSA-j7h2-66j4-ghjf](https://github.com/advisories/GHSA-j7h2-66j4-ghjf):
-  a russh SSH server accepts a public key login whose signature uses a
-  different algorithm than the request names (fixed in 0.64.0);
-- [GHSA-4wc5-f2rc-q74m](https://github.com/advisories/GHSA-4wc5-f2rc-q74m):
-  russh's SSH agent server allocates unbounded memory for crafted
-  constraint records (fixed in 0.64.1).
+- [GHSA-3hm4-p7h4-rvwp](https://github.com/warp-tech/russh/security/advisories/GHSA-3hm4-p7h4-rvwp)
+  (high): a host key with nested OpenSSH certificates exhausts the stack
+  during the key exchange, before the host key is checked;
+- [GHSA-4p9f-7p9m-5vfg](https://github.com/warp-tech/russh/security/advisories/GHSA-4p9f-7p9m-5vfg):
+  repeated `EXT_INFO` messages grow the client's memory without bound
+  before authentication;
+- [GHSA-fw5c-8223-6h42](https://github.com/warp-tech/russh/security/advisories/GHSA-fw5c-8223-6h42):
+  a peer that declares a maximum packet size of 0 stalls the writes of a
+  channel for good; the app writes terminal input that way.
 
-Both affect only server code that aidevbridge never runs. The app is an SSH
-client: it doesn't accept SSH connections and doesn't act as an SSH agent;
-it talks to the SSH agent (the Windows OpenSSH agent, or on macOS the agent
-of `SSH_AUTH_SOCK`) as a client. Its tests start russh servers on
-127.0.0.1 as test peers, nothing else does. The vendored copy stays on
-0.63.2 because of its local changes.
+A server you connect to can so make those versions crash or hang; the first
+one also an attacker on the network, because it strikes before the host key
+is checked. None of the three reads or changes session data. The release after 0.2.4 contains the fix.
+The advisories for russh's server and agent code (GHSA-j7h2-66j4-ghjf,
+GHSA-4wc5-f2rc-q74m, GHSA-9wfm-jcj8-jfv9, GHSA-vp5q-ff62-jwqv) are fixed as
+well; aidevbridge never ran that code. The app is an SSH client: it doesn't
+accept SSH connections and doesn't act as an SSH agent; it talks to the SSH
+agent (the Windows OpenSSH agent, or on macOS the agent of `SSH_AUTH_SOCK`)
+as a client. Its tests start russh servers on 127.0.0.1 as test peers,
+nothing else does.
+
+Neither `cargo audit` nor Dependabot sees the vendored copy: both match only
+packages that `Cargo.lock` records with a registry source, and the vendored
+russh has none. That is how the three client advisories above went unnoticed
+for five days. The audit workflow therefore also checks every vendored crate
+against the advisories of GitHub's advisory database and of its upstream
+repository, which publishes them days earlier
+(`scripts/check-vendored-advisories.mjs`), and fails when one covers the
+vendored version. An advisory that can't affect the app is accepted there
+with its reason, as RUSTSEC-2023-0071 is for `cargo audit`.
 
 GitHub may also report advisories for `vendor/russh/Cargo.lock`, for
-example for `crypto-bigint`, `ctutils`, `tokio` or `crossbeam-epoch`. That
-file is the lockfile of the published russh source, kept unchanged with it;
-no build reads it. aidevbridge builds with the `Cargo.lock` at the
-repository root, which has the fixed versions crypto-bigint 0.7.10, ctutils
-0.4.6 and tokio 1.53.3 and doesn't contain `crossbeam-epoch`.
-
-The audit workflow doesn't cover path dependencies: `cargo audit` checks
-only packages that `Cargo.lock` records with a registry source, and the
-vendored russh has none. The russh advisories above are therefore tracked
-here by hand.
+example for `pageant` 0.2.4, `crypto-bigint`, `ctutils`, `tokio` or
+`crossbeam-epoch`. That file is the lockfile of the published russh source,
+kept unchanged with it; no build reads it. aidevbridge builds with the
+`Cargo.lock` at the repository root, which has pageant 0.2.5, crypto-bigint
+0.7.10, ctutils 0.4.7 and tokio 1.54.1 and doesn't contain
+`crossbeam-epoch`.
 
 `cargo audit` on the root `Cargo.lock` also prints these warnings, which
 don't fail the audit workflow:
@@ -243,10 +258,8 @@ the same for `proc-macro-error`, `zbus_names` and `zvariant`) with
 `--target x86_64-pc-windows-msvc`, `--target aarch64-apple-darwin` or
 `--target x86_64-apple-darwin` finds nothing.
 
-To resolve: the next russh update moves the vendored copy, and the
-lockfile that comes with it, to a version with the fixes (0.64.1 or
-newer); the warnings go away when Tauri and its plugins move to newer GTK,
-D-Bus and URL pattern crates.
+To resolve: the warnings go away when Tauri and its plugins move to newer
+GTK, D-Bus and URL pattern crates.
 
 ### Unsigned binaries and checking a download
 

@@ -42,47 +42,8 @@ const TAURI_RENAMES = { LICENSE_MIT: 'LICENSE-MIT', 'LICENSE_APACHE-2.0': 'LICEN
 // `role` accepts a new role for an unchanged version; `new` decides a package
 // that had no version in the selection (MIT only: the reasons say so).
 const REVIEWED = {
-  // 2026-10-29, Tauri 2.12 and the semver-compatible updates.
-  'argon2@0.6.0': { changed: ['LICENSE-MIT'], note: 'MIT text: copyright years 2021-2024 -> 2021-2026, same terms; the new text ships.' },
-  'cpufeatures@0.3.1': { changed: ['LICENSE-MIT'], note: 'MIT text: copyright years 2020-2025 -> 2020-2026, same terms; the new text ships.' },
-  'keccak@0.2.2': { changed: ['LICENSE-MIT'], note: 'MIT text: copyright line now "2018-2026 The RustCrypto Project Developers", same terms; the new text ships.' },
-  'quick-xml@0.42.0': { changed: ['LICENSE-MIT.md'], note: 'MIT text: line endings CRLF -> LF only; the new bytes ship.' },
-  'serde_spanned@1.1.2': { changed: ['LICENSE-APACHE'], note: 'Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.' },
-  'toml@1.1.8+spec-1.1.0': { changed: ['LICENSE-APACHE'], note: 'Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.' },
-  'toml_datetime@1.1.2+spec-1.1.0': { changed: ['LICENSE-APACHE'], note: 'Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.' },
-  'toml_parser@1.1.5+spec-1.1.0': { changed: ['LICENSE-APACHE'], note: 'Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.' },
-  'toml_writer@1.1.3+spec-1.1.0': { changed: ['LICENSE-APACHE'], note: 'Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.' },
-  'tauri@2.12.5': { renames: TAURI_RENAMES, changed: ['Cargo.toml.orig', 'build.rs'], note: 'License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines.' },
-  'tauri-build@2.7.4': { renames: TAURI_RENAMES, changed: ['Cargo.toml.orig'], note: 'License files renamed with the same bytes; Cargo.toml.orig changed without license lines.' },
-  'tauri-codegen@2.7.4': { renames: TAURI_RENAMES, changed: ['Cargo.toml.orig'], note: 'License files renamed with the same bytes; Cargo.toml.orig changed without license lines.' },
-  'tauri-macros@2.7.4': { renames: TAURI_RENAMES, changed: ['Cargo.toml.orig'], note: 'License files renamed with the same bytes; Cargo.toml.orig changed without license lines.' },
-  'tauri-runtime@2.12.2': { renames: TAURI_RENAMES, note: 'License files renamed with the same bytes.' },
-  'tauri-runtime-wry@2.12.3': { renames: TAURI_RENAMES, note: 'License files renamed with the same bytes.' },
-  'tauri-utils@2.10.2': { renames: TAURI_RENAMES, changed: ['Cargo.toml.orig'], note: 'License files renamed with the same bytes; Cargo.toml.orig changed without license lines.' },
-  'tauri-plugin@2.7.2': { changed: ['src/build/mobile.rs', 'src/build/mod.rs', 'src/lib.rs'], note: 'Source changes without copyright or license lines (documentation examples, and src/build/mobile.rs returns early when DOCS_RS is set); build-only role unchanged.', external: 'The crate ships no license file; the selected MIT text is the tauri repository\'s LICENSE-MIT, byte-identical at the publish commit 59b63ab of 2.7.2.' },
-  'webview2-com-sys@0.39.1': { changed: ['build.rs'], note: 'build.rs adds the arm64ec machine type only; linking for x64 is unchanged.', external: 'The crate ships no license file; the LICENSE of wravery/webview2-rs at the publish commit edc2caf of 0.39.1 is byte-identical to the selected MIT text.' },
-  'webview2-com@0.39.1': { external: 'The crate ships no license file; the LICENSE of wravery/webview2-rs at the publish commit edc2caf of 0.39.1 is byte-identical to the selected MIT text.' },
-  'alloc-stdlib@0.3.0': { external: 'The crate ships no license file; the LICENSE of dropbox/rust-alloc-no-stdlib at the publish commit 0a81fd6 of 0.3.0 is byte-identical to the selected BSD-3-Clause text, as at 0.2.4.' },
-  'brotli@9.1.1': { external: 'The selected Google notice is the header of src/enc/entropy_encode.rs, unchanged in 9.1.1; the set of copyright and license lines in the crate\'s Rust sources is identical to 8.0.4.' },
-  'pageant@0.2.5': { external: 'The crate ships no license file; the LICENSE.txt of warp-tech/russh at the publish commit 183a22e of 0.2.5 is byte-identical to the selected Apache-2.0 text, as at 0.2.4.' },
-  'wry@0.57.1': { changed: ['Cargo.toml.orig', 'build.rs'], note: 'build.rs adds a macOS-only cfg check; no license or notice lines.' },
-  'cssparser@0.37.0': { changed: ['Cargo.toml.orig'], note: 'Still build-only in this graph; the host-side reasoning of the exclusion stands. No license lines changed.' },
-  'cssparser-macros@0.7.1': { changed: ['Cargo.toml.orig', 'lib.rs'], note: 'Still a host-side proc macro whose consumers are build-only; the exclusion reasoning stands. No license lines changed.' },
-  'dom_query@0.28.0': { changed: ['Cargo.toml.orig'], note: 'Still build-only; MIT text unchanged.' },
-  'selectors@0.38.0': {
-    changed: ['Cargo.toml.orig', 'parser.rs'], note: 'Still build-only in this graph; the exclusion reasoning stands. No license lines changed.',
-    reason: 'The runtime tauri-utils 2.10.2 instance (under tauri, tauri-runtime and tauri-runtime-wry) has only the features brotli, compression, resources and walkdir; html-manipulation-2 and dom_query belong to the separate build-host instance used by tauri-build, tauri-codegen, tauri-macros and the tauri-plugin build scripts (cargo tree, 2026-10-29). dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output.',
-  },
-  'siphasher@1.0.4': { declared: 'MIT OR Apache-2.0', added: ['LICENSE-APACHE', 'LICENSE-MIT'], note: 'Declaration written in SPDX form (was MIT/Apache-2.0) and the crate now ships LICENSE-APACHE and LICENSE-MIT; COPYING is unchanged and still offers Apache-2.0, so the Apache-2.0 decision with the original notice stands.', external: 'The selected Apache-2.0 text stays the full text from this project\'s LICENSE-APACHE; the crate\'s new LICENSE-APACHE has the same terms in a different layout.' },
-  'rfd@0.17.2': { added: ['src/backend/xdg_desktop_portal/window_identifier/LICENSE'], note: 'New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only, and there only without the gtk3 feature; tauri-plugin-dialog enables gtk3, so no build of this app compiles it.' },
-  'bitflags@1.3.2': { role: 'outside-selected-windows-tree', note: 'Only bitflags 2 remains in the Windows release graph.' },
-  'miniz_oxide@0.8.9': { role: 'build-or-proc-macro-only-in-this-tree', note: 'Now used by build tools only; the runtime uses miniz_oxide 0.9.1. The conservative inclusion stays.' },
-  'base64@0.23.1': { new: { selected: 'MIT', texts: ['LICENSE-MIT'] }, note: 'MIT OR Apache-2.0; MIT with the original text, as for base64 0.22.1.' },
-  'miniz_oxide@0.9.1': { new: { selected: 'MIT', texts: ['LICENSE-MIT.md'] }, note: 'MIT OR Zlib OR Apache-2.0; license files byte-identical to 0.8.9; MIT as there.' },
-  'shake@0.1.0': { new: { selected: 'MIT', texts: ['LICENSE-MIT'] }, note: 'MIT OR Apache-2.0 (RustCrypto); MIT with the original text.' },
-  'utf_types@1.0.0': { new: { selected: 'MIT', texts: ['LICENSE-MIT', 'COPYRIGHT'] }, note: 'Apache-2.0 OR MIT; MIT with the original text and the COPYRIGHT notice.' },
-  'web-time@1.1.0': { new: { selected: 'MIT', texts: ['LICENSE-MIT'] }, note: 'MIT OR Apache-2.0; MIT with the original text.' },
-  'static_vcruntime@3.0.0': { new: { selected: 'MIT', texts: ['LICENSE-MIT'] }, note: 'MIT OR Apache-2.0 OR Zlib, build-only; MIT with the original text, as for other build tools.' },
+  // Empty between updates. The entries of the Tauri 2.12 update (2026-10-29)
+  // are kept in docs/release/license-rust-update-2026-10-29.json.
 };
 
 const fail = message => { throw new Error(message); };
@@ -373,7 +334,8 @@ export function apply(root, { selection, toolchain, result, recordPath }, { date
     component.version = newVersion;
     component.declared_license = move.pkg.license;
     component.source_urls = component.source_urls.map(u => replaceVersion(u, name, oldVersion, newVersion));
-    component.source_archive = { url: crateUrl(name, newVersion), sha256: move.checksum };
+    // A path package (vendored, patched) has no registry archive of its own.
+    if (move.checksum) component.source_archive = { url: crateUrl(name, newVersion), sha256: move.checksum };
     component.decision_basis = [...component.decision_basis, recordPath];
     // An excluded package outside the tree keeps the exact standard reason,
     // which the macOS and Android derivations recognise; the record has the move.
@@ -450,7 +412,8 @@ export function apply(root, { selection, toolchain, result, recordPath }, { date
   if (selection.inputs.cargo_trees) selection.inputs.cargo_trees.sort(byKey(t => `${t.package}\u0000${t.path}`));
   selection.documents.sort(byKey(d => d.id));
   if (!selection.decision_reports.includes(recordPath)) selection.decision_reports.push(recordPath);
-  selection.scope.historical_evidence = `${selection.scope.historical_evidence} Updated on ${date} for a Cargo.lock update (${recordPath}): ${result.moved.length} packages moved to new versions (${result.moved.filter(m => m.note).length} of them reviewed by hand), ${result.newPackages.length} new packages decided, ${result.roleChanges.length} role changes, ${result.removed.length} packages left the graph, ${result.newOutside.length} new packages outside the Windows tree are excluded.`;
+  const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  selection.scope.historical_evidence = `${selection.scope.historical_evidence} Updated on ${date} for a Cargo.lock update (${recordPath}): ${count(result.moved.length, 'package moved to a new version', 'packages moved to new versions')} (${result.moved.filter(m => m.note).length} reviewed by hand), ${count(result.newPackages.length, 'new package', 'new packages')} decided, ${count(result.roleChanges.length, 'role change', 'role changes')}, ${count(result.removed.length, 'package', 'packages')} left the graph, ${count(result.newOutside.length, 'new package', 'new packages')} outside the Windows tree excluded.`;
 
   const evidence = {
     schema_version: 1,
@@ -459,7 +422,7 @@ export function apply(root, { selection, toolchain, result, recordPath }, { date
     basis: [SELECTION],
     lockfile: { path: 'Cargo.lock', before: before ? { bytes: before.bytes, sha256: before.sha256 } : null, after: lockNow },
     rule: 'A decision moves to a new version without review only when the declared license, the role in the release graph, the set of license-named files and the bytes of every bound file are unchanged and every selected text is one of the package\'s own bound files; the old and new sources are compared from the registry cache. Every other change is listed under reviewed with the reason of its decision.',
-    moved: result.moved.map(m => ({ package: m.pkg.name, before: versionOf(m.old), after: m.pkg.version, role: m.role, declared_license: m.pkg.license, archive: { url: crateUrl(m.pkg.name, m.pkg.version), sha256: m.checksum }, manifest: { before: m.oldManifest, after: m.manifest }, bound_files: m.facts.files.map(f => ({ before: f.oldPath, after: f.path, bytes: f.bytes, sha256: f.sha256, unchanged: f.sha256 === f.oldSha256 })), added_files: m.facts.added, ...(m.facts.trees.length ? { source_trees: m.facts.trees.map(t => ({ path: t.path, files: t.files.length, notice_lines: t.notices, notices_unchanged: true })) } : {}), ...(m.note ? { reviewed: m.note } : {}) })),
+    moved: result.moved.map(m => ({ package: m.pkg.name, before: versionOf(m.old), after: m.pkg.version, role: m.role, declared_license: m.pkg.license, ...(m.checksum ? { archive: { url: crateUrl(m.pkg.name, m.pkg.version), sha256: m.checksum } } : { source: 'path package, no registry archive' }), manifest: { before: m.oldManifest, after: m.manifest }, bound_files: m.facts.files.map(f => ({ before: f.oldPath, after: f.path, bytes: f.bytes, sha256: f.sha256, unchanged: f.sha256 === f.oldSha256 })), added_files: m.facts.added, ...(m.facts.trees.length ? { source_trees: m.facts.trees.map(t => ({ path: t.path, files: t.files.length, notice_lines: t.notices, notices_unchanged: true })) } : {}), ...(m.note ? { reviewed: m.note } : {}) })),
     role_changes: result.roleChanges.map(r => ({ package: r.key, before: r.from, after: r.role, reviewed: r.note })),
     new_packages: result.newPackages.map(n => ({ package: n.key, role: n.role, declared_license: n.pkg.license, selected_license: n.decision.selected, texts: n.decision.texts, reviewed: n.note })),
     new_outside_tree: result.newOutside.map(n => ({ package: n.package, declared_license: n.pkg.license, decision: 'exclude' })),

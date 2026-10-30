@@ -2,7 +2,7 @@
 members = ["src-tauri"]
 resolver = "2"
 
-# Keep russh 0.63.2 and its production features; the local patches change channel
+# Keep russh 0.65.0 and its production features; the local patches change channel
 # Close handling, add the ChannelEndObserver API and a manual receive window for
 # client session channels (terminal flow control), and report a session that
 # ends during authentication as an error.

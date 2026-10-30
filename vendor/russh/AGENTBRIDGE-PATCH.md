@@ -1,6 +1,6 @@
-# AgentBridge local patch to russh 0.63.2
+# AgentBridge local patch to russh 0.65.0
 
-This directory preserves the published russh 0.63.2 source, with local
+This directory preserves the published russh 0.65.0 source, with local
 channel-close, channel-end observation, manual receive window and
 authentication reply changes. It
 is not a new upstream release. Original copyright notices and the Apache-2.0
@@ -13,21 +13,51 @@ license text, which the published crate does not include as a separate file.
 
 Upstream repository: <https://github.com/warp-tech/russh>.
 The published `.cargo_vcs_info.json` records commit
-`8a51a0dca4f6fbdcc3ce98c627254026b25b3252`, subdirectory `russh`.
-The cached published `.crate` archive has SHA-256
-`8e134e2480f4e86f83e4aa45b4c0a9723f84beaffa694c54bdf056e74efdd7dd`,
-matching the project's existing crates.io lock checksum. All 85 archived files
-were compared byte-for-byte by SHA-256 with the registry source before patching.
-The copied registry tree additionally contains Cargo's seven-byte `.cargo-ok`
-marker: 86 files, 1,247,098 bytes in total before local additions/changes.
-That local cache marker was removed from this vendored copy; all 85 published
-files remain, with only the documented source modifications.
-
-`UPSTREAM-SHA256SUMS` records the unmodified registry files, including that marker.
+`183a22e8f8f490fa09b6eb7bd044ef99d8c4414f`, subdirectory `russh`.
+The published `.crate` archive (`https://static.crates.io/crates/russh/russh-0.65.0.crate`)
+has SHA-256 `3bb77a4b259312b2abbc541bca1c13cb4e9b61c560a7fd894068c3b92e0c9dc3`,
+the checksum of the crates.io index. It holds 90 files, 1,337,752 bytes;
+all of them are in this directory, unchanged except the documented source
+modifications. `UPSTREAM-SHA256SUMS` records the unmodified archive files.
 The manifest itself has SHA-256
-`44b51742872c52721ecfd80e7f6c462b7b25a6ed0eca6c96a731011456169844`.
+`6b3ae7c15ded92e7789933c5cbe17207d49616008e8c7af7723c3d21add5325e`.
 The copied upstream `Cargo.lock` remains an upstream artifact; the workspace's
 root `Cargo.lock` controls AgentBridge builds.
+
+On 2026-10-30 the patch moved from 0.63.2 to 0.65.0. The local changes were
+merged three-way with `git merge-file` (this directory at 0.63.2, the
+published 0.63.2, verified against the earlier `UPSTREAM-SHA256SUMS`, and the
+published 0.65.0). Eight of the nine changed files had upstream changes too;
+six blocks conflicted, each one where both sides only added lines, and keep
+both: in `src/client/mod.rs` the `ChannelWindowCredit` message next to
+`HostKeysProve`/`SendGlobalRequest`, the `priority_sender` field and its
+constructor value next to `agent_session_binding`, and the test includes next
+to upstream's new tests; in `src/client/encrypted.rs` the local `manual`
+binding before upstream's `#[allow(clippy::collapsible_if)]`, twice. 0.65.0
+fixes three client advisories (GHSA-3hm4-p7h4-rvwp, GHSA-4p9f-7p9m-5vfg,
+GHSA-fw5c-8223-6h42; see SECURITY.md), and upstream #788 keeps a session usable
+when a signer fails after PK_OK. None of upstream's changes makes a local
+change unnecessary: Close handling, the end observer, the manual receive
+window and the authentication replies have no upstream equivalent in 0.65.0.
+
+`src/tests/channel_end_observer.rs` now also names the `Handle` fields
+`priority_sender` and `agent_session_binding`: it had not compiled since the
+manual receive window (2026-10-21) added the first, because the vendored tests
+do not run in the app's CI. Upstream's `tests/test_window_adjust.rs` is kept
+unchanged; it still uses the server API before 0.65.0 (`&PublicKey` in
+`auth_publickey`) and does not compile against 0.65.0 itself; the same holds
+for `tests/auth_signer_failure.rs`.
+
+Validation on 2026-10-30 (Rust 1.97.1, Windows): a byte-identical copy of
+this directory in a temporary workspace, with the production features
+(`cargo test -p russh --lib --tests --no-default-features --features
+ring,flate2,rsa -- --test-threads=4`) and the two upstream test files above
+adapted to the 0.65.0 server API in that copy only. 225 library tests passed,
+among them the 10 Close and 15 end-observer cases of this patch, and all 37
+integration tests in 15 targets, among them upstream's window-adjust test.
+The app's 729 tests passed against the patched 0.65.0, including the
+loopback tests named below for the manual window and the authentication
+replies (`--test-threads=4`).
 
 The local change retains a one-bit expected-Close state in an existing
 `ChannelRef` after local Close. Only Close may use this state; ordinary channel
@@ -117,7 +147,7 @@ AgentBridge's loopback test against a real russh server does, in
 
 ## Changed files
 
-Compared with the published 0.63.2 archive, these upstream files are modified;
+Compared with the published 0.65.0 archive, these upstream files are modified;
 each starts with the two-line notice:
 
 - `src/channels/channel_ref.rs`

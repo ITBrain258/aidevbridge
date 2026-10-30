@@ -1,4 +1,4 @@
-// AgentBridge local modifications to russh 0.63.2, 2026-09-12.
+// AgentBridge local modifications to russh 0.65.0, 2026-09-12.
 // Apache-2.0, the same license as russh. Included inside client::tests.
 
 fn end_patch_insert(
@@ -216,11 +216,14 @@ async fn end_patch_close_requires_established_or_retained_ack_route() {
 async fn end_patch_open_confirmation_and_split_preserve_observer() {
     let (sender, mut commands) = channel(4);
     let (_, receiver) = unbounded_channel();
+    let (priority_sender, _priority_commands) = unbounded_channel();
     let handle = Handle::<TestHandler> {
         sender,
         receiver,
         channel_buffer_size: 1,
         join: russh_util::runtime::spawn(async { Ok(()) }),
+        priority_sender,
+        agent_session_binding: None,
     };
     let opened;
     let channel_ref;

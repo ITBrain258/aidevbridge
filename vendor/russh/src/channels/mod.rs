@@ -1,4 +1,4 @@
-// Changed by AgentBridge (now aidevbridge): local modifications to russh 0.63.2,
+// Changed by AgentBridge (now aidevbridge): local modifications to russh 0.65.0,
 // Apache-2.0 like russh. AGENTBRIDGE-PATCH.md in the crate root lists every changed file.
 use std::sync::Arc;
 
@@ -140,8 +140,10 @@ impl WindowSizeRef {
         }
     }
 
-    pub(crate) async fn update(&self, value: u32) {
-        *self.value.lock().await = value;
+    pub(crate) async fn grow(&self, amount: u32) {
+        let mut value = self.value.lock().await;
+        *value = value.saturating_add(amount);
+        drop(value);
         self.notifier.notify_one();
     }
 
@@ -831,7 +833,7 @@ mod tests {
         tokio::task::yield_now().await;
         assert!(!send.is_finished());
 
-        window_size.update(1024).await;
+        window_size.grow(1024).await;
         send.await.unwrap();
 
         match receiver.recv().await.unwrap() {

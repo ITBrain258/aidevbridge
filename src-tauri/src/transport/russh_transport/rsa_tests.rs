@@ -122,7 +122,7 @@ impl russh::server::Handler for Server {
     async fn auth_publickey_offered(
         &mut self,
         _: &str,
-        _: &PublicKey,
+        _: russh::server::PublicKeyOffer<'_>,
     ) -> Result<russh::server::Auth, Self::Error> {
         self.offered.fetch_add(1, Ordering::SeqCst);
         Ok(russh::server::Auth::Accept)
@@ -130,9 +130,9 @@ impl russh::server::Handler for Server {
     async fn auth_publickey(
         &mut self,
         user: &str,
-        key: &PublicKey,
+        key: russh::server::VerifiedPublicKey<'_>,
     ) -> Result<russh::server::Auth, Self::Error> {
-        if user == "fixture-user" && key.key_data() == self.expected.key_data() {
+        if user == "fixture-user" && key.public_key.key_data() == self.expected.key_data() {
             self.verified.fetch_add(1, Ordering::SeqCst);
             Ok(russh::server::Auth::Accept)
         } else {

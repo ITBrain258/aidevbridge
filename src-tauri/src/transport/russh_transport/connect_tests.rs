@@ -810,7 +810,7 @@ impl russh::server::Handler for RekeyServer {
     }
 }
 
-/// russh 0.63.2 ruft `check_server_key` nur beim ersten
+/// russh 0.65.0 ruft `check_server_key` wie 0.63.2 nur beim ersten
 /// Schluesselaustausch. Ein Rekey mit demselben Hostschluessel laesst die
 /// Sitzung nutzbar und fragt die Policy nicht erneut. Ruft ein kuenftiges
 /// russh sie auch beim Rekey, faellt dieser Test auf; dann muessen Policy und

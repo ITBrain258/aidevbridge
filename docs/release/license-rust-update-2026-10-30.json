@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-10-30T19:27:35.814Z",
+  "scope": "Cargo.lock update carried over to the Windows x64 license selection by scripts/release-license-update-cargo.mjs; target x86_64-pc-windows-msvc, Rust 1.97.1, features tauri/custom-protocol. Not final application compliance or installer delivery.",
+  "basis": [
+    "docs/release/license-selection.windows-x64.json"
+  ],
+  "lockfile": {
+    "path": "Cargo.lock",
+    "before": {
+      "bytes": 149402,
+      "sha256": "d3070209ee3236b33fd366aba7cc1d803f75bfb0bb14bda075802778a02666c7"
+    },
+    "after": {
+      "bytes": 149402,
+      "sha256": "eb3e18690f9069289c3eee419a586a7f353aa7de91a9d03935573c1a47f01899"
+    }
+  },
+  "rule": "A decision moves to a new version without review only when the declared license, the role in the release graph, the set of license-named files and the bytes of every bound file are unchanged and every selected text is one of the package's own bound files; the old and new sources are compared from the registry cache. Every other change is listed under reviewed with the reason of its decision.",
+  "moved": [
+    {
+      "package": "russh",
+      "before": "0.63.2",
+      "after": "0.65.0",
+      "role": "normal-runtime-candidate",
+      "declared_license": "Apache-2.0",
+      "source": "path package, no registry archive",
+      "manifest": {
+        "before": {
+          "bytes": 7740,
+          "sha256": "67161a9ca959d9fb30b2d9603443a52ad6b910f1885b75818cf70163865856bb"
+        },
+        "after": {
+          "bytes": 8003,
+          "sha256": "6b3ae7c15ded92e7789933c5cbe17207d49616008e8c7af7723c3d21add5325e"
+        }
+      },
+      "bound_files": [
+        {
+          "before": "LICENSE-APACHE",
+          "after": "LICENSE-APACHE",
+          "bytes": 10849,
+          "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
+          "unchanged": true
+        }
+      ],
+      "added_files": []
+    }
+  ],
+  "role_changes": [],
+  "new_packages": [],
+  "new_outside_tree": [],
+  "removed": [],
+  "dropped_documents": [],
+  "unchanged_packages": 369,
+  "decision": "The reviewed decisions stand for the moved packages; reviewed changes and new packages are decided as recorded here. Removed packages and documents that no component uses any more leave the selection.",
+  "candidate_texts_by_sha256": {}
+}

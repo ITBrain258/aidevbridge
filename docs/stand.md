@@ -34,6 +34,18 @@ Seit dem 30.10. in `main`, noch ohne Release:
   verglichen: dieselben Plugins und WiX-Teile, jeweils bytegleich zu den
   gepinnten Originalen; das mitgelieferte NSIS-Quellarchiv ist jetzt `v313`
   ([Beleg](release/windows-installer-nsis-3.13-2026-10-30.md)).
+- **Lizenzwerkzeuge (PR #17):** `npm run licenses:status`, `:rebind-own`,
+  `:check` und `:derive`; der CI-Job `licenses` lässt einen Pull Request
+  scheitern, der Fremdcode ohne Lizenzprüfung ändert
+  ([Anleitung](lizenzen-pflegen.md)).
+- **Sicherheit (PR #18):** russh 0.65.0 statt 0.63.2, mit den vier eigenen
+  Änderungen. Es behebt drei Lücken, die den SSH-Client von 0.2.4 und früher
+  treffen (GHSA-3hm4-p7h4-rvwp hoch, GHSA-4p9f-7p9m-5vfg, GHSA-fw5c-8223-6h42;
+  [SECURITY.md](../SECURITY.md)): Ein Server konnte die App abstürzen lassen
+  oder anhalten. Weder `cargo audit` noch Dependabot sehen das eingebettete
+  russh; der Audit-Job `vendored` prüft es jetzt gegen die Advisory-Datenbank
+  und die Meldungen des russh-Repositorys. **Deshalb sollte bald ein Release
+  folgen.**
 
 Android ist mit 0.2.4 ausgeliefert und lief am 29.10. erstmals auf einem
 Telefon des Maintainers, mit Wischen im Terminal. In der Play Console steht
@@ -617,14 +629,10 @@ In dieser Reihenfolge:
     ([Anleitung](android-veroeffentlichung.md)).
 12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
-    gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht. Stufe 1
-    (Tauri 2.12) und Stufe 2 (Tauri-CLI 2.12.4, NSIS 3.13) sind erledigt.
-    Die Reihenfolge unten ist die Empfehlung vom 30.10., noch nicht
-    entschieden:
-    - **russh 0.65** (`vendor/russh` steht auf 0.63.2 mit eigenem Patch in
-      neun Dateien): die SSH-Bibliothek, also der sicherheitsnächste Teil.
-      Dabei prüfen, welche der eigenen Änderungen upstream angeboten werden
-      können (U4 braucht dazu das OK des Maintainers).
+    gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht. Erledigt
+    sind Tauri 2.12 (PR #15), Tauri-CLI 2.12.4 mit NSIS 3.13 (PR #16) und
+    russh 0.65.0 (PR #18). Die Reihenfolge unten ist die Empfehlung vom
+    30.10., noch nicht entschieden:
     - **Frontend-Werkzeuge:** Vite 8, TypeScript 7, Vitest 5 und jsdom 30
       (stehen auf 6.4, 5.6, 4.1 und 29). Vite ändert die gebaute Ausgabe,
       also den Beleg zum Modulepreload-Polyfill.
@@ -639,6 +647,11 @@ In dieser Reihenfolge:
       `release-windows-artifacts.mjs`) als veraltet; es linkt weiter
       statisch, und die Ersatzoption `build.windows.staticVCRuntime` ist
       standardmäßig an. `lucide-static` (Icons) steht auf 1.41, aktuell 1.65.
+    - Nach russh 0.65: Nach einer abgelehnten Agent-Signatur weitere
+      Identitäten probieren, was 0.65 erlaubt (upstream #788,
+      `src-tauri/src/ssh/auth.rs`). Eigene Änderungen upstream anbieten,
+      zuerst das Close-Verhalten, das upstream in #789 selbst vorschlägt; U4
+      braucht dazu das OK des Maintainers.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 
