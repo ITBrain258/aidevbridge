@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-10-29T21:09:14.537Z",
+  "scope": "Tauri npm packages for Tauri 2.12 (@tauri-apps/api 2.11.1 -> 2.12.4, @tauri-apps/plugin-dialog 2.7.2 -> 2.8.4, @tauri-apps/plugin-opener 2.5.4 -> 2.7.2); whether the bundled modules, their notices and the license files change. Not final application compliance or installer delivery.",
+  "basis": "docs/release/license-frontend-output-2026-09-12.json",
+  "bundled_modules": {
+    "method": "vite build --sourcemap of this checkout; node_modules sources listed in the source map",
+    "@tauri-apps/api": [
+      "core.js",
+      "event.js",
+      "dpi.js",
+      "image.js",
+      "window.js",
+      "app.js",
+      "external/tslib/tslib.es6.js"
+    ],
+    "@tauri-apps/plugin-dialog": [
+      "dist-js/index.js"
+    ],
+    "@tauri-apps/plugin-opener": []
+  },
+  "packages": [
+    {
+      "package": "@tauri-apps/api",
+      "before": {
+        "version": "2.11.1",
+        "url": "https://registry.npmjs.org/@tauri-apps/api/-/api-2.11.1.tgz",
+        "archive_sha256": "70a6defdbffbe388b3c2715a717bbacbd885c6ceba8b4ac69051a9794a939e0a",
+        "license_files": [
+          {
+            "path": "LICENSE_APACHE-2.0",
+            "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+          },
+          {
+            "path": "LICENSE_MIT",
+            "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d"
+          }
+        ],
+        "modules": [
+          {
+            "path": "core.js",
+            "bytes": 10709,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "event.js",
+            "bytes": 5674,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "dpi.js",
+            "bytes": 10803,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "image.js",
+            "bytes": 2927,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "window.js",
+            "bytes": 67197,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "app.js",
+            "bytes": 5480,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "external/tslib/tslib.es6.js",
+            "bytes": 2168,
+            "notices": [
+              "Copyright (c) Microsoft Corporation."
+            ]
+          }
+        ]
+      },
+      "after": {
+        "version": "2.12.4",
+        "url": "https://registry.npmjs.org/@tauri-apps/api/-/api-2.12.4.tgz",
+        "archive_sha256": "ea354409df3dcc473395111a5f6bf0031c8444cf827604515169aa3af5e9357a",
+        "license_files": [
+          {
+            "path": "LICENSE-APACHE-2.0",
+            "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+          },
+          {
+            "path": "LICENSE-MIT",
+            "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d"
+          },
+          {
+            "path": "LICENSE.spdx",
+            "sha256": "5e834fe9788c524210deda859c46a550ffa5aa0cba9ea0572f0d81120e97c008"
+          }
+        ],
+        "modules": [
+          {
+            "path": "core.js",
+            "bytes": 17906,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "event.js",
+            "bytes": 8782,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "dpi.js",
+            "bytes": 13057,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "image.js",
+            "bytes": 6254,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "window.js",
+            "bytes": 84772,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "app.js",
+            "bytes": 9719,
+            "notices": [
+              "// Copyright 2019-2024 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          },
+          {
+            "path": "external/tslib/tslib.es6.js",
+            "bytes": 2168,
+            "notices": [
+              "Copyright (c) Microsoft Corporation."
+            ]
+          }
+        ]
+      },
+      "license_files_equal": false,
+      "module_notices_equal": true
+    },
+    {
+      "package": "@tauri-apps/plugin-dialog",
+      "before": {
+        "version": "2.7.2",
+        "url": "https://registry.npmjs.org/@tauri-apps/plugin-dialog/-/plugin-dialog-2.7.2.tgz",
+        "archive_sha256": "7a5bb98ed104e6e6bec50bc3403af0d56fca80967d870055d753b3ca3e832c80",
+        "license_files": [
+          {
+            "path": "LICENSE.spdx",
+            "sha256": "eb8a6c84630461b352badcab1dbe5d0168c56d377358b2b8c86b51003272d5ef"
+          }
+        ],
+        "modules": [
+          {
+            "path": "dist-js/index.js",
+            "bytes": 6807,
+            "notices": [
+              "// Copyright 2019-2023 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          }
+        ]
+      },
+      "after": {
+        "version": "2.8.4",
+        "url": "https://registry.npmjs.org/@tauri-apps/plugin-dialog/-/plugin-dialog-2.8.4.tgz",
+        "archive_sha256": "3eff363f336b8d62ee321bbf78b39988fd162e597c961f3ea1c00cf3de9ed791",
+        "license_files": [
+          {
+            "path": "LICENSE.spdx",
+            "sha256": "eb8a6c84630461b352badcab1dbe5d0168c56d377358b2b8c86b51003272d5ef"
+          }
+        ],
+        "modules": [
+          {
+            "path": "dist-js/index.js",
+            "bytes": 7015,
+            "notices": [
+              "// Copyright 2019-2023 Tauri Programme within The Commons Conservancy",
+              "// SPDX-License-Identifier: Apache-2.0",
+              "// SPDX-License-Identifier: MIT"
+            ]
+          }
+        ]
+      },
+      "license_files_equal": true,
+      "module_notices_equal": true
+    },
+    {
+      "package": "@tauri-apps/plugin-opener",
+      "before": {
+        "version": "2.5.4",
+        "url": "https://registry.npmjs.org/@tauri-apps/plugin-opener/-/plugin-opener-2.5.4.tgz",
+        "archive_sha256": "9777de5af5eec927b83ca82709395944702e6edc0e3c17416fb4cb5264c1fdd2",
+        "license_files": [
+          {
+            "path": "LICENSE.spdx",
+            "sha256": "eb8a6c84630461b352badcab1dbe5d0168c56d377358b2b8c86b51003272d5ef"
+          }
+        ],
+        "modules": []
+      },
+      "after": {
+        "version": "2.7.2",
+        "url": "https://registry.npmjs.org/@tauri-apps/plugin-opener/-/plugin-opener-2.7.2.tgz",
+        "archive_sha256": "a3f4d62d015a0a3e9b6b7786b7aec3e52d4c3beb5cb3837662516b242759ce48",
+        "license_files": [
+          {
+            "path": "LICENSE.spdx",
+            "sha256": "eb8a6c84630461b352badcab1dbe5d0168c56d377358b2b8c86b51003272d5ef"
+          }
+        ],
+        "modules": []
+      },
+      "license_files_equal": true,
+      "module_notices_equal": true
+    }
+  ],
+  "findings": [
+    "@tauri-apps/api renames LICENSE_MIT and LICENSE_APACHE-2.0 to LICENSE-MIT and LICENSE-APACHE-2.0 with the same bytes and adds LICENSE.spdx; the selected MIT text is unchanged.",
+    "Every bundled module keeps the same copyright, SPDX and license lines; the vendored tslib helpers keep the Microsoft notice.",
+    "app.js (onBackButtonPress, Android back gesture) is in the bundle since the Android port of 0.2.4, with the same Commons Conservancy header as the other API modules; THIRD_PARTY_LICENSES.md now names it.",
+    "The plugins keep the same LICENSE.spdx and notices; plugin-opener still contributes no module to the bundle."
+  ],
+  "decision": "Unchanged decisions: MIT for @tauri-apps/api and @tauri-apps/plugin-dialog with the notices in THIRD_PARTY_LICENSES.md, exclusion for @tauri-apps/plugin-opener, 0BSD for the vendored tslib helpers. The components move to the new versions."
+}

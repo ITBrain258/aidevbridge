@@ -116,7 +116,7 @@ The six packages above carry the following additional headers in their `lib/*.mj
 
 ## Tauri (@tauri-apps/api, @tauri-apps/plugin-dialog, @tauri-apps/plugin-opener)
 
-Versions: `@tauri-apps/api` 2.11.1, `@tauri-apps/plugin-dialog` 2.7.2 and `@tauri-apps/plugin-opener` 2.5.4. Their package manifests declare MIT and Apache-2.0 as alternatives; we choose the MIT alternative for these frontend packages. The full text below is copied from `node_modules/@tauri-apps/api/LICENSE_MIT`. The plugins' `LICENSE.spdx` files contain license declarations and copyright metadata, not the full permission text. Their notices and the API source notices follow the full MIT text.
+Versions: `@tauri-apps/api` 2.12.4, `@tauri-apps/plugin-dialog` 2.8.4 and `@tauri-apps/plugin-opener` 2.7.2. Their package manifests declare MIT and Apache-2.0 as alternatives; we choose the MIT alternative for these frontend packages. The full text below is copied from `node_modules/@tauri-apps/api/LICENSE-MIT`. The plugins' `LICENSE.spdx` files contain license declarations and copyright metadata, not the full permission text. Their notices and the API source notices follow the full MIT text.
 
 MIT License
 
@@ -142,7 +142,7 @@ SOFTWARE.
 
 ### Additional Tauri copyright notices
 
-The API modules `core.js`, `event.js`, `window.js`, `dpi.js` and `image.js` carry:
+The API modules `core.js`, `event.js`, `window.js`, `dpi.js`, `image.js` and `app.js` carry:
 
 ```text
 Copyright 2019-2024 Tauri Programme within The Commons Conservancy
