@@ -14,7 +14,7 @@ import { PLATFORMS, releaseLicenses } from './release-licenses.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TARGET = 'universal-apple-darwin';
 const TOOLCHAIN = '1.97.1';
-const CLI_VERSION = '2.11.4';
+export const CLI_VERSION = '2.12.4';
 const OWNER = 'aidevbridge-macos-release-v1';
 const PREVIEW_OWNER = 'aidevbridge-macos-preview-notice';
 const PROFILE = PLATFORMS['macos-universal'];

@@ -41,16 +41,16 @@ Up.ico with that exact capitalization.
 
 2. NSIS LZMA decoder (installer:nsis-lzma-decoder)
 
-File: nsis-3.11-source.zip
-Upstream version/tag: NSIS 3.11 / v311
-Commit: 7359413009afd4f0fff472d841fc2f2cc0e0a5f8
-Root directory: nsis-7359413009afd4f0fff472d841fc2f2cc0e0a5f8
-Bytes: 4679758
-SHA-256: e114ddaf187c12725938095e600d242041f978664c332e14740da7c359c167f3
+File: nsis-3.13-source.zip
+Upstream version/tag: NSIS 3.13 / v313
+Commit: a4ba28e60bd9e7c271cd2bfc1558889ce3355653
+Root directory: nsis-a4ba28e60bd9e7c271cd2bfc1558889ce3355653
+Bytes: 2337690
+SHA-256: 649b8c2a9c856fa8116cf0e2d6d91492acf3922d7dde10736e5742a178c8b22d
 Official source:
-https://github.com/kichik/nsis/archive/7359413009afd4f0fff472d841fc2f2cc0e0a5f8.zip
-Original download resolved through the official repository redirect to:
-https://codeload.github.com/nsis-dev/nsis/zip/7359413009afd4f0fff472d841fc2f2cc0e0a5f8
+https://github.com/nsis-dev/nsis/archive/a4ba28e60bd9e7c271cd2bfc1558889ce3355653.zip
+Original download resolved to:
+https://codeload.github.com/nsis-dev/nsis/zip/a4ba28e60bd9e7c271cd2bfc1558889ce3355653
 
 Start with COPYING (including the CPL and NSIS linking exception), INSTALL,
 Source/7zip/LZMADecode.c, Source/7zip/LZMADecode.h and Source/Platform.h.

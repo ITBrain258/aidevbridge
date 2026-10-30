@@ -38,7 +38,8 @@
     "docs/release/license-frontend-vite-6.4.5-2026-10-29.json",
     "docs/release/license-rust-crypto-tokio-2026-10-26.json",
     "docs/release/license-rust-update-2026-10-29.json",
-    "docs/release/license-frontend-tauri-2.12-2026-10-29.json"
+    "docs/release/license-frontend-tauri-2.12-2026-10-29.json",
+    "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
   ],
   "inputs": {
     "files": [
@@ -213,17 +214,17 @@
         "sha256": "8400cde456c2dc905a21e0a1aee67ef91a528277113d96ec497cdbf055dd269f"
       },
       {
-        "path": "docs/release/licenses/nsis-3.11-COPYING.txt",
+        "path": "docs/release/licenses/nsis-3.13-COPYING.txt",
         "bytes": 15632,
-        "sha256": "e7dd514003ab96cb3ddccbc028fe5c795fccf57dc41f21cfb9d4dd16ead23bf5"
+        "sha256": "388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba"
       },
       {
-        "path": "docs/release/licenses/nsis-3.11-Modern-UI-2-LICENSE.txt",
+        "path": "docs/release/licenses/nsis-3.13-Modern-UI-2-LICENSE.txt",
         "bytes": 840,
-        "sha256": "d5957bd99460eb21148bd2695eeb5a3718abae6b118040a4678926da3f4cfbc0"
+        "sha256": "36608f72902ac188e45eab9bf6f673df72dd76f871f61d0c6d60592dfc15461c"
       },
       {
-        "path": "docs/release/licenses/nsis-3.11-NSISdl-LICENSE.txt",
+        "path": "docs/release/licenses/nsis-3.13-NSISdl-LICENSE.txt",
         "bytes": 943,
         "sha256": "326e587f36ca58e14bd09cca153f9e69f1c5ed701189aa47d2d0627af7e16280"
       },
@@ -359,13 +360,13 @@
       },
       {
         "path": "docs/release/sources/README.txt",
-        "bytes": 3439,
-        "sha256": "c83f30dc63a5ff28ddbf1ec9d56741f944c5dc46a1be93b5ea9e1d9d60ddd44a"
+        "bytes": 3400,
+        "sha256": "21bef550b7b789d0495943fb02df2748f1751ac264fc278570f3e4bdd5d3d467"
       },
       {
-        "path": "docs/release/sources/nsis-3.11-source.zip",
-        "bytes": 4679758,
-        "sha256": "e114ddaf187c12725938095e600d242041f978664c332e14740da7c359c167f3"
+        "path": "docs/release/sources/nsis-3.13-source.zip",
+        "bytes": 2337690,
+        "sha256": "649b8c2a9c856fa8116cf0e2d6d91492acf3922d7dde10736e5742a178c8b22d"
       },
       {
         "path": "docs/release/sources/wix-3.14.1-source.zip",
@@ -381,6 +382,11 @@
         "path": "docs/release/windows-installer-attribution-2026-09-12.md",
         "bytes": 9209,
         "sha256": "e0be91ac4688db269701206c1229d9be0902afed720949210cd0d5998be099ab"
+      },
+      {
+        "path": "docs/release/windows-installer-nsis-3.13-2026-10-30.md",
+        "bytes": 9424,
+        "sha256": "c1f5187d5678b74ec0880df2d6f562735c971088ef44e4964b5ab65c14d33664"
       },
       {
         "path": "docs/release/windows-installer-source-archives-2026-09-12.md",
@@ -544,13 +550,13 @@
       },
       {
         "path": "package-lock.json",
-        "bytes": 79007,
-        "sha256": "de6cf196b77ba286887f22c2d5fee2d9cb767c6b305e7bf820dfe98aa2874b06"
+        "bytes": 79012,
+        "sha256": "923b5f151111dafc4fbc420dcf49e41c9c99e4994cc92d435424aa5f4a301193"
       },
       {
         "path": "package.json",
-        "bytes": 1351,
-        "sha256": "a312586a767ad4a7d0d1c07e82ab82abc49d15c8c5690ad697bc91d1d40d5f84"
+        "bytes": 1356,
+        "sha256": "e5fd46de41ba24b98bfe1cf0be530c4705c1b09d152b001d3707f4b72cd8c8ef"
       },
       {
         "path": "rust-toolchain.toml",
@@ -574,8 +580,8 @@
       },
       {
         "path": "scripts/release-windows-artifacts.mjs",
-        "bytes": 37061,
-        "sha256": "d27d4646f771b46cbbaae6aa3d812b4af0a18b975653950e185e88d5a7039db9"
+        "bytes": 37087,
+        "sha256": "88c923a28e6effa2d5fd73f3485e9e6d22da45fcb6c46127b650dcbf7b5961bd"
       },
       {
         "path": "scripts/release-windows.ps1",
@@ -22261,23 +22267,24 @@
     {
       "id": "installer:nsis-engine-and-standard-plugins",
       "name": "NSIS Unicode installer/uninstaller engine, standard plugins and graphics",
-      "version": "3.11",
+      "version": "3.13",
       "declared_license": "Zlib",
       "selected_license": "Zlib",
       "disposition": "include",
       "documents": [
-        "sha256:e7dd514003ab96cb3ddccbc028fe5c795fccf57dc41f21cfb9d4dd16ead23bf5"
+        "sha256:388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba"
       ],
-      "reason": "Observed NSIS payload contains exactly System.dll, nsDialogs.dll and StartMenu.dll plus the NSIS wizard bitmap in this family. NSISdl, Modern UI 2, the LZMA decoder and the separate Tauri plugin are mapped separately below. No other archived plugin is claimed as delivered. COPYING is retained whole, including compression texts whose presence in this notice alone does not imply their use.",
+      "reason": "Observed NSIS payload contains exactly System.dll, nsDialogs.dll and StartMenu.dll plus the NSIS wizard bitmap in this family. NSISdl, Modern UI 2, the LZMA decoder and the separate Tauri plugin are mapped separately below. No other archived plugin is claimed as delivered. COPYING is retained whole, including compression texts whose presence in this notice alone does not imply their use. Re-checked on 2026-10-30 for NSIS 3.13 (Tauri CLI 2.12.4): the setup carries the same plugin set and wizard bitmap, each byte-identical to the 3.13 distribution; the new Restart Manager check of the Tauri template runs through System.dll. COPYING changed only its copyright year.",
       "decision_basis": [
-        "docs/release/windows-installer-attribution-2026-09-12.md"
+        "docs/release/windows-installer-attribution-2026-09-12.md",
+        "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
       ],
       "source_urls": [
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Contrib/System",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Contrib/nsDialogs",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Contrib/StartMenu",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Contrib/Graphics/Wizard/win.bmp"
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Contrib/System",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Contrib/nsDialogs",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Contrib/StartMenu",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Contrib/Graphics/Wizard/win.bmp"
       ],
       "observed_payload": [
         "NSIS installer/uninstaller engine",
@@ -22290,23 +22297,24 @@
     {
       "id": "installer:nsis-lzma-decoder",
       "name": "NSIS LZMA decoder",
-      "version": "NSIS 3.11",
+      "version": "NSIS 3.13",
       "declared_license": "CPL-1.0 with the NSIS linking exception in COPYING",
       "selected_license": "CPL-1.0 with the NSIS linking exception in COPYING",
       "disposition": "include",
       "documents": [
-        "sha256:e7dd514003ab96cb3ddccbc028fe5c795fccf57dc41f21cfb9d4dd16ead23bf5"
+        "sha256:388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba"
       ],
-      "reason": "The generated installer uses the selected lzma_solid-x86-unicode stub. The exact v311 stub build includes Source/7zip/LZMADecode.c; its source header selects CPL 1.0. The linking exception does not remove source delivery for this module. The corresponding complete NSIS commit archive is selected as the local offline source/build companion.",
+      "reason": "The generated installer uses the selected lzma_solid-x86-unicode stub. The exact v313 stub build includes Source/7zip/LZMADecode.c; its source header selects CPL 1.0. The linking exception does not remove source delivery for this module. The corresponding complete NSIS commit archive is selected as the local offline source/build companion. Re-checked on 2026-10-30: the generated script sets SetCompressor /SOLID \"lzma\"; LZMADecode.c and LZMADecode.h changed only their copyright year and stay under CPL 1.0, and Source/exehead/SConscript is unchanged since v311.",
       "decision_basis": [
         "docs/release/windows-installer-attribution-2026-09-12.md",
-        "docs/release/windows-installer-source-archives-2026-09-12.md"
+        "docs/release/windows-installer-source-archives-2026-09-12.md",
+        "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
       ],
       "source_urls": [
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Source/7zip/LZMADecode.c",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Source/7zip/LZMADecode.h",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Source/exehead/SConscript",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/COPYING"
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Source/7zip/LZMADecode.c",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Source/7zip/LZMADecode.h",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Source/exehead/SConscript",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/COPYING"
       ],
       "source_delivery": "Local unchanged official commit ZIP selected for offline delivery with original notices and complete upstream build context; actual next MSI/NSIS/ZIP payload verification remains pending.",
       "source_archives": [
@@ -22316,19 +22324,20 @@
     {
       "id": "installer:nsis-modern-ui-2",
       "name": "NSIS Modern UI 2",
-      "version": "from NSIS 3.11",
+      "version": "from NSIS 3.13",
       "declared_license": "LicenseRef-NSIS-Modern-UI-2",
       "selected_license": "LicenseRef-NSIS-Modern-UI-2",
       "disposition": "include",
       "documents": [
-        "sha256:d5957bd99460eb21148bd2695eeb5a3718abae6b118040a4678926da3f4cfbc0"
+        "sha256:36608f72902ac188e45eab9bf6f673df72dd76f871f61d0c6d60592dfc15461c"
       ],
-      "reason": "The actual generated NSIS script includes MUI2.nsh. Retain the complete original Joost Verburg notice, including its distribution condition. Original bytes use CRLF and an ANSI copyright character; they are not transcoded.",
+      "reason": "The actual generated NSIS script includes MUI2.nsh. Retain the complete original Joost Verburg notice, including its distribution condition. Original bytes use CRLF and an ANSI copyright character; they are not transcoded. Re-checked on 2026-10-30: the generated script still includes MUI2.nsh; the 3.13 text changed only its copyright year.",
       "decision_basis": [
-        "docs/release/windows-installer-attribution-2026-09-12.md"
+        "docs/release/windows-installer-attribution-2026-09-12.md",
+        "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
       ],
       "source_urls": [
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Contrib/Modern%20UI%202"
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Contrib/Modern%20UI%202"
       ]
     },
     {
@@ -22344,9 +22353,10 @@
         "sha256:c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
         "sha256:23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
       ],
-      "reason": "The extracted plugin is byte-identical to the pinned 0.5.3 DLL. Select its own MIT original from commit 13d9edd27b69310e108d6fbd49f90992f8a05390, covering the combined nsis-process/nsis-semvercompare/nsis-string implementation and local plugin API. The no_std source uses core/alloc, windows-sys and semver. Reuse their already selected permissive family texts conservatively. Versioned filenames of those reused texts identify their saved provenance, not the compiler/dependency versions of this prebuilt DLL; no such exact-version claim is made.",
+      "reason": "The extracted plugin is byte-identical to the pinned 0.5.3 DLL. Select its own MIT original from commit 13d9edd27b69310e108d6fbd49f90992f8a05390, covering the combined nsis-process/nsis-semvercompare/nsis-string implementation and local plugin API. The no_std source uses core/alloc, windows-sys and semver. Reuse their already selected permissive family texts conservatively. Versioned filenames of those reused texts identify their saved provenance, not the compiler/dependency versions of this prebuilt DLL; no such exact-version claim is made. Re-checked on 2026-10-30: byte-identical in the setup built with Tauri CLI 2.12.4, which still pins 0.5.3.",
       "decision_basis": [
-        "docs/release/windows-installer-attribution-2026-09-12.md"
+        "docs/release/windows-installer-attribution-2026-09-12.md",
+        "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
       ],
       "source_urls": [
         "https://github.com/tauri-apps/nsis-tauri-utils/tree/13d9edd27b69310e108d6fbd49f90992f8a05390",
@@ -22374,20 +22384,21 @@
     {
       "id": "installer:nsisdl",
       "name": "NSISdl HTTP download plugin",
-      "version": "from NSIS 3.11",
+      "version": "from NSIS 3.13",
       "declared_license": "Zlib",
       "selected_license": "Zlib",
       "disposition": "include",
       "documents": [
         "sha256:326e587f36ca58e14bd09cca153f9e69f1c5ed701189aa47d2d0627af7e16280",
-        "sha256:e7dd514003ab96cb3ddccbc028fe5c795fccf57dc41f21cfb9d4dd16ead23bf5"
+        "sha256:388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba"
       ],
-      "reason": "The extracted NSISdl.dll is byte-identical to the selected x86-unicode plugin. It supports the configured WebView2 downloadBootstrapper path. Its original text identifies NSISdl 1.1 and preserves the Yaroslav Faybishenko and Justin Frankel notice.",
+      "reason": "The extracted NSISdl.dll is byte-identical to the selected x86-unicode plugin. It supports the configured WebView2 downloadBootstrapper path. Its original text identifies NSISdl 1.1 and preserves the Yaroslav Faybishenko and Justin Frankel notice. Re-checked on 2026-10-30: the extracted NSISdl.dll is byte-identical to the 3.13 x86-unicode plugin; its text is unchanged.",
       "decision_basis": [
-        "docs/release/windows-installer-attribution-2026-09-12.md"
+        "docs/release/windows-installer-attribution-2026-09-12.md",
+        "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
       ],
       "source_urls": [
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Contrib/NSISdl"
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Contrib/NSISdl"
       ],
       "observed_payload": [
         "$PLUGINSDIR/NSISdl.dll"
@@ -22403,10 +22414,11 @@
       "documents": [
         "sha256:4004370957cfc16afa52582f0cbd56c98a2f00846d6dadc51c7c7ab0500c0000"
       ],
-      "reason": "Actual MSI Binary rows contain WixUIWixca (the x86 uica.dll) and six WiX UI graphics, each byte-identical to the selected WixUIExtension embedded cabinet. Custom actions WixUIValidatePath and WixUIPrintEula reference this DLL. WixUtilExtension and its custom-action binaries are not delivered. LICENSE.TXT is retained; the corresponding complete WiX commit archive is selected as the local offline source/build companion.",
+      "reason": "Actual MSI Binary rows contain WixUIWixca (the x86 uica.dll) and six WiX UI graphics, each byte-identical to the selected WixUIExtension embedded cabinet. Custom actions WixUIValidatePath and WixUIPrintEula reference this DLL. WixUtilExtension and its custom-action binaries are not delivered. LICENSE.TXT is retained; the corresponding complete WiX commit archive is selected as the local offline source/build companion. Re-checked on 2026-10-30 with Tauri CLI 2.12.4: the MSI Binary table holds the same seven streams with the same bytes as the 0.2.4 MSI, and the same custom actions reference WixUIWixca.",
       "decision_basis": [
         "docs/release/windows-installer-attribution-2026-09-12.md",
-        "docs/release/windows-installer-source-archives-2026-09-12.md"
+        "docs/release/windows-installer-source-archives-2026-09-12.md",
+        "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
       ],
       "source_urls": [
         "https://github.com/wixtoolset/wix3/tree/b40e9a32c24033e11b77baf2c91a704382f898ed",
@@ -23964,21 +23976,21 @@
     },
     {
       "id": "sha256:326e587f36ca58e14bd09cca153f9e69f1c5ed701189aa47d2d0627af7e16280",
-      "file_name": "nsis-3.11-NSISdl-LICENSE.txt",
+      "file_name": "nsis-3.13-NSISdl-LICENSE.txt",
       "bytes": 943,
       "sha256": "326e587f36ca58e14bd09cca153f9e69f1c5ed701189aa47d2d0627af7e16280",
       "sources": [
         {
           "kind": "file",
-          "path": "docs/release/licenses/nsis-3.11-NSISdl-LICENSE.txt"
+          "path": "docs/release/licenses/nsis-3.13-NSISdl-LICENSE.txt"
         }
       ],
       "source_names": [
-        "nsis-3.11.zip!/nsis-3.11/Docs/NSISdl/License.txt"
+        "nsis-3.13.zip!/nsis-3.13/Docs/NSISdl/License.txt"
       ],
       "source_urls": [
-        "https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.11/nsis-3.11.zip",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Contrib/NSISdl"
+        "https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Contrib/NSISdl"
       ]
     },
     {
@@ -24019,6 +24031,25 @@
       "source_urls": [
         "https://crates.io/crates/crypto-common/0.1.7",
         "https://github.com/RustCrypto/traits"
+      ]
+    },
+    {
+      "id": "sha256:36608f72902ac188e45eab9bf6f673df72dd76f871f61d0c6d60592dfc15461c",
+      "file_name": "nsis-3.13-Modern-UI-2-LICENSE.txt",
+      "bytes": 840,
+      "sha256": "36608f72902ac188e45eab9bf6f673df72dd76f871f61d0c6d60592dfc15461c",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/nsis-3.13-Modern-UI-2-LICENSE.txt"
+        }
+      ],
+      "source_names": [
+        "nsis-3.13.zip!/nsis-3.13/Docs/Modern UI 2/License.txt"
+      ],
+      "source_urls": [
+        "https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/Contrib/Modern%20UI%202"
       ]
     },
     {
@@ -24114,6 +24145,25 @@
       ],
       "source_urls": [
         "https://raw.githubusercontent.com/rust-lang/rust/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/compiler-builtins/libm/LICENSE.txt"
+      ]
+    },
+    {
+      "id": "sha256:388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba",
+      "file_name": "nsis-3.13-COPYING.txt",
+      "bytes": 15632,
+      "sha256": "388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/nsis-3.13-COPYING.txt"
+        }
+      ],
+      "source_names": [
+        "nsis-3.13.zip!/nsis-3.13/COPYING"
+      ],
+      "source_urls": [
+        "https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip",
+        "https://github.com/nsis-dev/nsis/tree/a4ba28e60bd9e7c271cd2bfc1558889ce3355653/COPYING"
       ]
     },
     {
@@ -25053,6 +25103,22 @@
         "https://crates.io/crates/regex-syntax/0.8.11",
         "https://github.com/rust-lang/regex"
       ]
+    },
+    {
+      "id": "sha256:752e94e71e190670394fd418a3383b79f11ae52c5fd44ad7f08d74a1c21665a1",
+      "file_name": "THIRD_PARTY_LICENSES.md",
+      "bytes": 14159,
+      "sha256": "752e94e71e190670394fd418a3383b79f11ae52c5fd44ad7f08d74a1c21665a1",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "THIRD_PARTY_LICENSES.md"
+        }
+      ],
+      "source_names": [
+        "THIRD_PARTY_LICENSES.md"
+      ],
+      "source_urls": []
     },
     {
       "id": "sha256:7554701d1e74fc434f68c522b1dd743c8c16d816a4b761b5213f367b898884c8",
@@ -26728,25 +26794,6 @@
       ]
     },
     {
-      "id": "sha256:d5957bd99460eb21148bd2695eeb5a3718abae6b118040a4678926da3f4cfbc0",
-      "file_name": "nsis-3.11-Modern-UI-2-LICENSE.txt",
-      "bytes": 840,
-      "sha256": "d5957bd99460eb21148bd2695eeb5a3718abae6b118040a4678926da3f4cfbc0",
-      "sources": [
-        {
-          "kind": "file",
-          "path": "docs/release/licenses/nsis-3.11-Modern-UI-2-LICENSE.txt"
-        }
-      ],
-      "source_names": [
-        "nsis-3.11.zip!/nsis-3.11/Docs/Modern UI 2/License.txt"
-      ],
-      "source_urls": [
-        "https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.11/nsis-3.11.zip",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/Contrib/Modern%20UI%202"
-      ]
-    },
-    {
       "id": "sha256:d5c22aa3118d240e877ad41c5d9fa232f9c77d757d4aac0c2f943afc0a95e0ef",
       "file_name": "block-buffer-0.10.4-LICENSE-MIT.txt",
       "bytes": 1082,
@@ -26832,22 +26879,6 @@
       ]
     },
     {
-      "id": "sha256:752e94e71e190670394fd418a3383b79f11ae52c5fd44ad7f08d74a1c21665a1",
-      "file_name": "THIRD_PARTY_LICENSES.md",
-      "bytes": 14159,
-      "sha256": "752e94e71e190670394fd418a3383b79f11ae52c5fd44ad7f08d74a1c21665a1",
-      "sources": [
-        {
-          "kind": "file",
-          "path": "THIRD_PARTY_LICENSES.md"
-        }
-      ],
-      "source_names": [
-        "THIRD_PARTY_LICENSES.md"
-      ],
-      "source_urls": []
-    },
-    {
       "id": "sha256:df9cfd06d8a44d9a671eadd39ffd97f166481da015a30f45dfd27886209c5922",
       "file_name": "mime-0.3.17-LICENSE-MIT.txt",
       "bytes": 1058,
@@ -26927,25 +26958,6 @@
       "source_urls": [
         "https://crates.io/crates/open/5.4.5",
         "https://github.com/Byron/open-rs"
-      ]
-    },
-    {
-      "id": "sha256:e7dd514003ab96cb3ddccbc028fe5c795fccf57dc41f21cfb9d4dd16ead23bf5",
-      "file_name": "nsis-3.11-COPYING.txt",
-      "bytes": 15632,
-      "sha256": "e7dd514003ab96cb3ddccbc028fe5c795fccf57dc41f21cfb9d4dd16ead23bf5",
-      "sources": [
-        {
-          "kind": "file",
-          "path": "docs/release/licenses/nsis-3.11-COPYING.txt"
-        }
-      ],
-      "source_names": [
-        "nsis-3.11.zip!/nsis-3.11/COPYING"
-      ],
-      "source_urls": [
-        "https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.11/nsis-3.11.zip",
-        "https://github.com/kichik/nsis/tree/7359413009afd4f0fff472d841fc2f2cc0e0a5f8/COPYING"
       ]
     },
     {
@@ -27431,13 +27443,13 @@
     {
       "id": "nsis-lzma-source",
       "kind": "source_zip",
-      "path": "docs/release/sources/nsis-3.11-source.zip",
-      "bytes": 4679758,
-      "sha256": "e114ddaf187c12725938095e600d242041f978664c332e14740da7c359c167f3",
-      "file_name": "nsis-3.11-source.zip",
-      "source_url": "https://github.com/kichik/nsis/archive/7359413009afd4f0fff472d841fc2f2cc0e0a5f8.zip",
-      "commit": "7359413009afd4f0fff472d841fc2f2cc0e0a5f8",
-      "archive_root": "nsis-7359413009afd4f0fff472d841fc2f2cc0e0a5f8",
+      "path": "docs/release/sources/nsis-3.13-source.zip",
+      "bytes": 2337690,
+      "sha256": "649b8c2a9c856fa8116cf0e2d6d91492acf3922d7dde10736e5742a178c8b22d",
+      "file_name": "nsis-3.13-source.zip",
+      "source_url": "https://github.com/nsis-dev/nsis/archive/a4ba28e60bd9e7c271cd2bfc1558889ce3355653.zip",
+      "commit": "a4ba28e60bd9e7c271cd2bfc1558889ce3355653",
+      "archive_root": "nsis-a4ba28e60bd9e7c271cd2bfc1558889ce3355653",
       "components": [
         "installer:nsis-lzma-decoder"
       ]
@@ -27445,7 +27457,7 @@
   ],
   "source_readme": {
     "path": "docs/release/sources/README.txt",
-    "bytes": 3439,
-    "sha256": "c83f30dc63a5ff28ddbf1ec9d56741f944c5dc46a1be93b5ea9e1d9d60ddd44a"
+    "bytes": 3400,
+    "sha256": "21bef550b7b789d0495943fb02df2748f1751ac264fc278570f3e4bdd5d3d467"
   }
 }

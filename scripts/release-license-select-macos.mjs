@@ -33,10 +33,10 @@ const SPDX_MIT = { path: `${LICENSES}/spdx-license-list-3.29.0-MIT.txt`, url: 'h
 const WINDOWS_ONLY_FILES = [
   'docs/release/license-webview2-bindings-2026-09-12.json', 'docs/release/license-webview2-sdk-2026-09-12.json', 'docs/release/license-windows-runtime-2026-09-12.json',
   `${LICENSES}/microsoft-web-webview2-1.0.3650.58-LICENSE.txt`, `${LICENSES}/microsoft-web-webview2-1.0.3650.58-NOTICE.txt`, `${LICENSES}/microsoft-webview2-evergreen-2026-09-12-LICENSE.txt`, `${LICENSES}/microsoft-windows-runtime-NOTICE.txt`,
-  `${LICENSES}/nsis-3.11-COPYING.txt`, `${LICENSES}/nsis-3.11-Modern-UI-2-LICENSE.txt`, `${LICENSES}/nsis-3.11-NSISdl-LICENSE.txt`, `${LICENSES}/nsis-tauri-utils-0.5.3-LICENSE-MIT.txt`,
+  `${LICENSES}/nsis-3.13-COPYING.txt`, `${LICENSES}/nsis-3.13-Modern-UI-2-LICENSE.txt`, `${LICENSES}/nsis-3.13-NSISdl-LICENSE.txt`, `${LICENSES}/nsis-tauri-utils-0.5.3-LICENSE-MIT.txt`,
   `${LICENSES}/webview2-rs-0.38.2-macros-0.8.1-LICENSE-MIT.txt`, `${LICENSES}/wix-3.14.1-LICENSE.txt`,
-  'docs/release/sources/README.txt', 'docs/release/sources/nsis-3.11-source.zip', 'docs/release/sources/wix-3.14.1-source.zip',
-  'docs/release/windows-installation-notice.txt', 'docs/release/windows-installer-attribution-2026-09-12.md', 'docs/release/windows-installer-source-archives-2026-09-12.md', 'docs/release/windows-zip-readme.txt',
+  'docs/release/sources/README.txt', 'docs/release/sources/nsis-3.13-source.zip', 'docs/release/sources/wix-3.14.1-source.zip',
+  'docs/release/windows-installation-notice.txt', 'docs/release/windows-installer-attribution-2026-09-12.md', 'docs/release/windows-installer-nsis-3.13-2026-10-30.md', 'docs/release/windows-installer-source-archives-2026-09-12.md', 'docs/release/windows-zip-readme.txt',
   'scripts/release-windows-artifacts.mjs', 'scripts/release-windows.ps1', 'src-tauri/tauri.release.windows.json',
 ];
 // Build configuration and texts of the macOS payload. INVENTORY and REPORT are
@@ -358,7 +358,7 @@ export function deriveSelection(root, { metadata = macosMetadata(root), roles = 
   });
   components.push(
     { id: 'native:apple-system-libraries', name: 'macOS system libraries and frameworks', version: 'provided by macOS 11 or newer', declared_license: 'Apple macOS terms', selected_license: null, disposition: 'exclude', documents: [], reason: 'libSystem (including the unwinder std links against), Foundation, AppKit, WebKit, CoreFoundation, CoreGraphics and the other frameworks are part of macOS and are loaded from the system at run time. No Apple library bytes are copied into the .app or the DMG. The objc2 bindings derived from Apple SDK headers are mapped separately.', decision_basis: [REPORT], source_urls: [] },
-    { id: 'installer:macos-dmg', name: 'DMG disk image', version: 'Tauri CLI 2.11.4 bundle_dmg.sh with hdiutil', declared_license: null, selected_license: null, disposition: 'exclude', documents: [], reason: 'The image holds the .app, a link to /Applications and at most the volume icon made from the app\'s own icon and file-system metadata macOS writes itself (.DS_Store, .fseventsd, .Trashes); scripts/release-macos-artifacts.mjs refuses any other entry. hdiutil and the Tauri bundler script only build the image; no third-party installer code, graphics or license agreement is delivered.', decision_basis: [REPORT, 'scripts/release-macos-artifacts.mjs'], source_urls: [] },
+    { id: 'installer:macos-dmg', name: 'DMG disk image', version: 'Tauri CLI 2.12.4 bundle_dmg.sh with hdiutil', declared_license: null, selected_license: null, disposition: 'exclude', documents: [], reason: 'The image holds the .app, a link to /Applications and at most the volume icon made from the app\'s own icon and file-system metadata macOS writes itself (.DS_Store, .fseventsd, .Trashes); scripts/release-macos-artifacts.mjs refuses any other entry. hdiutil and the Tauri bundler script only build the image; no third-party installer code, graphics or license agreement is delivered.', decision_basis: [REPORT, 'scripts/release-macos-artifacts.mjs'], source_urls: [] },
   );
   ensure(new Set(components.map(c => c.id)).size === components.length, 'Duplicate component');
   // The rust-toolchain ids recur with the Apple standard-library mapping.

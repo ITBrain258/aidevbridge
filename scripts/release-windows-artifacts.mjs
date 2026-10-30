@@ -11,12 +11,12 @@ import { releaseLicenses } from './release-licenses.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TARGET = 'x86_64-pc-windows-msvc';
 const TOOLCHAIN = '1.97.1';
-const CLI_VERSION = '2.11.4';
+export const CLI_VERSION = '2.12.4';
 const OWNER = 'aidevbridge-windows-release-v1';
 const SELECTION = 'docs/release/license-selection.windows-x64.json';
 const CONFIG = 'src-tauri/tauri.release.windows.json';
 const NOTICES = 'out/release-notices';
-// Tauri CLI 2.11.4 uses PathBuf::ends_with(".rtf"), a whole-component check.
+// Tauri CLI 2.12.4 (as 2.11.4) uses PathBuf::ends_with(".rtf"), a whole-component check.
 // Keep this basename until the pinned MSI converter is reviewed on CLI upgrades.
 const RTF = 'out/release-installer-notice/.rtf';
 const LOCK = 'out/.aidevbridge-windows-release.lock';
@@ -32,10 +32,10 @@ const equal = (a, b, message) => ensure(JSON.stringify(a) === JSON.stringify(b),
 // Pinned to the installed CLI source commit. Archives are retained before extraction.
 export const BUNDLER_DOWNLOADS = [
   { name: 'wix314-binaries.zip', version: '3.14.1', url: 'https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip', algorithm: 'sha256', hash: '6ac824e1642d6f7277d0ed7ea09411a508f6116ba6fae0aa5f2c7daa2ff43d31', destination: 'WixTools314' },
-  { name: 'nsis-3.11.zip', version: '3.11', url: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.11/nsis-3.11.zip', algorithm: 'sha1', hash: 'ef7ff767e5cbd9edd22add3a32c9b8f4500bb10d', destination: 'NSIS', strip: 'nsis-3.11/' },
+  { name: 'nsis-3.13.zip', version: '3.13', url: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip', algorithm: 'sha1', hash: 'db14f8af2ea346b786c6ae19343f61aaf5e09b8e', destination: 'NSIS', strip: 'nsis-3.13/' },
   { name: 'nsis_tauri_utils.dll', version: '0.5.3', url: 'https://github.com/tauri-apps/nsis-tauri-utils/releases/download/nsis_tauri_utils-v0.5.3/nsis_tauri_utils.dll', algorithm: 'sha1', hash: '75197fee3c6a814fe035788d1c34ead39349b860', destination: 'NSIS/Plugins/x86-unicode/additional/nsis_tauri_utils.dll' },
 ];
-const DOWNLOAD_SOURCE = 'https://github.com/tauri-apps/tauri/tree/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows';
+export const DOWNLOAD_SOURCE = 'https://github.com/tauri-apps/tauri/tree/993038c49185307dfc895ab7657d77ca0d5ed7c7/crates/tauri-bundler/src/bundle/windows';
 
 export function safeRelative(value) {
   ensure(typeof value === 'string' && value.length && !/[\\:\x00-\x1f<>"|?*]/.test(value), `Unsafe relative path: ${value}`);
