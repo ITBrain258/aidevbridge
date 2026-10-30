@@ -62,6 +62,11 @@ jobs:
           fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { ref: '${{ env.SOURCE_REF }}', persist-credentials: false }
+      # gradle-wrapper.jar runs before anything else of Gradle and downloads
+      # the rest: it must be one that Gradle published. The distribution it
+      # downloads is pinned by distributionSha256Sum in
+      # gradle-wrapper.properties.
+      - uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
       - uses: dtolnay/rust-toolchain@59a558e8c538bf4a23bbffa19e5a278b703f2920 # 1.97.1
         with:
           targets: aarch64-linux-android, armv7-linux-androideabi, x86_64-linux-android

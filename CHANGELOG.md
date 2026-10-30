@@ -6,6 +6,16 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- CI: `ci.yml`, `packages.yml` und `audit.yml` laufen bei einem Push nur noch auf `main`; ein Branch laeuft ueber seinen Pull Request. Bisher lief jeder Commit eines Pull Requests doppelt, was die macOS-Runner belegte (Wartezeiten bis 111 Minuten, abgebrochene Installationstests). Ein neuer Commit im selben Pull Request bricht den CI-Lauf des vorigen ab.
+
+### Security
+
+- Vite 6.4.5 (GHSA-8g5g-mxqh-grgj: `server.fs.deny` liess sich mit Query-Parametern umgehen, nur im Entwicklungsserver). Die gebaute App ist Byte fuer Byte dieselbe wie mit 6.4.4 (`docs/release/license-frontend-vite-6.4.5-2026-10-29.json`).
+- Android-Build: Die Gradle-Distribution ist per `distributionSha256Sum` an die offizielle Pruefsumme gebunden, und `android.yml` prueft vor jedem Bau, dass `gradle-wrapper.jar` ein von Gradle veroeffentlichtes Jar ist (`gradle/actions/wrapper-validation`).
+- Repository: Tags `v*` darf nur ein Admin anlegen, verschieben oder loeschen (Ruleset "Release tags v*"). Damit kommt kein Workflow und kein Token ohne Admin-Recht ueber einen eigenen Tag an den Android-Signaturschluessel.
+
 ## [0.2.4] - 2026-10-29
 
 Erstes Release mit Android (APK am Release, App Bundle fuer Google Play) und mit den Korrekturen aus dem Review vom 26.10.

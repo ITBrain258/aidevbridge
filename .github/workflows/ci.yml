@@ -1,7 +1,19 @@
 name: CI
-on: [push, pull_request]
+# Every pull request and every push to main. A branch is checked through its
+# pull request only, so each commit runs once instead of twice; a newer commit
+# of the same pull request cancels the run of the older one. Tags need no run
+# of their own: a tag points at a commit on main that was checked when it was
+# pushed.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   rust:
     strategy:

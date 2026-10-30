@@ -43,6 +43,7 @@
     "docs/release/license-frontend-output-2026-09-12.json",
     "docs/release/license-mpl-selection-2026-09-12.json",
     "docs/release/license-frontend-vite-6.4.4-2026-10-22.json",
+    "docs/release/license-frontend-vite-6.4.5-2026-10-29.json",
     "docs/release/license-rust-crypto-tokio-2026-10-26.json",
     "docs/release/license-android-universal-2026-10-28.json"
   ],
@@ -50,8 +51,8 @@
     "files": [
       {
         "path": ".github/workflows/android.yml",
-        "bytes": 20691,
-        "sha256": "1a138622f4e42d6754b6e02e5196163f9e1e5719e0b86e20a686b1403feabcf3"
+        "bytes": 21033,
+        "sha256": "8b010a19b11eb0b8c68ab932449ddbbd951b9096bfaf04c1cf8ec2160ea31c96"
       },
       {
         "path": "Cargo.lock",
@@ -76,7 +77,7 @@
       {
         "path": "THIRD_PARTY_LICENSES.md",
         "bytes": 14149,
-        "sha256": "1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256": "df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       },
       {
         "path": "docs/release/license-and-unicode-2026-09-12.json",
@@ -86,7 +87,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 134122,
-        "sha256": "bc6a302d249c0d72b5b4b4fdbca8d7a18897ae69e6edc067f711e266c3cf252d"
+        "sha256": "fc5e2542726314f2461e2fa0656b259e0947c6db05c4ca1a9e6d59226743539a"
       },
       {
         "path": "docs/release/license-frontend-output-2026-09-12.json",
@@ -97,6 +98,11 @@
         "path": "docs/release/license-frontend-vite-6.4.4-2026-10-22.json",
         "bytes": 3141,
         "sha256": "9d7d30ee9886d2cbf2124a9c71241bf985ca0074badb2275a14046b009d63552"
+      },
+      {
+        "path": "docs/release/license-frontend-vite-6.4.5-2026-10-29.json",
+        "bytes": 3565,
+        "sha256": "e56e1a34f32e787620a359dd21db4e9b7aeaf8aa7acb2b963cbf289614ea77da"
       },
       {
         "path": "docs/release/license-inventory-2026-09-12-rust.json",
@@ -516,17 +522,17 @@
       {
         "path": "node_modules/vite/package.json",
         "bytes": 5251,
-        "sha256": "08aa811517022c5b83c52c63dc435d2aa725a64fe4e3cfa6f351affa6b9ed9de"
+        "sha256": "0ac6ea0598168f203cad40e7b6e0f892987109262a296e29abf039f1b26099ee"
       },
       {
         "path": "package-lock.json",
         "bytes": 78998,
-        "sha256": "6f40bf1490885685ce1fbd151a12cb3f67a35b4c162f2fee88d439cefbb4e1d5"
+        "sha256": "5e8171bf54ad3edae0eda7fb7a80360346f95870495d60e2559e49ec4cdfe7e9"
       },
       {
         "path": "package.json",
         "bytes": 1342,
-        "sha256": "0b63f5fc5424ec720b844caec570f2c23cd1d742766b4f05cb31c4b6d18118b7"
+        "sha256": "5ea414f4b7f9efbf659a38f9f1311b938c6197a1f148d6d1f63544aaa288ea75"
       },
       {
         "path": "rust-toolchain.toml",
@@ -590,8 +596,8 @@
       },
       {
         "path": "src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties",
-        "bytes": 233,
-        "sha256": "5f8448f8760a88f7dfa64fad849012828706c6ce8e11041bb0640faa1e230f0e"
+        "bytes": 320,
+        "sha256": "521dc2ed119a07f527c0a6e8f0f671f5f977b30eac810692cdb9cbb9fadbc8c9"
       },
       {
         "path": "src-tauri/gen/android/settings.gradle",
@@ -22468,7 +22474,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices. For the window-title and attention calls the bundle also contains window.js, dpi.js and image.js; they carry the same Commons Conservancy header, which THIRD_PARTY_LICENSES.md lists.",
       "decision_basis": [
@@ -22486,7 +22492,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22520,7 +22526,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22538,7 +22544,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22556,7 +22562,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22574,7 +22580,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22592,7 +22598,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Bundled for Ctrl+click links. Its MIT text and copyright line (identical bytes to addon-search) and the two module headers shared with the other xterm packages are retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -22611,7 +22617,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22629,7 +22635,7 @@
       "selected_license": "ISC AND MIT (Feather)",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Icon geometries copied into src/icons.ts (ICON_NAMES, generated by scripts/gen-icons.mjs) and the triangle-alert geometry inlined as a CSS mask in src/styles.css; the full ISC and Feather MIT texts are retained.",
       "decision_basis": [
@@ -22640,22 +22646,23 @@
       ]
     },
     {
-      "id": "npm:vite@6.4.4",
+      "id": "npm:vite@6.4.5",
       "name": "vite",
-      "version": "6.4.4",
+      "version": "6.4.5",
       "declared_license": "MIT",
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Only the emitted modulepreload polyfill; no wholesale Vite build dependency payload.",
       "decision_basis": [
         "docs/release/license-frontend-output-2026-09-12.json",
-        "docs/release/license-frontend-vite-6.4.4-2026-10-22.json"
+        "docs/release/license-frontend-vite-6.4.4-2026-10-22.json",
+        "docs/release/license-frontend-vite-6.4.5-2026-10-29.json"
       ],
       "source_urls": [
-        "https://www.npmjs.com/package/vite/v/6.4.4"
+        "https://www.npmjs.com/package/vite/v/6.4.5"
       ]
     },
     {
@@ -22716,7 +22723,7 @@
       "selected_license": "0BSD",
       "disposition": "include",
       "documents": [
-        "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9"
+        "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9"
       ],
       "reason": "Re-decided on 2026-10-20: the production JS contains __classPrivateFieldGet and __classPrivateFieldSet, reached through @tauri-apps/api/window -> image.js (Image extends Resource from core.js); the earlier exclusion no longer holds. The verbatim Microsoft notice of the vendored file (0BSD terms, no attribution duty) is retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -29151,10 +29158,10 @@
       ]
     },
     {
-      "id": "sha256:1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9",
+      "id": "sha256:df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9",
       "file_name": "THIRD_PARTY_LICENSES.md",
       "bytes": 14149,
-      "sha256": "1ea1cc23b75cbbb20be01bad52bf0395f44ac4455bce4d6b320dfca071db91c9",
+      "sha256": "df30735529930b0006f3dff7299bf8c584cd7382c9e47a2cb40e0e8773147df9",
       "sources": [
         {
           "kind": "file",
