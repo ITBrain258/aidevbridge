@@ -57,7 +57,7 @@ function verify(bytes, record, label) {
   requireValue(bytes.length === record.bytes && digest(bytes) === record.sha256, `Input changed or missing: ${label}`);
 }
 
-function walk(root, relative) {
+export function walk(root, relative) {
   const directory = within(root, relative);
   requireValue(fs.lstatSync(directory).isDirectory(), `Not a directory: ${relative}`);
   const result = [];
@@ -82,7 +82,7 @@ function unique(items, key, label) {
   requireValue(new Set(keys).size === keys.length, `Duplicate ${label}`);
 }
 
-function cargoMetadata(root, scope, profile) {
+export function cargoMetadata(root, scope, profile) {
   // Several --filter-platform flags yield the union of their package sets.
   const platforms = profile.cargo_targets.flatMap(target => ['--filter-platform', target]);
   const args = ['run', scope.rust_toolchain, 'cargo', 'metadata', '--locked', '--offline', '--format-version', '1', ...platforms, '--features', scope.cargo_features.join(',')];

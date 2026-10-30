@@ -20,6 +20,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:scripts": "node --test \"scripts/*.test.mjs\"",
+    "licenses:status": "node scripts/release-license-status.mjs",
+    "licenses:rebind-own": "node scripts/release-license-status.mjs --rebind-own",
+    "licenses:check": "node scripts/release-license-status.mjs --check",
+    "licenses:derive": "node scripts/release-license-select-macos.mjs --write && node scripts/release-license-select-android.mjs --write",
     "tauri": "tauri",
     "bump": "node scripts/bump-version.mjs",
     "gen:icons": "node scripts/gen-icons.mjs"
