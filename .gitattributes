@@ -11,8 +11,8 @@
 docs/release/licenses/microsoft-web-webview2-1.0.3650.58-LICENSE.txt whitespace=-blank-at-eol
 # Keep the exact CRLF/ANSI bytes shipped in the pinned installer distributions.
 docs/release/licenses/wix-3.14.1-LICENSE.txt -text whitespace=cr-at-eol
-docs/release/licenses/nsis-3.11-COPYING.txt -text whitespace=cr-at-eol
-docs/release/licenses/nsis-3.11-Modern-UI-2-LICENSE.txt -text whitespace=cr-at-eol
-docs/release/licenses/nsis-3.11-NSISdl-LICENSE.txt -text whitespace=cr-at-eol
+docs/release/licenses/nsis-3.13-COPYING.txt -text whitespace=cr-at-eol
+docs/release/licenses/nsis-3.13-Modern-UI-2-LICENSE.txt -text whitespace=cr-at-eol
+docs/release/licenses/nsis-3.13-NSISdl-LICENSE.txt -text whitespace=cr-at-eol
 docs/release/sources/wix-3.14.1-source.zip binary
-docs/release/sources/nsis-3.11-source.zip binary
+docs/release/sources/nsis-3.13-source.zip binary

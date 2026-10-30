@@ -88,7 +88,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 157804,
-        "sha256": "d65b425a1dc3a4f32cf122aa3761383747b8be43eadb9965f406e7bb829768de"
+        "sha256": "c6e8fb03a666c78c610eb2c7e7aeb7d5ffec5fb9e402a886f38de9c882ca1d03"
       },
       {
         "path": "docs/release/license-frontend-output-2026-09-12.json",
@@ -542,13 +542,13 @@
       },
       {
         "path": "package-lock.json",
-        "bytes": 79007,
-        "sha256": "de6cf196b77ba286887f22c2d5fee2d9cb767c6b305e7bf820dfe98aa2874b06"
+        "bytes": 79012,
+        "sha256": "923b5f151111dafc4fbc420dcf49e41c9c99e4994cc92d435424aa5f4a301193"
       },
       {
         "path": "package.json",
-        "bytes": 1351,
-        "sha256": "a312586a767ad4a7d0d1c07e82ab82abc49d15c8c5690ad697bc91d1d40d5f84"
+        "bytes": 1356,
+        "sha256": "e5fd46de41ba24b98bfe1cf0be530c4705c1b09d152b001d3707f4b72cd8c8ef"
       },
       {
         "path": "rust-toolchain.toml",
@@ -562,8 +562,8 @@
       },
       {
         "path": "scripts/release-license-select-android.mjs",
-        "bytes": 79391,
-        "sha256": "456ce24d624db5ceef5ad5669b6b1cbe42d3513845fef8f12cc63ab5c171ba59"
+        "bytes": 79449,
+        "sha256": "87bf8607a1f67d02060dad6dc3aa63df39386458dc17c5fe6c5bcfb53f2663cf"
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",

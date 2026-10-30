@@ -108,7 +108,7 @@
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
         "bytes": 132129,
-        "sha256": "8d9e4a2863a93c18bd8761c2bd7ad84577f08358cfc6048d3043767d2dd98d68"
+        "sha256": "f7dd6281c7c1e9b0f4dbf6be32c2ffece4a90f2cf50d49126a3271e39f513619"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -477,13 +477,13 @@
       },
       {
         "path": "package-lock.json",
-        "bytes": 79007,
-        "sha256": "de6cf196b77ba286887f22c2d5fee2d9cb767c6b305e7bf820dfe98aa2874b06"
+        "bytes": 79012,
+        "sha256": "923b5f151111dafc4fbc420dcf49e41c9c99e4994cc92d435424aa5f4a301193"
       },
       {
         "path": "package.json",
-        "bytes": 1351,
-        "sha256": "a312586a767ad4a7d0d1c07e82ab82abc49d15c8c5690ad697bc91d1d40d5f84"
+        "bytes": 1356,
+        "sha256": "e5fd46de41ba24b98bfe1cf0be530c4705c1b09d152b001d3707f4b72cd8c8ef"
       },
       {
         "path": "rust-toolchain.toml",
@@ -507,8 +507,8 @@
       },
       {
         "path": "scripts/release-macos-artifacts.mjs",
-        "bytes": 29344,
-        "sha256": "38c35065a8a344e186ba9047f5c0e8cc652d0efd8802379256c09ad4fcdb216e"
+        "bytes": 29351,
+        "sha256": "95b58aae97c415a295631ce9d701d311f163f0bffcbff1ac4dfbddc0de9516ba"
       },
       {
         "path": "src-tauri/Cargo.toml",
@@ -22806,7 +22806,7 @@
     {
       "id": "installer:macos-dmg",
       "name": "DMG disk image",
-      "version": "Tauri CLI 2.11.4 bundle_dmg.sh with hdiutil",
+      "version": "Tauri CLI 2.12.4 bundle_dmg.sh with hdiutil",
       "declared_license": null,
       "selected_license": null,
       "disposition": "exclude",

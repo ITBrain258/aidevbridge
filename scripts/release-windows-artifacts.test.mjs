@@ -6,7 +6,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { safeRelative, toRtf, crc32, createZip, readZip, verifyZip, fileTree, verifyTree, sourceSnapshot, releaseContract, claimRun, releaseLock, beforeBuild, beforeBundle, finishArtifacts, verifyRelease, verifyTools, command, BUNDLER_DOWNLOADS } from './release-windows-artifacts.mjs';
+import { safeRelative, toRtf, crc32, createZip, readZip, verifyZip, fileTree, verifyTree, sourceSnapshot, releaseContract, claimRun, releaseLock, beforeBuild, beforeBundle, finishArtifacts, verifyRelease, verifyTools, command, BUNDLER_DOWNLOADS, CLI_VERSION, DOWNLOAD_SOURCE } from './release-windows-artifacts.mjs';
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -29,7 +29,7 @@ function fixture(t) {
   write('package-lock.json', encode({ version: '0.1.2', packages: { '': { version: '0.1.2' } } }));
   write('src-tauri/tauri.conf.json', encode({ productName: 'aidevbridge', version: '0.1.2', identifier: 'io.github.itbrain258.aidevbridge', build: { frontendDist: '../dist' }, bundle: {} }));
   write('src-tauri/tauri.release.windows.json', fs.readFileSync(path.join(repository, 'src-tauri/tauri.release.windows.json')));
-  write('node_modules/@tauri-apps/cli/package.json', encode({ version: '2.11.4' }));
+  write('node_modules/@tauri-apps/cli/package.json', encode({ version: CLI_VERSION }));
   write('docs/release/license-selection.windows-x64.json', encode({ scope: { product_version: '0.1.2', target: 'x86_64-pc-windows-msvc', rust_toolchain: '1.97.1', default_features: true, cargo_features: ['tauri/custom-protocol'], installer_webview2_mode: 'downloadBootstrapper', installer_webview2_silent: true } }));
   write('docs/release/windows-installation-notice.txt', 'Introduction.\n');
   write('docs/release/licenses/microsoft-webview2-evergreen-2026-09-12-LICENSE.txt', 'Test terms only: © curly { braces } \\ 😀.\n');
@@ -76,7 +76,7 @@ test('RTF emits Unicode UTF-16 escapes and preserves literal syntax as displayed
   assert.throws(() => toRtf('bad\0text'), /Invalid/);
 });
 
-test('configured notice bypasses the pinned Tauri 2.11.4 MSI text converter and preserves source bytes', async t => {
+test('configured notice bypasses the pinned Tauri CLI MSI text converter and preserves source bytes', async t => {
   const f = fixture(t), notice = installerNoticePath(f);
   // PathBuf::ends_with(".rtf") compares the complete final component in this CLI.
   assert.equal(path.basename(notice), '.rtf');
@@ -223,7 +223,7 @@ test('full synthetic packet verifies payload, detects copied EXE swap and extra 
 
 test('bundler verification rejects altered downloaded bytes against source-pinned hash', t => {
   const f = fixture(t), claimed = begin(f);
-  const tools = { tauri_cli: '2.11.4', source: 'https://github.com/tauri-apps/tauri/tree/8909f221d1515955fc843808032bdc5d62209c96/crates/tauri-bundler/src/bundle/windows', downloads: BUNDLER_DOWNLOADS.map(item => { const p = `${claimed.run.relative}/downloads/${item.name}`, bytes = Buffer.from('wrong archive'); f.write(p, bytes); return { ...item, path: p, ...record(bytes) }; }) };
+  const tools = { tauri_cli: CLI_VERSION, source: DOWNLOAD_SOURCE, downloads: BUNDLER_DOWNLOADS.map(item => { const p = `${claimed.run.relative}/downloads/${item.name}`, bytes = Buffer.from('wrong archive'); f.write(p, bytes); return { ...item, path: p, ...record(bytes) }; }) };
   assert.throws(() => verifyTools(f.root, claimed.run, tools), /Pinned bundler archive/);
 });
 

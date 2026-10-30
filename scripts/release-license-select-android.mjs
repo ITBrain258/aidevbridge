@@ -58,10 +58,10 @@ const UPSTREAM_TEXTS = {
 const WINDOWS_ONLY_FILES = [
   'docs/release/license-webview2-bindings-2026-09-12.json', 'docs/release/license-webview2-sdk-2026-09-12.json', 'docs/release/license-windows-runtime-2026-09-12.json',
   `${LICENSES}/microsoft-web-webview2-1.0.3650.58-LICENSE.txt`, `${LICENSES}/microsoft-web-webview2-1.0.3650.58-NOTICE.txt`, `${LICENSES}/microsoft-webview2-evergreen-2026-09-12-LICENSE.txt`, `${LICENSES}/microsoft-windows-runtime-NOTICE.txt`,
-  `${LICENSES}/nsis-3.11-COPYING.txt`, `${LICENSES}/nsis-3.11-Modern-UI-2-LICENSE.txt`, `${LICENSES}/nsis-3.11-NSISdl-LICENSE.txt`, `${LICENSES}/nsis-tauri-utils-0.5.3-LICENSE-MIT.txt`,
+  `${LICENSES}/nsis-3.13-COPYING.txt`, `${LICENSES}/nsis-3.13-Modern-UI-2-LICENSE.txt`, `${LICENSES}/nsis-3.13-NSISdl-LICENSE.txt`, `${LICENSES}/nsis-tauri-utils-0.5.3-LICENSE-MIT.txt`,
   `${LICENSES}/webview2-rs-0.38.2-macros-0.8.1-LICENSE-MIT.txt`, `${LICENSES}/wix-3.14.1-LICENSE.txt`,
-  'docs/release/sources/README.txt', 'docs/release/sources/nsis-3.11-source.zip', 'docs/release/sources/wix-3.14.1-source.zip',
-  'docs/release/windows-installation-notice.txt', 'docs/release/windows-installer-attribution-2026-09-12.md', 'docs/release/windows-installer-source-archives-2026-09-12.md', 'docs/release/windows-zip-readme.txt',
+  'docs/release/sources/README.txt', 'docs/release/sources/nsis-3.13-source.zip', 'docs/release/sources/wix-3.14.1-source.zip',
+  'docs/release/windows-installation-notice.txt', 'docs/release/windows-installer-attribution-2026-09-12.md', 'docs/release/windows-installer-nsis-3.13-2026-10-30.md', 'docs/release/windows-installer-source-archives-2026-09-12.md', 'docs/release/windows-zip-readme.txt',
   'scripts/release-windows-artifacts.mjs', 'scripts/release-windows.ps1', 'src-tauri/tauri.release.windows.json',
 ];
 // Build configuration of the Android payload. INVENTORY and REPORT are written

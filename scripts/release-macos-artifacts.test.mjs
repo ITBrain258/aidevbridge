@@ -6,7 +6,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { EXPECTED_CONFIG, machoArchs, linkedLibraries, signingMode, cleanBuildEnvironment, releaseContract, artifactName, checkAppTree, sourceSnapshot, claimRun, releaseLock, beforeBuild, fileTree } from './release-macos-artifacts.mjs';
+import { EXPECTED_CONFIG, machoArchs, linkedLibraries, signingMode, cleanBuildEnvironment, releaseContract, artifactName, checkAppTree, sourceSnapshot, claimRun, releaseLock, beforeBuild, fileTree, CLI_VERSION } from './release-macos-artifacts.mjs';
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -28,7 +28,7 @@ function fixture(t) {
   write('package-lock.json', encode({ version: '0.3.0', packages: { '': { version: '0.3.0' } } }));
   write('src-tauri/tauri.conf.json', encode({ productName: 'aidevbridge', version: '0.3.0', identifier: 'io.github.itbrain258.aidevbridge', build: { frontendDist: '../dist' }, bundle: {} }));
   write('src-tauri/tauri.release.macos.json', fs.readFileSync(path.join(repository, 'src-tauri/tauri.release.macos.json')));
-  write('node_modules/@tauri-apps/cli/package.json', encode({ version: '2.11.4' }));
+  write('node_modules/@tauri-apps/cli/package.json', encode({ version: CLI_VERSION }));
   write('docs/release/license-selection.macos-universal.json', encode({ scope: { product_version: '0.3.0', target: 'universal-apple-darwin', rust_toolchain: '1.97.1', minimum_system_version: '11.0' } }));
   git(['init', '--quiet']); commit();
   return { root, write, read, git, commit };
