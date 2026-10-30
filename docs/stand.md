@@ -12,6 +12,28 @@ Build-Provenienz angehängt (`gh attestation verify` geprüft). Das App Bundle
 liegt als Artefakt des Laufs bereit, solange kein Play-Dienstkonto
 hinterlegt ist. Alle drei Lizenzauswahlen sind für 0.2.4 gebunden.
 
+Seit dem 30.10. in `main`, noch ohne Release:
+
+- **Härtung (PR #14):** CI-Läufe einmal je Commit (Push nur auf `main`,
+  ein Branch läuft über seinen Pull Request), die Gradle-Distribution ist
+  per Prüfsumme gebunden und `gradle-wrapper.jar` wird vor jedem
+  Android-Bau geprüft, Vite 6.4.5 (GHSA-8g5g-mxqh-grgj, nur
+  Entwicklungsserver). Das Ruleset „Release tags v*“ ist seit dem 29.10.
+  aktiv: Tags `v*` legt nur ein Admin an.
+- **Stufe 1 der Updates (PR #15):** Tauri 2.12 (`tauri` 2.12.5, wry
+  0.57.1, tao 0.37.2, `@tauri-apps/api` 2.12.4 und die Plugins) und alle
+  semver-kompatiblen Rust-Crates; das Tauri-CLI bleibt auf 2.11.4
+  (Punkt 12). Alle drei Lizenzauswahlen sind nachgeführt, neu dafür
+  `scripts/release-license-update-cargo.mjs`. Eine unabhängige Durchsicht
+  der 33 von Hand entschiedenen Lizenzfälle fand keinen falschen, aber eine
+  Lücke im Skript (Texte von außerhalb eines Crates zogen ungeprüft mit);
+  sie ist geschlossen, die fünf betroffenen Texte sind nachgeprüft.
+
+Android ist mit 0.2.4 ausgeliefert und lief am 29.10. erstmals auf einem
+Telefon des Maintainers, mit Wischen im Terminal. In der Play Console steht
+ein geschlossener Test mit 0.2.3; offen sind die Schritte des Maintainers
+(Punkt 11).
+
 Davor: Version `0.2.3`, Release am 26.10.2026: Sie bringt die
 macOS-Lieferung (Universal-DMG, ad-hoc signiert); die App selbst ist
 unverändert. Der Tag `v0.2.3` steht auf `95b17ae`; der Workflow hat das DMG
@@ -30,34 +52,6 @@ Installerabnahme, M1- und M2-Tor sind seitdem bestanden (gemeldet am 24.10.).
 Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
 einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
 privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
-
-Auf dem Branch `claude/intelligent-rubin-jygw4u` liegt die Umsetzung des
-Code-Reviews vom 26.10. an 0.2.3 ([Plan](plans/2026-10-26-review-umsetzung.md)),
-noch ohne Release: Sicherheits- und Fehlerkorrekturen in Backend und
-Frontend, eine gehärtete CI mit Audit und Build-Provenienz, `SECURITY.md` mit
-bekannten Grenzen und akzeptierten Risiken; beide Lizenzauswahlen sind am
-27.10. neu gebunden. U1, U2 und U5 sind nach Empfehlung entschieden, U3 und
-U4 warten auf den Maintainer; offen sind außerdem die Handabnahme und die
-CI auf drei Systemen (Punkt 10).
-
-Auf dem Branch `feat/android` liegt die Android-App nach der
-[Spec vom 27.10.](specs/2026-10-27-android-design.md), noch ohne Release und
-ohne Abnahme: Backend und Oberfläche für Android, Signatur, Workflow
-`android.yml` bis Google Play, Store-Eintrag und
-[Anleitung](android-veroeffentlichung.md) und seit 28.10. eine eigene
-Lizenzauswahl (`license-selection.android-universal.json`), deren Texte als
-`assets/licenses/` in APK und App Bundle gehen. Am 29.10. lief die App
-erstmals auf einem Telefon des Maintainers; das dort fehlende Wischen im
-Terminal ist nachgerüstet (Spec §5.5), der Scrollbalken im Terminal entfällt
-auf allen Plattformen. Eine unabhängige Durchsicht am selben Tag fand unter
-anderem einen Fehler, der jedes Android-Release am Signieren gestoppt hätte
-(`jarsigner -strict`), und einen Pfadausbruch beim Schlüsselimport; beides
-ist behoben, der Release-Pfad lässt sich jetzt ohne Tag probeweise bauen.
-In der Play Console steht ein geschlossener Test mit 0.2.3. Offen sind die
-Schritte des Maintainers (12 Tester über 14 Tage, Bildschirmfotos, Secrets),
-der Probelauf des Release-Pfads nach dem Merge und das Neubinden der
-Windows- und macOS-Auswahl vor dem Release
-([Plan](plans/2026-10-27-android.md), Phase 6).
 
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
 steht im [README](../README.md#what-it-is), die Änderungen im
@@ -153,11 +147,25 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
 | Dynamisches Raster | Schritt 0, 1 und 3 abgeschlossen nach der [Spec vom 19.10.](specs/2026-10-19-dynamisches-raster-design.md): bis zu 9 Kacheln, höchstens 8 je Host, je Host höchstens 4 Öffnungen zugleich („Opening…“), Tauschen per Zug am Kopf, Größe per Spalt, Maximieren verbirgt die übrigen Kacheln statt sie zu schließen, Wartet-Spur mit Wartezeit, Kachelnummer in Liste und Spur |
 | M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme bestanden ([Bericht](messungen/messung-2026-10-25-m31-abnahme.md)): Punkt 1 bis 5 am 25.10., die Statuslatenz unter Last erst mit den Korrekturen vom 27.10. (parallele Abfrage, Takt ab dem Beginn), die mit dem nächsten Release kommen |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger lokaler Lauf für 0.2.2 nach dem Neubinden der Lizenzauswahl. Seit 26.10. baut der Workflow `packages.yml` sie bei jedem Tag, installiert jedes Paket auf einem frischen Runner, startet die App und hängt sie an das Release |
-| macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 400 Komponenten, `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
-| Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Noch kein Release |
-| Android | gebaut auf `feat/android` nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md): Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`. Lokal gebaut und signiert für arm64, armv7 und x86_64 am 27.10. (2840 Frontend-Tests, 652 Bibliothekstests, ACL-Tests, 117 Skripttests, Clippy grün); nicht am Gerät abgenommen, kein Release ([Plan](plans/2026-10-27-android.md)) |
+| macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 396 Komponenten (Stand Tauri 2.12), `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
+| Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Mit 0.2.4 ausgeliefert |
+| Android | gebaut nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md) und mit 0.2.4 ausgeliefert: Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Wischen im Terminal, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 487 Komponenten, deren Texte als `assets/licenses/` in APK und App Bundle gehen. Am 29.10. erstmals auf einem Telefon des Maintainers gelaufen; eine Abnahme nach Plan steht aus ([Plan](plans/2026-10-27-android.md)) |
+| Abhängigkeiten | Stufe 1 seit 30.10. in `main` (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; die weiteren Stufen stehen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 29. und 30.10.2026 für PR #14 und #15, auf dem Windows-Rechner: `tsc`,
+2872 Frontend-Tests, 729 Rust-Tests, Clippy mit `-D warnings` und 121
+Skripttests grün; `release-licenses.mjs check` grün für windows-x64 (402
+Komponenten, 208 Texte), macos-universal (396, 202) und android-universal
+(487, 228). In der CI auf dem geprüften Stand `81d81f5` grün: Rust auf
+Windows, Ubuntu und macOS, Frontend, Skripte, Audit und die Probeläufe von
+`packages.yml` (MSI, Setup-EXE und ZIP mit Testinstallation unter Windows,
+DMG mit Testinstallation auf Apple silicon und Intel) und `android.yml`
+(APK und App Bundle für drei ABIs, Lizenz- und 16-KB-Prüfung). `main`
+(`d26e6ab`) hat nach beiden Merges denselben Dateistand; die Push-Läufe
+dort (CI, Audit, `packages.yml` mit DMG-Vorschau, `android.yml` mit
+Vorschau-APK) sind am 30.10. grün.
 
 Am 27.10.2026 für den Branch der Review-Umsetzung mit den Korrekturen aus
 der M3.1-Abnahme (`fix/m31-abnahme` hineingeführt) und vier Korrekturen aus
@@ -580,6 +588,29 @@ In dieser Reihenfolge:
         einer abgelehnten Signatur sonst hängt.
       - Das CHANGELOG sagt, Dependabot halte die gepinnten Actions aktuell;
         `dtolnay/rust-toolchain` ist davon ausgenommen.
+11. **Android:** Die Schritte des Maintainers in der Play Console, ohne
+    Eile, solange die App in Entwicklung ist: der geschlossene Test mit 12
+    Testern über 14 Tage, die Datenschutz-URL und das Hochladen des App
+    Bundles von 0.2.4 (Artefakt des Release-Laufs) von Hand. Erst wenn ein
+    Play-Dienstkonto als Secret im Environment `android-release` liegt,
+    lädt `android.yml` selbst hoch
+    ([Anleitung](android-veroeffentlichung.md)).
+12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
+    jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
+    gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht.
+    - **Tauri-CLI 2.12 mit seinem Bundler:** Er lädt NSIS 3.13 statt 3.11,
+      und die Windows-Auswahl bindet Stub, Plugins, Modern-UI-Hinweis und
+      LZMA-Quellarchiv von NSIS 3.11; auch die MSI- und NSIS-Vorlagen haben
+      sich geändert. Braucht eine eigene Lizenzprüfung mit lokalem
+      Installerbau. Bis dahin verlangen `release-windows-artifacts.mjs` und
+      `release-macos-artifacts.mjs` das CLI 2.11.4.
+    - **Rust 1.99:** Die Toolchain 1.97.1 steckt in den Belegen der
+      Standardbibliothek und in den Prüfungen der Lizenzauswahlen.
+    - **Kotlin 2 mit AGP 9 und Gradle 9**, zusammen mit den androidx-Updates:
+      deren neue Versionen tragen Kotlin-2.1-Metadaten, die das
+      Kotlin-Gradle-Plugin 1.9.25 nicht liest.
+    - **Vitest 5 und jsdom 30.**
+    - **russh 0.65**, mit den eigenen Patches in `vendor/russh`.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 
