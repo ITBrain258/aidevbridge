@@ -45,14 +45,15 @@ passed, so a green run does not prove a real SSH connection.
 
 `.github/workflows/audit.yml` checks `Cargo.lock` with `cargo audit` and the
 runtime packages in `package-lock.json` with `npm audit --omit=dev` against
-known security advisories: weekly, on every change of either lockfile and
-when started by hand. It is not part of the checks above, which `ci.yml` runs
+known security advisories: weekly, on every change of either lockfile or of
+`vendor/`, and when started by hand. It is not part of the checks above, which `ci.yml` runs
 (see [Tests](README.md#tests)), and a new advisory can turn it red without
-any change here. It does not cover path dependencies such as the vendored
-russh in `vendor/russh`: `cargo audit` checks only packages that
-`Cargo.lock` records with a registry source, so it never matches russh's
-advisories against that copy; [SECURITY.md](SECURITY.md) lists the
-advisories known for it. It ignores RUSTSEC-2023-0071 (`rsa`), which has no
+any change here. `cargo audit` checks only packages that `Cargo.lock`
+records with a registry source and never matches advisories against a path
+dependency such as the vendored russh in `vendor/russh`; a third job runs
+`scripts/check-vendored-advisories.mjs` for those, against GitHub's advisory
+database and the upstream repository's own advisories
+([SECURITY.md](SECURITY.md)). The `cargo audit` job ignores RUSTSEC-2023-0071 (`rsa`), which has no
 fixed version; SECURITY.md explains why the app accepts it, and also lists
 the warnings `cargo audit` prints without failing.
 

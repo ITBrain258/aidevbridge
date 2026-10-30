@@ -3,14 +3,16 @@
 // It only refreshes bytes/sha256 of the named files; it never decides a
 // license, adds a component or reads anything from the network. Every
 // existing selection that binds a path is refreshed; `--platform` limits it
-// to one. Run `node scripts/release-licenses.mjs check <platform>` afterwards.
+// to one. `--tree` takes over the file list of a reviewed bound tree. Run
+// `node scripts/release-licenses.mjs check <platform>` afterwards.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { PLATFORMS } from './release-licenses.mjs';
+import { PLATFORMS, walk } from './release-licenses.mjs';
 
-const usage = `Usage: node scripts/release-license-rebind.mjs [--write] [--add] [--third-party] [--platform=${Object.keys(PLATFORMS).join('|')}] <path>...`;
+const usage = `Usage: node scripts/release-license-rebind.mjs [--write] [--add] [--third-party] [--platform=${Object.keys(PLATFORMS).join('|')}] <path>...
+       node scripts/release-license-rebind.mjs [--write] --tree <bound tree>...`;
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const encode = value => Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
 const fail = message => { throw new Error(message); };
@@ -59,6 +61,35 @@ export function rebind(paths, { root = path.resolve(path.dirname(fileURLToPath(i
   return { written: write && changes.length > 0, changes };
 }
 
+// Takes over the whole file list and every hash of a bound repository tree,
+// in every selection that binds it, after the tree was reviewed as a whole
+// (a vendored crate moved to a new upstream release). Files a selection
+// excludes by suffix stay out of its list.
+export function rebindTree(treePaths, { root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), write = false } = {}) {
+  requireValue(Array.isArray(treePaths) && treePaths.length > 0, usage);
+  root = fs.realpathSync(root);
+  const changes = [], bound = new Set();
+  for (const name of Object.keys(PLATFORMS).filter(p => fs.existsSync(path.join(root, ...PLATFORMS[p].selection.split('/'))))) {
+    const selection = JSON.parse(readFile(root, PLATFORMS[name].selection));
+    let changed = false;
+    for (const treePath of treePaths) {
+      const tree = selection.inputs.trees.find(t => t.path === treePath);
+      if (!tree) continue;
+      bound.add(treePath);
+      const before = new Map(tree.files.map(f => [f.path, f.sha256]));
+      const files = walk(root, treePath).filter(p => !(tree.exclude_suffixes ?? []).some(s => p.endsWith(s)))
+        .map(p => { const bytes = readFile(root, p); return { path: p, bytes: bytes.length, sha256: digest(bytes) }; });
+      const after = new Map(files.map(f => [f.path, f.sha256]));
+      const summary = { platform: name, tree: treePath, added: files.filter(f => !before.has(f.path)).map(f => f.path), removed: [...before.keys()].filter(p => !after.has(p)), changed: files.filter(f => before.has(f.path) && before.get(f.path) !== f.sha256).map(f => f.path) };
+      if (summary.added.length + summary.removed.length + summary.changed.length > 0) { tree.files = files; changed = true; changes.push(summary); }
+    }
+    if (write && changed) fs.writeFileSync(path.join(root, ...PLATFORMS[name].selection.split('/')), encode(selection));
+  }
+  const unbound = treePaths.filter(t => !bound.has(t));
+  requireValue(unbound.length === 0, `Not a bound tree of any license selection: ${unbound.join(', ')}`);
+  return { written: write && changes.length > 0, changes };
+}
+
 // Refreshes every record of one selection that binds `relative`. `bound` is
 // false when this selection does not know the path; the caller decides.
 function rebindOne(selection, relative, bytes, add) {
@@ -100,10 +131,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   try {
     const args = process.argv.slice(2);
     const flags = new Set(args.filter(a => a.startsWith('--') && !a.startsWith('--platform=')));
-    for (const flag of flags) requireValue(['--write', '--add', '--third-party'].includes(flag), usage);
+    for (const flag of flags) requireValue(['--write', '--add', '--third-party', '--tree'].includes(flag), usage);
     const platforms = args.filter(a => a.startsWith('--platform=')).map(a => a.slice('--platform='.length));
     requireValue(platforms.length <= 1, usage);
-    const result = rebind(args.filter(a => !a.startsWith('--')), { write: flags.has('--write'), add: flags.has('--add'), thirdParty: flags.has('--third-party'), platform: platforms[0] });
+    if (flags.has('--tree')) requireValue(!flags.has('--add') && !flags.has('--third-party') && platforms.length === 0, usage);
+    const paths = args.filter(a => !a.startsWith('--'));
+    const result = flags.has('--tree') ? rebindTree(paths, { write: flags.has('--write') })
+      : rebind(paths, { write: flags.has('--write'), add: flags.has('--add'), thirdParty: flags.has('--third-party'), platform: platforms[0] });
     console.log(JSON.stringify(result, null, 2));
   } catch (error) { console.error(`release-license-rebind: ${error.message}`); process.exitCode = 1; }
 }

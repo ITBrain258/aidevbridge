@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { rebind } from './release-license-rebind.mjs';
+import { rebind, rebindTree } from './release-license-rebind.mjs';
 import { releaseLicenses } from './release-licenses.mjs';
 
 const selectionPath = 'docs/release/license-selection.windows-x64.json';
@@ -130,4 +130,20 @@ test('--platform limits rebinding to one selection, and --add needs it once two 
   assert.ok(mac().inputs.files.some(x => x.path === 'docs/report.json'));
   assert.ok(!f.selection().inputs.files.some(x => x.path === 'docs/report.json'));
   assert.throws(() => rebind(['lock.json'], { root: f.root, platform: 'linux' }), /Usage/);
+});
+
+test('--tree takes over the whole file list of a reviewed tree and refuses an unbound one', t => {
+  const f = fixture(t);
+  f.write('src/main.rs', 'fn main() { run() }\n');
+  f.write('src/run.rs', 'pub fn run() {}\n');
+  const dry = rebindTree(['src'], { root: f.root });
+  assert.equal(dry.written, false);
+  assert.deepEqual(dry.changes, [{ platform: 'windows-x64', tree: 'src', added: ['src/run.rs'], removed: [], changed: ['src/main.rs'] }]);
+  assert.deepEqual(f.read(selectionPath), f.selectionBytes);
+  rebindTree(['src'], { root: f.root, write: true });
+  assert.deepEqual(f.selection().inputs.trees[0].files.map(x => x.path), ['src/main.rs', 'src/run.rs']);
+  assert.equal(releaseLicenses('prepare', { root: f.root, metadata: [] }).components, 2);
+  fs.rmSync(path.join(f.root, 'src', 'run.rs'));
+  assert.deepEqual(rebindTree(['src'], { root: f.root, write: true }).changes[0].removed, ['src/run.rs']);
+  assert.throws(() => rebindTree(['vendor'], { root: f.root }), /Not a bound tree/);
 });

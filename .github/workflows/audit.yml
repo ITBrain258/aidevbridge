@@ -4,21 +4,22 @@ name: Audit
 # hier erscheinen, bei jeder Aenderung einer Lock-Datei und auf Abruf. Kein
 # Teil der Pruefungen, die ein Pull Request bestehen muss (die laufen in
 # ci.yml). cargo audit gleicht nur Pakete mit einer Registry-Quelle ab;
-# Pfadabhaengigkeiten wie das vendorte russh unter vendor/russh deckt es nicht
-# ab. Die fuer diese Kopie bekannten Meldungen fuehrt SECURITY.md.
+# Pfadabhaengigkeiten wie das vendorte russh unter vendor/russh sieht es nicht,
+# Dependabot ebenso wenig. Fuer sie prueft der Job `vendored` die Meldungen
+# der GitHub-Advisory-Datenbank und des Upstream-Repositorys.
 on:
   schedule:
     - cron: '23 4 * * 1'
   push:
     branches: [main]
-    paths: [Cargo.lock, package-lock.json, .github/workflows/audit.yml]
+    paths: [Cargo.lock, package-lock.json, 'vendor/**', scripts/check-vendored-advisories.mjs, .github/workflows/audit.yml]
   pull_request:
-    paths: [Cargo.lock, package-lock.json, .github/workflows/audit.yml]
+    paths: [Cargo.lock, package-lock.json, 'vendor/**', scripts/check-vendored-advisories.mjs, .github/workflows/audit.yml]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  # Zwei Jobs, damit eine Meldung auf der einen Seite die Pruefung der anderen
+  # Drei Jobs, damit eine Meldung auf der einen Seite die Pruefung der anderen
   # nicht verdeckt.
   rust:
     runs-on: ubuntu-latest
@@ -47,3 +48,17 @@ jobs:
       # Nur die Laufzeitpakete aus package-lock.json, ohne Installation; jede
       # Meldung laesst den Lauf scheitern.
       - run: npm audit --package-lock-only --omit=dev
+  vendored:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 24 }
+      # Liest die Version jeder vendorten Kopie und scheitert, sobald eine
+      # veroeffentlichte Meldung sie trifft. Die Upstream-Meldungen kommen oft
+      # Tage vor der Datenbank; das Token hebt nur das Abruflimit.
+      - run: node scripts/check-vendored-advisories.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
