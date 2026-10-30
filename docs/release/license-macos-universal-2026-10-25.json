@@ -19,8 +19,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1066112,
-    "sha256": "41c2cc16ad5daa58e679c76aba770922b9e6eb7fcf59a8f00dd493a4f13195ac"
+    "bytes": 1067286,
+    "sha256": "a93901fb9c1bec6ef26b858587a0d9e6b2300a3fe97861507d69149992825f44"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",

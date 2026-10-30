@@ -9,6 +9,7 @@ dem Namen agentbridge.
 ### Changed
 
 - Abhaengigkeiten: Tauri 2.12 (`tauri` 2.12.5, wry 0.57.1, tao 0.37.2, `@tauri-apps/api` 2.12.4, `plugin-dialog` 2.8.4, `plugin-opener` 2.7.2) und alle semver-kompatiblen Rust-Krates (`cargo update`, unter anderem tokio 1.54.1). Die Lizenzauswahlen fuer Windows, macOS und Android sind auf die neuen Versionen umgezogen; jede geaenderte, neue oder entfallene Lizenzdatei ist in `docs/release/license-rust-update-2026-10-29.json` und `docs/release/license-frontend-tauri-2.12-2026-10-29.json` belegt. Neu ist `scripts/release-license-update-cargo.mjs`, das die Windows-Auswahl auf ein geaendertes `Cargo.lock` uebertraegt; die macOS-Ableitung laeuft jetzt auch unter Windows.
+- Windows-Installer: Das Tauri-CLI 2.12.4 baut Setup-EXE und MSI jetzt mit NSIS 3.13 statt 3.11; WiX 3.14.1 und `nsis_tauri_utils` 0.5.3 bleiben. Plugins, Wizard-Bild und die WiX-UI-Teile sind wie bisher die gepinnten Originale (an den neu gebauten Installern Byte fuer Byte nachgeprueft), die NSIS-Lizenztexte tragen nur ein neues Copyright-Jahr, und das mitgelieferte NSIS-Quellarchiv ist jetzt `v313` (`docs/release/windows-installer-nsis-3.13-2026-10-30.md`).
 - CI: `ci.yml`, `packages.yml` und `audit.yml` laufen bei einem Push nur noch auf `main`; ein Branch laeuft ueber seinen Pull Request. Bisher lief jeder Commit eines Pull Requests doppelt, was die macOS-Runner belegte (Wartezeiten bis 111 Minuten, abgebrochene Installationstests). Ein neuer Commit im selben Pull Request bricht den CI-Lauf des vorigen ab.
 
 ### Security

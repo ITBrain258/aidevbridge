@@ -385,8 +385,8 @@
       },
       {
         "path": "docs/release/windows-installer-nsis-3.13-2026-10-30.md",
-        "bytes": 6017,
-        "sha256": "5b2b972fdd4d4357ed81cd4b4b779f1155ea31d9e53b424adea2163bad5bbda8"
+        "bytes": 8930,
+        "sha256": "dbac65b092d33af86cfc3a5f51ad01f01d51e5093db7be8f62abfbd4325a6d95"
       },
       {
         "path": "docs/release/windows-installer-source-archives-2026-09-12.md",
@@ -22274,7 +22274,7 @@
       "documents": [
         "sha256:388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba"
       ],
-      "reason": "Observed NSIS payload contains exactly System.dll, nsDialogs.dll and StartMenu.dll plus the NSIS wizard bitmap in this family. NSISdl, Modern UI 2, the LZMA decoder and the separate Tauri plugin are mapped separately below. No other archived plugin is claimed as delivered. COPYING is retained whole, including compression texts whose presence in this notice alone does not imply their use.",
+      "reason": "Observed NSIS payload contains exactly System.dll, nsDialogs.dll and StartMenu.dll plus the NSIS wizard bitmap in this family. NSISdl, Modern UI 2, the LZMA decoder and the separate Tauri plugin are mapped separately below. No other archived plugin is claimed as delivered. COPYING is retained whole, including compression texts whose presence in this notice alone does not imply their use. Re-checked on 2026-10-30 for NSIS 3.13 (Tauri CLI 2.12.4): the setup carries the same plugin set and wizard bitmap, each byte-identical to the 3.13 distribution; the new Restart Manager check of the Tauri template runs through System.dll. COPYING changed only its copyright year.",
       "decision_basis": [
         "docs/release/windows-installer-attribution-2026-09-12.md",
         "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
@@ -22304,7 +22304,7 @@
       "documents": [
         "sha256:388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba"
       ],
-      "reason": "The generated installer uses the selected lzma_solid-x86-unicode stub. The exact v313 stub build includes Source/7zip/LZMADecode.c; its source header selects CPL 1.0. The linking exception does not remove source delivery for this module. The corresponding complete NSIS commit archive is selected as the local offline source/build companion.",
+      "reason": "The generated installer uses the selected lzma_solid-x86-unicode stub. The exact v313 stub build includes Source/7zip/LZMADecode.c; its source header selects CPL 1.0. The linking exception does not remove source delivery for this module. The corresponding complete NSIS commit archive is selected as the local offline source/build companion. Re-checked on 2026-10-30: the generated script sets SetCompressor /SOLID \"lzma\"; LZMADecode.c and LZMADecode.h changed only their copyright year and stay under CPL 1.0, and Source/exehead/SConscript is unchanged since v311.",
       "decision_basis": [
         "docs/release/windows-installer-attribution-2026-09-12.md",
         "docs/release/windows-installer-source-archives-2026-09-12.md",
@@ -22331,7 +22331,7 @@
       "documents": [
         "sha256:36608f72902ac188e45eab9bf6f673df72dd76f871f61d0c6d60592dfc15461c"
       ],
-      "reason": "The actual generated NSIS script includes MUI2.nsh. Retain the complete original Joost Verburg notice, including its distribution condition. Original bytes use CRLF and an ANSI copyright character; they are not transcoded.",
+      "reason": "The actual generated NSIS script includes MUI2.nsh. Retain the complete original Joost Verburg notice, including its distribution condition. Original bytes use CRLF and an ANSI copyright character; they are not transcoded. Re-checked on 2026-10-30: the generated script still includes MUI2.nsh; the 3.13 text changed only its copyright year.",
       "decision_basis": [
         "docs/release/windows-installer-attribution-2026-09-12.md",
         "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
@@ -22353,9 +22353,10 @@
         "sha256:c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
         "sha256:23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
       ],
-      "reason": "The extracted plugin is byte-identical to the pinned 0.5.3 DLL. Select its own MIT original from commit 13d9edd27b69310e108d6fbd49f90992f8a05390, covering the combined nsis-process/nsis-semvercompare/nsis-string implementation and local plugin API. The no_std source uses core/alloc, windows-sys and semver. Reuse their already selected permissive family texts conservatively. Versioned filenames of those reused texts identify their saved provenance, not the compiler/dependency versions of this prebuilt DLL; no such exact-version claim is made.",
+      "reason": "The extracted plugin is byte-identical to the pinned 0.5.3 DLL. Select its own MIT original from commit 13d9edd27b69310e108d6fbd49f90992f8a05390, covering the combined nsis-process/nsis-semvercompare/nsis-string implementation and local plugin API. The no_std source uses core/alloc, windows-sys and semver. Reuse their already selected permissive family texts conservatively. Versioned filenames of those reused texts identify their saved provenance, not the compiler/dependency versions of this prebuilt DLL; no such exact-version claim is made. Re-checked on 2026-10-30: byte-identical in the setup built with Tauri CLI 2.12.4, which still pins 0.5.3.",
       "decision_basis": [
-        "docs/release/windows-installer-attribution-2026-09-12.md"
+        "docs/release/windows-installer-attribution-2026-09-12.md",
+        "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
       ],
       "source_urls": [
         "https://github.com/tauri-apps/nsis-tauri-utils/tree/13d9edd27b69310e108d6fbd49f90992f8a05390",
@@ -22391,7 +22392,7 @@
         "sha256:326e587f36ca58e14bd09cca153f9e69f1c5ed701189aa47d2d0627af7e16280",
         "sha256:388357c1215ff403c5ebde3a5ecd273e68f8b79a579996775245d1ee65442aba"
       ],
-      "reason": "The extracted NSISdl.dll is byte-identical to the selected x86-unicode plugin. It supports the configured WebView2 downloadBootstrapper path. Its original text identifies NSISdl 1.1 and preserves the Yaroslav Faybishenko and Justin Frankel notice.",
+      "reason": "The extracted NSISdl.dll is byte-identical to the selected x86-unicode plugin. It supports the configured WebView2 downloadBootstrapper path. Its original text identifies NSISdl 1.1 and preserves the Yaroslav Faybishenko and Justin Frankel notice. Re-checked on 2026-10-30: the extracted NSISdl.dll is byte-identical to the 3.13 x86-unicode plugin; its text is unchanged.",
       "decision_basis": [
         "docs/release/windows-installer-attribution-2026-09-12.md",
         "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
@@ -22413,10 +22414,11 @@
       "documents": [
         "sha256:4004370957cfc16afa52582f0cbd56c98a2f00846d6dadc51c7c7ab0500c0000"
       ],
-      "reason": "Actual MSI Binary rows contain WixUIWixca (the x86 uica.dll) and six WiX UI graphics, each byte-identical to the selected WixUIExtension embedded cabinet. Custom actions WixUIValidatePath and WixUIPrintEula reference this DLL. WixUtilExtension and its custom-action binaries are not delivered. LICENSE.TXT is retained; the corresponding complete WiX commit archive is selected as the local offline source/build companion.",
+      "reason": "Actual MSI Binary rows contain WixUIWixca (the x86 uica.dll) and six WiX UI graphics, each byte-identical to the selected WixUIExtension embedded cabinet. Custom actions WixUIValidatePath and WixUIPrintEula reference this DLL. WixUtilExtension and its custom-action binaries are not delivered. LICENSE.TXT is retained; the corresponding complete WiX commit archive is selected as the local offline source/build companion. Re-checked on 2026-10-30 with Tauri CLI 2.12.4: the MSI Binary table holds the same seven streams with the same bytes as the 0.2.4 MSI, and the same custom actions reference WixUIWixca.",
       "decision_basis": [
         "docs/release/windows-installer-attribution-2026-09-12.md",
-        "docs/release/windows-installer-source-archives-2026-09-12.md"
+        "docs/release/windows-installer-source-archives-2026-09-12.md",
+        "docs/release/windows-installer-nsis-3.13-2026-10-30.md"
       ],
       "source_urls": [
         "https://github.com/wixtoolset/wix3/tree/b40e9a32c24033e11b77baf2c91a704382f898ed",

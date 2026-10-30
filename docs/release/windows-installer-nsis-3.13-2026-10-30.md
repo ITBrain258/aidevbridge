@@ -94,3 +94,57 @@ weiter „Licensed under the Common Public License version 1.0“) und
 `Source/Platform.h` (zlib/libpng). Der Stub-Bau `Source/exehead/SConscript`
 ist derselbe Blob wie in `v311`; der Stub bindet den Decoder also wie
 bisher ein.
+
+## Auslese der gebauten Installer
+
+Gebaut mit `npm run build:windows` auf Commit `70ced95` (Lauf
+`20261030T171031005-c9ace27052ef`, Tauri-CLI 2.12.4, Rust 1.97.1); das
+Release-Skript hat die drei Downloads gegen ihre gepinnten Hashes geprüft
+und das ZIP verifiziert. Ausgelesen mit 7-Zip 26.03 (offizielles Release
+`ip7z/7zip`, `7z2603-x64.msi`, SHA-256
+`c0680064d698a62dd4a5a47f403db356a6531a5473e4c4b1d090ea2590513926`, ohne
+Installation entpackt) und der Windows-Installer-Schnittstelle, nur lesend.
+Zum Vergleich dieselbe Auslese an Setup und MSI des Releases 0.2.4 (CLI
+2.11.4, NSIS 3.11).
+
+**Setup-EXE** (`aidevbridge-0.2.4-windows-x64-setup.exe`, 19.042.588 Bytes):
+Außer der App, dem Uninstaller und `licenses/` enthält es genau
+
+| Datei unter `$PLUGINSDIR` | Bytes | bytegleich zu |
+| --- | ---: | --- |
+| `System.dll` | 12.288 | `nsis-3.13.zip`, `Plugins/x86-unicode/System.dll` |
+| `nsDialogs.dll` | 9.728 | `Plugins/x86-unicode/nsDialogs.dll` |
+| `StartMenu.dll` | 7.680 | `Plugins/x86-unicode/StartMenu.dll` |
+| `NSISdl.dll` | 15.360 | `Plugins/x86-unicode/NSISdl.dll` |
+| `nsis_tauri_utils.dll` | 34.304 | dem gepinnten Download 0.5.3 |
+| `modern-wizard.bmp` | 26.494 | `Contrib/Graphics/Wizard/win.bmp` |
+
+Das ist derselbe Satz wie im Setup von 0.2.4, dort bytegleich zu NSIS 3.11.
+Das erzeugte Skript setzt `SetCompressor /SOLID "lzma"` (Stub
+`lzma_solid-x86-unicode` mit dem LZMA-Decoder), bindet `MUI2.nsh` und
+`Win\RestartManager.nsh` ein und ruft als Plugins nur `System`,
+`nsDialogs`, `NSISdl` und `nsis_tauri_utils` auf; `StartMenu` und das
+Wizard-Bild kommen über Modern UI 2. `RSTRTMGR::…` und die
+`I…`-Schnittstellen in den Skripten sind Windows-Funktionen, die über
+`System.dll` aufgerufen werden, keine Plugins. `licenses/` im Setup ist
+Datei für Datei gleich dem geprüften Hinweisordner (214 Dateien, darunter
+die drei NSIS-3.13-Texte und `sources/nsis-3.13-source.zip`).
+
+**MSI** (`aidevbridge-0.2.4-windows-x64.msi`, 21.307.508 Bytes): Die
+Tabelle `Binary` enthält dieselben sieben Einträge wie das MSI von 0.2.4,
+jeder mit denselben Bytes: `WixUIWixca` (135.440), `WixUI_Bmp_Banner`,
+`WixUI_Bmp_Dialog`, `WixUI_Ico_Exclam`, `WixUI_Ico_Info`, `WixUI_Bmp_New`,
+`WixUI_Bmp_Up`. Dieselben Custom Actions verweisen auf `WixUIWixca`
+(`WixUIValidatePath`, `WixUIPrintEula`); kein WixUtil-Binary. Eine Datei
+weniger als 0.2.4 (215 statt 216): der Lizenztext, der mit dem Update auf
+Tauri 2.12 entfallen ist.
+
+## Entscheidung
+
+Die Zuordnung vom 12.09. gilt unverändert für NSIS 3.13: dieselben
+Bausteine, dieselben Lizenzen, die Texte mit neuem Jahr. Die vier
+NSIS-Komponenten führen 3.13, ihre Texte und das Quellarchiv `v313`;
+`nsis_tauri_utils` und WiX UI bleiben und sind an den neuen Installern
+nachgeprüft. Offen bleibt wie bisher die Abnahme am Fenster (Lizenzseite,
+Installation, Start); die CI installiert und startet die Pakete auf einem
+frischen Windows-Runner.
