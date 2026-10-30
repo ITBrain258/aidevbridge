@@ -385,8 +385,8 @@
       },
       {
         "path": "docs/release/windows-installer-nsis-3.13-2026-10-30.md",
-        "bytes": 8930,
-        "sha256": "dbac65b092d33af86cfc3a5f51ad01f01d51e5093db7be8f62abfbd4325a6d95"
+        "bytes": 9424,
+        "sha256": "c1f5187d5678b74ec0880df2d6f562735c971088ef44e4964b5ab65c14d33664"
       },
       {
         "path": "docs/release/windows-installer-source-archives-2026-09-12.md",

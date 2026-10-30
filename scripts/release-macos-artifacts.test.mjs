@@ -128,3 +128,8 @@ test('a preview build hook writes the placeholder notice and binds the frontend 
   releaseLock(f.root, claimed.lock);
   assert.equal(fs.existsSync(path.join(f.root, 'out/.aidevbridge-macos-release.lock')), false);
 });
+
+test('the pinned Tauri CLI is the locked one', () => {
+  const lock = JSON.parse(fs.readFileSync(path.join(repository, 'package-lock.json'), 'utf8'));
+  assert.equal(lock.packages['node_modules/@tauri-apps/cli'].version, CLI_VERSION);
+});

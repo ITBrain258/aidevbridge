@@ -232,3 +232,9 @@ test('delivery traversal rejects a Windows junction', { skip: process.platform !
   fs.symlinkSync(path.join(f.root, 'out/external'), path.join(f.root, 'out/tree/redirect'), 'junction');
   assert.throws(() => fileTree(f.root, 'out/tree'), /Symlink\/junction/);
 });
+
+test('the pinned Tauri CLI is the locked one and its bundler source names a commit', () => {
+  const lock = JSON.parse(fs.readFileSync(path.join(repository, 'package-lock.json'), 'utf8'));
+  assert.equal(lock.packages['node_modules/@tauri-apps/cli'].version, CLI_VERSION);
+  assert.match(DOWNLOAD_SOURCE, /^https:\/\/github\.com\/tauri-apps\/tauri\/tree\/[0-9a-f]{40}\/crates\/tauri-bundler\/src\/bundle\/windows$/);
+});

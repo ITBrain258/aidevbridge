@@ -105,7 +105,12 @@ und das ZIP verifiziert. Ausgelesen mit 7-Zip 26.03 (offizielles Release
 `c0680064d698a62dd4a5a47f403db356a6531a5473e4c4b1d090ea2590513926`, ohne
 Installation entpackt) und der Windows-Installer-Schnittstelle, nur lesend.
 Zum Vergleich dieselbe Auslese an Setup und MSI des Releases 0.2.4 (CLI
-2.11.4, NSIS 3.11).
+2.11.4, NSIS 3.11), also an den Release-Assets (Setup 18.974.986 Bytes, MSI
+23.310.606 Bytes). Die lokal gebauten Pakete tragen dieselben Dateinamen,
+weil die Version noch 0.2.4 ist; gemeint sind im Folgenden die lokalen.
+Der Commit nach `70ced95` ändert nur Begründungen und diesen Bericht, also
+Text in `licenses/manifest.json` und `licenses/index.html`, nicht die
+ausgelesenen Bausteine; der Release-Lauf baut die Pakete ohnehin neu.
 
 **Setup-EXE** (`aidevbridge-0.2.4-windows-x64-setup.exe`, 19.042.588 Bytes):
 Außer der App, dem Uninstaller und `licenses/` enthält es genau
@@ -136,8 +141,9 @@ jeder mit denselben Bytes: `WixUIWixca` (135.440), `WixUI_Bmp_Banner`,
 `WixUI_Bmp_Dialog`, `WixUI_Ico_Exclam`, `WixUI_Ico_Info`, `WixUI_Bmp_New`,
 `WixUI_Bmp_Up`. Dieselben Custom Actions verweisen auf `WixUIWixca`
 (`WixUIValidatePath`, `WixUIPrintEula`); kein WixUtil-Binary. Eine Datei
-weniger als 0.2.4 (215 statt 216): der Lizenztext, der mit dem Update auf
-Tauri 2.12 entfallen ist.
+weniger als 0.2.4 (215 statt 216): Nach dem Update auf Tauri 2.12 hat die
+Auswahl netto einen Lizenztext weniger (208 statt 209; einige sind
+entfallen, andere hinzugekommen).
 
 ## Entscheidung
 
