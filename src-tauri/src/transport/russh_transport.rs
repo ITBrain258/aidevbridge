@@ -186,7 +186,7 @@ impl client::Handler for Handler {
     /// Signaturpruefung ausgehandelte RSA-Hash und fuer die
     /// Host-Key-Entscheidung hier irrelevant.
     ///
-    /// russh 0.63.2 ruft diese Methode nur beim ersten Schluesselaustausch
+    /// russh 0.65.0 ruft diese Methode wie 0.63.2 nur beim ersten Schluesselaustausch
     /// einer Verbindung. Bei einem Rekey prueft es den Hostschluessel nicht
     /// erneut; das ist eine bewusst hingenommene Grenze (siehe SECURITY.md).
     /// Ruft ein kuenftiges russh sie auch beim Rekey, muessen die Policy und

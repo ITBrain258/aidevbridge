@@ -44,30 +44,45 @@ export function compareVersions(a, b) {
 }
 
 // True when `version` meets every comparator of a GitHub vulnerable range,
-// such as "< 0.65" or ">= 0.60.0, <= 0.64.1".
+// such as "< 0.65" or ">= 0.60.0, <= 0.64.1". A lone version means exactly
+// that version. Anything else, such as a missing range or a second part
+// without an operator (">= 0.34.0-beta.1,0.61.0" occurs in hand-typed
+// repository advisories), is unreadable and throws, so the check fails
+// instead of passing a version it cannot judge.
 export function inRange(version, range) {
-  return range.split(',').map(s => s.trim()).filter(Boolean).every(part => {
-    const m = /^(<=|>=|<|>|=)?\s*(.+)$/.exec(part);
-    const c = compareVersions(version, m[2]);
-    return { '<': c < 0, '<=': c <= 0, '>': c > 0, '>=': c >= 0, '=': c === 0 }[m[1] ?? '='];
+  if (typeof range !== 'string' || !range.trim()) throw new Error(`Unreadable vulnerable range: ${JSON.stringify(range)}`);
+  // Read every part before judging any, so a bad part can't hide behind a
+  // false one.
+  const parts = range.split(',').map(s => s.trim()).map(part => {
+    const m = /^(<=|>=|<|>|=)?\s*(\S+)$/.exec(part);
+    if (!m) throw new Error(`Unreadable vulnerable range: ${JSON.stringify(range)}`);
+    parse(m[2]);
+    return { op: m[1], bound: m[2] };
+  });
+  if (parts.length > 1 && parts.some(p => !p.op)) throw new Error(`Unreadable vulnerable range: ${JSON.stringify(range)}`);
+  return parts.every(({ op, bound }) => {
+    const c = compareVersions(version, bound);
+    return { '<': c < 0, '<=': c <= 0, '>': c > 0, '>=': c >= 0, '=': c === 0 }[op ?? '='];
   });
 }
 
 // Advisories of both sources, reduced to { id, severity, summary, ranges }
-// for this crate, one entry per GHSA id.
+// for this crate, one entry per GHSA id. The database's reviewed ranges win;
+// a repository's own ranges count only for advisories the database lacks.
 export function normalize(crate, globalList, repositoryList) {
   const byId = new Map();
-  const add = (id, severity, summary, ranges) => {
-    const entry = byId.get(id) ?? { id, severity, summary, ranges: [] };
-    for (const r of ranges) if (!entry.ranges.includes(r)) entry.ranges.push(r);
-    byId.set(id, entry);
-  };
-  for (const a of globalList) add(a.ghsa_id, a.severity, a.summary, a.vulnerabilities.filter(v => v.package?.ecosystem === 'rust' && v.package?.name === crate).map(v => v.vulnerable_version_range));
-  for (const a of repositoryList) if (a.state === undefined || a.state === 'published') add(a.ghsa_id, a.severity, a.summary, a.vulnerabilities.filter(v => (v.package?.ecosystem ?? 'rust') === 'rust' && v.package?.name === crate).map(v => v.vulnerable_version_range));
+  const ofCrate = (a, ecosystem) => a.vulnerabilities.filter(v => (v.package?.ecosystem ?? ecosystem) === 'rust' && v.package?.name === crate).map(v => v.vulnerable_version_range);
+  for (const a of globalList) byId.set(a.ghsa_id, { id: a.ghsa_id, severity: a.severity, summary: a.summary, ranges: [...new Set(ofCrate(a))] });
+  for (const a of repositoryList) {
+    if (byId.has(a.ghsa_id) || (a.state !== undefined && a.state !== 'published')) continue;
+    byId.set(a.ghsa_id, { id: a.ghsa_id, severity: a.severity, summary: a.summary, ranges: [...new Set(ofCrate(a, 'rust'))] });
+  }
   return [...byId.values()].filter(a => a.ranges.length > 0);
 }
 
-export const affecting = (version, advisories) => advisories.filter(a => a.ranges.some(r => inRange(version, r)));
+export const affecting = (version, advisories) => advisories.filter(a => a.ranges.some(r => {
+  try { return inRange(version, r); } catch (error) { throw new Error(`${a.id}: ${error.message}`); }
+}));
 
 export function vendoredVersion(root, manifest) {
   const text = fs.readFileSync(path.join(root, ...manifest.split('/')), 'utf8');
@@ -77,12 +92,19 @@ export function vendoredVersion(root, manifest) {
   return version[1];
 }
 
+// Every page of a GitHub list, following the Link header.
 async function github(url) {
   const headers = { accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28' };
   if (process.env.GITHUB_TOKEN) headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-  const response = await fetch(url, { headers });
-  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
-  return response.json();
+  const items = [];
+  for (let next = url, pages = 0; next; pages++) {
+    if (pages >= 20) throw new Error(`${url}: more than 20 pages`);
+    const response = await fetch(next, { headers });
+    if (!response.ok) throw new Error(`${next}: HTTP ${response.status}`);
+    items.push(...await response.json());
+    next = /<([^>]+)>;\s*rel="next"/.exec(response.headers.get('link') ?? '')?.[1];
+  }
+  return items;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

@@ -1,4 +1,4 @@
-// AgentBridge local modifications to russh 0.63.2, 2026-09-11.
+// AgentBridge local modifications to russh 0.65.0, 2026-09-11.
 // Apache-2.0, the same license as russh. Included inside each side's existing
 // test module; close_patch_session() supplies that side's authenticated fixture.
 

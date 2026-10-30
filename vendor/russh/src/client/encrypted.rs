@@ -1,4 +1,4 @@
-// Changed by AgentBridge (now aidevbridge): local modifications to russh 0.63.2,
+// Changed by AgentBridge (now aidevbridge): local modifications to russh 0.65.0,
 // Apache-2.0 like russh. AGENTBRIDGE-PATCH.md in the crate root lists every changed file.
 // Copyright 2016 Pierre-Étienne Meunier
 //

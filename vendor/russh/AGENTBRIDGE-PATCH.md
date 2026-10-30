@@ -147,7 +147,7 @@ AgentBridge's loopback test against a real russh server does, in
 
 ## Changed files
 
-Compared with the published 0.63.2 archive, these upstream files are modified;
+Compared with the published 0.65.0 archive, these upstream files are modified;
 each starts with the two-line notice:
 
 - `src/channels/channel_ref.rs`

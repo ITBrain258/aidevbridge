@@ -89,7 +89,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 158018,
-        "sha256": "fe2ea14b8d383f07d68db450d3e5c03b2734ea838f3f405e95ae35bdf315d5e7"
+        "sha256": "a3608a019d6858584807318a90ce41b6fdf26f308177cc0e85bac4a72d836a43"
       },
       {
         "path": "docs/release/license-frontend-output-2026-09-12.json",
@@ -153,8 +153,8 @@
       },
       {
         "path": "docs/release/license-rust-update-2026-10-30.json",
-        "bytes": 2431,
-        "sha256": "fe950cda028a5060f91831893afe63e0bab39756123bd42e192eb256b3651d47"
+        "bytes": 2358,
+        "sha256": "dcf4f4da8d83315c14723457859c2a25f3d0ead0a4bfc9bad8471c44d5e89fae"
       },
       {
         "path": "docs/release/license-unic-2026-09-12.json",
@@ -573,8 +573,8 @@
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
-        "bytes": 33477,
-        "sha256": "04e08ba5e61ad48f695cf3cb27ce29deb92f92dda0ab9c1add4f933466828f55"
+        "bytes": 33743,
+        "sha256": "2ba8051ff2f27099e728b44e90e50653e4fd262ca0403686c58d26b0d4955888"
       },
       {
         "path": "scripts/release-licenses.mjs",
@@ -1167,8 +1167,8 @@
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
-            "bytes": 61612,
-            "sha256": "1a9ec54f769c3617137051811336326e0a6654d04c1bc1d4535fbc5af36b44a5"
+            "bytes": 61626,
+            "sha256": "a1cf981fe6caf12094f2987f991f3b6a79afcf8541f25fc281ad29256082d837"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
@@ -1292,13 +1292,13 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
-            "bytes": 28630,
-            "sha256": "174dde43c5bd92856b49fed3ce6d8e36149af3cb209c6d1b4bd62c0f0d60c611"
+            "bytes": 28641,
+            "sha256": "161acc790386edd5e5eb19835d43a5cbd2bad072930082c57b3d91b5cdc79a42"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 30186,
-            "sha256": "ec84b0c610e62f86b5e552977fd325e3ed15f20a529949f699835a68fcc6ba9c"
+            "bytes": 30197,
+            "sha256": "7683c49d5581b7cfcb6684898ff5c176cc82f4cb97843f6aee8c53d622bbfecf"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
@@ -1589,7 +1589,7 @@
           {
             "path": "vendor/russh/AGENTBRIDGE-PATCH.md",
             "bytes": 10292,
-            "sha256": "e2435576f4a5156112b015614b95c93e777567e10f09f8a6cf5946fd1a941538"
+            "sha256": "a362dd4ef18f8eb6255363b41f8435beaa6cf4a0b33b065a85721e13b5d73f22"
           },
           {
             "path": "vendor/russh/Cargo.lock",
@@ -1689,7 +1689,7 @@
           {
             "path": "vendor/russh/src/channels/channel_ref.rs",
             "bytes": 2667,
-            "sha256": "f0fc4cd3c803a2d54f6b66bfd7556c1833e299e296685dd4ae6298b8e17f71f3"
+            "sha256": "471def3a679c4d7b6562f0cee3ff9a4f6a96d89dba9a660dc65cd9c40cff8200"
           },
           {
             "path": "vendor/russh/src/channels/channel_stream.rs",
@@ -1699,7 +1699,7 @@
           {
             "path": "vendor/russh/src/channels/end_observer.rs",
             "bytes": 4303,
-            "sha256": "843480641fb01e3ec9899c11796715b0bbb582cb386d2e8ff964c363f2ae7ed9"
+            "sha256": "9f54ff577f33747506d39e4087d5a47783113bdac40f5bf658233db53ac822bc"
           },
           {
             "path": "vendor/russh/src/channels/io/mod.rs",
@@ -1719,12 +1719,12 @@
           {
             "path": "vendor/russh/src/channels/mod.rs",
             "bytes": 27220,
-            "sha256": "9155a15c6ff31c9c8b592bfabd845dbbc3e2404c864cc51cab141367501d1fde"
+            "sha256": "37622d861c1bd570712f2206f835e5ba3a9c2a9824d0a3783c751bc5271ff8bf"
           },
           {
             "path": "vendor/russh/src/channels/window_credit.rs",
             "bytes": 3320,
-            "sha256": "0f40c9957c807e6f56a163cd1dcca61d4c0ef931f64fc2145fe7ca6f09a72ff5"
+            "sha256": "2b30e6e83a5a3e70ebc32a4dacdac6bcab17bc5e7305b9bf48aa6273ed54864f"
           },
           {
             "path": "vendor/russh/src/cipher/benchmark.rs",
@@ -1764,7 +1764,7 @@
           {
             "path": "vendor/russh/src/client/encrypted.rs",
             "bytes": 76116,
-            "sha256": "616213f8d3718ce58274c828e616ab650831d4143949d5bd00644bd832b978f7"
+            "sha256": "cafe296c45df9ebd0093fc2939dde331f6842f0eb95cb12dee63a95b39f5915f"
           },
           {
             "path": "vendor/russh/src/client/kex.rs",
@@ -1774,12 +1774,12 @@
           {
             "path": "vendor/russh/src/client/mod.rs",
             "bytes": 122758,
-            "sha256": "28ff16531698bb6e2515cc3956b46243dfec30bf1fcb2e51aaf052d6ce05d0fd"
+            "sha256": "49aa1cd4988e5590ca5fb5f1d9616cdca4be9cebfa77d1987ef3ba267e68541a"
           },
           {
             "path": "vendor/russh/src/client/session.rs",
             "bytes": 23989,
-            "sha256": "840eec18d978a6beb597b867b172122812996271013b6904be7601c6a9723f38"
+            "sha256": "0c4ae3af03096c701145935e71005c9b64bde763ae98f903217c8ce0629ad1dc"
           },
           {
             "path": "vendor/russh/src/client/test.rs",
@@ -1899,7 +1899,7 @@
           {
             "path": "vendor/russh/src/lib_inner.rs",
             "bytes": 17353,
-            "sha256": "f23e6c149f88adeed5c9c4cec950dfb29f5b8da1ad1f3ca3680da79c62c2fd18"
+            "sha256": "396d20144f65ed4c6eea1bcc4275bb30a7373bb63b68cf896b744f4c3ece98fc"
           },
           {
             "path": "vendor/russh/src/mac/crypto.rs",
@@ -1944,7 +1944,7 @@
           {
             "path": "vendor/russh/src/server/encrypted.rs",
             "bytes": 87250,
-            "sha256": "2b322a78723e34243238f369165e36b5c6a43e8c34c123ce7a22289d34dc8188"
+            "sha256": "f91dae8ddc44773131739894b84df98f68a890daeba0231b7686c0ed4d4adf91"
           },
           {
             "path": "vendor/russh/src/server/kex.rs",
@@ -1959,12 +1959,12 @@
           {
             "path": "vendor/russh/src/server/session.rs",
             "bytes": 70122,
-            "sha256": "9a01477d0af1229c3398fe839e308c345e9eab520ea5862a1107a14ad33fe271"
+            "sha256": "27c9d035a565ce1ad3b1340d425126903ec1acf3a914be838726d88e1f839564"
           },
           {
             "path": "vendor/russh/src/session.rs",
             "bytes": 58237,
-            "sha256": "166435c29e94871f480bf5eb43fc4ea655b9a98235bf1483098929aa5ba54063"
+            "sha256": "e6207385a28f890d38b23aec234c0a239f28d722703ac83fccb826e9f17be308"
           },
           {
             "path": "vendor/russh/src/ssh_read.rs",
@@ -1984,12 +1984,12 @@
           {
             "path": "vendor/russh/src/tests/channel_close_patch.rs",
             "bytes": 8308,
-            "sha256": "c00a0da2f08690a63a613aaaa8777d56a99904ee1ae2c7bd24c24ecef274c98e"
+            "sha256": "4ef66975ea61bcc0439bacdd0d31408a2a44559b74901c2162e98c540e6f2693"
           },
           {
             "path": "vendor/russh/src/tests/channel_end_observer.rs",
             "bytes": 19800,
-            "sha256": "21d37d6a27c1df3d2b8062c482f5d6b4163b7f4dee4ade2c7057f8b4d863fb12"
+            "sha256": "aa19782ae45d098d63f6872d30a8d4b4296f8f8b6a23c8e0126b07455ba03c05"
           },
           {
             "path": "vendor/russh/tests/auth_agent_req_channel_reply.rs",

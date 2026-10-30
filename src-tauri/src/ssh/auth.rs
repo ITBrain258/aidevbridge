@@ -418,7 +418,7 @@ pub(crate) enum PreparedAuth {
     Agent,
 }
 
-/// russh 0.63.2 parses an encrypted PKCS#8 envelope as plaintext when no
+/// russh 0.65.0, like 0.63.2, parses an encrypted PKCS#8 envelope as plaintext when no
 /// password is supplied. Recognize only a structurally valid envelope at
 /// the decoder boundary so the UI can request the missing passphrase.
 fn decode_key_source(source: &str, passphrase: Option<&str>) -> Result<PrivateKey, AuthError> {

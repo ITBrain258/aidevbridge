@@ -24,10 +24,7 @@
       "after": "0.65.0",
       "role": "normal-runtime-candidate",
       "declared_license": "Apache-2.0",
-      "archive": {
-        "url": "https://static.crates.io/crates/russh/russh-0.65.0.crate",
-        "sha256": null
-      },
+      "source": "path package, no registry archive",
       "manifest": {
         "before": {
           "bytes": 7740,
