@@ -19,8 +19,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1064328,
-    "sha256": "d3beee0ec30be92958980e00bbf60f57792c76eb6f4d3255400a6ba5904da5ad"
+    "bytes": 1065557,
+    "sha256": "55fd133ac7d79ef5821461233916afc2f8ba299561698643165e9302182a4ed8"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -1055,8 +1055,8 @@
       },
       {
         "id": "cargo:rfd@0.17.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only; no build of this app compiles it.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only; no build of this app compiles it."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only, and there only without the gtk3 feature; tauri-plugin-dialog enables gtk3, so no build of this app compiles it.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only, and there only without the gtk3 feature; tauri-plugin-dialog enables gtk3, so no build of this app compiles it."
       },
       {
         "id": "cargo:rsa@0.10.0-rc.18",
@@ -1105,7 +1105,7 @@
       },
       {
         "id": "cargo:selectors@0.38.0",
-        "windows": "The runtime tauri-utils-4d632c158e0e1088 feature set lacks html-manipulation-2 and dom_query; the separate build instance 54acc9ea301d56b2 has them. dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output. Updated from 0.36.1 to 0.38.0 on 2026-10-29; Still build-only in this graph; the exclusion reasoning stands. No license lines changed.",
+        "windows": "The runtime tauri-utils 2.10.2 instance (under tauri, tauri-runtime and tauri-runtime-wry) has only the features brotli, compression, resources and walkdir; html-manipulation-2 and dom_query belong to the separate build-host instance used by tauri-build, tauri-codegen, tauri-macros and the tauri-plugin build scripts (cargo tree, 2026-10-29). dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output. Updated from 0.36.1 to 0.38.0 on 2026-10-29; Still build-only in this graph; the exclusion reasoning stands. No license lines changed.",
         "macos": "The runtime tauri-utils instance for both macOS targets has only the features brotli, compression, resources and walkdir; html-manipulation-2 and dom_query belong to the separate build-host instance used by tauri-build and tauri-codegen. dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output."
       },
       {

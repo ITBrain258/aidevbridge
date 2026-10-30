@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "observed_utc": "2026-10-29T21:27:47.325Z",
+  "observed_utc": "2026-10-30T16:10:54.001Z",
   "scope": "Cargo.lock update carried over to the Windows x64 license selection by scripts/release-license-update-cargo.mjs; target x86_64-pc-windows-msvc, Rust 1.97.1, features tauri/custom-protocol. Not final application compliance or installer delivery.",
   "basis": [
     "docs/release/license-selection.windows-x64.json"
@@ -16,7 +16,7 @@
       "sha256": "d3070209ee3236b33fd366aba7cc1d803f75bfb0bb14bda075802778a02666c7"
     }
   },
-  "rule": "A decision moves to a new version without review only when the declared license, the role in the release graph, the set of license-named files and the bytes of every bound file are unchanged; the old and new sources are compared from the registry cache. Every other change is listed under reviewed with the reason of its decision.",
+  "rule": "A decision moves to a new version without review only when the declared license, the role in the release graph, the set of license-named files and the bytes of every bound file are unchanged and every selected text is one of the package's own bound files; the old and new sources are compared from the registry cache. Every other change is listed under reviewed with the reason of its decision.",
   "moved": [
     {
       "package": "aes",
@@ -191,7 +191,8 @@
         }
       },
       "bound_files": [],
-      "added_files": []
+      "added_files": [],
+      "reviewed": "The crate ships no license file; the LICENSE of dropbox/rust-alloc-no-stdlib at the publish commit 0a81fd6 of 0.3.0 is byte-identical to the selected BSD-3-Clause text, as at 0.2.4."
     },
     {
       "package": "argon2",
@@ -382,7 +383,8 @@
           "unchanged": true
         }
       ],
-      "added_files": []
+      "added_files": [],
+      "reviewed": "The selected Google notice is the header of src/enc/entropy_encode.rs, unchanged in 9.1.1; the set of copyright and license lines in the crate's Rust sources is identical to 8.0.4."
     },
     {
       "package": "brotli-decompressor",
@@ -2846,7 +2848,8 @@
         }
       },
       "bound_files": [],
-      "added_files": []
+      "added_files": [],
+      "reviewed": "The crate ships no license file; the LICENSE.txt of warp-tech/russh at the publish commit 183a22e of 0.2.5 is byte-identical to the selected Apache-2.0 text, as at 0.2.4."
     },
     {
       "package": "plist",
@@ -3209,7 +3212,7 @@
       "added_files": [
         "src/backend/xdg_desktop_portal/window_identifier/LICENSE"
       ],
-      "reviewed": "New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only; no build of this app compiles it."
+      "reviewed": "New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only, and there only without the gtk3 feature; tauri-plugin-dialog enables gtk3, so no build of this app compiles it."
     },
     {
       "package": "schemars",
@@ -3519,7 +3522,7 @@
         "LICENSE-APACHE",
         "LICENSE-MIT"
       ],
-      "reviewed": "Declaration written in SPDX form (was MIT/Apache-2.0) and the crate now ships LICENSE-APACHE and LICENSE-MIT; COPYING is unchanged and still offers Apache-2.0, so the Apache-2.0 decision with the original notice stands."
+      "reviewed": "Declaration written in SPDX form (was MIT/Apache-2.0) and the crate now ships LICENSE-APACHE and LICENSE-MIT; COPYING is unchanged and still offers Apache-2.0, so the Apache-2.0 decision with the original notice stands. The selected Apache-2.0 text stays the full text from this project's LICENSE-APACHE; the crate's new LICENSE-APACHE has the same terms in a different layout."
     },
     {
       "package": "smallvec",
@@ -3978,7 +3981,7 @@
         }
       ],
       "added_files": [],
-      "reviewed": "Source changes without copyright or license lines (documentation examples); build-only role unchanged."
+      "reviewed": "Source changes without copyright or license lines (documentation examples, and src/build/mobile.rs returns early when DOCS_RS is set); build-only role unchanged. The crate ships no license file; the selected MIT text is the tauri repository's LICENSE-MIT, byte-identical at the publish commit 59b63ab of 2.7.2."
     },
     {
       "package": "tauri-plugin-dialog",
@@ -4994,7 +4997,8 @@
         }
       },
       "bound_files": [],
-      "added_files": []
+      "added_files": [],
+      "reviewed": "The crate ships no license file; the LICENSE of wravery/webview2-rs at the publish commit edc2caf of 0.39.1 is byte-identical to the selected MIT text."
     },
     {
       "package": "webview2-com-sys",
@@ -5041,7 +5045,7 @@
           "notices_unchanged": true
         }
       ],
-      "reviewed": "build.rs adds the arm64ec machine type only; linking for x64 is unchanged."
+      "reviewed": "build.rs adds the arm64ec machine type only; linking for x64 is unchanged. The crate ships no license file; the LICENSE of wravery/webview2-rs at the publish commit edc2caf of 0.39.1 is byte-identical to the selected MIT text."
     },
     {
       "package": "window-vibrancy",
@@ -5715,9 +5719,9 @@
     }
   ],
   "dropped_documents": [
-    "argon2-0.6.0-LICENSE-MIT.txt",
-    "keccak-0.2.2-LICENSE-MIT.txt",
-    "quick-xml-0.42.0-LICENSE-MIT.md",
+    "argon2-0.6.0-rc.8-LICENSE-MIT.txt",
+    "keccak-0.2.0-LICENSE-MIT.txt",
+    "quick-xml-0.41.0-LICENSE-MIT.md",
     "unic-0.9.0-COPYRIGHT.md",
     "unic-0.9.0-SOURCE-NOTICES.txt",
     "unicode-data-LICENSE-V3-2026-09-12.txt"

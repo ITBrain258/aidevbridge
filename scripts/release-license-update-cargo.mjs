@@ -2,8 +2,8 @@
 // Carries the reviewed Windows x64 license selection over to a changed
 // Cargo.lock. A package whose version changed keeps its decision only when its
 // declared license, its role in the release graph, its set of license files
-// and the bytes of every bound file are unchanged; the decision then moves to
-// the new version. A package that left the graph leaves the selection with its
+// and the bytes of every bound file are unchanged and every selected text is
+// one of its own bound files; the decision then moves to the new version. A package that left the graph leaves the selection with its
 // cargo inputs and with the documents no other component uses. A new package
 // outside the release graph is excluded as before. Everything else needs an
 // entry in REVIEWED below, decided by hand; without one nothing is written.
@@ -35,8 +35,12 @@ const TAURI_RENAMES = { LICENSE_MIT: 'LICENSE-MIT', 'LICENSE_APACHE-2.0': 'LICEN
 // bytes changed, `renames` maps bound files to new names with the same bytes,
 // `added` names exactly the new license-named files, `declared` the new
 // declaration. A changed bound file that a document was made from gives a new
-// document from the new bytes. `role` accepts a new role for an unchanged
-// version; `new` decides a package that had no version in the selection.
+// document from the new bytes. `external` records how a selected text that is
+// not one of the package's own files (a repository text, a sibling crate's or
+// a shared text) was checked against the new version; such a move needs it.
+// `reason` replaces the base reason when its evidence named the old build.
+// `role` accepts a new role for an unchanged version; `new` decides a package
+// that had no version in the selection (MIT only: the reasons say so).
 const REVIEWED = {
   // 2026-10-29, Tauri 2.12 and the semver-compatible updates.
   'argon2@0.6.0': { changed: ['LICENSE-MIT'], note: 'MIT text: copyright years 2021-2024 -> 2021-2026, same terms; the new text ships.' },
@@ -55,15 +59,22 @@ const REVIEWED = {
   'tauri-runtime@2.12.2': { renames: TAURI_RENAMES, note: 'License files renamed with the same bytes.' },
   'tauri-runtime-wry@2.12.3': { renames: TAURI_RENAMES, note: 'License files renamed with the same bytes.' },
   'tauri-utils@2.10.2': { renames: TAURI_RENAMES, changed: ['Cargo.toml.orig'], note: 'License files renamed with the same bytes; Cargo.toml.orig changed without license lines.' },
-  'tauri-plugin@2.7.2': { changed: ['src/build/mobile.rs', 'src/build/mod.rs', 'src/lib.rs'], note: 'Source changes without copyright or license lines (documentation examples); build-only role unchanged.' },
-  'webview2-com-sys@0.39.1': { changed: ['build.rs'], note: 'build.rs adds the arm64ec machine type only; linking for x64 is unchanged.' },
+  'tauri-plugin@2.7.2': { changed: ['src/build/mobile.rs', 'src/build/mod.rs', 'src/lib.rs'], note: 'Source changes without copyright or license lines (documentation examples, and src/build/mobile.rs returns early when DOCS_RS is set); build-only role unchanged.', external: 'The crate ships no license file; the selected MIT text is the tauri repository\'s LICENSE-MIT, byte-identical at the publish commit 59b63ab of 2.7.2.' },
+  'webview2-com-sys@0.39.1': { changed: ['build.rs'], note: 'build.rs adds the arm64ec machine type only; linking for x64 is unchanged.', external: 'The crate ships no license file; the LICENSE of wravery/webview2-rs at the publish commit edc2caf of 0.39.1 is byte-identical to the selected MIT text.' },
+  'webview2-com@0.39.1': { external: 'The crate ships no license file; the LICENSE of wravery/webview2-rs at the publish commit edc2caf of 0.39.1 is byte-identical to the selected MIT text.' },
+  'alloc-stdlib@0.3.0': { external: 'The crate ships no license file; the LICENSE of dropbox/rust-alloc-no-stdlib at the publish commit 0a81fd6 of 0.3.0 is byte-identical to the selected BSD-3-Clause text, as at 0.2.4.' },
+  'brotli@9.1.1': { external: 'The selected Google notice is the header of src/enc/entropy_encode.rs, unchanged in 9.1.1; the set of copyright and license lines in the crate\'s Rust sources is identical to 8.0.4.' },
+  'pageant@0.2.5': { external: 'The crate ships no license file; the LICENSE.txt of warp-tech/russh at the publish commit 183a22e of 0.2.5 is byte-identical to the selected Apache-2.0 text, as at 0.2.4.' },
   'wry@0.57.1': { changed: ['Cargo.toml.orig', 'build.rs'], note: 'build.rs adds a macOS-only cfg check; no license or notice lines.' },
   'cssparser@0.37.0': { changed: ['Cargo.toml.orig'], note: 'Still build-only in this graph; the host-side reasoning of the exclusion stands. No license lines changed.' },
   'cssparser-macros@0.7.1': { changed: ['Cargo.toml.orig', 'lib.rs'], note: 'Still a host-side proc macro whose consumers are build-only; the exclusion reasoning stands. No license lines changed.' },
   'dom_query@0.28.0': { changed: ['Cargo.toml.orig'], note: 'Still build-only; MIT text unchanged.' },
-  'selectors@0.38.0': { changed: ['Cargo.toml.orig', 'parser.rs'], note: 'Still build-only in this graph; the exclusion reasoning stands. No license lines changed.' },
-  'siphasher@1.0.4': { declared: 'MIT OR Apache-2.0', added: ['LICENSE-APACHE', 'LICENSE-MIT'], note: 'Declaration written in SPDX form (was MIT/Apache-2.0) and the crate now ships LICENSE-APACHE and LICENSE-MIT; COPYING is unchanged and still offers Apache-2.0, so the Apache-2.0 decision with the original notice stands.' },
-  'rfd@0.17.2': { added: ['src/backend/xdg_desktop_portal/window_identifier/LICENSE'], note: 'New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only; no build of this app compiles it.' },
+  'selectors@0.38.0': {
+    changed: ['Cargo.toml.orig', 'parser.rs'], note: 'Still build-only in this graph; the exclusion reasoning stands. No license lines changed.',
+    reason: 'The runtime tauri-utils 2.10.2 instance (under tauri, tauri-runtime and tauri-runtime-wry) has only the features brotli, compression, resources and walkdir; html-manipulation-2 and dom_query belong to the separate build-host instance used by tauri-build, tauri-codegen, tauri-macros and the tauri-plugin build scripts (cargo tree, 2026-10-29). dom_query Matcher parses and matches selectors to DOM nodes; tauri-utils html2 modifies/serializes document content; context_codegen emits CSP hashes and transformed asset bytes through EmbeddedAssets, not the selector matcher or generated selector attribute table. selectors build.rs generates an internal attribute-name PHF consumed by selectors parser.rs; it stays in the host library path. No claim that all build tools are automatically excluded from output.',
+  },
+  'siphasher@1.0.4': { declared: 'MIT OR Apache-2.0', added: ['LICENSE-APACHE', 'LICENSE-MIT'], note: 'Declaration written in SPDX form (was MIT/Apache-2.0) and the crate now ships LICENSE-APACHE and LICENSE-MIT; COPYING is unchanged and still offers Apache-2.0, so the Apache-2.0 decision with the original notice stands.', external: 'The selected Apache-2.0 text stays the full text from this project\'s LICENSE-APACHE; the crate\'s new LICENSE-APACHE has the same terms in a different layout.' },
+  'rfd@0.17.2': { added: ['src/backend/xdg_desktop_portal/window_identifier/LICENSE'], note: 'New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only, and there only without the gtk3 feature; tauri-plugin-dialog enables gtk3, so no build of this app compiles it.' },
   'bitflags@1.3.2': { role: 'outside-selected-windows-tree', note: 'Only bitflags 2 remains in the Windows release graph.' },
   'miniz_oxide@0.8.9': { role: 'build-or-proc-macro-only-in-this-tree', note: 'Now used by build tools only; the runtime uses miniz_oxide 0.9.1. The conservative inclusion stays.' },
   'base64@0.23.1': { new: { selected: 'MIT', texts: ['LICENSE-MIT'] }, note: 'MIT OR Apache-2.0; MIT with the original text, as for base64 0.22.1.' },
@@ -235,6 +246,14 @@ function compare(selection, old, key, dir, renames) {
   return facts;
 }
 
+// Selected texts that are not one of the package's own bound files: a
+// repository text, a sibling crate's or a shared one. The byte comparison does
+// not cover their source, so their move needs `external` in REVIEWED.
+function externalTexts(selection, component, old) {
+  const own = new Set(selection.inputs.cargo_files.filter(f => f.package === old).map(f => f.sha256));
+  return component.documents.map(id => selection.documents.find(d => d.id === id)).filter(d => !own.has(d.sha256)).map(d => d.file_name);
+}
+
 export function plan(root, { date }) {
   const selection = JSON.parse(fs.readFileSync(path.join(root, SELECTION), 'utf8'));
   const toolchain = selection.scope.rust_toolchain;
@@ -266,6 +285,7 @@ export function plan(root, { date }) {
     if (!old) {
       if (role === 'outside-selected-windows-tree') result.newOutside.push({ package: key, pkg, role });
       else if (reviewed?.new) {
+        ensure(reviewed.new.selected === 'MIT', `${key}: the reasons for new packages state an MIT selection; decide ${reviewed.new.selected} with its own reason`);
         for (const text of reviewed.new.texts) ensure(fs.existsSync(path.join(dir, text)), `${key}: ${text} is missing`);
         result.newPackages.push({ key, pkg, role, features, dir, decision: reviewed.new, note: reviewed.note });
       } else result.review.push({ package: key, problem: `new package (${role}, declared ${pkg.license ?? 'none'})` });
@@ -278,22 +298,29 @@ export function plan(root, { date }) {
     const trees = compareTrees(selection, old, dir);
     if (trees.problems.length > 0) { result.review.push({ package: key, replaces: old, problem: trees.problems.join('; ') }); continue; }
     facts.trees = trees.trees;
+    facts.external = externalTexts(selection, component, old);
     const declaredChanged = oldPackage.declared_license !== pkg.license;
     const automatic = component.technical_role === role && !declaredChanged && oldPackage.source === pkg.source
-      && facts.changed.length + facts.gone.length + facts.renamed.length + facts.added.length + facts.unboundChanged.length === 0;
+      && facts.changed.length + facts.gone.length + facts.renamed.length + facts.added.length + facts.unboundChanged.length + facts.external.length === 0;
     const matches = reviewed && component.technical_role === role && oldPackage.source === pkg.source && facts.gone.length === 0 && facts.unboundChanged.length === 0
       && same(facts.changed, reviewed.changed ?? []) && same(facts.renamed, Object.keys(reviewed.renames ?? {}).filter(p => facts.files.some(f => f.oldPath === p)))
-      && same(facts.added, reviewed.added ?? []) && (declaredChanged ? reviewed.declared === pkg.license : reviewed.declared === undefined);
+      && same(facts.added, reviewed.added ?? []) && (declaredChanged ? reviewed.declared === pkg.license : reviewed.declared === undefined)
+      && (facts.external.length > 0) === (reviewed.external !== undefined);
     if (!automatic && !matches) {
       const problems = [];
       if (component.technical_role !== role) problems.push(`role ${component.technical_role} -> ${role}`);
       if (declaredChanged) problems.push(`declared license ${oldPackage.declared_license} -> ${pkg.license}`);
-      for (const [label, list] of Object.entries({ changed: facts.changed, gone: facts.gone, renamed: facts.renamed, 'new license files': facts.added, 'unbound changed': facts.unboundChanged })) if (list.length) problems.push(`${label}: ${list.join(',')}`);
+      for (const [label, list] of Object.entries({ changed: facts.changed, gone: facts.gone, renamed: facts.renamed, 'new license files': facts.added, 'unbound changed': facts.unboundChanged, 'texts from outside the crate': facts.external })) if (list.length) problems.push(`${label}: ${list.join(',')}`);
       result.review.push({ package: key, replaces: old, problem: problems.join('; ') });
       continue;
     }
-    result.moved.push({ key, old, pkg, role, features, dir, facts, note: automatic ? null : reviewed.note, manifest: record(fs.readFileSync(pkg.manifest_path)), oldManifest: oldPackage.manifest, checksum: checksums.get(key) ?? null });
+    const note = automatic ? null : [reviewed.note, reviewed.external].filter(Boolean).join(' ');
+    result.moved.push({ key, old, pkg, role, features, dir, facts, note, reason: automatic ? null : reviewed.reason ?? null, manifest: record(fs.readFileSync(pkg.manifest_path)), oldManifest: oldPackage.manifest, checksum: checksums.get(key) ?? null });
   }
+  // Every entry has to decide something in this update; entries of an earlier
+  // update go (its record keeps them).
+  const decided = new Set([...result.moved.filter(m => m.note).map(m => m.key), ...result.roleChanges.map(r => r.key), ...result.newPackages.map(n => n.key)]);
+  for (const key of Object.keys(REVIEWED)) if (!decided.has(key) && !result.review.some(r => r.package === key)) result.review.push({ package: key, problem: 'REVIEWED entry decides nothing in this update' });
   const movedOld = new Set(result.moved.map(m => m.old));
   const reviewedOld = new Set(result.review.map(r => r.replaces).filter(Boolean));
   for (const key of removed) if (!movedOld.has(key) && !reviewedOld.has(key)) {
@@ -350,7 +377,7 @@ export function apply(root, { selection, toolchain, result, recordPath }, { date
     component.decision_basis = [...component.decision_basis, recordPath];
     // An excluded package outside the tree keeps the exact standard reason,
     // which the macOS and Android derivations recognise; the record has the move.
-    if (component.technical_role !== 'outside-selected-windows-tree') component.reason = `${component.reason} Updated from ${oldVersion} to ${newVersion} on ${date}; ${move.note ?? 'same declared license, role and byte-identical license files.'}`;
+    if (component.technical_role !== 'outside-selected-windows-tree') component.reason = `${move.reason ?? component.reason} Updated from ${oldVersion} to ${newVersion} on ${date}; ${move.note ?? 'same declared license, role and byte-identical license files.'}`;
     // A document made from a bound file whose bytes changed is made again from the new bytes.
     for (const file of move.facts.files.filter(f => f.sha256 !== f.oldSha256)) {
       const index = component.documents.findIndex(id => selection.documents.find(d => d.id === id)?.sha256 === file.oldSha256);
@@ -371,7 +398,6 @@ export function apply(root, { selection, toolchain, result, recordPath }, { date
     for (const doc of selection.documents) {
       doc.source_names = doc.source_names.map(n => n.startsWith(`${move.old}/`) ? `${move.key}/${renamed.get(n.slice(move.old.length + 1)) ?? n.slice(move.old.length + 1)}` : n);
       doc.source_urls = doc.source_urls.map(u => u === pageUrl(name, oldVersion) ? pageUrl(name, newVersion) : u);
-      if (doc.file_name.startsWith(`${name}-${oldVersion}-`)) doc.file_name = `${name}-${newVersion}-${doc.file_name.slice(`${name}-${oldVersion}-`.length)}`;
     }
   }
   for (const change of result.roleChanges) {
@@ -406,6 +432,14 @@ export function apply(root, { selection, toolchain, result, recordPath }, { date
   const used = new Set(selection.components.flatMap(c => c.documents));
   const droppedDocuments = selection.documents.filter(d => !used.has(d.id)).map(d => d.file_name);
   selection.documents = selection.documents.filter(d => used.has(d.id));
+  // A kept document named after a moved version takes the new one; the record
+  // lists dropped documents under the names they had.
+  for (const move of result.moved) {
+    const prefix = `${move.pkg.name}-${versionOf(move.old)}-`;
+    for (const doc of selection.documents) if (doc.file_name.startsWith(prefix)) doc.file_name = `${move.pkg.name}-${move.pkg.version}-${doc.file_name.slice(prefix.length)}`;
+  }
+  const fileNames = selection.documents.map(d => d.file_name.toLowerCase());
+  ensure(new Set(fileNames).size === fileNames.length, `Document file names collide: ${fileNames.filter((n, i) => fileNames.indexOf(n) !== i).join(', ')}`);
   // Features follow the new graph for every package (feature unification can
   // change them for an unchanged version too); they describe, they decide nothing.
   for (const c of selection.components) if (c.id.startsWith('cargo:') && result.features.has(c.id.slice(6)) && c.technical_role !== 'outside-selected-windows-tree') c.release_tree_features = result.features.get(c.id.slice(6));
@@ -424,7 +458,7 @@ export function apply(root, { selection, toolchain, result, recordPath }, { date
     scope: `Cargo.lock update carried over to the Windows x64 license selection by scripts/release-license-update-cargo.mjs; target ${TARGET}, Rust ${toolchain}, features tauri/custom-protocol. Not final application compliance or installer delivery.`,
     basis: [SELECTION],
     lockfile: { path: 'Cargo.lock', before: before ? { bytes: before.bytes, sha256: before.sha256 } : null, after: lockNow },
-    rule: 'A decision moves to a new version without review only when the declared license, the role in the release graph, the set of license-named files and the bytes of every bound file are unchanged; the old and new sources are compared from the registry cache. Every other change is listed under reviewed with the reason of its decision.',
+    rule: 'A decision moves to a new version without review only when the declared license, the role in the release graph, the set of license-named files and the bytes of every bound file are unchanged and every selected text is one of the package\'s own bound files; the old and new sources are compared from the registry cache. Every other change is listed under reviewed with the reason of its decision.',
     moved: result.moved.map(m => ({ package: m.pkg.name, before: versionOf(m.old), after: m.pkg.version, role: m.role, declared_license: m.pkg.license, archive: { url: crateUrl(m.pkg.name, m.pkg.version), sha256: m.checksum }, manifest: { before: m.oldManifest, after: m.manifest }, bound_files: m.facts.files.map(f => ({ before: f.oldPath, after: f.path, bytes: f.bytes, sha256: f.sha256, unchanged: f.sha256 === f.oldSha256 })), added_files: m.facts.added, ...(m.facts.trees.length ? { source_trees: m.facts.trees.map(t => ({ path: t.path, files: t.files.length, notice_lines: t.notices, notices_unchanged: true })) } : {}), ...(m.note ? { reviewed: m.note } : {}) })),
     role_changes: result.roleChanges.map(r => ({ package: r.key, before: r.from, after: r.role, reviewed: r.note })),
     new_packages: result.newPackages.map(n => ({ package: n.key, role: n.role, declared_license: n.pkg.license, selected_license: n.decision.selected, texts: n.decision.texts, reviewed: n.note })),

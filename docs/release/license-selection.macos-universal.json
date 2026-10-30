@@ -107,8 +107,8 @@
       },
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
-        "bytes": 131778,
-        "sha256": "261c546c0999674c6cf23aec4f4e87b83961d76e7a5b4e5b7cfa696127823078"
+        "bytes": 132129,
+        "sha256": "8d9e4a2863a93c18bd8761c2bd7ad84577f08358cfc6048d3043767d2dd98d68"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -137,8 +137,8 @@
       },
       {
         "path": "docs/release/license-rust-update-2026-10-29.json",
-        "bytes": 189413,
-        "sha256": "f52edbc23c8ca1b7c3ae07352af92979ea1d40cb8eb246803e15be1a7e55601b"
+        "bytes": 190848,
+        "sha256": "f4c50624b0e01b890903309c1c28bfbfcd193c83965a01ea975b874b286c863b"
       },
       {
         "path": "docs/release/license-unic-2026-09-12.json",
@@ -497,8 +497,8 @@
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
-        "bytes": 36380,
-        "sha256": "71485a4998e2f1e76b66dd394bb701d282af482cd32c768414137f719af6834e"
+        "bytes": 41121,
+        "sha256": "7a9dd6a12852f390ae0ea74145540a91522edfa3a1cfc651eb65ad8c0cc959bd"
       },
       {
         "path": "scripts/release-licenses.mjs",
@@ -11437,7 +11437,7 @@
       "documents": [
         "sha256:c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae"
       ],
-      "reason": "Use the exact upstream full text and associated notices selected in the completed family report. Updated from 0.2.4 to 0.3.0 on 2026-10-29; same declared license, role and byte-identical license files.",
+      "reason": "Use the exact upstream full text and associated notices selected in the completed family report. Updated from 0.2.4 to 0.3.0 on 2026-10-29; The crate ships no license file; the LICENSE of dropbox/rust-alloc-no-stdlib at the publish commit 0a81fd6 of 0.3.0 is byte-identical to the selected BSD-3-Clause text, as at 0.2.4.",
       "source_urls": [
         "https://static.crates.io/crates/alloc-stdlib/alloc-stdlib-0.3.0.crate",
         "https://crates.io/crates/alloc-stdlib/0.3.0",
@@ -12087,7 +12087,7 @@
         "sha256:3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
         "sha256:fcbc7aca6beaf0999620b88f7a75bad1faa9e88a78c0a1295be38991e30d4d3e"
       ],
-      "reason": "Use the reviewed brotli family choice and complete accompanying attributions. Build/source disclosure does not assert that every source file is linked. Updated from 8.0.4 to 9.1.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+      "reason": "Use the reviewed brotli family choice and complete accompanying attributions. Build/source disclosure does not assert that every source file is linked. Updated from 8.0.4 to 9.1.1 on 2026-10-29; The selected Google notice is the header of src/enc/entropy_encode.rs, unchanged in 9.1.1; the set of copyright and license lines in the crate's Rust sources is identical to 8.0.4.",
       "source_urls": [
         "https://static.crates.io/crates/brotli/brotli-9.1.1.crate",
         "https://crates.io/crates/brotli/9.1.1",
@@ -18531,7 +18531,7 @@
       "documents": [
         "sha256:65fc947f4bac882a2cd104ef73c246b1b037059df9f2b3a58b7f77f0b9e56071"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only; no build of this app compiles it.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only, and there only without the gtk3 feature; tauri-plugin-dialog enables gtk3, so no build of this app compiles it.",
       "source_urls": [
         "https://static.crates.io/crates/rfd/rfd-0.17.2.crate",
         "https://crates.io/crates/rfd/0.17.2",
@@ -19790,7 +19790,7 @@
         "sha256:8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb",
         "sha256:c962ee4d1d05ddc138b202b2540219ebc57893fcf97b364852094a9a94ce1365"
       ],
-      "reason": "The original COPYING explicitly offers Apache-2.0 and retains Rust/Frank Denis copyrights; supply the complete standard Apache-2.0 text with that original notice. Updated from 1.0.3 to 1.0.4 on 2026-10-29; Declaration written in SPDX form (was MIT/Apache-2.0) and the crate now ships LICENSE-APACHE and LICENSE-MIT; COPYING is unchanged and still offers Apache-2.0, so the Apache-2.0 decision with the original notice stands.",
+      "reason": "The original COPYING explicitly offers Apache-2.0 and retains Rust/Frank Denis copyrights; supply the complete standard Apache-2.0 text with that original notice. Updated from 1.0.3 to 1.0.4 on 2026-10-29; Declaration written in SPDX form (was MIT/Apache-2.0) and the crate now ships LICENSE-APACHE and LICENSE-MIT; COPYING is unchanged and still offers Apache-2.0, so the Apache-2.0 decision with the original notice stands. The selected Apache-2.0 text stays the full text from this project's LICENSE-APACHE; the crate's new LICENSE-APACHE has the same terms in a different layout.",
       "source_urls": [
         "https://static.crates.io/crates/siphasher/siphasher-1.0.4.crate",
         "https://crates.io/crates/siphasher/1.0.4",
@@ -20623,7 +20623,7 @@
       "documents": [
         "sha256:9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d"
       ],
-      "reason": "Use the exact upstream full text and associated notices selected in the completed family report. Exact per-file Tauri source headers and pinned repository copyright metadata appear below and in manifest.json. The earlier combined source notice also discussed the now-excluded selectors family, so its historical MPL-payload statement is not copied into this delivery folder. Updated from 2.6.3 to 2.7.2 on 2026-10-29; Source changes without copyright or license lines (documentation examples); build-only role unchanged.",
+      "reason": "Use the exact upstream full text and associated notices selected in the completed family report. Exact per-file Tauri source headers and pinned repository copyright metadata appear below and in manifest.json. The earlier combined source notice also discussed the now-excluded selectors family, so its historical MPL-payload statement is not copied into this delivery folder. Updated from 2.6.3 to 2.7.2 on 2026-10-29; Source changes without copyright or license lines (documentation examples, and src/build/mobile.rs returns early when DOCS_RS is set); build-only role unchanged. The crate ships no license file; the selected MIT text is the tauri repository's LICENSE-MIT, byte-identical at the publish commit 59b63ab of 2.7.2.",
       "source_urls": [
         "https://static.crates.io/crates/tauri-plugin/tauri-plugin-2.7.2.crate",
         "https://crates.io/crates/tauri-plugin/2.7.2",
