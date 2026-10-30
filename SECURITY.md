@@ -207,7 +207,7 @@ and affect aidevbridge 0.2.4 and earlier, which carry russh 0.63.2:
 
 A server you connect to can so make those versions crash or hang; the first
 one also an attacker on the network, because it strikes before the host key
-is checked. None of the three reads or changes session data. The release after 0.2.4 contains the fix.
+is checked. None of the three reads or changes session data. Version 0.2.5 contains the fix.
 The advisories for russh's server and agent code (GHSA-j7h2-66j4-ghjf,
 GHSA-4wc5-f2rc-q74m, GHSA-9wfm-jcj8-jfv9, GHSA-vp5q-ff62-jwqv) are fixed as
 well; aidevbridge never ran that code. The app is an SSH client: it doesn't

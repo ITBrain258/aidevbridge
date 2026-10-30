@@ -1,0 +1,1 @@
+Security update: the SSH library moves to russh 0.65.0. A server could make earlier versions of the app crash or hang; it could neither read nor change any data. Also up to date: Tauri 2.12 and other libraries.

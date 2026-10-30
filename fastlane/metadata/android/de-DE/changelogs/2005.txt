@@ -1,0 +1,1 @@
+Sicherheitsupdate: Die SSH-Bibliothek ist auf russh 0.65.0 aktualisiert. Ein Server konnte frühere Versionen der App zum Absturz bringen oder anhalten; Daten konnte er dabei weder lesen noch ändern. Außerdem auf neuem Stand: Tauri 2.12 und weitere Bibliotheken.

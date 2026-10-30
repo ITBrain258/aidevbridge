@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-10-30
+
+Sicherheitsrelease: russh 0.65.0 behebt drei Luecken im SSH-Client, die 0.2.4 und frueher betreffen (siehe Security). Dazu Tauri 2.12, NSIS 3.13 fuer den Windows-Installer und eine gehaertete CI.
+
 ### Added
 
 - Lizenzen: `npm run licenses:status` listet alle Abweichungen der drei Lizenzauswahlen auf einmal, getrennt in eigene Quellen und Fremdcode; `licenses:rebind-own` bindet geaenderte, neue und geloeschte eigene Quellen neu, `licenses:check` prueft alle drei Plattformen, `licenses:derive` leitet macOS und Android ab. Der neue CI-Job `licenses` scheitert, sobald ein Pull Request Fremdcode aendert, ohne dessen Lizenzen nachzuziehen, und prueft sonst alle drei Plattformen; bisher fiel das erst im Release-Probelauf auf. Den Ablauf beschreibt `docs/lizenzen-pflegen.md`.
