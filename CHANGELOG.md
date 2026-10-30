@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Added
+
+- Lizenzen: `npm run licenses:status` listet alle Abweichungen der drei Lizenzauswahlen auf einmal, getrennt in eigene Quellen und Fremdcode; `licenses:rebind-own` bindet geaenderte, neue und geloeschte eigene Quellen neu, `licenses:check` prueft alle drei Plattformen, `licenses:derive` leitet macOS und Android ab. Der neue CI-Job `licenses` scheitert, sobald ein Pull Request Fremdcode aendert, ohne dessen Lizenzen nachzuziehen, und prueft sonst alle drei Plattformen; bisher fiel das erst im Release-Probelauf auf. Den Ablauf beschreibt `docs/lizenzen-pflegen.md`.
+
 ### Changed
 
 - Abhaengigkeiten: Tauri 2.12 (`tauri` 2.12.5, wry 0.57.1, tao 0.37.2, `@tauri-apps/api` 2.12.4, `plugin-dialog` 2.8.4, `plugin-opener` 2.7.2) und alle semver-kompatiblen Rust-Krates (`cargo update`, unter anderem tokio 1.54.1). Die Lizenzauswahlen fuer Windows, macOS und Android sind auf die neuen Versionen umgezogen; jede geaenderte, neue oder entfallene Lizenzdatei ist in `docs/release/license-rust-update-2026-10-29.json` und `docs/release/license-frontend-tauri-2.12-2026-10-29.json` belegt. Neu ist `scripts/release-license-update-cargo.mjs`, das die Windows-Auswahl auf ein geaendertes `Cargo.lock` uebertraegt; die macOS-Ableitung laeuft jetzt auch unter Windows.

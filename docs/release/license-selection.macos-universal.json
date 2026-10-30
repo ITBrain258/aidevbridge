@@ -482,8 +482,8 @@
       },
       {
         "path": "package.json",
-        "bytes": 1356,
-        "sha256": "e5fd46de41ba24b98bfe1cf0be530c4705c1b09d152b001d3707f4b72cd8c8ef"
+        "bytes": 1717,
+        "sha256": "2976b9d5c82f9e0736b0e7cc93c62a9255f980d5a8b969ee4ac5737bc09170e2"
       },
       {
         "path": "rust-toolchain.toml",
@@ -502,8 +502,8 @@
       },
       {
         "path": "scripts/release-licenses.mjs",
-        "bytes": 24694,
-        "sha256": "8f7ee4acaf1fb701700a94a7a78c32763ba18e0dd5428da80a0d4e6442e5fdf6"
+        "bytes": 24708,
+        "sha256": "1b2cadd822fe58183be4f9e67bc7cb9d5a9ffaab37d968ee849c678772c4379c"
       },
       {
         "path": "scripts/release-macos-artifacts.mjs",
