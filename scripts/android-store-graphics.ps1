@@ -4,7 +4,7 @@ Rendert die Grafiken des Play-Store-Eintrags aus fastlane/store-graphics.
 
 .DESCRIPTION
 Schreibt fuer jede Sprache unter fastlane/metadata/android
-  images/icon.png            512 x 512, aus play-icon.svg
+  images/icon.png            512 x 512, aus play-icon.html
   images/featureGraphic.png  1024 x 500, aus feature-graphic.html
 Gerendert mit Microsoft Edge im Headless-Modus, der auf jedem Windows 10 und
 11 vorhanden ist. Die Bildschirmfotos (images/phoneScreenshots) entstehen
@@ -26,11 +26,6 @@ if (-not $edge) { throw 'Microsoft Edge fehlt.' }
 $work = Join-Path ([System.IO.Path]::GetTempPath()) "aidevbridge-store-graphics-$PID"
 New-Item -ItemType Directory -Force $work | Out-Null
 try {
-  # Das SVG in eine Seite ohne Rand, damit Edge es pixelgenau auf 512 rendert.
-  $svg = Get-Content -Raw (Join-Path $source 'play-icon.svg')
-  $iconPage = Join-Path $work 'icon.html'
-  Set-Content -Encoding utf8 $iconPage "<!doctype html><html><head><style>html,body{margin:0;width:512px;height:512px;overflow:hidden}svg{display:block;width:512px;height:512px}</style></head><body>$svg</body></html>"
-
   function Render([string]$page, [int]$width, [int]$height, [string]$target) {
     $uri = ([System.Uri](Resolve-Path $page).Path).AbsoluteUri
     $profile = Join-Path $work "profile-$width"
@@ -42,7 +37,7 @@ try {
 
   $icon = Join-Path $work 'icon.png'
   $feature = Join-Path $work 'featureGraphic.png'
-  Render $iconPage 512 512 $icon
+  Render (Join-Path $source 'play-icon.html') 512 512 $icon
   Render (Join-Path $source 'feature-graphic.html') 1024 500 $feature
 
   foreach ($locale in Get-ChildItem -Directory (Join-Path $root 'fastlane\metadata\android')) {

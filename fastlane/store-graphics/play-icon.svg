@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <!-- Store-Icon fuer Google Play: dasselbe Zeichen wie src-tauri/icons/source.svg,
-       aber randlos quadratisch; Play rundet die Ecken selbst ab. -->
-  <rect width="1024" height="1024" fill="#2DD4BF"/>
-  <g fill="none" stroke="#0F172A" stroke-width="56" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="330,340 480,490 330,640"/>
-    <line x1="530" y1="690" x2="720" y2="690"/>
-  </g>
-</svg>

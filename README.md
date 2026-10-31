@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/logo.png" alt="aidevbridge logo" width="240"></p>
+
 # aidevbridge
 
 ![aidevbridge: hosts and sessions in the sidebar, terminals in a grid](docs/images/screenshot.png)

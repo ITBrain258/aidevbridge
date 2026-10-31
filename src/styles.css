@@ -650,18 +650,12 @@ textarea,
   text-align: center;
 }
 
+/* 80 px, weil der Erststart mit dem Formular im Standardfenster (1280 x 800)
+   sonst eine Bildlaufleiste bekommt. Der Name steht direkt darunter. */
 .first-run-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--ab-radius-xl);
-  background-color: var(--ab-accent);
-  color: var(--ab-accent-ink);
-  font-size: var(--ab-fs-xl);
-  line-height: var(--ab-lh-xl);
-  font-weight: var(--ab-fw-semibold);
+  width: 80px;
+  height: 80px;
+  background: url("./assets/logo.png") center / contain no-repeat;
 }
 
 .first-run-name {

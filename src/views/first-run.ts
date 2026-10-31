@@ -170,7 +170,6 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   const logo = document.createElement("div");
   logo.className = "first-run-logo";
   logo.setAttribute("aria-hidden", "true");
-  logo.textContent = t("app.title").slice(0, 1);
   brand.appendChild(logo);
   const name = document.createElement("h2");
   name.className = "first-run-name";

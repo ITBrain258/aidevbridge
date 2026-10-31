@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- Neues Logo: Schild mit Terminal und Servern. Es ersetzt das bisherige Zeichen als App-Icon auf allen Plattformen, im Erststart, in den Play-Store-Grafiken und im README. `scripts/brand-assets.ps1` erzeugt die Dateien aus `src-tauri/icons/source.png`.
+
 ## [0.2.5] - 2026-10-30
 
 Sicherheitsrelease: russh 0.65.0 behebt drei Luecken im SSH-Client, die 0.2.4 und frueher betreffen (siehe Security). Dazu Tauri 2.12, NSIS 3.13 fuer den Windows-Installer und eine gehaertete CI.

@@ -253,7 +253,7 @@ const result = {
   copied_assets: { generator: file("scripts/gen-icons.mjs"), output: file("src/icons.ts"), package: "lucide-static", version: packages.find((p) => p.name === "lucide-static").installed_version,
     package_declared_spdx: packages.find((p) => p.name === "lucide-static").installed_declared_spdx, icons, css_embedded_svgs: cssEmbeddedSvgs,
     note: "Identical geometry aliases establish an additional provenance link (triangle-alert/alert-triangle). Absence from the inherited-name list is not a legal finding that an icon has no earlier provenance." },
-  application_brand_assets: { source: file("src-tauri/icons/source.svg"), files: walk("src-tauri/icons").map(file),
+  application_brand_assets: { source: file("src-tauri/icons/source.png"), files: walk("src-tauri/icons").map(file),
     provenance_assessment: "Current files are hashed, not rerendered or manually reassessed. See the historical manual assessment for the original SVG provenance reading." },
   runtime_entry_headers: entryHeaders,
   embedded_helpers: {
