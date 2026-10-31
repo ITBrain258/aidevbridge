@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- Vorschaubild fuer Links auf das Repository (1280 x 640); wird unter
+     Settings -> General -> Social preview von Hand hochgeladen. Gerendert von
+     render.mjs, nach dem Bild hero. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1280px; height: 640px; overflow: hidden; background: #15171C; }
+  body { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: #EDEFF3; position: relative; }
+  .text { position: absolute; left: 64px; top: 0; bottom: 0; width: 470px; display: flex; flex-direction: column; justify-content: center; gap: 22px; }
+  .name { display: flex; align-items: center; gap: 18px; font-size: 44px; font-weight: 600; letter-spacing: -0.5px; }
+  .mark { width: 68px; height: 68px; }
+  h1 { margin: 0; font-size: 41px; line-height: 1.12; font-weight: 600; letter-spacing: -0.5px; }
+  p { margin: 0; font-size: 23px; line-height: 1.35; color: #C9D0DA; }
+  .pills { display: flex; gap: 10px; }
+  .pill { font-size: 19px; line-height: 1; padding: 9px 15px; border-radius: 999px; font-weight: 600; }
+  .waiting { background: rgba(251, 191, 36, 0.15); color: #FBBF24; }
+  .busy { background: rgba(74, 222, 128, 0.15); color: #4ADE80; }
+  .idle { background: rgba(147, 197, 253, 0.15); color: #93C5FD; }
+  img { position: absolute; left: 580px; top: 56px; width: 1120px; display: block; }
+</style>
+</head>
+<body>
+  <div class="text">
+    <div class="name">
+      <svg class="mark" viewBox="0 0 1024 1024" aria-hidden="true">
+        <rect width="1024" height="1024" rx="307" ry="307" fill="#2DD4BF"/>
+        <g fill="none" stroke="#0F172A" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="341,363 469,491 341,619"/>
+          <line x1="512" y1="661" x2="683" y2="661"/>
+        </g>
+      </svg>
+      aidevbridge
+    </div>
+    <h1>See which coding agent is waiting for you.</h1>
+    <p>All your tmux sessions, on all your Linux hosts, in one app. Windows, macOS, Android.</p>
+    <div class="pills">
+      <span class="pill waiting">Waiting</span>
+      <span class="pill busy">Busy</span>
+      <span class="pill idle">Idle</span>
+    </div>
+  </div>
+  <img src="../../docs/images/hero.png" alt="">
+</body>
+</html>

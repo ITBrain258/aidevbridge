@@ -8,8 +8,8 @@ Schreibt fuer jede Sprache unter fastlane/metadata/android
   images/featureGraphic.png  1024 x 500, aus feature-graphic.html
 Gerendert mit Microsoft Edge im Headless-Modus, der auf jedem Windows 10 und
 11 vorhanden ist. Die Bildschirmfotos (images/phoneScreenshots) entstehen
-nicht hier, sondern auf einem Geraet oder im Emulator
-(docs/android-veroeffentlichung.md).
+nicht hier, sondern auf einem Geraet oder im Emulator, vorlaeufig mit
+scripts/readme-images/render.mjs (docs/android-veroeffentlichung.md).
 
 .EXAMPLE
 pwsh -File scripts/android-store-graphics.ps1

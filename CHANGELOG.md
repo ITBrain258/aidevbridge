@@ -6,7 +6,11 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
-## [0.2.5] - 2026-10-30
+### Changed
+
+- README und Anleitungen: Das README ist ein kurzer Einstieg mit neuen Bildern, die Einzelheiten stehen in englischen Anleitungen unter `docs/guide/`. `scripts/readme-images/render.mjs` rendert alle Bilder aus der echten Oberflaeche mit Beispieldaten, auch die Telefonbilder des Store-Eintrags. `SECURITY.md`, `CONTRIBUTING.md` und die Fehlervorlage nennen Android und den aktuellen Release-Ablauf.
+
+## [0.2.5] - 2026-10-31
 
 Sicherheitsrelease: russh 0.65.0 behebt drei Luecken im SSH-Client, die 0.2.4 und frueher betreffen (siehe Security). Dazu Tauri 2.12, NSIS 3.13 fuer den Windows-Installer und eine gehaertete CI.
 

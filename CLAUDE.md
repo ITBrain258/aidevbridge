@@ -9,6 +9,8 @@ Skills, die `docs/superpowers/` vorschlagen:
 - Pläne: `docs/plans/YYYY-MM-DD-<thema>.md`
 - Messberichte: `docs/messungen/messung-YYYY-MM-DD-<thema>.md`, Rohdaten in
   `docs/messungen/fixtures/`
+- Anleitungen für Nutzer, auf Englisch: `docs/guide/`
+- Bilder: `docs/images/`, erzeugt von `scripts/readme-images/render.mjs`
 
 Den aktuellen Stand und die offenen Punkte führt `docs/stand.md`.
 

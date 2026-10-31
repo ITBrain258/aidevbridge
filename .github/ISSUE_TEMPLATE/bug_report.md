@@ -19,8 +19,8 @@ the line here. It looks like: aidevbridge <version> (<commit>)
 
 ### Environment
 
-- Installation: setup EXE / MSI / ZIP / macOS DMG / built from source
-- OS and version (Windows/macOS):
+- Installation: setup EXE / MSI / ZIP / macOS DMG / Android APK / Google Play / built from source
+- OS and version (Windows/macOS/Android):
 - Host: Linux distribution and `tmux -V`
 - Agent and version, if relevant (for example `claude --version`):
 - SSH authentication: key file / ssh-agent / password (no secrets)

@@ -1,9 +1,9 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.5` ist seit dem 31.10.2026 in `main` (PR #19,
-`8aaa46b`), ein Sicherheitsrelease. Tag und Release stehen noch aus: Den Tag
-`v0.2.5` setzt der Maintainer und prüft die Installer an den Paketen des
-Releases. Das letzte veröffentlichte Release ist `0.2.4` vom 29.10.2026.
+**Stand:** Version `0.2.5` ist seit dem 31.10.2026 veröffentlicht, ein
+Sicherheitsrelease. Der Tag `v0.2.5` steht auf `fd93cc7`; alle Pakete hat die CI
+gebaut und angehängt. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch
+den Maintainer (Punkt 6).
 
 Neu in 0.2.5 gegenüber 0.2.4:
 
@@ -64,7 +64,8 @@ einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
 privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
 
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
-steht im [README](../README.md#what-it-is), die Änderungen im
+steht im [README](../README.md#what-it-does), die Einzelheiten für Nutzer in den
+englischen Anleitungen unter [`guide/`](guide/install.md), die Änderungen im
 [CHANGELOG](../CHANGELOG.md). Die Doku liegt flach unter `docs/` (`specs/`,
 `plans/`, `messungen/`); im Baum bleibt nur, was aktuell ist. Was nur diesen
 Rechner oder die Konten des Maintainers betrifft, liegt lokal unter
@@ -228,7 +229,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    [Plan](plans/2026-10-25-standard-socket.md)), ist mit 0.2.2 ausgeliefert und
    [abgenommen](messungen/messung-2026-10-25-m31-abnahme.md); die Korrekturen zur
    Statuslatenz kamen mit 0.2.4. Bekannte Grenzen: Die Statusabfrage liest den
-   Standard-Socket in der Form des tmux im `PATH` (README); Live-Tests brauchen
+   Standard-Socket in der Form des tmux im `PATH` ([Grenzen](guide/limits.md)); Live-Tests brauchen
    `--test-threads=4`, wie CONTRIBUTING es vorgibt. Offen aus der
    [Roadmap](plans/2026-09-05-roadmap-bis-release.md): die übrige Windows-Politur
    nach S3.2 (Protokolldatei, globaler Diagnosetext), ein neues Logozeichen für
@@ -434,7 +435,7 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   kein Watcher, keine Konfigurationsänderung, kein eigener Startdialog.
   tmux und die übrigen Voraussetzungen richtet der Nutzer selbst ein; die App
   installiert nichts, auch nicht auf Knopfdruck (Entscheidung vom 15.09.,
-  siehe README „Host requirements“).
+  siehe [Hosts and tmux](guide/hosts.md#host-requirements)).
 - Status: Das Inventar liefert unbekannt und beendet. `claude agents --json`
   wird nur gelesen und bindet an `pid == pane_pid` oder ein direktes Kind der
   Pane-Shell, nie über den Namen. Codex und Grok zählen über den Panetitel,
@@ -455,7 +456,7 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   Sessions ([CONTRIBUTING](../CONTRIBUTING.md#live-tests-against-a-test-host)).
 - Jede weitergegebene Kopie trägt die Lizenzhinweise (Punkt 6).
 - Das Tor sind die lokalen Prüfungen aus dem
-  [README](../README.md#tests); `.github/workflows/ci.yml` führt sie bei
+  [Build-Anleitung](guide/building.md#tests); `.github/workflows/ci.yml` führt sie bei
   jedem Push und Pull Request aus.
 
 ## Wo was steht
@@ -505,6 +506,11 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
 - russh-Patch: [Herkunft, Umfang und Lizenz](../vendor/russh/AGENTBRIDGE-PATCH.md)
   und der [Patchbericht](reviews/2026-09-11-neutral/russh-channel-close-patch.md)
   zum Kanalschluss.
+- Bilder im README, Vorschaubild für Links und Telefonbilder des Store-Eintrags:
+  `scripts/readme-images/render.mjs` rendert die echte Oberfläche mit
+  Beispieldaten nach `docs/images/` und `fastlane/`, ohne Host und ohne neue
+  Abhängigkeit. Das Vorschaubild lädt der Maintainer unter Settings → General →
+  Social preview von Hand hoch; dafür gibt es keine Schnittstelle.
 - [`SECURITY.md`](../SECURITY.md): Meldeweg und Einordnung bekannter
   Meldungen. [`CONTRIBUTING.md`](../CONTRIBUTING.md): Bauen, Tests,
   Live-Tests und Sprachregel.
