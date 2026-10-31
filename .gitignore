@@ -21,3 +21,12 @@ CLAUDE.local.md
 *.jks
 *.keystore
 *.p12
+
+# Nur lokal: Angaben zu Rechner und Konten gehoeren nicht ins oeffentliche
+# Repository (docs/stand.md, Entscheidung vom 31.10.2026).
+docs/lokal/
+
+# Android-Pakete und Zugangsdaten bleiben ausserhalb des Repositorys.
+*.apk
+*.aab
+keystore.properties

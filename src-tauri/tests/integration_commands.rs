@@ -1255,7 +1255,7 @@ async fn a_hostile_session_name_is_rejected_and_creates_nothing() {
     // Der Marker traegt die Zusicherung vollstaendig: die
     // verstuemmelte Fassung, die tmux ohne die Pruefung anlegen wuerde,
     // BEGINNT mit dem getippten Praefix (an der VM gemessen: `zz_b2#H` wurde
-    // zu `zz_b2UnitySystemsLH`, dem Hostnamen).
+    // zu `zz_b2<Hostname>`, dem Hostnamen).
     let after = list_sessions_impl(&state, host_id.clone()).await.unwrap();
     let mine: Vec<_> = after
         .iter()
