@@ -43,14 +43,14 @@ answer. **Nothing is installed on the hosts.**
 
 <table>
   <tr>
-    <td width="36%"><img src="docs/images/waiting-lane.png" alt="Sidebar with a waiting lane on top: train-eval waits for 14 minutes, api-refactor for 3 minutes; below them the hosts with their sessions"></td>
-    <td>
+    <td width="42%">
       <h3>Never miss a waiting agent</h3>
       Waiting sessions collect at the top of the sidebar, oldest first, with their
       wait time. The window title counts them, the taskbar flashes once when one
       starts waiting while the window is not focused, and
       <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd> jumps to the next one.
     </td>
+    <td width="58%" align="center"><img src="docs/images/waiting-lane.png" width="300" alt="Sidebar with a waiting lane on top: train-eval waits for 14 minutes, api-refactor for 3 minutes; below them the hosts with their sessions"></td>
   </tr>
   <tr>
     <td>
@@ -59,16 +59,16 @@ answer. **Nothing is installed on the hosts.**
       hosts and actions, with the status of each session right there. Settings →
       Shortcuts lists every shortcut.
     </td>
-    <td width="58%"><img src="docs/images/quick-open.png" alt="Quick open with the search term build: sessions of the host build-box with their status, and the action to start a new session there"></td>
+    <td><img src="docs/images/quick-open.png" alt="Quick open with the search term build: sessions of the host build-box with their status, and the action to start a new session there"></td>
   </tr>
   <tr>
-    <td><img src="docs/images/phones.png" alt="aidevbridge on a phone: a terminal with a key bar for Esc, Tab, Ctrl and Alt, next to the session list in a drawer"></td>
     <td>
       <h3>In your pocket, too</h3>
       The Android app shows one terminal at a time, with the sessions in a drawer, a
       key bar for the keys a phone lacks, and swipe scrolling. It generates its own
       SSH key or imports yours.
     </td>
+    <td><img src="docs/images/phones.png" alt="aidevbridge on a phone: a terminal with a key bar for Esc, Tab, Ctrl and Alt, next to the session list in a drawer"></td>
   </tr>
   <tr>
     <td>
