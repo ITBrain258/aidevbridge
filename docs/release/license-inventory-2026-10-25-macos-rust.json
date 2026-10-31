@@ -76,7 +76,7 @@
     },
     {
       "name": "aidevbridge",
-      "version": "0.2.4",
+      "version": "0.2.5",
       "source": null,
       "declared_spdx": "MIT OR Apache-2.0",
       "technical_role": "workspace-product",
