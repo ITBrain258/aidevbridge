@@ -43,7 +43,7 @@ answer. **Nothing is installed on the hosts.**
 
 <table>
   <tr>
-    <td width="44%"><img src="docs/images/waiting-lane.png" alt="Sidebar with a waiting lane on top: train-eval waits for 14 minutes, api-refactor for 3 minutes; below them the hosts with their sessions"></td>
+    <td width="36%"><img src="docs/images/waiting-lane.png" alt="Sidebar with a waiting lane on top: train-eval waits for 14 minutes, api-refactor for 3 minutes; below them the hosts with their sessions"></td>
     <td>
       <h3>Never miss a waiting agent</h3>
       Waiting sessions collect at the top of the sidebar, oldest first, with their
@@ -59,7 +59,7 @@ answer. **Nothing is installed on the hosts.**
       hosts and actions, with the status of each session right there. Settings →
       Shortcuts lists every shortcut.
     </td>
-    <td width="56%"><img src="docs/images/quick-open.png" alt="Quick open with the search term build: sessions of the host build-box with their status, and the action to start a new session there"></td>
+    <td width="58%"><img src="docs/images/quick-open.png" alt="Quick open with the search term build: sessions of the host build-box with their status, and the action to start a new session there"></td>
   </tr>
   <tr>
     <td><img src="docs/images/phones.png" alt="aidevbridge on a phone: a terminal with a key bar for Esc, Tab, Ctrl and Alt, next to the session list in a drawer"></td>
