@@ -1,7 +1,7 @@
 # aidevbridge für Android: Entwurf
 
-**Datum:** 27.10.2026 · **Status:** umgesetzt auf dem Branch `feat/android`,
-noch nicht auf einem Gerät abgenommen und nicht veröffentlicht. Den Ablauf bis
+**Datum:** 27.10.2026 · **Status:** umgesetzt und seit 0.2.4 ausgeliefert; am
+29.10. erstmals auf einem Telefon gelaufen, die Abnahme nach Plan steht aus. Den Ablauf bis
 in den Play Store beschreibt die [Anleitung](../android-veroeffentlichung.md),
 die Schritte der [Plan](../plans/2026-10-27-android.md).
 

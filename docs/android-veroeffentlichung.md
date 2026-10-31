@@ -1,10 +1,9 @@
 # aidevbridge im Google Play Store: Anleitung
 
-Stand 29.10.2026. Diese Anleitung führt von dem, was auf dem Branch
-`feat/android` schon fertig ist, bis zur App im Play Store und zu jedem
-späteren Update. Die Entscheidungen dahinter stehen in der
-[Spec](specs/2026-10-27-android-design.md), der Stand der Schritte im
-[Plan](plans/2026-10-27-android.md).
+Stand 31.10.2026. Diese Anleitung führt vom fertigen Android-Projekt in `main`
+bis zur App im Play Store und zu jedem späteren Update. Die Entscheidungen
+dahinter stehen in der [Spec](specs/2026-10-27-android-design.md), der Stand
+der Schritte im [Plan](plans/2026-10-27-android.md).
 
 Grob: **A** ist erledigt. **B** und **D** sind je etwa eine Viertelstunde am PC.
 **C** ist die Play Console mit Wartezeiten bei Google: Kontoprüfung (Tage),
@@ -16,8 +15,7 @@ spätere Update: ein Tag, sonst nichts.
 
 ## A Was schon erledigt ist
 
-Auf dem Branch `feat/android` (Worktree
-`.claude/worktrees/android`):
+Alles hier liegt in `main`; seit 0.2.4 hängt die APK an jedem Release.
 
 - **Android-Projekt** unter `src-tauri/gen/android`: Ziel Android 16 (API 36),
   ab Android 7.0, App-Icon, dunkles Theme, randlose Darstellung mit Platz für
@@ -27,38 +25,31 @@ Auf dem Branch `feat/android` (Worktree
   Schlüssel auf dem Gerät erzeugen oder importieren.
 - **Oberfläche fürs Telefon**: kompakte Ansicht mit Session-Schublade,
   Tastenleiste (Esc, Tab, Strg, Alt, Pfeile …), Android-Zurück-Geste.
-- **Signaturschlüssel** in `C:\Users\test\aidevbridge-android-signing\`
-  (siehe `LIES-MICH.txt` dort). **Bitte sichern**, Schritt B4.
-- **Werkzeuge auf diesem PC**: Android-SDK (Plattform 36, Build-Tools, NDK r29,
-  Emulator) in `%LOCALAPPDATA%\Android\Sdk`, JDK 21 in
-  `%USERPROFILE%\.jdks\jdk-21.0.12.1+1`, Rust-Ziele für Android.
 - **CI** `.github/workflows/android.yml`: baut bei jedem Tag AAB und APK,
   signiert sie in einem eigenen Job, hängt die APK ans GitHub-Release und lädt
-  das AAB zu Google Play.
+  das AAB zu Google Play, sobald ein Dienstkonto hinterlegt ist (D2).
 - **Store-Eintrag** in `fastlane/metadata/android/` (Deutsch und Englisch):
   Titel, Kurz- und Langbeschreibung, Änderungstext, Icon 512 × 512,
   Feature-Grafik 1024 × 500. Datenschutzerklärung `PRIVACY.md`.
-- **Testpakete** der aktuellen Fassung (arm64, armv7 und x86_64, signiert,
-  mit den Lizenztexten in `assets/licenses/`):
-  `C:\Users\test\Desktop\aidevbridge-android\` (siehe B3).
 - **Lizenzauswahl für Android** (`docs/release/license-selection.android-universal.json`):
   Rust-Krates, NDK-Teile und alle Java-/Kotlin-Bibliotheken; der Release-Lauf
   legt die Texte in die App und prüft sie (Spec §8).
-- **Pull Request #10** mit allem oben, seit 29.10. in `main`; seit 0.2.4
-  hängt die APK an jedem Release.
 
 Was fehlt und nur du tun kannst: Konten anlegen und bestätigen, Bildschirmfotos
-vom echten Gerät, der Test am Telefon und das Zusammenführen des Branches.
+vom echten Gerät und der Test am Telefon.
 
 ---
 
 ## B Am PC, einmalig
 
-### B1 Pull Request
+### B1 Werkzeuge und Signaturschlüssel
 
-Erledigt: Pull Request #10 ist nach Test am Telefon und unabhängiger
-Durchsicht am 29.10. in `main` gemergt, die Secrets für das Signieren liegen
-im Environment `android-release` (D1).
+Für lokale Bauten: Android-SDK (Plattform 36, Build-Tools, NDK r29) in
+`%LOCALAPPDATA%\Android\Sdk`, JDK 21 in `%USERPROFILE%\.jdks\jdk-21.0.12.1+1` und
+die Rust-Ziele für Android. Der Signaturschlüssel liegt außerhalb des
+Repositorys; `scripts/android-github-secrets.ps1` sucht ihn in
+`%USERPROFILE%\aidevbridge-android-signing\`. Die Secrets für das Signieren in
+der CI liegen im Environment `android-release` (D1).
 
 ### B2 Windows-Entwicklermodus (für lokale Android-Bauten)
 
@@ -97,19 +88,18 @@ binden, siehe E1) und überschreibt keinen abweichenden alten Ordner
 machen das alles selbst.
 
 **Android Studio** (optional): beim ersten Start „Custom“ wählen und als SDK
-`%LOCALAPPDATA%\Android\Sdk` angeben (ist schon eingerichtet), dann
+`%LOCALAPPDATA%\Android\Sdk` angeben, dann
 `src-tauri\gen\android` öffnen. Als Gradle-JDK nimmt es Java 21 aus
 `~\.jdks` (das Projekt verlangt es in `gradle/gradle-daemon-jvm.properties`).
 Das mitgelieferte Java 25 geht mit diesem Gradle nicht.
 
 ### B3 Auf dem eigenen Telefon testen
 
-Auf diesem PC startet der Android-Emulator nicht: Die VM reicht keine
-Virtualisierung durch. Die Ansicht fürs Telefon ist deshalb bisher nur in
-einer Vorschau im Browser geprüft. Am echten Telefon:
+Die Ansicht fürs Telefon lässt sich im Browser nur annähernd prüfen. Am echten
+Telefon:
 
-1. `C:\Users\test\Desktop\aidevbridge-android\aidevbridge-android.apk`
-   aufs Telefon kopieren (Kabel, Cloud, Mail an dich selbst) und dort öffnen;
+1. `aidevbridge-<version>-android.apk` von der Seite des Releases laden, aufs
+   Telefon kopieren (Kabel, Cloud, Mail an dich selbst) und dort öffnen;
    Android fragt einmal, ob diese Quelle Apps installieren darf.
    Oder per Kabel: Telefon in den Entwickleroptionen auf „USB-Debugging“,
    dann `& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r <apk>`.
@@ -135,13 +125,13 @@ einer Vorschau im Browser geprüft. Am echten Telefon:
    machen (Ein/Aus + Leiser) und die Dateien `1.png` usw. ersetzen. Keine
    echten Hostnamen oder Inhalte zeigen, die du nicht veröffentlichen willst.
 
-Fehler oder Auffälligkeiten bitte notieren; ich behebe sie vor dem Release.
+Fehler oder Auffälligkeiten notieren und vor dem nächsten Release beheben.
 
 ### B4 Signaturschlüssel sichern
 
-Den Ordner `C:\Users\test\aidevbridge-android-signing\` (Schlüssel,
-Passwort, `LIES-MICH.txt`) an einen zweiten Ort kopieren: Passwortmanager mit
-Dateianhang oder verschlüsselter USB-Stick. Nie ins Repository, nie in Chat
+Den Ordner mit Schlüssel und Passwort (Vorgabe
+`%USERPROFILE%\aidevbridge-android-signing\`) an einen zweiten Ort kopieren:
+Passwortmanager mit Dateianhang oder verschlüsselter USB-Stick. Nie ins Repository, nie in Chat
 oder Mail.
 
 ---
@@ -203,8 +193,7 @@ Kontakt-E-Mail (öffentlich), Website
 ### C4 Datenschutzerklärung
 
 **Richtlinien → App-Inhalte → Datenschutzerklärung:**
-`https://github.com/ITBrain258/aidevbridge/blob/main/PRIVACY.md`
-(erreichbar, sobald `feat/android` in `main` ist).
+`https://github.com/ITBrain258/aidevbridge/blob/main/PRIVACY.md`.
 
 ### C5 App-Inhalte (Fragebögen)
 
@@ -255,11 +244,9 @@ CI.
    erstellen.**
 2. **App-Signatur:** „Play App Signing“ mit von Google erstelltem Schlüssel
    annehmen (Voreinstellung). Dein Schlüssel ist ab dann der Upload-Schlüssel.
-3. App Bundle hochladen:
-   `C:\Users\test\Desktop\aidevbridge-android\aidevbridge-android.aab`
-   (Testbau dieses Branches, Version 0.2.3) oder besser das signierte AAB aus
-   dem Lauf eines Tags (Abschnitt E, Artefakt `android-signed`).
-4. Release-Name z. B. `0.3.0`, Versionshinweise aus `changelogs/default.txt`.
+3. App Bundle hochladen: das signierte AAB aus dem Lauf eines Tags (Abschnitt E,
+   Artefakt `android-signed`).
+4. Release-Name z. B. `0.2.5`, Versionshinweise aus `changelogs/default.txt`.
 5. **Speichern → Release überprüfen → Roll-out für internen Test starten.**
 6. **Tester:** E-Mail-Liste anlegen (bis 100), Link zum Beitreten an dich und
    die Tester schicken. Die App kommt dann über Play aufs Telefon.
@@ -300,7 +287,7 @@ senden.** Die erste Prüfung dauert meist 1 bis 7 Tage. Danach ist die App
 
 ### D1 Signaturschlüssel in die CI
 
-Nachdem `feat/android` in `main` ist, im Repository:
+Einmalig im Repository (erledigt am 29.10.):
 
 ```powershell
 pwsh -File scripts/android-github-secrets.ps1
@@ -360,23 +347,22 @@ oder eine andere Spur, die du dort wählst.
 
 1. **Lizenzauswahlen neu binden.** Jede Auswahl (Windows, macOS, Android)
    bindet die Quellen, Lockdateien und Workflows mit ihren Hashes; nach jeder
-   Änderung daran lehnt der Release-Lauf sie ab. Vor dem Tag deshalb alle drei
-   neu ableiten und mit `node scripts/release-licenses.mjs check <plattform>`
-   prüfen (Plan 26a; Android: `node scripts/release-license-select-android.mjs
-   --write` mit `NDK_HOME`). Das übernimmt Claude, sag einfach Bescheid.
+   Änderung daran lehnt der Release-Lauf sie ab. Den Ablauf beschreibt
+   [Lizenzen pflegen](lizenzen-pflegen.md).
 2. Version erhöhen wie bisher: `npm run bump 0.3.0`, `CHANGELOG.md` pflegen.
 3. Optional eigener Store-Text für diese Version:
    `fastlane/metadata/android/<Sprache>/changelogs/<versionCode>.txt`, mit
    versionCode = Major × 1.000.000 + Minor × 1.000 + Patch (0.3.0 → 3000;
    höchstens 500 Zeichen). Sonst gilt `default.txt`.
-4. **Probelauf ohne Tag:** auf `main` **Actions → Android → Run workflow →
+4. **Probelauf ohne Tag:** auf dem Release-Branch **Actions → Android → Run workflow →
    release ✓** und ebenso **Packages → release ✓**. Das baut alles wie ein
    Release und prüft die Lizenztexte, signiert und veröffentlicht aber nichts.
-5. Commit, Tag, Push:
+5. Release-Branch per Pull Request nach `main` führen, dann auf `main` den Tag
+   setzen. Tags `v*` darf nur ein Admin anlegen (D1):
 
    ```powershell
    git tag v0.3.0
-   git push origin main v0.3.0
+   git push origin v0.3.0
    ```
 
 6. Automatisch: `packages.yml` baut Windows und macOS, `android.yml` baut,
@@ -401,7 +387,7 @@ neue Patch-Version.
 | --- | --- |
 | `Creation symbolic link is not allowed for this system` | Windows-Entwicklermodus fehlt (B2). |
 | `Unsupported class file major version 69` | Gradle läuft mit Java 25; `JAVA_HOME` auf das JDK 21 setzen bzw. in Android Studio Gradle-JDK 21 wählen. |
-| `SDK location not found` | `ANDROID_HOME` setzen oder in `src-tauri/gen/android/local.properties` `sdk.dir=C\:\\Users\\test\\AppData\\Local\\Android\\Sdk`. |
+| `SDK location not found` | `ANDROID_HOME` setzen oder in `src-tauri/gen/android/local.properties` `sdk.dir=C\:\\Users\\<name>\\AppData\\Local\\Android\\Sdk`. |
 | Play: „Version code … has already been used“ | Version erhöhen (E1). |
 | Play: „Only releases with status draft may be created on draft app“ | `PLAY_RELEASE_STATUS` = `draft` (D3). |
 | Play: „The caller does not have permission“ | Dienstkonto in der Play Console nicht eingeladen oder ohne Recht für die App (D2 Schritt 4); nach dem Einladen kann es bis zu einem Tag dauern. |

@@ -1,18 +1,11 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.4`, Release am 29.10.2026: das erste Release mit
-Android und mit den Korrekturen aus dem Review vom 26.10., dazu Wischen im
-Terminal und Terminals ohne Scrollbalken. Der Tag `v0.2.4` steht auf
-`c279bce`. Erstmals lief alles auf einem Tag: `packages.yml` hat MSI,
-Setup-EXE, ZIP und das DMG gebaut, auf frischen Runnern (Windows, Apple
-silicon, Intel) installiert und gestartet und angehängt; `android.yml` hat
-APK und App Bundle für drei ABIs gebaut, im eigenen Job mit dem
-Upload-Schlüssel signiert (Zertifikat `07:EA:32:E6…5E:2D`) und die APK samt
-Build-Provenienz angehängt (`gh attestation verify` geprüft). Das App Bundle
-liegt als Artefakt des Laufs bereit, solange kein Play-Dienstkonto
-hinterlegt ist. Alle drei Lizenzauswahlen sind für 0.2.4 gebunden.
+**Stand:** Version `0.2.5` ist seit dem 31.10.2026 in `main` (PR #19,
+`8aaa46b`), ein Sicherheitsrelease. Tag und Release stehen noch aus: Den Tag
+`v0.2.5` setzt der Maintainer und prüft die Installer an den Paketen des
+Releases. Das letzte veröffentlichte Release ist `0.2.4` vom 29.10.2026.
 
-Seit dem 30.10. in `main`, noch ohne Release:
+Neu in 0.2.5 gegenüber 0.2.4:
 
 - **Härtung (PR #14):** CI-Läufe einmal je Commit (Push nur auf `main`,
   ein Branch läuft über seinen Pull Request), die Gradle-Distribution ist
@@ -44,29 +37,28 @@ Seit dem 30.10. in `main`, noch ohne Release:
   [SECURITY.md](../SECURITY.md)): Ein Server konnte die App abstürzen lassen
   oder anhalten. Weder `cargo audit` noch Dependabot sehen das eingebettete
   russh; der Audit-Job `vendored` prüft es jetzt gegen die Advisory-Datenbank
-  und die Meldungen des russh-Repositorys. **Deshalb sollte bald ein Release
-  folgen.**
+  und die Meldungen des russh-Repositorys.
 
-Android ist mit 0.2.4 ausgeliefert und lief am 29.10. erstmals auf einem
+Android ist seit 0.2.4 ausgeliefert und lief am 29.10. erstmals auf einem
 Telefon des Maintainers, mit Wischen im Terminal. In der Play Console steht
 ein geschlossener Test mit 0.2.3; offen sind die Schritte des Maintainers
 (Punkt 11).
 
-Davor: Version `0.2.3`, Release am 26.10.2026: Sie bringt die
-macOS-Lieferung (Universal-DMG, ad-hoc signiert); die App selbst ist
-unverändert. Der Tag `v0.2.3` steht auf `95b17ae`; der Workflow hat das DMG
-gebaut, auf Apple silicon und Intel installiert und gestartet und an das
-Release gehängt. Seit dem 26.10. baut der Workflow `packages.yml` bei jedem
-Tag alle Installer, auch MSI, Setup-EXE und ZIP. Für 0.2.3 hat ein Handlauf
-mit dem Tag sie am 26.10. gebaut, auf einem frischen Windows-Runner
-installiert und gestartet und an das Release gehängt; es trägt damit alle
-vier Pakete. Davor: Version `0.2.2`, Release am 25.10.2026 mit
-MSI, Setup-EXE und ZIP, unsigniert. Es bringt die Sessions auf tmux' Standard-Socket (M3.1);
-ihre Abnahme ist bestanden, die Statuslatenz erst mit den Korrekturen vom
-27.10., die noch in keinem Release sind. `0.2.1`
-erschien am selben Tag. Das erste Release, `0.2.0`, erschien am 22.10. auf
-Entscheidung des Maintainers vor dem M1-Tor und vor der Installerabnahme;
-Installerabnahme, M1- und M2-Tor sind seitdem bestanden (gemeldet am 24.10.).
+Frühere Releases, Einzelheiten im [CHANGELOG](../CHANGELOG.md):
+
+- `0.2.4` (29.10.): das erste Release mit Android und mit den Korrekturen aus
+  dem Review vom 26.10. Der Tag steht auf `c279bce`. Erstmals lief alles auf
+  einem Tag: `packages.yml` hat MSI, Setup-EXE, ZIP und das DMG gebaut, auf
+  frischen Runnern installiert, gestartet und angehängt; `android.yml` hat APK
+  und App Bundle gebaut, im eigenen Job mit dem Upload-Schlüssel signiert
+  (Zertifikat `07:EA:32:E6…5E:2D`) und die APK samt Build-Provenienz angehängt.
+- `0.2.3` (26.10.): die macOS-Lieferung (Universal-DMG, ad-hoc signiert). Seit
+  dem 26.10. baut `packages.yml` bei jedem Tag alle Installer.
+- `0.2.2` (25.10.): die Sessions auf tmux' Standard-Socket (M3.1).
+- `0.2.1` (25.10.) und `0.2.0` (22.10.): die ersten öffentlichen Releases.
+  `0.2.0` erschien auf Entscheidung des Maintainers vor dem M1-Tor und vor der
+  Installerabnahme; beides ist seitdem bestanden (gemeldet am 24.10.).
+
 Das Repository ist seit dem 22.10.2026 öffentlich und beginnt mit einem
 einzigen Anfangs-Commit. Die Versionen 0.1.1 und 0.1.2 erschienen nur
 privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
@@ -74,7 +66,9 @@ privat und noch unter dem Namen agentbridge; ihre Tags gibt es dort nicht.
 Dieses Dokument führt den Stand und die offenen Punkte. Was die App kann,
 steht im [README](../README.md#what-it-is), die Änderungen im
 [CHANGELOG](../CHANGELOG.md). Die Doku liegt flach unter `docs/` (`specs/`,
-`plans/`, `messungen/`); im Baum bleibt nur, was aktuell ist.
+`plans/`, `messungen/`); im Baum bleibt nur, was aktuell ist. Was nur diesen
+Rechner oder die Konten des Maintainers betrifft, liegt lokal unter
+`docs/lokal/` und ist per `.gitignore` vom Repository ausgeschlossen.
 
 ## Entscheidungen vom 20.10.2026
 
@@ -153,6 +147,14 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
     [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610),
     Schritt 3.
 
+## Entscheidung vom 31.10.2026 (öffentliches Repository)
+
+Angaben zu Rechner, Konten und Test-VMs stehen nicht im Repository. Anleitungen
+und Messwerkzeuge nennen Platzhalter, Bilder zeigen Beispieldaten. Der Name des
+Maintainers bleibt, wo Lizenz und Paketdaten ihn als Urheber nennen. Bereits
+veröffentlichte Commits werden nicht umgeschrieben, weil Tags, Releases und
+Build-Provenienz an ihnen hängen.
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -163,14 +165,22 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
 | M1 Statuspunkt | abgeschlossen, Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel. Seit 23.10. gemessen gegen Claude Code 2.1.309 und Codex 0.163.0/0.164.0 ([Messung](messungen/messung-2026-10-23-agentversionen.md)), Agent über `/proc/<pid>/exe`, Codex-Einstellungen gelesen, Größengrenzen, VM-Test mit Attrappen |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Steuerzustand nur bei echtem Verlust, Selbstheilung für Schlüssel- und Agent-Hosts und Verlauf beim Anhängen; Arbeitsplatz, Schnellöffnen, Namensvorschlag, Anzeigename, ziehbare Seitenleiste; fünf Einstellungsbereiche; tmux 3.6 |
 | Dynamisches Raster | Schritt 0, 1 und 3 abgeschlossen nach der [Spec vom 19.10.](specs/2026-10-19-dynamisches-raster-design.md): bis zu 9 Kacheln, höchstens 8 je Host, je Host höchstens 4 Öffnungen zugleich („Opening…“), Tauschen per Zug am Kopf, Größe per Spalt, Maximieren verbirgt die übrigen Kacheln statt sie zu schließen, Wartet-Spur mit Wartezeit, Kachelnummer in Liste und Spur |
-| M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme bestanden ([Bericht](messungen/messung-2026-10-25-m31-abnahme.md)): Punkt 1 bis 5 am 25.10., die Statuslatenz unter Last erst mit den Korrekturen vom 27.10. (parallele Abfrage, Takt ab dem Beginn), die mit dem nächsten Release kommen |
+| M3.1 Standard-Socket | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md) und mit 0.2.2 ausgeliefert: Sessions auf tmux' Standard-Socket als Gruppe „tmux sessions“, Anhängen nur über den Wächter mit `-E`, kein Beenden, Schalter „Show tmux sessions“ je Host; Abnahme bestanden ([Bericht](messungen/messung-2026-10-25-m31-abnahme.md)): Punkt 1 bis 5 am 25.10., die Statuslatenz unter Last erst mit den Korrekturen vom 27.10. (parallele Abfrage, Takt ab dem Beginn), ausgeliefert mit 0.2.4 |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert; letzter vollständiger lokaler Lauf am 30.10. mit Tauri-CLI 2.12.4 und NSIS 3.13, Installer ausgelesen ([Beleg](release/windows-installer-nsis-3.13-2026-10-30.md)). Seit 26.10. baut der Workflow `packages.yml` sie bei jedem Tag, installiert jedes Paket auf einem frischen Runner, startet die App und hängt sie an das Release |
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 396 Komponenten (Stand Tauri 2.12), `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
 | Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Mit 0.2.4 ausgeliefert |
 | Android | gebaut nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md) und mit 0.2.4 ausgeliefert: Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Wischen im Terminal, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 487 Komponenten, deren Texte als `assets/licenses/` in APK und App Bundle gehen. Am 29.10. erstmals auf einem Telefon des Maintainers gelaufen; eine Abnahme nach Plan steht aus ([Plan](plans/2026-10-27-android.md)) |
-| Abhängigkeiten | Stufe 1 seit 30.10. in `main` (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 ebenfalls seit 30.10. (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; die weiteren Stufen stehen unter Punkt 12 |
+| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18); die weiteren Stufen stehen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 31.10.2026 für 0.2.5: In der CI auf dem Merge-Commit `8aaa46b` sind Rust auf
+Windows, Ubuntu und macOS, Frontend, Skripte, der Job `licenses`, Audit,
+`packages.yml` und `android.yml` grün, ebenso auf dem Release-Branch die
+Handläufe von `packages.yml` und `android.yml`. Der Merge-Commit hat denselben
+Dateistand wie der geprüfte Kopf `752d9e1`. Lokal laut PR #19: 729 Rust-Tests
+mit `--test-threads=4`, 2872 Frontend-Tests, 133 Skripttests, `check` grün für
+alle drei Auswahlen.
 
 Am 30.10.2026 für PR #16 (Tauri-CLI 2.12.4, NSIS 3.13): ein vollständiger
 lokaler Lauf von `npm run build:windows`, dessen Setup-EXE und MSI mit
@@ -186,311 +196,71 @@ installiert und gestartet, DMG auf Apple silicon und Intel, Android für drei
 ABIs). `main` (`508208a`) hat nach dem Merge denselben Dateistand; die
 Push-Läufe dort sind am 30.10. grün.
 
-Am 29. und 30.10.2026 für PR #14 und #15, auf dem Windows-Rechner: `tsc`,
-2872 Frontend-Tests, 729 Rust-Tests, Clippy mit `-D warnings` und 121
-Skripttests grün; `release-licenses.mjs check` grün für windows-x64 (402
-Komponenten, 208 Texte), macos-universal (396, 202) und android-universal
-(487, 228). In der CI auf dem geprüften Stand `81d81f5` grün: Rust auf
-Windows, Ubuntu und macOS, Frontend, Skripte, Audit und die Probeläufe von
-`packages.yml` (MSI, Setup-EXE und ZIP mit Testinstallation unter Windows,
-DMG mit Testinstallation auf Apple silicon und Intel) und `android.yml`
-(APK und App Bundle für drei ABIs, Lizenz- und 16-KB-Prüfung). `main`
-(`d26e6ab`) hat nach beiden Merges denselben Dateistand; die Push-Läufe
-dort (CI, Audit, `packages.yml` mit DMG-Vorschau, `android.yml` mit
-Vorschau-APK) sind am 30.10. grün.
+Die letzte VM-Abnahme (`acceptance_vm`, 11 von 11) lief am 27.10. auf dem Stand
+`7b961cf` gegen einen lokalen Linux-Testhost. Ältere Prüfungen stehen in der
+Git-Historie dieser Datei.
 
-Am 27.10.2026 für den Branch der Review-Umsetzung mit den Korrekturen aus
-der M3.1-Abnahme (`fix/m31-abnahme` hineingeführt) und vier Korrekturen aus
-der Durchsicht beider Pull Requests: Einfügen vor dem Anhängen wird
-verworfen statt gepuffert, `ui_settings` wird nacheinander geschrieben, der
-Releasetext nennt auch eine schon vollständige Plattform mit gleichen Bytes,
-und ein Handlauf mit Tag teilt die Warteschlange mit dem Lauf des Tags. Auf
-dem Rechner mit 8 GB Arbeitsspeicher: `tsc`, 2800 Frontend-Tests in 52
-Dateien, Vite-Build und 115 Skripttests grün; Rust fmt, Clippy mit
-`-D warnings` und `cargo test --lib` mit `-j 2` grün, 647
-Bibliothekstests. Integrations- und Live-Tests liefen dafür nicht neu. Die
-Lizenzauswahl ist für die seit dem Neubinden geänderten Quellen vor dem
-nächsten Release neu zu binden; offen bleibt die Handabnahme §10 am Fenster.
+## Offene Punkte
 
-Am 27.10.2026 für den Branch der Review-Umsetzung, in einem Linux-Container
-als root (kein Windows, kein macOS): Rust fmt, Clippy mit `-D warnings` und
-`cargo test --locked --all --no-fail-fast` grün, 642 Bibliothekstests; 2797
-Frontend-Tests in 52 Dateien, `tsc`, Vite-Build und 112 Skripttests grün,
-drei davon nur unter Windows und hier übersprungen. `cargo audit` meldet nur
-RUSTSEC-2023-0071 und die zehn erwarteten Warnungen aus `SECURITY.md`,
-`npm audit` nichts; `vendor/` ist unverändert. Nach dem Neubinden sind
-`prepare` und `check` für beide Lizenzauswahlen grün. Der letzte Live-Lauf
-auf dem Stand `7b961cf` ging gegen einen lokalen Linux-Testhost im
-Container mit OpenSSH 9.6 und tmux 3.4, auf eigenen Testsockets mit
-`--test-threads=4`: `integration_commands` 23, `socket_abort_probe` 13,
-`integration_transport` 8 (mit RSA-Schlüssel), `test_environment` 7,
-`integration_tmux` 6, `capabilities_acl` 6, `acl_runtime` 4,
-`integration_pty` 4, `integration_default_socket` 2,
-`integration_status_title` und `integration_preflight` je 1 grün. Der
-Listentest in `integration_default_socket.rs` braucht tmux 3.3a oder 3.6
-und meldet auf 3.4 wie vorgesehen ein SKIP (Punkt 10). Die VM-Abnahme
-(`acceptance_vm` mit `--include-ignored`) gegen denselben Host: 11 von 11
-grün, der ssh-agent-Zweig mangels Agent übersprungen; vorher scheiterten
-unter Linux neun der elf, weil der Test die Windows-Herkunft der App fest
-einsetzte und `list_sessions` als bloße Liste las. Offen sind die CI auf
-Windows, Ubuntu und macOS und die Handabnahme am Fenster.
-Am 27.10.2026 für die Korrekturen aus der M3.1-Abnahme (Zweig
-`fix/m31-abnahme` über `main` mit 0.2.3), auf dem Rechner mit 8 GB
-Arbeitsspeicher: Rust fmt, Clippy mit `-D warnings` und `cargo test --all
---no-fail-fast` grün, 611 Bibliothekstests; 2691 Frontend-Tests in 49 Dateien,
-TypeScript- und Vite-Build und 94 Skripttests grün. Live gegen beide Test-VMs
-auf eigenen Testsockets mit `--test-threads=4` grün, je 43 Tests; im ersten
-Lauf auf 192.0.2.20 scheiterte einmal
-`killing_a_session_deliberately_emits_no_connection_lost_event`, danach
-einzeln dreimal und im vollen Lauf grün. Am Fenster einer Testinstanz am echten
-Standard-Socket die [Nachmessung](messungen/messung-2026-10-25-m31-abnahme.md#nachmessung-am-2710-mit-den-korrekturen).
-`node scripts/release-licenses.mjs check` meldet die geänderten Quellen als
-ungebunden; das Neubinden gehört wie immer zum nächsten Release.
+Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
 
-Am 25.10.2026 für 0.2.2, auf dem Rechner mit 8 GB Arbeitsspeicher: 2691
-Frontend-Tests in 49 Dateien, TypeScript- und Vite-Build und 76 Skripttests
-grün; Rust fmt, Clippy mit `-D warnings` und `cargo test --all --no-fail-fast`
-mit `-j 2` grün, 607 Bibliothekstests; `node scripts/release-licenses.mjs
-check` nach `prepare` grün. Live gegen beide Test-VMs auf eigenen Testsockets
-(tmux 3.3a und 3.6) mit `--test-threads=4` grün, darunter
-`integration_default_socket.rs` mit einem Testsocket anstelle von `default`.
-Eine Code-Review von PR #5 fand 15 Punkte; die neun Verhaltensfehler sind
-behoben. Am Fenster einer abgeschotteten Testinstanz, deren Standard-Socket auf
-einen Testsocket umgelenkt war (`AIDEVBRIDGE_TMUX_DEFAULT_SOCKET`): Gruppe,
-Öffnen, Eingabe, Kennzeichen, Hinweis zur Fenstergröße, gesperrte
-Gruppensessions, Wiederherstellen nach Neustart und der Schalter gingen; zwei
-Optikfehler am Schalter sind behoben. Der volle Lauf stand zuerst still, weil
-C: voll war (LNK1318 beim Linken); die inkrementellen Zwischenstände der beiden
-Build-Ordner sind gelöscht.
-
-Am 24.10.2026 nach den Korrekturen der bekannten Rasterfehler, auf dem
-Rechner mit 8 GB Arbeitsspeicher: 2659 Frontend-Tests in 49 Dateien,
-TypeScript- und Vite-Build und 76 Skripttests grün; Rust fmt, Clippy mit
-`-D warnings` und `cargo test --all --no-fail-fast` mit `-j 2` vollständig
-grün, 587 Bibliothekstests. Die `commands::connect_tests` wackeln nicht mehr:
-Sie warteten unbegrenzt, wenn parallele Tests den prozessweiten
-Vorbereitungs-Pool füllten (`connect_capacity` vor jeder TCP-Verbindung), und
-wiederholen diesen Fehler jetzt wie `Fixture::connect`; direkt aufgerufen
-scheiterte die Bibliothek vorher sechs von sechs Mal, danach keinmal in acht
-Läufen.
-
-Am 24.10.2026 für 0.2.1, auf dem Rechner mit 8 GB Arbeitsspeicher: 2645
-Frontend-Tests in 49 Dateien und TypeScript- und Vite-Build grün; Rust fmt
-und Clippy mit `-D warnings` grün, `cargo test --all --no-fail-fast` mit
-`-j 2` grün bis auf fünf wechselnde `commands::connect_tests`, die einzeln
-alle elf grün laufen (siehe unten); 76 Skripttests grün;
-`node scripts/release-licenses.mjs check` nach `prepare` grün. Am Fenster
-einer abgeschotteten Testinstanz (Debug-Bau mit eingebettetem Frontend,
-eigener Socket auf beiden Test-VMs, tmux 3.3a und 3.6): vier Kacheln über
-beide Hosts gespeichert, eine davon mit beendeter Shell; nach Schließen und
-Neustart kamen alle vier an ihre Plätze, die beendete nur mit Sperrleiste
-(„This session has ended on the host“, ohne „Reconnect“) und ohne Banner,
-und keine der drei übrigen Panes bekam ein WINCH.
-
-Am 23.10.2026 nach den Korrekturen aus dem M1-Tor: 2635 Frontend-Tests in
-49 Dateien und TypeScript- und Vite-Build grün; Rust fmt und Clippy grün,
-Bibliothekstests bis auf einen wechselnden `commands::connect_tests` grün
-(siehe unten); 76 Skripttests grün. CI auf `main` für 0.2.0 nach dem
-Neustart des abgebrochenen Jobs grün.
-
-Am 23.10.2026 nach der Statusquelle, auf einem Rechner mit 8 GB
-Arbeitsspeicher: Rust fmt und Clippy mit `-D warnings` grün,
-`cargo test --all --no-fail-fast` grün bis auf zwei bis drei wechselnde
-`commands::connect_tests` (Frist von 5 s für eine lokale Testverbindung). Sie
-fallen auf diesem Rechner auch ohne die Änderungen aus, einzeln laufen sie
-grün; `-j 2` war nötig, weil sonst die Auslagerungsdatei nicht reichte.
-`integration_status_title` gegen beide Test-VMs grün (tmux 3.3a und 3.6).
-Frontend und Skripte unverändert, nicht neu geprüft. Die Lizenzauswahl ist
-für die geänderten eigenen Quellen vor dem nächsten Release neu zu binden.
-
-Am 22.10.2026 nach den Korrekturen für die CI, den Abhängigkeits-Updates und
-dem russh-Patch für Anmeldefehler: 2631 Frontend-Tests in 49 Dateien,
-TypeScript- und Vite-Build und 76 Skripttests grün; Rust: fmt, Clippy mit
-`-D warnings` und `cargo test --all --no-fail-fast` grün, 644 Tests
-bestanden, die 11 VM-Abnahmetests ignoriert;
-`node scripts/release-licenses.mjs check` und `npm run build:windows` grün
-(MSI, NSIS und ZIP, unsigniert). Vom 21.10., also vor diesen Änderungen:
-Live-Suiten gegen eine eigene Test-VM (tmux 3.6) mit eigenem Testsocket:
-Bibliothek 575, `integration_commands` 23, `socket_abort_probe` 13,
-`integration_transport` 8, `test_environment` 7, `integration_tmux` 5,
-`capabilities_acl` 5, `integration_pty` 4, `acl_runtime` 2,
-`integration_preflight` 1; VM-Abnahme: 11 bestanden, der
-Passwortzweig ohne Passwort übersprungen. Fensterabnahme an einer
-abgeschotteten Testinstanz der umbenannten App: Sie übernahm die
-`settings.toml` aus einem alten Testordner, Host und Kacheln erschienen wie
-zuvor, der alte Ordner blieb unverändert. Ein OSC-8-Link mit abweichendem
-Text zeigte vor dem Öffnen das volle Ziel; Esc schloss die Rückfrage, ein
-Doppelklick öffnete nichts, auch nicht bei einem langen Ziel. Ein neues
-Logozeichen für den Erststart (bisher „a“) ist ein offener
-Gestaltungspunkt (Punkt 5).
-
-## Offen bis zum Release
-
-In dieser Reihenfolge:
-
-1. **M1-Tor** ([MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md)
-   §3.4 mit Nachtrag vom 13.09.; am neuen Raster mit den Bedingungen der
-   [Raster-Spec](specs/2026-10-19-dynamisches-raster-design.md) §10.2):
-   acht Sessions auf zwei unabhängigen Endpunkten, vier flutende Kacheln,
-   eine gültige Statusänderung binnen 4 s sichtbar. Ein Kontrollausfall
-   markiert den Status als veraltet und erhält Liste und Terminals, eine
-   Neuanlage gleichen Namens wird über die IDs erkannt, zwischen den Polls
-   läuft kein Überwachungsprozess, ein Kachelwechsel ohne Größenänderung
-   sendet kein Resize. Ablauf und Log:
-   [Handabnahme §9](abnahme-handarbeit.md#9-m1-tor), seit 23.10. ohne Grok
-   und mit Agents, die zurückfragen.
-   **Stand 23.10.:** automatisierter Lauf (CDP und SSH, isolierte
-   Testinstanz) über die Schritte 1 bis 11 bestanden
-   ([Bericht](messungen/messung-2026-10-23-m1-tor.md)); Statuslatenz unter
-   vier flutenden Kacheln 1,07 s. Schritt 7 scheiterte zuerst: Die Kachel
-   hing sich nach `kill-session`/`new-session` gleichen Namens an die neue
-   Session (behoben, die stille Wiederanhängung prüft jetzt die
-   Session-ID). Die WINCH-Schleife der Schritte 3 und 11 ist korrigiert.
-   **Bestanden:** Die Punkte am Fenster (Taskleistenblinken, der Kasten
-   nach fünf gescheiterten Kontrollreparaturen, echte Tastatur und Maus) hat
-   der Maintainer am Stand vom 23.10. abgenommen, gemeldet am 24.10.; damit
-   ist das M1-Tor bestanden. Schritt 12 ist das M2-Tor (Punkt 4). Die
-   Beobachtung aus Schritt 8 ist am 24.10. behoben: Nach
-   einem Neustart zeigte die Kachel einer beendeten Session neben der
-   Sperrleiste ein Fehlerbanner, weil die Sessionliste eine tote Pane noch
-   als unbekannt meldete; sie meldet sie jetzt wie die Statusabfrage als
-   beendet.
-2. **Erstes Release:** Abweichend von der Planung (erst nach dem M1-Tor,
-   MSI und Setup-EXE erst nach der Installerabnahme) erschien `v0.2.0` auf
-   Entscheidung des Maintainers schon am 22.10.: Der Tag steht auf dem
-   Commit, aus dem die Pakete gebaut sind; das Release trägt MSI, Setup-EXE
-   und ZIP aus `npm run build:windows` mit ihren SHA-256-Werten. Die
-   Installerabnahme (Punkt 6) hat der Maintainer am 24.10. an diesen
-   Paketen nachgeholt; das M1-Tor bleibt offen (Punkt 1). Das Repository ist seit dem 22.10. öffentlich, mit privatem
-   Meldeweg für Sicherheitslücken (Private Vulnerability Reporting),
-   Warnungen von Dependabot, Secret Scanning mit Push Protection und GitHub
-   Actions für `.github/workflows/ci.yml`; Workflows aus Pull Requests
-   externer Beitragender laufen erst nach Freigabe. Die Schlüssel unter
-   `src-tauri/tests/fixtures/rsa-signing/`, in `src-tauri/src/ssh/auth.rs`
-   und in `vendor/russh` sowie der synthetische Schlüssel in
-   `scripts/m1-error-profile.py` sind Testdaten.
-3. **Statusquelle:** erledigt am 23.10. ([Messung](messungen/messung-2026-10-23-agentversionen.md),
-   [Nachtrag der MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md)
-   vom 23.10.). Keine feste Versionsbindung; gemessen Claude Code 2.1.309
-   und Codex 0.163.0 und 0.164.0, „goal proposal“ ergibt wartet. Die
-   Codex-Einstellungen `tui.animations`, `tui.effects.progress` und
-   `tui.terminal_title` werden gelesen. Die Titelquelle erkennt den Agent
-   über `/proc/<pid>/exe`, begrenzt Titel auf 1024 und Pfade auf 4096 Byte,
-   bekommt den Socket als Argument und hat einen VM-Test mit Attrappen.
-   Offen: Grok (Freigabe, langer Hintergrundbefehl, aktuelle Version), wenn
-   es zurückkommt; Projektdateien und `-c`-Optionen von Codex bleiben
-   ungelesen.
-4. **M2:** History-Restore und Auto-Reconnect sind mit der UX-Überarbeitung
-   gebaut ([Spec](specs/2026-10-11-ux-ueberarbeitung-design.md) §5.3–§5.6),
-   die Selbstheilung nur für Schlüssel und ssh-agent. **Das Tor ist
-   bestanden:** 10 Minuten Ruhezustand, danach ohne Klick verbunden, der
-   Verlauf ist lesbar ([Handabnahme §6](abnahme-handarbeit.md#6-wiederverbinden)),
-   auch mit 8 + 1 Kacheln
-   ([Raster-Spec](specs/2026-10-19-dynamisches-raster-design.md) §10.2);
-   abgenommen vom Maintainer am Gerät am Stand vom 23.10., gemeldet am
-   24.10.
-5. **M3:** fremde Sessions auf dem Standard-Socket sehen und bedienen, mit
-   gesperrtem Beenden ([Roadmap](plans/2026-09-05-roadmap-bis-release.md)
-   S3.1; [Design](specs/2026-10-25-standard-socket-design.md) vom 25.10. nach
-   Kritikrunde und Entscheidungen, [Plan](plans/2026-10-25-standard-socket.md)
-   vom selben Tag; Schritt 1, die [Messung](messungen/messung-2026-10-25-standard-socket.md),
-   und die Schritte 2 bis 5 (Socket als Typ, Backend je Socket,
-   Frontend-Zustand, Oberfläche) sind erledigt und mit 0.2.2 ausgeliefert;
-   die [Abnahme](messungen/messung-2026-10-25-m31-abnahme.md) an 0.2.2 am selben Tag: Punkt 1 bis 5
-   bestanden, Punkt 6 nicht: Unter vier flutenden Kacheln kamen 3 von 10
-   Statuswechseln später als 4 s (höchstens 4,97 s), weil die Abfrage mit dem
-   Standard-Socket 0,5 s länger dauerte und erst 2 s nach ihrem Ende die
-   nächste begann. Ebenfalls dort gefunden, seit 0.2.0: Das Anhängen scheiterte
-   mit „attach identity changed“, wenn auf demselben Server gerade eine Session
-   entstand oder endete, etwa bei zwei „New session“ kurz nacheinander. Seit
-   dem 27.10. (noch in keinem Release) liest
-   die Bestätigung dann erneut, die Abfrage liest den Standard-Socket parallel,
-   und der Takt zählt ab dem Beginn der vorigen Abfrage (UX-Spec §5.2,
-   Nachtrag). Nachmessung: 12 von 12 Wechseln unter 4 s, höchstens 3,30 s;
-   Öffnen unter wechselnden Sessions 8 von 8 statt 2 von 8).
-   Bekannte Grenzen: Die Statusabfrage liest den Standard-Socket in der
-   Form des tmux im `PATH` (README); Live-Tests brauchen `--test-threads=4`,
-   wie CONTRIBUTING es vorgibt, weil die Schlüsselvorbereitung je
-   Prozess nur acht Aufträge zulässt: Mit der voreingestellten Thread-Zahl
-   scheitern rund zwölf Live-Befehlstests an dieser Zulassung; die übrige
-   Windows-Politur nach S3.2 (Protokolldatei, globaler
-   Diagnosetext; Mindestgröße, Fensterlage und Icon sind erledigt), dazu ein
-   neues Logozeichen für den Erststart (Entscheidung vom 21.10.); die
-   Rust-Meldung RUSTSEC-2023-0071 zu `rsa`, eingeordnet in
-   [`SECURITY.md`](../SECURITY.md), und eine echte RSA-Abnahme; ein
-   russh-Update, das die beiden Meldungen zum russh-Servercode mitnimmt
-   (ebenfalls in `SECURITY.md`; die App nutzt diesen Code nicht); Signatur
-   der Pakete und winget.
-6. **Lieferung:** Die [Lizenzauswahl](release/license-selection.windows-x64.json)
-   ist für 0.2.0 neu gebunden: `@xterm/addon-web-links`, die Tauri-Module
-   `window`, `dpi` und `image` und die tslib-Helfer sind aufgenommen; die
-   geänderten eigenen Quellen, die erzeugten Permissions, `pageant` und die
-   Änderungsvermerke in `vendor/russh` sind neu gebunden. Am 22.10. kamen
-   vite 6.4.4 (Lizenztext, Polyfill und gebautes Frontend byte-gleich mit
-   6.4.3, siehe [Nachweis](release/license-frontend-vite-6.4.4-2026-10-22.json)),
-   die seither geänderten eigenen Quellen und der russh-Patch dazu, gebunden
-   mit `scripts/release-license-rebind.mjs`.
-   `npm run build:windows` lief danach vollständig durch (MSI, NSIS und ZIP,
-   unsigniert). Für 0.2.1 sind am 24.10. die zwölf seit 0.2.0 geänderten
-   gebundenen Eingänge neu gebunden (sieben eigene Quellen, `package.json`,
-   `src-tauri/Cargo.toml`, `tauri.conf.json` und beide Lockfiles; sie tragen
-   kein neues Fremdmaterial, Manifeste und Lockfiles ändern nur die eigene
-   Version). Die Version des eigenen Pakets steht in
-   der Auswahl an acht Stellen (`scope.product_version`, der Paketeintrag
-   samt Manifest-Hash, die Komponente und vier Dokumente unter
-   `tests/fixtures/rsa-signing/`); das Rebind-Werkzeug ändert keine
-   Versionen, sie sind von Hand gesetzt. Nach den Korrekturen der bekannten Rasterfehler sind am 24.10. neun
-   weitere eigene Quellen neu gebunden. Das Release `v0.2.1` vom 25.10. trägt MSI, Setup-EXE und ZIP aus
-   `npm run build:windows` seines eigenen Commits (dem, der das CHANGELOG
-   datiert), `verify` grün, unsigniert; ihre SHA-256-Werte stehen in den
-   Release-Notes. Die Probeläufe vom 24.10. aus `cb59da2`, `5cabf45` und
-   `1da8da2` sind damit überholt. Für 0.2.2 sind am 25.10. die 39 seit 0.2.1
-   geänderten gebundenen Eingänge neu gebunden (eigene Quellen, beide
-   Manifeste, beide Lockfiles, `tauri.conf.json`; kein neues Fremdmaterial)
-   und `src-tauri/src/tmux/socket.rs` in den Baum aufgenommen; die Version des
-   eigenen Pakets steht von Hand auf 0.2.2. Das Release `v0.2.2` vom 25.10.
-   trägt MSI, Setup-EXE und ZIP aus `npm run build:windows` seines eigenen
-   Commits, unsigniert; ihre SHA-256-Werte stehen in den Release-Notes. Jede weitergegebene Kopie trägt die Lizenzhinweise: An andere,
-   auch an Beta-Tester, geht nur das ZIP oder ein Installer aus
-   `npm run build:windows`, beide mit dem Ordner `licenses/`. Die nackte EXE
-   aus `npm run build:app` bleibt auf dem eigenen Rechner. Ändert sich ein
-   gebundener Eingang, vor dem nächsten Lauf die Änderungen auf neues
-   Fremdmaterial prüfen und nur die betroffenen Einträge mit
-   `scripts/release-license-rebind.mjs` neu binden (README, „Windows
-   packages“). Die Installerabnahme hat der Maintainer am 24.10. an MSI
-   und Setup-EXE von 0.2.0 bestanden: Anzeige der Lizenzseite,
-   WebView2-Bedingungen, Hinweise der Installer-Stubs. Das Manifest jedes
-   Laufs meldet sie weiter als `pending` (`nsis_msi_payload`,
-   `installer_terms_ui`, `installer_stub_notices`), weil ein Bau sie nicht
-   kennt; erneut abzunehmen ist sie, wenn sich Installer, Lizenzseite oder
-   Stubs ändern. Offen bleiben `native_import_family_review` für die
-   Durchsicht der nativen Importe der EXE und
-   `product_and_windows_acceptance` für die Abnahme am Fenster. Die
-   Release-Binaries enthalten die Pfade des Cargo-Registers der Baumaschine
-   (Panic-Orte von Kisten aus
-   crates.io unter `<Profil>\.cargo\registry\src\…`); damit steht der
-   Benutzername des Bauprofils in den Panic-Pfaden der Binaries. Das ist
-   hingenommen. Der Lieferlauf weist `RUSTFLAGS` und `.cargo/config.toml`
-   ab; ein Lauf mit neutralem `CARGO_HOME` wäre der Weg, das zu ändern.
-   Am 27.10. sind nach dem Code-Review beide Auswahlen neu gebunden:
-   crypto-bigint 0.7.10, ctutils 0.4.6 und tokio 1.53.3 tragen dieselben
-   Lizenzen und byte-gleiche Lizenztexte
-   ([Nachweis](release/license-rust-crypto-tokio-2026-10-26.json)) und sind
-   in der Windows-Auswahl von Hand nachgeführt; dazu 65 geänderte gebundene
-   Eingänge (eigene Quellen, `Cargo.lock`, CSP in `tauri.conf.json`,
-   Capability, Kommentare in `src-tauri/Cargo.toml` und
-   `scripts/gen-icons.mjs`); außer den drei Crates bringt keiner neues
-   Fremdmaterial. `src/i18n/t.ts` und `src-tauri/src/commands/tests.rs` sind
-   in ihre Bäume aufgenommen. Die macOS-Auswahl ist neu abgeleitet; `prepare` und `check`
-   sind für beide grün. Offen: crypto-bigint trägt in
-   `src/modular/safegcd.rs` für übernommenen Code den Vermerk „Copyright (c)
-   2023 Privacy Scaling Explorations Team“, den die Auswahl seit dem 12.09.
-   nicht als Hinweis führt (in 0.7.5 und 0.7.10 gleich). Vor dem nächsten
-   Release entscheiden, ob er als Copyright-Hinweis der Komponente dazukommt.
-   Nach den letzten Korrekturen sind fünf weitere eigene Quellen neu gebunden
-   (`commands.rs`, `settings.rs`, zwei Testdateien der Commands und
-   `src/main.ts`, ohne neues Fremdmaterial) und die macOS-Auswahl erneut
-   abgeleitet; `prepare` und `check` sind für beide grün.
+1. **M1-Tor:** bestanden, automatisiert am 23.10.
+   ([Bericht](messungen/messung-2026-10-23-m1-tor.md)), am Fenster gemeldet am
+   24.10. ([Handabnahme §9](abnahme-handarbeit.md#9-m1-tor)).
+2. **Erstes Release:** `v0.2.0` am 22.10. Das Repository ist seitdem öffentlich,
+   mit privatem Meldeweg für Sicherheitslücken (Private Vulnerability
+   Reporting), Warnungen von Dependabot, Secret Scanning mit Push Protection und
+   GitHub Actions; Workflows aus Pull Requests externer Beitragender laufen erst
+   nach Freigabe. Die Schlüssel unter `src-tauri/tests/fixtures/rsa-signing/`, in
+   `src-tauri/src/ssh/auth.rs` und in `vendor/russh` sowie der synthetische
+   Schlüssel in `scripts/m1-error-profile.py` sind Testdaten.
+3. **Statusquelle:** erledigt am 23.10.
+   ([Messung](messungen/messung-2026-10-23-agentversionen.md),
+   [Nachtrag der MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md)). Keine
+   feste Versionsbindung. Offen: Grok (Freigabe, langer Hintergrundbefehl,
+   aktuelle Version), wenn es zurückkommt; Projektdateien und `-c`-Optionen von
+   Codex bleiben ungelesen.
+4. **M2:** Tor bestanden, abgenommen vom Maintainer am Gerät, gemeldet am 24.10.
+   ([Handabnahme §6](abnahme-handarbeit.md#6-wiederverbinden)). Selbstheilung nur
+   für Schlüssel und ssh-agent.
+5. **M3:** M3.1, fremde Sessions auf dem Standard-Socket
+   ([Design](specs/2026-10-25-standard-socket-design.md),
+   [Plan](plans/2026-10-25-standard-socket.md)), ist mit 0.2.2 ausgeliefert und
+   [abgenommen](messungen/messung-2026-10-25-m31-abnahme.md); die Korrekturen zur
+   Statuslatenz kamen mit 0.2.4. Bekannte Grenzen: Die Statusabfrage liest den
+   Standard-Socket in der Form des tmux im `PATH` (README); Live-Tests brauchen
+   `--test-threads=4`, wie CONTRIBUTING es vorgibt. Offen aus der
+   [Roadmap](plans/2026-09-05-roadmap-bis-release.md): die übrige Windows-Politur
+   nach S3.2 (Protokolldatei, globaler Diagnosetext), ein neues Logozeichen für
+   den Erststart (bisher „a“; Entscheidung vom 21.10.), die Rust-Meldung
+   RUSTSEC-2023-0071 zu `rsa` (eingeordnet in [`SECURITY.md`](../SECURITY.md)) mit
+   einer echten RSA-Abnahme, Signatur der Pakete und winget.
+6. **Lieferung:** Alle drei Lizenzauswahlen
+   ([Windows](release/license-selection.windows-x64.json),
+   [macOS](release/license-selection.macos-universal.json),
+   [Android](release/license-selection.android-universal.json)) sind für 0.2.5
+   gebunden; den Ablauf beschreibt die [Anleitung](lizenzen-pflegen.md). Jede
+   weitergegebene Kopie trägt die Lizenzhinweise: An andere, auch an Beta-Tester,
+   geht nur das ZIP oder ein Installer aus `npm run build:windows` oder dem
+   Release, beide mit dem Ordner `licenses/`. Die nackte EXE aus
+   `npm run build:app` bleibt auf dem eigenen Rechner.
+   Die Installerabnahme hat der Maintainer am 24.10. an MSI und Setup-EXE von
+   0.2.0 bestanden: Anzeige der Lizenzseite, WebView2-Bedingungen, Hinweise der
+   Installer-Stubs. Das Manifest jedes Laufs meldet sie weiter als `pending`
+   (`nsis_msi_payload`, `installer_terms_ui`, `installer_stub_notices`), weil ein
+   Bau sie nicht kennt; erneut abzunehmen ist sie, wenn sich Installer,
+   Lizenzseite oder Stubs ändern. **Das ist mit NSIS 3.13 der Fall:** Der
+   Maintainer prüft die Setup-EXE an den Paketen von 0.2.5. Offen bleiben
+   `native_import_family_review` für die Durchsicht der nativen Importe der EXE
+   und `product_and_windows_acceptance` für die Abnahme am Fenster.
+   Lokal gebaute Binaries enthalten die Pfade des Cargo-Registers
+   (`<Profil>\.cargo\registry\src\…`) und damit den Benutzernamen des
+   Bauprofils; das betrifft die lokal gebauten Pakete bis 0.2.2 und ist
+   hingenommen. Seit 0.2.3 baut die CI die Release-Pakete.
+   Offen: crypto-bigint trägt in `src/modular/safegcd.rs` für übernommenen Code
+   den Vermerk „Copyright (c) 2023 Privacy Scaling Explorations Team“, den die
+   Auswahl seit dem 12.09. nicht als Hinweis führt. Zu entscheiden ist, ob er als
+   Copyright-Hinweis der Komponente dazukommt.
 7. **Echte Abnahmen:**
    - die [Handabnahme](abnahme-handarbeit.md) am Windows-Fenster: echte
      Tastatur, Rechtsklick, Skalierung 100 und 150 % am echten Bildschirm,
@@ -623,7 +393,7 @@ In dieser Reihenfolge:
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne
     Eile, solange die App in Entwicklung ist: der geschlossene Test mit 12
     Testern über 14 Tage, die Datenschutz-URL und das Hochladen des App
-    Bundles von 0.2.4 (Artefakt des Release-Laufs) von Hand. Erst wenn ein
+    Bundles des neuesten Release (Artefakt des Release-Laufs) von Hand. Erst wenn ein
     Play-Dienstkonto als Secret im Environment `android-release` liegt,
     lädt `android.yml` selbst hoch
     ([Anleitung](android-veroeffentlichung.md)).

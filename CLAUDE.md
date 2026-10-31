@@ -11,3 +11,7 @@ Skills, die `docs/superpowers/` vorschlagen:
   `docs/messungen/fixtures/`
 
 Den aktuellen Stand und die offenen Punkte führt `docs/stand.md`.
+
+Das Repository ist öffentlich. Angaben zu Rechner, Konten und Test-VMs gehören
+nicht hinein: Sie kommen nach `docs/lokal/`, das per `.gitignore` ausgeschlossen
+ist. Im Repository stehen Platzhalter.
