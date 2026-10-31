@@ -120,7 +120,8 @@ Telefon:
 3. **Bildschirmfotos:** Unter
    `fastlane/metadata/android/<Sprache>/images/phoneScreenshots/` liegen schon
    drei vorläufige (Terminal, Hostliste, neuer Schlüssel). Sie zeigen die
-   echte Oberfläche mit Beispieldaten, gerendert im Browser; Schriften und
+   echte Oberfläche mit Beispieldaten, gerendert im Browser mit
+   `scripts/readme-images/render.mjs phones`; Schriften und
    Systemleisten weichen vom Telefon ab. Besser: beim Test eigene vom Telefon
    machen (Ein/Aus + Leiser) und die Dateien `1.png` usw. ersetzen. Keine
    echten Hostnamen oder Inhalte zeigen, die du nicht veröffentlichen willst.

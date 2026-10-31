@@ -1,0 +1,42 @@
+<!doctype html>
+<!-- Ein Bild der Oberflaeche im Fensterrahmen; Quelle und Titel aus der Adresse.
+     Gerendert von render.mjs. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; }
+  .window {
+    box-sizing: border-box; height: 100%; display: flex; flex-direction: column;
+    border: 1px solid #343944; border-radius: 12px; overflow: hidden; background: #15171C;
+  }
+  .bar {
+    flex: 0 0 36px; display: flex; align-items: center; gap: 10px; padding: 0 14px;
+    background: #1B1E25; color: #C9D0DA;
+    font: 13px "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  }
+  .mark { width: 16px; height: 16px; }
+  img { display: block; width: 100%; flex: 1 1 auto; min-height: 0; }
+</style>
+</head>
+<body>
+  <div class="window">
+    <div class="bar">
+      <svg class="mark" viewBox="0 0 1024 1024" aria-hidden="true">
+        <rect width="1024" height="1024" rx="307" ry="307" fill="#2DD4BF"/>
+        <g fill="none" stroke="#0F172A" stroke-width="72" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="341,363 469,491 341,619"/>
+          <line x1="512" y1="661" x2="683" y2="661"/>
+        </g>
+      </svg>
+      <span id="title"></span>
+    </div>
+    <img id="shot" alt="">
+  </div>
+  <script>
+    const query = new URLSearchParams(location.search);
+    document.getElementById("shot").src = query.get("src");
+    document.getElementById("title").textContent = query.get("title");
+  </script>
+</body>
+</html>

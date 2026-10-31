@@ -1,0 +1,25 @@
+<!doctype html>
+<!-- Zwei Telefonbilder nebeneinander fuer das README. Gerendert von render.mjs. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; }
+  body { display: flex; align-items: center; justify-content: center; gap: 28px; }
+  .phone {
+    width: 352px; padding: 10px;
+    background: #0B0C0F; border: 2px solid #343944; border-radius: 36px; overflow: hidden;
+  }
+  img { display: block; width: 100%; height: auto; border-radius: 26px; }
+</style>
+</head>
+<body>
+  <div class="phone"><img id="a" alt=""></div>
+  <div class="phone"><img id="b" alt=""></div>
+  <script>
+    const query = new URLSearchParams(location.search);
+    document.getElementById("a").src = query.get("a");
+    document.getElementById("b").src = query.get("b");
+  </script>
+</body>
+</html>

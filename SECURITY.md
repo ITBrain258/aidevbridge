@@ -1,6 +1,6 @@
 # Security policy
 
-aidevbridge is a Windows and macOS desktop app that connects to your own
+aidevbridge is an app for Windows, macOS and Android that connects to your own
 Linux hosts over SSH and shows the tmux sessions your AI coding agents run
 there. It handles SSH keys, passwords and host keys, so please report
 security problems privately.
@@ -15,7 +15,7 @@ issues, discussions and pull requests.
 Please include:
 
 - the aidevbridge version (Settings → About → "Copy version info") or the
-  exact commit, and your Windows or macOS version;
+  exact commit, and your Windows, macOS or Android version;
 - what an attacker can do and what they need for it;
 - minimal steps to reproduce, ideally against a disposable test host;
 - a suggested fix, if you have one.
@@ -45,12 +45,14 @@ releases (Watch → Custom → Releases).
 
 In scope:
 
-- the app: the Windows and the macOS build, their web view frontend
-  (WebView2 on Windows, WebKit on macOS), the Rust backend and the commands
+- the app: the Windows, macOS and Android builds, their web view frontend
+  (WebView2 on Windows, WebKit on macOS, the system WebView on Android), the
+  Rust backend and the commands
   the frontend may call;
 - SSH: host key checks against `~/.ssh/known_hosts`, confirming a new host
   key, and signing in with a key file, a password or an SSH agent: the
-  Windows OpenSSH agent, or on macOS the agent of `SSH_AUTH_SOCK`;
+  Windows OpenSSH agent, or on macOS the agent of `SSH_AUTH_SOCK`; on Android
+  the keys generated in or imported into the app;
 - remote output: everything a host sends to a terminal is untrusted,
   including links (they open only for `http` and `https` and only with
   Ctrl+click; a link whose text doesn't show its address shows the address
@@ -58,7 +60,7 @@ In scope:
 - the commands the app runs on your hosts (tmux, status polling);
 - the release scripts, the workflow that builds, attests and publishes the
   packages, and the packages themselves: the setup EXE, the MSI and the ZIP
-  for Windows and the disk image for macOS.
+  for Windows, the disk image for macOS and the APK and App Bundle for Android.
 
 Out of scope:
 

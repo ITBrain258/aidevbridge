@@ -1,0 +1,68 @@
+<!doctype html>
+<!-- Schema fuer das README: App, SSH, Host. Gerendert von render.mjs.
+     Farben aus dem Standardthema (src/styles.css). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; }
+  body { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: #EDEFF3; }
+  .card {
+    box-sizing: border-box; height: 100%; padding: 36px 44px;
+    display: grid; grid-template-columns: 300px 1fr 500px; align-items: center;
+    background: #15171C; border: 1px solid #343944; border-radius: 16px;
+  }
+  .box { background: #1F232B; border: 1px solid #343944; border-radius: 14px; padding: 22px 24px; }
+  .eyebrow { font-size: 15px; color: #9AA3B2; margin: 0 0 10px; }
+  .app { display: flex; align-items: center; gap: 14px; font-size: 26px; font-weight: 600; }
+  .mark { width: 46px; height: 46px; flex: 0 0 auto; }
+  .small { font-size: 16px; color: #C9D0DA; margin: 14px 0 0; line-height: 1.45; }
+  .link { position: relative; text-align: center; padding: 0 18px; }
+  .link span { display: block; font-size: 22px; font-weight: 600; color: #2DD4BF; margin-bottom: 10px; }
+  .link svg { display: block; width: 100%; height: 20px; }
+  .link em { display: block; font-style: normal; font-size: 15px; color: #9AA3B2; margin-top: 10px; }
+  .tmux { border: 1px dashed #4A5160; border-radius: 10px; padding: 8px 14px; margin-top: 4px; }
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; font: 18px "Cascadia Mono", Consolas, monospace; }
+  .pill { font: 600 15px "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; padding: 5px 12px; border-radius: 999px; }
+  .waiting { background: rgba(251, 191, 36, 0.15); color: #FBBF24; }
+  .busy { background: rgba(74, 222, 128, 0.15); color: #4ADE80; }
+  .idle { background: rgba(147, 197, 253, 0.15); color: #93C5FD; }
+  .none { margin: 14px 0 0; font-size: 16px; color: #C9D0DA; }
+  .none b { color: #2DD4BF; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="box">
+      <p class="eyebrow">Your PC, Mac or phone</p>
+      <div class="app">
+        <svg class="mark" viewBox="0 0 1024 1024" aria-hidden="true">
+          <rect width="1024" height="1024" rx="307" ry="307" fill="#2DD4BF"/>
+          <g fill="none" stroke="#0F172A" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="341,363 469,491 341,619"/>
+            <line x1="512" y1="661" x2="683" y2="661"/>
+          </g>
+        </svg>
+        aidevbridge
+      </div>
+      <p class="small">Hosts, sessions, live terminals and who is waiting for you.</p>
+    </div>
+    <div class="link">
+      <span>SSH</span>
+      <svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="2" y1="10" x2="198" y2="10" stroke="#2DD4BF" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <em>to each of your hosts</em>
+    </div>
+    <div class="box">
+      <p class="eyebrow">Your Linux host</p>
+      <div class="tmux">
+        <div class="row">claude <span class="pill waiting">Waiting</span></div>
+        <div class="row">codex <span class="pill busy">Busy</span></div>
+        <div class="row">claude <span class="pill idle">Idle</span></div>
+      </div>
+      <p class="none">Sessions live in tmux and keep running. <b>Nothing installed on the host.</b></p>
+    </div>
+  </div>
+</body>
+</html>

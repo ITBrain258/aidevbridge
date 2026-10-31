@@ -1,577 +1,180 @@
-# aidevbridge
+<p align="center">
+  <img src="src-tauri/icons/128x128.png" width="96" height="96" alt="">
+</p>
 
-![aidevbridge: hosts and sessions in the sidebar, terminals in a grid](docs/images/screenshot.png)
+<h1 align="center">aidevbridge</h1>
 
-aidevbridge is an app for Windows, macOS and Android for coding agents that
-run in tmux sessions on your own Linux machines. It connects over SSH, shows the
-sessions of several hosts in one window and tells you which agent is waiting
-for you. Nothing is installed on the hosts.
+<p align="center">
+  <strong>See which coding agent is waiting for you.</strong><br>
+  All your tmux sessions, on all your Linux hosts, in one app.
+</p>
 
-The project is in early development. Releases appear on the
-[Releases page](https://github.com/ITBrain258/aidevbridge/releases); the
-Windows packages are not code-signed, the macOS disk image is signed ad-hoc
-only, and the Android app, new with 0.2.4, is on the releases page and in a
-closed test on Google Play. [docs/stand.md](docs/stand.md) tracks
-the status and the open items, [CHANGELOG.md](CHANGELOG.md) the changes (both
-in German).
+<p align="center">
+  <a href="https://github.com/ITBrain258/aidevbridge/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/ITBrain258/aidevbridge?color=2DD4BF&label=release"></a>
+  <img alt="Windows, macOS, Android" src="https://img.shields.io/badge/runs_on-Windows_%7C_macOS_%7C_Android-3B4252">
+  <a href="https://github.com/ITBrain258/aidevbridge/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/ITBrain258/aidevbridge/ci.yml?branch=main&label=CI"></a>
+  <a href="#license"><img alt="License: MIT or Apache-2.0" src="https://img.shields.io/badge/license-MIT_or_Apache--2.0-3B4252"></a>
+</p>
 
-## What it is
+<p align="center">
+  <a href="https://github.com/ITBrain258/aidevbridge/releases/latest"><strong>Download</strong></a>
+  ·
+  <a href="#quick-start">Quick start</a>
+  ·
+  <a href="docs/guide/agents.md">Supported agents</a>
+  ·
+  <a href="#documentation">Documentation</a>
+</p>
 
-- **One window for many hosts.** The sidebar lists your hosts and their tmux
-  sessions; a click opens a session as a live terminal. Up to nine terminals,
-  at most eight per host, arrange themselves by count. Drag a terminal's head
-  onto another to swap them, drag the gap between two to resize them, and
-  maximize one with Ctrl+Shift+M.
-- **Agent status.** Each session shows whether its agent is Waiting, Busy,
-  Idle or Ended. Waiting sessions collect at the top of the sidebar, oldest
-  first, with their wait time. The window title counts them, the taskbar
-  flashes once when one starts waiting while the window is not focused, and
-  Ctrl+Shift+A jumps to the next one.
-- **A terminal that behaves like Windows Terminal.** Ctrl+C copies a
-  selection and otherwise still interrupts the program, Ctrl+V pastes,
-  Ctrl+Shift+F finds text, and Ctrl+click opens a link in your browser.
-  Opening a session loads up to 5,000 lines of its tmux history.
-- **Keeps going through network trouble.** Hosts with a key file or ssh-agent
-  repair their connection and reattach their terminals by themselves after
-  standby, a network change or a VPN switch. After a restart the app
-  reconnects these hosts and reopens your terminals.
-- **Nothing on the host.** No daemon, no hook, no configuration change: only
-  SSH, tmux and the agent you start yourself. Passwords and key passphrases
-  are never stored.
+![aidevbridge with four terminals in a grid: the sidebar lists two hosts and their sessions, two sessions wait for an answer](docs/images/hero.png)
 
-Quick open (Ctrl+Shift+P) finds sessions, hosts and actions, and
-Settings → Shortcuts lists every shortcut. aidevbridge is built with
-[Tauri 2](https://tauri.app/): a Rust backend and a TypeScript frontend with
-xterm.js.
+Coding agents stop and ask. When they run in tmux on several machines, you find
+out minutes later, after clicking through every terminal. aidevbridge connects to
+your hosts over SSH, puts their sessions in one window and shows you who needs an
+answer. **Nothing is installed on the hosts.**
 
-## Before you download
+- **Waiting, Busy, Idle, Ended.** Every session shows the state of its agent.
+- **Your sessions stay yours.** They live in tmux on your hosts and keep running
+  when you close the app or lose the network.
+- **No account, no cloud, no telemetry.** The app talks to your hosts over SSH and
+  to nothing else.
 
-- **The packages are not code-signed yet.** Windows SmartScreen therefore
-  warns with "Windows protected your PC". Check the file first (see below),
-  then choose **More info** → **Run anyway**.
-- **Smart App Control blocks it.** If Smart App Control is set to On
-  (Windows Security → App & browser control → Smart App Control), Windows
-  does not start unsigned apps such as this one, also when you build it
-  yourself. There is no exception for a single app.
-- **Check the file.** Every release lists the SHA-256 of each package, taken
-  from the `release-manifest.json` of its build. In PowerShell,
-  `Get-FileHash .\aidevbridge-<version>-windows-x64-setup.exe -Algorithm SHA256`
-  (or the name of the file you downloaded) must print the same value. It prints upper-case letters where the release
-  lists lower-case ones; letter case does not matter.
-- **Optional, stronger: check the build provenance.** From the release after
-  0.2.3 on, each file that the run of the release's tag attaches has a build
-  provenance: a record, signed through Sigstore and kept by GitHub apart from
-  the release, that ties the file's SHA-256 to this repository's workflow
-  `packages.yml`, the tag and its commit. With the
-  [GitHub CLI](https://cli.github.com/) 2.68 or newer, signed in to any
-  GitHub account (`gh auth login`), run
-  `gh attestation verify <file> --repo ITBrain258/aidevbridge --signer-workflow ITBrain258/aidevbridge/.github/workflows/packages.yml --source-ref refs/tags/v<version>`.
-  It must print `Verification succeeded!`. The Android APK comes from
-  `android.yml`; for it, name that workflow in `--signer-workflow`. GitHub CLI 2.49 to 2.67 lacks
-  `--source-ref`; there, `gh attestation verify <file> --repo ITBrain258/aidevbridge`
-  is the fallback. It only checks that a workflow of this repository made
-  the provenance, not that it was `packages.yml` nor that the file was built
-  from that release's tag. A
-  file that a manual run from another ref (such as a branch) attached later
-  has no provenance, and the command fails for it (current versions of the
-  GitHub CLI report `HTTP 404: Not Found`); for it, only the SHA-256 check
-  above applies. Details in
-  [SECURITY.md](SECURITY.md#unsigned-binaries-and-checking-a-download).
-- **macOS: not notarized yet.** macOS refuses the first start ("Apple could
-  not verify …"). After checking the file with
-  `shasum -a 256 ~/Downloads/aidevbridge-<version>-macos-universal.dmg`,
-  choose **Open Anyway** for aidevbridge under System Settings → Privacy &
-  Security. The macOS app has passed an automated installation and start
-  test, not yet a test by hand on a Mac.
-- **Or build it yourself**, see [Build from source](#build-from-source).
+## What it does
 
-## Host requirements
+<table>
+  <tr>
+    <td width="42%">
+      <h3>Never miss a waiting agent</h3>
+      Waiting sessions collect at the top of the sidebar, oldest first, with their
+      wait time. The window title counts them, the taskbar flashes once when one
+      starts waiting while the window is not focused, and
+      <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd> jumps to the next one.
+    </td>
+    <td width="58%" align="center"><img src="docs/images/waiting-lane.png" width="300" alt="Sidebar with a waiting lane on top: train-eval waits for 14 minutes, api-refactor for 3 minutes; below them the hosts with their sessions"></td>
+  </tr>
+  <tr>
+    <td>
+      <h3>Find anything in a keystroke</h3>
+      Quick open (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) finds sessions,
+      hosts and actions, with the status of each session right there. Settings →
+      Shortcuts lists every shortcut.
+    </td>
+    <td><img src="docs/images/quick-open.png" alt="Quick open with the search term build: sessions of the host build-box with their status, and the action to start a new session there"></td>
+  </tr>
+  <tr>
+    <td>
+      <h3>In your pocket, too</h3>
+      The Android app shows one terminal at a time, with the sessions in a drawer, a
+      key bar for the keys a phone lacks, and swipe scrolling. It generates its own
+      SSH key or imports yours.
+    </td>
+    <td><img src="docs/images/phones.png" alt="aidevbridge on a phone: a terminal with a key bar for Esc, Tab, Ctrl and Alt, next to the session list in a drawer"></td>
+  </tr>
+  <tr>
+    <td>
+      <h3>Make it yours</h3>
+      Seven accent colors on two backgrounds give you 14 themes, and the terminal
+      font size is yours to set.
+    </td>
+    <td><img src="docs/images/themes.png" alt="Settings, Appearance: seven accent colors and two backgrounds"></td>
+  </tr>
+</table>
 
-aidevbridge installs nothing on a host and changes no configuration there.
-Each host needs:
+And the parts you only notice when they are missing:
 
-- SSH access with a key file, ssh-agent or password, and a POSIX login shell
-  such as bash, zsh or dash. fish and csh are not supported.
-- `tmux` 3.0 or newer on the non-interactive SSH `PATH`. Numeric session
-  identity and agent status work with the measured versions 3.0, 3.3a, 3.4
-  and 3.6; other versions list sessions by name and show "Unknown". Debian 12
-  ships 3.3a and Ubuntu 24.04 ships 3.4; Ubuntu 22.04 ships 3.2a, which runs
-  without status. For 3.6 only the exact answer `tmux 3.6` counts, measured
-  on Ubuntu 26.04.1 with the package `tmux 3.6a-2ubuntu0.1`; an unmodified
-  3.6a build answers `tmux 3.6a` and, like 3.5 and 3.5a, shows "Unknown".
-- `base64` and a writable tmux socket directory (`$TMUX_TMPDIR` or `/tmp`).
-  Both are present on common distributions.
+- **A grid that arranges itself.** Up to nine terminals, at most eight per host.
+  Drag a terminal's head onto another to swap them, drag the gap between two to
+  resize them, and maximize one with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd>.
+- **A terminal that behaves like Windows Terminal.** <kbd>Ctrl</kbd>+<kbd>C</kbd>
+  copies a selection and otherwise still interrupts the program,
+  <kbd>Ctrl</kbd>+<kbd>V</kbd> pastes, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>
+  finds text, and <kbd>Ctrl</kbd>+click opens a link in your browser. Opening a
+  session loads up to 5,000 lines of its tmux history.
+- **It recovers by itself.** Hosts with a key file or ssh-agent repair their
+  connection and reattach their terminals after standby, a network change or a VPN
+  switch. After a restart the app reconnects them and reopens your terminals.
 
-Install tmux with the host's package manager, for example:
+<sub>The pictures show the real interface with sample data.</sub>
 
-```sh
-sudo apt install tmux      # Debian, Ubuntu
-sudo dnf install tmux      # Fedora, RHEL, Rocky, Alma
-sudo pacman -S tmux        # Arch
-sudo zypper install tmux   # openSUSE
-sudo apk add tmux          # Alpine
-```
+## How it works
 
-When a host is added, aidevbridge checks these requirements and names the
-missing one. Agent status also needs the agent started by hand in a session;
-see [Supported agents and detected states](#supported-agents-and-detected-states).
+![aidevbridge on your PC, Mac or phone connects over SSH to each of your Linux hosts, where agents run in tmux sessions](docs/images/how-it-works.png)
 
-## Install
+No daemon, no hook, no configuration change on the host: only SSH, tmux and the
+agent you start yourself. Passwords and key passphrases are never stored.
 
-aidevbridge runs on Windows 10 and 11 (x64). Each release comes in three
-forms with the same program; pick one:
+| Agent | Status | Source |
+| --- | --- | --- |
+| Claude Code | Yes | `claude agents --json` on the host, read-only |
+| Codex | Yes | the terminal title that tmux keeps for the pane |
+| Grok | Yes, last measured with an older version | the terminal title that tmux keeps for the pane |
+| agy, OpenCode, Gemini CLI and others | Runs fine, status shows "Unknown" | |
 
-- `aidevbridge-<version>-windows-x64-setup.exe`: the setup program. It
-  installs for your Windows account and needs no administrator rights.
-- `aidevbridge-<version>-windows-x64.msi`: the Windows Installer package, for
-  example for `msiexec /i aidevbridge-<version>-windows-x64.msi`. It installs
-  for all users and asks for administrator rights.
-- `aidevbridge-<version>-windows-x64.zip`: no installation. Extract the whole
-  ZIP into a folder and start `aidevbridge.exe`.
+A form the app does not know shows "Unknown", never a guess. Details and measured
+versions are in [Agents and status](docs/guide/agents.md).
 
-The window is drawn by Microsoft Edge WebView2, which current Windows 10 and
-11 already include. Both installers download and install WebView2 if it is
-missing; the ZIP expects it to be installed. Every form carries the license
-texts in a `licenses` folder (`licenses/index.html`) next to the program; keep
-it there.
+## Download
 
-**macOS** 11 or newer, Apple silicon and Intel, gets one disk image from the
-release after 0.2.2 on: `aidevbridge-<version>-macos-universal.dmg`. Open
-it and drag **aidevbridge** onto **Applications**. The window is drawn by
-WebKit, which is part of macOS. The license texts are inside the app
-(`aidevbridge.app/Contents/Resources/licenses/index.html`). From macOS 15 on,
-the app asks once for access to the local network when it connects to a host
-there; allow it, or hosts on your network stay unreachable. To remove the app,
-move it to the Trash.
+Get the [latest release](https://github.com/ITBrain258/aidevbridge/releases/latest):
 
-**Android** 7.0 or newer gets `aidevbridge-<version>-android.apk` from 0.2.4
-on; Android asks once whether the app you open it from may install apps. A
-Google Play version is in a closed test. The two are signed differently:
-uninstall one before installing the other, which removes the hosts and keys
-stored in the app. On a phone the app shows one terminal at a time, with the
-sessions in a drawer, a key bar for Esc, Tab, Ctrl, Alt and the arrows, and
-swipe scrolling. There is no ssh-agent on Android: when you add a host, choose
-**Generate new key…** and add the line it shows to `~/.ssh/authorized_keys`
-on the host, or **Choose file…** to import an existing private key, or
-**Password**. Android stops the connections when the app has been in the
-background for a while; on return, hosts with a key reconnect by themselves.
-The license texts are inside the app (`assets/licenses/`).
+| Platform | File | Needs |
+| --- | --- | --- |
+| **Windows** | `…-windows-x64-setup.exe`, `.msi` or `.zip` | Windows 10 or 11, x64 |
+| **macOS** | `…-macos-universal.dmg` | macOS 11 or newer, Apple silicon or Intel |
+| **Android** | `…-android.apk` | Android 7.0 or newer |
 
-There is no automatic update. To hear about new versions, watch the
-repository's releases on GitHub (Watch → Custom → Releases).
-
-**Upgrading from agentbridge.** Before 0.2.0 the app was called agentbridge.
-When its own folder `%APPDATA%\io.github.itbrain258.aidevbridge\` holds no
-`settings.toml` yet, aidevbridge copies `settings.toml` from
-`%APPDATA%\agentbridge\` on start and leaves the old folder as it is; the
-window position starts fresh. Your sessions on the hosts stay visible,
-because the tmux socket is still named `agentbridge`.
-
-**Removing** the app: uninstall it under Settings → Apps → Installed apps,
-or, for the ZIP, close it and delete its folder. Your settings and the host
-keys you accepted stay unless you let the uninstaller of the setup program
-delete the app data; see [Privacy](#privacy) for where they are.
+> [!NOTE]
+> aidevbridge is in early development, and the packages are **not code-signed yet**.
+> Windows SmartScreen warns, Smart App Control blocks the app, and macOS refuses the
+> first start until you allow it. Every release lists the SHA-256 of each file and
+> carries a build provenance you can check. The
+> [install guide](docs/guide/install.md) explains each step.
 
 ## Quick start
 
+**On each host** you need SSH access, a POSIX login shell and `tmux` 3.0 or newer
+([details](docs/guide/hosts.md)):
+
+```sh
+sudo apt install tmux      # Debian, Ubuntu
+```
+
+**In the app:**
+
 1. Start aidevbridge. The welcome page suggests the hosts from your
-   `~/.ssh/config` (`%USERPROFILE%\.ssh\config`). Pick one, or choose
-   **Add a host manually** and enter the host, port, user and the
-   authentication: a key file, ssh-agent or a password.
-2. On the first connection the app shows the fingerprint of the host key.
-   Compare it with the host, for example with
-   `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`, and choose
-   **Trust and continue**. The app then checks tmux, `base64` and the tmux
-   socket directory on the host.
-3. Choose **New session** under the host, pick a working directory on the
-   host and, if you like, a name. The session opens as a terminal.
-4. Start your agent in that terminal, for example `claude`, `codex` or
-   `grok`. Its status appears as a pill next to the session and in the
-   terminal's head.
-5. Click more sessions in the sidebar to open them next to each other.
-   Ctrl+, opens the settings.
+   `~/.ssh/config`. Pick one, or add a host by hand with a key file, ssh-agent or a
+   password.
+2. Compare the host key's fingerprint with the host and choose **Trust and
+   continue**. The app then checks the host's requirements and names what is missing.
+3. Choose **New session** under the host and pick a working directory.
+4. Start your agent in that terminal, for example `claude` or `codex`. Its status
+   appears next to the session.
 
-The sidebar lists the sessions on the app's own tmux socket, `agentbridge`.
-To start one from an SSH shell instead, run `tmux -L agentbridge new -s work`
-on the host. Sessions you started with plain `tmux` appear below them as
-**tmux sessions**.
+Sessions you started with plain `tmux` show up as well, under **tmux sessions**.
 
-## Sessions on tmux's default socket
+## Documentation
 
-Sessions on tmux's default socket, the ones plain `tmux` and `tmux new`
-create, are listed under each host as **tmux sessions** and marked **tmux**
-in the terminal's head, the waiting lane and quick open. Opening one attaches
-the app as one more client of that session:
-
-- **The app never ends them.** There is no **End session…** for them; end
-  them in tmux.
-- **The app changes nothing on that server.** It sets no option, hook or
-  environment, and it attaches with `attach-session -E`, so your session
-  keeps its `SSH_AUTH_SOCK`, `DISPLAY` and the other variables of
-  `update-environment`. Your configuration applies as it is: prefix, mouse,
-  colours, the status line (the terminal shows it and has one row less) and
-  your hooks, which run when the app attaches, resizes and detaches. With
-  `destroy-unattached`, a session ends when the app was its last client.
-- **Window size:** from tmux 3.1, `window-size` is `latest`. Opening the
-  terminal and every resize give the window the terminal's size, also in
-  your other client; when you use that client again, the window follows it.
-  When another client is already attached, the app says so once per run.
-- **Versions:** the app attaches to servers running tmux 3.3a or 3.6, the
-  versions its checks were measured on. For a server running another version
-  the sidebar names the version and lists nothing. Sessions of a session
-  group (`tmux new -t`) are listed but cannot be opened.
-- **Where the app looks:** where tmux puts the default socket for a
-  non-interactive SSH command, normally `/tmp/tmux-<uid>/default`. A server
-  started with `TMUX_TMPDIR` set only in an interactive shell, or with
-  `-S`, is not found.
-- **Switching it off:** **Edit host** → **Show tmux sessions**. Off, the app
-  does not read the default socket of that host at all.
-
-## Supported agents and detected states
-
-| State | Meaning |
+| Guide | What is in it |
 | --- | --- |
-| Waiting | The agent waits for you: a permission prompt, a question or a dialog. |
-| Busy | The agent is working. |
-| Idle | The agent is ready for the next prompt. |
-| Ended | The session's active pane has exited, or the session is gone from the host. |
-| Unknown | No status source: no supported agent runs in the pane, the agent shows no status, its output has a form that was not measured, or the host's tmux version is not one of the measured ones. |
-| As of HH:MM | The status could not be read (failed query, interrupted connection, reconnect). The pill keeps the time of the last value, its tooltip names that value, and the host does not count as waiting until a query succeeds again. |
+| [Install](docs/guide/install.md) | Every package, SmartScreen and macOS prompts, checking a download, removing the app |
+| [Hosts and tmux](docs/guide/hosts.md) | Host requirements, tmux versions, sessions on tmux's default socket |
+| [Agents and status](docs/guide/agents.md) | The states, how each agent is detected, measured versions |
+| [Privacy and stored data](docs/guide/data.md) | What the app does on your hosts and keeps on your device |
+| [Limits and known gaps](docs/guide/limits.md) | What is not built yet and what to expect |
+| [Build and test](docs/guide/building.md) | Building from source, tests, release packages |
 
-| Agent | Where the status comes from | Measured with |
-| --- | --- | --- |
-| Claude Code | `claude agents --json` on the host, read-only | 2.1.309 (before: 2.1.269 and 2.1.270) |
-| Codex | the terminal title that tmux keeps for the pane | 0.163.0 and 0.164.0 (before: 0.154.0) |
-| Grok | the terminal title that tmux keeps for the pane | 1.0.30; the approval title with 1.0.13; not measured again |
-| agy, OpenCode | no status in their title: Unknown | |
-| Gemini CLI and others | not measured: Unknown | |
-
-- The agent must run directly in the session's shell, started by hand. With
-  several windows or panes, the active pane of the active window counts.
-- Claude Code: `claude` must be in `~/.local/bin` or on the non-interactive
-  SSH `PATH`. A row counts only if its process is the pane's process or a
-  direct child of it. Waiting covers a permission prompt, input needed, a
-  sandbox or worker request, a goal proposal and an open dialog.
-- The agent is recognized by the program file it runs
-  (`/proc/<pid>/exe`), not by the name a process gives itself.
-- Codex: a freshly started Codex shows "Unknown" until its first thread has
-  a name. The app reads the `tui` keys of `/etc/codex/config.toml` and
-  `$CODEX_HOME/config.toml` (default `~/.codex/config.toml`). With
-  `tui.animations` or `tui.effects.progress` off, Codex shows no spinner, so
-  only "Waiting" still counts and everything else shows "Unknown"; with
-  title items of your own (`tui.terminal_title`) Codex shows "Unknown". A
-  project's `.codex/config.toml`, `-c` options and a desktop's
-  reduced-motion setting are not read: they can still hide the spinner, so
-  a working Codex may then show "Idle".
-- Grok: when Grok moves a long shell command to the background, its title
-  shows "Idle" for a while although the command still runs.
-- Newer agent versions may change these forms; a form the app does not know
-  shows "Unknown", never a guess.
-- While a host is connected, the app polls about every 2 seconds. Each poll
-  runs two short tmux commands, one read-only title read for the active
-  panes (`tmux display-message`, program files from `/proc` and, while
-  Codex runs, the `tui` keys of its settings; no command lines), one short
-  `claude` process and, while agents run, one read-only `/proc` lookup,
-  whatever the number of sessions. With "Show tmux sessions" on, one more
-  tmux command and title read cover tmux's default socket, at the same time.
-
-## Privacy
-
-- **Only SSH.** The app connects to your hosts over SSH and to nothing else:
-  no telemetry, no update check, no account. Its window is drawn by
-  Microsoft Edge WebView2, a Windows component with its own updates and data
-  practices, or on macOS by the system's WebKit; the app loads no remote
-  content into it.
-- **Links.** A plain click on a link in a terminal does nothing. Ctrl+click
-  opens http and https links in your default browser. A link whose text
-  doesn't show its address (OSC 8) names the address in its tooltip, and
-  Ctrl+click first shows the full address with **Open link**.
-- **On your hosts** the app runs tmux on its own socket `agentbridge` and
-  sets a few tmux options there (`history-limit`, `remain-on-exit`,
-  `terminal-overrides`, and `status off`, which hides tmux's status line on
-  that socket because each terminal's head already shows the session). For
-  the status it runs the read-only
-  `claude agents --json`, reads pane titles and program files from `/proc`
-  and, while Codex runs, the `tui` keys of Codex's settings. It installs
-  nothing and changes no configuration.
-- **On your PC** aidevbridge keeps:
-  - `%APPDATA%\io.github.itbrain258.aidevbridge\settings.toml`: your hosts
-    (name, address, port, user, key file path, authentication method),
-    preferences and the workspace (open terminals, recent folders).
-    Settings → About shows the exact path. The window position is stored in
-    the same folder.
-  - `%USERPROFILE%\.ssh\known_hosts`: the host keys you accepted. The file is
-    shared with OpenSSH; the app only appends to it.
-  - `%LOCALAPPDATA%\io.github.itbrain258.aidevbridge\`: WebView2 data.
-  - On macOS, `settings.toml` and the window position are in
-    `~/Library/Application Support/io.github.itbrain258.aidevbridge/`, the
-    host keys in `~/.ssh/known_hosts` and the WebKit data under
-    `~/Library/WebKit/io.github.itbrain258.aidevbridge/` and
-    `~/Library/Caches/io.github.itbrain258.aidevbridge/`.
-- **Passwords and key passphrases are never stored.** The app asks again
-  when it needs them.
-- Removing the app keeps `known_hosts` and `settings.toml`; only the
-  uninstaller of the setup EXE can delete the app data, and it asks first.
-  Delete the folders by hand if you no longer need them, and remove a host
-  key with `ssh-keygen -R <host>`.
-
-## Limits and known gaps
-
-- **Not built yet:** status for agy, OpenCode and Gemini CLI; changing
-  shortcuts (Settings → Shortcuts lists them); `git worktree` when creating a
-  session; code signing, automatic updates and winget.
-- **Installers:** `npm run build:windows` builds and checks MSI, setup EXE
-  and ZIP, `npm run build:macos` the macOS disk image. They are unsigned (the
-  disk image ad-hoc signed). For every release the packages workflow installs
-  each one on a fresh runner and starts the app.
-- **tmux's default socket:** only servers running tmux 3.3a or 3.6 are
-  attached to; sessions of a session group are listed but not opened; a
-  server outside `/tmp/tmux-<uid>` is not found (see
-  [Sessions on tmux's default socket](#sessions-on-tmuxs-default-socket)).
-  The status poll reads the default socket in the form of the tmux on the
-  PATH: if that tmux is not 3.3a, 3.4 or 3.6 while the server is, the
-  sessions are listed but their status stays unknown, and sessions started
-  later appear only after **Reload sessions**.
-- **macOS:** the shortcuts are those of Windows (Ctrl, Ctrl+Shift); ⌘C, ⌘V,
-  ⌘W and ⌘Q work through the app menu. Shortcuts with ⌘ and a check by hand
-  on a Mac (copy and paste, the local-network prompt, fonts) are still open.
-- **Authentication:** a key file, the Windows OpenSSH agent (the `ssh-agent`
-  service; on macOS the agent of `SSH_AUTH_SOCK`) or a password. No keyboard-interactive or two-factor prompts, no
-  Pageant, no jump hosts or proxies. The import from `~/.ssh/config` reads
-  `Host`, `HostName`, `User`, `Port` and `IdentityFile`; other keywords such
-  as `ProxyJump`, `Include` and `Match`, and wildcard defaults, are ignored.
-- **Two connections per host:** each host opens two SSH connections
-  (control and terminals) bound to the same host key. An SSH agent that asks
-  for approval may therefore ask twice, and again on every automatic
-  reconnect attempt.
-- **Several windows:** aidevbridge can run more than once, and all windows
-  share `settings.toml`. A window applies only its own change to what
-  another one saved, so hosts another window added or removed stay; if two
-  windows edit the same host, the later save sets all of that host's
-  fields. Each preference keeps the value of the window that changed it
-  last, the workspace (open terminals, layout) is that of the window that
-  saved it last, and a window shows hosts changed in another one only after
-  a restart. Two windows on the same session attach to it as two tmux
-  clients. Details in
-  [SECURITY.md](SECURITY.md#several-windows-at-the-same-time).
-- **Automatic recovery** covers hosts with a key file or ssh-agent whose last
-  connection needed no passphrase. Password and passphrase hosts reconnect
-  by hand; when only the live updates stopped, **Restore updates** in the
-  sidebar asks for the password again.
-- **History on attach** needs the pane identity that only tmux 3.3a, 3.4 and
-  3.6 provide; on tmux 3.0 and unmeasured versions a reopened terminal
-  starts without history. While a full-screen program runs (alternate
-  screen), no history is loaded.
-- **Resizing:** opening or closing a terminal, releasing a dragged gap and
-  swapping two terminals of different sizes resize every terminal whose size
-  changes. Codex clears its tmux history on each resize.
-- **Clipboard:** copies that programs send themselves via OSC 52 are ignored.
-  tmux keeps its default `set-clipboard external`, so only tmux's own copies
-  (drag, double-click) reach the Windows clipboard, not the built-in copy
-  commands of the agents.
-- **`known_hosts`:** plain and hashed host entries (`|1|…`, as written by
-  `HashKnownHosts yes` or `ssh-keygen -H`) are matched alike: a different key
-  of the same type behind a hashed entry is refused as a changed key. After
-  a real key change, remove the old entry with `ssh-keygen -R <host>`
-  (`ssh-keygen -R "[host]:port"` for another port; it finds hashed entries
-  too) and connect again; the error message names that command.
-  Wildcard and negated host patterns are not evaluated, and CA trust
-  (`@cert-authority`) is not supported. A `@revoked` line with a wildcard,
-  negated or hashed host field makes the app reject that key for every host
-  and port, even where another line trusts it; such a key cannot be accepted
-  through the first-contact prompt.
-- **Shell startup output:** opening a listed session expects the app's own
-  marker line first. A shell startup file that prints output, or waits for
-  input, in non-interactive SSH commands makes opening fail, at the latest
-  after 15 seconds.
-- **Unconfirmed changes:** if creating or ending a session times out after
-  the command was sent, the app says that it may already have happened and
-  does not repeat it. Reload the session list before trying again.
-- **Reserved settings:** the per-host `tmux_socket` and `history_limit` in
-  `settings.toml` are loaded and kept, but do not change anything yet. The
-  app always uses the `agentbridge` socket and sets a 10,000-line history
-  for new panes; the local scrollback holds 5,000 lines.
-
-## Build from source
-
-You need Windows 10 or 11 (x64), or macOS 11 or newer, with:
-
-- Rust 1.97.1. `rust-toolchain.toml` pins it, and `rustup` installs it on
-  first use.
-- On Windows the Microsoft C++ Build Tools (MSVC) and the WebView2 Runtime,
-  on macOS the Xcode Command Line Tools (`xcode-select --install`).
-- Node.js 24 or newer.
-
-```sh
-npm ci
-npm run tauri -- dev
-```
-
-`package.json` denies the install script of `esbuild` (`allowScripts`, read
-by npm 12): the build and the tests run without it.
-
-Builds pin `russh` to the published version **0.65.0** with four local
-changes: SSH channel-close acknowledgements, including cleanup of unsent data
-after remote close; a public `ChannelEndObserver`/`ChannelEndSnapshot` API
-that reports how a client channel ended (EOF, exit status or signal, Close,
-session end); a manual receive window for terminal channels, so the host
-sends a terminal's output only as fast as the app consumes it; and an error
-instead of an empty method list when the session ends during sign-in. Cryptographic
-code and requested production features are unchanged. The [vendored source record](vendor/russh/AGENTBRIDGE-PATCH.md)
-lists every changed and added file and documents the upstream commit, original
-archive checksum and Apache-2.0 license; the
-[close patch report](docs/reviews/2026-09-11-neutral/russh-channel-close-patch.md)
-(in German) records the scope and validation of the Close change.
-
-### Tests
-
-```sh
-npm test
-npm run test:scripts
-npm run build
-cd src-tauri
-cargo fmt --all -- --check
-cargo clippy --locked --all-targets -- -D warnings
-cargo test --locked --all
-```
-
-These checks need no SSH host. Tests that need one skip themselves and still
-count as passed. To run them against a test host, set `AIDEVBRIDGE_TEST_HOST`,
-`AIDEVBRIDGE_TEST_USER`, `AIDEVBRIDGE_TEST_HOST_KEY` and
-`AIDEVBRIDGE_TEST_SOCKET`; the VM acceptance suite needs
-`AIDEVBRIDGE_VM_HOST`, `AIDEVBRIDGE_VM_USER`, `AIDEVBRIDGE_VM_PASSWORD_USER`
-and the same test socket.
-[CONTRIBUTING.md](CONTRIBUTING.md#live-tests-against-a-test-host) explains
-each of them and the rules for the socket name. `.github/workflows/ci.yml`
-runs the frontend tests and build on Linux, the Rust checks on Windows, Linux
-and macOS and the script tests on Windows, also without an SSH host.
-`.github/workflows/packages.yml` builds the installers, installs each one on
-a fresh runner and starts the app until its window appears; see
-[Release packages in CI](#release-packages-in-ci).
-
-### Release build
-
-```sh
-npm run build:app
-```
-
-This runs `tauri build --no-bundle` and produces
-`target/release/aidevbridge.exe` with the frontend embedded. Use it for
-yourself: the bare EXE carries no license notices, so pass on only the
-packages from `npm run build:windows`.
-
-### Windows packages
-
-```powershell
-npm run build:windows
-```
-
-This needs Windows x64, PowerShell 7, Node.js 24 or newer, the pinned Rust
-toolchain, the MSVC Build Tools and a clean, committed Git checkout; a source
-ZIP downloaded from GitHub only works with `npm run build:app`. Keep the
-checkout path short: the run builds 140 characters and more below it, and the
-MSVC linker fails with `LNK1104` once a path exceeds 260 characters. The pipeline
-installs the locked npm dependencies, fetches the locked Cargo dependencies
-and downloads three pinned WiX and NSIS build tools from their upstream URLs,
-checking their hashes. From one native build it creates the MSI, the setup
-EXE and the ZIP, each with the same offline `licenses` folder, checks the ZIP
-contents and writes `release-manifest.json` with the SHA-256 of every
-package to `out/release-windows/<run-id>/artifacts/`. Recheck a run with:
-
-```powershell
-node scripts/release-windows-artifacts.mjs verify out/release-windows/<run-id>
-```
-
-The license selection `docs/release/license-selection.windows-x64.json`
-binds the app's inputs by hash and stops the build when one of them changed.
-Review the change and update only the affected records; do not refresh all
-hashes to get past a failure. `node scripts/release-license-rebind.mjs <path>...`
-shows which records the named files would change and writes them with
-`--write`; `--add` binds a new input file, and files of a dependency need
-`--third-party` after reviewing its new version. It never adds or changes a
-license decision. `node scripts/release-licenses.mjs check` confirms the
-result. The pipeline does not sign, install or publish anything.
-
-### macOS disk image
-
-```sh
-npm run build:macos
-```
-
-This needs macOS on Apple silicon, the Xcode Command Line Tools, Node.js 24
-or newer, the pinned Rust toolchain with both Apple targets
-(`rustup target add --toolchain 1.97.1 aarch64-apple-darwin x86_64-apple-darwin`)
-and a clean, committed Git checkout. It builds one universal binary for Apple
-silicon and Intel, packs the app and its DMG, signs them ad-hoc and checks
-the result: both architectures, only system libraries linked, nothing in the
-bundle but the program, its icon, the `licenses` folder and the signature,
-and the same app inside the DMG. `release-manifest.json` with the SHA-256 of
-the DMG lands in `out/release-macos/<run-id>/artifacts/`. When the Apple
-secrets named in
-[the design](docs/specs/2026-10-25-macos-lieferung-design.md) are set, it
-signs with a Developer ID and notarizes instead.
-
-The macOS license selection
-`docs/release/license-selection.macos-universal.json` is derived from the
-Windows one by `node scripts/release-license-select-macos.mjs --write`; check
-it with `node scripts/release-licenses.mjs check macos-universal`. The rebind
-helper updates both selections at once. `npm run build:macos -- --preview`
-builds any clean commit without the bound selection: such a disk image
-carries a note instead of the license texts and is not for passing on.
-
-### Release packages in CI
-
-`.github/workflows/packages.yml` makes a preview of the macOS disk image for
-every push and pull request and installs and starts it on an Apple silicon
-and an Intel Mac. A tag `v<version>` makes the release builds of all
-packages: MSI, setup EXE and ZIP with `npm run build:windows` on Windows, the
-disk image with `npm run build:macos` on macOS. Each package is installed on
-a fresh runner and the app started until its window appears; then the
-workflow attaches them, with the `.sha256` of the disk image, to the release
-of the tag and writes a Windows and a macOS part into its text, creating the
-release if there is none. A manual run with **release** on makes the release
-builds of a branch without publishing them; a manual run naming an existing
-tag builds that tag and attaches only the files its release still lacks. A
-published file is never replaced by different content: a platform whose files
-are all attached stays as it is, and if a platform is only partly attached, an
-attached file whose digest differs from the new build, or that has no digest,
-stops the run before anything is attached. To rebuild such a file on purpose,
-delete it from the release by hand and run the workflow again. Only the run
-of the tag itself records a build provenance for the files it attaches
-(`actions/attest-build-provenance`, see
-[Before you download](#before-you-download)); a manual run that names a tag
-but starts from another ref, such as a branch, would record that ref as the
-source, so it attaches without provenance and says so in a warning.
-
-### Why not `cargo build --release`
-
-A plain `cargo build --release` produces a binary that does not embed the
-frontend. It loads `devUrl` (`http://localhost:1420`) instead, so without a
-running Vite dev server the window shows `ERR_CONNECTION_REFUSED`. The build
-succeeds, and nothing about the binary looks wrong until you start it.
-
-The switch is the `custom-protocol` Cargo feature: tauri's build script
-derives `dev = !has_feature("custom-protocol")`, and `generate_context!`
-embeds `frontendDist` only when `dev` is false. The Tauri CLI passes that
-feature on a release build; cargo on its own never does. Do not enable it in
-`src-tauri/Cargo.toml`: a feature declared there is also active under
-`tauri dev`, and the dev window would then load a stale embedded `dist/`
-instead of the Vite server. If you need cargo directly:
-
-```sh
-npm run build   # tauri build runs this as beforeBuildCommand; cargo does not
-cargo build --release --features tauri/custom-protocol
-```
+What changed is in the [CHANGELOG](CHANGELOG.md), where the project stands in
+[docs/stand.md](docs/stand.md) (both in German).
 
 ## Contributing
 
-Bug reports and ideas are welcome as issues; please use the templates.
-aidevbridge has a single maintainer, so answers can take a while. Read
-[CONTRIBUTING.md](CONTRIBUTING.md) before a pull request. The project's design
-documents, measurements and status are in German under [docs/](docs/),
-starting with [docs/stand.md](docs/stand.md).
+Bug reports and ideas are welcome as
+[issues](https://github.com/ITBrain258/aidevbridge/issues/new/choose); please use
+the templates. aidevbridge has a single maintainer, so answers can take a while.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before a pull request.
 
-## Security
+aidevbridge is built with [Tauri 2](https://tauri.app/): a Rust backend and a
+TypeScript frontend with xterm.js.
 
 Please report vulnerabilities privately as described in
 [SECURITY.md](SECURITY.md), not in a public issue.
@@ -594,8 +197,8 @@ in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md), the patched `russh` in
 keys in `src-tauri/tests/fixtures/rsa-signing/` (see
 [SOURCES.md](src-tauri/tests/fixtures/rsa-signing/SOURCES.md)) and the
 license texts and installer sources under `docs/release/licenses/` and
-`docs/release/sources/`. The Windows packages and the macOS app carry the
-notices selected for their platform in their `licenses` folder.
+`docs/release/sources/`. The packages carry the notices selected for their
+platform.
 
 Unless you explicitly state otherwise, any contribution intentionally
 submitted for inclusion in this work by you, as defined in the Apache-2.0

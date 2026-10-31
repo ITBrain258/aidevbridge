@@ -20,7 +20,7 @@ You need Windows 10 or 11 (x64) or macOS 11 or newer, the Rust toolchain
 from `rust-toolchain.toml` (installed by `rustup` on first use), Node.js 24
 or newer and, on Windows, the Microsoft C++ Build Tools (MSVC) and the
 WebView2 Runtime, on macOS the Xcode Command Line Tools; see the
-[README](README.md#build-from-source).
+[build guide](docs/guide/building.md).
 
 ```sh
 npm ci
@@ -47,7 +47,7 @@ passed, so a green run does not prove a real SSH connection.
 runtime packages in `package-lock.json` with `npm audit --omit=dev` against
 known security advisories: weekly, on every change of either lockfile or of
 `vendor/`, and when started by hand. It is not part of the checks above, which `ci.yml` runs
-(see [Tests](README.md#tests)), and a new advisory can turn it red without
+(see [Tests](docs/guide/building.md#tests)), and a new advisory can turn it red without
 any change here. `cargo audit` checks only packages that `Cargo.lock`
 records with a registry source and never matches advisories against a path
 dependency such as the vendored russh in `vendor/russh`; a third job runs
@@ -114,42 +114,42 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
 - Say in the description what you changed, why, and how you tested it. Review
   aims for one round.
 - All text of the user interface lives in `src/i18n/en.json`.
-- The release license selections
-  (`docs/release/license-selection.windows-x64.json` and
-  `docs/release/license-selection.macos-universal.json`) bind the app's
-  sources by hash. You do not need to update them; the maintainer reviews and
-  rebinds them before a release. The packages workflow builds a preview disk
-  image of your pull request, which does not need them.
+- The three release license selections
+  (`docs/release/license-selection.*.json`) bind the app's sources by hash. For
+  a change to your own code you do not need to update them; the maintainer
+  rebinds them before a release. A pull request that changes a dependency
+  needs its license review in the same pull request: the CI job `licenses` fails
+  otherwise ([guide](docs/lizenzen-pflegen.md), in German). The packages workflow
+  builds a preview disk image of your pull request, which does not need them.
 
 ## Releases
 
 1. `npm run bump <version>` and a CHANGELOG entry.
-2. Rebind the Windows selection with `node scripts/release-license-rebind.mjs
-   <path>... --write` and set the version at its places by hand.
-3. Derive the macOS selection again with
-   `node scripts/release-license-select-macos.mjs --write` (Linux or macOS,
-   with `rust-src` and both Apple targets installed for Rust 1.97.1), then
-   run `node scripts/release-licenses.mjs prepare` and
-   `node scripts/release-licenses.mjs prepare macos-universal`.
-4. Optionally start the packages workflow by hand with **release** on: it
-   makes the release builds for Windows and macOS without publishing them.
-5. Push the tag `v<version>`, or publish a release that creates it. The
-   packages workflow builds MSI, setup EXE, ZIP and the disk image, installs
-   and starts each one, and attaches them to the release of the tag, creating
-   it if needed. Do not use a draft, which the workflow cannot find. A manual
-   run of the workflow naming the tag attaches only the files the release
-   still lacks. A published file is never replaced by different content: a
-   platform whose files are all attached stays as it is, and if a platform is
-   only partly attached, an attached file whose digest differs from the new
-   build, or that has no digest, stops the run before anything is attached.
-   To rebuild such a file on purpose, delete it from the release by hand and
-   run the workflow again.
+2. Bring the three license selections up to date with `npm run licenses:status`
+   and `npm run licenses:rebind-own`, set the version at its places by hand and
+   confirm with `npm run licenses:check`. [The license guide](docs/lizenzen-pflegen.md)
+   (in German) describes every case.
+3. Optionally start the packages and Android workflows by hand with **release**
+   on: they make the release builds without publishing them.
+4. Push the tag `v<version>`. Only an administrator can create tags `v*`. The
+   packages workflow builds MSI, setup EXE, ZIP and the disk image, installs and
+   starts each one, and attaches them to the release of the tag, creating it if
+   needed; the Android workflow signs and attaches the APK. Do not use a draft,
+   which the workflows cannot find. A manual run naming the tag attaches only the
+   files the release still lacks. A published file is never replaced by different
+   content: a platform whose files are all attached stays as it is, and if a
+   platform is only partly attached, an attached file whose digest differs from
+   the new build, or that has no digest, stops the run before anything is attached.
+   To rebuild such a file on purpose, delete it from the release by hand and run
+   the workflow again.
+5. If the interface changed, render the pictures again
+   ([Images](docs/guide/building.md#images)).
 
 ## Language
 
-The user interface, the README and the files for contributors are in
-English. The changelog, the project documents under `docs/` and code comments
-are in German; code comments write ä, ö, ü and ß as ae, oe, ue and ss.
+The user interface, the README, the guides under `docs/guide/` and the files
+for contributors are in English. The changelog, the other project documents
+under `docs/` and code comments are in German; code comments write ä, ö, ü and ß as ae, oe, ue and ss.
 Identifiers are English. You may write issues and pull requests in English or
 German.
 
