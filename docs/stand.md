@@ -503,7 +503,10 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   `scripts/release-notes.mjs`.
 - russh-Patch: [Herkunft, Umfang und Lizenz](../vendor/russh/AGENTBRIDGE-PATCH.md)
   und der [Patchbericht](reviews/2026-09-11-neutral/russh-channel-close-patch.md)
-  zum Kanalschluss.
+  zum Kanalschluss. Die Bibliothekstests des eingebetteten russh laufen jetzt
+  in `.github/workflows/vendored.yml`; den Satz in `AGENTBRIDGE-PATCH.md`, sie
+  liefen in keiner CI, berichtigt erst das nächste russh-Update, weil
+  `vendor/` in den Lizenzauswahlen als Fremdcode gebunden ist.
 - Bilder im README, Vorschaubild für Links und Telefonbilder des Store-Eintrags:
   `scripts/readme-images/render.mjs` rendert die echte Oberfläche mit
   Beispieldaten nach `docs/images/` und `fastlane/`, ohne Host und ohne neue
