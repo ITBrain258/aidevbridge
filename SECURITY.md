@@ -269,7 +269,8 @@ The Windows packages (setup EXE, MSI and ZIP) are not code-signed, so
 Windows SmartScreen warns about an unknown publisher, and Smart App Control,
 when it is on, doesn't start them. The macOS disk image and the app in it
 are signed ad-hoc only and not notarized, so macOS refuses the first start
-until you choose **Open Anyway** (see the README). So neither system can
+until you choose **Open Anyway** (see the
+[install guide](docs/guide/install.md#macos)). So neither system can
 tell you who built a file. Download the files only from the
 [releases page](https://github.com/ITBrain258/aidevbridge/releases) and
 compare their SHA-256 checksum with the value listed in the release notes
@@ -290,7 +291,7 @@ match the release notes exactly; upper or lower case doesn't matter. If it
 doesn't match, don't run the file, and report it through the private form.
 
 The checksum comes from the same release as the file. An optional, stronger
-check doesn't rely on the release: from the release after 0.2.3 on, the workflow
+check doesn't rely on the release: from 0.2.4 on, the workflow
 `.github/workflows/packages.yml` records a build provenance
 (`actions/attest-build-provenance`) for each file that the run of the
 release's tag attaches. The provenance is signed through the public Sigstore
