@@ -22,14 +22,6 @@ or newer and, on Windows, the Microsoft C++ Build Tools (MSVC) and the
 WebView2 Runtime, on macOS the Xcode Command Line Tools; see the
 [build guide](docs/guide/building.md).
 
-There are no packages for Linux desktops, but the Rust checks, the frontend
-tests and the build from the checks before a pull request (below) also run on
-Linux, as in the CI. The Rust checks need the packages that the step "Install
-Linux dependencies for Tauri" in `.github/workflows/ci.yml` installs; the
-frontend tests and the build need only Node.js. The CI runs
-`npm run test:scripts` on Windows only; some of these tests check Windows
-behaviour and are skipped elsewhere.
-
 ```sh
 npm ci
 npm run tauri -- dev
@@ -50,6 +42,13 @@ cargo test --locked --all
 They need no SSH host. Tests that would need one return early, print a line
 starting with `SKIP` (visible with `-- --nocapture`) and still count as
 passed, so a green run does not prove a real SSH connection.
+
+There are no packages for Linux desktops, but the Rust checks, the frontend
+tests and the build from these checks also run on Linux, as in the CI. The
+Rust checks need the packages that the step "Install Linux dependencies for
+Tauri" in `.github/workflows/ci.yml` installs; the frontend tests and the
+build need only Node.js. The CI runs `npm run test:scripts` on Windows only;
+some of these tests check Windows behaviour and are skipped elsewhere.
 
 `.github/workflows/audit.yml` checks `Cargo.lock` with `cargo audit` and the
 runtime packages in `package-lock.json` with `npm audit --omit=dev` against
