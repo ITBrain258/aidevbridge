@@ -626,9 +626,12 @@ export function mountTerminal(
   // UX-Spec §6.2: tmux mit `mouse on` schickt die Kopie eines Ziehens per
   // OSC 52 (`ESC]52;;<base64>BEL`, gemessen auf tmux 3.6), und xterm 6
   // verwirft OSC 52 ohne eigenen Handler. Geschrieben wird nur, gelesen nie.
-  // tmux bleibt bei `set-clipboard external` und reicht damit nur Kopien
-  // weiter, die es selbst anstoesst; OSC 52 aus der Programmausgabe verwirft
-  // tmux. Hat das Fenster keinen Fokus, lehnt der Browser das Schreiben ab --
+  // Welche OSC 52 hier ankommen, entscheidet tmux' `set-clipboard`. Die App
+  // setzt die Option nicht, und tmux liest `~/.tmux.conf` auch auf dem
+  // eigenen Socket. Beim Standard `external` reicht tmux nur eigene Kopien
+  // weiter und verwirft OSC 52 aus der Programmausgabe; mit `on` kommt auch
+  // diese an (SECURITY.md, Known limitations and accepted risks).
+  // Hat das Fenster keinen Fokus, lehnt der Browser das Schreiben ab --
   // das bleibt still. `true` auch fuer Verworfenes: es gibt keinen weiteren
   // Handler, und eine Antwort geht nie hinaus.
   term.parser.registerOscHandler(52, (data) => {
