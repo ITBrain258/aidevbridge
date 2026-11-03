@@ -2697,9 +2697,31 @@ export function main(): void {
     // Nutzer ihn schliesst.
     let neutral = false;
     let hideTimer: number | undefined;
+    // Ein Fehler, den ein neutraler Hinweis verdeckt, kommt zurueck, sobald
+    // der Hinweis schliesst (Zeitgeber, Druck in eine Kachel oder "Dismiss"):
+    // ein Fehler bleibt stehen, bis der Nutzer ihn schliesst (Spec 2026-10-19
+    // §5.3, Nachtrag vom 24.10.). Ein neuer Fehler ersetzt aeltere wie bisher.
+    let coveredError: { message: string; details: string | null } | null = null;
+
+    const show = (message: string, details: string | null, tone: BannerTone) => {
+      text.textContent = message;
+      currentDetails = details;
+      copyButton.hidden = currentDetails === null;
+      neutral = tone === "neutral";
+      banner.classList.toggle("global-error-banner--neutral", neutral);
+      window.clearTimeout(hideTimer);
+      hideTimer = neutral ? window.setTimeout(hide, NEUTRAL_NOTICE_MS) : undefined;
+      banner.hidden = false;
+    };
     const hide = () => {
       window.clearTimeout(hideTimer);
       hideTimer = undefined;
+      if (neutral && coveredError !== null) {
+        const covered = coveredError;
+        coveredError = null;
+        show(covered.message, covered.details, "danger");
+        return;
+      }
       banner.hidden = true;
     };
     dismissButton.addEventListener("click", hide);
@@ -2712,14 +2734,13 @@ export function main(): void {
     );
 
     return (message: string, details?: string, tone: BannerTone = "danger") => {
-      text.textContent = message;
-      currentDetails = details ?? null;
-      copyButton.hidden = currentDetails === null;
-      neutral = tone === "neutral";
-      banner.classList.toggle("global-error-banner--neutral", neutral);
-      window.clearTimeout(hideTimer);
-      hideTimer = neutral ? window.setTimeout(hide, NEUTRAL_NOTICE_MS) : undefined;
-      banner.hidden = false;
+      if (tone === "neutral") {
+        // Ein Hinweis ueber einem Hinweis behaelt den schon verdeckten Fehler.
+        if (!banner.hidden && !neutral) coveredError = { message: text.textContent ?? "", details: currentDetails };
+      } else {
+        coveredError = null;
+      }
+      show(message, details ?? null, tone);
     };
   }
 
