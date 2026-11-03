@@ -647,10 +647,10 @@ Einmal vor dem nächsten Tag, am Stand des Branches `chore/review-2026-11`
 (Zusammenfassung in [`docs/stand.md`](stand.md)). Was Tests nicht zeigen: das
 Banner am echten Fenster, das Tippen über eine echte Verbindung, was tmux
 bei `set-clipboard on` und `allow-passthrough on` wirklich weiterreicht und
-wo macOS Daten der App
-ablegt. Die Obergrenze des Polltakts bei zurückgestellter Uhr deckt ein Test
-mit gefälschter Zeit ab; am Fenster träfe man den Fall nur zufällig, weil die
-Uhr genau während einer Abfrage springen müsste.
+wo macOS Daten der App ablegt. Die Obergrenze des Polltakts bei
+zurückgestellter Uhr deckt ein Test mit gefälschter Zeit ab; am Fenster träfe
+man den Fall nur zufällig, weil die Uhr genau während einer Abfrage springen
+müsste.
 
 **Vorbereitung**
 

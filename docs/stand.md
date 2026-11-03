@@ -25,7 +25,8 @@ Version, Neubindung der Lizenzauswahlen und Tag folgen beim Release
   gleicht jede genannte Rust-Version mit `rust-toolchain.toml` ab.
 - **Doku:** OSC 52 hängt an `set-clipboard` und `allow-passthrough` aus
   `~/.tmux.conf` (tmux vor 3.3 reicht verpackte Sequenzen immer durch), neu
-  als akzeptiertes Risiko in `SECURITY.md`; `PRIVACY.md` nennt alle Ablageorte;
+  als akzeptiertes Risiko in `SECURITY.md`; `PRIVACY.md` nennt alle bekannten
+  Ablageorte (macOS am echten Mac noch nicht nachgeprüft, Punkt 13);
   neue Hostschlüssel stehen im Klartext in `known_hosts`; die Datenschutzseite
   nennt den Standard-Socket; Vorlage für Pull Requests, Linux und
   Lizenzprüfung in `CONTRIBUTING.md`; Platzhalter statt Konto- und

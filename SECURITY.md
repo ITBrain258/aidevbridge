@@ -183,19 +183,20 @@ reaches its terminal to the local clipboard. It never answers a request to
 read the clipboard, drops anything larger than 1 MiB, and the WebView
 writes only while the app's window has the focus.
 
-Which sequences reach the terminal is decided by tmux's option
-`set-clipboard`. The app doesn't set it and starts tmux without `-f`, so
-your `~/.tmux.conf` applies, on the app's own socket as on tmux's default
-socket. With `external`, tmux's default, only tmux's own copies arrive (a
-drag or double-click with `set -g mouse on`); tmux drops OSC 52 from
-programs. With `on`, any program in the session, or text it prints, such
-as a file shown with `cat`, can replace your clipboard. Pasted into a shell
-without bracketed paste, such text can run commands you didn't intend
-(pastejacking).
+Which sequences reach the terminal is decided by tmux: by its option
+`set-clipboard` and, from tmux 3.3 on, by `allow-passthrough` (see below).
+The app sets neither and starts tmux without `-f`, so your `~/.tmux.conf`
+applies, on the app's own socket as on tmux's default socket. With
+`external`, tmux's default, only tmux's own copies arrive (a drag or
+double-click with `set -g mouse on`); tmux drops OSC 52 from programs, as
+long as passthrough is off. With `on`, any program in the session, or text
+it prints, such as a file shown with `cat`, can replace your clipboard.
+Pasted into a shell without bracketed paste, such text can run commands you
+didn't intend (pastejacking).
 
-Why it is accepted: the app follows your tmux configuration. Forcing
-`external` would take the built-in copy commands of the agents away from
-users who set `on` on purpose.
+Why it is accepted: the app follows your tmux configuration and version.
+Forcing `external` would take the built-in copy commands of the agents away
+from users who set `on` on purpose.
 
 To avoid it, leave `set-clipboard` at `external`, or set it to `off`, which
 also stops tmux's own copies from reaching the clipboard. Also leave tmux's
@@ -209,7 +210,7 @@ such option and always passes these sequences on, so on tmux 3.0 to 3.2a
 `off`; only a newer tmux avoids it.
 
 To resolve: no change is planned; the behavior follows your tmux
-configuration.
+configuration and version.
 
 ### Known advisory: RUSTSEC-2023-0071 (`rsa`)
 
