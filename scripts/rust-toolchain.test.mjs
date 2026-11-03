@@ -121,7 +121,7 @@ function repositoryMentions() {
     else results.push({ mentions: [], errors: [`${relative}: file is missing`] });
   };
   for (const [relative, rules] of Object.entries(RULES)) scan(relative, rules);
-  const workflows = fs.readdirSync(path.join(ROOT, ...WORKFLOWS.split('/'))).filter(name => name.endsWith('.yml')).sort();
+  const workflows = fs.readdirSync(path.join(ROOT, ...WORKFLOWS.split('/'))).filter(name => /\.ya?ml$/.test(name)).sort();
   for (const name of workflows) scan(`${WORKFLOWS}/${name}`, WORKFLOW_RULES);
   // Ohne einen einzigen Pin wuerde der Abgleich der Workflows nichts pruefen.
   if (!results.some(result => result.mentions.some(mention => mention.sha))) {
