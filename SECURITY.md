@@ -198,7 +198,12 @@ Why it is accepted: the app follows your tmux configuration. Forcing
 users who set `on` on purpose.
 
 To avoid it, leave `set-clipboard` at `external`, or set it to `off`, which
-also stops tmux's own copies from reaching the clipboard.
+also stops tmux's own copies from reaching the clipboard. Also leave tmux's
+`allow-passthrough` at `off`, its default (the option exists since tmux
+3.3): with `on` or `all`, a program can wrap OSC 52 in tmux's passthrough
+sequence (`ESC Ptmux; … ESC \`), tmux hands the inner sequence on to the
+app's terminal, and the app writes it to the local clipboard even with
+`set-clipboard external`.
 
 To resolve: no change is planned; the behavior follows your tmux
 configuration.

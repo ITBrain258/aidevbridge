@@ -60,8 +60,9 @@
   such as the built-in copy commands of the agents. The app doesn't set
   this option and starts tmux without `-f`, so your `~/.tmux.conf` decides,
   on the app's own socket as on the default socket: with
-  `set -g set-clipboard on`, programs can write to the local clipboard too
-  (see
+  `set -g set-clipboard on`, programs can write to the local clipboard too,
+  and with `allow-passthrough` set to `on` or `all` (default `off`) even
+  with `external`, by wrapping OSC 52 in tmux's passthrough sequence (see
   [SECURITY.md](../../SECURITY.md#clipboard-writes-from-programs-when-tmux-passes-them-on)).
 - **`known_hosts`:** plain and hashed host entries (`|1|…`, as written by
   `HashKnownHosts yes` or `ssh-keygen -H`) are matched alike: a different key

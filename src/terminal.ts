@@ -630,7 +630,10 @@ export function mountTerminal(
   // setzt die Option nicht, und tmux liest `~/.tmux.conf` auch auf dem
   // eigenen Socket. Beim Standard `external` reicht tmux nur eigene Kopien
   // weiter und verwirft OSC 52 aus der Programmausgabe; mit `on` kommt auch
-  // diese an (SECURITY.md, Known limitations and accepted risks).
+  // diese an. Mit `allow-passthrough on` oder `all` (ab tmux 3.3, Standard
+  // `off`) auch bei `external`: Ein Programm verpackt OSC 52 in
+  // `ESC Ptmux; ... ESC \`, und tmux reicht die innere Sequenz hierher
+  // durch (SECURITY.md, Known limitations and accepted risks).
   // Hat das Fenster keinen Fokus, lehnt der Browser das Schreiben ab --
   // das bleibt still. `true` auch fuer Verworfenes: es gibt keinen weiteren
   // Handler, und eine Antwort geht nie hinaus.
