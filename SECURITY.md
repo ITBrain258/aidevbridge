@@ -255,6 +255,22 @@ agent (the Windows OpenSSH agent, or on macOS the agent of `SSH_AUTH_SOCK`)
 as a client. Its tests start russh servers on 127.0.0.1 as test peers,
 nothing else does.
 
+Two low advisories published on 3 November 2026 cover russh 0.65.0, which
+0.2.5 and 0.2.6 carry, but not the app:
+
+- [GHSA-9264-jvgf-6w2f](https://github.com/warp-tech/russh/security/advisories/GHSA-9264-jvgf-6w2f):
+  russh calls the client callback `kex_done` with the shared secret of the
+  key exchange before the host key is checked. aidevbridge doesn't
+  implement `kex_done`; russh's default does nothing with the secret, and
+  the connection fails at the host key check as before.
+- [GHSA-736f-c93q-9fwx](https://github.com/warp-tech/russh/security/advisories/GHSA-736f-c93q-9fwx):
+  russh's SSH agent server can sign with a key that needs confirmation
+  after the agent was locked. aidevbridge doesn't act as an SSH agent and
+  never runs that code.
+
+The audit workflow lists both as accepted; the next update of the vendored
+russh (0.65.1 fixes both) removes them.
+
 Neither `cargo audit` nor Dependabot sees the vendored copy: both match only
 packages that `Cargo.lock` records with a registry source, and the vendored
 russh has none. That is how the three client advisories above went unnoticed

@@ -28,6 +28,10 @@ Ergebnis eines Code-Reviews: Die SSH-Verbindung schaltet den Nagle-Algorithmus a
 - Wird die Systemuhr zurueckgestellt, waehrend eine Statusabfrage laeuft, etwa von einer Zeitsynchronisation, kommt die naechste Abfrage dieses Hosts trotzdem nach hoechstens 2 s. Bisher wartete sie zusaetzlich um den Betrag der Umstellung, und Statuspunkte, Wartet-Spur und Fenstertitel standen so lange still.
 - SSH: Die App schaltet auf jeder Verbindung den Nagle-Algorithmus ab (`TCP_NODELAY`), wie OpenSSH fuer interaktive Sitzungen. Tastendruecke und andere kleine Pakete warten nicht mehr auf die Bestaetigung des vorigen Pakets, was vor allem auf Verbindungen mit hoher Latenz bremste.
 
+### Security
+
+- russh 0.65.0: Zwei am 03.11. veroeffentlichte, niedrig eingestufte Meldungen betreffen die App nicht. GHSA-9264-jvgf-6w2f trifft nur Clients, die den Callback `kex_done` nutzen, den die App nicht implementiert; GHSA-736f-c93q-9fwx trifft den SSH-Agent-Server von russh, den die App nie ausfuehrt. `SECURITY.md` begruendet das, der Audit-Workflow fuehrt beide als akzeptiert, und das naechste Update auf russh 0.65.1 behebt sie.
+
 ## [0.2.5] - 2026-10-31
 
 Sicherheitsrelease: russh 0.65.0 behebt drei Luecken im SSH-Client, die 0.2.4 und frueher betreffen (siehe Security). Dazu Tauri 2.12, NSIS 3.13 fuer den Windows-Installer und eine gehaertete CI.

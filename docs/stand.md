@@ -451,6 +451,14 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     sind Tauri 2.12 (PR #15), Tauri-CLI 2.12.4 mit NSIS 3.13 (PR #16) und
     russh 0.65.0 (PR #18). Die Reihenfolge unten ist die Empfehlung vom
     30.10., noch nicht entschieden:
+    - **russh 0.65.1:** behebt GHSA-9264-jvgf-6w2f (`kex_done` vor der
+      Hostschlüsselprüfung) und GHSA-736f-c93q-9fwx (Agent-Server signiert
+      nach dem Sperren), beide vom 03.11. und niedrig eingestuft. Die App
+      betreffen sie nicht, `SECURITY.md` sagt warum, und der Audit-Workflow
+      führt sie als akzeptiert (`ACCEPTED` in
+      `scripts/check-vendored-advisories.mjs`); mit dem Update fallen die
+      Einträge wieder weg. Dieselbe Prüfung der Patches und Lizenzen wie
+      bei 0.65.0 (PR #18).
     - **Frontend-Werkzeuge:** Vite 8, TypeScript 7, Vitest 5 und jsdom 30
       (stehen auf 6.4, 5.6, 4.1 und 29). Vite ändert die gebaute Ausgabe,
       also den Beleg zum Modulepreload-Polyfill. Mit dieser Stufe zu
