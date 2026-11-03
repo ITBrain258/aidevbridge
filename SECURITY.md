@@ -104,7 +104,7 @@ Out of scope:
   and `~/Library/Caches/io.github.itbrain258.aidevbridge/`. Its local
   storage holds only the color theme.
 
-On Android (from 0.2.4, see `docs/specs/2026-10-27-android-design.md`) all
+On Android (from 0.2.4, see `docs/specs/2026-10-27-android-design.md`, in German) all
 of this lives in the app's private storage, which other apps cannot
 read: `settings.toml` under `io.github.itbrain258.aidevbridge/` and
 `known_hosts` under `.ssh/`. Keys you generate or import in the app are
