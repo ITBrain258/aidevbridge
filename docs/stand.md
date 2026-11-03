@@ -20,10 +20,12 @@ Version, Neubindung der Lizenzauswahlen und Tag folgen beim Release
   veraltete Kommentare berichtigt, die gespeicherte Anmeldeart im Frontend an
   einer Stelle abgeleitet.
 - **CI und Tests:** `vendored.yml` führt die Bibliothekstests des eingebetteten
-  russh aus; `scripts/rust-toolchain.test.mjs` gleicht jede genannte
-  Rust-Version mit `rust-toolchain.toml` ab.
-- **Doku:** OSC 52 hängt an `set-clipboard` aus `~/.tmux.conf`, neu als
-  akzeptiertes Risiko in `SECURITY.md`; `PRIVACY.md` nennt alle Ablageorte;
+  russh aus, und `scripts/vendored-workflow.test.mjs` hält seine Features und
+  Auslöser an `src-tauri/Cargo.toml`; `scripts/rust-toolchain.test.mjs`
+  gleicht jede genannte Rust-Version mit `rust-toolchain.toml` ab.
+- **Doku:** OSC 52 hängt an `set-clipboard` und `allow-passthrough` aus
+  `~/.tmux.conf` (tmux vor 3.3 reicht verpackte Sequenzen immer durch), neu
+  als akzeptiertes Risiko in `SECURITY.md`; `PRIVACY.md` nennt alle Ablageorte;
   neue Hostschlüssel stehen im Klartext in `known_hosts`; die Datenschutzseite
   nennt den Standard-Socket; Vorlage für Pull Requests, Linux und
   Lizenzprüfung in `CONTRIBUTING.md`; Platzhalter statt Konto- und
