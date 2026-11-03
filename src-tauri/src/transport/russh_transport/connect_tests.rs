@@ -883,3 +883,30 @@ async fn a_same_key_rekey_keeps_the_session_usable_and_asks_the_policy_once() {
     transport.abort();
     let _ = timeout(REKEY_TEST_END, server).await.unwrap();
 }
+
+#[tokio::test]
+async fn ssh_socket_disables_nagle() {
+    // Die Sonde ist ein `try_clone` des Sockets, den die Verbindung bekommt,
+    // und sieht deshalb dieselbe Option. Der Server schliesst sofort; dass der
+    // Handshake daran scheitert, spielt hier keine Rolle.
+    let (listener, spec) = listener().await;
+    let address = listener.local_addr().unwrap();
+    let server = tokio::spawn(async move {
+        let (peer, _) = listener.accept().await.unwrap();
+        drop(peer);
+    });
+    let (probe_tx, probe_rx) = std::sync::mpsc::channel();
+    let _ = timeout(
+        TEST_END,
+        RusshTransport::connect_using(&spec, policy(None).0, &password(), move || async move {
+            let standard = TcpStream::connect(address).await?.into_std()?;
+            probe_tx.send(standard.try_clone()?).unwrap();
+            TcpStream::from_std(standard)
+        }),
+    )
+    .await
+    .unwrap();
+    let probe = probe_rx.recv().unwrap();
+    assert!(probe.nodelay().unwrap(), "the SSH socket still uses Nagle");
+    timeout(TEST_END, server).await.unwrap().unwrap();
+}
