@@ -121,6 +121,19 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
   needs its license review in the same pull request: the CI job `licenses` fails
   otherwise ([guide](docs/lizenzen-pflegen.md), in German). The packages workflow
   builds a preview disk image of your pull request, which does not need them.
+- **Changing a dependency.** Third-party code here means the lockfiles
+  (`Cargo.lock`, `package-lock.json`, `src-tauri/gen/android/app/gradle.lockfile`),
+  everything under `node_modules/`, `vendor/` and `docs/release/`,
+  `THIRD_PARTY_LICENSES.md` and every crate from the registry.
+  `npm run licenses:status` lists the differences of all three selections, own
+  sources and third-party code apart. On Windows x64,
+  `node scripts/release-license-update-cargo.mjs` shows the plan for Rust crates:
+  a crate moves without review only if its declared license, its role in the
+  release graph, its set of license files and the bytes of every bound file stay
+  the same; anything under `review` needs a reviewed entry. The
+  [guide](docs/lizenzen-pflegen.md) (in German) has the steps for Rust, npm,
+  vendored crates, Android libraries and installer tools; at the end
+  `npm run licenses:check` must pass.
 
 ## Releases
 
