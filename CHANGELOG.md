@@ -9,7 +9,7 @@ dem Namen agentbridge.
 ### Added
 
 - CI: Der Workflow `vendored.yml` fuehrt die Bibliothekstests des eingebetteten russh aus, bei jeder Aenderung an `vendor/russh/`, `Cargo.lock`, `Cargo.toml`, `src-tauri/Cargo.toml` oder `rust-toolchain.toml` und auf Knopfdruck. Bisher liefen sie in keiner CI. Ein Skripttest gleicht jede Stelle, die die Rust-Version nennt, mit `rust-toolchain.toml` ab, auch die gepinnten Commits von `dtolnay/rust-toolchain`; ein weiterer die Features des Workflows mit der russh-Zeile in `src-tauri/Cargo.toml`.
-- Beitragen: eine Vorlage fuer Pull Requests mit den Regeln aus `CONTRIBUTING.md`. `CONTRIBUTING.md` sagt, dass die Pruefungen auch unter Linux laufen und was sie dort brauchen, und fasst auf Englisch zusammen, was ein Pull Request mit geaenderter Abhaengigkeit fuer die Lizenzpruefung braucht.
+- Beitragen: eine Vorlage fuer Pull Requests mit den Regeln aus `CONTRIBUTING.md`. `CONTRIBUTING.md` sagt, dass die Rust-Pruefungen, die Frontendtests und der Build auch unter Linux laufen und was sie dort brauchen, und fasst auf Englisch zusammen, was ein Pull Request mit geaenderter Abhaengigkeit fuer die Lizenzpruefung braucht.
 
 ### Changed
 

@@ -22,11 +22,13 @@ or newer and, on Windows, the Microsoft C++ Build Tools (MSVC) and the
 WebView2 Runtime, on macOS the Xcode Command Line Tools; see the
 [build guide](docs/guide/building.md).
 
-There are no packages for Linux desktops, but the checks before a pull request
-(below) also run on Linux, as in the CI. The Rust checks need the packages that
-the step "Install Linux dependencies for Tauri" in `.github/workflows/ci.yml`
-installs; the frontend tests and the build need only Node.js. The CI runs
-`npm run test:scripts` on Windows.
+There are no packages for Linux desktops, but the Rust checks, the frontend
+tests and the build from the checks before a pull request (below) also run on
+Linux, as in the CI. The Rust checks need the packages that the step "Install
+Linux dependencies for Tauri" in `.github/workflows/ci.yml` installs; the
+frontend tests and the build need only Node.js. The CI runs
+`npm run test:scripts` on Windows only; some of these tests check Windows
+behaviour and are skipped elsewhere.
 
 ```sh
 npm ci
@@ -146,7 +148,10 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
   `node scripts/release-license-update-cargo.mjs` shows the plan for Rust crates:
   a crate moves without review only if its declared license, its role in the
   release graph, its set of license files and the bytes of every bound file stay
-  the same; anything under `review` needs a reviewed entry. The
+  the same and every selected text is one of the crate's own files; anything
+  under `review` needs a reviewed entry, and a selected text from outside the
+  crate (its repository, a sibling crate, a shared text) an `external` entry
+  that records how it was checked for the new version. The
   [guide](docs/lizenzen-pflegen.md) (in German) has the steps for Rust, npm,
   vendored crates, Android libraries and installer tools; at the end
   `npm run licenses:check` must pass.
