@@ -2520,11 +2520,20 @@ describe("main: Ersetzen, Grenze und Wiederfinden (Spec 2026-10-19 §5.2, §5.3,
       });
 
       it("ein neuer Fehler danach ersetzt den verdeckten", async () => {
-        const { banner } = await errorThenLimit();
+        const { banner, errorText } = await errorThenLimit();
         terminalHoisted.errorByKey.get(`r-h1/${h1Full[1]}`)!({ kind: "open", detail: "second failure" });
         expect(banner.classList.contains("global-error-banner--neutral")).toBe(false);
+        expect(bannerMessage()).toContain(`'${h1Full[1]}'`);
+        expect(bannerMessage()).not.toBe(errorText);
         bannerButton("Dismiss").click();
         expect(banner.hidden).toBe(true);
+        vi.advanceTimersByTime(NEUTRAL_NOTICE_MS);
+        expect(banner.hidden).toBe(true);
+        // Der neue Fehler hat den verdeckten verworfen: Schliesst ein
+        // weiterer Hinweis, kommt der alte nicht zurueck.
+        openViaSidebar("h1", h1Over);
+        expect(banner.hidden).toBe(false);
+        expect(banner.classList.contains("global-error-banner--neutral")).toBe(true);
         vi.advanceTimersByTime(NEUTRAL_NOTICE_MS);
         expect(banner.hidden).toBe(true);
       });
@@ -6887,7 +6896,10 @@ describe("main: session status overlay poll", () => {
     vi.setSystemTime(Date.now() - 60 * 60_000);
     polls[polls.length - 1](statusPolls(statusPoll([{ session_id: 1, status: "idle", status_reason: "agent is idle" }])));
     await flush();
-    await vi.advanceTimersByTimeAsync(2000);
+    // Genau beim Takt von 2 s, nicht frueher und nicht spaeter.
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(calls("poll_status")).toHaveLength(running);
+    await vi.advanceTimersByTimeAsync(1);
     expect(calls("poll_status")).toHaveLength(running + 1);
   });
 
