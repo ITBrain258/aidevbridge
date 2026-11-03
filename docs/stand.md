@@ -389,8 +389,6 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       - Ein I/O-Fehler des ssh-agent zählt seit F1 als `auth_rejected`; das
         Wiederverbinden versucht es dann nicht erneut. Nötig, weil russh nach
         einer abgelehnten Signatur sonst hängt.
-      - Das CHANGELOG sagt, Dependabot halte die gepinnten Actions aktuell;
-        `dtolnay/rust-toolchain` ist davon ausgenommen.
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne
     Eile, solange die App in Entwicklung ist: der geschlossene Test mit 12
     Testern über 14 Tage, die Datenschutz-URL und das Hochladen des App
