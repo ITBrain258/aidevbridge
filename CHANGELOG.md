@@ -9,6 +9,7 @@ dem Namen agentbridge.
 ### Changed
 
 - README und Anleitungen: Das README ist ein kurzer Einstieg mit neuen Bildern, die Einzelheiten stehen in englischen Anleitungen unter `docs/guide/`. `scripts/readme-images/render.mjs` rendert alle Bilder aus der echten Oberflaeche mit Beispieldaten, auch die Telefonbilder des Store-Eintrags. `SECURITY.md`, `CONTRIBUTING.md` und die Fehlervorlage nennen Android und den aktuellen Release-Ablauf.
+- Datenschutzerklaerung (`PRIVACY.md`): nennt alle Ablageorte unter Windows und macOS, auch `known_hosts` in `~/.ssh` und die Daten der Webansicht, und wie man sie loescht. Dazu kommen der WebView2-Bootstrapper, den Setup-EXE und MSI laden, wenn WebView2 fehlt, und die Webansicht des Systems mit ihrer eigenen Datenpraxis.
 
 ## [0.2.5] - 2026-10-31
 
