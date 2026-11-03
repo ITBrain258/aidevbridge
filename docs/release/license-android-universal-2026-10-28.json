@@ -16,13 +16,13 @@
     "features": [
       "tauri/custom-protocol"
     ],
-    "product_version": "0.2.5"
+    "product_version": "0.2.6"
   },
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
     "bytes": 1069020,
-    "sha256": "b16b3852ba0fd3072c486276fd4044656c908f2c6da5558e97fc185f9eab0e1a"
+    "sha256": "833d260e223a36d7ab71705963c50da6715d118f655a4a7872593644ddbd300a"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the Android graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",

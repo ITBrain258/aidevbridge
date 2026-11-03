@@ -104,7 +104,7 @@ Out of scope:
   and `~/Library/Caches/io.github.itbrain258.aidevbridge/`. Its local
   storage holds only the color theme.
 
-On Android (from 0.2.4, see `docs/specs/2026-10-27-android-design.md`) all
+On Android (from 0.2.4, see `docs/specs/2026-10-27-android-design.md`, in German) all
 of this lives in the app's private storage, which other apps cannot
 read: `settings.toml` under `io.github.itbrain258.aidevbridge/` and
 `known_hosts` under `.ssh/`. Keys you generate or import in the app are
@@ -175,6 +175,43 @@ check again on a rekey, so the app can be adapted to it.
 To resolve: a change in russh that compares the host key on a rekey,
 upstream or as a local patch of `vendor/russh`.
 
+### Clipboard writes from programs when tmux passes them on
+
+Programs in a terminal can set the clipboard with the escape sequence
+OSC 52. aidevbridge writes the text of every valid OSC 52 sequence that
+reaches its terminal to the local clipboard. It never answers a request to
+read the clipboard, drops anything larger than 1 MiB, and the WebView
+writes only while the app's window has the focus.
+
+Which sequences reach the terminal is decided by tmux: by its option
+`set-clipboard` and, from tmux 3.3 on, by `allow-passthrough` (see below).
+The app sets neither and starts tmux without `-f`, so your `~/.tmux.conf`
+applies, on the app's own socket as on tmux's default socket. With
+`external`, tmux's default, only tmux's own copies arrive (a drag or
+double-click with `set -g mouse on`); tmux drops OSC 52 from programs, as
+long as passthrough is off. With `on`, any program in the session, or text
+it prints, such as a file shown with `cat`, can replace your clipboard.
+Pasted into a shell without bracketed paste, such text can run commands you
+didn't intend (pastejacking).
+
+Why it is accepted: the app follows your tmux configuration and version.
+Forcing `external` would take the built-in copy commands of the agents away
+from users who set `on` on purpose.
+
+To avoid it, leave `set-clipboard` at `external`, or set it to `off`, which
+also stops tmux's own copies from reaching the clipboard. Also leave tmux's
+`allow-passthrough` at `off`, its default (the option exists since tmux
+3.3, the value `all` since 3.4): with `on` or `all`, a program can wrap
+OSC 52 in tmux's passthrough sequence (`ESC Ptmux; … ESC \`), tmux hands
+the inner sequence on to the app's terminal, and the app writes it to the
+local clipboard even with `set-clipboard external`. tmux before 3.3 has no
+such option and always passes these sequences on, so on tmux 3.0 to 3.2a
+(Ubuntu 22.04 ships 3.2a) `set-clipboard` does not stop them, not even
+`off`; only a newer tmux avoids it.
+
+To resolve: no change is planned; the behavior follows your tmux
+configuration and version.
+
 ### Known advisory: RUSTSEC-2023-0071 (`rsa`)
 
 `cargo audit` reports RUSTSEC-2023-0071 ("Marvin Attack") for the `rsa`
@@ -217,6 +254,22 @@ accept SSH connections and doesn't act as an SSH agent; it talks to the SSH
 agent (the Windows OpenSSH agent, or on macOS the agent of `SSH_AUTH_SOCK`)
 as a client. Its tests start russh servers on 127.0.0.1 as test peers,
 nothing else does.
+
+Two low advisories published on 3 November 2026 cover russh 0.65.0, which
+0.2.5 and 0.2.6 carry, but not the app:
+
+- [GHSA-9264-jvgf-6w2f](https://github.com/warp-tech/russh/security/advisories/GHSA-9264-jvgf-6w2f):
+  russh calls the client callback `kex_done` with the shared secret of the
+  key exchange before the host key is checked. aidevbridge doesn't
+  implement `kex_done`; russh's default does nothing with the secret, and
+  the connection fails at the host key check as before.
+- [GHSA-736f-c93q-9fwx](https://github.com/warp-tech/russh/security/advisories/GHSA-736f-c93q-9fwx):
+  russh's SSH agent server can sign with a key that needs confirmation
+  after the agent was locked. aidevbridge doesn't act as an SSH agent and
+  never runs that code.
+
+The audit workflow lists both as accepted; the next update of the vendored
+russh (0.65.1 fixes both) removes them.
 
 Neither `cargo audit` nor Dependabot sees the vendored copy: both match only
 packages that `Cargo.lock` records with a registry source, and the vendored
@@ -269,7 +322,8 @@ The Windows packages (setup EXE, MSI and ZIP) are not code-signed, so
 Windows SmartScreen warns about an unknown publisher, and Smart App Control,
 when it is on, doesn't start them. The macOS disk image and the app in it
 are signed ad-hoc only and not notarized, so macOS refuses the first start
-until you choose **Open Anyway** (see the README). So neither system can
+until you choose **Open Anyway** (see the
+[install guide](docs/guide/install.md#macos)). So neither system can
 tell you who built a file. Download the files only from the
 [releases page](https://github.com/ITBrain258/aidevbridge/releases) and
 compare their SHA-256 checksum with the value listed in the release notes
@@ -290,7 +344,7 @@ match the release notes exactly; upper or lower case doesn't matter. If it
 doesn't match, don't run the file, and report it through the private form.
 
 The checksum comes from the same release as the file. An optional, stronger
-check doesn't rely on the release: from the release after 0.2.3 on, the workflow
+check doesn't rely on the release: from 0.2.4 on, the workflow
 `.github/workflows/packages.yml` records a build provenance
 (`actions/attest-build-provenance`) for each file that the run of the
 release's tag attaches. The provenance is signed through the public Sigstore

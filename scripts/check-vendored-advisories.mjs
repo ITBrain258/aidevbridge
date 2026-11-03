@@ -18,7 +18,10 @@ export const VENDORED = [{ crate: 'russh', manifest: 'vendor/russh/Cargo.toml', 
 
 // Advisories that affect a vendored version but not the app, with the reason
 // (as SECURITY.md gives it). They are listed but don't fail the check.
-export const ACCEPTED = {};
+export const ACCEPTED = {
+  'GHSA-9264-jvgf-6w2f': 'the app does not implement client::Handler::kex_done; the default ignores the shared secret',
+  'GHSA-736f-c93q-9fwx': 'agent server code; the app is only an agent client and never runs it',
+};
 
 // Splits "0.34.0-beta.1" into numbers and pre-release identifiers; a missing
 // minor or patch counts as 0, as in GitHub's ranges ("< 0.65").

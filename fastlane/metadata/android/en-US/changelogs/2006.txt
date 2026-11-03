@@ -1,0 +1,1 @@
+Typing over slow connections responds faster: the app sends small packets such as keystrokes at once, like OpenSSH. An error message stays until you close it, even after a short notice covered it, and session status keeps updating when the device clock is set back.

@@ -247,7 +247,8 @@ Live-Tests auf beiden VMs.
 ## Rohdaten
 
 Unter [`fixtures/m31-abnahme-2026-10-25/`](fixtures/m31-abnahme-2026-10-25/),
-IPs als Platzhalter, Hostnamen als `<host>`:
+IPs als Platzhalter, Hostnamen als `<host>`, das Konto als `u`, die
+Schlüsseldateien neutral benannt:
 
 | Datei | Inhalt |
 | --- | --- |

@@ -349,6 +349,12 @@ impl RusshTransport {
                         .await
                         .map_err(Into::into)
                         .context(AuthError::HostUnreachable)?;
+                    // Wie OpenSSH fuer interaktive Sitzungen: kein Nagle, sonst
+                    // warten Tastendruecke und Fensteranpassungen auf das ACK
+                    // des vorigen Pakets. `client::Config::nodelay` wirkt nur in
+                    // `client::connect`, nicht in `connect_stream`. Scheitert
+                    // das Setzen, laeuft die Verbindung mit Nagle weiter.
+                    let _ = tcp.set_nodelay(true);
                     let (io, owner) =
                         AbortableIo::from_tcp_stream(tcp).context(AuthError::HostUnreachable)?;
                     abort = Some(owner);

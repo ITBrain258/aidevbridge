@@ -34,7 +34,7 @@ pub fn run() {
         // Leseberechtigung fuer die Zwischenablage nicht, und
         // `navigator.clipboard.readText()` loest beim ersten Einfuegen eine
         // Abfrage aus. `from_config(..).build()` ist derselbe Aufruf, mit dem
-        // Tauri das Fenster sonst selbst baut (tauri-2.11.5/src/app.rs:2525);
+        // Tauri das Fenster sonst selbst baut (tauri-2.12.5/src/app.rs:2692);
         // window-state stellt Lage und Groesse weiter her, weil sein
         // `on_window_ready` an jedem gebauten Fenster haengt und das Plugin
         // schon in `Builder::build` initialisiert ist, vor `setup`.

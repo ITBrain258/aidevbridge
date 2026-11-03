@@ -1,17 +1,20 @@
 // Die ACL ist scharf: `try_build` mit `AppManifest::commands(..)` erzeugt
 // das App-ACL-Manifest, und ERST DANN prueft Tauri die selbst registrierten
 // `#[tauri::command]`-Funktionen ueberhaupt gegen `capabilities/default.json`
-// (im Tauri-Quelltext verifiziert: `webview/mod.rs:1823` -- ohne Manifest
-// ist `has_app_acl` falsch und der Wachter uebersprungen). Spec §8.3
-// verlangt genau das.
+// (im Tauri-Quelltext verifiziert: `tauri-2.12.5/src/webview/mod.rs`,
+// `has_app_acl_manifest` -- ohne Manifest ist es falsch und der Waechter
+// uebersprungen). Spec §8.3 verlangt genau das.
 //
-// DIE LISTE UNTEN EXISTIERT DREIMAL und muss dreimal gepflegt werden:
-// hier (Strings), in `src/lib.rs`s `generate_handler!` (Identifier) und in
-// `capabilities/default.json` (`allow-<kebab-case>`). Das ist unvermeidbar --
-// `generate_handler!` braucht Identifier, die ACL braucht Namen.
-// `tests/capabilities_acl.rs` haelt die drei zusammen und wird rot, sobald
-// eine abweicht. Diesen Kommentar NICHT als Checkliste benutzen: der Test
-// ist die verbindliche Absicherung, ein Kommentar veraltet.
+// DIE LISTE UNTEN STEHT IM PRODUKTIONSCODE DREIMAL und muss dreimal
+// gepflegt werden: hier (Strings), in `src/lib.rs`s `generate_handler!`
+// (Identifier) und in `capabilities/default.json` (`allow-<kebab-case>`).
+// Das ist unvermeidbar -- `generate_handler!` braucht Identifier, die ACL
+// braucht Namen. Ein neuer Command gehoert ausserdem in die `COMMANDS`-Liste
+// von `tests/acl_runtime.rs`. `tests/capabilities_acl.rs` haelt diese vier
+// und das Fenster-Label in `tauri.conf.json` zusammen (fuenf Listen) und
+// wird rot, sobald eine abweicht. Diesen Kommentar NICHT als Checkliste
+// benutzen: der Test ist die verbindliche Absicherung, ein Kommentar
+// veraltet.
 //
 // Schreibweise in `default.json` ist KEBAB-CASE (`allow-connect-host`):
 // `autogenerate_command_permissions` slugifiziert mit

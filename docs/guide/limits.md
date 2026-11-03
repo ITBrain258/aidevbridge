@@ -54,13 +54,24 @@
 - **Resizing:** opening or closing a terminal, releasing a dragged gap and
   swapping two terminals of different sizes resize every terminal whose size
   changes. Codex clears its tmux history on each resize.
-- **Clipboard:** copies that programs send themselves via OSC 52 are ignored.
-  tmux keeps its default `set-clipboard external`, so only tmux's own copies
-  (drag, double-click) reach the Windows clipboard, not the built-in copy
-  commands of the agents.
+- **Clipboard:** with tmux's default `set-clipboard external`, only tmux's
+  own copies (drag, double-click with `set -g mouse on`) reach the local
+  clipboard; tmux drops copies that programs send themselves via OSC 52,
+  such as the built-in copy commands of the agents. The app doesn't set
+  this option and starts tmux without `-f`, so your `~/.tmux.conf` decides,
+  on the app's own socket as on the default socket: with
+  `set -g set-clipboard on`, programs can write to the local clipboard too,
+  and with `allow-passthrough` set to `on` or `all` (default `off`), or on
+  any tmux before 3.3, even with `external`, by wrapping OSC 52 in tmux's
+  passthrough sequence (see
+  [SECURITY.md](../../SECURITY.md#clipboard-writes-from-programs-when-tmux-passes-them-on)).
 - **`known_hosts`:** plain and hashed host entries (`|1|…`, as written by
   `HashKnownHosts yes` or `ssh-keygen -H`) are matched alike: a different key
-  of the same type behind a hashed entry is refused as a changed key. After
+  of the same type behind a hashed entry is refused as a changed key. A host
+  key you confirm on first contact is added as a plain entry with the host
+  name in clear text, also when you use `HashKnownHosts yes`;
+  `ssh-keygen -H` hashes the file afterwards (it keeps the old file with
+  plain names as `known_hosts.old`, which you may want to delete). After
   a real key change, remove the old entry with `ssh-keygen -R <host>`
   (`ssh-keygen -R "[host]:port"` for another port; it finds hashed entries
   too) and connect again; the error message names that command.

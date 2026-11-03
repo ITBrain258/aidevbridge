@@ -1,6 +1,6 @@
 [package]
 name = "aidevbridge"
-version = "0.2.5"
+version = "0.2.6"
 description = "aidevbridge desktop client for remote coding agents"
 authors = ["Lukas Hellbach"]
 edition = "2021"
@@ -77,11 +77,12 @@ rand = "0.10"
 # (~/.ssh/id_ed25519) -- deshalb unter [dependencies] statt zusaetzlich unter
 # [dev-dependencies].
 dirs = "5"
-# TOFU (Spec §8.1): Fingerabdruck-Anzeige braucht SHA-256 ueber die
-# rohen Schluesselbytes (siehe `ssh::known_hosts::fingerprint`). "0.10":
-# bereits transitiv im Baum (u.a. ueber ed25519-dalek/curve25519-dalek, siehe
-# Cargo.lock) -- dedupliziert mit der ohnehin vorhandenen Version, kein
-# zweiter sha2-Zweig.
+# SHA-256 fuer TOFU (Spec §8.1: Fingerabdruck ueber die rohen
+# Schluesselbytes, siehe `ssh::known_hosts::fingerprint`) und fuer den
+# Fingerabdruck von settings.toml (`settings::update_at`). "0.10" wie
+# tauri-codegen; russh, rsa und ed25519-dalek nutzen sha2 0.11 (digest 0.11),
+# daher stehen beide Zweige in Cargo.lock. Ein Wechsel auf 0.11 ist eine
+# Abhaengigkeitsaenderung mit Lizenzpruefung (docs/lizenzen-pflegen.md).
 sha2 = "0.10"
 # `settings.toml` (Hosts/Voreinstellungen, siehe `settings.rs`).
 # Kein Zusammenhang mit tauri-internem TOML-Gebrauch (Build-/CLI-Tooling,

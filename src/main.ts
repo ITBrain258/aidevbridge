@@ -50,7 +50,7 @@ import { mountSidebar } from "./views/sidebar";
 import { mountSidebarResize } from "./views/sidebar-resize";
 import { mountGrid, type GridHandle } from "./views/grid";
 import { mountFirstRun, type FirstRunHandle } from "./views/first-run";
-import { mountHostForm, type AuthChoice, type HostFormValue } from "./views/host-form";
+import { mountHostForm, storedAuthChoice, type AuthChoice, type HostFormValue } from "./views/host-form";
 import {
   changesConnection,
   editHost,
@@ -653,6 +653,8 @@ export function main(): void {
 
   function selfRepairAuth(host: Host): AuthChoice {
     // Dieselbe Wahl wie das Formular, ohne Passphrase und ohne Passwort.
+    // Bewusst nicht `storedAuthChoice`: die Selbstreparatur nimmt nie ein
+    // Passwort (`startSelfRepair` laesst Passwort-Hosts aus).
     return host.authKind === "key" && host.keyPath
       ? { kind: "key", path: host.keyPath, passphrase: "" }
       : { kind: "agent" };
@@ -1234,9 +1236,14 @@ export function main(): void {
   function scheduleStatusPoll(hostId: string): void {
     if (backgroundStopped || pollTimers.has(hostId)) return;
     const started = pollStarts.get(hostId);
+    // Die Obergrenze greift nur, wenn die Uhr seit `started` zurueckgestellt
+    // wurde; sonst setzte der Poll des Hosts um diesen Betrag aus.
     const delay = started === undefined
       ? SESSION_STATUS_POLL_MS
-      : Math.max(SESSION_STATUS_POLL_GAP_MS, started + SESSION_STATUS_POLL_MS - Date.now());
+      : Math.min(
+        SESSION_STATUS_POLL_MS,
+        Math.max(SESSION_STATUS_POLL_GAP_MS, started + SESSION_STATUS_POLL_MS - Date.now()),
+      );
     pollTimers.set(hostId, setTimeout(() => {
       pollTimers.delete(hostId);
       void runStatusPoll(hostId);
@@ -2046,17 +2053,10 @@ export function main(): void {
       showDefaultSocket: host.showDefaultSocket !== false,
     };
     // Spec §4.8: `initial.auth` traegt die TATSAECHLICH gespeicherte
-    // Anmeldeart, auch fuer einen Passwort- oder ssh-agent-Host. Ohne sie
-    // riete `host-form.ts`s `applyPreselection()` anhand gefundener
-    // Schluessel/Platzhalter. `host.authKind` ist nie `null`/fehlend (siehe
-    // dessen Kommentar, `app-state.ts`), jeder der drei Zweige greift.
-    if (host.authKind === "key" && host.keyPath) {
-      initial.auth = { kind: "key", path: host.keyPath, passphrase: "" } satisfies AuthChoice;
-    } else if (host.authKind === "password") {
-      initial.auth = { kind: "password", password: "" } satisfies AuthChoice;
-    } else {
-      initial.auth = { kind: "agent" } satisfies AuthChoice;
-    }
+    // Anmeldeart, auch fuer einen Passwort- oder ssh-agent-Host (siehe
+    // `storedAuthChoice`). Ohne sie riete `host-form.ts`s
+    // `applyPreselection()` anhand gefundener Schluessel/Platzhalter.
+    initial.auth = storedAuthChoice(host);
 
     openDialog({
       title: t("hostForm.heading.edit"),
@@ -2697,9 +2697,31 @@ export function main(): void {
     // Nutzer ihn schliesst.
     let neutral = false;
     let hideTimer: number | undefined;
+    // Ein Fehler, den ein neutraler Hinweis verdeckt, kommt zurueck, sobald
+    // der Hinweis schliesst (Zeitgeber, Druck in eine Kachel oder "Dismiss"):
+    // ein Fehler bleibt stehen, bis der Nutzer ihn schliesst (Spec 2026-10-19
+    // §5.3, Nachtrag vom 24.10.). Ein neuer Fehler ersetzt aeltere wie bisher.
+    let coveredError: { message: string; details: string | null } | null = null;
+
+    const show = (message: string, details: string | null, tone: BannerTone) => {
+      text.textContent = message;
+      currentDetails = details;
+      copyButton.hidden = currentDetails === null;
+      neutral = tone === "neutral";
+      banner.classList.toggle("global-error-banner--neutral", neutral);
+      window.clearTimeout(hideTimer);
+      hideTimer = neutral ? window.setTimeout(hide, NEUTRAL_NOTICE_MS) : undefined;
+      banner.hidden = false;
+    };
     const hide = () => {
       window.clearTimeout(hideTimer);
       hideTimer = undefined;
+      if (neutral && coveredError !== null) {
+        const covered = coveredError;
+        coveredError = null;
+        show(covered.message, covered.details, "danger");
+        return;
+      }
       banner.hidden = true;
     };
     dismissButton.addEventListener("click", hide);
@@ -2712,14 +2734,13 @@ export function main(): void {
     );
 
     return (message: string, details?: string, tone: BannerTone = "danger") => {
-      text.textContent = message;
-      currentDetails = details ?? null;
-      copyButton.hidden = currentDetails === null;
-      neutral = tone === "neutral";
-      banner.classList.toggle("global-error-banner--neutral", neutral);
-      window.clearTimeout(hideTimer);
-      hideTimer = neutral ? window.setTimeout(hide, NEUTRAL_NOTICE_MS) : undefined;
-      banner.hidden = false;
+      if (tone === "neutral") {
+        // Ein Hinweis ueber einem Hinweis behaelt den schon verdeckten Fehler.
+        if (!banner.hidden && !neutral) coveredError = { message: text.textContent ?? "", details: currentDetails };
+      } else {
+        coveredError = null;
+      }
+      show(message, details ?? null, tone);
     };
   }
 

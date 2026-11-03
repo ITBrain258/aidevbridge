@@ -19,7 +19,12 @@ The short version is in the [privacy policy](../../PRIVACY.md): aidevbridge coll
   that socket because each terminal's head already shows the session). For
   the status it runs the read-only
   `claude agents --json`, reads pane titles and program files from `/proc`
-  and, while Codex runs, the `tui` keys of Codex's settings. It installs
+  and, while Codex runs, the `tui` keys of Codex's settings. Unless
+  **Show tmux sessions** is switched off for a host, it also lists the
+  sessions on tmux's default socket, reads their status the same way and,
+  when you open one, attaches to it as one more client; it sets nothing on
+  that server
+  ([details](hosts.md#sessions-on-tmuxs-default-socket)). It installs
   nothing and changes no configuration.
 - **On your PC or Mac** aidevbridge keeps:
   - `%APPDATA%\io.github.itbrain258.aidevbridge\settings.toml`: your hosts

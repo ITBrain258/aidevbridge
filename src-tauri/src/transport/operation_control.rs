@@ -86,11 +86,6 @@ impl OperationControl {
         }
     }
 
-    /// Ends on explicit cancellation or the absolute deadline.
-    pub async fn cancelled(&self) {
-        let _ = self.wait(std::future::pending::<()>()).await;
-    }
-
     /// Keep this lease in the caller future, not in the actor. A normal child
     /// return must disarm it so a shared parent command can run its next phase.
     pub fn caller_lease(&self) -> CallerLease {
@@ -197,7 +192,6 @@ pub enum PtyPhase {
     Open,
     Request,
     Attach,
-    Forward,
     Input,
     Resize,
 }

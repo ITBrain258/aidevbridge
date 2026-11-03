@@ -1,9 +1,38 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.5` ist seit dem 31.10.2026 veröffentlicht, ein
-Sicherheitsrelease. Der Tag `v0.2.5` steht auf `fd93cc7`; alle Pakete hat die CI
-gebaut und angehängt. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch
-den Maintainer (Punkt 6).
+**Stand:** Version `0.2.6` vom 03.11.2026 (Tag `v0.2.6`) bringt das
+Code-Review vom 03.11.2026; die Pakete baut und hängt die CI am Tag an.
+Vorher: `0.2.5` vom 31.10.2026, ein Sicherheitsrelease, Tag `v0.2.5` auf
+`fd93cc7`. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch den
+Maintainer (Punkt 6).
+
+**Neu in 0.2.6 gegenüber 0.2.5** (Branch `chore/review-2026-11`, Lizenzauswahlen
+für alle drei Plattformen neu gebunden, keine Komponente geändert):
+
+- **Korrekturen:** Ein Fehlerbanner kommt zurück, wenn ein neutraler Hinweis
+  über ihm schließt; die Statusabfrage setzt nicht mehr aus, wenn die Uhr
+  während einer Abfrage zurückgestellt wird (bisher offen unter Punkt 10);
+  `TCP_NODELAY` auf dem SSH-Socket.
+- **Aufräumen ohne Verhaltensänderung:** Code ohne Aufrufer entfernt
+  (`settings::load` und `save`, `PtyPhase::Forward`,
+  `OperationControl::cancelled`), `settings::save_to` nur noch in Tests,
+  veraltete Kommentare berichtigt, die gespeicherte Anmeldeart im Frontend an
+  einer Stelle abgeleitet.
+- **CI und Tests:** `vendored.yml` führt die Bibliothekstests des eingebetteten
+  russh aus, und `scripts/vendored-workflow.test.mjs` hält seine Features und
+  Auslöser an `src-tauri/Cargo.toml`; `scripts/rust-toolchain.test.mjs`
+  gleicht jede genannte Rust-Version mit `rust-toolchain.toml` ab.
+- **Doku:** OSC 52 hängt an `set-clipboard` und `allow-passthrough` aus
+  `~/.tmux.conf` (tmux vor 3.3 reicht verpackte Sequenzen immer durch), neu
+  als akzeptiertes Risiko in `SECURITY.md`; `PRIVACY.md` nennt alle bekannten
+  Ablageorte (macOS am echten Mac noch nicht nachgeprüft, Punkt 13);
+  neue Hostschlüssel stehen im Klartext in `known_hosts`; die Datenschutzseite
+  nennt den Standard-Socket; Vorlage für Pull Requests, Linux und
+  Lizenzprüfung in `CONTRIBUTING.md`; Platzhalter statt Konto- und
+  Schlüsselnamen in den Rohdaten der M3.1-Abnahme.
+- Offen ist die
+  [Handabnahme §11](abnahme-handarbeit.md#11-änderungen-aus-dem-code-review-vom-0311);
+  was das Review zurückstellt, steht unter Punkt 5, 8, 11, 12 und 13.
 
 Neu in 0.2.5 gegenüber 0.2.4:
 
@@ -175,6 +204,16 @@ Build-Provenienz an ihnen hängen.
 
 ## Letzte Prüfung
 
+Am 03.11.2026 für 0.2.6, lokal unter Windows auf dem Branch
+`chore/review-2026-11`, ohne Testhost: `cargo fmt` und `clippy -D warnings`
+sauber, 730 Rust-Tests mit `--test-threads=4` (11 ignoriert, `acceptance_vm`),
+2882 Frontend-Tests, `npm run build` und `build:app`, 146 Skripttests und die
+225 Bibliothekstests des eingebetteten russh mit dem Befehl aus
+`vendored.yml`. Lizenzen nach dem Versionswechsel neu gebunden: keine
+Abweichung, `check` grün für windows-x64 (402/208), macos-universal (396/202)
+und android-universal (487/228). Die CI und die Handläufe von `packages.yml`
+und `android.yml` laufen im Pull Request vor dem Merge.
+
 Am 31.10.2026 für 0.2.5: In der CI auf dem Merge-Commit `8aaa46b` sind Rust auf
 Windows, Ubuntu und macOS, Frontend, Skripte, der Job `licenses`, Audit,
 `packages.yml` und `android.yml` grün, ebenso auf dem Release-Branch die
@@ -235,7 +274,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    nach S3.2 (Protokolldatei, globaler Diagnosetext), ein neues Logozeichen für
    den Erststart (bisher „a“; Entscheidung vom 21.10.), die Rust-Meldung
    RUSTSEC-2023-0071 zu `rsa` (eingeordnet in [`SECURITY.md`](../SECURITY.md)) mit
-   einer echten RSA-Abnahme, Signatur der Pakete und winget.
+   einer echten RSA-Abnahme, Signatur der Pakete und winget. Zur
+   Protokolldatei (Review vom 03.11.): Die App schreibt heute kein Protokoll,
+   Fehlerdetails gehen verloren. Sie braucht neue Abhängigkeiten mit
+   Lizenzprüfung (Punkt 12), eine Regel, die Hostnamen und Pfade unkenntlich
+   macht, und eine Entscheidung zu Ort und Rotation.
 6. **Lieferung:** Alle drei Lizenzauswahlen
    ([Windows](release/license-selection.windows-x64.json),
    [macOS](release/license-selection.macos-universal.json),
@@ -294,7 +337,13 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    `prefers-reduced-motion`). Nur durch Tests und Durchsicht gesichert:
    Klicks in der Hinweisbox eines Hosts mit Anmeldefehler, der Neustart mit
    gespeicherter Seitenleistenbreite unter reduzierter Bewegung, das
-   Loslassen nach Alt+Tab. Am 24.10. behoben (Kopf bei 200 px und
+   Loslassen nach Alt+Tab. Verdacht aus dem Review vom 03.11., nicht
+   nachgestellt: Die Seitenleiste baut bei jeder Änderung ihres Zustands neu
+   auf; kommt eine solche Änderung während eines Drucks (Statuswechsel,
+   Minutentakt der Wartet-Spur), kann Chromium den Klick verlieren, weil der
+   gedrückte Knoten das DOM verlässt. Zu klären in WebView2 oder an der
+   Handabnahme, bevor sich am Aufbau der Seitenleiste etwas ändert.
+   Am 24.10. behoben (Kopf bei 200 px und
    Grenzhinweis nach der Optik-Runde mit dem Maintainer, Spec §5.3 und §8.4,
    Nachträge vom 24.10.): der Kachelkopf unter 260 px, der Grenzhinweis, der
    bei 9 Kacheln die Köpfe verdeckte, das zusätzliche `resize_terminal` einer
@@ -379,41 +428,64 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - Der Vermerk in `safegcd.rs` von crypto-bigint (Punkt 6) wartet weiter
       auf die Entscheidung, ob er als Copyright-Hinweis dazukommt.
     - Aus der Durchsicht von PR #7 und #8 am 27.10., ohne Korrektur:
-      - Der Polltakt rechnet mit `Date.now()` (`scheduleStatusPoll` in
-        `src/main.ts`). Stellt eine Zeitsynchronisation die Uhr zurück,
-        pausiert der Statuspoll des Hosts um diesen Betrag; `performance.now()`
-        oder eine Obergrenze von 2 s behebt das.
       - Die Vorschläge aus `~/.ssh/config` schneiden einen Kommentar am
         Zeilenende nicht ab: `Host web # prod` ergibt die Vorschläge `web`,
         `#` und `prod`.
       - Ein I/O-Fehler des ssh-agent zählt seit F1 als `auth_rejected`; das
         Wiederverbinden versucht es dann nicht erneut. Nötig, weil russh nach
         einer abgelehnten Signatur sonst hängt.
-      - Das CHANGELOG sagt, Dependabot halte die gepinnten Actions aktuell;
-        `dtolnay/rust-toolchain` ist davon ausgenommen.
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne
     Eile, solange die App in Entwicklung ist: der geschlossene Test mit 12
     Testern über 14 Tage, die Datenschutz-URL und das Hochladen des App
     Bundles des neuesten Release (Artefakt des Release-Laufs) von Hand. Erst wenn ein
     Play-Dienstkonto als Secret im Environment `android-release` liegt,
     lädt `android.yml` selbst hoch
-    ([Anleitung](android-veroeffentlichung.md)).
+    ([Anleitung](android-veroeffentlichung.md)). Am Gerät zu klären (Review
+    vom 03.11.): ob Android den WebView im Hintergrund so anhält, dass die
+    Acks länger als 30 s ausbleiben, bevor das System die Verbindungen
+    beendet. Dann schließt `STALL_TIMEOUT` die Terminals, und die Kacheln
+    hängen sich nach der Rückkehr neu an; die tmux-Sessions laufen weiter.
 12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
     gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht. Erledigt
     sind Tauri 2.12 (PR #15), Tauri-CLI 2.12.4 mit NSIS 3.13 (PR #16) und
     russh 0.65.0 (PR #18). Die Reihenfolge unten ist die Empfehlung vom
     30.10., noch nicht entschieden:
+    - **russh 0.65.1:** behebt GHSA-9264-jvgf-6w2f (`kex_done` vor der
+      Hostschlüsselprüfung) und GHSA-736f-c93q-9fwx (Agent-Server signiert
+      nach dem Sperren), beide vom 03.11. und niedrig eingestuft. Die App
+      betreffen sie nicht, `SECURITY.md` sagt warum, und der Audit-Workflow
+      führt sie als akzeptiert (`ACCEPTED` in
+      `scripts/check-vendored-advisories.mjs`); mit dem Update fallen die
+      Einträge wieder weg. Dieselbe Prüfung der Patches und Lizenzen wie
+      bei 0.65.0 (PR #18).
     - **Frontend-Werkzeuge:** Vite 8, TypeScript 7, Vitest 5 und jsdom 30
       (stehen auf 6.4, 5.6, 4.1 und 29). Vite ändert die gebaute Ausgabe,
-      also den Beleg zum Modulepreload-Polyfill.
+      also den Beleg zum Modulepreload-Polyfill. Mit dieser Stufe zu
+      entscheiden (Review vom 03.11.): `noUncheckedIndexedAccess`, ein Linter
+      oder Formatter wie Biome und die Typprüfung von `scripts/` und
+      `vite.config.ts`, die `@types/node` braucht. Die lizenzgebundenen
+      Release-Skripte werden dabei nicht umformatiert (Umsetzungsplan vom
+      26.10., D4).
     - **Kotlin 2 mit AGP 9 und Gradle 9**, zusammen mit den androidx-Updates:
       deren neue Versionen tragen Kotlin-2.1-Metadaten, die das
       Kotlin-Gradle-Plugin 1.9.25 nicht liest. Spätestens fällig, wenn
-      Google Play ein neueres Ziel-SDK verlangt.
+      Google Play ein neueres Ziel-SDK verlangt. Dabei auch (Review vom
+      03.11.): `verification-metadata.xml` und ein Lock für den
+      `buildscript`-Classpath (AGP, Kotlin-Plugin) und Clippy mit
+      `-D warnings` für das Android-Ziel.
+    - **Doppelte Crates wegen der App** (Review vom 03.11.): `dirs` 5 und
+      `toml` 0.8 bindet nur die App ein (`toml` 0.8 unter Linux auch
+      `system-deps` beim Bau), Tauri nutzt `dirs` 7 und `toml` 1. `sha2` 0.10
+      steckt zur Laufzeit unter Windows und macOS nur in der App, russh nutzt
+      0.11. Beim Wechsel auf `toml` 1 sind Lesen und Schreiben von
+      `settings.toml` neu zu prüfen (Fehlertexte mit Zeile und Spalte,
+      Formatierung).
     - **Rust 1.99:** Die Toolchain 1.97.1 steckt in den Belegen der
       Standardbibliothek und in den Prüfungen der Lizenzauswahlen; nötig
-      erst, wenn ein Crate sie verlangt.
+      erst, wenn ein Crate sie verlangt. Die Stellen, die die Version nennen,
+      gleicht `scripts/rust-toolchain.test.mjs` mit `rust-toolchain.toml` ab,
+      die Belege der Standardbibliothek nicht.
     - Klein: `tauri-build` 2.7.4 meldet `STATIC_VCRUNTIME` (gesetzt von
       `release-windows-artifacts.mjs`) als veraltet; es linkt weiter
       statisch, und die Ersatzoption `build.windows.staticVCRuntime` ist
@@ -423,6 +495,39 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       `src-tauri/src/ssh/auth.rs`). Eigene Änderungen upstream anbieten,
       zuerst das Close-Verhalten, das upstream in #789 selbst vorschlägt; U4
       braucht dazu das OK des Maintainers.
+13. **Review vom 03.11., zurückgestellt:** Was das Review bestätigt, aber
+    nicht umgesetzt hat, weil es eine Entscheidung des Maintainers, einen
+    echten Host, einen Mac oder einen echten CI-Lauf braucht (Protokolldatei
+    unter Punkt 5, Seitenleiste unter Punkt 8, Android unter Punkt 11,
+    Abhängigkeiten unter Punkt 12):
+    - **Hostschlüssel-Algorithmen nach `known_hosts` ordnen**, wie OpenSSH.
+      Steht ein Host dort nur mit ECDSA oder RSA und bietet er auch ed25519
+      an, handelt die App ed25519 aus und fragt mit Hinweis auf den bekannten
+      Typ nach. Das ist sicher, nur unbequem. Braucht eine Designentscheidung
+      zur Reihenfolge bei RSA (kein `ssh-rsa` mit SHA-1 vor ed25519, siehe
+      `SECURITY.md`), eine Methode in `HostKeyPolicy`, nach der auch der
+      zweite Zweig des Paars und die Reparatur ordnen, und einen Live-Test
+      gegen OpenSSH mit mehreren Hostschlüsseln.
+    - **Gehashte Einträge in `known_hosts`** bei `HashKnownHosts yes`: braucht
+      die Auswertung von `ssh_config` mit `Host` und `Match` und HMAC-SHA1
+      mit Zufallssalz. Bis dahin nennt die [Grenzen-Anleitung](guide/limits.md)
+      den Klartext-Eintrag und `ssh-keygen -H`.
+    - **CI:** ein lokaler sshd mit tmux im Ubuntu-Job, damit die Live-Tests
+      dort laufen, oder die bisher ungenutzten Pakete `openssh-server` und
+      `tmux` streichen; feste Runner-Images statt `windows-latest` und
+      `macos-latest`, die die [macOS-Spec](specs/2026-10-25-macos-lieferung-design.md)
+      festlegt. Beides nur mit echten CI-Läufen.
+    - **Projektdateien:** ein `CODE_OF_CONDUCT.md` (braucht einen Kontakt)
+      und ein Weg für Fragen (Discussions oder leere Issues); ob erledigte
+      Pläne aus `plans/` fallen und dieses Dokument gekürzt wird.
+    - **Ablageorte unter macOS:** `PRIVACY.md` sagt, die App lege nichts
+      anderswo ab; für macOS ist das an keinem echten Mac gemessen (denkbar
+      sind `~/Library/Preferences/<id>.plist`,
+      `~/Library/Saved Application State/<id>.savedState` und
+      `~/Library/HTTPStorages/<id>`). Die Prüfung steht in der
+      [Handabnahme §11](abnahme-handarbeit.md#11-änderungen-aus-dem-code-review-vom-0311),
+      Schritt 5; findet sie mehr, ziehen `PRIVACY.md`, `SECURITY.md` und
+      `guide/data.md` gemeinsam nach.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 
@@ -505,7 +610,10 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   `scripts/release-notes.mjs`.
 - russh-Patch: [Herkunft, Umfang und Lizenz](../vendor/russh/AGENTBRIDGE-PATCH.md)
   und der [Patchbericht](reviews/2026-09-11-neutral/russh-channel-close-patch.md)
-  zum Kanalschluss.
+  zum Kanalschluss. Die Bibliothekstests des eingebetteten russh laufen jetzt
+  in `.github/workflows/vendored.yml`; den Satz in `AGENTBRIDGE-PATCH.md`, sie
+  liefen in keiner CI, berichtigt erst das nächste russh-Update, weil
+  `vendor/` in den Lizenzauswahlen als Fremdcode gebunden ist.
 - Bilder im README, Vorschaubild für Links und Telefonbilder des Store-Eintrags:
   `scripts/readme-images/render.mjs` rendert die echte Oberfläche mit
   Beispieldaten nach `docs/images/` und `fastlane/`, ohne Host und ohne neue

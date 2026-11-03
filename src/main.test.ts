@@ -2450,6 +2450,94 @@ describe("main: Ersetzen, Grenze und Wiederfinden (Spec 2026-10-19 §5.2, §5.3,
       expect(banner.hidden).toBe(false);
       expect(banner.classList.contains("global-error-banner--neutral")).toBe(false);
     });
+
+    // Spec 2026-10-19 §5.3, Nachtrag vom 24.10.: ein Fehler bleibt stehen,
+    // bis der Nutzer ihn schliesst -- auch wenn ein neutraler Hinweis ihn
+    // zwischendurch verdeckt.
+    describe("ein Fehler davor kommt zurueck, sobald der Hinweis schliesst", () => {
+      const errorDetail = "no terminal open for this session";
+
+      function bannerMessage(): string {
+        return document.querySelector(".global-error-banner > span")?.textContent ?? "";
+      }
+      function bannerButton(label: string): HTMLButtonElement {
+        return Array.from(document.querySelectorAll<HTMLButtonElement>(".global-error-banner button")).find(
+          (button) => button.textContent === label,
+        )!;
+      }
+
+      /** Fehler an einer Kachel, danach der Grenzhinweis darueber; liefert
+       * den Banner und den Satz des Fehlers. */
+      async function errorThenLimit(): Promise<{ banner: HTMLElement; errorText: string }> {
+        await setupTwoHostsThreeSessions({}, [...h1Full, h1Over]);
+        expandHost("h1");
+        for (const name of h1Full) openViaSidebar("h1", name);
+        terminalHoisted.errorByKey.get(`r-h1/${h1Full[0]}`)!({ kind: "open", detail: errorDetail });
+        const banner = document.querySelector<HTMLElement>(".global-error-banner")!;
+        expect(banner.hidden).toBe(false);
+        expect(banner.classList.contains("global-error-banner--neutral")).toBe(false);
+        const errorText = bannerMessage();
+        expect(errorText).not.toBe("");
+        vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+        openViaSidebar("h1", h1Over);
+        expect(banner.hidden).toBe(false);
+        expect(banner.classList.contains("global-error-banner--neutral")).toBe(true);
+        expect(bannerMessage()).toContain(hostLimitText);
+        expect(bannerButton("Copy details").hidden).toBe(true);
+        return { banner, errorText };
+      }
+
+      function expectErrorBack(banner: HTMLElement, errorText: string): void {
+        expect(banner.hidden).toBe(false);
+        expect(banner.classList.contains("global-error-banner--neutral")).toBe(false);
+        expect(bannerMessage()).toBe(errorText);
+        expect(bannerButton("Copy details").hidden).toBe(false);
+      }
+
+      it(`nach ${NEUTRAL_NOTICE_MS} ms`, async () => {
+        const { banner, errorText } = await errorThenLimit();
+        vi.advanceTimersByTime(NEUTRAL_NOTICE_MS);
+        expectErrorBack(banner, errorText);
+        // Der zurueckgekehrte Fehler schliesst sich nicht selbst.
+        vi.advanceTimersByTime(NEUTRAL_NOTICE_MS);
+        expectErrorBack(banner, errorText);
+      });
+
+      it("beim naechsten Druck in eine Kachel", async () => {
+        const { banner, errorText } = await errorThenLimit();
+        tilesInOrder()[0].querySelector<HTMLElement>(".tile-head")!.dispatchEvent(
+          new PointerEvent("pointerdown", { bubbles: true, button: 0 }),
+        );
+        expectErrorBack(banner, errorText);
+      });
+
+      it("ueber Dismiss; ein zweites Dismiss schliesst den Fehler", async () => {
+        const { banner, errorText } = await errorThenLimit();
+        bannerButton("Dismiss").click();
+        expectErrorBack(banner, errorText);
+        bannerButton("Dismiss").click();
+        expect(banner.hidden).toBe(true);
+      });
+
+      it("ein neuer Fehler danach ersetzt den verdeckten", async () => {
+        const { banner, errorText } = await errorThenLimit();
+        terminalHoisted.errorByKey.get(`r-h1/${h1Full[1]}`)!({ kind: "open", detail: "second failure" });
+        expect(banner.classList.contains("global-error-banner--neutral")).toBe(false);
+        expect(bannerMessage()).toContain(`'${h1Full[1]}'`);
+        expect(bannerMessage()).not.toBe(errorText);
+        bannerButton("Dismiss").click();
+        expect(banner.hidden).toBe(true);
+        vi.advanceTimersByTime(NEUTRAL_NOTICE_MS);
+        expect(banner.hidden).toBe(true);
+        // Der neue Fehler hat den verdeckten verworfen: Schliesst ein
+        // weiterer Hinweis, kommt der alte nicht zurueck.
+        openViaSidebar("h1", h1Over);
+        expect(banner.hidden).toBe(false);
+        expect(banner.classList.contains("global-error-banner--neutral")).toBe(true);
+        vi.advanceTimersByTime(NEUTRAL_NOTICE_MS);
+        expect(banner.hidden).toBe(true);
+      });
+    });
   });
 
   it("an einer Grenze verbindet ein Klick auf eine Session eines getrennten Hosts nicht erst (Spec §5.1 Nr. 3)", async () => {
@@ -6785,6 +6873,34 @@ describe("main: session status overlay poll", () => {
     expect(calls("poll_status")).toHaveLength(2);
     await vi.advanceTimersByTimeAsync(1);
     expect(calls("poll_status")).toHaveLength(3);
+  });
+
+  // Der Takt rechnet mit `Date.now()`. Stellt ein Zeitabgleich die Uhr
+  // waehrend eines Polls zurueck, wartete der naechste sonst um diesen Betrag
+  // laenger (hier eine Stunde), und Statuspunkte, Warteliste und Fenstertitel
+  // stuenden still.
+  it("setzt nicht aus, wenn die Systemuhr waehrend eines Polls zurueckgestellt wird", async () => {
+    await connectWithItems([
+      sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" }),
+    ]);
+    const polls: Array<(value: StatusPollsDto) => void> = [];
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "poll_status") return new Promise<StatusPollsDto>((resolve) => { polls.push(resolve); });
+      return Promise.resolve(undefined);
+    });
+    await vi.advanceTimersByTimeAsync(2000);
+    const running = calls("poll_status").length;
+    expect(running).toBeGreaterThan(0);
+    expect(polls).toHaveLength(running);
+
+    vi.setSystemTime(Date.now() - 60 * 60_000);
+    polls[polls.length - 1](statusPolls(statusPoll([{ session_id: 1, status: "idle", status_reason: "agent is idle" }])));
+    await flush();
+    // Genau beim Takt von 2 s, nicht frueher und nicht spaeter.
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(calls("poll_status")).toHaveLength(running);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(calls("poll_status")).toHaveLength(running + 1);
   });
 
   it("laedt die Sessionliste nur bei einer neuen Kontrollgeneration neu", async () => {

@@ -28,6 +28,22 @@ export type AuthChoice =
   | { kind: "agent" }
   | { kind: "password"; password: string };
 
+/** Die gespeicherte Anmeldeart eines Hosts als Vorauswahl fuer das Formular,
+ * ohne Passphrase und ohne Passwort. Ein Schluessel-Host ohne Pfad faellt wie
+ * bisher auf ssh-agent zurueck. Der `switch` ohne `default` laesst `tsc`
+ * melden, wenn eine neue Anmeldeart keinen Zweig hat. Der Parametertyp ist
+ * strukturell, damit diese Ansicht nicht aus `state/` importiert. */
+export function storedAuthChoice(stored: { authKind: "key" | "agent" | "password"; keyPath: string | null }): AuthChoice {
+  switch (stored.authKind) {
+    case "key":
+      return stored.keyPath ? { kind: "key", path: stored.keyPath, passphrase: "" } : { kind: "agent" };
+    case "password":
+      return { kind: "password", password: "" };
+    case "agent":
+      return { kind: "agent" };
+  }
+}
+
 export interface HostFormValue {
   label: string;
   hostname: string;

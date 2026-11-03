@@ -641,6 +641,103 @@ Stocken.
 | 12 Lizenzseiten | | |
 | macOS | | |
 
+## 11. Änderungen aus dem Code-Review vom 03.11.
+
+Einmal an den Paketen von 0.2.6, die diese Änderungen tragen; der Maintainer
+hat das Release vor dieser Abnahme freigegeben (Zusammenfassung in
+[`docs/stand.md`](stand.md)). Was Tests nicht zeigen: das
+Banner am echten Fenster, das Tippen über eine echte Verbindung, was tmux
+bei `set-clipboard on` und `allow-passthrough on` wirklich weiterreicht und
+wo macOS Daten der App ablegt. Die Obergrenze des Polltakts bei
+zurückgestellter Uhr deckt ein Test mit gefälschter Zeit ab; am Fenster träfe
+man den Fall nur zufällig, weil die Uhr genau während einer Abfrage springen
+müsste.
+
+**Vorbereitung**
+
+- Die Testinstanz aus §10 (Debug-Bau mit eigenem `AIDEVBRIDGE_SETTINGS_DIR`),
+  hier zusätzlich mit eigenem `AIDEVBRIDGE_TMUX_SOCKET`, damit Schritt 3 nur
+  den Testsocket ändert.
+- Ein Testhost mit tmux 3.3a oder 3.6, etwa 192.0.2.20, mit Schlüssel oder
+  ssh-agent und mindestens zehn entbehrlichen Sessions; für Schritt 2 der Host
+  mit spürbarer Latenz aus §10.
+
+**Schritte**
+
+1. **Fehler unter einem Hinweis.** Neun Kacheln öffnen (oder acht auf einem
+   Host). Dann ein Fehlerbanner erzeugen wie im optionalen Teil von §10
+   Schritt 10: einen weiteren Host ohne Kachel anlegen, `settings.toml`
+   schreibgeschützt machen und diesen Host entfernen. Danach eine weitere,
+   noch nicht gezeigte Session anklicken, sodass der Grenzhinweis erscheint.
+   Das dreimal, und den Hinweis je anders schließen: 6 s warten, in eine
+   Kachel drücken, „Dismiss“ am Hinweis. Zum Schluss den Schreibschutz
+   aufheben.
+   Erwartung: Der Grenzhinweis ersetzt den Fehler, solange er steht. Schließt
+   er, steht der Fehler wieder da (etwa „Could not remove …“), samt „Copy
+   details“. Erst „Dismiss“ am Fehler schließt das Banner.
+2. **Tippen über Latenz.** Auf dem Host mit spürbarer Latenz in einer Shell
+   eine Taste zwei Sekunden lang gedrückt halten und einen Satz schnell
+   tippen; zum Vergleich dasselbe mit `ssh` in Windows Terminal.
+   Erwartung: Die Zeichen erscheinen so gleichmäßig wie bei OpenSSH, nicht in
+   Schüben je Paketlaufzeit.
+3. **OSC 52 aus Programmen.** Prüft die neue Beschreibung in `SECURITY.md`
+   und `guide/limits.md`; die App selbst ändert sich hier nicht. Auf dem Host
+   zeigt `tmux -L <Testsocket> show -s set-clipboard` zuerst `external`. Im
+   Editor das Wort `vorher` kopieren. In einer Kachel der Testinstanz
+   `printf '\033]52;c;%s\a' "$(printf hallo | base64)"` ausführen und im
+   Editor einfügen. Dann auf dem Host
+   `tmux -L <Testsocket> set -g set-clipboard on` setzen und den Befehl mit
+   Fokus auf dem Fenster wiederholen. Noch einmal `vorher` kopieren und den
+   Befehl mit `sleep 5;` davor starten, während ein anderes Fenster im
+   Vordergrund liegt. Dann
+   `tmux -L <Testsocket> set -g set-clipboard external` zurücksetzen und mit
+   Fokus die in tmux' Passthrough verpackte Fassung prüfen:
+   `printf '\033Ptmux;\033\033]52;c;%s\a\033\\' "$(printf hallo | base64)"`,
+   einmal bei `allow-passthrough off`
+   (`tmux -L <Testsocket> show -gw allow-passthrough`), einmal nach
+   `tmux -L <Testsocket> set -g allow-passthrough on`, jeweils nach frisch
+   kopiertem `vorher`. Zum Schluss
+   `tmux -L <Testsocket> set -g allow-passthrough off`. Wer einen Host mit
+   tmux 3.2a hat (Ubuntu 22.04), kann die verpackte Fassung dort auch bei
+   `set-clipboard off` prüfen.
+   Erwartung: Bei `external` bleibt `vorher` in der Zwischenablage. Bei `on`
+   liegt mit Fokus `hallo` darin, ohne Fokus bleibt `vorher`; die App fragt
+   nie nach einer Erlaubnis. Die verpackte Fassung lässt bei
+   `allow-passthrough off` `vorher` stehen und legt bei
+   `allow-passthrough on` trotz `external` `hallo` hinein, auf tmux 3.2a
+   auch bei `set-clipboard off`. Weicht das ab, stimmt die Beschreibung
+   nicht.
+4. **CI.** Im Pull Request des Branches, danach in `main`.
+   Erwartung: Der Workflow „Vendored russh“ läuft, weil der Pull Request
+   seine Datei enthält, und ist grün, ebenso CI mit dem Job `licenses`. Die
+   Vorlage für Pull Requests gilt erst aus `main`: Ein neuer Pull Request
+   nach dem Merge bekommt sie als Beschreibung.
+5. **Ablageorte unter macOS**, sobald ein Mac bereitsteht. `PRIVACY.md`
+   endet mit „The app stores nothing anywhere else“; für macOS stützt sich
+   das auf `SECURITY.md` und `guide/data.md` und ist an keinem echten Mac
+   gemessen. Auf einem Mac ohne frühere Installation (oder nach dem Löschen
+   der Ordner aus `PRIVACY.md`) das DMG des Pull Requests (Vorschau von
+   `packages.yml`) installieren, die App zum ersten Mal starten, einen Host
+   anlegen, ein Terminal öffnen, das Fenster verschieben und die App
+   beenden. Dann `ls -d ~/Library/*/io.github.itbrain258.aidevbridge*`
+   ausführen und dabei ausdrücklich
+   `~/Library/Preferences/io.github.itbrain258.aidevbridge.plist`,
+   `~/Library/Saved Application State/io.github.itbrain258.aidevbridge.savedState`
+   und `~/Library/HTTPStorages/io.github.itbrain258.aidevbridge` beachten.
+   Erwartung: Nur die Orte aus `PRIVACY.md` (`Application Support`, `WebKit`,
+   `Caches`) und `~/.ssh/known_hosts`. Taucht ein weiterer auf, ziehen
+   `PRIVACY.md`, `SECURITY.md` und `guide/data.md` gemeinsam nach, mit dem
+   Ort und dem Weg, ihn zu löschen.
+
+| Schritt | Ergebnis | Notiz |
+|---|---|---|
+| Datum, Build, Testhost (tmux) | | |
+| 1 Fehler unter einem Hinweis | | |
+| 2 Tippen über Latenz | | |
+| 3 OSC 52 aus Programmen | | |
+| 4 CI | | |
+| 5 Ablageorte unter macOS | | |
+
 ---
 
 ## Log

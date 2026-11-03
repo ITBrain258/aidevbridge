@@ -6,9 +6,31 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-11-03
+
+Ergebnis eines Code-Reviews: Die SSH-Verbindung schaltet den Nagle-Algorithmus ab, zwei kleine Fehler in der Oberflaeche sind behoben, die Doku zu Zwischenablage, Datenschutz und Beitragen ist berichtigt, und die CI prueft auch das eingebettete russh.
+
+### Added
+
+- CI: Der Workflow `vendored.yml` fuehrt die Bibliothekstests des eingebetteten russh aus, bei jeder Aenderung an `vendor/russh/`, `Cargo.lock`, `Cargo.toml`, `src-tauri/Cargo.toml` oder `rust-toolchain.toml` und auf Knopfdruck. Bisher liefen sie in keiner CI. Ein Skripttest gleicht jede Stelle, die die Rust-Version nennt, mit `rust-toolchain.toml` ab, auch die gepinnten Commits von `dtolnay/rust-toolchain`; ein weiterer die Features des Workflows mit der russh-Zeile in `src-tauri/Cargo.toml`.
+- Beitragen: eine Vorlage fuer Pull Requests mit den Regeln aus `CONTRIBUTING.md`. `CONTRIBUTING.md` sagt, dass die Rust-Pruefungen, die Frontendtests und der Build auch unter Linux laufen und was sie dort brauchen, und fasst auf Englisch zusammen, was ein Pull Request mit geaenderter Abhaengigkeit fuer die Lizenzpruefung braucht.
+
 ### Changed
 
-- README und Anleitungen: Das README ist ein kurzer Einstieg mit neuen Bildern, die Einzelheiten stehen in englischen Anleitungen unter `docs/guide/`. `scripts/readme-images/render.mjs` rendert alle Bilder aus der echten Oberflaeche mit Beispieldaten, auch die Telefonbilder des Store-Eintrags. `SECURITY.md`, `CONTRIBUTING.md` und die Fehlervorlage nennen Android und den aktuellen Release-Ablauf.
+- README und Anleitungen: Das README ist ein kurzer Einstieg mit neuen Bildern, die Einzelheiten stehen in englischen Anleitungen unter `docs/guide/`. `scripts/readme-images/render.mjs` rendert alle Bilder aus der echten Oberflaeche mit Beispieldaten, auch die Telefonbilder des Store-Eintrags. `SECURITY.md`, `CONTRIBUTING.md` und die Fehlervorlage nennen Android und den aktuellen Release-Ablauf. Unter der Download-Tabelle steht, dass es keine Pakete fuer Linux-Desktops und iOS gibt.
+- Datenschutzerklaerung (`PRIVACY.md`): nennt alle Ablageorte unter Windows und macOS, auch `known_hosts` in `~/.ssh` und die Daten der Webansicht, und wie man sie loescht. Dazu kommen der WebView2-Bootstrapper, den Setup-EXE und MSI laden, wenn WebView2 fehlt, und die Webansicht des Systems mit ihrer eigenen Datenpraxis. Die Anleitung zu gespeicherten Daten (`docs/guide/data.md`) nennt auch, dass die App tmux' Standard-Socket der Hosts liest und sich beim Oeffnen einer solchen Session als weiterer Client anhaengt.
+- Zwischenablage: Die Grenzen-Anleitung und `SECURITY.md` sagen jetzt richtig, dass `set-clipboard` aus der eigenen `~/.tmux.conf` entscheidet, ob Programme per OSC 52 in die lokale Zwischenablage schreiben, auch auf dem Socket der App: beim Standard `external` nicht, solange tmux' `allow-passthrough` aus ist (ab tmux 3.3; aeltere reichen solche Sequenzen immer durch), mit `on` schon. Bisher hiess es, solche Kopien wuerden immer verworfen. `SECURITY.md` fuehrt das als akzeptiertes Risiko mit Abhilfe; das Verhalten der App bleibt gleich.
+- `known_hosts`: Die Grenzen-Anleitung sagt, dass die App einen beim ersten Kontakt bestaetigten Hostschluessel mit dem Hostnamen im Klartext anhaengt, auch bei `HashKnownHosts yes`, und dass `ssh-keygen -H` die Datei danach hasht.
+
+### Fixed
+
+- Ein Fehlerbanner bleibt stehen, bis man es schliesst, auch wenn ein neutraler Hinweis es verdeckt, etwa der Hinweis an der Grenze der Kacheln: Schliesst der Hinweis nach 6 s, beim naechsten Druck in eine Kachel oder mit "Dismiss", steht der Fehler wieder da. Bisher verschwand er mit dem Hinweis.
+- Wird die Systemuhr zurueckgestellt, waehrend eine Statusabfrage laeuft, etwa von einer Zeitsynchronisation, kommt die naechste Abfrage dieses Hosts trotzdem nach hoechstens 2 s. Bisher wartete sie zusaetzlich um den Betrag der Umstellung, und Statuspunkte, Wartet-Spur und Fenstertitel standen so lange still.
+- SSH: Die App schaltet auf jeder Verbindung den Nagle-Algorithmus ab (`TCP_NODELAY`), wie OpenSSH fuer interaktive Sitzungen. Tastendruecke und andere kleine Pakete warten nicht mehr auf die Bestaetigung des vorigen Pakets, was vor allem auf Verbindungen mit hoher Latenz bremste.
+
+### Security
+
+- russh 0.65.0: Zwei am 03.11. veroeffentlichte, niedrig eingestufte Meldungen betreffen die App nicht. GHSA-9264-jvgf-6w2f trifft nur Clients, die den Callback `kex_done` nutzen, den die App nicht implementiert; GHSA-736f-c93q-9fwx trifft den SSH-Agent-Server von russh, den die App nie ausfuehrt. `SECURITY.md` begruendet das, der Audit-Workflow fuehrt beide als akzeptiert, und das naechste Update auf russh 0.65.1 behebt sie.
 
 ## [0.2.5] - 2026-10-31
 
@@ -50,7 +72,7 @@ Erstes Release mit Android (APK am Release, App Bundle fuer Google Play) und mit
 - Android: Die native Bibliothek geht ohne Symboltabelle in die App (12,9 statt 19,8 MB fuer arm64, die APK ist rund ein Drittel kleiner); die Symboltabelle liegt im App Bundle, damit Google Play Abstuerze im Rust-Teil mit Funktionsnamen zeigt. Bisher behielt auch die Release-App die Symbole, weil `keepDebugSymbols` aus der Tauri-Vorlage fuer alle Build-Typen galt.
 - Terminal: Der Scrollbalken rechts im Terminal entfaellt, auf dem Desktop wie auf Android. Gescrollt wird mit dem Mausrad, durch Wischen oder in tmux; jedes Terminal gewinnt die 14 px des Balkens, bei Schriftgroesse 13 knapp zwei Spalten.
 - CI: Der Workflow `packages.yml` ersetzt `macos.yml` und baut bei einem Tag `v*` alle Installer: MSI, Setup-EXE und ZIP mit `npm run build:windows` auf Windows und das DMG auf macOS. Jedes Paket wird auf einem frischen Runner installiert und gestartet, bis das Fenster erscheint; danach haengt der Workflow alle an das Release des Tags und schreibt je einen Abschnitt fuer Windows und macOS in dessen Text (`scripts/release-notes.mjs`). Ein Handlauf mit einem bestehenden Tag haengt an, was dessen Release noch fehlt.
-- CI: Alle Actions sind per Commit gepinnt, Dependabot haelt sie aktuell, und Checkouts behalten keine Zugangsdaten. Das Veroeffentlichen ersetzt keine Datei mehr: Fehlt einer Plattform ein Teil ihrer Dateien und weicht eine schon angehaengte Datei vom neuen Bau ab oder hat keinen Digest, bricht der Lauf ab, bevor er etwas anhaengt. Hat eine Plattform schon alle Dateien mit genau den Bytes des Laufs, schreibt er ihren Abschnitt im Releasetext noch einmal, auch wenn nichts mehr hochzuladen ist; so fehlen ihre Hashes nicht, wenn ein frueherer Versuch nach dem Hochladen abbrach. Ein Handlauf, der einen Tag nennt, wartet auf den Lauf dieses Tags und umgekehrt.
+- CI: Alle Actions sind per Commit gepinnt, Dependabot haelt sie aktuell, ausser `dtolnay/rust-toolchain`, das von Hand gehoben wird, und Checkouts behalten keine Zugangsdaten. Das Veroeffentlichen ersetzt keine Datei mehr: Fehlt einer Plattform ein Teil ihrer Dateien und weicht eine schon angehaengte Datei vom neuen Bau ab oder hat keinen Digest, bricht der Lauf ab, bevor er etwas anhaengt. Hat eine Plattform schon alle Dateien mit genau den Bytes des Laufs, schreibt er ihren Abschnitt im Releasetext noch einmal, auch wenn nichts mehr hochzuladen ist; so fehlen ihre Hashes nicht, wenn ein frueherer Versuch nach dem Hochladen abbrach. Ein Handlauf, der einen Tag nennt, wartet auf den Lauf dieses Tags und umgekehrt.
 - Hosts anlegen, aendern und entfernen und die Einstellungen der Oberflaeche speichern `settings.toml` nicht mehr auf dem Hauptthread: Das Fenster steht nicht still, waehrend die Datei auf die Platte geschrieben wird. Die Speichervorgaenge eines Fensters laufen weiter nacheinander.
 - `SECURITY.md` fuehrt bekannte Grenzen und akzeptierte Risiken an einer Stelle, je mit Begruendung und Weg zur Loesung: den SHA-1-Rueckfall bei Servern, die nur `ssh-rsa` anbieten, die fehlende erneute Pruefung des Hostschluessels beim Rekey, RUSTSEC-2023-0071, den russh-Servercode, die unsignierten Pakete und mehrere Fenster zugleich. Sie beschreibt auch die macOS-Lieferung.
 

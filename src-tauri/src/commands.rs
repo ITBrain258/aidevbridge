@@ -894,7 +894,7 @@ fn classify_connect_error(
 ///
 /// Was das ausdruecklich NICHT heisst, damit die Frage nicht wiederkehrt:
 /// Tauri deserialisiert Befehlsargumente aus einem BEREITS materialisierten
-/// `serde_json::Value` (`tauri-2.11.5/src/ipc/command.rs`), der Klartext lebt
+/// `serde_json::Value` (`tauri-2.12.5/src/ipc/command.rs`), der Klartext lebt
 /// vorher also in dessen `String` -- und im Fenster ohnehin in
 /// unveraenderlichen JS-Zeichenketten, die niemand ueberschreiben kann. Eine
 /// vollstaendige Behebung braeuchte einen eigenen `Raw`-Payload-Weg am
@@ -1121,11 +1121,12 @@ impl AckGate {
 
     /// Blockiert, bis `len` weitere Bytes verschickt werden duerften, dann
     /// reserviert es sie. Das ist die eigentliche Bremse: Solange die
-    /// Pumpaufgabe hier haengt, ruft sie `rx.recv()` nicht erneut auf --
-    /// der bounded(64)-Kanal aus `PtyHandle` fuellt sich, `tx.send()` in der
-    /// Leseaufgabe blockiert, das SSH-Fenster schliesst, der entfernte
-    /// `tmux attach`-Prozess blockiert. Der Rueckstau reicht damit bis zum
-    /// entfernten Prozess (Spec §9.1).
+    /// Pumpaufgabe hier haengt, ruft sie `rx.recv()` nicht erneut auf; die
+    /// Ausgabewarteschlange des Kanals (`pty_output`) wird nicht geleert,
+    /// ihre Bytes gehen nicht an das SSH-Fenster zurueck, und die Gegenseite
+    /// haelt an der Fenstergrenze an (`WINDOW`). Der entfernte
+    /// `tmux attach`-Prozess blockiert; der Rueckstau reicht bis zu ihm
+    /// (Spec §9.1).
     async fn wait_for_room(&self, len: u64) {
         loop {
             {
@@ -3060,7 +3061,7 @@ pub fn suggest_hosts() -> Result<Vec<crate::ssh::SshConfigHost>, String> {
 ///
 /// Nimmt `settings_path` bewusst als Parameter entgegen (dasselbe Muster wie
 /// `connect_host_with_known_hosts` gegenueber `connect_host_impl`, und wie
-/// `settings::load_from` gegenueber `settings::load`): ohne diesen Parameter
+/// `settings::load_from(path)`): ohne diesen Parameter
 /// waere diese Funktion nur gegen die ECHTE `%APPDATA%\io.github.itbrain258.aidevbridge\
 /// settings.toml` testbar -- Unit-Tests duerften diese Datei aber nicht
 /// anfassen (dieselbe Sonderregel wie fuer `~/.ssh/known_hosts`, auf die

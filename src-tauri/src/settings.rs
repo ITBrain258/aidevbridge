@@ -733,7 +733,7 @@ fn migration_dirs_from(
 /// an (known_hosts ist `~/.ssh/known_hosts`, die Fensterlage lag unter der
 /// alten Kennung); Reste wie die temporaere Datei `settings.toml.tmp` aelterer
 /// Versionen bleiben dort. Der alte Ordner wird nur gelesen. Die Kopie
-/// entsteht wie in [`save_to`] dauerhaft ueber eine eigene temporaere Datei
+/// entsteht wie in [`update_at`] dauerhaft ueber eine eigene temporaere Datei
 /// und `rename` (siehe `replace_durably`), eine halbe `settings.toml` gibt es
 /// also nie. Legt eine gleichzeitig startende zweite Instanz die Datei
 /// unterdessen an, gewinnt deren Datei: Unmittelbar vor dem `rename` wird
@@ -791,12 +791,7 @@ fn is_missing(path: &Path) -> bool {
     matches!(std::fs::symlink_metadata(path), Err(error) if error.kind() == ErrorKind::NotFound)
 }
 
-/// Laedt `settings.toml` vom Standardpfad (siehe `settings_path`).
-pub fn load() -> anyhow::Result<Settings> {
-    load_from(&settings_path()?)
-}
-
-/// Testbarer Kern von `load()`: nimmt den Pfad explizit entgegen.
+/// Laedt `settings.toml` von `path` (in der App `settings_path()`).
 ///
 /// Fehlt die Datei (frische Installation), ist das KEIN Fehler --
 /// `Settings::default()` (aktuelle Version, keine Hosts) kommt zurueck,
@@ -851,12 +846,10 @@ fn current_fingerprint(path: &Path) -> anyhow::Result<Fingerprint> {
     }
 }
 
-/// Schreibt `settings.toml` zum Standardpfad (siehe `settings_path`).
-pub fn save(s: &Settings) -> anyhow::Result<()> {
-    save_to(&settings_path()?, s)
-}
-
-/// Testbarer Kern von `save()`: nimmt den Pfad explizit entgegen.
+/// Schreibt `s` blind nach `path`. Nur fuer Tests, die eine Datei vorbereiten:
+/// Die App schreibt `settings.toml` ausschliesslich ueber [`update_at`], das
+/// vorher neu liest und die eigene Aenderung auf den aktuellen Stand anwendet.
+/// `cfg(test)` haelt den blinden Schreiber aus dem Produktionscode heraus.
 ///
 /// Schreibt nicht `s` selbst, sondern dessen geklemmten Stand
 /// (`Settings::normalize_for_save`): ungueltige Werte werden zum Standard, und
@@ -866,8 +859,8 @@ pub fn save(s: &Settings) -> anyhow::Result<()> {
 /// Datei.
 ///
 /// Schreibt dauerhaft und atomar (siehe `replace_durably`), aber blind: Was
-/// eine andere Instanz inzwischen gespeichert hat, wird ersetzt. Wer erst
-/// liest und dann aendert, nimmt deshalb [`update_at`].
+/// eine andere Instanz inzwischen gespeichert hat, wird ersetzt.
+#[cfg(test)]
 pub fn save_to(path: &Path, s: &Settings) -> anyhow::Result<()> {
     let mut s = s.clone();
     s.normalize_for_save();
@@ -896,7 +889,8 @@ static UPDATE_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 /// Ablauf je Versuch: Datei lesen und den SHA-256 der gelesenen Bytes merken
 /// (fehlt sie, ist das ein Erststart mit `Settings::default()`), pruefen
 /// (eine Datei, die sich nicht lesen laesst, wird NIE ueberschrieben, siehe
-/// `load_from`), `change` anwenden, normalisieren (wie in [`save_to`]) und
+/// `load_from`), `change` anwenden, normalisieren
+/// (`Settings::normalize_for_save`) und
 /// dauerhaft in eine eigene temporaere Datei schreiben. Unmittelbar vor dem
 /// `rename` wird die Datei erneut gelesen. Hat sich ihr Fingerabdruck
 /// geaendert, hat eine andere Instanz dazwischen gespeichert: Die temporaere

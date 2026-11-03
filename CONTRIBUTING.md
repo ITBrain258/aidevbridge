@@ -43,6 +43,13 @@ They need no SSH host. Tests that would need one return early, print a line
 starting with `SKIP` (visible with `-- --nocapture`) and still count as
 passed, so a green run does not prove a real SSH connection.
 
+There are no packages for Linux desktops, but the Rust checks, the frontend
+tests and the build from these checks also run on Linux, as in the CI. The
+Rust checks need the packages that the step "Install Linux dependencies for
+Tauri" in `.github/workflows/ci.yml` installs; the frontend tests and the
+build need only Node.js. The CI runs `npm run test:scripts` on Windows only;
+some of these tests check Windows behaviour and are skipped elsewhere.
+
 `.github/workflows/audit.yml` checks `Cargo.lock` with `cargo audit` and the
 runtime packages in `package-lock.json` with `npm audit --omit=dev` against
 known security advisories: weekly, on every change of either lockfile or of
@@ -56,6 +63,16 @@ database and the upstream repository's own advisories
 ([SECURITY.md](SECURITY.md)). The `cargo audit` job ignores RUSTSEC-2023-0071 (`rsa`), which has no
 fixed version; SECURITY.md explains why the app accepts it, and also lists
 the warnings `cargo audit` prints without failing.
+
+`.github/workflows/vendored.yml` runs whenever `vendor/russh`, `Cargo.lock`,
+`Cargo.toml`, `src-tauri/Cargo.toml` or `rust-toolchain.toml` change, and when
+started by hand. The vendored russh is not a workspace member, so
+`cargo test --all` skips it; this workflow copies it into a temporary
+workspace and runs its library tests (`cargo test -p russh --lib`) with the
+app's features. The workflow step repeats the features of the russh line in
+`src-tauri/Cargo.toml`; `scripts/vendored-workflow.test.mjs` checks that the
+list in the workflow still matches. Like `audit.yml`, the workflow is not
+part of the checks above.
 
 ## Live tests against a test host
 
@@ -121,6 +138,22 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
   needs its license review in the same pull request: the CI job `licenses` fails
   otherwise ([guide](docs/lizenzen-pflegen.md), in German). The packages workflow
   builds a preview disk image of your pull request, which does not need them.
+- **Changing a dependency.** Third-party code here means the lockfiles
+  (`Cargo.lock`, `package-lock.json`, `src-tauri/gen/android/app/gradle.lockfile`),
+  everything under `node_modules/`, `vendor/` and `docs/release/`,
+  `THIRD_PARTY_LICENSES.md` and every crate from the registry.
+  `npm run licenses:status` lists the differences of all three selections, own
+  sources and third-party code apart. On Windows x64,
+  `node scripts/release-license-update-cargo.mjs` shows the plan for Rust crates:
+  a crate moves without review only if its declared license, its role in the
+  release graph, its set of license files and the bytes of every bound file stay
+  the same and every selected text is one of the crate's own files; anything
+  under `review` needs a reviewed entry, and a selected text from outside the
+  crate (its repository, a sibling crate, a shared text) an `external` entry
+  that records how it was checked for the new version. The
+  [guide](docs/lizenzen-pflegen.md) (in German) has the steps for Rust, npm,
+  vendored crates, Android libraries and installer tools; at the end
+  `npm run licenses:check` must pass.
 
 ## Releases
 

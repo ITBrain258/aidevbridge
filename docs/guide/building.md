@@ -15,8 +15,9 @@ npm ci
 npm run tauri -- dev
 ```
 
-`package.json` denies the install script of `esbuild` (`allowScripts`, read
-by npm 12): the build and the tests run without it.
+`package.json` denies the install script of `esbuild` (`allowScripts`, which
+current npm releases such as 11.20 honour; older ones ignore the field and
+run the script): the build and the tests run without it.
 
 Builds pin `russh` to the published version **0.65.0** with four local
 changes: SSH channel-close acknowledgements, including cleanup of unsent data
@@ -119,7 +120,7 @@ bundle but the program, its icon, the `licenses` folder and the signature,
 and the same app inside the DMG. `release-manifest.json` with the SHA-256 of
 the DMG lands in `out/release-macos/<run-id>/artifacts/`. When the Apple
 secrets named in
-[the design](../specs/2026-10-25-macos-lieferung-design.md) are set, it
+[the design](../specs/2026-10-25-macos-lieferung-design.md) (in German) are set, it
 signs with a Developer ID and notarizes instead.
 
 The macOS license selection

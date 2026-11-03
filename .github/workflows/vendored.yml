@@ -1,0 +1,55 @@
+name: Vendored russh
+# Fuehrt die Tests des eingebetteten russh unter vendor/russh aus. Es ist kein
+# Mitglied des Workspace (Cargo.toml bindet es nur ueber [patch.crates-io]
+# ein), darum testet `cargo test --all` in ci.yml es nicht, und seine Tests
+# liefen bis jetzt in keiner CI: src/tests/channel_end_observer.rs
+# kompilierte vom 21.10. bis zum 30.10. nicht (AGENTBRIDGE-PATCH.md). Laeuft
+# bei jeder Aenderung am vendorten russh, an Cargo.lock, Cargo.toml,
+# src-tauri/Cargo.toml, rust-toolchain.toml oder an dieser Datei und auf
+# Abruf. Wie audit.yml kein Teil der Pruefungen, die ein Pull Request
+# bestehen muss (die laufen in ci.yml).
+on:
+  push:
+    branches: [main]
+    paths: ['vendor/russh/**', Cargo.lock, Cargo.toml, src-tauri/Cargo.toml, rust-toolchain.toml, .github/workflows/vendored.yml]
+  pull_request:
+    paths: ['vendor/russh/**', Cargo.lock, Cargo.toml, src-tauri/Cargo.toml, rust-toolchain.toml, .github/workflows/vendored.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: vendored-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  russh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: dtolnay/rust-toolchain@59a558e8c538bf4a23bbffa19e5a278b703f2920 # 1.97.1
+      # Im Wurzel-Workspace bricht `cargo test -p russh` ab, weil russh dort
+      # kein Mitglied ist. Darum laeuft der Test in einer Kopie in einem
+      # eigenen Workspace unter $RUNNER_TEMP, und vendor/ bleibt unberuehrt.
+      # Die mitkopierte Cargo.lock der App laesst die
+      # Produktionsabhaengigkeiten auf den Versionen der App; die
+      # Dev-Dependencies loest cargo dazu auf, darum ohne --locked. Gebaut
+      # wird nur --lib, weil die upstream-Integrationstests
+      # tests/test_window_adjust.rs und tests/auth_signer_failure.rs gegen
+      # 0.65.0 nicht kompilieren (AGENTBRIDGE-PATCH.md). Die Features sind
+      # die der App: Die Liste muss der russh-Zeile in src-tauri/Cargo.toml
+      # folgen, scripts/vendored-workflow.test.mjs gleicht beide ab.
+      - name: Library tests of the vendored russh with the app features
+        # Dev-Dependencies bevorzugt in Versionen, deren rust-version zu der
+        # von russh passt (cargo >= 1.84).
+        env:
+          CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: fallback
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/russh-workspace"
+          mkdir -p "$work"
+          cp -R vendor/russh "$work/russh"
+          cp Cargo.lock rust-toolchain.toml "$work/"
+          printf '[workspace]\nmembers = ["russh"]\nresolver = "2"\n' > "$work/Cargo.toml"
+          cd "$work"
+          cargo test -p russh --lib --no-default-features --features ring,flate2,rsa -- --test-threads=4

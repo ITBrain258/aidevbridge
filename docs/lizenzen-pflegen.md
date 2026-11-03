@@ -106,10 +106,13 @@ Pfad-Paket, `cargo audit` und Dependabot sehen es nicht (dafür der Job
    eigene Fassung, altes Paket, neues Paket), Konflikte von Hand lösen,
    `UPSTREAM-SHA256SUMS` und `AGENTBRIDGE-PATCH.md` neu schreiben, die
    exakte Version in `src-tauri/Cargo.toml` und den Kommentar im
-   Root-Manifest nachziehen.
+   Root-Manifest nachziehen. Der Satz in `AGENTBRIDGE-PATCH.md`, die Tests
+   des Crates liefen in keiner CI der App, fällt dabei weg.
 3. Die App testen (`--test-threads=4`) und die Tests des Crates in einem
    temporären Workspace mit einer Kopie und den Produktions-Features, wie
-   in `AGENTBRIDGE-PATCH.md` beschrieben.
+   in `AGENTBRIDGE-PATCH.md` beschrieben. Dieselben Bibliothekstests laufen
+   auch in `.github/workflows/vendored.yml`, im Pull Request des Updates
+   und danach bei jeder Änderung am Crate.
 4. Lizenzen: `node scripts/release-license-update-cargo.mjs --write --date=…`
    zieht die Komponente um (deklarierte Lizenz und Lizenzdatei gleich),
    den Beleg mit `--add` binden, `Cargo.lock` mit `--third-party`, den
@@ -145,7 +148,12 @@ Die Toolchain steckt in den Belegen der Standardbibliothek
 (`docs/release/licenses/rust-1.97.1-*`, Tabellen `STDLIB` der beiden
 Ableitungen, Komponenten `rust-toolchain:*` der Windows-Auswahl) und in der
 Prüfung `scope.rust_toolchain` von `scripts/release-licenses.mjs`; ein
-Wechsel ist eine eigene Stufe.
+Wechsel ist eine eigene Stufe. Die Stellen, die die Version nennen und bei
+einem Wechsel mitziehen, von den Release-Skripten über die Lizenzauswahlen
+bis zu den Workflows und der Bauanleitung, listet
+`scripts/rust-toolchain.test.mjs` auf; es meldet jede, die von
+`rust-toolchain.toml` abweicht. Die Belege der Standardbibliothek gehören
+nicht dazu.
 
 ## Vor dem Merge
 

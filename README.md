@@ -123,6 +123,8 @@ Get the [latest release](https://github.com/ITBrain258/aidevbridge/releases/late
 | **macOS** | `…-macos-universal.dmg` | macOS 11 or newer, Apple silicon or Intel |
 | **Android** | `…-android.apk` | Android 7.0 or newer |
 
+There are no packages for Linux desktops or iOS.
+
 > [!NOTE]
 > aidevbridge is in early development, and the packages are **not code-signed yet**.
 > Windows SmartScreen warns, Smart App Control blocks the app, and macOS refuses the

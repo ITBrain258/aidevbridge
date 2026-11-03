@@ -4,6 +4,10 @@
 **Status:** Entwurf, Fassung 3 (Stack auf Rust/Tauri gewechselt)
 **Arbeitstitel:** `agentbridge` (provisorisch)
 
+**Einordnung (Nachtrag 2026-11-03):** Gesamtspec aus der Planungsphase. Das Produkt heißt
+seit dem 20.10.2026 aidevbridge, der tmux-Socket weiter `agentbridge`. Die späteren Specs
+gehen vor, wo sie abweichen; welche das sind, steht in [`docs/stand.md`](../stand.md#wo-was-steht).
+
 ---
 
 ## 1. Zweck
