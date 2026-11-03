@@ -6,10 +6,23 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Added
+
+- CI: Der Workflow `vendored.yml` fuehrt die Bibliothekstests des eingebetteten russh aus, bei jeder Aenderung an `vendor/russh/`, `Cargo.lock`, `Cargo.toml` oder `rust-toolchain.toml` und auf Knopfdruck. Bisher liefen sie in keiner CI. Ein Skripttest gleicht jede Stelle, die die Rust-Version nennt, mit `rust-toolchain.toml` ab, auch die gepinnten Commits von `dtolnay/rust-toolchain`.
+- Beitragen: eine Vorlage fuer Pull Requests mit den Regeln aus `CONTRIBUTING.md`. `CONTRIBUTING.md` sagt, dass die Pruefungen auch unter Linux laufen und was sie dort brauchen, und fasst auf Englisch zusammen, was ein Pull Request mit geaenderter Abhaengigkeit fuer die Lizenzpruefung braucht.
+
 ### Changed
 
-- README und Anleitungen: Das README ist ein kurzer Einstieg mit neuen Bildern, die Einzelheiten stehen in englischen Anleitungen unter `docs/guide/`. `scripts/readme-images/render.mjs` rendert alle Bilder aus der echten Oberflaeche mit Beispieldaten, auch die Telefonbilder des Store-Eintrags. `SECURITY.md`, `CONTRIBUTING.md` und die Fehlervorlage nennen Android und den aktuellen Release-Ablauf.
-- Datenschutzerklaerung (`PRIVACY.md`): nennt alle Ablageorte unter Windows und macOS, auch `known_hosts` in `~/.ssh` und die Daten der Webansicht, und wie man sie loescht. Dazu kommen der WebView2-Bootstrapper, den Setup-EXE und MSI laden, wenn WebView2 fehlt, und die Webansicht des Systems mit ihrer eigenen Datenpraxis.
+- README und Anleitungen: Das README ist ein kurzer Einstieg mit neuen Bildern, die Einzelheiten stehen in englischen Anleitungen unter `docs/guide/`. `scripts/readme-images/render.mjs` rendert alle Bilder aus der echten Oberflaeche mit Beispieldaten, auch die Telefonbilder des Store-Eintrags. `SECURITY.md`, `CONTRIBUTING.md` und die Fehlervorlage nennen Android und den aktuellen Release-Ablauf. Unter der Download-Tabelle steht, dass es keine Pakete fuer Linux-Desktops und iOS gibt.
+- Datenschutzerklaerung (`PRIVACY.md`): nennt alle Ablageorte unter Windows und macOS, auch `known_hosts` in `~/.ssh` und die Daten der Webansicht, und wie man sie loescht. Dazu kommen der WebView2-Bootstrapper, den Setup-EXE und MSI laden, wenn WebView2 fehlt, und die Webansicht des Systems mit ihrer eigenen Datenpraxis. Die Anleitung zu gespeicherten Daten (`docs/guide/data.md`) nennt auch, dass die App tmux' Standard-Socket der Hosts liest und sich beim Oeffnen einer solchen Session als weiterer Client anhaengt.
+- Zwischenablage: Die Grenzen-Anleitung und `SECURITY.md` sagen jetzt richtig, dass `set-clipboard` aus der eigenen `~/.tmux.conf` entscheidet, ob Programme per OSC 52 in die lokale Zwischenablage schreiben, auch auf dem Socket der App: beim Standard `external` nicht, mit `on` schon. Bisher hiess es, solche Kopien wuerden immer verworfen. `SECURITY.md` fuehrt das als akzeptiertes Risiko mit Abhilfe; das Verhalten der App bleibt gleich.
+- `known_hosts`: Die Grenzen-Anleitung sagt, dass die App einen beim ersten Kontakt bestaetigten Hostschluessel mit dem Hostnamen im Klartext anhaengt, auch bei `HashKnownHosts yes`, und dass `ssh-keygen -H` die Datei danach hasht.
+
+### Fixed
+
+- Ein Fehlerbanner bleibt stehen, bis man es schliesst, auch wenn ein neutraler Hinweis es verdeckt, etwa der Hinweis an der Grenze der Kacheln: Schliesst der Hinweis nach 6 s, beim naechsten Druck in eine Kachel oder mit "Dismiss", steht der Fehler wieder da. Bisher verschwand er mit dem Hinweis.
+- Wird die Systemuhr zurueckgestellt, waehrend eine Statusabfrage laeuft, etwa von einer Zeitsynchronisation, kommt die naechste Abfrage dieses Hosts trotzdem nach hoechstens 2 s. Bisher wartete sie zusaetzlich um den Betrag der Umstellung, und Statuspunkte, Wartet-Spur und Fenstertitel standen so lange still.
+- SSH: Die App schaltet auf jeder Verbindung den Nagle-Algorithmus ab (`TCP_NODELAY`), wie OpenSSH fuer interaktive Sitzungen. Tastendruecke und andere kleine Pakete warten nicht mehr auf die Bestaetigung des vorigen Pakets, was vor allem auf Verbindungen mit hoher Latenz bremste.
 
 ## [0.2.5] - 2026-10-31
 
