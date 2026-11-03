@@ -646,7 +646,8 @@ Stocken.
 Einmal vor dem nächsten Tag, am Stand des Branches `chore/review-2026-11`
 (Zusammenfassung in [`docs/stand.md`](stand.md)). Was Tests nicht zeigen: das
 Banner am echten Fenster, das Tippen über eine echte Verbindung, was tmux
-bei `set-clipboard on` wirklich weiterreicht und wo macOS Daten der App
+bei `set-clipboard on` und `allow-passthrough on` wirklich weiterreicht und
+wo macOS Daten der App
 ablegt. Die Obergrenze des Polltakts bei zurückgestellter Uhr deckt ein Test
 mit gefälschter Zeit ab; am Fenster träfe man den Fall nur zufällig, weil die
 Uhr genau während einer Abfrage springen müsste.
@@ -687,11 +688,24 @@ Uhr genau während einer Abfrage springen müsste.
    `tmux -L <Testsocket> set -g set-clipboard on` setzen und den Befehl mit
    Fokus auf dem Fenster wiederholen. Noch einmal `vorher` kopieren und den
    Befehl mit `sleep 5;` davor starten, während ein anderes Fenster im
-   Vordergrund liegt. Zum Schluss
-   `tmux -L <Testsocket> set -g set-clipboard external`.
+   Vordergrund liegt. Dann
+   `tmux -L <Testsocket> set -g set-clipboard external` zurücksetzen und mit
+   Fokus die in tmux' Passthrough verpackte Fassung prüfen:
+   `printf '\033Ptmux;\033\033]52;c;%s\a\033\\' "$(printf hallo | base64)"`,
+   einmal bei `allow-passthrough off`
+   (`tmux -L <Testsocket> show -gw allow-passthrough`), einmal nach
+   `tmux -L <Testsocket> set -g allow-passthrough on`, jeweils nach frisch
+   kopiertem `vorher`. Zum Schluss
+   `tmux -L <Testsocket> set -g allow-passthrough off`. Wer einen Host mit
+   tmux 3.2a hat (Ubuntu 22.04), kann die verpackte Fassung dort auch bei
+   `set-clipboard off` prüfen.
    Erwartung: Bei `external` bleibt `vorher` in der Zwischenablage. Bei `on`
    liegt mit Fokus `hallo` darin, ohne Fokus bleibt `vorher`; die App fragt
-   nie nach einer Erlaubnis. Weicht das ab, stimmt die Beschreibung nicht.
+   nie nach einer Erlaubnis. Die verpackte Fassung lässt bei
+   `allow-passthrough off` `vorher` stehen und legt bei
+   `allow-passthrough on` trotz `external` `hallo` hinein, auf tmux 3.2a
+   auch bei `set-clipboard off`. Weicht das ab, stimmt die Beschreibung
+   nicht.
 4. **CI.** Im Pull Request des Branches, danach in `main`.
    Erwartung: Der Workflow „Vendored russh“ läuft, weil der Pull Request
    seine Datei enthält, und ist grün, ebenso CI mit dem Job `licenses`. Die
