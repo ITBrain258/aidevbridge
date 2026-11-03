@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-11-03
+
+Ergebnis eines Code-Reviews: Die SSH-Verbindung schaltet den Nagle-Algorithmus ab, zwei kleine Fehler in der Oberflaeche sind behoben, die Doku zu Zwischenablage, Datenschutz und Beitragen ist berichtigt, und die CI prueft auch das eingebettete russh.
+
 ### Added
 
 - CI: Der Workflow `vendored.yml` fuehrt die Bibliothekstests des eingebetteten russh aus, bei jeder Aenderung an `vendor/russh/`, `Cargo.lock`, `Cargo.toml`, `src-tauri/Cargo.toml` oder `rust-toolchain.toml` und auf Knopfdruck. Bisher liefen sie in keiner CI. Ein Skripttest gleicht jede Stelle, die die Rust-Version nennt, mit `rust-toolchain.toml` ab, auch die gepinnten Commits von `dtolnay/rust-toolchain`; ein weiterer die Features des Workflows mit der russh-Zeile in `src-tauri/Cargo.toml`.

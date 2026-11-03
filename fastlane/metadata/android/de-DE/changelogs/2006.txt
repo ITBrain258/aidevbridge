@@ -1,0 +1,1 @@
+Tippen über langsame Verbindungen reagiert schneller: Die App schickt kleine Pakete wie Tastendrücke sofort, wie OpenSSH. Eine Fehlermeldung bleibt stehen, auch wenn ein kurzer Hinweis sie verdeckt hat, und der Sessionstatus läuft weiter, wenn die Uhr des Geräts zurückgestellt wird.

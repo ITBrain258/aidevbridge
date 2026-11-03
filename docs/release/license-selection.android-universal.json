@@ -14,7 +14,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.2.5",
+    "product_version": "0.2.6",
     "android_ndk": "29.0.14206865",
     "minimum_sdk": 24,
     "target_sdk": 36,
@@ -59,7 +59,7 @@
       {
         "path": "Cargo.lock",
         "bytes": 149402,
-        "sha256": "feda0447076e5c879b915e22093befc61142c7c13913e70e9d96e86712dea104"
+        "sha256": "c46d9550a6eb73ccb7531df2f59aa97a77fc546efb1512d0f80021cf5f3d87f7"
       },
       {
         "path": "Cargo.toml",
@@ -89,7 +89,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 158018,
-        "sha256": "709a6cf65a1b7ed892b5d7e878578a24e26c39a90a9fc41de77df0c4796febf1"
+        "sha256": "b3855a1ec071d13221550a68e738ff0f85d14d5f6347a3b6e2bf98a6b5abb851"
       },
       {
         "path": "docs/release/license-frontend-output-2026-09-12.json",
@@ -119,7 +119,7 @@
       {
         "path": "docs/release/license-inventory-2026-10-28-android.json",
         "bytes": 266963,
-        "sha256": "5410d7d0c0bce633cc60178d16ae242cea856c0b6f054fe57696fef93dabc6e1"
+        "sha256": "0b9a8d593385855ee05e88705982a07973bc63976ae05d5085b7a69cd95a82b3"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -549,12 +549,12 @@
       {
         "path": "package-lock.json",
         "bytes": 79012,
-        "sha256": "0267ec17477c3db3be1ee6e8408d9848c5ea6fb82999b7e59b807b16e19973fd"
+        "sha256": "c9ddc92c63c7e815d0e88fcc74772f0cc5d8e87b984ae28613aad56a59830d6e"
       },
       {
         "path": "package.json",
         "bytes": 1717,
-        "sha256": "f7918c3087b6ea03843cd9a0966fe65fa9abb3464b8df94389215365af70e235"
+        "sha256": "c6492f3350e9a0baba44b5f5210a12171faf0ad558442482b5eb33e5aaca1dbc"
       },
       {
         "path": "rust-toolchain.toml",
@@ -583,13 +583,13 @@
       },
       {
         "path": "src-tauri/Cargo.toml",
-        "bytes": 5872,
-        "sha256": "b5e608ce4609f41f70a6ebe230536aa7286d7c432bc3e90c4b9a3118ebfdd120"
+        "bytes": 5986,
+        "sha256": "2de5c072baee16908435f6be805ba34363e5b48afbf554dfcb9f744f8e88d562"
       },
       {
         "path": "src-tauri/build.rs",
-        "bytes": 3576,
-        "sha256": "cdfbc92d023ffa1f6e9146f2ec7183309d5201b004474ffdff15e8a446346d77"
+        "bytes": 3774,
+        "sha256": "1d6b1e65c501bfc447d7742227bdff3bc17d4b05e305c42e32b317486c76be77"
       },
       {
         "path": "src-tauri/gen/android/app/build.gradle.kts",
@@ -634,7 +634,7 @@
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1510,
-        "sha256": "73056099138b02597c7d2af7aafbb69657feaf56ee506435144f96cd2c416e31"
+        "sha256": "1ad2ce54c2403caa34d1df02fd1b43b1799d27c101734b90863974c28726278d"
       },
       {
         "path": "src/globals.d.ts",
@@ -658,8 +658,8 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 143039,
-        "sha256": "4099dc94d3f51ec49de54a1d381b252b649048ec0494cd472ddd17a9cfe34003"
+        "bytes": 144000,
+        "sha256": "b09f2b5ed0a4c05b937e480e29081731918b63ef1d518a15da2d4fa34ddf8a15"
       },
       {
         "path": "src/state/app-state.ts",
@@ -683,8 +683,8 @@
       },
       {
         "path": "src/terminal.ts",
-        "bytes": 75834,
-        "sha256": "fa2a1a8f3b4402749b1b4f45e3d45f214633c50378bd573ab14738867d8cc2dd"
+        "bytes": 76354,
+        "sha256": "bc54e5c93dd2cb54509d33976f85ca8d0f2706ec0c34f4bec2ce2bf3d36306f9"
       },
       {
         "path": "src/theme.ts",
@@ -718,8 +718,8 @@
       },
       {
         "path": "src/views/host-form.ts",
-        "bytes": 30669,
-        "sha256": "37f494ce7f73da391e4cb91fe76ab5af2f75e073b83c41f2f2eb13d026fc29ca"
+        "bytes": 31446,
+        "sha256": "c2c9e3451a21d75b98974aad2f3d7123bf2ceba958a9585fb48ed136581e3d0b"
       },
       {
         "path": "src/views/host-key-prompt.ts",
@@ -748,8 +748,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 124292,
-        "sha256": "f2bae2c25c7d35d19951d8fc6731aac25d6b3ac964d3a0a455298e29ec19c358"
+        "bytes": 124127,
+        "sha256": "a88645da701cd825bf1d9a6de6485becf6578cc0a5159a59d5457089460b7fcd"
       },
       {
         "path": "src/views/types.ts",
@@ -806,8 +806,8 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 143039,
-            "sha256": "4099dc94d3f51ec49de54a1d381b252b649048ec0494cd472ddd17a9cfe34003"
+            "bytes": 144000,
+            "sha256": "b09f2b5ed0a4c05b937e480e29081731918b63ef1d518a15da2d4fa34ddf8a15"
           },
           {
             "path": "src/platform.ts",
@@ -881,8 +881,8 @@
           },
           {
             "path": "src/terminal.ts",
-            "bytes": 75834,
-            "sha256": "fa2a1a8f3b4402749b1b4f45e3d45f214633c50378bd573ab14738867d8cc2dd"
+            "bytes": 76354,
+            "sha256": "bc54e5c93dd2cb54509d33976f85ca8d0f2706ec0c34f4bec2ce2bf3d36306f9"
           },
           {
             "path": "src/theme.ts",
@@ -936,8 +936,8 @@
           },
           {
             "path": "src/views/host-form.ts",
-            "bytes": 30669,
-            "sha256": "37f494ce7f73da391e4cb91fe76ab5af2f75e073b83c41f2f2eb13d026fc29ca"
+            "bytes": 31446,
+            "sha256": "c2c9e3451a21d75b98974aad2f3d7123bf2ceba958a9585fb48ed136581e3d0b"
           },
           {
             "path": "src/views/host-key-prompt.ts",
@@ -1011,8 +1011,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 124292,
-            "sha256": "f2bae2c25c7d35d19951d8fc6731aac25d6b3ac964d3a0a455298e29ec19c358"
+            "bytes": 124127,
+            "sha256": "a88645da701cd825bf1d9a6de6485becf6578cc0a5159a59d5457089460b7fcd"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -1077,8 +1077,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 183419,
-            "sha256": "c56a9f84cf848036e286e7956b5f13307e454c246bbd6ebb0dcec129fb5874f0"
+            "bytes": 183444,
+            "sha256": "b8e8a83374efd931135f1155f8235e8d2ecbfd728627b80c2bc478b30c289f3f"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1097,8 +1097,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 113044,
-            "sha256": "bbdc3de90ae2a2f813991809188d91914b4ba98fbd07d84c2432d537242d8e0f"
+            "bytes": 113057,
+            "sha256": "8557f69545cd4ab074999348ed418a7142a99e42aaacf5ab907879743aac1547"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -1128,7 +1128,7 @@
           {
             "path": "src-tauri/src/lib.rs",
             "bytes": 9717,
-            "sha256": "3cad0b6afe7d5be2999c5e28933cfcdac69c915126d0f2b8a2dff9075958227b"
+            "sha256": "47219546e279e7786390e58d9d26e5081c4994ee01ec1cdffaf8c4507ca4c53a"
           },
           {
             "path": "src-tauri/src/main.rs",
@@ -1162,8 +1162,8 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 121707,
-            "sha256": "8d153b315c052f44ce28b615d2c0fa06722fa25affea1a2c858fac76671dee9a"
+            "bytes": 121615,
+            "sha256": "11de50262c7307fd7fce5d50a0c65907cf1a7a285cbf939b8b583bab3c253fa4"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
@@ -1287,18 +1287,18 @@
           },
           {
             "path": "src-tauri/src/transport/operation_control.rs",
-            "bytes": 8379,
-            "sha256": "f1a6c8a870a3c4442b430c39626ed17602887ba5aa6e1cd3a4f5ce3c02052aaf"
+            "bytes": 8196,
+            "sha256": "463de3bd910b66f29a8ee62053d3c022ed56ab5bc8b2a3ca299ec9e9dcf51441"
           },
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
-            "bytes": 28641,
-            "sha256": "161acc790386edd5e5eb19835d43a5cbd2bad072930082c57b3d91b5cdc79a42"
+            "bytes": 29088,
+            "sha256": "834afae81e51e204db4408cff2326159d04f85ba02bbaca1274aa6755f147847"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 30197,
-            "sha256": "7683c49d5581b7cfcb6684898ff5c176cc82f4cb97843f6aee8c53d622bbfecf"
+            "bytes": 31279,
+            "sha256": "e7ffc64621ed4b4511402515cef6e7dff068022305a2b382f31a2da391d6cbf6"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
@@ -2124,11 +2124,11 @@
         "declared_license": "Unlicense OR MIT"
       },
       {
-        "package": "aidevbridge@0.2.5",
+        "package": "aidevbridge@0.2.6",
         "source": null,
         "manifest": {
-          "bytes": 5872,
-          "sha256": "b5e608ce4609f41f70a6ebe230536aa7286d7c432bc3e90c4b9a3118ebfdd120"
+          "bytes": 5986,
+          "sha256": "2de5c072baee16908435f6be805ba34363e5b48afbf554dfcb9f744f8e88d562"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5519,25 +5519,25 @@
         "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
       },
       {
-        "package": "aidevbridge@0.2.5",
+        "package": "aidevbridge@0.2.6",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.2.5",
+        "package": "aidevbridge@0.2.6",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.2.5",
+        "package": "aidevbridge@0.2.6",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.2.5",
+        "package": "aidevbridge@0.2.6",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11694,9 +11694,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.2.5",
+      "id": "cargo:aidevbridge@0.2.6",
       "name": "aidevbridge",
-      "version": "0.2.5",
+      "version": "0.2.6",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",

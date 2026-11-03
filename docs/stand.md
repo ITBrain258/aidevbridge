@@ -1,14 +1,13 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.5` ist seit dem 31.10.2026 veröffentlicht, ein
-Sicherheitsrelease. Der Tag `v0.2.5` steht auf `fd93cc7`; alle Pakete hat die CI
-gebaut und angehängt. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch
-den Maintainer (Punkt 6).
+**Stand:** Version `0.2.6` vom 03.11.2026 (Tag `v0.2.6`) bringt das
+Code-Review vom 03.11.2026; die Pakete baut und hängt die CI am Tag an.
+Vorher: `0.2.5` vom 31.10.2026, ein Sicherheitsrelease, Tag `v0.2.5` auf
+`fd93cc7`. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch den
+Maintainer (Punkt 6).
 
-**Nächstes Release:** Der Branch `chore/review-2026-11` trägt das Review vom
-03.11.2026 und ist bereit für das nächste Release, noch nicht in `main`.
-Version, Neubindung der Lizenzauswahlen und Tag folgen beim Release
-([CONTRIBUTING](../CONTRIBUTING.md#releases)). Darin:
+**Neu in 0.2.6 gegenüber 0.2.5** (Branch `chore/review-2026-11`, Lizenzauswahlen
+für alle drei Plattformen neu gebunden, keine Komponente geändert):
 
 - **Korrekturen:** Ein Fehlerbanner kommt zurück, wenn ein neutraler Hinweis
   über ihm schließt; die Statusabfrage setzt nicht mehr aus, wenn die Uhr
@@ -205,14 +204,15 @@ Build-Provenienz an ihnen hängen.
 
 ## Letzte Prüfung
 
-Am 03.11.2026 lokal unter Windows für den Branch `chore/review-2026-11`, ohne
-Testhost: `cargo fmt` und `clippy -D warnings` sauber, 730 Rust-Tests mit
-`--test-threads=4` (11 ignoriert, `acceptance_vm`), 2882 Frontend-Tests,
-`npm run build`, 140 Skripttests und die 225 Bibliothekstests des
-eingebetteten russh mit dem Befehl aus `vendored.yml`.
-`npm run licenses:status` meldet 54 Abweichungen eigener Quellen und keine
-im Fremdcode; der CI-Job `licenses` lässt das durch, neu gebunden wird beim
-Release. Die CI des Branches steht aus.
+Am 03.11.2026 für 0.2.6, lokal unter Windows auf dem Branch
+`chore/review-2026-11`, ohne Testhost: `cargo fmt` und `clippy -D warnings`
+sauber, 730 Rust-Tests mit `--test-threads=4` (11 ignoriert, `acceptance_vm`),
+2882 Frontend-Tests, `npm run build` und `build:app`, 146 Skripttests und die
+225 Bibliothekstests des eingebetteten russh mit dem Befehl aus
+`vendored.yml`. Lizenzen nach dem Versionswechsel neu gebunden: keine
+Abweichung, `check` grün für windows-x64 (402/208), macos-universal (396/202)
+und android-universal (487/228). Die CI und die Handläufe von `packages.yml`
+und `android.yml` laufen im Pull Request vor dem Merge.
 
 Am 31.10.2026 für 0.2.5: In der CI auf dem Merge-Commit `8aaa46b` sind Rust auf
 Windows, Ubuntu und macOS, Frontend, Skripte, der Job `licenses`, Audit,

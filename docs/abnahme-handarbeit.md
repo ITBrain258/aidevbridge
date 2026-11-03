@@ -643,8 +643,9 @@ Stocken.
 
 ## 11. Änderungen aus dem Code-Review vom 03.11.
 
-Einmal vor dem nächsten Tag, am Stand des Branches `chore/review-2026-11`
-(Zusammenfassung in [`docs/stand.md`](stand.md)). Was Tests nicht zeigen: das
+Einmal an den Paketen von 0.2.6, die diese Änderungen tragen; der Maintainer
+hat das Release vor dieser Abnahme freigegeben (Zusammenfassung in
+[`docs/stand.md`](stand.md)). Was Tests nicht zeigen: das
 Banner am echten Fenster, das Tippen über eine echte Verbindung, was tmux
 bei `set-clipboard on` und `allow-passthrough on` wirklich weiterreicht und
 wo macOS Daten der App ablegt. Die Obergrenze des Polltakts bei
