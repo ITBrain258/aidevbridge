@@ -1236,9 +1236,14 @@ export function main(): void {
   function scheduleStatusPoll(hostId: string): void {
     if (backgroundStopped || pollTimers.has(hostId)) return;
     const started = pollStarts.get(hostId);
+    // Die Obergrenze greift nur, wenn die Uhr seit `started` zurueckgestellt
+    // wurde; sonst setzte der Poll des Hosts um diesen Betrag aus.
     const delay = started === undefined
       ? SESSION_STATUS_POLL_MS
-      : Math.max(SESSION_STATUS_POLL_GAP_MS, started + SESSION_STATUS_POLL_MS - Date.now());
+      : Math.min(
+        SESSION_STATUS_POLL_MS,
+        Math.max(SESSION_STATUS_POLL_GAP_MS, started + SESSION_STATUS_POLL_MS - Date.now()),
+      );
     pollTimers.set(hostId, setTimeout(() => {
       pollTimers.delete(hostId);
       void runStatusPoll(hostId);

@@ -6866,6 +6866,31 @@ describe("main: session status overlay poll", () => {
     expect(calls("poll_status")).toHaveLength(3);
   });
 
+  // Der Takt rechnet mit `Date.now()`. Stellt ein Zeitabgleich die Uhr
+  // waehrend eines Polls zurueck, wartete der naechste sonst um diesen Betrag
+  // laenger (hier eine Stunde), und Statuspunkte, Warteliste und Fenstertitel
+  // stuenden still.
+  it("setzt nicht aus, wenn die Systemuhr waehrend eines Polls zurueckgestellt wird", async () => {
+    await connectWithItems([
+      sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" }),
+    ]);
+    const polls: Array<(value: StatusPollsDto) => void> = [];
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "poll_status") return new Promise<StatusPollsDto>((resolve) => { polls.push(resolve); });
+      return Promise.resolve(undefined);
+    });
+    await vi.advanceTimersByTimeAsync(2000);
+    const running = calls("poll_status").length;
+    expect(running).toBeGreaterThan(0);
+    expect(polls).toHaveLength(running);
+
+    vi.setSystemTime(Date.now() - 60 * 60_000);
+    polls[polls.length - 1](statusPolls(statusPoll([{ session_id: 1, status: "idle", status_reason: "agent is idle" }])));
+    await flush();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(calls("poll_status")).toHaveLength(running + 1);
+  });
+
   it("laedt die Sessionliste nur bei einer neuen Kontrollgeneration neu", async () => {
     await connectWithItems([
       sessionItem({ display_name: "s1", session_id: 1, status: "idle", status_reason: "agent is idle" }),
