@@ -5,15 +5,15 @@ name: Vendored russh
 # liefen bis jetzt in keiner CI: src/tests/channel_end_observer.rs
 # kompilierte vom 21.10. bis zum 30.10. nicht (AGENTBRIDGE-PATCH.md). Laeuft
 # bei jeder Aenderung am vendorten russh, an Cargo.lock, Cargo.toml,
-# rust-toolchain.toml oder an dieser Datei und auf Abruf. Wie audit.yml kein
-# Teil der Pruefungen, die ein Pull Request bestehen muss (die laufen in
-# ci.yml).
+# src-tauri/Cargo.toml, rust-toolchain.toml oder an dieser Datei und auf
+# Abruf. Wie audit.yml kein Teil der Pruefungen, die ein Pull Request
+# bestehen muss (die laufen in ci.yml).
 on:
   push:
     branches: [main]
-    paths: ['vendor/russh/**', Cargo.lock, Cargo.toml, rust-toolchain.toml, .github/workflows/vendored.yml]
+    paths: ['vendor/russh/**', Cargo.lock, Cargo.toml, src-tauri/Cargo.toml, rust-toolchain.toml, .github/workflows/vendored.yml]
   pull_request:
-    paths: ['vendor/russh/**', Cargo.lock, Cargo.toml, rust-toolchain.toml, .github/workflows/vendored.yml]
+    paths: ['vendor/russh/**', Cargo.lock, Cargo.toml, src-tauri/Cargo.toml, rust-toolchain.toml, .github/workflows/vendored.yml]
   workflow_dispatch:
 permissions:
   contents: read
@@ -37,8 +37,12 @@ jobs:
       # wird nur --lib, weil die upstream-Integrationstests
       # tests/test_window_adjust.rs und tests/auth_signer_failure.rs gegen
       # 0.65.0 nicht kompilieren (AGENTBRIDGE-PATCH.md). Die Features sind
-      # die der App (src-tauri/Cargo.toml).
+      # die der App: Die Liste muss der russh-Zeile in src-tauri/Cargo.toml
+      # folgen, scripts/vendored-workflow.test.mjs gleicht beide ab.
       - name: Library tests of the vendored russh with the app features
+        # Dev-Dependencies nur in Versionen, deren rust-version passt (cargo >= 1.84).
+        env:
+          CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: fallback
         run: |
           set -euo pipefail
           work="$RUNNER_TEMP/russh-workspace"

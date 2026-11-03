@@ -64,12 +64,14 @@ fixed version; SECURITY.md explains why the app accepts it, and also lists
 the warnings `cargo audit` prints without failing.
 
 `.github/workflows/vendored.yml` runs whenever `vendor/russh`, `Cargo.lock`,
-`Cargo.toml` or `rust-toolchain.toml` change, and when started by hand. The
-vendored russh is not a workspace member, so `cargo test --all` skips it;
-this workflow copies it into a temporary workspace and runs its library tests
-with the app's features (`cargo test -p russh --lib --no-default-features
---features ring,flate2,rsa`). Like `audit.yml`, it is not part of the checks
-above.
+`Cargo.toml`, `src-tauri/Cargo.toml` or `rust-toolchain.toml` change, and when
+started by hand. The vendored russh is not a workspace member, so
+`cargo test --all` skips it; this workflow copies it into a temporary
+workspace and runs its library tests with the app's features
+(`cargo test -p russh --lib --no-default-features --features ring,flate2,rsa`).
+That feature list must follow the russh line in `src-tauri/Cargo.toml`;
+`scripts/vendored-workflow.test.mjs` checks it. Like `audit.yml`, the
+workflow is not part of the checks above.
 
 ## Live tests against a test host
 
