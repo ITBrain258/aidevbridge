@@ -22,6 +22,12 @@ or newer and, on Windows, the Microsoft C++ Build Tools (MSVC) and the
 WebView2 Runtime, on macOS the Xcode Command Line Tools; see the
 [build guide](docs/guide/building.md).
 
+There are no packages for Linux desktops, but the checks before a pull request
+(below) also run on Linux, as in the CI. The Rust checks need the packages that
+the step "Install Linux dependencies for Tauri" in `.github/workflows/ci.yml`
+installs; the frontend tests and the build need only Node.js. The CI runs
+`npm run test:scripts` on Windows.
+
 ```sh
 npm ci
 npm run tauri -- dev
