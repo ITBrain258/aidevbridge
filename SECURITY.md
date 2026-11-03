@@ -200,10 +200,13 @@ users who set `on` on purpose.
 To avoid it, leave `set-clipboard` at `external`, or set it to `off`, which
 also stops tmux's own copies from reaching the clipboard. Also leave tmux's
 `allow-passthrough` at `off`, its default (the option exists since tmux
-3.3): with `on` or `all`, a program can wrap OSC 52 in tmux's passthrough
-sequence (`ESC Ptmux; … ESC \`), tmux hands the inner sequence on to the
-app's terminal, and the app writes it to the local clipboard even with
-`set-clipboard external`.
+3.3, the value `all` since 3.4): with `on` or `all`, a program can wrap
+OSC 52 in tmux's passthrough sequence (`ESC Ptmux; … ESC \`), tmux hands
+the inner sequence on to the app's terminal, and the app writes it to the
+local clipboard even with `set-clipboard external`. tmux before 3.3 has no
+such option and always passes these sequences on, so on tmux 3.0 to 3.2a
+(Ubuntu 22.04 ships 3.2a) `set-clipboard` does not stop them, not even
+`off`; only a newer tmux avoids it.
 
 To resolve: no change is planned; the behavior follows your tmux
 configuration.
