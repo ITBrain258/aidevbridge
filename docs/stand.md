@@ -486,8 +486,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       braucht dazu das OK des Maintainers.
 13. **Review vom 03.11., zurückgestellt:** Was das Review bestätigt, aber
     nicht umgesetzt hat, weil es eine Entscheidung des Maintainers, einen
-    echten Host oder einen echten CI-Lauf braucht (Protokolldatei unter
-    Punkt 5, Seitenleiste unter Punkt 8, Android unter Punkt 11,
+    echten Host, einen Mac oder einen echten CI-Lauf braucht (Protokolldatei
+    unter Punkt 5, Seitenleiste unter Punkt 8, Android unter Punkt 11,
     Abhängigkeiten unter Punkt 12):
     - **Hostschlüssel-Algorithmen nach `known_hosts` ordnen**, wie OpenSSH.
       Steht ein Host dort nur mit ECDSA oder RSA und bietet er auch ed25519
@@ -509,6 +509,14 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Projektdateien:** ein `CODE_OF_CONDUCT.md` (braucht einen Kontakt)
       und ein Weg für Fragen (Discussions oder leere Issues); ob erledigte
       Pläne aus `plans/` fallen und dieses Dokument gekürzt wird.
+    - **Ablageorte unter macOS:** `PRIVACY.md` sagt, die App lege nichts
+      anderswo ab; für macOS ist das an keinem echten Mac gemessen (denkbar
+      sind `~/Library/Preferences/<id>.plist`,
+      `~/Library/Saved Application State/<id>.savedState` und
+      `~/Library/HTTPStorages/<id>`). Die Prüfung steht in der
+      [Handabnahme §11](abnahme-handarbeit.md#11-änderungen-aus-dem-code-review-vom-0311),
+      Schritt 5; findet sie mehr, ziehen `PRIVACY.md`, `SECURITY.md` und
+      `guide/data.md` gemeinsam nach.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

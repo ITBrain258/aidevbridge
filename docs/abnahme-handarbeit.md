@@ -645,11 +645,11 @@ Stocken.
 
 Einmal vor dem nächsten Tag, am Stand des Branches `chore/review-2026-11`
 (Zusammenfassung in [`docs/stand.md`](stand.md)). Was Tests nicht zeigen: das
-Banner am echten Fenster, das Tippen über eine echte Verbindung und was tmux
-bei `set-clipboard on` wirklich weiterreicht. Die Obergrenze des Polltakts bei
-zurückgestellter Uhr deckt ein Test mit gefälschter Zeit ab; am Fenster träfe
-man den Fall nur zufällig, weil die Uhr genau während einer Abfrage springen
-müsste.
+Banner am echten Fenster, das Tippen über eine echte Verbindung, was tmux
+bei `set-clipboard on` wirklich weiterreicht und wo macOS Daten der App
+ablegt. Die Obergrenze des Polltakts bei zurückgestellter Uhr deckt ein Test
+mit gefälschter Zeit ab; am Fenster träfe man den Fall nur zufällig, weil die
+Uhr genau während einer Abfrage springen müsste.
 
 **Vorbereitung**
 
@@ -697,6 +697,22 @@ müsste.
    seine Datei enthält, und ist grün, ebenso CI mit dem Job `licenses`. Die
    Vorlage für Pull Requests gilt erst aus `main`: Ein neuer Pull Request
    nach dem Merge bekommt sie als Beschreibung.
+5. **Ablageorte unter macOS**, sobald ein Mac bereitsteht. `PRIVACY.md`
+   endet mit „The app stores nothing anywhere else“; für macOS stützt sich
+   das auf `SECURITY.md` und `guide/data.md` und ist an keinem echten Mac
+   gemessen. Auf einem Mac ohne frühere Installation (oder nach dem Löschen
+   der Ordner aus `PRIVACY.md`) das DMG des Pull Requests (Vorschau von
+   `packages.yml`) installieren, die App zum ersten Mal starten, einen Host
+   anlegen, ein Terminal öffnen, das Fenster verschieben und die App
+   beenden. Dann `ls -d ~/Library/*/io.github.itbrain258.aidevbridge*`
+   ausführen und dabei ausdrücklich
+   `~/Library/Preferences/io.github.itbrain258.aidevbridge.plist`,
+   `~/Library/Saved Application State/io.github.itbrain258.aidevbridge.savedState`
+   und `~/Library/HTTPStorages/io.github.itbrain258.aidevbridge` beachten.
+   Erwartung: Nur die Orte aus `PRIVACY.md` (`Application Support`, `WebKit`,
+   `Caches`) und `~/.ssh/known_hosts`. Taucht ein weiterer auf, ziehen
+   `PRIVACY.md`, `SECURITY.md` und `guide/data.md` gemeinsam nach, mit dem
+   Ort und dem Weg, ihn zu löschen.
 
 | Schritt | Ergebnis | Notiz |
 |---|---|---|
@@ -705,6 +721,7 @@ müsste.
 | 2 Tippen über Latenz | | |
 | 3 OSC 52 aus Programmen | | |
 | 4 CI | | |
+| 5 Ablageorte unter macOS | | |
 
 ---
 
