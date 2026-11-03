@@ -23,7 +23,7 @@ import { AppState, isOpenable, sessionKeyOf, socketOf, type Host, type HostState
 import { waitingSessions } from "../state/attention";
 import { computeMenuPosition } from "./menu-position";
 import { buildCredentialField, type CredentialField } from "./credential-field";
-import { mountHostForm, type AuthChoice, type HostFormHandle } from "./host-form";
+import { mountHostForm, storedAuthChoice, type AuthChoice, type HostFormHandle } from "./host-form";
 import { hostInitials } from "./initials";
 import { appVersionLine } from "../version";
 import { icon, type IconName } from "../icons";
@@ -318,9 +318,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     if (controlEditors.has(host.id)) return;
     const root = document.createElement("div");
     root.className = "control-repair-form";
-    const auth: AuthChoice = host.authKind === "key" && host.keyPath
-      ? { kind: "key", path: host.keyPath, passphrase: "" }
-      : host.authKind === "password" ? { kind: "password", password: "" } : { kind: "agent" };
+    const auth = storedAuthChoice(host);
     const handle = mountHostForm(root, {
       mode: "control-repair", existing: [],
       initial: { hostname: host.hostname, user: host.user, port: host.port, auth },

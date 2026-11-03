@@ -2,7 +2,7 @@
 // ersetzt Schluesselpfad/Passphrase/Passwort.
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mountHostForm, type HostFormValue } from "./host-form";
+import { mountHostForm, storedAuthChoice, type HostFormValue } from "./host-form";
 
 const invokeMock = vi.fn();
 vi.mock("@tauri-apps/api/core", () => ({ invoke: (...a: unknown[]) => invokeMock(...a) }));
@@ -365,5 +365,26 @@ describe("mountHostForm: Reihenfolge der Felder (Spec 2026-10-25 §10.1)", () =>
     auth.dispatchEvent(new Event("change", { bubbles: true }));
     const again = Array.from(el.querySelectorAll("form input, form select")).map((input) => input.getAttribute("name"));
     expect(again.indexOf("passphrase")).toBeLessThan(again.indexOf("showDefaultSocket"));
+  });
+});
+
+// Die gespeicherte Anmeldeart als Vorauswahl: das Bearbeiten-Formular
+// (`main.ts`) und die Reparatur der Steuerung (`sidebar.ts`) leiten sie
+// gleich ab.
+describe("storedAuthChoice", () => {
+  it("ein Schluessel-Host mit Pfad waehlt den Schluessel, ohne Passphrase", () => {
+    expect(storedAuthChoice({ authKind: "key", keyPath: "/k" })).toEqual({ kind: "key", path: "/k", passphrase: "" });
+  });
+
+  it.each([null, ""])("ein Schluessel-Host ohne Pfad (%j) faellt auf ssh-agent zurueck", (keyPath) => {
+    expect(storedAuthChoice({ authKind: "key", keyPath })).toEqual({ kind: "agent" });
+  });
+
+  it("ein Passwort-Host waehlt Password, ohne Passwort", () => {
+    expect(storedAuthChoice({ authKind: "password", keyPath: null })).toEqual({ kind: "password", password: "" });
+  });
+
+  it("ein ssh-agent-Host waehlt ssh-agent", () => {
+    expect(storedAuthChoice({ authKind: "agent", keyPath: null })).toEqual({ kind: "agent" });
   });
 });

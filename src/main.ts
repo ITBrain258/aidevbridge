@@ -50,7 +50,7 @@ import { mountSidebar } from "./views/sidebar";
 import { mountSidebarResize } from "./views/sidebar-resize";
 import { mountGrid, type GridHandle } from "./views/grid";
 import { mountFirstRun, type FirstRunHandle } from "./views/first-run";
-import { mountHostForm, type AuthChoice, type HostFormValue } from "./views/host-form";
+import { mountHostForm, storedAuthChoice, type AuthChoice, type HostFormValue } from "./views/host-form";
 import {
   changesConnection,
   editHost,
@@ -653,6 +653,8 @@ export function main(): void {
 
   function selfRepairAuth(host: Host): AuthChoice {
     // Dieselbe Wahl wie das Formular, ohne Passphrase und ohne Passwort.
+    // Bewusst nicht `storedAuthChoice`: die Selbstreparatur nimmt nie ein
+    // Passwort (`startSelfRepair` laesst Passwort-Hosts aus).
     return host.authKind === "key" && host.keyPath
       ? { kind: "key", path: host.keyPath, passphrase: "" }
       : { kind: "agent" };
@@ -2046,17 +2048,10 @@ export function main(): void {
       showDefaultSocket: host.showDefaultSocket !== false,
     };
     // Spec §4.8: `initial.auth` traegt die TATSAECHLICH gespeicherte
-    // Anmeldeart, auch fuer einen Passwort- oder ssh-agent-Host. Ohne sie
-    // riete `host-form.ts`s `applyPreselection()` anhand gefundener
-    // Schluessel/Platzhalter. `host.authKind` ist nie `null`/fehlend (siehe
-    // dessen Kommentar, `app-state.ts`), jeder der drei Zweige greift.
-    if (host.authKind === "key" && host.keyPath) {
-      initial.auth = { kind: "key", path: host.keyPath, passphrase: "" } satisfies AuthChoice;
-    } else if (host.authKind === "password") {
-      initial.auth = { kind: "password", password: "" } satisfies AuthChoice;
-    } else {
-      initial.auth = { kind: "agent" } satisfies AuthChoice;
-    }
+    // Anmeldeart, auch fuer einen Passwort- oder ssh-agent-Host (siehe
+    // `storedAuthChoice`). Ohne sie riete `host-form.ts`s
+    // `applyPreselection()` anhand gefundener Schluessel/Platzhalter.
+    initial.auth = storedAuthChoice(host);
 
     openDialog({
       title: t("hostForm.heading.edit"),
