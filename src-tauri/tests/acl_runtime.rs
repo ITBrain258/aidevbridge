@@ -43,10 +43,10 @@ use tauri::WebviewWindowBuilder;
 const ACL_DENIAL: &str = "not allowed";
 
 /// Das Fenster-Label, auf das `capabilities/default.json` die Capability
-/// begrenzt (`"windows": ["main"]`). Ein anderes Label wuerde ALLE neunzehn
-/// Commands ablehnen -- der Test waere flaechendeckend rot und damit
-/// wertlos. `tests/capabilities_acl.rs` haelt dieses Label mit
-/// `tauri.conf.json` zusammen.
+/// begrenzt (`"windows": ["main"]`). Ein anderes Label wuerde ALLE Commands
+/// ablehnen -- der Test waere flaechendeckend rot und damit wertlos.
+/// `tests/capabilities_acl.rs` haelt dieses Label mit `tauri.conf.json`
+/// zusammen.
 const WINDOW_LABEL: &str = "main";
 
 /// Dieselbe Liste wie in `lib.rs`, `build.rs` und `capabilities/default.json`

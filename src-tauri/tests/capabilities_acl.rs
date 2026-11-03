@@ -280,7 +280,7 @@ fn no_deny_entry_shadows_a_command() {
 /// Debug-Bau ein Skript einspielt, das Ctrl+Shift+I ueber
 /// `plugin:webview|internal_toggle_devtools` aufruft. Den Command
 /// registriert Tauri nur unter `cfg(any(debug_assertions, feature =
-/// "devtools"))` (tauri-2.11.5/src/webview/plugin.rs), und `Cargo.toml`
+/// "devtools"))` (tauri-2.12.5/src/webview/plugin.rs), und `Cargo.toml`
 /// schaltet `devtools` nicht ein: im Release-Bau erlaubt der Eintrag einen
 /// Command, den es dort nicht gibt.
 ///
@@ -365,10 +365,10 @@ fn configured_window_labels() -> Vec<String> {
 ///
 /// Solange die ACL nicht scharf war, kostete eine Abweichung nichts. Jetzt
 /// ist sie tragend: Die Capability gilt nur fuer Fenster, deren Label eines
-/// ihrer Muster trifft (`tauri-2.11.5/src/ipc/authority.rs:460`) -- bekommt
-/// das Fenster ein ausdrueckliches, abweichendes `label`, sind ALLE neunzehn
-/// Commands dort abgelehnt, sichtbar nur als unerklaerte Promise-Rejections
-/// im WebView. Ein ausdrueckliches Label schreibt man genau dann hin, wenn
+/// ihrer Muster trifft (`tauri-2.12.5/src/ipc/authority.rs:478`) -- bekommt
+/// das Fenster ein ausdrueckliches, abweichendes `label`, sind ALLE Commands
+/// dort abgelehnt, sichtbar nur als unerklaerte Promise-Rejections im
+/// WebView. Ein ausdrueckliches Label schreibt man genau dann hin, wenn
 /// ein ZWEITES Fenster dazukommt -- also bei Seitenleiste und mehreren
 /// gleichzeitigen Sessions, dem naechsten Plan.
 ///
