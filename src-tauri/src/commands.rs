@@ -3060,7 +3060,7 @@ pub fn suggest_hosts() -> Result<Vec<crate::ssh::SshConfigHost>, String> {
 ///
 /// Nimmt `settings_path` bewusst als Parameter entgegen (dasselbe Muster wie
 /// `connect_host_with_known_hosts` gegenueber `connect_host_impl`, und wie
-/// `settings::load_from` gegenueber `settings::load`): ohne diesen Parameter
+/// `settings::load_from(path)`): ohne diesen Parameter
 /// waere diese Funktion nur gegen die ECHTE `%APPDATA%\io.github.itbrain258.aidevbridge\
 /// settings.toml` testbar -- Unit-Tests duerften diese Datei aber nicht
 /// anfassen (dieselbe Sonderregel wie fuer `~/.ssh/known_hosts`, auf die

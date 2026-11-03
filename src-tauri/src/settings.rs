@@ -791,12 +791,7 @@ fn is_missing(path: &Path) -> bool {
     matches!(std::fs::symlink_metadata(path), Err(error) if error.kind() == ErrorKind::NotFound)
 }
 
-/// Laedt `settings.toml` vom Standardpfad (siehe `settings_path`).
-pub fn load() -> anyhow::Result<Settings> {
-    load_from(&settings_path()?)
-}
-
-/// Testbarer Kern von `load()`: nimmt den Pfad explizit entgegen.
+/// Laedt `settings.toml` von `path` (in der App `settings_path()`).
 ///
 /// Fehlt die Datei (frische Installation), ist das KEIN Fehler --
 /// `Settings::default()` (aktuelle Version, keine Hosts) kommt zurueck,
@@ -851,12 +846,7 @@ fn current_fingerprint(path: &Path) -> anyhow::Result<Fingerprint> {
     }
 }
 
-/// Schreibt `settings.toml` zum Standardpfad (siehe `settings_path`).
-pub fn save(s: &Settings) -> anyhow::Result<()> {
-    save_to(&settings_path()?, s)
-}
-
-/// Testbarer Kern von `save()`: nimmt den Pfad explizit entgegen.
+/// Schreibt `s` blind nach `path`.
 ///
 /// Schreibt nicht `s` selbst, sondern dessen geklemmten Stand
 /// (`Settings::normalize_for_save`): ungueltige Werte werden zum Standard, und

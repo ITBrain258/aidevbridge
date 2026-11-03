@@ -1484,7 +1484,7 @@ async fn read_known_hosts_text_unreadable_path_is_an_error_naming_the_path() {
 // -- alle drei nehmen `settings_path` explizit entgegen,
 // damit diese Tests niemals die echte `%APPDATA%\io.github.itbrain258.aidevbridge\
 // settings.toml` des Bedienrechners anfassen (dasselbe Muster wie
-// `settings::load_from`/`save_to` gegenueber `load`/`save`).
+// `settings::load_from`/`update_at`, die den Pfad ebenfalls mitbekommen).
 
 fn unique_temp_settings_path(tag: &str) -> PathBuf {
     let nanos = std::time::SystemTime::now()
