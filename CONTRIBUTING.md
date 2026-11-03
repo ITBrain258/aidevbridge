@@ -69,11 +69,11 @@ the warnings `cargo audit` prints without failing.
 `Cargo.toml`, `src-tauri/Cargo.toml` or `rust-toolchain.toml` change, and when
 started by hand. The vendored russh is not a workspace member, so
 `cargo test --all` skips it; this workflow copies it into a temporary
-workspace and runs its library tests with the app's features
-(`cargo test -p russh --lib --no-default-features --features ring,flate2,rsa`).
-That feature list must follow the russh line in `src-tauri/Cargo.toml`;
-`scripts/vendored-workflow.test.mjs` checks it. Like `audit.yml`, the
-workflow is not part of the checks above.
+workspace and runs its library tests (`cargo test -p russh --lib`) with the
+app's features. The workflow step repeats the features of the russh line in
+`src-tauri/Cargo.toml`; `scripts/vendored-workflow.test.mjs` checks that the
+list in the workflow still matches. Like `audit.yml`, the workflow is not
+part of the checks above.
 
 ## Live tests against a test host
 

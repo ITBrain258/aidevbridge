@@ -40,7 +40,8 @@ jobs:
       # die der App: Die Liste muss der russh-Zeile in src-tauri/Cargo.toml
       # folgen, scripts/vendored-workflow.test.mjs gleicht beide ab.
       - name: Library tests of the vendored russh with the app features
-        # Dev-Dependencies nur in Versionen, deren rust-version passt (cargo >= 1.84).
+        # Dev-Dependencies bevorzugt in Versionen, deren rust-version zu der
+        # von russh passt (cargo >= 1.84).
         env:
           CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: fallback
         run: |
