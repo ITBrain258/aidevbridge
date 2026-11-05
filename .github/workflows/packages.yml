@@ -221,7 +221,7 @@ jobs:
           out="$RUNNER_TEMP/library-after-start.txt"
           {
             echo "# Paths under ~/Library that name the app, after one start"
-            find "$HOME/Library" ( -iname "*$id*" -o -iname "*aidevbridge*" ) -prune -print 2>/dev/null | sort | while IFS= read -r path; do
+            find "$HOME/Library" \( -iname "*$id*" -o -iname "*aidevbridge*" \) -prune -print 2>/dev/null | sort | while IFS= read -r path; do
               echo "$path" | sed "s#^$HOME#~#"
               if [ -d "$path" ]; then
                 find "$path" -mindepth 1 -maxdepth 3 2>/dev/null | sed "s#^$HOME#~#; s#^#    #" | sort | head -40
