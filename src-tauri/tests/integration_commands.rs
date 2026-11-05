@@ -89,6 +89,77 @@ async fn connect_succeeds_with_the_real_hosts_actual_key() {
     assert!(!state.has_host(&host_id).await);
 }
 
+/// Zeichnet den angebotenen Hostschluessel auf und lehnt ihn ab, damit keine
+/// Anmeldung folgt; kennt den Host nur unter `known`.
+struct RecordAndReject {
+    known: Vec<String>,
+    presented: Arc<std::sync::Mutex<Option<(String, String)>>>,
+}
+
+#[async_trait::async_trait]
+impl aidevbridge_lib::transport::HostKeyPolicy for RecordAndReject {
+    async fn decide(&self, _: &str, _: u16, key_type: &str, key_b64: &str) -> bool {
+        *self.presented.lock().unwrap() = Some((key_type.into(), key_b64.into()));
+        false
+    }
+    fn known_key_types(&self, _: &str, _: u16) -> Vec<String> {
+        self.known.clone()
+    }
+}
+
+/// Steht der Host nur mit einem anderen Schluesseltyp als ed25519 in
+/// `known_hosts`, handelt die App diesen Typ aus und verbindet ohne
+/// Rueckfrage, wie OpenSSH (stand.md, Punkt 13). Der Test lernt den
+/// ECDSA-Schluessel des Testhosts aus einer ersten Verbindung, die nur ECDSA
+/// kennt und vor der Anmeldung abbricht; ohne ECDSA-Schluessel auf dem Host
+/// meldet er SKIP.
+#[tokio::test]
+async fn a_host_known_only_by_its_ecdsa_key_connects_without_a_prompt() {
+    let Some(host) = common::spec() else { return };
+    let presented = Arc::new(std::sync::Mutex::new(None));
+    let learn = Arc::new(RecordAndReject {
+        known: vec!["ecdsa-sha2-nistp256".into()],
+        presented: presented.clone(),
+    });
+    let refused = aidevbridge_lib::transport::RusshTransport::connect(
+        &host,
+        learn,
+        &common::key_auth_method(),
+    )
+    .await;
+    assert!(
+        refused.is_err(),
+        "the learning connection must stop at the host key"
+    );
+    let (key_type, key_b64) = presented
+        .lock()
+        .unwrap()
+        .clone()
+        .expect("the host must present a key");
+    if key_type != "ecdsa-sha2-nistp256" {
+        eprintln!("SKIP: the test host offers no ecdsa-sha2-nistp256 key ({key_type})");
+        return;
+    }
+
+    let Some(spec) = dto() else { return };
+    let state = Arc::new(AppState::with_own_socket(common::test_socket()));
+    let host_id = connect_host_with_known_hosts(
+        &state,
+        spec,
+        format!(
+            "{} {key_type} {key_b64}
+",
+            host.hostname
+        ),
+        dummy_known_hosts_path(),
+        Arc::new(PanicIfAskedSink),
+        TEST_PROMPT_TIMEOUT,
+    )
+    .await
+    .expect("a host known by its ECDSA key must connect without a prompt");
+    disconnect_host_impl(&state, host_id).await.unwrap();
+}
+
 /// Der wichtigste End-zu-Ende-Beleg fuer TOFU (Spec §8.1): eine echte, bislang
 /// unbekannte Verbindung zur realen Test-VM durchlaeuft den GESAMTEN
 /// Produktionspfad -- `TofuPolicy::decide` stellt tatsaechlich eine Rueckfrage

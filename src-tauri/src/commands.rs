@@ -1342,6 +1342,10 @@ impl TofuPolicy {
 
 #[async_trait::async_trait]
 impl HostKeyPolicy for TofuPolicy {
+    fn known_key_types(&self, host: &str, port: u16) -> Vec<String> {
+        known_hosts::key_types_for(&self.known_hosts_text, host, port)
+    }
+
     async fn decide(&self, host: &str, port: u16, key_type: &str, key_b64: &str) -> bool {
         let decision = known_hosts::lookup(&self.known_hosts_text, host, port, key_type, key_b64);
         *self.last_decision.lock().unwrap() = Some(decision);

@@ -10,6 +10,10 @@ dem Namen agentbridge.
 
 - CI: Die Live-Tests, die sonst nur gegen einen Testhost liefen, laufen im Ubuntu-Job gegen einen SSH-Server auf dem Runner selbst, mit einem eigens erzeugten Schluessel und eigenem tmux-Socket. Alle Workflows nennen feste Runner-Images (`windows-2025`, `macos-26`, `ubuntu-24.04`) statt `*-latest`; die Rust-Jobs heissen `rust (windows)`, `rust (ubuntu)` und `rust (macos)`.
 
+### Fixed
+
+- Hostschluessel: Wie OpenSSH bevorzugt die App beim Aushandeln die Schluesseltypen, unter denen ein Host schon in `known_hosts` steht. Ein Host, der dort nur mit seinem ECDSA- oder RSA-Schluessel steht, verbindet sich damit ohne Rueckfrage, auch wenn er zusaetzlich einen ed25519-Schluessel hat. Bisher handelte die App ed25519 aus und fragte nach. `ssh-rsa` mit SHA-1 bleibt der letzte Rueckfall.
+
 ## [0.2.6] - 2026-11-03
 
 Ergebnis eines Code-Reviews: Die SSH-Verbindung schaltet den Nagle-Algorithmus ab, zwei kleine Fehler in der Oberflaeche sind behoben, die Doku zu Zwischenablage, Datenschutz und Beitragen ist berichtigt, und die CI prueft auch das eingebettete russh.

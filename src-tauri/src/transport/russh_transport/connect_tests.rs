@@ -910,3 +910,59 @@ async fn ssh_socket_disables_nagle() {
     assert!(probe.nodelay().unwrap(), "the SSH socket still uses Nagle");
     timeout(TEST_END, server).await.unwrap().unwrap();
 }
+
+/// Nimmt jeden Schluessel an, zeichnet den angebotenen Typ auf und nennt
+/// feste bekannte Typen.
+struct KnownTypesPolicy {
+    known: Vec<String>,
+    presented: Arc<std::sync::Mutex<Option<String>>>,
+}
+
+#[async_trait]
+impl HostKeyPolicy for KnownTypesPolicy {
+    async fn decide(&self, _: &str, _: u16, key_type: &str, _: &str) -> bool {
+        *self.presented.lock().unwrap() = Some(key_type.to_string());
+        true
+    }
+    fn known_key_types(&self, _: &str, _: u16) -> Vec<String> {
+        self.known.clone()
+    }
+}
+
+/// Gegen einen Server mit einem ed25519- und einem RSA-Schluessel: Ohne
+/// bekannten Typ handelt die App ed25519 aus, wie bisher; steht der Host nur
+/// mit RSA in `known_hosts`, bietet der Server seinen RSA-Schluessel an.
+#[tokio::test]
+async fn known_host_key_types_decide_which_key_the_server_presents() {
+    for (known, expected) in [
+        (vec![], "ssh-ed25519"),
+        (vec!["ssh-rsa".to_string()], "ssh-rsa"),
+    ] {
+        let (listener, spec) = listener().await;
+        let mut settings = server_settings();
+        settings.keys.push(russh::keys::PrivateKey::from(
+            russh::keys::ssh_key::private::Ed25519Keypair::from_seed(&[7; 32]),
+        ));
+        let server = tokio::spawn(async move {
+            let (peer, _) = listener.accept().await?;
+            russh::server::run_stream(Arc::new(settings), peer, EndingPasswordServer)
+                .await?
+                .await
+        });
+        let presented = Arc::new(std::sync::Mutex::new(None));
+        let policy = Arc::new(KnownTypesPolicy {
+            known,
+            presented: presented.clone(),
+        });
+        // The sign-in fails (the server ends the session); the host key was
+        // presented before that.
+        let _ = timeout(
+            TEST_END,
+            RusshTransport::connect(&spec, policy, &password()),
+        )
+        .await
+        .unwrap();
+        assert_eq!(presented.lock().unwrap().as_deref(), Some(expected));
+        let _ = timeout(TEST_END, server).await.unwrap();
+    }
+}
