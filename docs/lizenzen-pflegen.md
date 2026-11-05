@@ -137,6 +137,29 @@ der Tabelle `MAVEN` von `scripts/release-license-select-android.mjs`
 (Lizenz, Texte aus dem Archiv, Quell-Repository). Gradle schreibt das
 Lockfile mit CRLF; vor dem Binden auf LF umstellen.
 
+Ein Update der Android-Bibliotheken oder der Gradle-Plugins, wie am 05.11. auf
+AGP 9.3 und Kotlin 2.2:
+
+1. Versionen in `app/build.gradle.kts` bzw. im Root- und
+   `buildSrc`-Manifest ändern, einmal `tauri android build` laufen lassen
+   (unter Windows ohne Entwicklermodus danach die `.so` nach
+   `app/src/main/jniLibs/<abi>/` kopieren und `gradlew` direkt aufrufen).
+2. In `src-tauri/gen/android` die Locks neu schreiben:
+   `gradlew :app:dependencies --write-locks` (App) und
+   `gradlew buildEnvironment --write-locks` (`buildscript-gradle.lockfile`,
+   `buildSrc/gradle.lockfile`), alle auf LF.
+3. Die Prüfsummen neu schreiben: `gradlew --no-configuration-cache
+   --write-verification-metadata sha256 buildEnvironment
+   assembleUniversalRelease bundleUniversalRelease assembleUniversalDebug`
+   (mit `-PabiList=arm64-v8a -ParchList=arm64 -PtargetList=aarch64` und
+   ohne die Rust-Aufgaben). `aapt2` ist je Bauplattform ein eigenes
+   Artefakt: Die Einträge für Linux, macOS und Windows von Hand ergänzen,
+   mit der SHA-256 der Dateien aus Google Maven. Die Datei auf LF.
+4. Für jede neue oder geänderte Bibliothek des Laufzeit-Classpaths einen
+   Eintrag in `MAVEN`; neue Texte aus einem Upstream-Repository (etwa
+   Kotlins `license/`) unter `docs/release/licenses/` mit Version im Namen.
+   Dann `npm run licenses:derive`, `licenses:status` und `licenses:check`.
+
 ## Tauri-CLI und Installer-Werkzeuge
 
 Die Release-Skripte binden den Bundler an eine CLI-Version

@@ -90,8 +90,8 @@
       },
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
-        "bytes": 157021,
-        "sha256": "6cb954db83c137687b64c51341ddbbb55832773d44a1a41a9e8c93a0220721e4"
+        "bytes": 158010,
+        "sha256": "40cefb880103972ba15606ee13355be92a43d0a9dba6b29230e665e63739d74c"
       },
       {
         "path": "docs/release/license-frontend-lucide-1.69.0-2026-11-05.json",
@@ -135,8 +135,8 @@
       },
       {
         "path": "docs/release/license-inventory-2026-10-28-android.json",
-        "bytes": 264226,
-        "sha256": "82703b1b0d181543427d62908a183bc1472c6debc93599f5438146a4e1d359cb"
+        "bytes": 266554,
+        "sha256": "bf9676fd2ef8ea39e1c5a77292d3d9da9d0f69d89fa1cf3ae44179530e7839b1"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -244,24 +244,29 @@
         "sha256": "1d85bd754b04ceec93e98e890edd1fa3c6a22e81bcb32135806beeccefa51cd1"
       },
       {
-        "path": "docs/release/licenses/kotlin-2.0.21-LICENSE.txt",
+        "path": "docs/release/licenses/kotlin-2.2.10-LICENSE.txt",
         "bytes": 11358,
         "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
       },
       {
-        "path": "docs/release/licenses/kotlin-2.0.21-NOTICE.txt",
+        "path": "docs/release/licenses/kotlin-2.2.10-NOTICE.txt",
         "bytes": 482,
         "sha256": "0b09a83d3ef7795c7dec65e815866597c066c53898f2852a76599b8f5552941a"
       },
       {
-        "path": "docs/release/licenses/kotlin-2.0.21-license-README.md",
-        "bytes": 18558,
-        "sha256": "8a82f8702ea943f008c84a61b8df7b053b7d36cfa293e3abd59f839b728a5999"
+        "path": "docs/release/licenses/kotlin-2.2.10-license-README.md",
+        "bytes": 17313,
+        "sha256": "8cba83fcded6d166fc4398eb8cb9c1a12ad8b87ff624a404956242d22231fbc9"
       },
       {
-        "path": "docs/release/licenses/kotlin-2.0.21-third_party-boost_LICENSE.txt",
+        "path": "docs/release/licenses/kotlin-2.2.10-third_party-boost_LICENSE.txt",
         "bytes": 1337,
         "sha256": "8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b"
+      },
+      {
+        "path": "docs/release/licenses/kotlin-2.2.10-third_party-threetenbp_license.txt",
+        "bytes": 1520,
+        "sha256": "d1bc53b493a3ab387b42717ed5c4b1976a5048996f81154278100bff86d39331"
       },
       {
         "path": "docs/release/licenses/kotlinx.coroutines-1.9.0-NOTICE.txt",
@@ -590,8 +595,8 @@
       },
       {
         "path": "scripts/release-license-select-android.mjs",
-        "bytes": 79520,
-        "sha256": "5be7d925b63768cab31368a9177fd4e84d077e172c252d4a22b3ac08e1138cd3"
+        "bytes": 81308,
+        "sha256": "669cbebcd7034414627c4b127975c6fddd06a0596c5fea8f6b9bc3bcbd8dc1dc"
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
@@ -615,13 +620,13 @@
       },
       {
         "path": "src-tauri/gen/android/app/build.gradle.kts",
-        "bytes": 4353,
-        "sha256": "cef1080b2c0039395fb7324bb05bca272c3fc44a202adbb362322be50943fad9"
+        "bytes": 4569,
+        "sha256": "bbe2b85e3f22bf54e0cf38a851a6c729a7fd335f96b79788925126cf171aa7f2"
       },
       {
         "path": "src-tauri/gen/android/app/gradle.lockfile",
-        "bytes": 177065,
-        "sha256": "381cf16033e70dddc4e819609819c911328b344a3bb9314f7467dfdfa765c88c"
+        "bytes": 276205,
+        "sha256": "76e93c3f44fa26a64d0e08fe14afaaa0ecfa1f15344068cb2623fec209f99ccd"
       },
       {
         "path": "src-tauri/gen/android/app/proguard-rules.pro",
@@ -635,18 +640,18 @@
       },
       {
         "path": "src-tauri/gen/android/build.gradle.kts",
-        "bytes": 377,
-        "sha256": "f8d6b8ac33de9acbe318595de7be4500fec1009f8ea0edc508fd998cc15294c5"
+        "bytes": 376,
+        "sha256": "4e3485f074acc6d6287c2209babcbfef55a387aa697571b9159f03d0fba04334"
       },
       {
         "path": "src-tauri/gen/android/buildSrc/build.gradle.kts",
-        "bytes": 345,
-        "sha256": "11818be939b3aa44d691228f8666fba5efc796cdc1b4fb8072ab7c91bc056eb0"
+        "bytes": 344,
+        "sha256": "9b22e776e4a09b933785f130924d65ae24d80e57ec2da494737fe779761e5aeb"
       },
       {
         "path": "src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties",
-        "bytes": 320,
-        "sha256": "521dc2ed119a07f527c0a6e8f0f671f5f977b30eac810692cdb9cbb9fadbc8c9"
+        "bytes": 319,
+        "sha256": "07b0833a317e8d26fb006439a62da4f22cfe04f7bd7add85cfbb27cd6156c731"
       },
       {
         "path": "src-tauri/gen/android/settings.gradle",
@@ -1099,8 +1104,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 183444,
-            "sha256": "b8e8a83374efd931135f1155f8235e8d2ecbfd728627b80c2bc478b30c289f3f"
+            "bytes": 183592,
+            "sha256": "1c03cc294778a5eb36008425bba3d502b80e15d72482fa770176ef408e8c9587"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1134,8 +1139,8 @@
           },
           {
             "path": "src-tauri/src/connection/host_key.rs",
-            "bytes": 8123,
-            "sha256": "c09ce47078299e36cee9192674fb35c979db1b37622f551a2eeb71e332fe758f"
+            "bytes": 10685,
+            "sha256": "c7f239565ad7ec4f696d98ed25ab6760d3cd40135576c7d5eb8fe73e128e3d65"
           },
           {
             "path": "src-tauri/src/connection/tests.rs",
@@ -1189,8 +1194,8 @@
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
-            "bytes": 61626,
-            "sha256": "b83bf9dd89fa3ef16e969d48b64bfcdd9edf84404f1d6c4bbafac48eaf7be9ff"
+            "bytes": 67467,
+            "sha256": "d070be165297e75599e4047e6628d7d512680206c36bd1421e53c5091f31a76f"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
@@ -1304,8 +1309,8 @@
           },
           {
             "path": "src-tauri/src/transport/mod.rs",
-            "bytes": 2271,
-            "sha256": "a068a174194ff8120c7db21bcee57ddd678e8855d8a76b9336a88217b4953068"
+            "bytes": 2960,
+            "sha256": "a01df8ab5f707ae02e7a223ab09ecd57d64bbe1efc6bc5d64a7dc5d571c53130"
           },
           {
             "path": "src-tauri/src/transport/operation_control.rs",
@@ -1314,13 +1319,13 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
-            "bytes": 29088,
-            "sha256": "2eaa6b031b4e8bbd180590863adfdafaa6079637547bfd2351e139b512782858"
+            "bytes": 32165,
+            "sha256": "50db2c8131350208f41977564ad0ce69bce279700e983509379f31ed96389ec2"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 31279,
-            "sha256": "2aca331843b40c0a9d83e0761a7c76375435e11f73019b499c4d817d04c07d48"
+            "bytes": 33328,
+            "sha256": "a647219a82ab23a10dbcca93d4dfca11045a4acc31e2318fd0fa6d0b2631b89b"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
@@ -22944,9 +22949,9 @@
       "source_urls": []
     },
     {
-      "id": "maven:androidx.activity:activity-ktx:1.10.1",
+      "id": "maven:androidx.activity:activity-ktx:1.13.0",
       "name": "androidx.activity:activity-ktx",
-      "version": "1.10.1",
+      "version": "1.13.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -22956,18 +22961,18 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/activity/activity-ktx/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.activity:activity-ktx:1.10.1",
+        "https://maven.google.com/web/index.html#androidx.activity:activity-ktx:1.13.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.activity:activity-ktx:1.10.1",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.activity:activity-ktx:1.13.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.activity:activity:1.10.1",
+      "id": "maven:androidx.activity:activity:1.13.0",
       "name": "androidx.activity:activity",
-      "version": "1.10.1",
+      "version": "1.13.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -22977,11 +22982,11 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/activity/activity/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.activity:activity:1.10.1",
+        "https://maven.google.com/web/index.html#androidx.activity:activity:1.13.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.activity:activity:1.10.1",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.activity:activity:1.13.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -23046,44 +23051,44 @@
       ]
     },
     {
-      "id": "maven:androidx.appcompat:appcompat-resources:1.7.1",
+      "id": "maven:androidx.appcompat:appcompat-resources:1.8.0",
       "name": "androidx.appcompat:appcompat-resources",
-      "version": "1.7.1",
+      "version": "1.8.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
       "technical_role": "release-runtime-classpath",
       "documents": [
-        "sha256:074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/appcompat/appcompat-resources/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.appcompat:appcompat-resources:1.7.1",
+        "https://maven.google.com/web/index.html#androidx.appcompat:appcompat-resources:1.8.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.appcompat:appcompat-resources:1.7.1",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.appcompat:appcompat-resources:1.8.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.appcompat:appcompat:1.7.1",
+      "id": "maven:androidx.appcompat:appcompat:1.8.0",
       "name": "androidx.appcompat:appcompat",
-      "version": "1.7.1",
+      "version": "1.8.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
       "technical_role": "release-runtime-classpath",
       "documents": [
-        "sha256:074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/appcompat/appcompat/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.appcompat:appcompat:1.7.1",
+        "https://maven.google.com/web/index.html#androidx.appcompat:appcompat:1.8.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.appcompat:appcompat:1.7.1",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.appcompat:appcompat:1.8.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -23172,41 +23177,80 @@
       ]
     },
     {
-      "id": "maven:androidx.collection:collection-jvm:1.4.2",
+      "id": "maven:androidx.collection:collection-jvm:1.5.0",
       "name": "androidx.collection:collection-jvm",
-      "version": "1.4.2",
+      "version": "1.5.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
       "technical_role": "release-runtime-classpath",
       "documents": [
-        "sha256:074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/collection/collection/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.collection:collection-jvm:1.4.2",
+        "https://maven.google.com/web/index.html#androidx.collection:collection-jvm:1.5.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.collection:collection-jvm:1.4.2",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.collection:collection-jvm:1.5.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.collection:collection:1.4.2",
+      "id": "maven:androidx.collection:collection:1.5.0",
       "name": "androidx.collection:collection",
-      "version": "1.4.2",
+      "version": "1.5.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": null,
       "disposition": "exclude",
       "technical_role": "release-runtime-classpath",
       "documents": [],
-      "reason": "Gradle module metadata only; its code is androidx.collection:collection-jvm:1.4.2, listed separately.",
+      "reason": "Gradle module metadata only; its code is androidx.collection:collection-jvm:1.5.0, listed separately.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.collection:collection:1.4.2"
+        "https://maven.google.com/web/index.html#androidx.collection:collection:1.5.0"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.collection:collection:1.4.2",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.collection:collection:1.5.0",
+        "src-tauri/gen/android/app/gradle.lockfile"
+      ]
+    },
+    {
+      "id": "maven:androidx.compose.runtime:runtime-annotation-android:1.9.0",
+      "name": "androidx.compose.runtime:runtime-annotation-android",
+      "version": "1.9.0",
+      "declared_license": "The Apache Software License, Version 2.0",
+      "selected_license": "Apache-2.0",
+      "disposition": "include",
+      "technical_role": "release-runtime-classpath",
+      "documents": [
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
+      ],
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/compose/runtime/runtime-annotation/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "source_urls": [
+        "https://maven.google.com/web/index.html#androidx.compose.runtime:runtime-annotation-android:1.9.0",
+        "https://github.com/androidx/androidx"
+      ],
+      "decision_basis": [
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.compose.runtime:runtime-annotation-android:1.9.0",
+        "src-tauri/gen/android/app/gradle.lockfile"
+      ]
+    },
+    {
+      "id": "maven:androidx.compose.runtime:runtime-annotation:1.9.0",
+      "name": "androidx.compose.runtime:runtime-annotation",
+      "version": "1.9.0",
+      "declared_license": "The Apache Software License, Version 2.0",
+      "selected_license": null,
+      "disposition": "exclude",
+      "technical_role": "release-runtime-classpath",
+      "documents": [],
+      "reason": "Gradle module metadata only; its code is androidx.compose.runtime:runtime-annotation-android:1.9.0, listed separately.",
+      "source_urls": [
+        "https://maven.google.com/web/index.html#androidx.compose.runtime:runtime-annotation:1.9.0"
+      ],
+      "decision_basis": [
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.compose.runtime:runtime-annotation:1.9.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -23232,44 +23276,44 @@
       ]
     },
     {
-      "id": "maven:androidx.constraintlayout:constraintlayout-core:1.0.0",
+      "id": "maven:androidx.constraintlayout:constraintlayout-core:1.1.1",
       "name": "androidx.constraintlayout:constraintlayout-core",
-      "version": "1.0.0",
+      "version": "1.1.1",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
       "technical_role": "release-runtime-classpath",
       "documents": [
-        "sha256:074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/constraintlayout/constraintlayout-core/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.constraintlayout:constraintlayout-core:1.0.0",
+        "https://maven.google.com/web/index.html#androidx.constraintlayout:constraintlayout-core:1.1.1",
         "https://github.com/androidx/constraintlayout"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.constraintlayout:constraintlayout-core:1.0.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.constraintlayout:constraintlayout-core:1.1.1",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.constraintlayout:constraintlayout:2.1.0",
+      "id": "maven:androidx.constraintlayout:constraintlayout:2.2.1",
       "name": "androidx.constraintlayout:constraintlayout",
-      "version": "2.1.0",
+      "version": "2.2.1",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
       "technical_role": "release-runtime-classpath",
       "documents": [
-        "sha256:074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/constraintlayout/constraintlayout/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.constraintlayout:constraintlayout:2.1.0",
+        "https://maven.google.com/web/index.html#androidx.constraintlayout:constraintlayout:2.2.1",
         "https://github.com/androidx/constraintlayout"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.constraintlayout:constraintlayout:2.1.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.constraintlayout:constraintlayout:2.2.1",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -23295,23 +23339,23 @@
       ]
     },
     {
-      "id": "maven:androidx.core:core-ktx:1.13.1",
+      "id": "maven:androidx.core:core-ktx:1.18.0",
       "name": "androidx.core:core-ktx",
-      "version": "1.13.1",
+      "version": "1.18.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
       "technical_role": "release-runtime-classpath",
       "documents": [
-        "sha256:074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/core/core-ktx/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.core:core-ktx:1.13.1",
+        "https://maven.google.com/web/index.html#androidx.core:core-ktx:1.18.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.core:core-ktx:1.13.1",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.core:core-ktx:1.18.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -23337,23 +23381,23 @@
       ]
     },
     {
-      "id": "maven:androidx.core:core:1.13.1",
+      "id": "maven:androidx.core:core:1.18.0",
       "name": "androidx.core:core",
-      "version": "1.13.1",
+      "version": "1.18.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
       "technical_role": "release-runtime-classpath",
       "documents": [
-        "sha256:074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/core/core/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.core:core:1.13.1",
+        "https://maven.google.com/web/index.html#androidx.core:core:1.18.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.core:core:1.13.1",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.core:core:1.18.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -23379,23 +23423,23 @@
       ]
     },
     {
-      "id": "maven:androidx.customview:customview:1.1.0",
+      "id": "maven:androidx.customview:customview:1.2.0",
       "name": "androidx.customview:customview",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
       "technical_role": "release-runtime-classpath",
       "documents": [
-        "sha256:074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/customview/customview/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.customview:customview:1.1.0",
+        "https://maven.google.com/web/index.html#androidx.customview:customview:1.2.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.customview:customview:1.1.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.customview:customview:1.2.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -23565,9 +23609,9 @@
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-common-jvm:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-common-jvm:2.11.0",
       "name": "androidx.lifecycle:lifecycle-common-jvm",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23577,36 +23621,36 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-common/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-common-jvm:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-common-jvm:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-common-jvm:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-common-jvm:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-common:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-common:2.11.0",
       "name": "androidx.lifecycle:lifecycle-common",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": null,
       "disposition": "exclude",
       "technical_role": "release-runtime-classpath",
       "documents": [],
-      "reason": "Gradle module metadata only; its code is androidx.lifecycle:lifecycle-common-jvm:2.10.0, listed separately.",
+      "reason": "Gradle module metadata only; its code is androidx.lifecycle:lifecycle-common-jvm:2.11.0, listed separately.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-common:2.10.0"
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-common:2.11.0"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-common:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-common:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-livedata-core-ktx:2.11.0",
       "name": "androidx.lifecycle:lifecycle-livedata-core-ktx",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23616,18 +23660,18 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-livedata-core-ktx/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata-core-ktx:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-livedata-core-ktx:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-livedata-core:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-livedata-core:2.11.0",
       "name": "androidx.lifecycle:lifecycle-livedata-core",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23637,18 +23681,18 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-livedata-core/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata-core:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata-core:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-livedata-core:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-livedata-core:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-livedata:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-livedata:2.11.0",
       "name": "androidx.lifecycle:lifecycle-livedata",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23658,18 +23702,18 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-livedata/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-livedata:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-livedata:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-process:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-process:2.11.0",
       "name": "androidx.lifecycle:lifecycle-process",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23679,18 +23723,18 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-process/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-process:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-process:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-process:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-process:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-runtime-android:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-runtime-android:2.11.0",
       "name": "androidx.lifecycle:lifecycle-runtime-android",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23700,18 +23744,18 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-runtime/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-android:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-android:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-runtime-android:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-runtime-android:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-runtime-ktx-android:2.11.0",
       "name": "androidx.lifecycle:lifecycle-runtime-ktx-android",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23721,54 +23765,54 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-runtime-ktx/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-ktx-android:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-runtime-ktx-android:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-runtime-ktx:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-runtime-ktx:2.11.0",
       "name": "androidx.lifecycle:lifecycle-runtime-ktx",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": null,
       "disposition": "exclude",
       "technical_role": "release-runtime-classpath",
       "documents": [],
-      "reason": "Gradle module metadata only; its code is androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0, listed separately.",
+      "reason": "Gradle module metadata only; its code is androidx.lifecycle:lifecycle-runtime-ktx-android:2.11.0, listed separately.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-ktx:2.10.0"
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-ktx:2.11.0"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-runtime-ktx:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-runtime-ktx:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-runtime:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-runtime:2.11.0",
       "name": "androidx.lifecycle:lifecycle-runtime",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": null,
       "disposition": "exclude",
       "technical_role": "release-runtime-classpath",
       "documents": [],
-      "reason": "Gradle module metadata only; its code is androidx.lifecycle:lifecycle-runtime-android:2.10.0, listed separately.",
+      "reason": "Gradle module metadata only; its code is androidx.lifecycle:lifecycle-runtime-android:2.11.0, listed separately.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime:2.10.0"
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime:2.11.0"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-runtime:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-runtime:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-viewmodel-android:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-viewmodel-android:2.11.0",
       "name": "androidx.lifecycle:lifecycle-viewmodel-android",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23778,18 +23822,18 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-viewmodel/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-android:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-android:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel-android:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel-android:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0",
       "name": "androidx.lifecycle:lifecycle-viewmodel-ktx",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23799,18 +23843,18 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-viewmodel-ktx/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0",
       "name": "androidx.lifecycle:lifecycle-viewmodel-savedstate-android",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23820,36 +23864,36 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-viewmodel-savedstate/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0",
       "name": "androidx.lifecycle:lifecycle-viewmodel-savedstate",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": null,
       "disposition": "exclude",
       "technical_role": "release-runtime-classpath",
       "documents": [],
-      "reason": "Gradle module metadata only; its code is androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0, listed separately.",
+      "reason": "Gradle module metadata only; its code is androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0, listed separately.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0"
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
     {
-      "id": "maven:androidx.lifecycle:lifecycle-viewmodel:2.10.0",
+      "id": "maven:androidx.lifecycle:lifecycle-viewmodel:2.11.0",
       "name": "androidx.lifecycle:lifecycle-viewmodel",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -23859,11 +23903,11 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/lifecycle/lifecycle-viewmodel/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel:2.11.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel:2.10.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.lifecycle:lifecycle-viewmodel:2.11.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -23885,6 +23929,45 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.loader:loader:1.0.0",
+        "src-tauri/gen/android/app/gradle.lockfile"
+      ]
+    },
+    {
+      "id": "maven:androidx.navigationevent:navigationevent-android:1.0.0",
+      "name": "androidx.navigationevent:navigationevent-android",
+      "version": "1.0.0",
+      "declared_license": "The Apache Software License, Version 2.0",
+      "selected_license": "Apache-2.0",
+      "disposition": "include",
+      "technical_role": "release-runtime-classpath",
+      "documents": [
+        "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
+      ],
+      "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/navigationevent/navigationevent/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "source_urls": [
+        "https://maven.google.com/web/index.html#androidx.navigationevent:navigationevent-android:1.0.0",
+        "https://github.com/androidx/androidx"
+      ],
+      "decision_basis": [
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.navigationevent:navigationevent-android:1.0.0",
+        "src-tauri/gen/android/app/gradle.lockfile"
+      ]
+    },
+    {
+      "id": "maven:androidx.navigationevent:navigationevent:1.0.0",
+      "name": "androidx.navigationevent:navigationevent",
+      "version": "1.0.0",
+      "declared_license": "The Apache Software License, Version 2.0",
+      "selected_license": null,
+      "disposition": "exclude",
+      "technical_role": "release-runtime-classpath",
+      "documents": [],
+      "reason": "Gradle module metadata only; its code is androidx.navigationevent:navigationevent-android:1.0.0, listed separately.",
+      "source_urls": [
+        "https://maven.google.com/web/index.html#androidx.navigationevent:navigationevent:1.0.0"
+      ],
+      "decision_basis": [
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.navigationevent:navigationevent:1.0.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -24033,9 +24116,9 @@
       ]
     },
     {
-      "id": "maven:androidx.tracing:tracing:1.0.0",
+      "id": "maven:androidx.tracing:tracing:1.2.0",
       "name": "androidx.tracing:tracing",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -24045,11 +24128,11 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.tracing:tracing:1.0.0",
+        "https://maven.google.com/web/index.html#androidx.tracing:tracing:1.2.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.tracing:tracing:1.0.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.tracing:tracing:1.2.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -24180,9 +24263,9 @@
       ]
     },
     {
-      "id": "maven:androidx.webkit:webkit:1.14.0",
+      "id": "maven:androidx.webkit:webkit:1.18.0",
       "name": "androidx.webkit:webkit",
-      "version": "1.14.0",
+      "version": "1.18.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -24192,11 +24275,11 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships META-INF/androidx/webkit/webkit/LICENSE.txt, retained verbatim. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.webkit:webkit:1.14.0",
+        "https://maven.google.com/web/index.html#androidx.webkit:webkit:1.18.0",
         "https://github.com/androidx/androidx"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.webkit:webkit:1.14.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/androidx.webkit:webkit:1.18.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -24307,9 +24390,9 @@
       ]
     },
     {
-      "id": "maven:com.google.android.material:material:1.13.0",
+      "id": "maven:com.google.android.material:material:1.14.0",
       "name": "com.google.android.material:material",
-      "version": "1.13.0",
+      "version": "1.14.0",
       "declared_license": "The Apache Software License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -24319,11 +24402,11 @@
       ],
       "reason": "Explicit Apache-2.0 selection. The artifact ships no license text; the canonical SPDX Apache-2.0 text stands for the license its POM declares. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://maven.google.com/web/index.html#com.google.android.material:material:1.13.0",
+        "https://maven.google.com/web/index.html#com.google.android.material:material:1.14.0",
         "https://github.com/material-components/material-components-android"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/com.google.android.material:material:1.13.0",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/com.google.android.material:material:1.14.0",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -24388,9 +24471,9 @@
       ]
     },
     {
-      "id": "maven:org.jetbrains.kotlin:kotlin-stdlib:2.0.21",
+      "id": "maven:org.jetbrains.kotlin:kotlin-stdlib:2.2.10",
       "name": "org.jetbrains.kotlin:kotlin-stdlib",
-      "version": "2.0.21",
+      "version": "2.2.10",
       "declared_license": "The Apache License, Version 2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -24398,16 +24481,17 @@
       "documents": [
         "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
         "sha256:0b09a83d3ef7795c7dec65e815866597c066c53898f2852a76599b8f5552941a",
-        "sha256:8a82f8702ea943f008c84a61b8df7b053b7d36cfa293e3abd59f839b728a5999",
-        "sha256:8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b"
+        "sha256:8cba83fcded6d166fc4398eb8cb9c1a12ad8b87ff624a404956242d22231fbc9",
+        "sha256:8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b",
+        "sha256:d1bc53b493a3ab387b42717ed5c4b1976a5048996f81154278100bff86d39331"
       ],
-      "reason": "Explicit Apache-2.0 selection. The artifact ships no text. Kotlin's license/LICENSE.txt and its NOTICE (Apache-2.0 section 4 d) at tag v2.0.21 are retained, with license/README.md, which names the standard-library code derived from GWT (Copyright 2007-08 Google Inc.) and Guava (Copyright 2011 The Guava Authors), both Apache-2.0 with the same text, and from Boost (MathJVM.kt, Copyright Eric Ford and Hubert Holin 2001), whose BSL-1.0 text is retained too. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
+      "reason": "Explicit Apache-2.0 selection. The artifact ships no text. Kotlin's license/LICENSE.txt and its NOTICE (Apache-2.0 section 4 d) at tag v2.2.10 are retained, with license/README.md, which names the standard-library code derived from GWT (Copyright 2007-08 Google Inc.) and Guava (Copyright 2011 The Guava Authors), both Apache-2.0 with the same text, from Boost (MathJVM.kt, Copyright Eric Ford and Hubert Holin 2001), whose BSL-1.0 text is retained, and, new since 2.0.21, kotlin.time from ThreeTen-Backport (Copyright 2007-present Stephen Colebourne and Michael Nascimento Santos), whose BSD-3-Clause text is retained too. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Android's packaging drops META-INF license files from the APK, so the texts are delivered in the APK's licenses folder.",
       "source_urls": [
-        "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.0.21/",
+        "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/",
         "https://github.com/JetBrains/kotlin"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-10-28-android.json#libraries/org.jetbrains.kotlin:kotlin-stdlib:2.0.21",
+        "docs/release/license-inventory-2026-10-28-android.json#libraries/org.jetbrains.kotlin:kotlin-stdlib:2.2.10",
         "src-tauri/gen/android/app/gradle.lockfile"
       ]
     },
@@ -27900,7 +27984,7 @@
         "https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.15.3/",
         "https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.15.3/",
         "https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.15.3/",
-        "https://github.com/JetBrains/kotlin/blob/284e9b4041bd815b5b1b489070bbb1f1db6de35c/license/LICENSE.txt"
+        "https://github.com/JetBrains/kotlin/blob/c448af19ded1b1a4e96e9af6412cd9acb100ce1a/license/LICENSE.txt"
       ]
     },
     {
@@ -29271,7 +29355,7 @@
     },
     {
       "id": "sha256:809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0",
-      "file_name": "activity-ktx-1.10.1-META-INF-androidx-activity-activity-ktx-LICENSE.txt",
+      "file_name": "activity-ktx-1.13.0-META-INF-androidx-activity-activity-ktx-LICENSE.txt",
       "bytes": 10175,
       "sha256": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0",
       "sources": [
@@ -29282,50 +29366,70 @@
         }
       ],
       "source_names": [
-        "androidx.activity:activity-ktx:1.10.1!META-INF/androidx/activity/activity-ktx/LICENSE.txt",
-        "androidx.activity:activity:1.10.1!META-INF/androidx/activity/activity/LICENSE.txt",
+        "androidx.activity:activity-ktx:1.13.0!META-INF/androidx/activity/activity-ktx/LICENSE.txt",
+        "androidx.activity:activity:1.13.0!META-INF/androidx/activity/activity/LICENSE.txt",
         "androidx.annotation:annotation-jvm:1.9.1!META-INF/androidx/annotation/annotation/LICENSE.txt",
+        "androidx.appcompat:appcompat-resources:1.8.0!META-INF/androidx/appcompat/appcompat-resources/LICENSE.txt",
+        "androidx.appcompat:appcompat:1.8.0!META-INF/androidx/appcompat/appcompat/LICENSE.txt",
+        "androidx.collection:collection-jvm:1.5.0!META-INF/androidx/collection/collection/LICENSE.txt",
+        "androidx.compose.runtime:runtime-annotation-android:1.9.0!META-INF/androidx/compose/runtime/runtime-annotation/LICENSE.txt",
+        "androidx.constraintlayout:constraintlayout-core:1.1.1!META-INF/androidx/constraintlayout/constraintlayout-core/LICENSE.txt",
+        "androidx.constraintlayout:constraintlayout:2.2.1!META-INF/androidx/constraintlayout/constraintlayout/LICENSE.txt",
+        "androidx.core:core-ktx:1.18.0!META-INF/androidx/core/core-ktx/LICENSE.txt",
         "androidx.core:core-viewtree:1.0.0!META-INF/androidx/core/core-viewtree/LICENSE.txt",
+        "androidx.core:core:1.18.0!META-INF/androidx/core/core/LICENSE.txt",
+        "androidx.customview:customview:1.2.0!META-INF/androidx/customview/customview/LICENSE.txt",
         "androidx.dynamicanimation:dynamicanimation:1.1.0!META-INF/androidx/dynamicanimation/dynamicanimation/LICENSE.txt",
         "androidx.graphics:graphics-shapes-android:1.0.1!META-INF/androidx/graphics/graphics-shapes/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-common-jvm:2.10.0!META-INF/androidx/lifecycle/lifecycle-common/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0!META-INF/androidx/lifecycle/lifecycle-livedata-core-ktx/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-livedata-core:2.10.0!META-INF/androidx/lifecycle/lifecycle-livedata-core/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-livedata:2.10.0!META-INF/androidx/lifecycle/lifecycle-livedata/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-process:2.10.0!META-INF/androidx/lifecycle/lifecycle-process/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-runtime-android:2.10.0!META-INF/androidx/lifecycle/lifecycle-runtime/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0!META-INF/androidx/lifecycle/lifecycle-runtime-ktx/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-viewmodel-android:2.10.0!META-INF/androidx/lifecycle/lifecycle-viewmodel/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0!META-INF/androidx/lifecycle/lifecycle-viewmodel-ktx/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0!META-INF/androidx/lifecycle/lifecycle-viewmodel-savedstate/LICENSE.txt",
-        "androidx.lifecycle:lifecycle-viewmodel:2.10.0!META-INF/androidx/lifecycle/lifecycle-viewmodel/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-common-jvm:2.11.0!META-INF/androidx/lifecycle/lifecycle-common/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-livedata-core-ktx:2.11.0!META-INF/androidx/lifecycle/lifecycle-livedata-core-ktx/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-livedata-core:2.11.0!META-INF/androidx/lifecycle/lifecycle-livedata-core/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-livedata:2.11.0!META-INF/androidx/lifecycle/lifecycle-livedata/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-process:2.11.0!META-INF/androidx/lifecycle/lifecycle-process/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-runtime-android:2.11.0!META-INF/androidx/lifecycle/lifecycle-runtime/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-runtime-ktx-android:2.11.0!META-INF/androidx/lifecycle/lifecycle-runtime-ktx/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-viewmodel-android:2.11.0!META-INF/androidx/lifecycle/lifecycle-viewmodel/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0!META-INF/androidx/lifecycle/lifecycle-viewmodel-ktx/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0!META-INF/androidx/lifecycle/lifecycle-viewmodel-savedstate/LICENSE.txt",
+        "androidx.lifecycle:lifecycle-viewmodel:2.11.0!META-INF/androidx/lifecycle/lifecycle-viewmodel/LICENSE.txt",
+        "androidx.navigationevent:navigationevent-android:1.0.0!META-INF/androidx/navigationevent/navigationevent/LICENSE.txt",
         "androidx.profileinstaller:profileinstaller:1.4.0!META-INF/androidx/profileinstaller/profileinstaller/LICENSE.txt",
         "androidx.savedstate:savedstate-android:1.4.0!META-INF/androidx/savedstate/savedstate/LICENSE.txt",
         "androidx.savedstate:savedstate-ktx:1.4.0!META-INF/androidx/savedstate/savedstate-ktx/LICENSE.txt",
-        "androidx.webkit:webkit:1.14.0!META-INF/androidx/webkit/webkit/LICENSE.txt"
+        "androidx.webkit:webkit:1.18.0!META-INF/androidx/webkit/webkit/LICENSE.txt"
       ],
       "source_urls": [
-        "https://maven.google.com/web/index.html#androidx.activity:activity-ktx:1.10.1",
-        "https://maven.google.com/web/index.html#androidx.activity:activity:1.10.1",
+        "https://maven.google.com/web/index.html#androidx.activity:activity-ktx:1.13.0",
+        "https://maven.google.com/web/index.html#androidx.activity:activity:1.13.0",
         "https://maven.google.com/web/index.html#androidx.annotation:annotation-jvm:1.9.1",
+        "https://maven.google.com/web/index.html#androidx.appcompat:appcompat-resources:1.8.0",
+        "https://maven.google.com/web/index.html#androidx.appcompat:appcompat:1.8.0",
+        "https://maven.google.com/web/index.html#androidx.collection:collection-jvm:1.5.0",
+        "https://maven.google.com/web/index.html#androidx.compose.runtime:runtime-annotation-android:1.9.0",
+        "https://maven.google.com/web/index.html#androidx.constraintlayout:constraintlayout-core:1.1.1",
+        "https://maven.google.com/web/index.html#androidx.constraintlayout:constraintlayout:2.2.1",
+        "https://maven.google.com/web/index.html#androidx.core:core-ktx:1.18.0",
         "https://maven.google.com/web/index.html#androidx.core:core-viewtree:1.0.0",
+        "https://maven.google.com/web/index.html#androidx.core:core:1.18.0",
+        "https://maven.google.com/web/index.html#androidx.customview:customview:1.2.0",
         "https://maven.google.com/web/index.html#androidx.dynamicanimation:dynamicanimation:1.1.0",
         "https://maven.google.com/web/index.html#androidx.graphics:graphics-shapes-android:1.0.1",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-common-jvm:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata-core:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-process:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-android:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-android:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0",
-        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel:2.10.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-common-jvm:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata-core-ktx:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata-core:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-livedata:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-process:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-android:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-runtime-ktx-android:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-android:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.lifecycle:lifecycle-viewmodel:2.11.0",
+        "https://maven.google.com/web/index.html#androidx.navigationevent:navigationevent-android:1.0.0",
         "https://maven.google.com/web/index.html#androidx.profileinstaller:profileinstaller:1.4.0",
         "https://maven.google.com/web/index.html#androidx.savedstate:savedstate-android:1.4.0",
         "https://maven.google.com/web/index.html#androidx.savedstate:savedstate-ktx:1.4.0",
-        "https://maven.google.com/web/index.html#androidx.webkit:webkit:1.14.0"
+        "https://maven.google.com/web/index.html#androidx.webkit:webkit:1.18.0"
       ]
     },
     {
@@ -29426,56 +29530,74 @@
     },
     {
       "id": "sha256:0b09a83d3ef7795c7dec65e815866597c066c53898f2852a76599b8f5552941a",
-      "file_name": "kotlin-2.0.21-NOTICE.txt",
+      "file_name": "kotlin-2.2.10-NOTICE.txt",
       "bytes": 482,
       "sha256": "0b09a83d3ef7795c7dec65e815866597c066c53898f2852a76599b8f5552941a",
       "sources": [
         {
           "kind": "file",
-          "path": "docs/release/licenses/kotlin-2.0.21-NOTICE.txt"
+          "path": "docs/release/licenses/kotlin-2.2.10-NOTICE.txt"
         }
       ],
       "source_names": [
-        "docs/release/licenses/kotlin-2.0.21-NOTICE.txt"
+        "docs/release/licenses/kotlin-2.2.10-NOTICE.txt"
       ],
       "source_urls": [
-        "https://github.com/JetBrains/kotlin/blob/284e9b4041bd815b5b1b489070bbb1f1db6de35c/license/NOTICE.txt"
+        "https://github.com/JetBrains/kotlin/blob/c448af19ded1b1a4e96e9af6412cd9acb100ce1a/license/NOTICE.txt"
       ]
     },
     {
-      "id": "sha256:8a82f8702ea943f008c84a61b8df7b053b7d36cfa293e3abd59f839b728a5999",
-      "file_name": "kotlin-2.0.21-license-README.md",
-      "bytes": 18558,
-      "sha256": "8a82f8702ea943f008c84a61b8df7b053b7d36cfa293e3abd59f839b728a5999",
+      "id": "sha256:8cba83fcded6d166fc4398eb8cb9c1a12ad8b87ff624a404956242d22231fbc9",
+      "file_name": "kotlin-2.2.10-license-README.md",
+      "bytes": 17313,
+      "sha256": "8cba83fcded6d166fc4398eb8cb9c1a12ad8b87ff624a404956242d22231fbc9",
       "sources": [
         {
           "kind": "file",
-          "path": "docs/release/licenses/kotlin-2.0.21-license-README.md"
+          "path": "docs/release/licenses/kotlin-2.2.10-license-README.md"
         }
       ],
       "source_names": [
-        "docs/release/licenses/kotlin-2.0.21-license-README.md"
+        "docs/release/licenses/kotlin-2.2.10-license-README.md"
       ],
       "source_urls": [
-        "https://github.com/JetBrains/kotlin/blob/284e9b4041bd815b5b1b489070bbb1f1db6de35c/license/README.md"
+        "https://github.com/JetBrains/kotlin/blob/c448af19ded1b1a4e96e9af6412cd9acb100ce1a/license/README.md"
       ]
     },
     {
       "id": "sha256:8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b",
-      "file_name": "kotlin-2.0.21-third_party-boost_LICENSE.txt",
+      "file_name": "kotlin-2.2.10-third_party-boost_LICENSE.txt",
       "bytes": 1337,
       "sha256": "8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b",
       "sources": [
         {
           "kind": "file",
-          "path": "docs/release/licenses/kotlin-2.0.21-third_party-boost_LICENSE.txt"
+          "path": "docs/release/licenses/kotlin-2.2.10-third_party-boost_LICENSE.txt"
         }
       ],
       "source_names": [
-        "docs/release/licenses/kotlin-2.0.21-third_party-boost_LICENSE.txt"
+        "docs/release/licenses/kotlin-2.2.10-third_party-boost_LICENSE.txt"
       ],
       "source_urls": [
-        "https://github.com/JetBrains/kotlin/blob/284e9b4041bd815b5b1b489070bbb1f1db6de35c/license/third_party/boost_LICENSE.txt"
+        "https://github.com/JetBrains/kotlin/blob/c448af19ded1b1a4e96e9af6412cd9acb100ce1a/license/third_party/boost_LICENSE.txt"
+      ]
+    },
+    {
+      "id": "sha256:d1bc53b493a3ab387b42717ed5c4b1976a5048996f81154278100bff86d39331",
+      "file_name": "kotlin-2.2.10-third_party-threetenbp_license.txt",
+      "bytes": 1520,
+      "sha256": "d1bc53b493a3ab387b42717ed5c4b1976a5048996f81154278100bff86d39331",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/kotlin-2.2.10-third_party-threetenbp_license.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/kotlin-2.2.10-third_party-threetenbp_license.txt"
+      ],
+      "source_urls": [
+        "https://github.com/JetBrains/kotlin/blob/c448af19ded1b1a4e96e9af6412cd9acb100ce1a/license/third_party/threetenbp_license.txt"
       ]
     },
     {

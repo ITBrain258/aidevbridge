@@ -413,3 +413,27 @@ Android-Dateien dieses Branches.
   Schublade sehen. Erfahrungsgemäß reicht die Erklärung; ein Demo-Host
   beschleunigt die Prüfung.
 - **Vordergrunddienst und Benachrichtigungen** (§5.5) als nächster Ausbau.
+
+## Nachtrag vom 05.11.2026: Gradle 9, AGP 9 und Kotlin 2
+
+Die Vorlage der Tauri-CLI 2.12.4 hat den Sprung gemacht, den §4.1 abwartete.
+Das Projekt folgt ihr: Gradle 9.6.1 (Distribution weiter per Prüfsumme
+gebunden), das Android-Gradle-Plugin 9.3.1 und das Kotlin-Plugin 2.2.10, mit
+den Übergangsschaltern der Vorlage (`android.builtInKotlin=false`,
+`android.newDsl=false`, `android.proguard.failOnMissingFiles=false`) und
+ihrem `BuildTask.kt` ohne `project.exec`; der Configuration Cache ist an.
+`kotlinOptions` heißt jetzt `kotlin { compilerOptions }`. Die
+androidx-Bibliotheken gehen auf die neuesten stabilen Versionen (webkit 1.18,
+appcompat 1.8, activity 1.13, material 1.14, lifecycle 2.11); alle kommen mit
+`compileSdk` 36 aus. compileSdk und targetSdk bleiben 36, obwohl die Vorlage
+37 setzt: Das Ziel-SDK ist eine eigene Produktänderung, Play verlangt 36 bis
+August 2027. JDK 21 bleibt (`gradle-daemon-jvm.properties`).
+
+Neu sind zwei Sicherungen der Lieferkette: `buildscript-gradle.lockfile` und
+`buildSrc/gradle.lockfile` binden die Versionen von AGP, Kotlin-Plugin und
+allem, was sie mitbringen, und `gradle/verification-metadata.xml` die SHA-256
+jedes Artefakts, das Gradle lädt; `aapt2` ist darin für Linux, macOS und
+Windows eingetragen. `android.yml` lässt Clippy mit `-D warnings` für
+`aarch64-linux-android` laufen. Die Lizenzauswahl (§8) führt die neuen
+Bibliotheken; `kotlin-stdlib` 2.2.10 enthält mit `kotlin.time` Code aus
+ThreeTen-Backport, dessen BSD-3-Clause-Text dazukommt.

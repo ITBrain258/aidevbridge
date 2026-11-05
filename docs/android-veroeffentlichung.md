@@ -91,7 +91,7 @@ machen das alles selbst.
 `%LOCALAPPDATA%\Android\Sdk` angeben, dann
 `src-tauri\gen\android` öffnen. Als Gradle-JDK nimmt es Java 21 aus
 `~\.jdks` (das Projekt verlangt es in `gradle/gradle-daemon-jvm.properties`).
-Das mitgelieferte Java 25 geht mit diesem Gradle nicht.
+Mit dem mitgelieferten Java 25 ist der Bau nicht getestet.
 
 ### B3 Auf dem eigenen Telefon testen
 
@@ -387,7 +387,8 @@ neue Patch-Version.
 | Meldung | Ursache und Abhilfe |
 | --- | --- |
 | `Creation symbolic link is not allowed for this system` | Windows-Entwicklermodus fehlt (B2). |
-| `Unsupported class file major version 69` | Gradle läuft mit Java 25; `JAVA_HOME` auf das JDK 21 setzen bzw. in Android Studio Gradle-JDK 21 wählen. |
+| `Unsupported class file major version 69` | Ein Gradle oder Plugin läuft mit Java 25; `JAVA_HOME` auf das JDK 21 setzen bzw. in Android Studio Gradle-JDK 21 wählen. |
+| `Dependency verification failed` | Eine Abhängigkeit ist neu oder hat eine andere Prüfsumme als in `gradle/verification-metadata.xml`; nach einer gewollten Änderung die Datei neu schreiben ([Lizenzen pflegen](lizenzen-pflegen.md#android-bibliotheken)). |
 | `SDK location not found` | `ANDROID_HOME` setzen oder in `src-tauri/gen/android/local.properties` `sdk.dir=C\:\\Users\\<name>\\AppData\\Local\\Android\\Sdk`. |
 | Play: „Version code … has already been used“ | Version erhöhen (E1). |
 | Play: „Only releases with status draft may be created on draft app“ | `PLAY_RELEASE_STATUS` = `draft` (D3). |
