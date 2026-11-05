@@ -803,7 +803,7 @@ describe("mountGrid: die Eingabesperre gehoert zum Kanal", () => {
     const strip = () => tilesByPosition(el)[0].querySelector<HTMLElement>(".tile-lock")!;
     expect(strip().hidden).toBe(false);
 
-    const stripAtMount: boolean[] = [];
+    const stripAtMount: HTMLElement["hidden"][] = [];
     hoisted.mountTerminalSpy.mockImplementation((container: HTMLElement) => {
       stripAtMount.push(container.closest<HTMLElement>(".tile")!.querySelector<HTMLElement>(".tile-lock")!.hidden);
     });
@@ -2390,7 +2390,7 @@ describe("mountGrid: Reconnect in der Sperrleiste (Nachtrag C, Befund 2, Designs
       hoisted.fitSpy.mockClear();
       // Primitiver Schnappschuss im Augenblick des Mounts (siehe
       // "eine neue Kachel montiert mit ihrer Endgeometrie").
-      let stripHiddenAtMount: boolean | undefined;
+      let stripHiddenAtMount: HTMLElement["hidden"] | undefined;
       hoisted.mountTerminalSpy.mockImplementationOnce((container: HTMLElement) => {
         stripHiddenAtMount = container.closest(".tile")?.querySelector<HTMLElement>(".tile-lock")?.hidden;
       });

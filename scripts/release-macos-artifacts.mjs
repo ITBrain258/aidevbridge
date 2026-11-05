@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // macOS packaging with explicit inputs: one universal app bundle (Apple silicon
 // and Intel) and its DMG. `build` is the release build and needs the bound
 // macOS license selection; `build --preview` makes a test build of any clean

@@ -13,6 +13,11 @@ dem Namen agentbridge.
 ### Changed
 
 - CI: `vendored.yml` fuehrt neben den Bibliothekstests auch die Integrationstests des eingebetteten russh aus; seit 0.65.1 kompilieren sie unveraendert.
+- Icons: `lucide-static` 1.69.0 statt 1.41.0. Die 19 Icons der App haben dieselbe Geometrie, `src/icons.ts` bleibt gleich. Das Lizenzinventar vergleicht eingebettete Icons jetzt mit allen SVG-Dateien von lucide, auch mit Aliasnamen wie `triangle-alert`, die `icon-nodes.json` nicht mehr fuehrt.
+- Windows-Release: Die statische Bindung der VC-Laufzeit steht als `build.windows.staticVCRuntime` in `tauri.release.windows.json`. Die Umgebungsvariable `STATIC_VCRUNTIME`, die `tauri-build` als veraltet meldet, setzt das Release-Skript nicht mehr und weist eine geerbte weiter ab.
+- Rust-Abhaengigkeiten: `dirs` 7, `toml` 1 und `sha2` 0.11 statt 5, 0.8 und 0.10, dieselben Hauptversionen wie Tauri und russh. Damit fallen `dirs` 5, `toml` 0.8 samt `toml_edit` 0.20 und die `windows-sys`-0.48-Familie aus dem Windows-Paket. `settings.toml` wird Zeichen fuer Zeichen gleich geschrieben und bleibt fuer aeltere Versionen lesbar; eine kaputte Datei nennt dieselbe Stelle, nur mit anderem Wortlaut.
+- Frontend-Pruefwerkzeuge: TypeScript 6.0, Vitest 5 und jsdom 30 statt 5.6, 4.1 und 29. Die gebaute Oberflaeche bleibt Byte fuer Byte gleich. Neu ist `npm run typecheck`, das auch die Vite-Konfigurationen und die Skripte unter `scripts/` prueft (`tsconfig.node.json`, mit `@types/node`); die CI fuehrt es aus. 22 Skripte sind dort noch ausgenommen, weil ihnen JSDoc-Typen fehlen.
+- Frontend-Bau: Vite 8 statt 6. Vite 8 baut mit rolldown statt mit Rollup und esbuild; die Oberflaeche wird weiter fuer Safari 14 und Chrome 87 gebaut, wie mit Vite 6, und behaelt ihre Lizenzhinweise (die xterm-Header im JS, den xterm-Hinweis im CSS). Statt der esbuild-Helfer enthaelt sie Babel-Helfer fuer private Klassenmitglieder, deren MIT-Texte `THIRD_PARTY_LICENSES.md` jetzt mitfuehrt, dazu den Text von rolldown.
 
 ### Security
 

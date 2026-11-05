@@ -76,18 +76,17 @@ rand = "0.10"
 # `connect_host`, Vorgabe-Schluesselpfad) und in den Testhelfern
 # (~/.ssh/id_ed25519) -- deshalb unter [dependencies] statt zusaetzlich unter
 # [dev-dependencies].
-dirs = "5"
+dirs = "7"
 # SHA-256 fuer TOFU (Spec §8.1: Fingerabdruck ueber die rohen
 # Schluesselbytes, siehe `ssh::known_hosts::fingerprint`) und fuer den
-# Fingerabdruck von settings.toml (`settings::update_at`). "0.10" wie
-# tauri-codegen; russh, rsa und ed25519-dalek nutzen sha2 0.11 (digest 0.11),
-# daher stehen beide Zweige in Cargo.lock. Ein Wechsel auf 0.11 ist eine
-# Abhaengigkeitsaenderung mit Lizenzpruefung (docs/lizenzen-pflegen.md).
-sha2 = "0.10"
+# Fingerabdruck von settings.toml (`settings::update_at`). "0.11" wie russh,
+# rsa und ed25519-dalek; sha2 0.10 bleibt in Cargo.lock nur fuer den Bau
+# (tauri-codegen).
+sha2 = "0.11"
 # `settings.toml` (Hosts/Voreinstellungen, siehe `settings.rs`).
-# Kein Zusammenhang mit tauri-internem TOML-Gebrauch (Build-/CLI-Tooling,
-# nicht Teil des Laufzeit-Abhaengigkeitsbaums dieser Bibliothek).
-toml = "0.8"
+# Dieselbe Hauptversion wie Tauri (tauri-utils); toml 0.8 bleibt in
+# Cargo.lock nur fuer den Bau unter Linux (system-deps).
+toml = "1"
 tauri-plugin-dialog = "2.7.2"
 
 # Fensterlage und -groesse gibt es nur auf dem Desktop; der Krate ist auf
