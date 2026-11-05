@@ -2,7 +2,7 @@
 
 **Datum:** 2026-09-05
 **Stand:** `main` am 2026-09-05
-**Anlass:** Die Roadmap vom selben Tag (`plans/2026-09-05-roadmap-bis-release.md`) wurde Punkt für Punkt mit dem Auftraggeber durchgesprochen. Dieses Dokument hält fest, was davon gebaut wird, in welcher Reihenfolge, und wie der Statuspunkt (A4) entworfen ist. Es ersetzt für den Statuspunkt die Abschnitte 6.1 und 4.2 der Gesamtspec vom 2026-07-25, wo es abweicht.
+**Anlass:** Die Roadmap vom selben Tag (`plans/2026-09-05-roadmap-bis-release.md`, seit dem 05.11.2026 in der Git-Historie) wurde Punkt für Punkt mit dem Auftraggeber durchgesprochen. Dieses Dokument hält fest, was davon gebaut wird, in welcher Reihenfolge, und wie der Statuspunkt (A4) entworfen ist. Es ersetzt für den Statuspunkt die Abschnitte 6.1 und 4.2 der Gesamtspec vom 2026-07-25, wo es abweicht.
 **Fassung:** korrigiert am 2026-09-08 nach Quellen- und Entwurfsprüfung. Diese M1-Fassung ersetzt die früheren Regeln zu Bell als Wartezustand, Claude-Arbeitsregex, alleiniger Server-PID-Identität und Kontrollausfall als Hostausfall. Die Messung vom 2026-09-05 bleibt historischer Befund; ihre damaligen Empfehlungen sind kein Implementierungsvertrag. M1 ist weiterhin ein Entwurf, keine Beschreibung bereits implementierter Statusfunktionen.
 **Bezug:** Gesamtspec `2026-07-25-agentbridge-design.md` (A1 bis A8, V1 bis V34), Roadmap 2026-09-05, Bewertung 2026-09-04 (Befunde 1 bis 16), Designsystem 2026-07-27.
 
