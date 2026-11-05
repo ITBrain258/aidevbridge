@@ -1,7 +1,7 @@
 # Messung: Standard-Socket, Plan M3.1 Schritt 1
 
-Stand 2026-10-25. Schritt 1 des
-[Plans](../plans/2026-10-25-standard-socket.md) zur
+Stand 2026-10-25. Schritt 1 des Plans (seit dem 05.11.2026 nur in der
+Git-Historie, `docs/plans/2026-10-25-standard-socket.md`) zur
 [Spec vom 25.10.](../specs/2026-10-25-standard-socket-design.md): zwei
 Annahmen belegen, bevor gebaut wird. Beide Test-VMs, 192.0.2.10 (tmux 3.3a)
 und 192.0.2.20 (tmux 3.6), nur auf eigenen Testsockets

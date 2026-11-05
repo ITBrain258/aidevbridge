@@ -1,7 +1,8 @@
 # Standard-Socket (M3.1): Design
 
 Stand 2026-10-25, nach der Kritikrunde (§11) und den Entscheidungen (§10). Auftrag: Roadmap S3.1
-(`docs/plans/2026-09-05-roadmap-bis-release.md`), MVP-Spec §2, Zeile
+(`docs/plans/2026-09-05-roadmap-bis-release.md`, seit dem 05.11.2026 in der
+Git-Historie), MVP-Spec §2, Zeile
 „Fremde Sessions“, und §3.1 Nr. 5 (Kritikrunde mit Widerlegern für den
 Standard-Socket). Diese Spec löst die Regel der Gesamtspec §6.0 ab, nach der
 fremde Sockets nur als eigener Host-Eintrag erscheinen, und für den
