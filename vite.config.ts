@@ -13,25 +13,41 @@ const TARGET = ["es2020", "edge88", "firefox78", "chrome87", "safari14"];
 // lightningcss keeps only a `/*!` comment at the very start of a file, so
 // this plugin collects the CSS comments that name a copyright (xterm.css) and
 // puts them at the start of each CSS file after minification, as `/*!`.
+// `scripts/check-dist-notices.mjs` checks the result after every build.
 function keepCssLicenseComments(): Plugin {
-  const notices = new Set<string>();
+  // Per module, so that a rebuild in watch mode forgets a removed comment.
+  const notices = new Map<string, string[]>();
   return {
     name: "aidevbridge:keep-css-license-comments",
+    apply: "build",
     transform(code, id) {
-      if (!id.split("?")[0].endsWith(".css")) return null;
-      for (const comment of code.match(/\/\*[\s\S]*?\*\//g) ?? []) {
-        if (/copyright/i.test(comment)) notices.add(comment.replace(/^\/\*\*?/, "/*!"));
-      }
+      const [file, query = ""] = id.split("?");
+      // `?raw`, `?url` and `?inline` imports are already JS here.
+      if (!file.endsWith(".css") || /(^|&)(raw|url|inline)(&|=|$)/.test(query)) return null;
+      const found = (code.match(/\/\*[\s\S]*?\*\//g) ?? [])
+        .filter((comment) => /copyright/i.test(comment))
+        .map((comment) => comment.replace(/^\/\*[*!]?/, "/*!"));
+      if (found.length > 0) notices.set(id, found);
+      else notices.delete(id);
       return null;
     },
-    generateBundle(_options, bundle) {
-      if (notices.size === 0) return;
-      const header = `${[...notices].join("\n")}\n`;
-      for (const file of Object.values(bundle)) {
-        if (file.type !== "asset" || !file.fileName.endsWith(".css")) continue;
-        const source = typeof file.source === "string" ? file.source : new TextDecoder().decode(file.source);
-        file.source = header + source;
-      }
+    // `post`: after Vite's own CSS plugin has written every CSS file, also
+    // the single one of `build.cssCodeSplit: false`. Sorted by module, so the
+    // order does not depend on the order of the transforms. The header is
+    // not part of the hash in the file name: a change to a notice alone
+    // keeps the name.
+    generateBundle: {
+      order: "post",
+      handler(_options, bundle) {
+        const ordered = [...notices].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+        const header = [...new Set(ordered.flatMap(([, found]) => found))].join("\n");
+        if (header === "") return;
+        for (const file of Object.values(bundle)) {
+          if (file.type !== "asset" || !file.fileName.endsWith(".css")) continue;
+          const source = typeof file.source === "string" ? file.source : new TextDecoder().decode(file.source);
+          file.source = `${header}\n${source}`;
+        }
+      },
     },
   };
 }
