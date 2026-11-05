@@ -3,6 +3,9 @@
 **Stand:** Version `0.2.6` vom 03.11.2026 (Tag `v0.2.6` auf `fcf4810`, dem
 Merge von PR #22) bringt das Code-Review vom 03.11.2026; die CI hat alle
 Pakete gebaut und an das Release gehängt.
+Seit 0.2.6 in `main`, noch nicht veröffentlicht: russh 0.65.1 (PR #24)
+behebt die zwei am 03.11. akzeptierten Meldungen. `main` ist seit dem 05.11.
+per Ruleset geschützt (Entscheidungen vom 05.11.).
 Vorher: `0.2.5` vom 31.10.2026, ein Sicherheitsrelease, Tag `v0.2.5` auf
 `fd93cc7`. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch den
 Maintainer (Punkt 6).
@@ -186,6 +189,30 @@ Maintainers bleibt, wo Lizenz und Paketdaten ihn als Urheber nennen. Bereits
 veröffentlichte Commits werden nicht umgeschrieben, weil Tags, Releases und
 Build-Provenienz an ihnen hängen.
 
+## Entscheidungen vom 05.11.2026
+
+- **`main` geschützt:** Das Ruleset „main“ gilt seit dem 05.11. für den
+  Standard-Branch. `main` lässt sich nicht löschen oder überschreiben,
+  Änderungen kommen nur über einen Pull Request, und vor dem Merge müssen
+  `rust` auf Windows, Ubuntu und macOS, `frontend`, `licenses` und
+  `scripts` grün sein. Freigaben verlangt es nicht, weil der Maintainer
+  seine eigenen Pull Requests nicht freigeben kann. `packages.yml` und
+  `android.yml` sind keine Pflicht, weil die macOS-Runner bei GitHub
+  zeitweise keinen Platz haben. Admins dürfen die Regeln im Notfall
+  umgehen. Ändern sich die Namen der CI-Jobs, etwa durch feste
+  Runner-Images (Punkt 13), zieht das Ruleset im selben Schritt nach.
+- **Abhängigkeiten:** Die Stufen unter Punkt 12 werden abgearbeitet, je
+  Stufe ein Pull Request. Mit der Frontend-Stufe kommt die Typprüfung von
+  `scripts/` und `vite.config.ts`; was sonst dazukommt
+  (`noUncheckedIndexedAccess`, ein Linter), entscheidet die Umsetzung. Rust
+  1.99 wartet, bis ein Crate es verlangt.
+- **Projektdateien:** keine Discussions und kein `CODE_OF_CONDUCT.md`.
+  Erledigte Pläne fallen aus `plans/`, und dieses Dokument wird auf die
+  offenen Punkte gekürzt; die Geschichte bleibt in Git.
+- **Upstream (U4):** Eigene russh-Änderungen dürfen bei russh angeboten
+  werden, zuerst das Close-Verhalten. Issue oder Pull Request gehen erst
+  hinaus, wenn der Maintainer den Entwurf gesehen hat.
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -201,9 +228,19 @@ Build-Provenienz an ihnen hängen.
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 396 Komponenten (Stand Tauri 2.12), `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
 | Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Mit 0.2.4 ausgeliefert |
 | Android | gebaut nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md) und mit 0.2.4 ausgeliefert: Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Wischen im Terminal, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 487 Komponenten, deren Texte als `assets/licenses/` in APK und App Bundle gehen. Am 29.10. erstmals auf einem Telefon des Maintainers gelaufen; eine Abnahme nach Plan steht aus ([Plan](plans/2026-10-27-android.md)) |
-| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18); die weiteren Stufen stehen unter Punkt 12 |
+| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18). Seit 0.2.6 in `main`: russh 0.65.1 (PR #24). Die weiteren Stufen stehen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 05.11.2026 für russh 0.65.1 (PR #24), lokal unter Windows ohne Testhost:
+`cargo fmt` und `clippy -D warnings` sauber, 730 Rust-Tests mit
+`--test-threads=4` (11 ignoriert, `acceptance_vm`), 146 Skripttests; die
+Tests des eingebetteten russh mit dem neuen Befehl aus `vendored.yml`: 231
+Bibliothekstests, darunter die 10 Close- und 15 End-Observer-Fälle, und 35
+Integrationstests. `check-vendored-advisories.mjs` live: 29 Meldungen
+bekannt, keine trifft 0.65.1. Lizenzen: russh zieht ohne Prüfung von Hand um
+(gleiche Lizenzdatei), `check` grün für windows-x64 (402/208),
+macos-universal (396/202) und android-universal (487/228).
 
 Am 04.11.2026 nach dem Release von 0.2.6: Auf dem Merge-Commit `fcf4810` und
 am Tag `v0.2.6` sind CI, Audit, `vendored.yml`, `packages.yml` und
@@ -461,17 +498,10 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
 12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
     gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht. Erledigt
-    sind Tauri 2.12 (PR #15), Tauri-CLI 2.12.4 mit NSIS 3.13 (PR #16) und
-    russh 0.65.0 (PR #18). Die Reihenfolge unten ist die Empfehlung vom
-    30.10., noch nicht entschieden:
-    - **russh 0.65.1:** behebt GHSA-9264-jvgf-6w2f (`kex_done` vor der
-      Hostschlüsselprüfung) und GHSA-736f-c93q-9fwx (Agent-Server signiert
-      nach dem Sperren), beide vom 03.11. und niedrig eingestuft. Die App
-      betreffen sie nicht, `SECURITY.md` sagt warum, und der Audit-Workflow
-      führt sie als akzeptiert (`ACCEPTED` in
-      `scripts/check-vendored-advisories.mjs`); mit dem Update fallen die
-      Einträge wieder weg. Dieselbe Prüfung der Patches und Lizenzen wie
-      bei 0.65.0 (PR #18).
+    sind Tauri 2.12 (PR #15), Tauri-CLI 2.12.4 mit NSIS 3.13 (PR #16),
+    russh 0.65.0 (PR #18) und russh 0.65.1 (PR #24, behebt die zwei am
+    03.11. akzeptierten Meldungen). Der Maintainer hat am 05.11. entschieden,
+    die Stufen abzuarbeiten (Entscheidungen vom 05.11.):
     - **Frontend-Werkzeuge:** Vite 8, TypeScript 7, Vitest 5 und jsdom 30
       (stehen auf 6.4, 5.6, 4.1 und 29). Vite ändert die gebaute Ausgabe,
       also den Beleg zum Modulepreload-Polyfill. Mit dieser Stufe zu
@@ -507,8 +537,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - Nach russh 0.65: Nach einer abgelehnten Agent-Signatur weitere
       Identitäten probieren, was 0.65 erlaubt (upstream #788,
       `src-tauri/src/ssh/auth.rs`). Eigene Änderungen upstream anbieten,
-      zuerst das Close-Verhalten, das upstream in #789 selbst vorschlägt; U4
-      braucht dazu das OK des Maintainers.
+      zuerst das Close-Verhalten, das upstream in #789 selbst vorschlägt;
+      seit dem 05.11. erlaubt, sobald der Maintainer den Entwurf gesehen hat.
 13. **Review vom 03.11., zurückgestellt:** Was das Review bestätigt, aber
     nicht umgesetzt hat, weil es eine Entscheidung des Maintainers, einen
     echten Host, einen Mac oder einen echten CI-Lauf braucht (Protokolldatei

@@ -68,7 +68,7 @@ Out of scope:
 - attacks that already need your user account or administrator rights on
   your machine;
 - vulnerabilities in dependencies that don't affect aidevbridge; please
-  report them upstream. `vendor/russh` is russh 0.65.0 with four local
+  report them upstream. `vendor/russh` is russh 0.65.1 with four local
   changes, described in `vendor/russh/AGENTBRIDGE-PATCH.md`: a received
   channel Close is acknowledged at once and drops the channel's unsent data;
   a channel-end observer reports how a client channel ended; terminal
@@ -157,7 +157,7 @@ To resolve: drop the fallback once no supported host needs it.
 ### No host key check on rekey
 
 During a long session, SSH renews its keys (rekey), and the server presents
-its host key again. russh 0.65.0, which aidevbridge uses, asks the app's
+its host key again. russh 0.65.1, which aidevbridge uses, asks the app's
 handler to check the host key only in the first key exchange of a
 connection, and the app checks it there against `known_hosts`. On a rekey
 russh doesn't ask again and doesn't compare the presented key with the
@@ -230,9 +230,10 @@ To resolve: update `rsa` as soon as a fixed release exists.
 
 ### Known advisories for the vendored russh and expected audit warnings
 
-Since 30 October 2026 the vendored `russh` is 0.65.0, which fixes every
-advisory published for russh up to then. Three of them reach an SSH client
-and affect aidevbridge 0.2.4 and earlier, which carry russh 0.63.2:
+Since 30 October 2026 the vendored `russh` is 0.65.0, and since 5 November
+2026 0.65.1, which fixes every advisory published for russh up to then.
+Three of them reach an SSH client and affect aidevbridge 0.2.4 and earlier,
+which carry russh 0.63.2:
 
 - [GHSA-3hm4-p7h4-rvwp](https://github.com/warp-tech/russh/security/advisories/GHSA-3hm4-p7h4-rvwp)
   (high): a host key with nested OpenSSH certificates exhausts the stack
@@ -256,7 +257,7 @@ as a client. Its tests start russh servers on 127.0.0.1 as test peers,
 nothing else does.
 
 Two low advisories published on 3 November 2026 cover russh 0.65.0, which
-0.2.5 and 0.2.6 carry, but not the app:
+0.2.5 and 0.2.6 carry, but not the app; 0.65.1 fixes both:
 
 - [GHSA-9264-jvgf-6w2f](https://github.com/warp-tech/russh/security/advisories/GHSA-9264-jvgf-6w2f):
   russh calls the client callback `kex_done` with the shared secret of the
@@ -268,8 +269,8 @@ Two low advisories published on 3 November 2026 cover russh 0.65.0, which
   after the agent was locked. aidevbridge doesn't act as an SSH agent and
   never runs that code.
 
-The audit workflow lists both as accepted; the next update of the vendored
-russh (0.65.1 fixes both) removes them.
+The audit workflow listed both as accepted until the vendored russh moved
+to 0.65.1.
 
 Neither `cargo audit` nor Dependabot sees the vendored copy: both match only
 packages that `Cargo.lock` records with a registry source, and the vendored
