@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Added
+
+- CI: Die Testinstallation unter macOS listet nach dem Start auf, was die App unter `~/Library` angelegt hat, und behaelt die Liste als Artefakt. Die erste Messung auf Apple silicon und Intel bestaetigt `PRIVACY.md`: nur die Daten der Webansicht unter `~/Library/WebKit` und `~/Library/Caches`.
+
 ### Changed
 
 - CI: `vendored.yml` fuehrt neben den Bibliothekstests auch die Integrationstests des eingebetteten russh aus; seit 0.65.1 kompilieren sie unveraendert.

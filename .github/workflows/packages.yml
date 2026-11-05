@@ -210,6 +210,27 @@ jobs:
             echo "::error::aidevbridge started but showed no window"
             exit 1
           fi
+      # What one start leaves under ~/Library, for the storage list in
+      # PRIVACY.md (docs/stand.md point 13). Without a connection or any use;
+      # the hand acceptance (section 11, step 5) checks the rest.
+      - name: List what the app left under ~/Library
+        if: always()
+        run: |
+          set -uo pipefail
+          id=io.github.itbrain258.aidevbridge
+          out="$RUNNER_TEMP/library-after-start.txt"
+          {
+            echo "# Paths under ~/Library that name the app, after one start"
+            find "$HOME/Library" \( -iname "*$id*" -o -iname "*aidevbridge*" \) -prune -print 2>/dev/null | sort | while IFS= read -r path; do
+              echo "$path" | sed "s#^$HOME#~#"
+              if [ -d "$path" ]; then
+                find "$path" -mindepth 1 -maxdepth 3 2>/dev/null | sed "s#^$HOME#~#; s#^#    #" | sort | head -40
+              fi
+            done
+            echo "# defaults read $id"
+            defaults read "$id" 2>&1 || true
+          } > "$out"
+          cat "$out"
       - name: Keep the screenshot and log
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -218,6 +239,7 @@ jobs:
           path: |
             ${{ runner.temp }}/aidevbridge.png
             ${{ runner.temp }}/aidevbridge.log
+            ${{ runner.temp }}/library-after-start.txt
           if-no-files-found: ignore
       - name: Uninstall
         if: always()
