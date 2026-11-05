@@ -4,7 +4,7 @@ Notices and license texts for the third-party code in the frontend bundle and fo
 
 ## Lucide (icons embedded in `src/icons.ts` and `src/styles.css`)
 
-Source: https://lucide.dev, package `lucide-static` 1.41.0. `scripts/gen-icons.mjs` copies the icon geometries into `src/icons.ts`; `src/styles.css` inlines the `triangle-alert` geometry (Feather's `alert-triangle`, listed below) as a CSS mask. The full license text of the package follows verbatim (ISC for Lucide, MIT for the icons inherited from Feather).
+Source: https://lucide.dev, package `lucide-static` 1.69.0. `scripts/gen-icons.mjs` copies the icon geometries into `src/icons.ts`; `src/styles.css` inlines the `triangle-alert` geometry (Feather's `alert-triangle`, listed below) as a CSS mask. The full license text of the package follows verbatim (ISC for Lucide, MIT for the icons inherited from Feather).
 
 ISC License
 

@@ -4,7 +4,8 @@
 Merge von PR #22) bringt das Code-Review vom 03.11.2026; die CI hat alle
 Pakete gebaut und an das Release gehängt.
 Seit 0.2.6 in `main`, noch nicht veröffentlicht: russh 0.65.1 (PR #24)
-behebt die zwei am 03.11. akzeptierten Meldungen. `main` ist seit dem 05.11.
+behebt die zwei am 03.11. akzeptierten Meldungen; PR #25 bringt
+`lucide-static` 1.69 und `staticVCRuntime` statt `STATIC_VCRUNTIME`. `main` ist seit dem 05.11.
 per Ruleset geschützt (Entscheidungen vom 05.11.).
 Vorher: `0.2.5` vom 31.10.2026, ein Sicherheitsrelease, Tag `v0.2.5` auf
 `fd93cc7`. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch den
@@ -228,9 +229,17 @@ Build-Provenienz an ihnen hängen.
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 396 Komponenten (Stand Tauri 2.12), `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
 | Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Mit 0.2.4 ausgeliefert |
 | Android | gebaut nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md) und mit 0.2.4 ausgeliefert: Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Wischen im Terminal, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 487 Komponenten, deren Texte als `assets/licenses/` in APK und App Bundle gehen. Am 29.10. erstmals auf einem Telefon des Maintainers gelaufen; eine Abnahme nach Plan steht aus ([Plan](plans/2026-10-27-android.md)) |
-| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18). Seit 0.2.6 in `main`: russh 0.65.1 (PR #24). Die weiteren Stufen stehen unter Punkt 12 |
+| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18). Seit 0.2.6 in `main`: russh 0.65.1 (PR #24), `lucide-static` 1.69 (PR #25). Die weiteren Stufen stehen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 05.11.2026 für PR #25 (`lucide-static` 1.69, `staticVCRuntime`): Die 19
+Icons der App haben in 1.69 dieselbe Geometrie, `src/icons.ts` bleibt
+bytegleich, der Lizenztext auch
+([Beleg](release/license-frontend-lucide-1.69.0-2026-11-05.json)). Eine
+ohne `STATIC_VCRUNTIME` gebaute EXE importiert keine `vcruntime140.dll`.
+2882 Frontend-Tests, `npm run build`, 146 Skripttests, `check` grün für
+alle drei Auswahlen.
 
 Am 05.11.2026 für russh 0.65.1 (PR #24), lokal unter Windows ohne Testhost:
 `cargo fmt` und `clippy -D warnings` sauber, 730 Rust-Tests mit
@@ -499,8 +508,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
     gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht. Erledigt
     sind Tauri 2.12 (PR #15), Tauri-CLI 2.12.4 mit NSIS 3.13 (PR #16),
-    russh 0.65.0 (PR #18) und russh 0.65.1 (PR #24, behebt die zwei am
-    03.11. akzeptierten Meldungen). Der Maintainer hat am 05.11. entschieden,
+    russh 0.65.0 (PR #18), russh 0.65.1 (PR #24, behebt die zwei am
+    03.11. akzeptierten Meldungen) und die kleinen Punkte (PR #25:
+    `lucide-static` 1.69 mit unveränderten Icons, `staticVCRuntime` in der
+    Release-Konfiguration statt der veralteten Variable `STATIC_VCRUNTIME`).
+    Der Maintainer hat am 05.11. entschieden,
     die Stufen abzuarbeiten (Entscheidungen vom 05.11.):
     - **Frontend-Werkzeuge:** Vite 8, TypeScript 7, Vitest 5 und jsdom 30
       (stehen auf 6.4, 5.6, 4.1 und 29). Vite ändert die gebaute Ausgabe,
@@ -529,11 +541,6 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       erst, wenn ein Crate sie verlangt. Die Stellen, die die Version nennen,
       gleicht `scripts/rust-toolchain.test.mjs` mit `rust-toolchain.toml` ab,
       die Belege der Standardbibliothek nicht.
-    - Klein: `tauri-build` 2.7.4 meldet `STATIC_VCRUNTIME` (gesetzt von
-      `release-windows-artifacts.mjs`) als veraltet; es linkt weiter
-      statisch, und die Ersatzoption `build.windows.staticVCRuntime` ist
-      standardmäßig an. `lucide-static` (Icons) steht auf 1.41, aktuell
-      1.68 (04.11.).
     - Nach russh 0.65: Nach einer abgelehnten Agent-Signatur weitere
       Identitäten probieren, was 0.65 erlaubt (upstream #788,
       `src-tauri/src/ssh/auth.rs`). Eigene Änderungen upstream anbieten,

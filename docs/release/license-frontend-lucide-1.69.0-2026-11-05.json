@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-05T10:31:50.295Z",
+  "scope": "lucide-static 1.41.0 to 1.69.0 (icon source of src/icons.ts and of the triangle-alert CSS mask in src/styles.css); whether the copied icon geometries and the retained license text change. Not final application compliance or installer delivery.",
+  "basis": "docs/release/license-frontend-output-2026-09-12.json",
+  "packages": {
+    "1.41.0": {
+      "url": "https://registry.npmjs.org/lucide-static/-/lucide-static-1.41.0.tgz",
+      "archive_bytes": 6592754,
+      "archive_sha256": "d10f583e2076986ddcf79def168e6ce1e64f742fa06b6014347c59fa581aa6cb"
+    },
+    "1.69.0": {
+      "url": "https://registry.npmjs.org/lucide-static/-/lucide-static-1.69.0.tgz",
+      "archive_bytes": 7334448,
+      "archive_sha256": "fc9981e0cac51a0baeaaacf669b6faaa0fbd2427df1b46609a858b6a75df6617",
+      "lock_integrity": "sha512-n51UItv/qDzvu/UQixn0eSkp3hXppIJg0sRvtltb+rEO0XH2tyqFmtLsaUWu3SiAD0/7NHj/LH0eJlJJL5F4Ew==",
+      "package_json": {
+        "path": "node_modules/lucide-static/package.json",
+        "bytes": 1699,
+        "sha256": "11773ad0deb5e9f5af68c5eff75174e408c19760e942cabfdf74e61c0ac07b1f"
+      }
+    }
+  },
+  "license_text": {
+    "path": "LICENSE",
+    "1.41.0_sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57",
+    "1.69.0_sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57",
+    "equal": true
+  },
+  "icons": {
+    "method": "scripts/gen-icons.mjs reads icons/<name>.svg for the 19 names it lists and strips the XML comment; compared with the comment removed. In both versions each file differs only in its first line, the comment '@license lucide-static v<version> - ISC'.",
+    "names": [
+      "plus",
+      "settings",
+      "chevron-right",
+      "chevron-down",
+      "maximize-2",
+      "minimize-2",
+      "x",
+      "search",
+      "refresh-cw",
+      "copy",
+      "triangle-alert",
+      "check",
+      "terminal",
+      "key-round",
+      "lock",
+      "trash-2",
+      "chevron-up",
+      "case-sensitive",
+      "menu"
+    ],
+    "geometry_equal": true,
+    "generated_file": {
+      "path": "src/icons.ts",
+      "bytes": 4033,
+      "sha256": "d7023c68a721efc7d94f7a2e53fc1d6ca936d3220ba915aba203e9da40b5d7a6",
+      "unchanged": true
+    }
+  },
+  "decision": "The decision for npm:lucide-static stands for 1.69.0: the same ISC license text (with the Feather MIT text) and byte-identical geometries in src/icons.ts and in the triangle-alert mask of src/styles.css. THIRD_PARTY_LICENSES.md names the new version."
+}
