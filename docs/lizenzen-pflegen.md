@@ -67,7 +67,10 @@ Von Hand bleiben, das Werkzeug meldet sie unter `manual`:
    behält sie.
 3. `node scripts/release-license-update-cargo.mjs --write --date=JJJJ-MM-TT`
    schreibt die Windows-Auswahl und den Beleg
-   `docs/release/license-rust-update-<Datum>.json`. Danach binden:
+   `docs/release/license-rust-update-<Datum>.json`; ein zweites Update am
+   selben Tag braucht `--label=<name>` (Beleg
+   `license-rust-update-<Datum>-<name>.json`), einen vorhandenen Beleg
+   überschreibt das Skript nicht. Danach binden:
    `node scripts/release-license-rebind.mjs --write --add --platform=windows-x64 docs/release/license-rust-update-<Datum>.json`
    und `node scripts/release-license-rebind.mjs --write --third-party Cargo.lock`.
 4. `npm run licenses:derive`. Verlangt die macOS- oder Android-Ableitung

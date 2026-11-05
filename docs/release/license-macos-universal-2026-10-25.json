@@ -19,8 +19,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1070093,
-    "sha256": "5c891d7d9793850b07a723ab0c04797fe6b21343ad53bc180e01b86f75561a85"
+    "bytes": 1052410,
+    "sha256": "8f93f28e26806a5d17149bd501e1b0c4183ded84a4b96e1114462f6dab82ad71"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -330,8 +330,8 @@
       },
       {
         "id": "cargo:block-buffer@0.10.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses block-buffer 0.12. The conservative inclusion stays.",
+        "macos": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses block-buffer 0.12. The conservative inclusion stays."
       },
       {
         "id": "cargo:block-buffer@0.12.1",
@@ -415,8 +415,8 @@
       },
       {
         "id": "cargo:cpufeatures@0.2.17",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses cpufeatures 0.3. The conservative inclusion stays.",
+        "macos": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses cpufeatures 0.3. The conservative inclusion stays."
       },
       {
         "id": "cargo:cpufeatures@0.3.1",
@@ -445,8 +445,8 @@
       },
       {
         "id": "cargo:crypto-common@0.1.7",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses crypto-common 0.2. The conservative inclusion stays.",
+        "macos": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses crypto-common 0.2. The conservative inclusion stays."
       },
       {
         "id": "cargo:crypto-common@0.2.2",
@@ -515,8 +515,8 @@
       },
       {
         "id": "cargo:digest@0.10.7",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses digest 0.11. The conservative inclusion stays.",
+        "macos": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses digest 0.11. The conservative inclusion stays."
       },
       {
         "id": "cargo:digest@0.11.3",
@@ -524,17 +524,7 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:dirs-sys@0.4.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
-      },
-      {
         "id": "cargo:dirs-sys@0.5.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
-      },
-      {
-        "id": "cargo:dirs@5.0.1",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
@@ -640,8 +630,8 @@
       },
       {
         "id": "cargo:generic-array@0.14.7",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays.",
+        "macos": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered. Role changed on 2026-11-05: Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays."
       },
       {
         "id": "cargo:generic-array@1.4.5",
@@ -1124,11 +1114,6 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.0.151 to 1.0.154 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:serde_spanned@0.6.9",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
-      },
-      {
         "id": "cargo:serde_spanned@1.1.2",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1 to 1.1.2 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1 to 1.1.2 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
@@ -1165,8 +1150,8 @@
       },
       {
         "id": "cargo:sha2@0.10.9",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Now used by build tools only (tauri-codegen); the app uses sha2 0.11.1 at runtime. The conservative inclusion stays.",
+        "macos": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered. Role changed on 2026-11-05: Now used by build tools only (tauri-codegen); the app uses sha2 0.11.1 at runtime. The conservative inclusion stays."
       },
       {
         "id": "cargo:sha2@0.11.1",
@@ -1319,19 +1304,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files. Updated from 1.53.3 to 1.54.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:toml_datetime@0.6.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
-      },
-      {
         "id": "cargo:toml_datetime@1.1.2+spec-1.1.0",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1+spec-1.1.0 to 1.1.2+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1+spec-1.1.0 to 1.1.2+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
-      },
-      {
-        "id": "cargo:toml_edit@0.20.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
         "id": "cargo:toml_parser@1.1.5+spec-1.1.0",
@@ -1342,11 +1317,6 @@
         "id": "cargo:toml_writer@1.1.3+spec-1.1.0",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.2+spec-1.1.0 to 1.1.3+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.2+spec-1.1.0 to 1.1.3+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
-      },
-      {
-        "id": "cargo:toml@0.8.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
         "id": "cargo:toml@1.1.8+spec-1.1.0",
@@ -1417,11 +1387,6 @@
         "id": "cargo:window-vibrancy@0.8.1",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.0 to 0.8.1 on 2026-10-29; same declared license, role and byte-identical license files.",
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.6.0 to 0.8.1 on 2026-10-29; same declared license, role and byte-identical license files."
-      },
-      {
-        "id": "cargo:winnow@0.5.40",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
         "id": "cargo:winnow@1.0.4",
@@ -1503,13 +1468,10 @@
       "cargo:windows-numerics@0.3.1",
       "cargo:windows-result@0.4.1",
       "cargo:windows-strings@0.5.1",
-      "cargo:windows-sys@0.48.0",
       "cargo:windows-sys@0.61.2",
-      "cargo:windows-targets@0.48.5",
       "cargo:windows-threading@0.2.1",
       "cargo:windows-version@0.1.7",
       "cargo:windows@0.62.2",
-      "cargo:windows_x86_64_msvc@0.48.5",
       "cargo:winreg@0.56.0",
       "installer:nsis-engine-and-standard-plugins",
       "installer:nsis-lzma-decoder",

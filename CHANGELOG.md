@@ -11,6 +11,7 @@ dem Namen agentbridge.
 - CI: `vendored.yml` fuehrt neben den Bibliothekstests auch die Integrationstests des eingebetteten russh aus; seit 0.65.1 kompilieren sie unveraendert.
 - Icons: `lucide-static` 1.69.0 statt 1.41.0. Die 19 Icons der App haben dieselbe Geometrie, `src/icons.ts` bleibt gleich. Das Lizenzinventar vergleicht eingebettete Icons jetzt mit allen SVG-Dateien von lucide, auch mit Aliasnamen wie `triangle-alert`, die `icon-nodes.json` nicht mehr fuehrt.
 - Windows-Release: Die statische Bindung der VC-Laufzeit steht als `build.windows.staticVCRuntime` in `tauri.release.windows.json`. Die Umgebungsvariable `STATIC_VCRUNTIME`, die `tauri-build` als veraltet meldet, setzt das Release-Skript nicht mehr und weist eine geerbte weiter ab.
+- Rust-Abhaengigkeiten: `dirs` 7, `toml` 1 und `sha2` 0.11 statt 5, 0.8 und 0.10, dieselben Hauptversionen wie Tauri und russh. Damit fallen `dirs` 5, `toml` 0.8 samt `toml_edit` 0.20 und die `windows-sys`-0.48-Familie aus dem Windows-Paket. `settings.toml` wird Zeichen fuer Zeichen gleich geschrieben und bleibt fuer aeltere Versionen lesbar; eine kaputte Datei nennt dieselbe Stelle, nur mit anderem Wortlaut.
 
 ### Security
 

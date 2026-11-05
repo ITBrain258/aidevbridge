@@ -603,6 +603,14 @@ mod tests {
     use serde_json::Value;
     use sha2::{Digest, Sha256};
 
+    /// sha2 0.11 gibt ein `hybrid_array::Array` zurueck, das `{:x}` nicht kennt.
+    fn sha256_hex(bytes: &[u8]) -> String {
+        Sha256::digest(bytes)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect()
+    }
+
     const L: &str = "L|100|1000|$0|dev\n";
     const R: &str = "R|100|1000|$0|@0|%0|10|1|1\n";
     const C: &str = "C|100|1000|$0|@0|%0|10\n";
@@ -1096,7 +1104,7 @@ L|100|1000|$2|solo
                 MeasuredVersion::V3_4,
             ),
         ] {
-            assert_eq!(format!("{:x}", Sha256::digest(source.as_bytes())), hash);
+            assert_eq!(sha256_hex(source.as_bytes()), hash);
             let report: Value = source
                 .lines()
                 .map(|line| serde_json::from_str::<Value>(line).unwrap())
@@ -1313,7 +1321,7 @@ L|100|1000|$2|solo
                 17,
             ),
         ] {
-            assert_eq!(format!("{:x}", Sha256::digest(source.as_bytes())), hash);
+            assert_eq!(sha256_hex(source.as_bytes()), hash);
             let report: Value = source
                 .lines()
                 .map(|l| serde_json::from_str::<Value>(l).unwrap())
