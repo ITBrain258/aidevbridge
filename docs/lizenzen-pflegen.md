@@ -148,13 +148,17 @@ AGP 9.3 und Kotlin 2.2:
    `gradlew :app:dependencies --write-locks` (App) und
    `gradlew buildEnvironment --write-locks` (`buildscript-gradle.lockfile`,
    `buildSrc/gradle.lockfile`), alle auf LF.
-3. Die Prüfsummen neu schreiben: `gradlew --no-configuration-cache
-   --write-verification-metadata sha256 buildEnvironment
+3. Die Prüfsummen neu schreiben, nach `gradlew --stop` und ohne die Ordner
+   `.gradle`, `build`, `buildSrc/.gradle`, `buildSrc/build` und `app/build`:
+   `gradlew --no-configuration-cache --refresh-dependencies
+   --write-verification-metadata sha256 buildEnvironment :app:dependencies
    assembleUniversalRelease bundleUniversalRelease assembleUniversalDebug`
    (mit `-PabiList=arm64-v8a -ParchList=arm64 -PtargetList=aarch64` und
    ohne die Rust-Aufgaben). `aapt2` ist je Bauplattform ein eigenes
    Artefakt: Die Einträge für Linux, macOS und Windows von Hand ergänzen,
-   mit der SHA-256 der Dateien aus Google Maven. Die Datei auf LF.
+   mit der SHA-256 der Dateien aus Google Maven. Die Datei auf LF. Ohne
+   `--refresh-dependencies` nimmt Gradle bereits Aufgelöstes aus seinem
+   Cache und zeichnet es nicht auf; die CI scheitert dann an der Prüfung.
 4. Für jede neue oder geänderte Bibliothek des Laufzeit-Classpaths einen
    Eintrag in `MAVEN`; neue Texte aus einem Upstream-Repository (etwa
    Kotlins `license/`) unter `docs/release/licenses/` mit Version im Namen.
