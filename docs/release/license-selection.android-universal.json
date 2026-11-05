@@ -91,7 +91,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 157021,
-        "sha256": "53523f8ab97b04688e54db5b18792473d367d490db7f2b75653bce1370266fde"
+        "sha256": "8ebf31fba20b7af768ab0daf09391eeb6a94a2cef9f9f1705444376b0084992e"
       },
       {
         "path": "docs/release/license-frontend-lucide-1.69.0-2026-11-05.json",
@@ -107,6 +107,11 @@
         "path": "docs/release/license-frontend-tauri-2.12-2026-10-29.json",
         "bytes": 10142,
         "sha256": "6a873b1e6b9adc9c607207671740547096f68c4e055afcfffca07d15265c42e1"
+      },
+      {
+        "path": "docs/release/license-frontend-tools-2026-11-05.json",
+        "bytes": 4443,
+        "sha256": "cb367662a66c725e61c563135b9164ffa9522233da74f08c72e10122e86d7cd9"
       },
       {
         "path": "docs/release/license-frontend-vite-6.4.4-2026-10-22.json",
@@ -555,8 +560,8 @@
       },
       {
         "path": "node_modules/typescript/package.json",
-        "bytes": 3638,
-        "sha256": "16af7ea27880259b39ff8f123566aaec815cdca1c3ab8d28330c8b652055ccf0"
+        "bytes": 3527,
+        "sha256": "9332e97c30d3e53ed54910b89207ed657fb444066484df6e5b6965bf130865e9"
       },
       {
         "path": "node_modules/vite/package.json",
@@ -565,13 +570,13 @@
       },
       {
         "path": "package-lock.json",
-        "bytes": 79012,
-        "sha256": "7ecdef2abc67f89e9f48162429914c20b3f69c04cf9088c178baabcadf047d3f"
+        "bytes": 74550,
+        "sha256": "5f1a7dddebea00f9b8b51c955eac00e4e4b5ab8aec95288aadebddc105aaaa43"
       },
       {
         "path": "package.json",
-        "bytes": 1717,
-        "sha256": "6b518d488b19fe3f9aafe286584ba0135afddec77b00f9a2e5d703f1f1ba2f80"
+        "bytes": 1800,
+        "sha256": "5fef56a9432cad8626da47f76e11a0f1463b43e82ce9cedbe3ba75f195b8d27f"
       },
       {
         "path": "rust-toolchain.toml",
@@ -585,8 +590,8 @@
       },
       {
         "path": "scripts/release-license-select-android.mjs",
-        "bytes": 79449,
-        "sha256": "87bf8607a1f67d02060dad6dc3aa63df39386458dc17c5fe6c5bcfb53f2663cf"
+        "bytes": 79520,
+        "sha256": "5be7d925b63768cab31368a9177fd4e84d077e172c252d4a22b3ac08e1138cd3"
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
@@ -595,8 +600,8 @@
       },
       {
         "path": "scripts/release-licenses.mjs",
-        "bytes": 24708,
-        "sha256": "1b2cadd822fe58183be4f9e67bc7cb9d5a9ffaab37d968ee849c678772c4379c"
+        "bytes": 24779,
+        "sha256": "2bab1afab52e27b51b52ac6967610ce06bdd28a611b18c27249b8b349cd78fb2"
       },
       {
         "path": "src-tauri/Cargo.toml",
@@ -780,8 +785,8 @@
       },
       {
         "path": "vite.config.ts",
-        "bytes": 2737,
-        "sha256": "b94ee542fc4d9b50d5623ee2b1344965d12928310700c643933948b5796a8059"
+        "bytes": 2690,
+        "sha256": "1b5e330935e8cb05d2ecaea242055eac33ba383e14289da59a4af159925e1d1c"
       }
     ],
     "trees": [
@@ -22557,19 +22562,20 @@
       ]
     },
     {
-      "id": "npm:typescript@5.6.3",
+      "id": "npm:typescript@6.0.3",
       "name": "typescript",
-      "version": "5.6.3",
+      "version": "6.0.3",
       "declared_license": "Apache-2.0",
       "selected_license": null,
       "disposition": "exclude",
       "documents": [],
-      "reason": "TypeScript runs with noEmit, and the inspected fresh module graph contains no TypeScript runtime-library import. No TypeScript program implementation is selected for the frontend output.",
+      "reason": "TypeScript runs with noEmit, and the inspected fresh module graph contains no TypeScript runtime-library import. No TypeScript program implementation is selected for the frontend output. Updated to 6.0.3 on 2026-11-05 (docs/release/license-frontend-tools-2026-11-05.json): byte-identical frontend output.",
       "decision_basis": [
-        "docs/release/license-frontend-output-2026-09-12.json"
+        "docs/release/license-frontend-output-2026-09-12.json",
+        "docs/release/license-frontend-tools-2026-11-05.json"
       ],
       "source_urls": [
-        "https://www.npmjs.com/package/typescript/v/5.6.3"
+        "https://www.npmjs.com/package/typescript/v/6.0.3"
       ]
     },
     {

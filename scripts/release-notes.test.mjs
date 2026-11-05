@@ -1,3 +1,4 @@
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { markers, windowsSection, macosSection, androidSection, mergeSection, sections, releaseBody } from './release-notes.mjs';

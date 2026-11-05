@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Lists every input of the license selections that no longer matches its
 // binding, all at once instead of one error at a time, and sorts it into own
 // sources and third-party or evidence inputs (dependencies, lock files,

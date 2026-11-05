@@ -1,3 +1,4 @@
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Read-only, offline inventory. Emits JSON to stdout; never builds or downloads.
 // Run from any cwd: node scripts/release-license-inventory-frontend.mjs
 import fs from "node:fs";

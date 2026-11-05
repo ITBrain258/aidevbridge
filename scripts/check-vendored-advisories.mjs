@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Checks the vendored crates against the security advisories published for
 // them. `cargo audit` and Dependabot only match packages with a registry
 // source, so a path dependency such as vendor/russh is invisible to both.
