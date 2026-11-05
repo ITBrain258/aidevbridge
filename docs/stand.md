@@ -445,8 +445,10 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
         Zeilenende nicht ab: `Host web # prod` ergibt die Vorschläge `web`,
         `#` und `prod`.
       - Ein I/O-Fehler des ssh-agent zählt seit F1 als `auth_rejected`; das
-        Wiederverbinden versucht es dann nicht erneut. Nötig, weil russh nach
-        einer abgelehnten Signatur sonst hängt.
+        Wiederverbinden versucht es dann nicht erneut. Eine verweigerte
+        Signatur probiert seit PR #28 die nächste Identität des Agenten
+        (russh 0.65, upstream #788); scheitern alle, bleibt es ein
+        Signaturfehler.
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne
     Eile, solange die App in Entwicklung ist: der geschlossene Test mit 12
     Testern über 14 Tage, die Datenschutz-URL und das Hochladen des App
@@ -504,9 +506,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       statisch, und die Ersatzoption `build.windows.staticVCRuntime` ist
       standardmäßig an. `lucide-static` (Icons) steht auf 1.41, aktuell
       1.68 (04.11.).
-    - Nach russh 0.65: Nach einer abgelehnten Agent-Signatur weitere
-      Identitäten probieren, was 0.65 erlaubt (upstream #788,
-      `src-tauri/src/ssh/auth.rs`). Eigene Änderungen upstream anbieten,
+    - Nach russh 0.65: Eigene Änderungen upstream anbieten,
       zuerst das Close-Verhalten, das upstream in #789 selbst vorschlägt; U4
       braucht dazu das OK des Maintainers.
 13. **Review vom 03.11., zurückgestellt:** Was das Review bestätigt, aber

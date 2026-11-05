@@ -32,7 +32,9 @@
 - **Two connections per host:** each host opens two SSH connections
   (control and terminals) bound to the same host key. An SSH agent that asks
   for approval may therefore ask twice, and again on every automatic
-  reconnect attempt.
+  reconnect attempt. If you decline one key, or a security key isn't
+  touched, the app tries the agent's next key, as OpenSSH does; when none of
+  them signs in, it reports that signing failed and stops reconnecting.
 - **Several windows:** aidevbridge can run more than once, and all windows
   share `settings.toml`. A window applies only its own change to what
   another one saved, so hosts another window added or removed stay; if two

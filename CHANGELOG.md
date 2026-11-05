@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Fixed
+
+- ssh-agent: Verweigert der Agent die Signatur fuer einen Schluessel, etwa nach einer abgelehnten Rueckfrage (`ssh-add -c`) oder bei einem Sicherheitsschluessel ohne Beruehrung, probiert die App wie OpenSSH den naechsten Schluessel des Agenten. Bisher brach die Anmeldung beim ersten ab. Erst wenn keiner passt, meldet sie einen Signaturfehler und versucht nicht mehr selbst, die Verbindung wiederherzustellen.
+
 ## [0.2.6] - 2026-11-03
 
 Ergebnis eines Code-Reviews: Die SSH-Verbindung schaltet den Nagle-Algorithmus ab, zwei kleine Fehler in der Oberflaeche sind behoben, die Doku zu Zwischenablage, Datenschutz und Beitragen ist berichtigt, und die CI prueft auch das eingebettete russh.
