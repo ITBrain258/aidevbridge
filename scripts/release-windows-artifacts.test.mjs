@@ -1,3 +1,4 @@
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -39,7 +40,7 @@ function fixture(t) {
 }
 function begin(f) {
   const claimed = claimRun(f.root, sourceSnapshot(f.root), releaseContract(f.root), 'fixture');
-  const env = { ...process.env, AIDEVBRIDGE_RELEASE_RUN: claimed.run.relative, AIDEVBRIDGE_RELEASE_TOKEN: claimed.lock.token, CARGO_TARGET_DIR: path.join(f.root, claimed.run.relative, 'cargo'), RUSTUP_TOOLCHAIN: '1.97.1', STATIC_VCRUNTIME: 'true' };
+  const env = { ...process.env, AIDEVBRIDGE_RELEASE_RUN: claimed.run.relative, AIDEVBRIDGE_RELEASE_TOKEN: claimed.lock.token, CARGO_TARGET_DIR: path.join(f.root, claimed.run.relative, 'cargo'), RUSTUP_TOOLCHAIN: '1.97.1' };
   return { ...claimed, env };
 }
 function fakeLicense(f) {

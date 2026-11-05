@@ -30,6 +30,7 @@ npm run tauri -- dev
 Before you open a pull request, all of these must pass:
 
 ```sh
+npm run typecheck
 npm test
 npm run test:scripts
 npm run build
@@ -39,9 +40,13 @@ cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked --all
 ```
 
-They need no SSH host. Tests that would need one return early, print a line
-starting with `SKIP` (visible with `-- --nocapture`) and still count as
-passed, so a green run does not prove a real SSH connection.
+`npm run typecheck` checks `src/` and, through `tsconfig.node.json`, the
+Vite configs and the scripts under `scripts/`; start a new script without
+`// @ts-nocheck`, so that it is checked.
+
+These checks need no SSH host. Tests that would need one return early, print
+a line starting with `SKIP` (visible with `-- --nocapture`) and still count
+as passed, so a green run does not prove a real SSH connection.
 
 There are no packages for Linux desktops, but the Rust checks, the frontend
 tests and the build from these checks also run on Linux, as in the CI. The

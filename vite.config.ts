@@ -1,11 +1,48 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import { execSync } from "node:child_process";
 
-// @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
+
+// The browsers Vite 6 built for by default ("modules"). Vite 7 and 8 default
+// to "baseline-widely-available" (Safari 16 and newer), but the app still
+// supports macOS 11, whose WKWebView may be Safari 14 (macOS spec).
+const TARGET = ["es2020", "edge88", "firefox78", "chrome87", "safari14"];
+
+// Vite 8 drops every comment when it minifies, license notices included. The
+// JS keeps its legal comments through rolldown (`comments.legal`). For CSS,
+// lightningcss keeps only a `/*!` comment at the very start of a file, so
+// this plugin collects the CSS comments that name a copyright (xterm.css) and
+// puts them at the start of each CSS file after minification, as `/*!`.
+function keepCssLicenseComments(): Plugin {
+  const notices = new Set<string>();
+  return {
+    name: "aidevbridge:keep-css-license-comments",
+    transform(code, id) {
+      if (!id.split("?")[0].endsWith(".css")) return null;
+      for (const comment of code.match(/\/\*[\s\S]*?\*\//g) ?? []) {
+        if (/copyright/i.test(comment)) notices.add(comment.replace(/^\/\*\*?/, "/*!"));
+      }
+      return null;
+    },
+    generateBundle(_options, bundle) {
+      if (notices.size === 0) return;
+      const header = `${[...notices].join("\n")}\n`;
+      for (const file of Object.values(bundle)) {
+        if (file.type !== "asset" || !file.fileName.endsWith(".css")) continue;
+        const source = typeof file.source === "string" ? file.source : new TextDecoder().decode(file.source);
+        file.source = header + source;
+      }
+    },
+  };
+}
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
+  plugins: [keepCssLicenseComments()],
+  build: {
+    target: TARGET,
+    rolldownOptions: { output: { comments: { legal: true } } },
+  },
   // `__APP_VERSION__`/`__APP_COMMIT__`: globale Konstanten fuer
   // `src/version.ts` (Deklaration in `src/globals.d.ts`). `vitest.config.ts`
   // setzt dieselben Namen auf feste Testwerte -- diese Datei laeuft in

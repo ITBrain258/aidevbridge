@@ -3,6 +3,14 @@ use crate::remote::command::decoded_argv;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
+/// sha2 0.11 gibt ein `hybrid_array::Array` zurueck, das `{:x}` nicht kennt.
+fn sha256_hex(bytes: &[u8]) -> String {
+    Sha256::digest(bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
+
 const ONE: &str = "B|100|1000\nQ|$0|1\nP|$0|@0|%0|10|1|1|0|0|0|1|0|1\nE|100|1000\n";
 
 fn output(code: u32, stdout: &str, stderr: &str) -> ExecResult {
@@ -45,10 +53,7 @@ fn accepted_measurements_and_query_arguments_remain_exact() {
         ),
     ] {
         let golden: Value = serde_json::from_str(text).unwrap();
-        assert_eq!(
-            format!("{:x}", Sha256::digest(source.as_bytes())),
-            golden["source_sha256"]
-        );
+        assert_eq!(sha256_hex(source.as_bytes()), golden["source_sha256"]);
         let report = source
             .lines()
             .map(|l| serde_json::from_str::<Value>(l).unwrap())
