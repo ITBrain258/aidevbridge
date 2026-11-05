@@ -1,3 +1,4 @@
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // scripts/bump-version.mjs  -- Aufruf: node scripts/bump-version.mjs 0.1.1
 import { readFileSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";

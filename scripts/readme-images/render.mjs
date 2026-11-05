@@ -1,3 +1,4 @@
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Rendert die Bilder fuer README, GitHub und den Store-Eintrag aus der echten
 // Oberflaeche mit Beispieldaten (`scenes.mjs`), ohne Host und ohne Backend
 // (`tauri-stub.js`):

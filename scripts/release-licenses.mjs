@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Prepare an offline notice directory. This is not an installer or release gate.
 import fs from 'node:fs';
 import path from 'node:path';

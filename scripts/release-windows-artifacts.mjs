@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Local Windows packaging with explicit inputs. This is not release acceptance.
 import fs from 'node:fs';
 import path from 'node:path';

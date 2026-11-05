@@ -35,6 +35,7 @@ archive checksum and Apache-2.0 license; the
 ## Tests
 
 ```sh
+npm run typecheck
 npm test
 npm run test:scripts
 npm run build
