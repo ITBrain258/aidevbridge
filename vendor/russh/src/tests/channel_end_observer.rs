@@ -1,4 +1,4 @@
-// AgentBridge local modifications to russh 0.65.0, 2026-09-12.
+// AgentBridge local modifications to russh 0.65.1, 2026-09-12.
 // Apache-2.0, the same license as russh. Included inside client::tests.
 
 fn end_patch_insert(

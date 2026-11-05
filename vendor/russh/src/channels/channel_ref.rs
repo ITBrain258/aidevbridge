@@ -1,4 +1,4 @@
-// Changed by AgentBridge (now aidevbridge): local modifications to russh 0.65.0,
+// Changed by AgentBridge (now aidevbridge): local modifications to russh 0.65.1,
 // Apache-2.0 like russh. AGENTBRIDGE-PATCH.md in the crate root lists every changed file.
 use tokio::sync::mpsc::Sender;
 
