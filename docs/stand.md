@@ -8,7 +8,7 @@ behebt die zwei am 03.11. akzeptierten Meldungen; PR #25 bringt
 `lucide-static` 1.69 und `staticVCRuntime` statt `STATIC_VCRUNTIME`;
 PR #26 nimmt die doppelten Crates `dirs` 5, `toml` 0.8 und `sha2` 0.10 aus
 der App; PR #27 bringt TypeScript 6, Vitest 5, jsdom 30 und die Typprüfung
-von `scripts/`. `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen
+von `scripts/`, PR #32 Vite 8. `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen
 vom 05.11.).
 Vorher: `0.2.5` vom 31.10.2026, ein Sicherheitsrelease, Tag `v0.2.5` auf
 `fd93cc7`. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch den
@@ -232,9 +232,15 @@ Build-Provenienz an ihnen hängen.
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 396 Komponenten (Stand Tauri 2.12), `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
 | Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Mit 0.2.4 ausgeliefert |
 | Android | gebaut nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md) und mit 0.2.4 ausgeliefert: Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Wischen im Terminal, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 487 Komponenten, deren Texte als `assets/licenses/` in APK und App Bundle gehen. Am 29.10. erstmals auf einem Telefon des Maintainers gelaufen; eine Abnahme nach Plan steht aus ([Plan](plans/2026-10-27-android.md)) |
-| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18). Seit 0.2.6 in `main`: russh 0.65.1 (PR #24), `lucide-static` 1.69 (PR #25), die doppelten Crates `dirs`, `toml` und `sha2` (PR #26), TypeScript 6, Vitest 5 und jsdom 30 (PR #27). Die weiteren Stufen stehen unter Punkt 12 |
+| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18). Seit 0.2.6 in `main`: russh 0.65.1 (PR #24), `lucide-static` 1.69 (PR #25), die doppelten Crates `dirs`, `toml` und `sha2` (PR #26), TypeScript 6, Vitest 5 und jsdom 30 (PR #27), Vite 8 (PR #32). Die weiteren Stufen stehen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 05.11.2026 für PR #32 (Vite 8): `npm run typecheck`, 2882 Frontend-Tests,
+147 Skripttests und `npm run build` grün. Die Ausgabe enthält den Polyfill
+aus rolldown, die zehn Babel-Helfer (1118 Bytes) und alle Lizenzkommentare
+wie mit Vite 6. `check` grün für windows-x64 (393/207), macos-universal
+(390/201) und android-universal (481/227).
 
 Am 05.11.2026 für PR #27 (TypeScript 6, Vitest 5, jsdom 30): `npm run
 typecheck` grün (src/ strikt, die Node-Seite mit `checkJs`), 2882
@@ -541,14 +547,14 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     bisher nicht vermissen lassen). Der
     Maintainer hat am 05.11. entschieden, die Stufen abzuarbeiten
     (Entscheidungen vom 05.11.):
-    - **Vite 8:** baut mit rolldown statt Rollup und esbuild. Den
-      Modulepreload-Polyfill erzeugt dann rolldowns native Bibliothek, und
-      die gebaute Ausgabe verliert ohne weitere Einstellung alle
-      Lizenzkommentare (die fünf xterm-Header im JS, den xterm-Hinweis im
-      CSS, den jetzt lightningcss verkleinert). Braucht einen neuen Beleg für
-      Polyfill, Helfer und Kommentare und die Anpassung von
-      `release-license-inventory-frontend.mjs`, das den Polyfill im JS von
-      Vite sucht. Eigener Pull Request.
+    - **Vite 8:** erledigt mit PR #32 (rolldown statt Rollup und esbuild,
+      [Beleg](release/license-frontend-vite-8-2026-11-05.json)). Das Ziel
+      bleibt das von Vite 6 (Safari 14, Chrome 87), weil Vite 8 sonst für
+      Safari 16 baut. Den Polyfill erzeugt jetzt rolldowns native Bibliothek,
+      und statt der zehn esbuild-Helfer stehen zehn Babel-Helfer für private
+      Klassenmitglieder im Bundle (über oxc, neue Komponente mit den
+      MIT-Texten von Babel und oxc). Die Lizenzkommentare bleiben: die sechs
+      xterm-Header im JS, der xterm-Hinweis als `/*!` am Anfang des CSS.
     - **TypeScript 7:** der native Compiler hat in 7.0 keine stabile JS-API
       (nur `typescript/unstable/sync`). `src/source-hygiene.test.ts` und
       `release-license-inventory-frontend.mjs` brauchen

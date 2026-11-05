@@ -197,14 +197,33 @@ const dist = distFiles.map((p) => {
   return { ...file(p), mtime_utc: fs.statSync(path.join(root, p)).mtime.toISOString(),
     embedded_app_versions: [...new Set(text.match(/aidevbridge \d+\.\d+\.\d+ \([a-z0-9]+\)/g) ?? [])],
     license_comments: (text.match(/\/\*[\s\S]*?\*\//g) ?? []).filter((block) => /copyright|license|permission/i.test(block)),
-    markers: Object.fromEntries(["modulepreload", "plugin:dialog|open", "plugin:opener|open_url", "Microsoft", "VoidZero", "Lucide", "Cole Bemis", "SourceLair", "SuppressedError", "Cannot read private member from an object whose class did not declare it"].map((marker) => [marker, text.includes(marker)])),
+    markers: Object.fromEntries(["modulepreload", "plugin:dialog|open", "plugin:opener|open_url", "Microsoft", "VoidZero", "Lucide", "Cole Bemis", "SourceLair", "SuppressedError", "Cannot read private member from an object whose class did not declare it", "Private element is not present on this object", "@babel/helpers - typeof"].map((marker) => [marker, text.includes(marker)])),
   };
 });
-const viteChunk = walk("node_modules/vite/dist/node/chunks").find((p) => p.endsWith(".js") && read(p).toString().includes("function polyfill()"));
-const viteText = read(viteChunk).toString();
-const polyfillStart = viteText.indexOf("function polyfill()");
-const polyfillEnd = viteText.indexOf("\n}\n", polyfillStart) + 2;
-const polyfill = viteText.slice(polyfillStart, polyfillEnd);
+// Bis Vite 7 steht der Modulepreload-Polyfill als JS in Vites Chunks; Vite 8
+// laesst ihn von rolldowns eingebautem Plugin erzeugen, dessen JS-Text in der
+// nativen Bibliothek (@rolldown/binding-*) steht. Gesucht wird der Text, nichts
+// wird ausgefuehrt.
+function findPolyfill() {
+  const viteChunk = walk("node_modules/vite/dist/node/chunks").find((p) => p.endsWith(".js") && read(p).toString().includes("function polyfill()"));
+  if (viteChunk) {
+    const text = read(viteChunk).toString();
+    const start = text.indexOf("function polyfill()");
+    const source = text.slice(start, text.indexOf("\n}\n", start) + 2);
+    return { package: "vite", path: viteChunk, source, location: { function_line: text.slice(0, start).split("\n").length } };
+  }
+  const bindings = exists("node_modules/@rolldown") ? walk("node_modules/@rolldown").filter((p) => p.endsWith(".node")) : [];
+  for (const binding of bindings) {
+    const text = read(binding).toString("latin1");
+    const start = text.indexOf("(function polyfill()");
+    if (start < 0) continue;
+    const source = text.slice(start, text.indexOf("})();", start) + 5);
+    return { package: "rolldown", path: binding, source, location: { byte_offset: start } };
+  }
+  throw new Error("modulepreload polyfill found neither in Vite's chunks nor in a rolldown binding");
+}
+const polyfillSource = findPolyfill();
+const polyfill = polyfillSource.source;
 const bundledTslib = "node_modules/@tauri-apps/api/external/tslib/tslib.es6.js";
 const tslibText = read(bundledTslib).toString();
 
@@ -245,7 +264,7 @@ if (resolvedEmbeddedCommit) {
 const result = {
   schema: "aidevbridge_frontend_asset_license_inventory_v2", generated_utc: new Date().toISOString(),
   source_commit: git("rev-parse", "HEAD"), project_version: manifest.version,
-  scope: "Offline local manifests, installed text files, production source imports, copied SVG geometries and existing dist; no legal opinion, build, network access or binary extraction.",
+  scope: "Offline local manifests, installed text files, production source imports, copied SVG geometries and existing dist; no legal opinion, build or network access. Since Vite 8 the modulepreload polyfill is located by a text search in rolldown's native binding; nothing is extracted or run.",
   limits: ["Package declaration/installed presence is not proof every byte ships.", "Existing dist has no source map/metafile or build attestation; source imports and observed markers are separately identified.", "Absent optional platform packages have lock metadata only.", "Rust/native/Tauri binary licenses are inventoried separately.", "Artifact mtimes are observations, not provenance attestation."],
   inputs: ["package.json", "package-lock.json", "THIRD_PARTY_LICENSES.md", "vite.config.ts", "scripts/gen-icons.mjs", "src/icons.ts", "scripts/release-license-inventory-frontend.mjs"].map(file),
   source_files: sourceFiles.map(file), production_imports: productionImports,
@@ -261,10 +280,14 @@ const result = {
     provenance_assessment: "Current files are hashed, not rerendered or manually reassessed. See the historical manual assessment for the original SVG provenance reading." },
   runtime_entry_headers: entryHeaders,
   embedded_helpers: {
-    vite_modulepreload: { package: "vite", version: packages.find((p) => p.name === "vite").installed_version,
-      source: file(viteChunk), function_sha256: sha(polyfill), function_line: viteText.slice(0, polyfillStart).split("\n").length,
+    vite_modulepreload: { package: polyfillSource.package, version: packages.find((p) => p.name === polyfillSource.package)?.installed_version ?? null,
+      vite_version: packages.find((p) => p.name === "vite").installed_version,
+      source: file(polyfillSource.path), function_sha256: sha(polyfill), ...polyfillSource.location,
       source_function: polyfill, dist_files_with_modulepreload_marker: dist.filter((item) => item.markers.modulepreload).map((item) => item.path),
       inclusion_assessment: "Markers alone do not prove a matching emitted polyfill; current inclusion is not manually reassessed." },
+    oxc_runtime_helpers: { package: "rolldown", version: packages.find((p) => p.name === "rolldown")?.installed_version ?? null,
+      dist_files_with_helper_markers: dist.filter((item) => item.markers["Private element is not present on this object"] || item.markers["@babel/helpers - typeof"]).map((item) => item.path),
+      assessment: "Babel helpers for private class members that oxc adds for the build targets; their source and license are recorded in docs/release/license-frontend-vite-8-2026-11-05.json, not decided here." },
     tauri_vendored_tslib: { ...file(bundledTslib), inspected_entry: tslibImporter,
       entry_imports: tslibImporter ? imports(tslibImporter).filter((item) => item.specifier.includes("tslib")) : [],
       reached_from: runtimeEntries.find((entry) => entry.path === bundledTslib)?.reached_from ?? [],

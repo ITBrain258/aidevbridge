@@ -41,3 +41,11 @@ test('icons inlined into tracked CSS are listed with their Lucide geometry', { s
   for (const mask of masks) assert.ok(mask.matching_lucide_icons.length > 0, `${mask.path}:${mask.line}`);
   assert.ok(masks.some(mask => mask.matching_lucide_icons.includes('triangle-alert')));
 });
+
+test('the modulepreload polyfill is found in Vite or, since Vite 8, in the rolldown binding', { skip }, () => {
+  const polyfill = inventory.embedded_helpers.vite_modulepreload;
+  assert.ok(['vite', 'rolldown'].includes(polyfill.package), polyfill.package);
+  assert.match(polyfill.source_function, /querySelectorAll\('link\[rel="modulepreload"\]'\)/);
+  assert.match(polyfill.source_function, /new MutationObserver/);
+  assert.ok(polyfill.source.path.startsWith(polyfill.package === 'vite' ? 'node_modules/vite/' : 'node_modules/@rolldown/'), polyfill.source.path);
+});

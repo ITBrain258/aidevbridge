@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-05T12:08:31.554Z",
+  "scope": "Vite 6.4.5 to 8.3.6, which builds with rolldown 1.2.16 (oxc, lightningcss) instead of Rollup and esbuild; what the frontend output contains afterwards and where it comes from. Not final application compliance or installer delivery.",
+  "basis": [
+    "docs/release/license-frontend-output-2026-09-12.json",
+    "docs/release/license-frontend-vite-6.4.5-2026-10-29.json",
+    "docs/release/license-frontend-tools-2026-11-05.json"
+  ],
+  "packages": {
+    "before": {
+      "vite": {
+        "version": "6.4.5",
+        "resolved": "https://registry.npmjs.org/vite/-/vite-6.4.5.tgz",
+        "integrity": "sha512-4enwjFfi4IwtEh0w+jPzpLVOFQiPHmmzPxcHXQOyEur47o6u0jE573DmGpjA+7irXoMLYRZD5ZaFUEneS3abPg=="
+      },
+      "esbuild": {
+        "version": "0.25.12",
+        "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.25.12.tgz",
+        "integrity": "sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg=="
+      },
+      "rollup": {
+        "version": "4.62.2",
+        "resolved": "https://registry.npmjs.org/rollup/-/rollup-4.62.2.tgz",
+        "integrity": "sha512-RFnrW4lhXA3s3eqHDZvN654g8OTjzRfqpIRJYczCGB6HzphckVAi/Qh4tbPUbRuDi7s1Llv8g/NspLkttY3gTA=="
+      }
+    },
+    "after": {
+      "vite": {
+        "version": "8.3.6",
+        "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.6.tgz",
+        "integrity": "sha512-UI7dK29NnS54Fk+mmo7o+jI6U8Fp7hDl+X5Q1k45WH+d4dSlbLVUETGQ+hfkNgvLQGyoElPj837nZyv4MBc0VA=="
+      },
+      "rolldown": {
+        "version": "1.2.16",
+        "resolved": "https://registry.npmjs.org/rolldown/-/rolldown-1.2.16.tgz",
+        "integrity": "sha512-bWvlMpFKiTfDKfnK7FC2MPgPeWCf/Kpwsq49ApdW+FQaBZb6O6dZ4MAPbPUjp7hYQrw/RobqCzn64BRrQecGHw=="
+      },
+      "@rolldown/binding-win32-x64-msvc": {
+        "version": "1.2.16",
+        "resolved": "https://registry.npmjs.org/@rolldown/binding-win32-x64-msvc/-/binding-win32-x64-msvc-1.2.16.tgz",
+        "integrity": "sha512-1lv1KvX0Z871zfk7vw+dnXMMnHNyDwMzWG8Kv3HxDXMOhzCX4SHc7HK319fInP0i+0p9D8brkfzL7pJOaGl+tw=="
+      },
+      "@oxc-project/types": {
+        "version": "0.156.0",
+        "resolved": "https://registry.npmjs.org/@oxc-project/types/-/types-0.156.0.tgz",
+        "integrity": "sha512-1Duyg48TdJNdyhEB8Xn1L36bT9Pv6GUtlKjHxOys8xkaF/rQq3XJE+bAurSK/AgIz5mGFsb77cn9Pb20+WCScw=="
+      },
+      "lightningcss": {
+        "version": "1.33.0",
+        "resolved": "https://registry.npmjs.org/lightningcss/-/lightningcss-1.33.0.tgz",
+        "integrity": "sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA=="
+      },
+      "lightningcss-win32-x64-msvc": {
+        "version": "1.33.0",
+        "resolved": "https://registry.npmjs.org/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-1.33.0.tgz",
+        "integrity": "sha512-OlEICDx/Xl0FqSp4bry8zFnCvGpig3Gl4gCquvYwHuqJKEC1+n9NgDniFvqHGmMv1ZkqDJrDqKKSykTDX+ehuA=="
+      },
+      "esbuild": null,
+      "rollup": null
+    },
+    "package_json": [
+      {
+        "path": "node_modules/vite/package.json",
+        "bytes": 5058,
+        "sha256": "c190c4c3dadb457bedc5d756a2269cd648b134a293da9f4d873c01fc66f4186c"
+      },
+      {
+        "path": "node_modules/rolldown/package.json",
+        "bytes": 6097,
+        "sha256": "525884560d75c4eecb362453e6bbf92b1618d2261ddfbb1a806f164be0813f84"
+      },
+      {
+        "path": "node_modules/lightningcss/package.json",
+        "bytes": 3834,
+        "sha256": "b26fa1b188f90ec672206326e9a1de793f0403a263be9c3797c2e2d56aa48b3c"
+      }
+    ]
+  },
+  "configuration": {
+    "file": "vite.config.ts",
+    "build_target": [
+      "es2020",
+      "edge88",
+      "firefox78",
+      "chrome87",
+      "safari14"
+    ],
+    "build_target_reason": "Vite 6's default ('modules', ESBUILD_MODULES_TARGET in vite 6.4.5 dist/node/constants.js). Vite 8 defaults to 'baseline-widely-available' (Safari 16), but the app supports macOS 11.",
+    "js_comments": "build.rolldownOptions.output.comments.legal = true; Vite 8 sets legal: false when it minifies.",
+    "css_comments": "Plugin aidevbridge:keep-css-license-comments: lightningcss keeps only a /*! comment at the start of a file, so CSS comments that name a copyright are collected in transform and put at the start of each CSS asset in generateBundle, opened with /*!."
+  },
+  "modulepreload_polyfill": {
+    "before": {
+      "source": "vite 6.4.5 dist/node/chunks/dep-CkSfqg8D.js",
+      "function_bytes": 1255,
+      "function_sha256": "b56e634b01df132fcac8c016f9d49899d8a627652c1cc03c7045532ae3f08ba0"
+    },
+    "after": {
+      "source": "node_modules/@rolldown/binding-win32-x64-msvc/rolldown-binding.win32-x64-msvc.node: rolldown's built-in viteModulePreloadPolyfillPlugin, which vite:modulepreload-polyfill in vite 8.3.6 dist/node/chunks/node.js calls",
+      "binding": {
+        "path": "node_modules/@rolldown/binding-win32-x64-msvc/rolldown-binding.win32-x64-msvc.node",
+        "bytes": 23133184,
+        "sha256": "b252bf9b3444ccfda599aad473d2c5a2600c0d41de7ffe3d61dab636b600e1d4"
+      },
+      "embedded_js_bytes": 1355,
+      "embedded_js_sha256": "dc840ad154f459f6092f1e36cb3dd93a6ddca873930ae310fbce04e9de5f1696",
+      "embedded_js": "(function polyfill() {\n  const relList = document.createElement('link').relList;\n  if (relList && relList.supports && relList.supports('modulepreload')) {\n    return;\n  }\n\n  for (const link of document.querySelectorAll('link[rel=\"modulepreload\"]')) {\n    processPreload(link);\n  }\n\n  new MutationObserver((mutations) => {\n    for (const mutation of mutations) {\n      if (mutation.type !== 'childList') {\n        continue;\n      }\n      for (const node of mutation.addedNodes) {\n        if (node.tagName === 'LINK' && node.rel === 'modulepreload') {\n          processPreload(node);\n        }\n      }\n    }\n  }).observe(document, { childList: true, subtree: true });\n\n  function getFetchOpts(link) {\n    const fetchOpts = {};\n    if (link.integrity) fetchOpts.integrity = link.integrity;\n    if (link.referrerPolicy) fetchOpts.referrerPolicy = link.referrerPolicy;\n    if (link.crossOrigin === 'use-credentials') {\n      fetchOpts.credentials = 'include';\n    } else if (link.crossOrigin === 'anonymous') fetchOpts.credentials = 'omit';\n    else fetchOpts.credentials = 'same-origin';\n    return fetchOpts;\n  }\n\n  function processPreload(link) {\n    if (link.ep) {\n      // ep marker = processed\n      return;\n    }\n    link.ep = true;\n    // pre populate the load record\n    const fetchOpts = getFetchOpts(link);\n    fetch(link.href, fetchOpts);\n  }\n})();"
+    },
+    "same_program": "The embedded JS is Vite's polyfill function: the same feature check, the same querySelectorAll and MutationObserver over link[rel=modulepreload] and the same fetch options; it differs in formatting and comments only.",
+    "emitted": {
+      "file": "dist/assets/index-D9aBhSLb.js",
+      "bytes": 670,
+      "sha256": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f"
+    }
+  },
+  "helpers": {
+    "before": "Vite 6.4.5 emitted ten esbuild runtime helper bindings (npm:esbuild decision).",
+    "after": {
+      "names": [
+        "checkPrivateRedeclaration",
+        "classPrivateMethodInitSpec",
+        "typeof",
+        "toPrimitive",
+        "toPropertyKey",
+        "defineProperty",
+        "classPrivateFieldInitSpec",
+        "assertClassBrand",
+        "classPrivateFieldGet2",
+        "classPrivateFieldSet2"
+      ],
+      "emitted": {
+        "file": "dist/assets/index-D9aBhSLb.js",
+        "bytes": 1118,
+        "sha256": "b636af10eb00fc9c96ba3d93e6be0b8ed9c6967a7a99b27621356f0415efc34d",
+        "code": "function oe(e,t){if(t.has(e))throw TypeError(`Cannot initialize the same private elements twice on an object`)}function H(e,t){oe(e,t),t.add(e)}function se(e){\"@babel/helpers - typeof\";return se=typeof Symbol==`function`&&typeof Symbol.iterator==`symbol`?function(e){return typeof e}:function(e){return e&&typeof Symbol==`function`&&e.constructor===Symbol&&e!==Symbol.prototype?`symbol`:typeof e},se(e)}function ce(e,t){if(se(e)!=`object`||!e)return e;var n=e[Symbol.toPrimitive];if(n!==void 0){var r=n.call(e,t||`default`);if(se(r)!=`object`)return r;throw TypeError(`@@toPrimitive must return a primitive value.`)}return(t===`string`?String:Number)(e)}function le(e){var t=ce(e,`string`);return se(t)==`symbol`?t:t+``}function ue(e,t,n){return(t=le(t))in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}function de(e,t,n){oe(e,t),t.set(e,n)}function U(e,t,n){if(typeof e==`function`?e===t:e.has(t))return arguments.length<3?t:n;throw TypeError(`Private element is not present on this object`)}function W(e,t){return e.get(U(e,t))}function fe(e,t,n){return e.set(U(e,t),n),n}"
+      },
+      "source_package": {
+        "name": "@oxc-project/runtime",
+        "version": "0.156.0",
+        "url": "https://registry.npmjs.org/@oxc-project/runtime/-/runtime-0.156.0.tgz",
+        "archive": {
+          "path": "runtime-0.156.0.tgz",
+          "bytes": 35871,
+          "sha256": "4d6a7494426aeec52ada8e809c60c40309cdb58ae85c3c1d824b2897d08ef2a0"
+        },
+        "license": {
+          "path": "package/LICENSE",
+          "bytes": 1119,
+          "sha256": "95ced5ecf1133fbf41d409b5555c86c344f83f3b019926057ddbc07cfdcc27b3"
+        },
+        "readme_statement": "Code copied from the published package `@babel/runtime`. All credits to the Babel team.",
+        "helper_files": [
+          {
+            "path": "package/src/helpers/esm/checkPrivateRedeclaration.js",
+            "bytes": 198,
+            "sha256": "c5b2a2e8d4bd53fda1a8ea4baf6f5d8edde0cf40bf86dd47ac006f148ebe17f2"
+          },
+          {
+            "path": "package/src/helpers/esm/classPrivateMethodInitSpec.js",
+            "bytes": 214,
+            "sha256": "97c536910f9629a4cdf824174639553c2211e04a8520435bc420136bcd0a37e8"
+          },
+          {
+            "path": "package/src/helpers/esm/typeof.js",
+            "bytes": 366,
+            "sha256": "928bcbbdf74fe24ed7486e7f982c4389c1859886b3ed904ebd2677f22193b57a"
+          },
+          {
+            "path": "package/src/helpers/esm/toPrimitive.js",
+            "bytes": 407,
+            "sha256": "9660291e71923cb5ff9aaaa1de354515c26e3220cba56ac5d21b806f23875545"
+          },
+          {
+            "path": "package/src/helpers/esm/toPropertyKey.js",
+            "bytes": 227,
+            "sha256": "7f0000acc9c9cf7594b412095be66cdc59066b25458a16fe1434fd00cff478e7"
+          },
+          {
+            "path": "package/src/helpers/esm/defineProperty.js",
+            "bytes": 286,
+            "sha256": "2bad7c96ee851cf2cfe1320a54fd88dd5f769a7faf8bd92d60c9f2e6d1e381dd"
+          },
+          {
+            "path": "package/src/helpers/esm/classPrivateFieldInitSpec.js",
+            "bytes": 218,
+            "sha256": "ffd41b6f69947eff92008641d0d3ed6942bcb801e7af44f598f27e37b7058974"
+          },
+          {
+            "path": "package/src/helpers/esm/assertClassBrand.js",
+            "bytes": 240,
+            "sha256": "80feab8dfd9b894611adfca2c90fba0e8879a16f7f3de3e19176831b7b70313f"
+          },
+          {
+            "path": "package/src/helpers/esm/classPrivateFieldGet2.js",
+            "bytes": 181,
+            "sha256": "61e0195fc193565c6d474be67562f8e287809a4cff44179ad9e75021748aefd1"
+          },
+          {
+            "path": "package/src/helpers/esm/classPrivateFieldSet2.js",
+            "bytes": 190,
+            "sha256": "782404917446aa6aecd28756ef89464f7534bddefce6204bdb4dbb7099e56777"
+          }
+        ]
+      },
+      "upstream_package": {
+        "name": "@babel/runtime",
+        "version": "8.1.0",
+        "url": "https://registry.npmjs.org/@babel/runtime/-/runtime-8.1.0.tgz",
+        "archive": {
+          "path": "runtime-8.1.0.tgz",
+          "bytes": 34072,
+          "sha256": "8abdf61b4c1a4b1869a111ee55d9858b872f130b89abb191d0e7a6706d8435b9"
+        },
+        "license": {
+          "path": "package/LICENSE",
+          "bytes": 1106,
+          "sha256": "117da2af0d4ce0fe1c8e19b5cff9dcd806adf973d328d27b11d4448c4ff24f76"
+        }
+      },
+      "carrier": "rolldown's native binding embeds the oxc runtime helpers (it names @oxc-project/runtime and carries Babel's '@babel/helpers - typeof' marker) and inlines the ones the transformed code needs; no runtime package is installed.",
+      "esbuild_helpers_emitted": false
+    }
+  },
+  "license_comments": {
+    "js": {
+      "before": 6,
+      "after": 6,
+      "text": "the six xterm.js @license MIT headers, as before"
+    },
+    "css": {
+      "before": 1,
+      "after": 1,
+      "at_start": true
+    }
+  },
+  "frontend_output": {
+    "before": [
+      {
+        "path": "dist/assets/index-BMC3bw61.css",
+        "bytes": 67322,
+        "sha256": "c1f76583afbd94a1481a2a2b453eb210320b3485b2943442487a44dbcb959f45"
+      },
+      {
+        "path": "dist/assets/index-DYQalkbw.js",
+        "bytes": 764614,
+        "sha256": "4d1961d32ff085765e1f4f575eaca06c36fe6f88b65202baea9c143daf21993a"
+      }
+    ],
+    "after": [
+      {
+        "path": "dist/assets/index-D9aBhSLb.js",
+        "bytes": 765150,
+        "sha256": "0ee0820435f62ef370342affcdf34ce26c44886f69128335d07bf6bdbf201ab1"
+      },
+      {
+        "path": "dist/assets/index-HfveSUDB.css",
+        "bytes": 68112,
+        "sha256": "4ceacb118babd622e4ee248e58bb66d101a6822a087619cf9684e6b9dbe3f4c1"
+      }
+    ]
+  },
+  "decision": "npm:vite stays included for the polyfill (Vite's code, Vite core MIT text). npm:rolldown is included: its native library carries and emits the polyfill and the helpers (rolldown MIT text). frontend:oxc-runtime-helpers is included with the MIT texts of @babel/runtime and @oxc-project/runtime. npm:lightningcss (MPL-2.0) only minifies CSS and contributes no code: excluded. npm:esbuild and npm:rollup left the lock file and the output; their decisions and the esbuild text file leave the selection."
+}
