@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-05T21:40:00.000Z",
+  "status": "release_build_family_comparison_complete_pdb_not_retained",
+  "basis": "docs/release/license-windows-runtime-2026-09-12.json",
+  "scope": {
+    "target": "x86_64-pc-windows-msvc",
+    "question": "Does the release EXE of 0.2.7, built by CI with Visual Studio 2026, link the same Microsoft runtime families as the build examined on 2026-09-12, and do the Visual Studio 2026 terms change what is delivered?",
+    "executed": false,
+    "installation": false,
+    "not_a_legal_clearance": true
+  },
+  "input": {
+    "workflow_run": "https://github.com/ITBrain258/aidevbridge/actions/runs/42086815589",
+    "job": "Build Windows packages (127454045117)",
+    "artifact": "windows-packages",
+    "tag": "v0.2.7",
+    "commit": "b81a4375000e71268e4880e36af2ee0d74312d8a",
+    "packages_equal_release_assets": {
+      "aidevbridge-0.2.7-windows-x64.zip": "3639aa30f241f7884a0e61f8b1a3e156b45a6d25d762316aa5a6845aaa17587e",
+      "aidevbridge-0.2.7-windows-x64.msi": "2750f422ebc9d74c5b093e288f2107c7264532b81d931209551a1735d3838dae",
+      "aidevbridge-0.2.7-windows-x64-setup.exe": "fd5fbf2b81a272e4cc3f47f547ecfd1d02879a3899f17d7987f683bf21fb3ef6"
+    },
+    "exe": {
+      "path": "aidevbridge.exe in the ZIP, equal to release-manifest.json native.exe",
+      "bytes": 17519616,
+      "sha256": "0b5d93a7e0bd5ac0c8b2cd0396c08c959e7f08b145cff1f1d26eeb6b2f250281"
+    },
+    "pdb": {
+      "bytes": 9457664,
+      "sha256": "a8816642a83dc6e0cd6a0a2cd60cfbd44b551eb5949c557a32c5da1ec748023b",
+      "source": "release-manifest.json native.pdb",
+      "retained": false
+    }
+  },
+  "environment": {
+    "runs_on": "windows-2025",
+    "image": "windows-2025-vs2026 20261030.294.1 (job log)",
+    "image_readme": "https://github.com/actions/runner-images/blob/win25-vs2026/20261030.294/images/windows/Windows2025-VS2026-Readme.md",
+    "visual_studio": "Visual Studio Enterprise 2026 18.11.12328.437",
+    "msvc": "Microsoft.VisualStudio.Component.VC.Tools.x86.x64 18.11.12301.404 (default MSVC 14.51); side by side VC.14.44.17.14.x86.x64 and VC.14.29 (v142), not used by this build (Rich header)",
+    "windows_sdk": "10.0.26100.0",
+    "rust": "1.97.1",
+    "tauri_cli": "2.12.4",
+    "vc_runtime_mode": "build.windows.staticVCRuntime true in src-tauri/tauri.release.windows.json (libvcruntime and libcmt linked, UCRT imported); scripts/release-windows-artifacts.mjs rejects RUSTFLAGS and STATIC_VCRUNTIME overrides"
+  },
+  "pe": {
+    "tools": ["dumpbin /dependents and /headers (MSVC 14.44)", "own PE reader for Rich header, import, delay-import and debug directories"],
+    "machine": "8664",
+    "linker_version": "14.51",
+    "previous_linker_version": "14.44",
+    "imports": [
+      "bcryptprimitives.dll", "advapi32.dll", "ntdll.dll", "kernel32.dll", "user32.dll", "ole32.dll", "gdi32.dll",
+      "api-ms-win-core-synch-l1-2-0.dll", "dwmapi.dll", "shlwapi.dll", "comctl32.dll", "combase.dll", "shell32.dll",
+      "imm32.dll", "oleaut32.dll", "api-ms-win-core-winrt-error-l1-1-0.dll", "ws2_32.dll", "ADVAPI32.dll", "KERNEL32.dll",
+      "WS2_32.dll", "api-ms-win-crt-math-l1-1-0.dll", "api-ms-win-crt-string-l1-1-0.dll", "api-ms-win-crt-convert-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll", "api-ms-win-crt-stdio-l1-1-0.dll", "api-ms-win-crt-locale-l1-1-0.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll"
+    ],
+    "imports_compared": "22 names on 2026-09-12. New: imm32.dll and api-ms-win-core-winrt-error-l1-1-0.dll (Windows system DLLs) and the upper-case ADVAPI32, KERNEL32, WS2_32 entries of a second import library. The same seven UCRT API sets.",
+    "delay_import_rva": 0,
+    "delay_import_size": 0,
+    "absent_names": {
+      "checked": ["VCRUNTIME140", "vcruntime140", "MSVCP140", "WebView2Loader.dll import"],
+      "result": "No import and no ASCII or UTF-16 string VCRUNTIME140, vcruntime140 or MSVCP140 in the file; WebView2Loader appears only as a UTF-16 string of the statically linked loader code."
+    },
+    "codeview": { "guid_bytes": "3a97e444c64e1a4eacd9cb505b26c07c", "age": 1, "pdb_path": "aidevbridge.pdb" },
+    "strings": {
+      "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection": "ASCII at byte offset 12902424 (default of wry 0.57.1 src/webview2/mod.rs; src-tauri sets no additional browser arguments)",
+      "EmbeddedBrowserWebView.dll": "UTF-16, statically linked WebView2 loader of webview2-com-sys 0.39.1"
+    }
+  },
+  "rich_header": {
+    "meaning": "prodid 147 Implib900, 255 Cvtres 14.x, 257 Implib 14.x, 258 Linker 14.x, 259 MASM 14.x, 260 C 14.x, 261 C++ 14.x, 1 imports, 0 unmarked objects",
+    "release_0_2_7": [
+      { "prodid": 147, "build": 30729, "count": 14 },
+      { "prodid": 259, "build": 35721, "count": 9 },
+      { "prodid": 260, "build": 35721, "count": 13 },
+      { "prodid": 261, "build": 35721, "count": 46 },
+      { "prodid": 257, "build": 33145, "count": 9 },
+      { "prodid": 1, "build": 0, "count": 461 },
+      { "prodid": 260, "build": 36260, "count": 12 },
+      { "prodid": 0, "build": 0, "count": 641 },
+      { "prodid": 255, "build": 36260, "count": 1 },
+      { "prodid": 258, "build": 36260, "count": 1 }
+    ],
+    "local_comparison_build": {
+      "description": "local comparison build of 2026-11-03, Visual Studio 2022, MSVC 14.44.35207, linker 14.44",
+      "entries": [
+        { "prodid": 147, "build": 30729, "count": 14 },
+        { "prodid": 259, "build": 35207, "count": 9 },
+        { "prodid": 260, "build": 35207, "count": 13 },
+        { "prodid": 261, "build": 35207, "count": 47 },
+        { "prodid": 257, "build": 30151, "count": 2 },
+        { "prodid": 257, "build": 33145, "count": 3 },
+        { "prodid": 1, "build": 0, "count": 466 },
+        { "prodid": 260, "build": 35229, "count": 12 },
+        { "prodid": 0, "build": 0, "count": 670 },
+        { "prodid": 255, "build": 35229, "count": 1 },
+        { "prodid": 258, "build": 35229, "count": 1 }
+      ]
+    },
+    "reading": [
+      "The prebuilt runtime objects carry the build of their toolset's libraries, not the compiler build: 35207 locally (toolset folder 14.44.35207, compiler 35229). On 2026-09-12 the PDB of a 14.44 build mapped 46 libcmt and 23 libvcruntime modules, 69 in all; the local group has 9 + 13 + 47 = 69 objects.",
+      "The release group has 9 + 13 + 46 = 68 objects at build 35721. Of the toolsets on the image, 14.44 would show 35207 and 14.29 a 30xxx build; 35721 lies below the 14.51 compiler build (at least 14.51.36231 per the 18.6 release notes, here 36260). The group is therefore the libcmt/libvcruntime of the default MSVC 14.51.",
+      "The 12 C objects with the compiler's own build are ring 0.17.14's C sources (the only cc-built crate whose objects reach the EXE; embed-resource and vswhom-sys run at build time). Cvtres is the app resource.",
+      "Limits: the Rich header proves tool categories and counts, not library names; the one-object difference (68 against 69) is not explained; the six WebView2 loader objects of 2026-09-12 appear in no MSVC row, presumably not built by MSVC (not verified)."
+    ]
+  },
+  "sources": [
+    {
+      "title": "Visual Studio 2026 Enterprise/Professional license terms",
+      "url": "https://visualstudio.microsoft.com/license-terms/vs2026-ga-pro-enterprise/",
+      "document": "https://visualstudio.microsoft.com/wp-content/uploads/2025/10/Visual_Studio_2026-License-Enterprise_Professional_ENU.docx",
+      "retrieved": "2026-11-05",
+      "bytes": 67523,
+      "sha256": "dd2ab92a7c2bb90dd509e16572707a34b13bc0bc09b9199d115f25594ac39053",
+      "version": "Last Updated: October 1, 2025; EULAID VS2026_EntPro_ENU.1033",
+      "clauses": [
+        "License Model. The software is licensed on a per user basis.",
+        "Distributable List. You may copy and distribute the object code form of code listed on the Distributable List located at https://aka.ms/vs/18/redistribution.",
+        "Distribution Requirements: add significant primary functionality to it in your applications; require distributors and external end users to agree to terms that protect the Distributable Code at least as much as these license terms; and indemnify, defend, and hold harmless Microsoft ...",
+        "Distribution Restrictions: distribute Unreleased Components; distribute software developed with Insiders Channel Software or that depends on Unreleased Components; ..."
+      ],
+      "notice_requirement": "none"
+    },
+    {
+      "title": "Distributable Code for Visual Studio 2026",
+      "url": "https://learn.microsoft.com/en-us/visualstudio/releases/2026/redistribution",
+      "retrieved": "2026-11-05",
+      "clauses": [
+        "If you have a validly licensed copy of such software, you may copy and distribute with your program the unmodified form of the files listed below, subject to the License Terms for the software.",
+        "Files and components marked as \"pre-release\" or \"preview\" in the software are not licensed for redistribution."
+      ],
+      "finding": "The C++ entries are the VC145 merge modules and VC\\redist; no .lib file is listed."
+    },
+    {
+      "title": "Microsoft Visual Studio licensing guidance",
+      "url": "https://www.microsoft.com/licensing/guidance/Visual-Studio",
+      "retrieved": "2026-11-05",
+      "clauses": [
+        "Examples of redistributable files may include sample or code snippet files that you can modify, Microsoft Merge Modules, object version of C++ libraries, and other files.",
+        "Code identified as distributable that has the extension .lib cannot be directly distributed; it must be linked into the application. However, the resulting output can be distributed."
+      ]
+    },
+    {
+      "title": "C runtime (CRT) and C++ standard library (STL) .lib files",
+      "url": "https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170",
+      "retrieved": "2026-11-05",
+      "clauses": [
+        "libcmt.lib: Statically links the native CRT startup into your code. (libcmtd.lib: Not redistributable.)",
+        "libvcruntime.lib: Statically linked into your code. (libvcruntimed.lib: Not redistributable.)"
+      ]
+    },
+    {
+      "title": "Universal CRT deployment",
+      "url": "https://learn.microsoft.com/en-us/cpp/windows/universal-crt-deployment?view=msvc-170",
+      "retrieved": "2026-11-05",
+      "clauses": ["The Universal CRT (UCRT) is a Microsoft Windows operating system component. It's included as part of the operating system in Windows 10 or later ..."]
+    },
+    {
+      "title": "Visual Studio 2026 release notes, 18.6.0",
+      "url": "https://learn.microsoft.com/en-us/visualstudio/releases/2026/release-notes",
+      "retrieved": "2026-11-05",
+      "clauses": [
+        "Microsoft C++ (MSVC) Build Tools version 14.51 is now available and is installed by default with the C++ desktop and gaming workloads.",
+        "The version number printed by cl.exe and link.exe will be at least 14.51.36231."
+      ],
+      "finding": "MSVC 14.51 is a released toolset, not an Unreleased Component; the image lists no preview VC component."
+    },
+    {
+      "title": "Visual Studio 2026 Third Party Notices",
+      "url": "https://visualstudio.microsoft.com/wp-content/uploads/2025/10/VS2026_ThirdPartyNotices_29-10-2025.txt",
+      "retrieved": "2026-11-05",
+      "bytes": 6089971,
+      "sha256": "328e70955944b017a4f533293c684f13b68e0a594201a31e20ff8500d677ac69",
+      "finding": "No entry for vcruntime, libcmt, CRT, ucrt, MSVC or Visual C++."
+    },
+    {
+      "title": "GitHub runner images: Visual Studio license on hosted runners",
+      "url": "https://github.com/actions/runner-images/issues/12945#issuecomment-3348002951",
+      "retrieved": "2026-11-05",
+      "date": "2025-09-29",
+      "clauses": ["We use an `Enterprise` license key, which, as agreed with Microsoft, is the version for public and private use on `GitHub Actions` and `Azure DevOps` `Hosted Runners`. ... Users do not need to maintain a separate personal copy of the license."]
+    }
+  ],
+  "decision": {
+    "selection": "Unchanged: no VC++ redistributable, no Microsoft DLL, LIB or merge module, UCRT as part of Windows 10/11, WebView2 downloadBootstrapper for NSIS and MSI, the same WebView2 SDK and Evergreen texts.",
+    "license_basis": "The CI build uses the Visual Studio Enterprise installation that GitHub licenses for hosted runners. The linked libcmt/libvcruntime output is distributable under the Visual Studio 2026 Distributable Code terms as Microsoft's licensing guidance reads them; the terms require no Microsoft notice. aidevbridge keeps its own attribution notice voluntarily.",
+    "notice": {
+      "path": "docs/release/licenses/microsoft-windows-runtime-NOTICE.txt",
+      "before_sha256": "8400cde456c2dc905a21e0a1aee67ef91a528277113d96ec497cdbf055dd269f",
+      "after_sha256": "426cccbddef968ef11c64a1b4b2371b0d3f8897b1b84c35814657c30daef029c",
+      "change": "\"from the MSVC 14.44 toolset\" becomes \"from the Microsoft C++ (MSVC) Build Tools\": the runner label windows-2025 floats and updates the toolset; the exact version belongs in this report and in the version of native:msvc-windows-runtime."
+    },
+    "native_import_family_review": "Done for 0.2.7 at the level of the import table and the Rich header; the manifest of each build keeps reporting it as pending.",
+    "pdb": "From this change on, packages.yml keeps the PDB of the Windows build as the workflow artifact windows-symbols (90 days), not as a release asset, so that a later toolset change can be mapped module by module. The PDB of 0.2.7 is gone."
+  },
+  "remaining": [
+    "The use of Visual Studio on hosted runners rests on GitHub's public statement, not on a published license document; the Build Devices clause of the terms does not name third-party hosted machines.",
+    "The Distributable List does not name libcmt or libvcruntime; that linked output may be distributed comes from Microsoft's licensing guidance and C++ documentation, as for every MSVC-built program.",
+    "Distribution requirement (ii) (terms that protect the Distributable Code) is met in practice only by the notice; the ZIP has no agreement step.",
+    "Installer items of the manifest (nsis_msi_payload, installer_terms_ui, installer_stub_notices, product_and_windows_acceptance) are unaffected and stay open."
+  ]
+}

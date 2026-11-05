@@ -292,6 +292,17 @@ jobs:
           name: windows-packages
           path: win/
           if-no-files-found: error
+      # The PDB maps the linked objects to their libraries, for the review of
+      # the Microsoft runtime families after a toolset change
+      # (docs/release/license-windows-runtime-2026-11-05.md). It stays out of
+      # the release; its hash is native.pdb in release-manifest.json.
+      - name: Keep the symbols for the runtime review
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-symbols
+          path: out/release-windows/*/cargo/x86_64-pc-windows-msvc/release/aidevbridge.pdb
+          if-no-files-found: error
+          retention-days: 90
       - name: Keep the build logs
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
