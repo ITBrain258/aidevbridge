@@ -21,8 +21,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1069020,
-    "sha256": "833d260e223a36d7ab71705963c50da6715d118f655a4a7872593644ddbd300a"
+    "bytes": 1069677,
+    "sha256": "9dc63f8273d96df7a3a13d078b082a9ae02fa3740c9d14e3d9d019f6fe215bb8"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the Android graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -236,18 +236,7 @@
             "bytes": 832,
             "sha256": "4a73856c6b87bfaa7b6fc5963796f21941f85f9bb3de36f688f70b5c5ceca44b"
           },
-          "built_library": {
-            "sha256": "22ffe8b565e0356bbe02cd22de3519967f61b788ccb4bdb87d1fb8d891eb1f0f",
-            "needed": [
-              "libandroid.so",
-              "libc.so",
-              "libdl.so",
-              "liblog.so",
-              "libm.so"
-            ],
-            "libunwind_linked": true,
-            "crt_linked": true
-          }
+          "built_library": null
         },
         "armv7-linux-androideabi": {
           "libunwind": {
@@ -270,18 +259,7 @@
             "bytes": 480,
             "sha256": "d161f2951569046a09fb534f80f7c532d583aab9228b5c9d2ccf6f8c8fd27ec3"
           },
-          "built_library": {
-            "sha256": "2d9319495a180e16d76b48db9f7b4fd7ca0b26dd3279b29e824ba43015f00824",
-            "needed": [
-              "libandroid.so",
-              "libc.so",
-              "libdl.so",
-              "liblog.so",
-              "libm.so"
-            ],
-            "libunwind_linked": true,
-            "crt_linked": true
-          }
+          "built_library": null
         },
         "x86_64-linux-android": {
           "libunwind": {
@@ -304,18 +282,7 @@
             "bytes": 696,
             "sha256": "793ea43b5c52399fdc7a4c7bbf04c02abaf59d2c34d0b630ece694110f6f3b2c"
           },
-          "built_library": {
-            "sha256": "7acf71092a09732774fd1642f9c0514bc4ac388dc63f5737f18d5cd923ebabd7",
-            "needed": [
-              "libandroid.so",
-              "libc.so",
-              "libdl.so",
-              "liblog.so",
-              "libm.so"
-            ],
-            "libunwind_linked": true,
-            "crt_linked": true
-          }
+          "built_library": null
         }
       }
     },
@@ -1341,9 +1308,9 @@
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
       },
       {
-        "id": "cargo:russh@0.65.0",
-        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files.",
-        "android": "Explicit Apache-2.0 selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files."
+        "id": "cargo:russh@0.65.1",
+        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files.",
+        "android": "Explicit Apache-2.0 selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:rustc-hash@2.1.3",
