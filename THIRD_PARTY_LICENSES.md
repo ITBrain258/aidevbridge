@@ -1,6 +1,6 @@
 # Third-party licenses
 
-Notices and license texts for the third-party code in the frontend bundle and for copied assets. The Windows packages from `npm run build:windows` (MSI, NSIS and ZIP) carry the complete selected set in their `licenses/` folder (open `licenses/index.html`): this file, the Rust crates and the Rust standard library, the Microsoft and installer components, and the MIT text for the esbuild runtime helpers in the bundle ([esbuild-0.25.12-LICENSE-MIT.txt](docs/release/licenses/esbuild-0.25.12-LICENSE-MIT.txt)). The selection is [license-selection.windows-x64.json](docs/release/license-selection.windows-x64.json); the [Rust license inventory](docs/release/license-inventory-2026-09-12-rust.json) records declared licenses, source paths and available texts. The macOS app from `npm run build:macos` carries the set selected for macOS in `aidevbridge.app/Contents/Resources/licenses/`: this file, the Rust crates of the macOS build and the Rust standard library of both Apple targets; Apple's system libraries are part of macOS and not included. That selection is [license-selection.macos-universal.json](docs/release/license-selection.macos-universal.json). The Android app (APK and App Bundle from the release runs of `.github/workflows/android.yml`) carries the set selected for Android in its `assets/licenses/` folder: this file, the Rust crates and the Rust standard library of the three Android targets, the linked parts of the Android NDK (libunwind, compiler-rt, Bionic start objects), and every Java and Kotlin library in the Gradle lock file together with the NOTICE files of Kotlin, kotlinx and Jackson; Android's system libraries are part of the device and not included. cssparser, selectors and dtoa-short are licensed under MPL-2.0 and are part of the Android app; their entries name the unmodified source. That selection is [license-selection.android-universal.json](docs/release/license-selection.android-universal.json), with the [Android license inventory](docs/release/license-inventory-2026-10-28-android.json). The vendored russh source and its local changes are described in [AGENTBRIDGE-PATCH.md](vendor/russh/AGENTBRIDGE-PATCH.md). A bare `aidevbridge.exe` from `npm run build:app` carries none of these notices: pass on only the ZIP or an installer.
+Notices and license texts for the third-party code in the frontend bundle and for copied assets. The Windows packages from `npm run build:windows` (MSI, NSIS and ZIP) carry the complete selected set in their `licenses/` folder (open `licenses/index.html`): this file, the Rust crates and the Rust standard library, and the Microsoft and installer components. The selection is [license-selection.windows-x64.json](docs/release/license-selection.windows-x64.json); the [Rust license inventory](docs/release/license-inventory-2026-09-12-rust.json) records declared licenses, source paths and available texts. The macOS app from `npm run build:macos` carries the set selected for macOS in `aidevbridge.app/Contents/Resources/licenses/`: this file, the Rust crates of the macOS build and the Rust standard library of both Apple targets; Apple's system libraries are part of macOS and not included. That selection is [license-selection.macos-universal.json](docs/release/license-selection.macos-universal.json). The Android app (APK and App Bundle from the release runs of `.github/workflows/android.yml`) carries the set selected for Android in its `assets/licenses/` folder: this file, the Rust crates and the Rust standard library of the three Android targets, the linked parts of the Android NDK (libunwind, compiler-rt, Bionic start objects), and every Java and Kotlin library in the Gradle lock file together with the NOTICE files of Kotlin, kotlinx and Jackson; Android's system libraries are part of the device and not included. cssparser, selectors and dtoa-short are licensed under MPL-2.0 and are part of the Android app; their entries name the unmodified source. That selection is [license-selection.android-universal.json](docs/release/license-selection.android-universal.json), with the [Android license inventory](docs/release/license-inventory-2026-10-28-android.json). The vendored russh source and its local changes are described in [AGENTBRIDGE-PATCH.md](vendor/russh/AGENTBRIDGE-PATCH.md). A bare `aidevbridge.exe` from `npm run build:app` carries none of these notices: pass on only the ZIP or an installer.
 
 ## Lucide (icons embedded in `src/icons.ts` and `src/styles.css`)
 
@@ -187,11 +187,91 @@ PERFORMANCE OF THIS SOFTWARE.
 
 ## Vite (generated modulepreload polyfill)
 
-Source: package `vite` 6.4.5. The frontend contains Vite's generated modulepreload polyfill. The Vite core MIT text from `node_modules/vite/LICENSE.md` follows verbatim.
+Source: package `vite` 8.3.6. The frontend contains Vite's modulepreload polyfill; since Vite 8 rolldown's built-in Vite plugin emits it (see rolldown below). The Vite core MIT text from `node_modules/vite/LICENSE.md` follows verbatim.
 
 MIT License
 
 Copyright (c) 2019-present, VoidZero Inc. and Vite contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## rolldown (bundler that emits the polyfill and the helpers)
+
+Source: package `rolldown` 1.2.16, which Vite 8 builds with. Its native library (`@rolldown/binding-*`) carries the modulepreload polyfill above and the Babel helpers below and writes them into the bundle. The MIT text from `node_modules/rolldown/LICENSE` follows verbatim.
+
+MIT License
+
+Copyright (c) 2024-present VoidZero Inc. & Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Babel runtime helpers (private class fields, via oxc)
+
+The frontend is built for Safari 14 and Chrome 87, which lack parts of the private class member syntax. The compiler (oxc, inside rolldown) rewrites it and adds ten helper functions to the bundle: `checkPrivateRedeclaration`, `classPrivateMethodInitSpec`, `typeof`, `toPrimitive`, `toPropertyKey`, `defineProperty`, `classPrivateFieldInitSpec`, `assertClassBrand`, `classPrivateFieldGet2` and `classPrivateFieldSet2`. They come from `@oxc-project/runtime` 0.156.0, whose code "is copied from the published package `@babel/runtime`" (its README). The MIT text of `@babel/runtime` follows verbatim, then the MIT text of `@oxc-project/runtime`.
+
+MIT License
+
+Copyright (c) 2014-present Sebastian McKenzie and other contributors
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+MIT License
+
+Copyright (c) 2024-present VoidZero Inc. & Contributors
+Copyright (c) 2023 Boshen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
