@@ -50,7 +50,9 @@ jobs:
           set -euo pipefail
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/id_ed25519
-          cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+          # An RSA key for the RSA branch (rsa-sha2 against OpenSSH 8.8+).
+          ssh-keygen -q -t rsa -b 3072 -N '' -f ~/.ssh/id_rsa_ci
+          cat ~/.ssh/id_ed25519.pub ~/.ssh/id_rsa_ci.pub >> ~/.ssh/authorized_keys
           chmod 600 ~/.ssh/authorized_keys
           # The tests open many sessions at once.
           printf '%s\n' 'MaxStartups 100' 'MaxSessions 100' | sudo tee /etc/ssh/sshd_config.d/aidevbridge-ci.conf > /dev/null
@@ -61,6 +63,7 @@ jobs:
             echo "AIDEVBRIDGE_TEST_USER=$(id -un)"
             echo "AIDEVBRIDGE_TEST_HOST_KEY=$(cut -d' ' -f2 /etc/ssh/ssh_host_ed25519_key.pub)"
             echo "AIDEVBRIDGE_TEST_SOCKET=abtest_ci_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+            echo "AIDEVBRIDGE_TEST_RSA_KEY=$HOME/.ssh/id_rsa_ci"
           } >> "$GITHUB_ENV"
       - run: cargo fmt --all -- --check
         working-directory: src-tauri
