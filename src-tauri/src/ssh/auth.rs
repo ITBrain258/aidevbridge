@@ -323,6 +323,9 @@ where
         // `AuthError::AgentNoIdentities`).
         return Err(agent_has_no_identities_error());
     }
+    // Ob der Agent eine Signatur verweigert hat; dann ist das, nicht die
+    // Ablehnung durch den Server, der Grund, wenn keine Identitaet passt.
+    let mut refused = false;
     for id in ids {
         // Zertifikats-Identitaeten brauchen `authenticate_certificate_with`,
         // einen eigenen Auth-Weg -- hier nicht Gegenstand (Spec §8.4 nennt
@@ -339,16 +342,24 @@ where
         } else {
             None
         };
-        // Jeder Fehler bricht die Schleife ab, auch eine abgelehnte Signatur:
-        // bis russh 0.63 wartete die Session nach einer gescheiterten
-        // Signaturanfrage nur noch auf die Signatur, die naechste Identitaet
-        // haette gehangen. Seit russh 0.65 (upstream #788) bleibt sie nutzbar;
-        // weitere Identitaeten zu probieren ist damit moeglich, aber noch
-        // nicht umgesetzt.
-        let result = handle
+        // Verweigert der Agent die Signatur (SSH_AGENT_FAILURE, etwa nach
+        // abgelehnter `ssh-add -c`-Rueckfrage oder bei einem FIDO-Schluessel
+        // ohne Beruehrung), geht es wie bei OpenSSH mit der naechsten
+        // Identitaet weiter: Seit russh 0.65 (upstream #788) bleibt die
+        // Session danach nutzbar; bis 0.63 hing sie. Jeder andere Fehler
+        // bricht ab: Ohne Session (`Send`) oder mit einem gestoerten Agenten
+        // (IO- oder Protokollfehler) scheitert auch die naechste Identitaet.
+        let result = match handle
             .authenticate_publickey_with(user, key, hash, &mut agent)
             .await
-            .map_err(agent_sign_error)?;
+        {
+            Ok(result) => result,
+            Err(russh::AgentAuthError::Key(russh::keys::Error::AgentFailure)) => {
+                refused = true;
+                continue;
+            }
+            Err(error) => return Err(agent_sign_error(error)),
+        };
         match result {
             russh::client::AuthResult::Success => return Ok(()),
             // partial_success ZUERST pruefen und sofort melden, statt weitere
@@ -366,6 +377,9 @@ where
             } => continue,
         }
     }
+    if refused {
+        return Err(AuthError::SigningFailed);
+    }
     Err(classify_publickey_failure(false, "publickey (agent)"))
 }
 
@@ -376,6 +390,9 @@ where
 /// aber auch IO- und Protokollfehler des Agenten. Sie alle zaehlen als
 /// Signaturfehler; `SigningFailed` ist ein Anmeldefehler und beendet damit die
 /// automatische Wiederverbindung, statt bei jedem Versuch erneut nachzufragen.
+/// Eine verweigerte Signatur behandelt `authenticate_with_agent` selbst: Es
+/// probiert die naechste Identitaet und meldet `SigningFailed` erst, wenn
+/// keine passt.
 fn agent_sign_error(error: russh::AgentAuthError) -> AuthError {
     match error {
         russh::AgentAuthError::Send(_) => AuthError::HostUnreachable,
@@ -1270,9 +1287,10 @@ sJWR7W+cGvJ/vLsw==
     }
 
     /// Bietet jeden Schluessel per PK_OK an, sodass der Client wirklich
-    /// signieren muss; eine Signatur nimmt er nie an.
+    /// signieren muss. Eine Signatur nimmt er nur fuer `accept` an.
     struct OfferingServer {
         offered: Arc<AtomicUsize>,
+        accept: Option<russh::keys::PublicKey>,
     }
 
     impl russh::server::Handler for OfferingServer {
@@ -1288,30 +1306,62 @@ sJWR7W+cGvJ/vLsw==
         async fn auth_publickey(
             &mut self,
             _: &str,
-            _: russh::server::VerifiedPublicKey<'_>,
+            key: russh::server::VerifiedPublicKey<'_>,
         ) -> Result<russh::server::Auth, Self::Error> {
-            Ok(russh::server::Auth::reject())
+            if self
+                .accept
+                .as_ref()
+                .is_some_and(|accept| accept.key_data() == key.public_key.key_data())
+            {
+                Ok(russh::server::Auth::Accept)
+            } else {
+                Ok(russh::server::Auth::reject())
+            }
         }
     }
 
+    /// Was der Fixture-Agent auf eine Signaturanfrage fuer eine Identitaet
+    /// tut.
+    enum AgentAnswer {
+        /// SSH_AGENT_FAILURE, wie nach einer abgelehnten `ssh-add -c`-Rueckfrage
+        /// oder bei einem FIDO-Schluessel ohne Beruehrung.
+        Refuse,
+        /// Signiert mit dem privaten Schluessel.
+        Sign(Box<russh::keys::PrivateKey>),
+        /// Schliesst die Verbindung, wie ein abgestuerzter Agent.
+        HangUp,
+    }
+
     /// Minimaler ssh-agent nach draft-miller-ssh-agent: listet die
-    /// uebergebenen Identitaeten und lehnt jede Signatur mit
-    /// SSH_AGENT_FAILURE ab, wie nach einer abgelehnten `ssh-add -c`-Rueckfrage
-    /// oder einem FIDO-Schluessel ohne Beruehrung.
-    async fn refusing_agent(
+    /// Identitaeten und beantwortet jede Signaturanfrage nach `AgentAnswer`.
+    async fn fixture_agent(
         mut io: tokio::io::DuplexStream,
-        identities: Vec<Vec<u8>>,
+        identities: Vec<(russh::keys::PublicKey, AgentAnswer)>,
         sign_requests: Arc<AtomicUsize>,
     ) -> std::io::Result<()> {
+        use russh::keys::signature::Signer;
+        use russh::keys::ssh_encoding::Encode;
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
         const FAILURE: u8 = 5;
         const REQUEST_IDENTITIES: u8 = 11;
         const IDENTITIES_ANSWER: u8 = 12;
         const SIGN_REQUEST: u8 = 13;
+        const SIGN_RESPONSE: u8 = 14;
         fn put_string(out: &mut Vec<u8>, value: &[u8]) {
             out.extend_from_slice(&(value.len() as u32).to_be_bytes());
             out.extend_from_slice(value);
         }
+        fn take_string<'a>(input: &mut &'a [u8]) -> &'a [u8] {
+            let (length, rest) = input.split_at(4);
+            let length = u32::from_be_bytes(length.try_into().unwrap()) as usize;
+            let (value, rest) = rest.split_at(length);
+            *input = rest;
+            value
+        }
+        let blobs: Vec<Vec<u8>> = identities
+            .iter()
+            .map(|(key, _)| key.to_bytes().unwrap())
+            .collect();
         loop {
             let mut length = [0u8; 4];
             if io.read_exact(&mut length).await.is_err() {
@@ -1324,15 +1374,30 @@ sJWR7W+cGvJ/vLsw==
             match request.first() {
                 Some(&REQUEST_IDENTITIES) => {
                     answer.push(IDENTITIES_ANSWER);
-                    answer.extend_from_slice(&(identities.len() as u32).to_be_bytes());
-                    for blob in &identities {
+                    answer.extend_from_slice(&(blobs.len() as u32).to_be_bytes());
+                    for blob in &blobs {
                         put_string(&mut answer, blob);
-                        put_string(&mut answer, b"refusing-agent-fixture");
+                        put_string(&mut answer, b"fixture-agent");
                     }
                 }
                 Some(&SIGN_REQUEST) => {
                     sign_requests.fetch_add(1, Ordering::SeqCst);
-                    answer.push(FAILURE);
+                    let mut rest = &request[1..];
+                    let blob = take_string(&mut rest);
+                    let data = take_string(&mut rest);
+                    let index = blobs.iter().position(|b| b == blob);
+                    match index.map(|i| &identities[i].1) {
+                        Some(AgentAnswer::Sign(private)) => {
+                            let signature: russh::keys::ssh_key::Signature =
+                                private.try_sign(data).unwrap();
+                            let mut encoded = Vec::new();
+                            signature.encode(&mut encoded).unwrap();
+                            answer.push(SIGN_RESPONSE);
+                            put_string(&mut answer, &encoded);
+                        }
+                        Some(AgentAnswer::HangUp) => return Ok(()),
+                        Some(AgentAnswer::Refuse) | None => answer.push(FAILURE),
+                    }
                 }
                 _ => answer.push(FAILURE),
             }
@@ -1342,23 +1407,28 @@ sJWR7W+cGvJ/vLsw==
         }
     }
 
-    #[tokio::test]
-    async fn agent_refused_signature_is_a_signing_failure_and_ends_the_identity_loop() {
+    /// Die beiden ed25519-Schluessel der Fixtures, in fester Reihenfolge.
+    fn agent_fixture_keys() -> [russh::keys::PrivateKey; 2] {
+        [(ED25519_AESCTR_KEY, "test"), (ED25519_KEY, "blabla")].map(|(source, password)| {
+            russh::keys::decode_secret_key(source, Some(password)).unwrap()
+        })
+    }
+
+    struct AgentRun {
+        result: Result<(), AuthError>,
+        offered: usize,
+        sign_requests: usize,
+    }
+
+    /// Meldet sich mit dem Fixture-Agenten bei einem `OfferingServer` an und
+    /// prueft danach, dass Server und Agent das Ende sehen.
+    async fn run_agent_auth(
+        identities: Vec<(russh::keys::PublicKey, AgentAnswer)>,
+        accept: Option<russh::keys::PublicKey>,
+    ) -> AgentRun {
         use std::time::Duration;
 
         let host_key = russh::keys::decode_secret_key(PLAIN_PKCS8, None).unwrap();
-        // Zwei Identitaeten: nach der abgelehnten ersten darf die zweite
-        // nicht mehr versucht werden.
-        let identities = [(ED25519_AESCTR_KEY, "test"), (ED25519_KEY, "blabla")]
-            .into_iter()
-            .map(|(source, password)| {
-                russh::keys::decode_secret_key(source, Some(password))
-                    .unwrap()
-                    .public_key()
-                    .to_bytes()
-                    .unwrap()
-            })
-            .collect();
         let offered = Arc::new(AtomicUsize::new(0));
         let sign_requests = Arc::new(AtomicUsize::new(0));
         let server_config = Arc::new(russh::server::Config {
@@ -1371,6 +1441,7 @@ sJWR7W+cGvJ/vLsw==
         let (client_io, server_io) = tokio::io::duplex(64 * 1024);
         let handler = OfferingServer {
             offered: offered.clone(),
+            accept,
         };
         let mut server = tokio::spawn(async move {
             russh::server::run_stream(server_config, server_io, handler)
@@ -1378,11 +1449,7 @@ sJWR7W+cGvJ/vLsw==
                 .await
         });
         let (agent_io, agent_peer) = tokio::io::duplex(64 * 1024);
-        let agent = tokio::spawn(refusing_agent(
-            agent_peer,
-            identities,
-            sign_requests.clone(),
-        ));
+        let agent = tokio::spawn(fixture_agent(agent_peer, identities, sign_requests.clone()));
 
         let mut client = tokio::time::timeout(
             Duration::from_secs(10),
@@ -1400,17 +1467,8 @@ sJWR7W+cGvJ/vLsw==
             ),
         )
         .await
-        .expect("a refused agent signature must end the attempt promptly");
+        .expect("an agent sign-in must end promptly");
 
-        assert!(
-            matches!(result, Err(AuthError::SigningFailed)),
-            "refused agent signature classified as {result:?}"
-        );
-        assert_eq!(offered.load(Ordering::SeqCst), 1, "only the first identity");
-        assert_eq!(sign_requests.load(Ordering::SeqCst), 1);
-
-        // Erst das Ende des Handles loest die Session aus dem Warten auf die
-        // Signatur; danach muss auch der Server das Ende sehen.
         drop(client);
         let ended = tokio::time::timeout(Duration::from_secs(3), &mut server).await;
         if ended.is_err() {
@@ -1423,5 +1481,103 @@ sJWR7W+cGvJ/vLsw==
             .expect("fake agent must see the closed client side")
             .expect("fake agent task must not panic")
             .unwrap();
+        AgentRun {
+            result,
+            offered: offered.load(Ordering::SeqCst),
+            sign_requests: sign_requests.load(Ordering::SeqCst),
+        }
+    }
+
+    #[tokio::test]
+    async fn a_refused_agent_signature_moves_on_to_the_next_identity() {
+        let [first, second] = agent_fixture_keys();
+        let accept = second.public_key().clone();
+        let run = run_agent_auth(
+            vec![
+                (first.public_key().clone(), AgentAnswer::Refuse),
+                (
+                    second.public_key().clone(),
+                    AgentAnswer::Sign(Box::new(second)),
+                ),
+            ],
+            Some(accept),
+        )
+        .await;
+        assert!(
+            run.result.is_ok(),
+            "the second identity must sign in: {:?}",
+            run.result
+        );
+        assert_eq!(run.offered, 2);
+        assert_eq!(run.sign_requests, 2);
+    }
+
+    #[tokio::test]
+    async fn refused_signatures_for_every_identity_are_a_signing_failure() {
+        let [first, second] = agent_fixture_keys();
+        let run = run_agent_auth(
+            vec![
+                (first.public_key().clone(), AgentAnswer::Refuse),
+                (second.public_key().clone(), AgentAnswer::Refuse),
+            ],
+            None,
+        )
+        .await;
+        assert!(
+            matches!(run.result, Err(AuthError::SigningFailed)),
+            "refused agent signatures classified as {:?}",
+            run.result
+        );
+        assert_eq!(run.offered, 2, "every identity is tried");
+        assert_eq!(run.sign_requests, 2);
+    }
+
+    /// Lehnt der Server die zweite Identitaet ab, nachdem der Agent die erste
+    /// verweigert hat, bleibt die Verweigerung der Grund.
+    #[tokio::test]
+    async fn a_refusal_outweighs_a_later_rejection_by_the_server() {
+        let [first, second] = agent_fixture_keys();
+        let run = run_agent_auth(
+            vec![
+                (first.public_key().clone(), AgentAnswer::Refuse),
+                (
+                    second.public_key().clone(),
+                    AgentAnswer::Sign(Box::new(second)),
+                ),
+            ],
+            None,
+        )
+        .await;
+        assert!(
+            matches!(run.result, Err(AuthError::SigningFailed)),
+            "classified as {:?}",
+            run.result
+        );
+        assert_eq!(run.sign_requests, 2);
+    }
+
+    /// Ein Agent, der mitten in der Anmeldung die Verbindung verliert, beendet
+    /// die Schleife: Auch die naechste Identitaet bekaeme keine Signatur.
+    #[tokio::test]
+    async fn an_agent_that_hangs_up_ends_the_identity_loop() {
+        let [first, second] = agent_fixture_keys();
+        let run = run_agent_auth(
+            vec![
+                (first.public_key().clone(), AgentAnswer::HangUp),
+                (
+                    second.public_key().clone(),
+                    AgentAnswer::Sign(Box::new(second)),
+                ),
+            ],
+            None,
+        )
+        .await;
+        assert!(
+            matches!(run.result, Err(AuthError::SigningFailed)),
+            "a lost agent classified as {:?}",
+            run.result
+        );
+        assert_eq!(run.offered, 1, "only the first identity");
+        assert_eq!(run.sign_requests, 1);
     }
 }

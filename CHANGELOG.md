@@ -15,6 +15,10 @@ dem Namen agentbridge.
 - Frontend-Pruefwerkzeuge: TypeScript 6.0, Vitest 5 und jsdom 30 statt 5.6, 4.1 und 29. Die gebaute Oberflaeche bleibt Byte fuer Byte gleich. Neu ist `npm run typecheck`, das auch die Vite-Konfigurationen und die Skripte unter `scripts/` prueft (`tsconfig.node.json`, mit `@types/node`); die CI fuehrt es aus. 22 Skripte sind dort noch ausgenommen, weil ihnen JSDoc-Typen fehlen.
 - Frontend-Bau: Vite 8 statt 6. Vite 8 baut mit rolldown statt mit Rollup und esbuild; die Oberflaeche wird weiter fuer Safari 14 und Chrome 87 gebaut, wie mit Vite 6, und behaelt ihre Lizenzhinweise (die xterm-Header im JS, den xterm-Hinweis im CSS). Statt der esbuild-Helfer enthaelt sie Babel-Helfer fuer private Klassenmitglieder, deren MIT-Texte `THIRD_PARTY_LICENSES.md` jetzt mitfuehrt, dazu den Text von rolldown.
 
+### Fixed
+
+- ssh-agent: Verweigert der Agent die Signatur fuer einen Schluessel, etwa nach einer abgelehnten Rueckfrage (`ssh-add -c`) oder bei einem Sicherheitsschluessel ohne Beruehrung, probiert die App wie OpenSSH den naechsten Schluessel des Agenten. Bisher brach die Anmeldung beim ersten ab. Erst wenn keiner passt, meldet sie einen Signaturfehler und versucht nicht mehr selbst, die Verbindung wiederherzustellen.
+
 ### Security
 
 - SSH: russh 0.65.1 statt 0.65.0, mit denselben vier eigenen Aenderungen (`vendor/russh/AGENTBRIDGE-PATCH.md`). Es behebt die zwei am 03.11. gemeldeten, niedrig eingestuften Luecken GHSA-9264-jvgf-6w2f und GHSA-736f-c93q-9fwx, die die App nicht betrafen; der Audit-Workflow fuehrt keine Meldung mehr als akzeptiert. Dazu nimmt russh ECDSA-Signaturen von Servern an, die die Werte mit Nullen auffuellen (etwa Huawei VRP), wie OpenSSH.
