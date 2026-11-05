@@ -42,8 +42,9 @@ const TAURI_RENAMES = { LICENSE_MIT: 'LICENSE-MIT', 'LICENSE_APACHE-2.0': 'LICEN
 // `role` accepts a new role for an unchanged version; `new` decides a package
 // that had no version in the selection (MIT only: the reasons say so).
 const REVIEWED = {
-  // Empty between updates. The entries of the Tauri 2.12 update (2026-10-29)
-  // are kept in docs/release/license-rust-update-2026-10-29.json.
+  // Empty between updates. The entries of earlier updates are kept in their
+  // records: docs/release/license-rust-update-2026-10-29.json (Tauri 2.12)
+  // and docs/release/license-rust-update-2026-11-05-dup-crates.json.
 };
 
 const fail = message => { throw new Error(message); };
@@ -215,7 +216,7 @@ function externalTexts(selection, component, old) {
   return component.documents.map(id => selection.documents.find(d => d.id === id)).filter(d => !own.has(d.sha256)).map(d => d.file_name);
 }
 
-export function plan(root, { date }) {
+export function plan(root, { date, label = null }) {
   const selection = JSON.parse(fs.readFileSync(path.join(root, SELECTION), 'utf8'));
   const toolchain = selection.scope.rust_toolchain;
   const meta = metadata(root, toolchain);
@@ -288,7 +289,9 @@ export function plan(root, { date }) {
     const component = components.get(`cargo:${key}`);
     result.removed.push({ package: key, role: component?.technical_role ?? null, disposition: component?.disposition ?? null });
   }
-  return { selection, toolchain, result, recordPath: `docs/release/license-rust-update-${date}.json` };
+  // A second update on the same day takes a label, so that it never replaces
+  // the record of the first one.
+  return { selection, toolchain, result, recordPath: `docs/release/license-rust-update-${date}${label ? `-${label}` : ''}.json` };
 }
 
 function replaceVersion(text, name, oldVersion, newVersion) {
@@ -325,6 +328,7 @@ export function apply(root, { selection, toolchain, result, recordPath }, { date
   ensure(outsideReason, 'No reviewed reason for packages outside the Windows tree');
   const before = selection.inputs.files.find(f => f.path === 'Cargo.lock');
   const lockNow = record(fs.readFileSync(path.join(root, 'Cargo.lock')));
+  ensure(!fs.existsSync(path.join(root, recordPath)), `${recordPath} exists already; pass --label=<name> for a second update that day`);
   const store = textStore(selection, recordPath);
 
   for (const move of result.moved) {
@@ -442,9 +446,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     const args = process.argv.slice(2);
     const write = args.includes('--write');
     const date = (args.find(a => a.startsWith('--date=')) ?? '').slice(7) || new Date().toISOString().slice(0, 10);
-    ensure(/^\d{4}-\d{2}-\d{2}$/.test(date) && args.every(a => a === '--write' || a.startsWith('--date=')), 'Usage: node scripts/release-license-update-cargo.mjs [--write] [--date=YYYY-MM-DD]');
+    const label = (args.find(a => a.startsWith('--label=')) ?? '').slice(8) || null;
+    ensure(/^\d{4}-\d{2}-\d{2}$/.test(date) && (label === null || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(label)) && args.every(a => a === '--write' || a.startsWith('--date=') || a.startsWith('--label=')), 'Usage: node scripts/release-license-update-cargo.mjs [--write] [--date=YYYY-MM-DD] [--label=<name>]');
     const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-    const planned = plan(root, { date });
+    const planned = plan(root, { date, label });
     const { result } = planned;
     const summary = { moved: result.moved.length, reviewed_moves: result.moved.filter(m => m.note).map(m => m.key), unchanged: result.unchanged, role_changes: result.roleChanges.map(r => r.key), new_packages: result.newPackages.map(n => n.key), removed: result.removed.length, new_outside_tree: result.newOutside.map(n => n.package), review: result.review };
     if (write) Object.assign(summary, apply(root, planned, { date }));

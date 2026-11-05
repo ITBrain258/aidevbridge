@@ -965,30 +965,12 @@
     },
     {
       "name": "dirs-sys",
-      "version": "0.4.1",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT OR Apache-2.0",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [],
-      "lock_checksum": "520f05a5cbd335fae5a99ff7a6ab8627577660ee5cfd6a94a6a929b52ff0321c"
-    },
-    {
-      "name": "dirs-sys",
       "version": "0.5.0",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "MIT OR Apache-2.0",
       "technical_role": "normal-runtime-candidate",
       "release_tree_features": [],
       "lock_checksum": "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab"
-    },
-    {
-      "name": "dirs",
-      "version": "5.0.1",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT OR Apache-2.0",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [],
-      "lock_checksum": "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
     },
     {
       "name": "dirs",
@@ -3251,17 +3233,6 @@
     },
     {
       "name": "serde_spanned",
-      "version": "0.6.9",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT OR Apache-2.0",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [
-        "serde"
-      ],
-      "lock_checksum": "bf41e0cfaf7226dca15e8197172c295a782857fcb97fad1808a166870dee75a3"
-    },
-    {
-      "name": "serde_spanned",
       "version": "1.1.2",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "MIT OR Apache-2.0",
@@ -4091,17 +4062,6 @@
     },
     {
       "name": "toml_datetime",
-      "version": "0.6.3",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT OR Apache-2.0",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [
-        "serde"
-      ],
-      "lock_checksum": "7cda73e2f1397b1262d6dfdcef8aafae14d1de7748d66822d3bfeeb6d03e5e4b"
-    },
-    {
-      "name": "toml_datetime",
       "version": "1.1.2+spec-1.1.0",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "MIT OR Apache-2.0",
@@ -4113,18 +4073,6 @@
         "std"
       ],
       "lock_checksum": "2b86d767906c6c42421dcba507eb9d203e779497710a47782a224bb871653053"
-    },
-    {
-      "name": "toml_edit",
-      "version": "0.20.2",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT OR Apache-2.0",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [
-        "default",
-        "serde"
-      ],
-      "lock_checksum": "396e4d48bbb2b7554c944bde63101b5ae446cff6ec4a24227428f15eb72ef338"
     },
     {
       "name": "toml_edit",
@@ -4173,19 +4121,6 @@
         "std"
       ],
       "lock_checksum": "06bdbd8cfc056b8d2e2e85f29b56a3bdbecb527cef81eb39e3e7b98af4652770"
-    },
-    {
-      "name": "toml",
-      "version": "0.8.2",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT OR Apache-2.0",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [
-        "default",
-        "display",
-        "parse"
-      ],
-      "lock_checksum": "185d8ab0dfbb35cf1399a6344d8484209c088f75f8f68230da55d48d95d43e3d"
     },
     {
       "name": "toml",
@@ -4480,19 +4415,6 @@
       "technical_role": "normal-runtime-candidate",
       "release_tree_features": [],
       "lock_checksum": "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb"
-    },
-    {
-      "name": "winnow",
-      "version": "0.5.40",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [
-        "alloc",
-        "default",
-        "std"
-      ],
-      "lock_checksum": "f593a95398737aeed53e489c785df13f3618e41dbcd6718c6addbf1395aa6876"
     },
     {
       "name": "winnow",
