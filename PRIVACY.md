@@ -61,9 +61,14 @@ that way either.
 
 ## Permissions (Android)
 
-- **Internet access:** for the SSH connections to your hosts. No other
-  permission is requested. Importing a key uses the system file picker, which
-  gives the app access to the one file you choose.
+- **Internet access:** for the SSH connections to your hosts.
+- **Nearby devices (local network access), Android 17 and newer:** for SSH
+  connections to hosts on your local network. Android blocks the local network
+  until you allow it; the app asks only when you connect to such a host. It
+  doesn't search the network for devices and connects only to the hosts you
+  enter.
+- No other permission is requested. Importing a key uses the system file
+  picker, which gives the app access to the one file you choose.
 
 ## Third parties
 

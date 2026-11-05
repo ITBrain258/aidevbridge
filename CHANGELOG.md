@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- Android: Ziel ist Android 17 (API 37). Android 17 sperrt fuer solche Apps das lokale Netz, bis der Nutzer "Geraete in der Naehe" erlaubt; die App fragt danach vor der ersten Verbindung zu einem Host im lokalen Netz (private Adressen, Link-local, Namen unter `.local`). Wird die Berechtigung abgelehnt und scheitert die Verbindung, nennt die Meldung den Grund und den Weg in die Einstellungen statt einer Zeitueberschreitung; das automatische Neuverbinden haelt dann an. Hosts im Internet brauchen keine Berechtigung. `PRIVACY.md` und die Installationsanleitung nennen die neue Berechtigung.
+
 ## [0.2.7] - 2026-11-05
 
 russh 0.65.1, die Abhaengigkeitsstufen vom 05.11. (Vite 8, TypeScript 6, Gradle 9 mit Android-Gradle-Plugin 9 und Kotlin 2, `dirs`, `toml` und `sha2`), der naechste Agent-Schluessel nach einer verweigerten Signatur und Hostschluessel nach `known_hosts` geordnet; dazu die Befunde einer Pruefung vor dem Release.
