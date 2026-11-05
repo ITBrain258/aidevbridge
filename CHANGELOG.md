@@ -6,9 +6,17 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- CI: `vendored.yml` fuehrt neben den Bibliothekstests auch die Integrationstests des eingebetteten russh aus; seit 0.65.1 kompilieren sie unveraendert.
+
 ### Fixed
 
 - ssh-agent: Verweigert der Agent die Signatur fuer einen Schluessel, etwa nach einer abgelehnten Rueckfrage (`ssh-add -c`) oder bei einem Sicherheitsschluessel ohne Beruehrung, probiert die App wie OpenSSH den naechsten Schluessel des Agenten. Bisher brach die Anmeldung beim ersten ab. Erst wenn keiner passt, meldet sie einen Signaturfehler und versucht nicht mehr selbst, die Verbindung wiederherzustellen.
+
+### Security
+
+- SSH: russh 0.65.1 statt 0.65.0, mit denselben vier eigenen Aenderungen (`vendor/russh/AGENTBRIDGE-PATCH.md`). Es behebt die zwei am 03.11. gemeldeten, niedrig eingestuften Luecken GHSA-9264-jvgf-6w2f und GHSA-736f-c93q-9fwx, die die App nicht betrafen; der Audit-Workflow fuehrt keine Meldung mehr als akzeptiert. Dazu nimmt russh ECDSA-Signaturen von Servern an, die die Werte mit Nullen auffuellen (etwa Huawei VRP), wie OpenSSH.
 
 ## [0.2.6] - 2026-11-03
 

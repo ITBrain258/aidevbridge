@@ -12,7 +12,7 @@
     "installer_webview2_mode": "downloadBootstrapper",
     "installer_webview2_silent": true,
     "meaning": "License text selection for the application plus explicitly disclosed source/build families; not binary or installer acceptance.",
-    "historical_evidence": "Native family decisions are those of the 2026-09-12 review; frontend decisions those of the 2026-09-12 frontend report (docs/release/license-frontend-output-2026-09-12.json). Rebound on 2026-10-20 for aidevbridge 0.2.0: changed own sources, generated permissions and the vendored russh change notices were re-hashed; @xterm/addon-web-links, the Tauri window/dpi/image modules and the vendored tslib helpers were added after a fresh frontend inventory; pageant 0.2.1 -> 0.2.4. No historical EXE, PDB or dist directory is required as a notice preparation input. Final rebuilt artifacts remain separate acceptance inputs. Rebound on 2026-10-27 for the security updates of 2026-10-26 to crypto-bigint 0.7.5 -> 0.7.10, ctutils 0.4.2 -> 0.4.6 and tokio 1.53.1 -> 1.53.3 (docs/release/license-rust-crypto-tokio-2026-10-26.json): same declared licenses and byte-identical license files, so the decisions stand. Updated on 2026-10-29 for a Cargo.lock update (docs/release/license-rust-update-2026-10-29.json): 144 packages moved to new versions (29 of them reviewed by hand), 6 new packages decided, 2 role changes, 30 packages left the graph, 8 new packages outside the Windows tree are excluded. Updated on 2026-10-30 for a Cargo.lock update (docs/release/license-rust-update-2026-10-30.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded."
+    "historical_evidence": "Native family decisions are those of the 2026-09-12 review; frontend decisions those of the 2026-09-12 frontend report (docs/release/license-frontend-output-2026-09-12.json). Rebound on 2026-10-20 for aidevbridge 0.2.0: changed own sources, generated permissions and the vendored russh change notices were re-hashed; @xterm/addon-web-links, the Tauri window/dpi/image modules and the vendored tslib helpers were added after a fresh frontend inventory; pageant 0.2.1 -> 0.2.4. No historical EXE, PDB or dist directory is required as a notice preparation input. Final rebuilt artifacts remain separate acceptance inputs. Rebound on 2026-10-27 for the security updates of 2026-10-26 to crypto-bigint 0.7.5 -> 0.7.10, ctutils 0.4.2 -> 0.4.6 and tokio 1.53.1 -> 1.53.3 (docs/release/license-rust-crypto-tokio-2026-10-26.json): same declared licenses and byte-identical license files, so the decisions stand. Updated on 2026-10-29 for a Cargo.lock update (docs/release/license-rust-update-2026-10-29.json): 144 packages moved to new versions (29 of them reviewed by hand), 6 new packages decided, 2 role changes, 30 packages left the graph, 8 new packages outside the Windows tree are excluded. Updated on 2026-10-30 for a Cargo.lock update (docs/release/license-rust-update-2026-10-30.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded."
   },
   "selection_policy": [
     "Each component below has an explicit decision. The helper does not derive permission from historical inventory status fields or parse SPDX expressions to choose licenses.",
@@ -40,19 +40,20 @@
     "docs/release/license-rust-update-2026-10-29.json",
     "docs/release/license-frontend-tauri-2.12-2026-10-29.json",
     "docs/release/windows-installer-nsis-3.13-2026-10-30.md",
-    "docs/release/license-rust-update-2026-10-30.json"
+    "docs/release/license-rust-update-2026-10-30.json",
+    "docs/release/license-rust-update-2026-11-05.json"
   ],
   "inputs": {
     "files": [
       {
         "path": "Cargo.lock",
-        "bytes": 149402,
-        "sha256": "c46d9550a6eb73ccb7531df2f59aa97a77fc546efb1512d0f80021cf5f3d87f7"
+        "bytes": 149377,
+        "sha256": "e21b1dcf578425f29b5d2ba61505d66aa7908829a3c06a8891e6e9ddaf74084b"
       },
       {
         "path": "Cargo.toml",
         "bytes": 456,
-        "sha256": "900d74ecaf1380379e9d20cae44413380f9e95aa1135da44492cfc1eb9b79a85"
+        "sha256": "6f6479f446936b302868a592b2a62ba95c5285c81712d1f765beb054c232ce1a"
       },
       {
         "path": "LICENSE-APACHE",
@@ -133,6 +134,11 @@
         "path": "docs/release/license-rust-update-2026-10-30.json",
         "bytes": 2358,
         "sha256": "dcf4f4da8d83315c14723457859c2a25f3d0ead0a4bfc9bad8471c44d5e89fae"
+      },
+      {
+        "path": "docs/release/license-rust-update-2026-11-05.json",
+        "bytes": 2358,
+        "sha256": "d2db091c6b8aa5a315664b6d128f2daf4137b1940705cd701392495831502814"
       },
       {
         "path": "docs/release/license-unic-2026-09-12.json",
@@ -597,7 +603,7 @@
       {
         "path": "src-tauri/Cargo.toml",
         "bytes": 5986,
-        "sha256": "2de5c072baee16908435f6be805ba34363e5b48afbf554dfcb9f744f8e88d562"
+        "sha256": "19fbb3ff2c9c9584864cf6795dca099b047571f38944b2cadfc0e55cc8075642"
       },
       {
         "path": "src-tauri/build.rs",
@@ -1146,7 +1152,7 @@
           {
             "path": "src-tauri/src/ssh/auth.rs",
             "bytes": 61626,
-            "sha256": "a1cf981fe6caf12094f2987f991f3b6a79afcf8541f25fc281ad29256082d837"
+            "sha256": "b83bf9dd89fa3ef16e969d48b64bfcdd9edf84404f1d6c4bbafac48eaf7be9ff"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
@@ -1271,12 +1277,12 @@
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
             "bytes": 29088,
-            "sha256": "834afae81e51e204db4408cff2326159d04f85ba02bbaca1274aa6755f147847"
+            "sha256": "2eaa6b031b4e8bbd180590863adfdafaa6079637547bfd2351e139b512782858"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
             "bytes": 31279,
-            "sha256": "e7ffc64621ed4b4511402515cef6e7dff068022305a2b382f31a2da391d6cbf6"
+            "sha256": "2aca331843b40c0a9d83e0761a7c76375435e11f73019b499c4d817d04c07d48"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
@@ -1562,27 +1568,27 @@
           {
             "path": "vendor/russh/.cargo_vcs_info.json",
             "bytes": 99,
-            "sha256": "5f84c655864d9952151d2f3b022db705c6b2d5b26b41ddc8750630aaadae9602"
+            "sha256": "87861dce8b2b9f101f5c70d522f08cbe4aa373a0a173ded65a67c24245c82022"
           },
           {
             "path": "vendor/russh/AGENTBRIDGE-PATCH.md",
-            "bytes": 10292,
-            "sha256": "a362dd4ef18f8eb6255363b41f8435beaa6cf4a0b33b065a85721e13b5d73f22"
+            "bytes": 11614,
+            "sha256": "b82f71224e86dd07e74fc5db6a0f68e7420b70a00653c28681309044c25039bc"
           },
           {
             "path": "vendor/russh/Cargo.lock",
-            "bytes": 96550,
-            "sha256": "6a39b1fbee7c9a86e947971ae6515ea9887513792d06d6b0e0ca7419b736a553"
+            "bytes": 96306,
+            "sha256": "5dea5cf7958f62b1192dfbf6a0ea9584aaa137ff6d8b9f6023e052fb56a8d97a"
           },
           {
             "path": "vendor/russh/Cargo.toml",
-            "bytes": 8003,
-            "sha256": "6b3ae7c15ded92e7789933c5cbe17207d49616008e8c7af7723c3d21add5325e"
+            "bytes": 8047,
+            "sha256": "00f0172e07ff5a538feeb9fb37448f2769045060bd8ae799bc2cfee333596ab0"
           },
           {
             "path": "vendor/russh/Cargo.toml.orig",
-            "bytes": 4211,
-            "sha256": "647de62232e4fe4e8c5edf31ee21a1ad7a398a21aaf62aadf8fa45d758d75ecd"
+            "bytes": 4231,
+            "sha256": "d7f7a451ae56d9afc4d1f388426a820c8d11ba781e76db0569b95e8e32152188"
           },
           {
             "path": "vendor/russh/LICENSE-APACHE",
@@ -1591,13 +1597,13 @@
           },
           {
             "path": "vendor/russh/README.md",
-            "bytes": 40739,
-            "sha256": "d6784e97891a1a7b83e16ef2389d505aaaf2d9f005488e3d6f8ae91e3ce0200d"
+            "bytes": 41057,
+            "sha256": "30cc759a7d207002e7a17ce6e6fc2843097ef1f7e50700bdb9a45d8e9bae09b3"
           },
           {
             "path": "vendor/russh/UPSTREAM-SHA256SUMS",
             "bytes": 7925,
-            "sha256": "f07f8a078578308904d6ba51ad52e72d3eb778594f5ebcbd31d3c2882f419d76"
+            "sha256": "ce09bed1e842e114a40e8538b2a70aa3786fbfecc736ac0a199d07e61dd49333"
           },
           {
             "path": "vendor/russh/benches/ciphers.rs",
@@ -1736,8 +1742,8 @@
           },
           {
             "path": "vendor/russh/src/cipher/mod.rs",
-            "bytes": 13712,
-            "sha256": "9aa51d28899054d98805d5b2363ba0532f5b49950156e8051ddb96f43aca1a88"
+            "bytes": 15110,
+            "sha256": "cc468cf341d61bda9ec676a61e48a20c8e314695ec3feb78f661737257d89075"
           },
           {
             "path": "vendor/russh/src/client/encrypted.rs",
@@ -1746,13 +1752,13 @@
           },
           {
             "path": "vendor/russh/src/client/kex.rs",
-            "bytes": 16450,
-            "sha256": "e70bff6125c724bf2216b6da526fb0644bbe0c7d1ac174929aa230c08781d598"
+            "bytes": 20037,
+            "sha256": "d45643882cca6318d2d08f5c9296a618d67c7b8e8858967eff23169230c0f389"
           },
           {
             "path": "vendor/russh/src/client/mod.rs",
-            "bytes": 122758,
-            "sha256": "49aa1cd4988e5590ca5fb5f1d9616cdca4be9cebfa77d1987ef3ba267e68541a"
+            "bytes": 123062,
+            "sha256": "9baf6145cb7cec9efe7946eb0f3cc7cc94d8291bc147c0db3821576ba746d883"
           },
           {
             "path": "vendor/russh/src/client/session.rs",
@@ -1811,8 +1817,8 @@
           },
           {
             "path": "vendor/russh/src/keys/agent/client.rs",
-            "bytes": 22809,
-            "sha256": "6c266ea9850bbdfba6d4021106c1370928b97319c54d4a64956add10fcc4e292"
+            "bytes": 24832,
+            "sha256": "ca04213a245714a120312fbccaeca787ea629bc8bbe4080c51f0c52df9d4facf"
           },
           {
             "path": "vendor/russh/src/keys/agent/mod.rs",
@@ -1821,13 +1827,13 @@
           },
           {
             "path": "vendor/russh/src/keys/agent/msg.rs",
-            "bytes": 845,
-            "sha256": "9027c37efb001d6992b68e0ff16ad1b6c14b5013729f44706d6c0f4db8dff679"
+            "bytes": 884,
+            "sha256": "359040a671c3f2a815011eb319887f13a9413fe073f43b2c63e0ac9a071f06d7"
           },
           {
             "path": "vendor/russh/src/keys/agent/server.rs",
-            "bytes": 14719,
-            "sha256": "b61ffc9feb8abe570602c2e1dea422c59bcd28b13df48ef9b0f99dc9ed9381f9"
+            "bytes": 17622,
+            "sha256": "dbf5adbab7dd3faa712844d19865e57a5cd825a31ecbc6dac3b347f00cd5a186"
           },
           {
             "path": "vendor/russh/src/keys/format/mod.rs",
@@ -1866,8 +1872,8 @@
           },
           {
             "path": "vendor/russh/src/keys/mod.rs",
-            "bytes": 63237,
-            "sha256": "f03e47b001421377e6f9d23876beddf2a1fd2f4b1fce00d65adb1c703c001d97"
+            "bytes": 64846,
+            "sha256": "2d17da5dbc5338d4a6f1288dfd41c013374749cbe0ac68b2bc8dcc5bdb08320e"
           },
           {
             "path": "vendor/russh/src/lib.rs",
@@ -1906,8 +1912,8 @@
           },
           {
             "path": "vendor/russh/src/negotiation.rs",
-            "bytes": 35179,
-            "sha256": "1170797cdc2690646c2f384117eeb9297fb75ea4d73581413c1f56b679ef0c7f"
+            "bytes": 35448,
+            "sha256": "7669375de6eb84acad57658039f3170163ea3e828f3dc1138bc4ed0dd38550b3"
           },
           {
             "path": "vendor/russh/src/parsing.rs",
@@ -1926,13 +1932,13 @@
           },
           {
             "path": "vendor/russh/src/server/kex.rs",
-            "bytes": 16234,
-            "sha256": "a2768f7f47c5f98a9eec76ed8fab502e456b1005d09a18dee7c467ddd93c49c8"
+            "bytes": 17167,
+            "sha256": "426e6298c78f3760100a6ceb0a7f25d144e3c4bf4583818b56fda424cdb15909"
           },
           {
             "path": "vendor/russh/src/server/mod.rs",
-            "bytes": 46612,
-            "sha256": "c6c202c824e6add43a2796ba4a440c936670941e4659a70eeb35b829870b079e"
+            "bytes": 46939,
+            "sha256": "e488af05b9211cf35a61dbf26012d6c3c3c16b80c94c635b522e64410f928307"
           },
           {
             "path": "vendor/russh/src/server/session.rs",
@@ -1981,8 +1987,8 @@
           },
           {
             "path": "vendor/russh/tests/auth_signer_failure.rs",
-            "bytes": 7129,
-            "sha256": "966b1def63734f83f3af3caa3932839d67aaab7870dd3d10eebe06e820bac9b7"
+            "bytes": 7139,
+            "sha256": "c289fae0cfe69261b852f5c96bf8054abf73e8f08f9f50ee9c3e377e13ce4b76"
           },
           {
             "path": "vendor/russh/tests/auth_state_reset.rs",
@@ -2041,8 +2047,8 @@
           },
           {
             "path": "vendor/russh/tests/test_window_adjust.rs",
-            "bytes": 4480,
-            "sha256": "90949e5d3b1c7d1e529ed6f66eb253cada7f32ab56a57ef3524b417ba79f8ce7"
+            "bytes": 4501,
+            "sha256": "bdcdd625197589512b1b04c6fecd598d2e6d82479b74851428aa41a131f7230e"
           }
         ]
       }
@@ -2106,7 +2112,7 @@
         "source": null,
         "manifest": {
           "bytes": 5986,
-          "sha256": "2de5c072baee16908435f6be805ba34363e5b48afbf554dfcb9f744f8e88d562"
+          "sha256": "19fbb3ff2c9c9584864cf6795dca099b047571f38944b2cadfc0e55cc8075642"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -4073,11 +4079,11 @@
         "declared_license": "Apache-2.0"
       },
       {
-        "package": "russh@0.65.0",
+        "package": "russh@0.65.1",
         "source": null,
         "manifest": {
-          "bytes": 8003,
-          "sha256": "6b3ae7c15ded92e7789933c5cbe17207d49616008e8c7af7723c3d21add5325e"
+          "bytes": 8047,
+          "sha256": "00f0172e07ff5a538feeb9fb37448f2769045060bd8ae799bc2cfee333596ab0"
         },
         "declared_license": "Apache-2.0"
       },
@@ -7819,7 +7825,7 @@
         "sha256": "f5f3152a1eee746c6108f8b5482ced753c046f0144f49e1c6bd468d1b88c8abe"
       },
       {
-        "package": "russh@0.65.0",
+        "package": "russh@0.65.1",
         "path": "LICENSE-APACHE",
         "bytes": 10849,
         "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
@@ -14784,9 +14790,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [
-        "compat-0_14"
-      ],
+      "release_tree_features": [],
       "documents": [
         "sha256:c09aae9d3c77b531f56351a9947bc7446511d6b025b3255312d3e3442a9a7583"
       ],
@@ -17981,9 +17985,9 @@
       }
     },
     {
-      "id": "cargo:russh@0.65.0",
+      "id": "cargo:russh@0.65.1",
       "name": "russh",
-      "version": "0.65.0",
+      "version": "0.65.1",
       "declared_license": "Apache-2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -17996,11 +18000,12 @@
       "documents": [
         "sha256:a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
       ],
-      "reason": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files.",
+      "reason": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files.",
       "source_urls": [],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/russh@0.63.2",
-        "docs/release/license-rust-update-2026-10-30.json"
+        "docs/release/license-rust-update-2026-10-30.json",
+        "docs/release/license-rust-update-2026-11-05.json"
       ]
     },
     {
@@ -26002,7 +26007,7 @@
     },
     {
       "id": "sha256:a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
-      "file_name": "russh-0.65.0-LICENSE-APACHE.txt",
+      "file_name": "russh-0.65.1-LICENSE-APACHE.txt",
       "bytes": 10849,
       "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
       "sources": [
@@ -26013,10 +26018,10 @@
         }
       ],
       "source_names": [
-        "russh@0.65.0/LICENSE-APACHE"
+        "russh@0.65.1/LICENSE-APACHE"
       ],
       "source_urls": [
-        "https://crates.io/crates/russh/0.65.0",
+        "https://crates.io/crates/russh/0.65.1",
         "https://github.com/warp-tech/russh"
       ]
     },
