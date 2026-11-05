@@ -38,6 +38,18 @@ pub struct HostSpec {
 #[async_trait]
 pub trait HostKeyPolicy: Send + Sync {
     async fn decide(&self, host: &str, port: u16, key_type: &str, key_b64: &str) -> bool;
+
+    /// Schluesseltypen (wie in `known_hosts`: `ssh-ed25519`, `ssh-rsa`,
+    /// `ecdsa-sha2-nistp256` ...), unter denen diese Policy den Host schon
+    /// kennt. Die Verbindung stellt deren Algorithmen in der Aushandlung nach
+    /// vorn, wie OpenSSH: Steht ein Host nur mit ECDSA in `known_hosts`, bietet
+    /// der Server seinen ECDSA-Schluessel an statt eines neuen ed25519, und
+    /// niemand muss nachfragen. Der zweite Zweig eines Paars und die Reparatur
+    /// nennen den Typ ihres Pins, damit sie denselben Schluessel aushandeln.
+    /// Ohne Angabe bleibt russhs Reihenfolge.
+    fn known_key_types(&self, _host: &str, _port: u16) -> Vec<String> {
+        Vec::new()
+    }
 }
 
 #[async_trait]

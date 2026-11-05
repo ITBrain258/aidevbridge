@@ -217,6 +217,28 @@ pub struct RusshTransport {
     operations: Operations,
 }
 
+/// Die Hostschluessel-Algorithmen fuer die Aushandlung: russhs Reihenfolge,
+/// die Algorithmen der schon bekannten Schluesseltypen (`known_types`, aus
+/// `HostKeyPolicy::known_key_types`) vorn, untereinander in russhs
+/// Reihenfolge. So macht es OpenSSH (`order_hostkeyalgs`). Ein bekannter
+/// RSA-Schluessel (`ssh-rsa` in `known_hosts`) zieht nur `rsa-sha2-512` und
+/// `rsa-sha2-256` nach vorn; `ssh-rsa` mit SHA-1 bleibt der letzte Rueckfall
+/// fuer Server, die nichts anderes koennen (SECURITY.md).
+fn host_key_order(known_types: &[String]) -> Vec<russh::keys::Algorithm> {
+    use russh::keys::Algorithm;
+    let known = |algorithm: &Algorithm| match algorithm {
+        Algorithm::Rsa { hash: None } => false,
+        Algorithm::Rsa { .. } => known_types.iter().any(|t| t == "ssh-rsa"),
+        other => known_types.contains(&other.to_string()),
+    };
+    let (front, back): (Vec<_>, Vec<_>) = russh::Preferred::DEFAULT
+        .key
+        .iter()
+        .cloned()
+        .partition(|algorithm| known(algorithm));
+    front.into_iter().chain(back).collect()
+}
+
 impl RusshTransport {
     pub(crate) async fn prepare_pair(
         method: AuthMethod,
@@ -329,9 +351,14 @@ impl RusshTransport {
     {
         let mut attempt = AttemptGuard(Some(control.clone()));
         let result = async {
+            let known_key_types = policy.known_key_types(&spec.hostname, spec.port);
             let config = Arc::new(client::Config {
                 keepalive_interval: Some(std::time::Duration::from_secs(15)),
                 inactivity_timeout: None,
+                preferred: russh::Preferred {
+                    key: std::borrow::Cow::Owned(host_key_order(&known_key_types)),
+                    ..Default::default()
+                },
                 ..Default::default()
             });
             let (ended, end_receiver) = watch::channel(false);
@@ -800,6 +827,57 @@ mod tests {
             signal_exit_code(&Sig::Custom("RTMIN+1".to_string())),
             128,
             "auch ohne bekannte Signalnummer darf der Exit-Code nicht 0 (Erfolg) sein"
+        );
+    }
+
+    fn names(order: Vec<russh::keys::Algorithm>) -> Vec<String> {
+        order.iter().map(ToString::to_string).collect()
+    }
+
+    #[test]
+    fn host_key_order_puts_known_types_first_and_keeps_sha1_last() {
+        let default = [
+            "ssh-ed25519",
+            "ecdsa-sha2-nistp256",
+            "ecdsa-sha2-nistp384",
+            "ecdsa-sha2-nistp521",
+            "rsa-sha2-512",
+            "rsa-sha2-256",
+            "ssh-rsa",
+        ];
+        assert_eq!(names(host_key_order(&[])), default);
+        // Unknown names change nothing.
+        assert_eq!(names(host_key_order(&["ssh-dss".into()])), default);
+        assert_eq!(
+            names(host_key_order(&["ecdsa-sha2-nistp256".into()])),
+            [
+                "ecdsa-sha2-nistp256",
+                "ssh-ed25519",
+                "ecdsa-sha2-nistp384",
+                "ecdsa-sha2-nistp521",
+                "rsa-sha2-512",
+                "rsa-sha2-256",
+                "ssh-rsa",
+            ]
+        );
+        // A known RSA key moves the SHA-2 signatures only; SHA-1 stays the
+        // last resort behind ed25519 (SECURITY.md).
+        assert_eq!(
+            names(host_key_order(&["ssh-rsa".into()])),
+            [
+                "rsa-sha2-512",
+                "rsa-sha2-256",
+                "ssh-ed25519",
+                "ecdsa-sha2-nistp256",
+                "ecdsa-sha2-nistp384",
+                "ecdsa-sha2-nistp521",
+                "ssh-rsa",
+            ]
+        );
+        // Several known types keep russh's order among themselves.
+        assert_eq!(
+            names(host_key_order(&["ssh-rsa".into(), "ssh-ed25519".into()]))[..3],
+            ["ssh-ed25519", "rsa-sha2-512", "rsa-sha2-256"]
         );
     }
 }

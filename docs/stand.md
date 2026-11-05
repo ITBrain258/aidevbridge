@@ -581,14 +581,13 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     echten Host, einen Mac oder einen echten CI-Lauf braucht (Protokolldatei
     unter Punkt 5, Seitenleiste unter Punkt 8, Android unter Punkt 11,
     Abhängigkeiten unter Punkt 12):
-    - **Hostschlüssel-Algorithmen nach `known_hosts` ordnen**, wie OpenSSH.
-      Steht ein Host dort nur mit ECDSA oder RSA und bietet er auch ed25519
-      an, handelt die App ed25519 aus und fragt mit Hinweis auf den bekannten
-      Typ nach. Das ist sicher, nur unbequem. Braucht eine Designentscheidung
-      zur Reihenfolge bei RSA (kein `ssh-rsa` mit SHA-1 vor ed25519, siehe
-      `SECURITY.md`), eine Methode in `HostKeyPolicy`, nach der auch der
-      zweite Zweig des Paars und die Reparatur ordnen, und einen Live-Test
-      gegen OpenSSH mit mehreren Hostschlüsseln.
+    - **Hostschlüssel-Algorithmen nach `known_hosts` ordnen:** erledigt mit
+      PR #30. `HostKeyPolicy::known_key_types` nennt die bekannten Typen
+      (TOFU aus `known_hosts`, der zweite Zweig des Paars und die Reparatur
+      den Typ ihres Pins), und die Verbindung stellt deren Algorithmen vorn.
+      Bei RSA rücken nur `rsa-sha2-512` und `rsa-sha2-256` vor; `ssh-rsa` mit
+      SHA-1 bleibt der letzte Rückfall hinter ed25519. Der Live-Test gegen
+      OpenSSH mit mehreren Hostschlüsseln läuft im Ubuntu-Job der CI.
     - **Gehashte Einträge in `known_hosts`** bei `HashKnownHosts yes`: braucht
       die Auswertung von `ssh_config` mit `Host` und `Match` und HMAC-SHA1
       mit Zufallssalz. Bis dahin nennt die [Grenzen-Anleitung](guide/limits.md)

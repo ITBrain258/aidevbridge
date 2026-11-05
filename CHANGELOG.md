@@ -28,6 +28,10 @@ dem Namen agentbridge.
 
 - SSH: russh 0.65.1 statt 0.65.0, mit denselben vier eigenen Aenderungen (`vendor/russh/AGENTBRIDGE-PATCH.md`). Es behebt die zwei am 03.11. gemeldeten, niedrig eingestuften Luecken GHSA-9264-jvgf-6w2f und GHSA-736f-c93q-9fwx, die die App nicht betrafen; der Audit-Workflow fuehrt keine Meldung mehr als akzeptiert. Dazu nimmt russh ECDSA-Signaturen von Servern an, die die Werte mit Nullen auffuellen (etwa Huawei VRP), wie OpenSSH.
 
+### Fixed
+
+- Hostschluessel: Wie OpenSSH bevorzugt die App beim Aushandeln die Schluesseltypen, unter denen ein Host schon in `known_hosts` steht. Ein Host, der dort nur mit seinem ECDSA- oder RSA-Schluessel steht, verbindet sich damit ohne Rueckfrage, auch wenn er zusaetzlich einen ed25519-Schluessel hat. Bisher handelte die App ed25519 aus und fragte nach. `ssh-rsa` mit SHA-1 bleibt der letzte Rueckfall.
+
 ## [0.2.6] - 2026-11-03
 
 Ergebnis eines Code-Reviews: Die SSH-Verbindung schaltet den Nagle-Algorithmus ab, zwei kleine Fehler in der Oberflaeche sind behoben, die Doku zu Zwischenablage, Datenschutz und Beitragen ist berichtigt, und die CI prueft auch das eingebettete russh.

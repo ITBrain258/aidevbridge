@@ -69,7 +69,11 @@
   [SECURITY.md](../../SECURITY.md#clipboard-writes-from-programs-when-tmux-passes-them-on)).
 - **`known_hosts`:** plain and hashed host entries (`|1|…`, as written by
   `HashKnownHosts yes` or `ssh-keygen -H`) are matched alike: a different key
-  of the same type behind a hashed entry is refused as a changed key. A host
+  of the same type behind a hashed entry is refused as a changed key. As in
+  OpenSSH, the key types a host already has in `known_hosts` come first when
+  the app negotiates the host key: a host known only by its ECDSA or RSA key
+  presents that key and connects without a question, even if it also has an
+  ed25519 key. A host
   key you confirm on first contact is added as a plain entry with the host
   name in clear text, also when you use `HashKnownHosts yes`;
   `ssh-keygen -H` hashes the file afterwards (it keeps the old file with

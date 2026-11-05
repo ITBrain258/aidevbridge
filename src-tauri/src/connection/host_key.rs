@@ -77,6 +77,23 @@ impl PairHostKeyPolicy {
 
 #[async_trait]
 impl HostKeyPolicy for PairHostKeyPolicy {
+    /// Nach dem ersten Zweig der Typ des Pins, damit der zweite denselben
+    /// Schluessel aushandelt; vorher die Typen der eigentlichen Policy.
+    fn known_key_types(&self, host: &str, port: u16) -> Vec<String> {
+        if host != self.host || port != self.port {
+            return Vec::new();
+        }
+        if let Some(pin) = self.pin() {
+            return vec![pin.algorithm];
+        }
+        self.initial
+            .lock()
+            .unwrap()
+            .as_ref()
+            .map(|initial| initial.known_key_types(host, port))
+            .unwrap_or_default()
+    }
+
     async fn decide(&self, host: &str, port: u16, algorithm: &str, key: &str) -> bool {
         if host != self.host || port != self.port {
             return self.reject();
@@ -136,6 +153,14 @@ impl RepairHostKeyPolicy {
 
 #[async_trait]
 impl HostKeyPolicy for RepairHostKeyPolicy {
+    /// Der Typ des Pins: Die Reparatur nimmt nur diesen einen Schluessel an.
+    fn known_key_types(&self, host: &str, port: u16) -> Vec<String> {
+        if host != self.pin.host || port != self.pin.port {
+            return Vec::new();
+        }
+        vec![self.pin.algorithm.clone()]
+    }
+
     async fn decide(&self, host: &str, port: u16, algorithm: &str, key: &str) -> bool {
         let allowed = known_hosts::lookup(&self.known_hosts, host, port, algorithm, key)
             != HostKeyDecision::Mismatch
@@ -245,5 +270,49 @@ mod tests {
                 .await
         );
         assert_eq!(calls.load(Ordering::SeqCst), 1);
+    }
+
+    /// Kennt den Host unter festen Typen und stimmt jedem Schluessel zu.
+    struct KnownTypes(Vec<String>);
+    #[async_trait]
+    impl HostKeyPolicy for KnownTypes {
+        async fn decide(&self, _: &str, _: u16, _: &str, _: &str) -> bool {
+            true
+        }
+        fn known_key_types(&self, _: &str, _: u16) -> Vec<String> {
+            self.0.clone()
+        }
+    }
+
+    #[tokio::test]
+    async fn pair_orders_by_the_initial_policy_and_then_by_its_pin() {
+        let initial = Arc::new(KnownTypes(vec![
+            "ecdsa-sha2-nistp256".into(),
+            "ssh-rsa".into(),
+        ]));
+        let policy = PairHostKeyPolicy::new(&spec(), ConnectControl::default(), initial);
+        assert_eq!(
+            policy.known_key_types("fixture.invalid", 2222),
+            ["ecdsa-sha2-nistp256", "ssh-rsa"]
+        );
+        assert!(policy.known_key_types("other.invalid", 2222).is_empty());
+        assert!(
+            policy
+                .decide("fixture.invalid", 2222, "ecdsa-sha2-nistp256", "AQIDBA==")
+                .await
+        );
+        // The second leg must negotiate the pinned key, nothing else.
+        assert_eq!(
+            policy.known_key_types("fixture.invalid", 2222),
+            ["ecdsa-sha2-nistp256"]
+        );
+    }
+
+    #[test]
+    fn repair_orders_by_its_pin() {
+        let pin = HostKeyPin::from_wire("fixture.invalid", 2222, "ssh-rsa", "AQIDBA==").unwrap();
+        let policy = RepairHostKeyPolicy::new(pin, String::new(), ConnectControl::default());
+        assert_eq!(policy.known_key_types("fixture.invalid", 2222), ["ssh-rsa"]);
+        assert!(policy.known_key_types("fixture.invalid", 22).is_empty());
     }
 }
