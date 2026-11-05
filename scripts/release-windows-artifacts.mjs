@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Local Windows packaging with explicit inputs. This is not release acceptance.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -225,7 +226,7 @@ export function releaseContract(root, requireCli = true) {
   ensure(selection.scope.target === TARGET && selection.scope.rust_toolchain === TOOLCHAIN && selection.scope.default_features === true, 'License target/toolchain mismatch');
   equal(selection.scope.cargo_features, ['tauri/custom-protocol'], 'Unexpected Cargo features');
   ensure(selection.scope.installer_webview2_mode === 'downloadBootstrapper' && selection.scope.installer_webview2_silent === true, 'Runtime selection mismatch');
-  equal(config, { build: { beforeBuildCommand: 'node scripts/release-windows-artifacts.mjs before-build', beforeBundleCommand: 'node scripts/release-windows-artifacts.mjs before-bundle' }, bundle: { targets: ['msi', 'nsis'], useLocalToolsDir: true, resources: { '../out/release-notices/': 'licenses/' }, licenseFile: '../out/release-installer-notice/.rtf', windows: { webviewInstallMode: { type: 'downloadBootstrapper', silent: true } } } }, 'Release configuration changed; review its delivery contract');
+  equal(config, { build: { beforeBuildCommand: 'node scripts/release-windows-artifacts.mjs before-build', beforeBundleCommand: 'node scripts/release-windows-artifacts.mjs before-bundle', windows: { staticVCRuntime: true } }, bundle: { targets: ['msi', 'nsis'], useLocalToolsDir: true, resources: { '../out/release-notices/': 'licenses/' }, licenseFile: '../out/release-installer-notice/.rtf', windows: { webviewInstallMode: { type: 'downloadBootstrapper', silent: true } } } }, 'Release configuration changed; review its delivery contract');
   ensure(base.build.frontendDist === '../dist' && !base.build.features && !base.build.runner && !base.bundle.externalBin && !base.bundle.windows && !base.bundle.createUpdaterArtifacts, 'Unexpected base build/bundle override');
   if (requireCli) ensure(readJson(root, 'node_modules/@tauri-apps/cli/package.json').version === CLI_VERSION, 'Bundler provenance requires the selected Tauri CLI');
   return { product: pkg.name, version: pkg.version, identifier: base.identifier, target: TARGET, rust_toolchain: TOOLCHAIN, default_features: true, cargo_features: ['tauri/custom-protocol'], configuration: { path: CONFIG, ...record(read(root, CONFIG)) }, license_selection: { path: SELECTION, ...record(read(root, SELECTION)) }, webview2: { type: 'downloadBootstrapper', silent: true }, signed: false };
@@ -234,7 +235,10 @@ function cleanBuildEnvironment() {
   for (const key of Object.keys(process.env)) {
     if (/^(RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|CARGO_BUILD_TARGET|CARGO_BUILD_RUSTFLAGS|CARGO_TARGET_.*_(RUSTFLAGS|LINKER|RUNNER)|TAURI_CONFIG|TAURI_SIGNING_.*|TAURI_BUNDLER_.*|STATIC_VCRUNTIME)$/i.test(key) && process.env[key]) throw new Error(`Unsupported inherited build override: ${key}`);
   }
-  return { ...process.env, RUSTUP_TOOLCHAIN: TOOLCHAIN, STATIC_VCRUNTIME: 'true' };
+  // The static VC runtime comes from build.windows.staticVCRuntime in the
+  // release configuration; tauri-build deprecates STATIC_VCRUNTIME, which
+  // would override it, so an inherited one is refused above.
+  return { ...process.env, RUSTUP_TOOLCHAIN: TOOLCHAIN };
 }
 export function claimRun(root, source, contract, id = `${new Date().toISOString().replace(/[-:.]/g, '').replace('Z', '')}-${crypto.randomBytes(6).toString('hex')}`) {
   ensure(/^[A-Za-z0-9-]{1,80}$/.test(id), 'Invalid run id'); mkdir(root, 'out');
@@ -253,7 +257,7 @@ function hookContext(root, env) {
   ensure(typeof rel === 'string' && /^out\/release-windows\/[A-Za-z0-9-]+$/.test(rel), 'Release hook requires the owning build entry point');
   const run = readJson(root, `${rel}/run.json`), lock = readJson(root, LOCK);
   ensure(run.owner === OWNER && run.root === root && run.relative === rel && lock.owner === OWNER && lock.id === run.id && lock.pid === run.pid && lock.token === env.AIDEVBRIDGE_RELEASE_TOKEN, 'Release hook owner mismatch');
-  ensure(env.CARGO_TARGET_DIR === path.join(root, rel, 'cargo') && env.RUSTUP_TOOLCHAIN === TOOLCHAIN && env.STATIC_VCRUNTIME === 'true', 'Release hook build environment mismatch');
+  ensure(env.CARGO_TARGET_DIR === path.join(root, rel, 'cargo') && env.RUSTUP_TOOLCHAIN === TOOLCHAIN && !env.STATIC_VCRUNTIME, 'Release hook build environment mismatch');
   process.kill(run.pid, 0); // Liveness check only; never terminate another process.
   return run;
 }

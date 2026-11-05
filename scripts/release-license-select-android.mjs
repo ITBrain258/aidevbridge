@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Derive the Android license selection (one APK for arm64, armv7 and x86_64)
 // from the reviewed Windows x64 selection, as release-license-select-macos.mjs
 // does for macOS. Packages shared with Windows keep their decision and texts,

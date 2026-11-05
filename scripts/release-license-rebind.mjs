@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Rebind hash records of the license selections after a reviewed change.
 // It only refreshes bytes/sha256 of the named files; it never decides a
 // license, adds a component or reads anything from the network. Every

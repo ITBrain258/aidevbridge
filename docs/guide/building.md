@@ -15,10 +15,6 @@ npm ci
 npm run tauri -- dev
 ```
 
-`package.json` denies the install script of `esbuild` (`allowScripts`, which
-current npm releases such as 11.20 honour; older ones ignore the field and
-run the script): the build and the tests run without it.
-
 Builds pin `russh` to the published version **0.65.1** with four local
 changes: SSH channel-close acknowledgements, including cleanup of unsent data
 after remote close; a public `ChannelEndObserver`/`ChannelEndSnapshot` API
@@ -35,6 +31,7 @@ archive checksum and Apache-2.0 license; the
 ## Tests
 
 ```sh
+npm run typecheck
 npm test
 npm run test:scripts
 npm run build

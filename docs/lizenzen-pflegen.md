@@ -67,7 +67,10 @@ Von Hand bleiben, das Werkzeug meldet sie unter `manual`:
    behält sie.
 3. `node scripts/release-license-update-cargo.mjs --write --date=JJJJ-MM-TT`
    schreibt die Windows-Auswahl und den Beleg
-   `docs/release/license-rust-update-<Datum>.json`. Danach binden:
+   `docs/release/license-rust-update-<Datum>.json`; ein zweites Update am
+   selben Tag braucht `--label=<name>` (Beleg
+   `license-rust-update-<Datum>-<name>.json`), einen vorhandenen Beleg
+   überschreibt das Skript nicht. Danach binden:
    `node scripts/release-license-rebind.mjs --write --add --platform=windows-x64 docs/release/license-rust-update-<Datum>.json`
    und `node scripts/release-license-rebind.mjs --write --third-party Cargo.lock`.
 4. `npm run licenses:derive`. Verlangt die macOS- oder Android-Ableitung
@@ -85,8 +88,12 @@ Muster: `docs/release/license-rust-update-2026-10-29.json` und Pull Request
 ## npm-Abhängigkeiten
 
 Gebunden ist, was ins Frontend-Bundle kommt (Tauri-API-Module, xterm,
-`tslib`, der Modulepreload-Polyfill von Vite) samt Lizenztexten und
-Hinweisen. Bei einem Update die betroffenen `npm:`-Komponenten der
+`tslib`, der Modulepreload-Polyfill von Vite, die Babel-Helfer, die oxc für
+private Klassenmitglieder einfügt) samt Lizenztexten und Hinweisen. Seit
+Vite 8 erzeugt rolldowns native Bibliothek Polyfill und Helfer; ein Update
+von Vite oder rolldown prüft beide neu, wie in
+`license-frontend-vite-8-2026-11-05.json`. Die Lizenzkommentare im Bundle
+hält `vite.config.ts` (`comments.legal` für JS, ein Plugin für CSS). Bei einem Update die betroffenen `npm:`-Komponenten der
 Windows-Auswahl von Hand umziehen (Version, URLs, Begründung), einen Beleg
 unter `docs/release/` anlegen (Muster:
 `license-frontend-tauri-2.12-2026-10-29.json`,

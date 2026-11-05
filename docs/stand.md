@@ -4,8 +4,12 @@
 Merge von PR #22) bringt das Code-Review vom 03.11.2026; die CI hat alle
 Pakete gebaut und an das Release gehängt.
 Seit 0.2.6 in `main`, noch nicht veröffentlicht: russh 0.65.1 (PR #24)
-behebt die zwei am 03.11. akzeptierten Meldungen. `main` ist seit dem 05.11.
-per Ruleset geschützt (Entscheidungen vom 05.11.).
+behebt die zwei am 03.11. akzeptierten Meldungen; PR #25 bringt
+`lucide-static` 1.69 und `staticVCRuntime` statt `STATIC_VCRUNTIME`;
+PR #26 nimmt die doppelten Crates `dirs` 5, `toml` 0.8 und `sha2` 0.10 aus
+der App; PR #27 bringt TypeScript 6, Vitest 5, jsdom 30 und die Typprüfung
+von `scripts/`, PR #32 Vite 8. `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen
+vom 05.11.).
 Vorher: `0.2.5` vom 31.10.2026, ein Sicherheitsrelease, Tag `v0.2.5` auf
 `fd93cc7`. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch den
 Maintainer (Punkt 6).
@@ -228,9 +232,39 @@ Build-Provenienz an ihnen hängen.
 | macOS-Lieferung | gebaut nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md) und mit 0.2.3 ausgeliefert: `npm run build:macos` baut ein Universal-DMG, ad-hoc signiert, und prüft Bundle und DMG; [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 396 Komponenten (Stand Tauri 2.12), `prepare`/`check` grün; in der CI Vorschau bei jedem Push, Release-Bau mit Testinstallation auf Apple silicon und Intel am Tag |
 | Review vom 26.10. | umgesetzt nach dem [Plan](plans/2026-10-26-review-umsetzung.md), Batches 1 bis 8 und 10 bis 20; Batch 9 wartet auf U3. Seit 27.10. in `main` (PR #8, nach den Korrekturen aus der M3.1-Abnahme in PR #7), CI auf Windows, Ubuntu und macOS grün. Mit 0.2.4 ausgeliefert |
 | Android | gebaut nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md) und mit 0.2.4 ausgeliefert: Projekt `src-tauri/gen/android` (API 36, ab Android 7.0), Ordner der App statt `~/.ssh`, Schlüssel auf dem Gerät, kompakte Ansicht und Touch-Leiste, Wischen im Terminal, Workflow `android.yml` mit Signatur im eigenen Job, GitHub-Release und Play-Upload, Store-Eintrag und `PRIVACY.md`, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 487 Komponenten, deren Texte als `assets/licenses/` in APK und App Bundle gehen. Am 29.10. erstmals auf einem Telefon des Maintainers gelaufen; eine Abnahme nach Plan steht aus ([Plan](plans/2026-10-27-android.md)) |
-| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18). Seit 0.2.6 in `main`: russh 0.65.1 (PR #24). Die weiteren Stufen stehen unter Punkt 12 |
+| Abhängigkeiten | Mit 0.2.5: Stufe 1 (PR #15): Tauri 2.12 und alle semver-kompatiblen Rust-Crates, Lizenzauswahlen mit `scripts/release-license-update-cargo.mjs` nachgeführt; Stufe 2 (PR #16): Tauri-CLI 2.12.4 und NSIS 3.13; russh 0.65.0 (PR #18). Seit 0.2.6 in `main`: russh 0.65.1 (PR #24), `lucide-static` 1.69 (PR #25), die doppelten Crates `dirs`, `toml` und `sha2` (PR #26), TypeScript 6, Vitest 5 und jsdom 30 (PR #27), Vite 8 (PR #32). Die weiteren Stufen stehen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 05.11.2026 für PR #32 (Vite 8): `npm run typecheck`, 2882 Frontend-Tests,
+147 Skripttests und `npm run build` grün. Die Ausgabe enthält den Polyfill
+aus rolldown, die zehn Babel-Helfer (1118 Bytes) und alle Lizenzkommentare
+wie mit Vite 6. `check` grün für windows-x64 (393/207), macos-universal
+(390/201) und android-universal (481/227).
+
+Am 05.11.2026 für PR #27 (TypeScript 6, Vitest 5, jsdom 30): `npm run
+typecheck` grün (src/ strikt, die Node-Seite mit `checkJs`), 2882
+Frontend-Tests, 146 Skripttests. `npm run build` gibt dieselben Bytes aus wie
+vorher ([Beleg](release/license-frontend-tools-2026-11-05.json)); `check`
+grün für alle drei Auswahlen.
+
+Am 05.11.2026 für PR #26 (`dirs` 7, `toml` 1, `sha2` 0.11): `cargo fmt`,
+`clippy -D warnings` und 730 Rust-Tests grün. Ein vollständiges
+`settings.toml` schreibt die App mit `toml` 1 bytegleich wie mit `toml` 0.8
+(Vergleich mit `main`), und `toml` 0.8 liest die neue Datei, also auch eine
+ältere App. Eine kaputte Datei nennt dieselbe Stelle (Zeile 4, Spalte 9),
+nur mit anderem Wortlaut. Lizenzen: 10 Komponenten fallen aus der
+Windows-Auswahl, je 7 aus macOS und Android; die `sha2`-0.10-Familie zählt
+nur noch zum Bau (`tauri-codegen`). `check` grün für windows-x64 (392/208),
+macos-universal (389/202) und android-universal (480/228).
+
+Am 05.11.2026 für PR #25 (`lucide-static` 1.69, `staticVCRuntime`): Die 19
+Icons der App haben in 1.69 dieselbe Geometrie, `src/icons.ts` bleibt
+bytegleich, der Lizenztext auch
+([Beleg](release/license-frontend-lucide-1.69.0-2026-11-05.json)). Eine
+ohne `STATIC_VCRUNTIME` gebaute EXE importiert keine `vcruntime140.dll`.
+2882 Frontend-Tests, `npm run build`, 146 Skripttests, `check` grün für
+alle drei Auswahlen.
 
 Am 05.11.2026 für russh 0.65.1 (PR #24), lokal unter Windows ohne Testhost:
 `cargo fmt` und `clippy -D warnings` sauber, 730 Rust-Tests mit
@@ -501,17 +535,32 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
     gebunden ist und ein bloßes Hochziehen deren Prüfungen bricht. Erledigt
     sind Tauri 2.12 (PR #15), Tauri-CLI 2.12.4 mit NSIS 3.13 (PR #16),
-    russh 0.65.0 (PR #18) und russh 0.65.1 (PR #24, behebt die zwei am
-    03.11. akzeptierten Meldungen). Der Maintainer hat am 05.11. entschieden,
-    die Stufen abzuarbeiten (Entscheidungen vom 05.11.):
-    - **Frontend-Werkzeuge:** Vite 8, TypeScript 7, Vitest 5 und jsdom 30
-      (stehen auf 6.4, 5.6, 4.1 und 29). Vite ändert die gebaute Ausgabe,
-      also den Beleg zum Modulepreload-Polyfill. Mit dieser Stufe zu
-      entscheiden (Review vom 03.11.): `noUncheckedIndexedAccess`, ein Linter
-      oder Formatter wie Biome und die Typprüfung von `scripts/` und
-      `vite.config.ts`, die `@types/node` braucht. Die lizenzgebundenen
-      Release-Skripte werden dabei nicht umformatiert (Umsetzungsplan vom
-      26.10., D4).
+    russh 0.65.0 (PR #18), russh 0.65.1 (PR #24, behebt die zwei am
+    03.11. akzeptierten Meldungen), die kleinen Punkte (PR #25:
+    `lucide-static` 1.69 mit unveränderten Icons, `staticVCRuntime` in der
+    Release-Konfiguration statt der veralteten Variable `STATIC_VCRUNTIME`)
+    die doppelten Crates (PR #26: `dirs` 7, `toml` 1 und `sha2` 0.11 wie
+    Tauri und russh; `settings.toml` wird bytegleich geschrieben) und die
+    Prüfwerkzeuge des Frontends (PR #27: TypeScript 6, Vitest 5, jsdom 30,
+    `npm run typecheck` prüft auch `scripts/` und die Vite-Konfigurationen;
+    22 Skripte tragen noch `// @ts-nocheck`. Nicht übernommen:
+    `noUncheckedIndexedAccess`, das 877 Stellen meldet, 95 davon außerhalb
+    der Tests, und ein Linter, den die strikte Typprüfung und die Tests
+    bisher nicht vermissen lassen). Der
+    Maintainer hat am 05.11. entschieden, die Stufen abzuarbeiten
+    (Entscheidungen vom 05.11.):
+    - **Vite 8:** erledigt mit PR #32 (rolldown statt Rollup und esbuild,
+      [Beleg](release/license-frontend-vite-8-2026-11-05.json)). Das Ziel
+      bleibt das von Vite 6 (Safari 14, Chrome 87), weil Vite 8 sonst für
+      Safari 16 baut. Den Polyfill erzeugt jetzt rolldowns native Bibliothek,
+      und statt der zehn esbuild-Helfer stehen zehn Babel-Helfer für private
+      Klassenmitglieder im Bundle (über oxc, neue Komponente mit den
+      MIT-Texten von Babel und oxc). Die Lizenzkommentare bleiben: die sechs
+      xterm-Header im JS, der xterm-Hinweis als `/*!` am Anfang des CSS.
+    - **TypeScript 7:** der native Compiler hat in 7.0 keine stabile JS-API
+      (nur `typescript/unstable/sync`). `src/source-hygiene.test.ts` und
+      `release-license-inventory-frontend.mjs` brauchen
+      `ts.createSourceFile`; bis dahin bleibt TypeScript 6.
     - **Kotlin 2 mit AGP 9 und Gradle 9**, zusammen mit den androidx-Updates:
       deren neue Versionen tragen Kotlin-2.1-Metadaten, die das
       Kotlin-Gradle-Plugin 1.9.25 nicht liest. Spätestens fällig, wenn
@@ -519,23 +568,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       03.11.): `verification-metadata.xml` und ein Lock für den
       `buildscript`-Classpath (AGP, Kotlin-Plugin) und Clippy mit
       `-D warnings` für das Android-Ziel.
-    - **Doppelte Crates wegen der App** (Review vom 03.11.): `dirs` 5 und
-      `toml` 0.8 bindet nur die App ein (`toml` 0.8 unter Linux auch
-      `system-deps` beim Bau), Tauri nutzt `dirs` 7 und `toml` 1. `sha2` 0.10
-      steckt zur Laufzeit unter Windows und macOS nur in der App, russh nutzt
-      0.11. Beim Wechsel auf `toml` 1 sind Lesen und Schreiben von
-      `settings.toml` neu zu prüfen (Fehlertexte mit Zeile und Spalte,
-      Formatierung).
     - **Rust 1.99:** Die Toolchain 1.97.1 steckt in den Belegen der
       Standardbibliothek und in den Prüfungen der Lizenzauswahlen; nötig
       erst, wenn ein Crate sie verlangt. Die Stellen, die die Version nennen,
       gleicht `scripts/rust-toolchain.test.mjs` mit `rust-toolchain.toml` ab,
       die Belege der Standardbibliothek nicht.
-    - Klein: `tauri-build` 2.7.4 meldet `STATIC_VCRUNTIME` (gesetzt von
-      `release-windows-artifacts.mjs`) als veraltet; es linkt weiter
-      statisch, und die Ersatzoption `build.windows.staticVCRuntime` ist
-      standardmäßig an. `lucide-static` (Icons) steht auf 1.41, aktuell
-      1.68 (04.11.).
     - Nach russh 0.65: Eigene Änderungen upstream anbieten,
       zuerst das Close-Verhalten, das upstream in #789 selbst vorschlägt;
       seit dem 05.11. erlaubt, sobald der Maintainer den Entwurf gesehen hat.

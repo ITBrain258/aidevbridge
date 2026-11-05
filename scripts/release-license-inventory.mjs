@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Offline inventory only: no build, install, package modification or license election.
 import fs from 'node:fs';
 import path from 'node:path';
