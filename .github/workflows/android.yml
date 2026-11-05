@@ -80,7 +80,7 @@ jobs:
             echo "::error::Tag $PUBLISH_TAG does not match package.json version $version"
             exit 1
           fi
-      # Gradle 8.14 and the Android Gradle plugin 8.11 run on Java 17 to 21.
+      # Gradle 9.6 and the Android Gradle plugin 9.3 run on Java 21.
       - name: Android SDK, NDK and Java 21
         run: |
           set -euo pipefail
@@ -89,6 +89,18 @@ jobs:
           yes | "$sdkmanager" --licenses > /dev/null || true
           "$sdkmanager" --install "platforms;android-36" "build-tools;$BUILD_TOOLS" "ndk;$NDK_VERSION" > /dev/null
           echo "NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+      # The Android code paths (cfg(target_os = "android")) never compile in
+      # ci.yml. Build scripts such as ring's compile C for the target, hence
+      # the NDK compiler; one target covers the Android cfgs.
+      - name: Clippy for Android
+        working-directory: src-tauri
+        run: |
+          set -euo pipefail
+          bin="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          export CC_aarch64_linux_android="$bin/aarch64-linux-android24-clang"
+          export AR_aarch64_linux_android="$bin/llvm-ar"
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$bin/aarch64-linux-android24-clang"
+          cargo clippy --locked --target aarch64-linux-android --all-targets -- -D warnings
       - run: npm ci
       # The third-party license texts travel in the APK as assets/licenses
       # (docs/specs/2026-10-27-android-design.md §8). A release takes them

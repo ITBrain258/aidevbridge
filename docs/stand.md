@@ -294,18 +294,16 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     NSIS 3.13, russh 0.65.1, `lucide-static` 1.69, `dirs` 7, `toml` 1,
     `sha2` 0.11, TypeScript 6, Vitest 5, jsdom 30 und Vite 8 (mit Ziel
     Safari 14 und Chrome 87 wie bisher;
-    [Beleg](release/license-frontend-vite-8-2026-11-05.json)). Offen:
-    - **Kotlin 2, AGP 9 und Gradle 9** mit den androidx-Updates, deren neue
-      Versionen das Kotlin-Plugin 1.9.25 nicht liest. Die Vorlage der
-      Tauri-CLI 2.12.4 nutzt AGP 9.3.1, Gradle 9.6.1 und Kotlin 2.2.10 (dazu
-      `android.builtInKotlin=false` und `android.newDsl=false`, ein neues
-      `BuildTask.kt` ohne `project.exec`); unsere Anpassungen (Signatur,
-      NDK, Symboltabelle, Lizenz-Assets, Abhängigkeitslock) bleiben. Die
-      Vorlage hebt auch `compileSdk` und `targetSdk` auf 37; das ist eine
-      eigene Produktänderung, Play verlangt 36 bis August 2027. Dabei auch
-      (Review vom 03.11.): `verification-metadata.xml`, ein Lock für den
-      `buildscript`-Classpath und Clippy mit `-D warnings` für das
-      Android-Ziel.
+    [Beleg](release/license-frontend-vite-8-2026-11-05.json)), dazu für
+    Android Gradle 9.6, AGP 9.3, Kotlin 2.2 und die androidx-Updates mit
+    Locks für den Buildscript-Classpath, `verification-metadata.xml` und
+    Clippy für das Android-Ziel (PR #34,
+    [Nachtrag der Android-Spec](specs/2026-10-27-android-design.md#nachtrag-vom-05112026-gradle-9-agp-9-und-kotlin-2)).
+    Offen:
+    - **Ziel-SDK 37:** Die Tauri-Vorlage setzt `compileSdk` und `targetSdk`
+      37; das ist eine eigene Produktänderung mit Prüfung am Gerät, Play
+      verlangt 36 bis August 2027. Mit Tauri v3 fallen die Übergangsschalter
+      `android.builtInKotlin=false` und `android.newDsl=false`.
     - **TypeScript 7:** Der native Compiler hat in 7.0 keine stabile JS-API;
       `src/source-hygiene.test.ts` und `release-license-inventory-frontend.mjs`
       brauchen `ts.createSourceFile`.

@@ -16,8 +16,13 @@ repositories {
     mavenCentral()
 }
 
+// The Rust plugin builds against AGP; its classpath stands in gradle.lockfile.
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 dependencies {
     compileOnly(gradleApi())
-    implementation("com.android.tools.build:gradle:8.11.0")
+    implementation("com.android.tools.build:gradle:9.3.1")
 }
 

@@ -1077,8 +1077,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 183444,
-            "sha256": "b8e8a83374efd931135f1155f8235e8d2ecbfd728627b80c2bc478b30c289f3f"
+            "bytes": 183592,
+            "sha256": "1c03cc294778a5eb36008425bba3d502b80e15d72482fa770176ef408e8c9587"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1112,8 +1112,8 @@
           },
           {
             "path": "src-tauri/src/connection/host_key.rs",
-            "bytes": 8123,
-            "sha256": "c09ce47078299e36cee9192674fb35c979db1b37622f551a2eeb71e332fe758f"
+            "bytes": 10685,
+            "sha256": "c7f239565ad7ec4f696d98ed25ab6760d3cd40135576c7d5eb8fe73e128e3d65"
           },
           {
             "path": "src-tauri/src/connection/tests.rs",
@@ -1167,8 +1167,8 @@
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
-            "bytes": 61626,
-            "sha256": "b83bf9dd89fa3ef16e969d48b64bfcdd9edf84404f1d6c4bbafac48eaf7be9ff"
+            "bytes": 67467,
+            "sha256": "d070be165297e75599e4047e6628d7d512680206c36bd1421e53c5091f31a76f"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
@@ -1282,8 +1282,8 @@
           },
           {
             "path": "src-tauri/src/transport/mod.rs",
-            "bytes": 2271,
-            "sha256": "a068a174194ff8120c7db21bcee57ddd678e8855d8a76b9336a88217b4953068"
+            "bytes": 2960,
+            "sha256": "a01df8ab5f707ae02e7a223ab09ecd57d64bbe1efc6bc5d64a7dc5d571c53130"
           },
           {
             "path": "src-tauri/src/transport/operation_control.rs",
@@ -1292,13 +1292,13 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
-            "bytes": 29088,
-            "sha256": "2eaa6b031b4e8bbd180590863adfdafaa6079637547bfd2351e139b512782858"
+            "bytes": 32165,
+            "sha256": "50db2c8131350208f41977564ad0ce69bce279700e983509379f31ed96389ec2"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 31279,
-            "sha256": "2aca331843b40c0a9d83e0761a7c76375435e11f73019b499c4d817d04c07d48"
+            "bytes": 33328,
+            "sha256": "a647219a82ab23a10dbcca93d4dfca11045a4acc31e2318fd0fa6d0b2631b89b"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",

@@ -4577,16 +4577,16 @@
   ],
   "libraries": [
     {
-      "coordinate": "androidx.activity:activity-ktx:1.10.1",
+      "coordinate": "androidx.activity:activity-ktx:1.13.0",
       "pom": {
-        "file": "activity-ktx-1.10.1.pom",
-        "bytes": 2905,
-        "sha256": "4213490e4ce2b5750e4445246dfe9de4f6655c2123c04a79a8248cc8893e2bf4"
+        "file": "activity-ktx-1.13.0.pom",
+        "bytes": 3092,
+        "sha256": "79d63d7b13c43f92faf63ade9fc6a4ab45e8e42493dbaa138c7a736184a4c775"
       },
       "archive": {
-        "file": "activity-ktx-1.10.1.aar",
-        "bytes": 5568,
-        "sha256": "f396f58dbd772c065b873696b74a3d4d087554b3766280e63b49b25dbb53ab16"
+        "file": "activity-ktx-1.13.0.aar",
+        "bytes": 5745,
+        "sha256": "b5541dc5f74e35389f1e9fdca8b5770c49d2c1360de16f398ce5c1e07a003244"
       },
       "declared_licenses": [
         {
@@ -4597,16 +4597,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.activity:activity:1.10.1",
+      "coordinate": "androidx.activity:activity:1.13.0",
       "pom": {
-        "file": "activity-1.10.1.pom",
-        "bytes": 4588,
-        "sha256": "0ae4de888974f5cef982660900ec32a33f10968750db7afa9438daec183f14e7"
+        "file": "activity-1.13.0.pom",
+        "bytes": 4621,
+        "sha256": "a5c53e074754835d30621618616e783b5b71875c2e7988ab06082348152e314e"
       },
       "archive": {
-        "file": "activity-1.10.1.aar",
-        "bytes": 226433,
-        "sha256": "b62b528c917de9be497eb6f88830197c20e9d21267c3916c613492e5ee837d4d"
+        "file": "activity-1.13.0.aar",
+        "bytes": 222940,
+        "sha256": "bd4f19a5f00effed0eecad0a310b1f2169b9fc66236a3ba743a222eb77747ee1"
       },
       "declared_licenses": [
         {
@@ -4673,16 +4673,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.appcompat:appcompat-resources:1.7.1",
+      "coordinate": "androidx.appcompat:appcompat-resources:1.8.0",
       "pom": {
-        "file": "appcompat-resources-1.7.1.pom",
-        "bytes": 2993,
-        "sha256": "2faf922e8c3d706f29d862b3fbb3aa1347705c21c6eae18586d2bb1f7366ea01"
+        "file": "appcompat-resources-1.8.0.pom",
+        "bytes": 3353,
+        "sha256": "cc6e87c34b66e610d8ac0ad8ed0f657a086f4a8765244f7927b15e6099bf3a17"
       },
       "archive": {
-        "file": "appcompat-resources-1.7.1.aar",
-        "bytes": 63997,
-        "sha256": "8e2db31224ca53b108c784da2b361959062716d416b210cfef3d5a3828306df0"
+        "file": "appcompat-resources-1.8.0.aar",
+        "bytes": 67369,
+        "sha256": "3fe48cc3df409bed03063a4f5f5f9f8c51f1d63ea9e88d41e6489bf58495a5af"
       },
       "declared_licenses": [
         {
@@ -4693,16 +4693,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.appcompat:appcompat:1.7.1",
+      "coordinate": "androidx.appcompat:appcompat:1.8.0",
       "pom": {
-        "file": "appcompat-1.7.1.pom",
-        "bytes": 5366,
-        "sha256": "1f79910cc20de198acf3867b1e93f9ed59ddb643585b2e9c28ee55518af1bc00"
+        "file": "appcompat-1.8.0.pom",
+        "bytes": 5516,
+        "sha256": "2d6c30b8b8bb3f684e08c7f21b2d20bf853533227b178a8e5069966efec4ec93"
       },
       "archive": {
-        "file": "appcompat-1.7.1.aar",
-        "bytes": 1148656,
-        "sha256": "2ad334a323b28046e89b738c77d184cb3dcca32a551ab048851b2fda23a3ba26"
+        "file": "appcompat-1.8.0.aar",
+        "bytes": 1197540,
+        "sha256": "773f79306eb0ca2447af8752e923ce6269e201e7fe6b275cc76e2998ee87e838"
       },
       "declared_licenses": [
         {
@@ -4793,16 +4793,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.collection:collection-jvm:1.4.2",
+      "coordinate": "androidx.collection:collection-jvm:1.5.0",
       "pom": {
-        "file": "collection-jvm-1.4.2.pom",
-        "bytes": 2414,
-        "sha256": "adbb379e2b160f08e63e341ad04bbcc7033f6d868ec51ac11e4334642a4e39ef"
+        "file": "collection-jvm-1.5.0.pom",
+        "bytes": 2383,
+        "sha256": "11c415864d3402f61d426e67210158dce1b04680412526a994f1823ecd3cb388"
       },
       "archive": {
-        "file": "collection-jvm-1.4.2.jar",
-        "bytes": 775789,
-        "sha256": "984ce9bd780055eafb8a105aca3f514686bf7b1b6272ec7c645a98ce40fc7db4"
+        "file": "collection-jvm-1.5.0.jar",
+        "bytes": 877998,
+        "sha256": "70b35924e4babcdffa37d0e575ee039c56a2d97123342624c48b603233704341"
       },
       "declared_licenses": [
         {
@@ -4813,11 +4813,47 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.collection:collection:1.4.2",
+      "coordinate": "androidx.collection:collection:1.5.0",
       "pom": {
-        "file": "collection-1.4.2.pom",
-        "bytes": 2425,
-        "sha256": "4f2615a17aeacfe12b68298214a19f2a19c68c66d590075bdbbfb659ebce2b7f"
+        "file": "collection-1.5.0.pom",
+        "bytes": 2561,
+        "sha256": "2d65c8d0b36d4b4faadc44aff9bade23d871d7159eedf2b3f02d802b34b77a57"
+      },
+      "archive": null,
+      "declared_licenses": [
+        {
+          "name": "The Apache Software License, Version 2.0",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        }
+      ],
+      "pom_parent": null
+    },
+    {
+      "coordinate": "androidx.compose.runtime:runtime-annotation-android:1.9.0",
+      "pom": {
+        "file": "runtime-annotation-android-1.9.0.pom",
+        "bytes": 3514,
+        "sha256": "c2d8cbd8ecbefdfd193cd3dc68a3d03086544354c584b80c8148c97f13068383"
+      },
+      "archive": {
+        "file": "runtime-annotation.aar",
+        "bytes": 9072,
+        "sha256": "3fba9d6be5307d998403038f6dfaa3fedd924c5618cb45a49f56a5bf6282509d"
+      },
+      "declared_licenses": [
+        {
+          "name": "The Apache Software License, Version 2.0",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        }
+      ],
+      "pom_parent": null
+    },
+    {
+      "coordinate": "androidx.compose.runtime:runtime-annotation:1.9.0",
+      "pom": {
+        "file": "runtime-annotation-1.9.0.pom",
+        "bytes": 3676,
+        "sha256": "d158a7ff9aa4d8214e085f9d5c79dd0002a32d1816a023aa9faa26b9c46d83a7"
       },
       "archive": null,
       "declared_licenses": [
@@ -4849,16 +4885,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.constraintlayout:constraintlayout-core:1.0.0",
+      "coordinate": "androidx.constraintlayout:constraintlayout-core:1.1.1",
       "pom": {
-        "file": "constraintlayout-core-1.0.0.pom",
-        "bytes": 1434,
-        "sha256": "93e01622e90b5879bb950fedb5c417c8024555fdc779481bcee21a3b5977cb8c"
+        "file": "constraintlayout-core-1.1.1.pom",
+        "bytes": 1935,
+        "sha256": "d0e8276f39aa41ec1f24d357fd6ace2c76723ca0e0711ed6e884e686d6fc86e9"
       },
       "archive": {
-        "file": "constraintlayout-core-1.0.0.jar",
-        "bytes": 433547,
-        "sha256": "496c8c79664bd970c6a6be7a960a20dd157dfc5aa2f18e5b8333767ffbc59911"
+        "file": "constraintlayout-core-1.1.1.jar",
+        "bytes": 585546,
+        "sha256": "3c2054328328831eb6e69b4014f6ef9faa117fd4b811929f3a91d3db375f2c02"
       },
       "declared_licenses": [
         {
@@ -4869,16 +4905,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.constraintlayout:constraintlayout:2.1.0",
+      "coordinate": "androidx.constraintlayout:constraintlayout:2.2.1",
       "pom": {
-        "file": "constraintlayout-2.1.0.pom",
-        "bytes": 2044,
-        "sha256": "25104af5ae91efe5fe6c9178eee35f6b02e31349505738cceb4df2df8385b585"
+        "file": "constraintlayout-2.2.1.pom",
+        "bytes": 2524,
+        "sha256": "ccccaa27e5658da4734f7e9cd345c1fc4d495bad49c0821279ddba0503dffb91"
       },
       "archive": {
-        "file": "constraintlayout-2.1.0.aar",
-        "bytes": 470611,
-        "sha256": "a458a7562363bd59c209a7dea847326a0e2b26b37a883dc3e29065a79a1c788b"
+        "file": "constraintlayout-2.2.1.aar",
+        "bytes": 507993,
+        "sha256": "30f8d79b782d283a90f0b6f7369169d9cf560091537fdd6056d1daa9f3033763"
       },
       "declared_licenses": [
         {
@@ -4909,16 +4945,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.core:core-ktx:1.13.1",
+      "coordinate": "androidx.core:core-ktx:1.18.0",
       "pom": {
-        "file": "core-ktx-1.13.1.pom",
+        "file": "core-ktx-1.18.0.pom",
         "bytes": 2450,
-        "sha256": "31cc345b8c6cdd2046dcf67872df8a8cb4f44ea0cade4df80002caa7e3b71809"
+        "sha256": "3a5e0009e06517627756b9203d9a8f055fda87b215a17b775bae568697854196"
       },
       "archive": {
-        "file": "core-ktx-1.13.1.aar",
-        "bytes": 171581,
-        "sha256": "19ba50d094c7368ede1b4ccf1195ceb83e35970736593f823e5af716f8d05d70"
+        "file": "core-ktx-1.18.0.aar",
+        "bytes": 184113,
+        "sha256": "c7c511e3df838fcbcb61ace36944de6bb7c10eb597be546974f001119939c85d"
       },
       "declared_licenses": [
         {
@@ -4949,16 +4985,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.core:core:1.13.1",
+      "coordinate": "androidx.core:core:1.18.0",
       "pom": {
-        "file": "core-1.13.1.pom",
-        "bytes": 3654,
-        "sha256": "527abfa5a8d6af748b37e1c0162d1633a2d5ea4387b0205a8b436b6214ba1cf6"
+        "file": "core-1.18.0.pom",
+        "bytes": 4772,
+        "sha256": "57d644ebb37d309ad959d740157d8e8424e273b9c672842e4f4c758edc6d30e7"
       },
       "archive": {
-        "file": "core-1.13.1.aar",
-        "bytes": 1270406,
-        "sha256": "2c27de199535675005553066597a4b20fa1eea7c228ab4ef6b32b5fe39ca1f59"
+        "file": "core-1.18.0.aar",
+        "bytes": 1364590,
+        "sha256": "311d83ac67d394076ec21d12ed2d10a44b59cb2929b7dce00e5a90a93842e37d"
       },
       "declared_licenses": [
         {
@@ -4989,16 +5025,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.customview:customview:1.1.0",
+      "coordinate": "androidx.customview:customview:1.2.0",
       "pom": {
-        "file": "customview-1.1.0.pom",
-        "bytes": 1957,
-        "sha256": "c814d435f73e9e6d169886d0eb96b5c5361feb48449fbbb315c908c03c588c94"
+        "file": "customview-1.2.0.pom",
+        "bytes": 2607,
+        "sha256": "b12f9f315bfe9d9741eef558ec38efc472d8d88469d09897a02c6beb100c51f2"
       },
       "archive": {
-        "file": "customview-1.1.0.aar",
-        "bytes": 33346,
-        "sha256": "01f76ab043770a97b054046f9815717b82ce0355c02967d16c61981359dc189a"
+        "file": "customview-1.2.0.aar",
+        "bytes": 40832,
+        "sha256": "40e98bb388cdf5c53a52699b1f78a5abdcf22de1e7c1be43b2c12fd6eadc6f9d"
       },
       "declared_licenses": [
         {
@@ -5165,16 +5201,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-common-jvm:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-common-jvm:2.11.0",
       "pom": {
-        "file": "lifecycle-common-jvm-2.10.0.pom",
+        "file": "lifecycle-common-jvm-2.11.0.pom",
         "bytes": 6157,
-        "sha256": "ca062b9abb0298b0d40ae10c2d1ca06d4129f5f60efdc5e8c44c6c2b3375d15b"
+        "sha256": "421918e01dd8508b0c376207a9e98159ef77fed11eb1d9098294344ed67750c7"
       },
       "archive": {
-        "file": "lifecycle-common-jvm-2.10.0.jar",
-        "bytes": 60791,
-        "sha256": "15943082d87bcd78830398fa377f2c8b12643de290d0906ed8e49a2d335ddb54"
+        "file": "lifecycle-common-jvm-2.11.0.jar",
+        "bytes": 65749,
+        "sha256": "e6a66e67b9f63a0fb6344f165c1d872376e5fe6d235bffb138af45122cf452a9"
       },
       "declared_licenses": [
         {
@@ -5185,11 +5221,11 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-common:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-common:2.11.0",
       "pom": {
-        "file": "lifecycle-common-2.10.0.pom",
-        "bytes": 5986,
-        "sha256": "1004f4df05118b13c2a909846badc66646ed277944706a604e4dd8284d53548b"
+        "file": "lifecycle-common-2.11.0.pom",
+        "bytes": 6168,
+        "sha256": "12b70a2d44383f97624307c6d9a3ff86e82657bb8ec300b95541ba48173edbac"
       },
       "archive": null,
       "declared_licenses": [
@@ -5201,16 +5237,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-livedata-core-ktx:2.11.0",
       "pom": {
-        "file": "lifecycle-livedata-core-ktx-2.10.0.pom",
+        "file": "lifecycle-livedata-core-ktx-2.11.0.pom",
         "bytes": 5701,
-        "sha256": "d982082c3279eeb9c187d9897665ca9a90d3443f35dadc689261f4b27c72d9ac"
+        "sha256": "cf5d8651182e43675968e4bff5b018a7b5d9ad75d777ded594ffc7c2d8c0948a"
       },
       "archive": {
-        "file": "lifecycle-livedata-core-ktx-2.10.0.aar",
-        "bytes": 5834,
-        "sha256": "5f18429749a183e19178d8665ae42bf7b6310b50358ae9e0e0cc452afd6e0bc3"
+        "file": "lifecycle-livedata-core-ktx-2.11.0.aar",
+        "bytes": 5663,
+        "sha256": "408fac99b61a7ca9d0620f4f24891f85c14ee007cfd027abc3df759a31b0086a"
       },
       "declared_licenses": [
         {
@@ -5221,16 +5257,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-livedata-core:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-livedata-core:2.11.0",
       "pom": {
-        "file": "lifecycle-livedata-core-2.10.0.pom",
+        "file": "lifecycle-livedata-core-2.11.0.pom",
         "bytes": 6209,
-        "sha256": "4bed5e91cd2a7c01558320b6a176dbb867fca3c4c697db948e203be45f910d64"
+        "sha256": "bedbe8c2230f207c7b27c15a67fa85aff7df681b145a45fd4fd9d6ccedafb2d4"
       },
       "archive": {
-        "file": "lifecycle-livedata-core-2.10.0.aar",
-        "bytes": 34341,
-        "sha256": "12dd61a9843ccebb4547d3ebe2f6d030ca8f6988d22f8fad19c0af93b4a97e95"
+        "file": "lifecycle-livedata-core-2.11.0.aar",
+        "bytes": 34157,
+        "sha256": "39b26ef1e081fc88d7054ff1a63d0a5d71876373c33a711ab789c8228d025ad1"
       },
       "declared_licenses": [
         {
@@ -5241,16 +5277,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-livedata:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-livedata:2.11.0",
       "pom": {
-        "file": "lifecycle-livedata-2.10.0.pom",
+        "file": "lifecycle-livedata-2.11.0.pom",
         "bytes": 6650,
-        "sha256": "b6b93686c55a1ca8ec20e7d84a5fe341267e5dac6e390fb1cca398383111eb08"
+        "sha256": "ec47faea1d2f68625ac49ad260f5f5233d9b40da922253b57aa153d49b5f5ca8"
       },
       "archive": {
-        "file": "lifecycle-livedata-2.10.0.aar",
-        "bytes": 55037,
-        "sha256": "3e8c009fc88da1c52e4ed05a81269d5ac9bd405046f300307f5e3a17e201a6df"
+        "file": "lifecycle-livedata-2.11.0.aar",
+        "bytes": 54902,
+        "sha256": "1bc28e40e06ff5e0478b9276ca6287ce6993415b70910745ac916b14dec9b72f"
       },
       "declared_licenses": [
         {
@@ -5261,16 +5297,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-process:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-process:2.11.0",
       "pom": {
-        "file": "lifecycle-process-2.10.0.pom",
+        "file": "lifecycle-process-2.11.0.pom",
         "bytes": 6026,
-        "sha256": "a2c3062320873f9ac29ded1d9ca4a2415529c2e4568d53b5f2b813ec52adc664"
+        "sha256": "63f3303cb0f0ece424fedaba55cd3984e44422e7dd5071debca4a4423216c420"
       },
       "archive": {
-        "file": "lifecycle-process-2.10.0.aar",
-        "bytes": 19845,
-        "sha256": "10bb5bb12773dca11d8343c014cfd17dfb40967d6ece37e8f15d04d8ceb0775c"
+        "file": "lifecycle-process-2.11.0.aar",
+        "bytes": 19824,
+        "sha256": "9743f0c7baf27d34497b7e9a1cd497d8260251b03124507963abfaad66c3f552"
       },
       "declared_licenses": [
         {
@@ -5281,16 +5317,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-runtime-android:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-runtime-android:2.11.0",
       "pom": {
-        "file": "lifecycle-runtime-android-2.10.0.pom",
-        "bytes": 7174,
-        "sha256": "e97ee01daf6f4dccb900bdb7672baab5ad3c7c25c45491fdccf5eba33b6eafff"
+        "file": "lifecycle-runtime-android-2.11.0.pom",
+        "bytes": 7337,
+        "sha256": "1dfd1f739d71957166a0511a6fb2cbfc8da766c1840d5664063898ed6dac8aa6"
       },
       "archive": {
         "file": "lifecycle-runtime.aar",
-        "bytes": 80161,
-        "sha256": "2193a1573d623f37b20c7d27d1a8f903a72f651cc6f32e5794f85dda744fee75"
+        "bytes": 85066,
+        "sha256": "8711865f8d3603bc05decc03bb42aab2faa8d8bc55b3b12a0a8e516b562b60ca"
       },
       "declared_licenses": [
         {
@@ -5301,16 +5337,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-runtime-ktx-android:2.11.0",
       "pom": {
-        "file": "lifecycle-runtime-ktx-android-2.10.0.pom",
+        "file": "lifecycle-runtime-ktx-android-2.11.0.pom",
         "bytes": 6089,
-        "sha256": "5c1a269dd0f0ace87f22832883b898bd7b4252d6a87f04c17347d83e3128660e"
+        "sha256": "a5e598838f5ce314cff3b7b5cd4ed53119ae7a307a51a9a519fef9f1fe95d57f"
       },
       "archive": {
         "file": "lifecycle-runtime-ktx.aar",
-        "bytes": 5337,
-        "sha256": "871883703339f87284d232cb436e317c6f4af5612d92b43f27c6b13b92109fa7"
+        "bytes": 5166,
+        "sha256": "1fead96607f8b4ebd2bc5840c6fcf08b09fc47ceb1665e4b381dce80b19f32a0"
       },
       "declared_licenses": [
         {
@@ -5321,11 +5357,11 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-runtime-ktx:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-runtime-ktx:2.11.0",
       "pom": {
-        "file": "lifecycle-runtime-ktx-2.10.0.pom",
+        "file": "lifecycle-runtime-ktx-2.11.0.pom",
         "bytes": 6070,
-        "sha256": "060ad1753381e7af9d7a5b89829f394ef6fd47f77e31ba4c812462bc37bda618"
+        "sha256": "8b8eb011e4a58873823406fb45220e50f39058fc9abfb2c0806735af65edf79a"
       },
       "archive": null,
       "declared_licenses": [
@@ -5337,11 +5373,11 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-runtime:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-runtime:2.11.0",
       "pom": {
-        "file": "lifecycle-runtime-2.10.0.pom",
-        "bytes": 6221,
-        "sha256": "4a8b5eec54d5ecdf099ea53b2e4e9f24db2967ea5d393097b6a6c549ed69308d"
+        "file": "lifecycle-runtime-2.11.0.pom",
+        "bytes": 6585,
+        "sha256": "c804e72f7795e17b44ab7e4be95ceb7fc22c19a07818e29f8a314ef43cf87769"
       },
       "archive": null,
       "declared_licenses": [
@@ -5353,16 +5389,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-android:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-android:2.11.0",
       "pom": {
-        "file": "lifecycle-viewmodel-android-2.10.0.pom",
-        "bytes": 6428,
-        "sha256": "0aa171a50f50a85c90687ad82dcd37f31afdd1bfd2463c215d1322960e51e228"
+        "file": "lifecycle-viewmodel-android-2.11.0.pom",
+        "bytes": 6591,
+        "sha256": "c6d78741c43ccf10d5da5f0e040dedfffda20b9748caa038dc58be25d35c90a3"
       },
       "archive": {
         "file": "lifecycle-viewmodel.aar",
-        "bytes": 64099,
-        "sha256": "9303287030027ca0b8cf98a748ddeb121ec1bfa1312c0069428e4765bbabce78"
+        "bytes": 68783,
+        "sha256": "509aa5c0711e61a1571024b4f8431dc9aa20960d23cbadb01f21a33fd864352a"
       },
       "declared_licenses": [
         {
@@ -5373,16 +5409,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0",
       "pom": {
-        "file": "lifecycle-viewmodel-ktx-2.10.0.pom",
+        "file": "lifecycle-viewmodel-ktx-2.11.0.pom",
         "bytes": 5876,
-        "sha256": "e139dbb1a00ce08aaed86557aa968eec7151d6d4b304c324e2e572275aacd908"
+        "sha256": "98cee40062344063eef3f71f9d66032d69e6304ba0858561fc823d73c61b63b4"
       },
       "archive": {
-        "file": "lifecycle-viewmodel-ktx-2.10.0.aar",
-        "bytes": 5812,
-        "sha256": "54295ac86b67886dc0613e38f621c531995d0662005fc763e340e19a90994f84"
+        "file": "lifecycle-viewmodel-ktx-2.11.0.aar",
+        "bytes": 5641,
+        "sha256": "230af6c866076d320d92c22c7c44bb52afca97f6892ddf987e2906ef2919998f"
       },
       "declared_licenses": [
         {
@@ -5393,16 +5429,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0",
       "pom": {
-        "file": "lifecycle-viewmodel-savedstate-android-2.10.0.pom",
-        "bytes": 7505,
-        "sha256": "5fcd429ba57e1dde1b438534e53c23d6274d234e33c748963f6faa9f81933c87"
+        "file": "lifecycle-viewmodel-savedstate-android-2.11.0.pom",
+        "bytes": 7668,
+        "sha256": "658d326b66a0768ccd35df85c7487494569c63951e090c3a1b019b97bb8a0110"
       },
       "archive": {
         "file": "lifecycle-viewmodel-savedstate.aar",
-        "bytes": 56701,
-        "sha256": "19404239fa584322c2f81e9659e162bc011b746d29dc950a11d260624d83225e"
+        "bytes": 81632,
+        "sha256": "1761707c1ddee002bd97e1a0889a5016f7cd6bd8e0b6b069bcba8b2523d63723"
       },
       "declared_licenses": [
         {
@@ -5413,11 +5449,11 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0",
       "pom": {
-        "file": "lifecycle-viewmodel-savedstate-2.10.0.pom",
-        "bytes": 7039,
-        "sha256": "59656ffcae1e0e147043b0d6d89966a5f96752f05291ebfa028406ed94444dd1"
+        "file": "lifecycle-viewmodel-savedstate-2.11.0.pom",
+        "bytes": 7221,
+        "sha256": "48521feaf9d631743cb07c138e77c34f9f7f621804e7f4e9162a7fb5e28cd4ea"
       },
       "archive": null,
       "declared_licenses": [
@@ -5429,14 +5465,14 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.lifecycle:lifecycle-viewmodel:2.10.0",
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel:2.11.0",
       "pom": {
-        "file": "lifecycle-viewmodel-2.10.0.pom",
-        "bytes": 6236,
-        "sha256": "1d860aff0ca598d48e8e83da3f4e6769078498574a18d3b889ec2b8c4090b198"
+        "file": "lifecycle-viewmodel-2.11.0.pom",
+        "bytes": 6601,
+        "sha256": "e22ea0fca36eed3f649120fdadcf1d96f7f9a47d58472059d234b0cc62c9f570"
       },
       "archive": {
-        "file": "lifecycle-viewmodel-2.10.0.aar",
+        "file": "lifecycle-viewmodel-2.11.0.aar",
         "bytes": 4568,
         "sha256": "4b809cf9eb7323d200504e95921feb777ff080215cadb8237742d5ed0ba5b792"
       },
@@ -5460,6 +5496,42 @@
         "bytes": 33445,
         "sha256": "11f735cb3b55c458d470bed9e25254375b518b4b1bad6926783a7026db0f5025"
       },
+      "declared_licenses": [
+        {
+          "name": "The Apache Software License, Version 2.0",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        }
+      ],
+      "pom_parent": null
+    },
+    {
+      "coordinate": "androidx.navigationevent:navigationevent-android:1.0.0",
+      "pom": {
+        "file": "navigationevent-android-1.0.0.pom",
+        "bytes": 3576,
+        "sha256": "5cabbb40f3fba11166576a839acf4eb6db59ab5e5ebcb16361d41f8bec805b50"
+      },
+      "archive": {
+        "file": "navigationevent.aar",
+        "bytes": 45507,
+        "sha256": "cda4bb83d1c892a208732e99c2d59e4f247ab5c23a1d2524fc004db2e4e9a780"
+      },
+      "declared_licenses": [
+        {
+          "name": "The Apache Software License, Version 2.0",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        }
+      ],
+      "pom_parent": null
+    },
+    {
+      "coordinate": "androidx.navigationevent:navigationevent:1.0.0",
+      "pom": {
+        "file": "navigationevent-1.0.0.pom",
+        "bytes": 3354,
+        "sha256": "de7fae42b4234f6fedc7762510bcb5db9860187be56f3bfec34b73db6e4a22a2"
+      },
+      "archive": null,
       "declared_licenses": [
         {
           "name": "The Apache Software License, Version 2.0",
@@ -5605,16 +5677,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.tracing:tracing:1.0.0",
+      "coordinate": "androidx.tracing:tracing:1.2.0",
       "pom": {
-        "file": "tracing-1.0.0.pom",
-        "bytes": 1717,
-        "sha256": "cd0299a90d4720d78f1cfb5ff7505f4dbc1a70d05fe23fd9f4d4b77ea59ca05e"
+        "file": "tracing-1.2.0.pom",
+        "bytes": 1968,
+        "sha256": "f34bec4eb58871d31002901377108aaa1ebfe77fa6d882b8b86200b158e26ea1"
       },
       "archive": {
-        "file": "tracing-1.0.0.aar",
-        "bytes": 4444,
-        "sha256": "07b8b6139665b884a162eccf97891ca50f7f56831233bf25168ae04f7b568612"
+        "file": "tracing-1.2.0.aar",
+        "bytes": 6060,
+        "sha256": "6faa90390d1fdbf0adb9a99bf99de67b94c6c6f35aea9510593a9d17973736a2"
       },
       "declared_licenses": [
         {
@@ -5745,16 +5817,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "androidx.webkit:webkit:1.14.0",
+      "coordinate": "androidx.webkit:webkit:1.18.0",
       "pom": {
-        "file": "webkit-1.14.0.pom",
+        "file": "webkit-1.18.0.pom",
         "bytes": 2534,
-        "sha256": "230b7ba1631c5f6baad08f3915f9db6d550d215b3658c82eb38ceb2dff72cad1"
+        "sha256": "cfe9a0f8ab5d0c1b2cd8dfc052b83da4025f8065179f91535bf806960e76fdd7"
       },
       "archive": {
-        "file": "webkit-1.14.0.aar",
-        "bytes": 228280,
-        "sha256": "265604786ea1c9679e3f860f7f13072375c141f46db9092ed8ef5ecd599a516d"
+        "file": "webkit-1.18.0.aar",
+        "bytes": 295710,
+        "sha256": "f15a0bd7d51f4bb8dffdd3a2cf5829f9a7de9ad4ba2682fa85d619032050581f"
       },
       "declared_licenses": [
         {
@@ -5861,16 +5933,16 @@
       "pom_parent": "jackson-parent"
     },
     {
-      "coordinate": "com.google.android.material:material:1.13.0",
+      "coordinate": "com.google.android.material:material:1.14.0",
       "pom": {
-        "file": "material-1.13.0.pom",
-        "bytes": 5660,
-        "sha256": "9c1f3c4600295cc5d7f6d6886aea16d497f13f9af4675442ad271e7c2febf772"
+        "file": "material-1.14.0.pom",
+        "bytes": 5843,
+        "sha256": "b8d90c94f010f0205e49074321aa449e663ed2e818f8494e1264b2f2f85c08c8"
       },
       "archive": {
-        "file": "material-1.13.0.aar",
-        "bytes": 2500936,
-        "sha256": "6d5e1cbb67c05bcdcbbf84005787dafd354a155f59a4d3800fd45fa7eb3689f5"
+        "file": "material-1.14.0.aar",
+        "bytes": 2741429,
+        "sha256": "19e8fab43df6870f8e4322059624384be0279da56dc910529ff591dc674008cd"
       },
       "declared_licenses": [
         {
@@ -5932,16 +6004,16 @@
       "pom_parent": null
     },
     {
-      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.0.21",
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.2.10",
       "pom": {
-        "file": "kotlin-stdlib-2.0.21.pom",
+        "file": "kotlin-stdlib-2.2.10.pom",
         "bytes": 2322,
-        "sha256": "fcbada4cd2e9f39658293570ef613752331db69fd1dad1cabaa60548403e17da"
+        "sha256": "454ba507a3d36b4ac253df6df96f8739bd26ea19df3f332b10b13f2c5715f787"
       },
       "archive": {
-        "file": "kotlin-stdlib-2.0.21.jar",
-        "bytes": 1747660,
-        "sha256": "f31cc53f105a7e48c093683bbd5437561d1233920513774b470805641bedbc09"
+        "file": "kotlin-stdlib-2.2.10.jar",
+        "bytes": 1750374,
+        "sha256": "9c67cc79efd6b9215b49d2a4308f5f3433537376c7c88e89bdd6729bd096e61a"
       },
       "declared_licenses": [
         {
