@@ -33,13 +33,13 @@ jobs:
       # eigenen Workspace unter $RUNNER_TEMP, und vendor/ bleibt unberuehrt.
       # Die mitkopierte Cargo.lock der App laesst die
       # Produktionsabhaengigkeiten auf den Versionen der App; die
-      # Dev-Dependencies loest cargo dazu auf, darum ohne --locked. Gebaut
-      # wird nur --lib, weil die upstream-Integrationstests
-      # tests/test_window_adjust.rs und tests/auth_signer_failure.rs gegen
-      # 0.65.0 nicht kompilieren (AGENTBRIDGE-PATCH.md). Die Features sind
+      # Dev-Dependencies loest cargo dazu auf, darum ohne --locked. Seit
+      # 0.65.1 kompilieren auch die upstream-Integrationstests
+      # tests/test_window_adjust.rs und tests/auth_signer_failure.rs, darum
+      # --lib und --tests (AGENTBRIDGE-PATCH.md). Die Features sind
       # die der App: Die Liste muss der russh-Zeile in src-tauri/Cargo.toml
       # folgen, scripts/vendored-workflow.test.mjs gleicht beide ab.
-      - name: Library tests of the vendored russh with the app features
+      - name: Library and integration tests of the vendored russh with the app features
         # Dev-Dependencies bevorzugt in Versionen, deren rust-version zu der
         # von russh passt (cargo >= 1.84).
         env:
@@ -52,4 +52,4 @@ jobs:
           cp Cargo.lock rust-toolchain.toml "$work/"
           printf '[workspace]\nmembers = ["russh"]\nresolver = "2"\n' > "$work/Cargo.toml"
           cd "$work"
-          cargo test -p russh --lib --no-default-features --features ring,flate2,rsa -- --test-threads=4
+          cargo test -p russh --lib --tests --no-default-features --features ring,flate2,rsa -- --test-threads=4
