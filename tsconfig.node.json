@@ -1,0 +1,22 @@
+{
+  // Type check of the Node side: the Vite configs and the scripts under
+  // scripts/ (JavaScript, checked through checkJs). `npm run typecheck` runs
+  // it after the check of src/ (tsconfig.json). Scripts that start with
+  // `// @ts-nocheck` are not checked yet: without JSDoc types, checkJs reads
+  // their option objects and return values too narrowly (120 errors on
+  // 2026-11-05, none of them a bug). New scripts are checked from the start.
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    // TypeScript 6 makes strict the default; the scripts are checked without it.
+    "strict": false
+  },
+  "include": ["scripts/**/*.mjs", "vite.config.ts", "vitest.config.ts"]
+}

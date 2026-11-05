@@ -1,7 +1,10 @@
 {
   "build": {
     "beforeBuildCommand": "node scripts/release-windows-artifacts.mjs before-build",
-    "beforeBundleCommand": "node scripts/release-windows-artifacts.mjs before-bundle"
+    "beforeBundleCommand": "node scripts/release-windows-artifacts.mjs before-bundle",
+    "windows": {
+      "staticVCRuntime": true
+    }
   },
   "bundle": {
     "targets": ["msi", "nsis"],

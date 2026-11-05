@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-05T10:55:24.169Z",
+  "scope": "Cargo.lock update carried over to the Windows x64 license selection by scripts/release-license-update-cargo.mjs; target x86_64-pc-windows-msvc, Rust 1.97.1, features tauri/custom-protocol. Not final application compliance or installer delivery.",
+  "basis": [
+    "docs/release/license-selection.windows-x64.json"
+  ],
+  "lockfile": {
+    "path": "Cargo.lock",
+    "before": {
+      "bytes": 149377,
+      "sha256": "e21b1dcf578425f29b5d2ba61505d66aa7908829a3c06a8891e6e9ddaf74084b"
+    },
+    "after": {
+      "bytes": 146461,
+      "sha256": "d5096e995ba622b2d13ae5562f5a35d77ef01b839be991c1c8da45af09de6c2c"
+    }
+  },
+  "rule": "A decision moves to a new version without review only when the declared license, the role in the release graph, the set of license-named files and the bytes of every bound file are unchanged and every selected text is one of the package's own bound files; the old and new sources are compared from the registry cache. Every other change is listed under reviewed with the reason of its decision.",
+  "moved": [],
+  "role_changes": [
+    {
+      "package": "block-buffer@0.10.4",
+      "before": "normal-runtime-candidate",
+      "after": "build-or-proc-macro-only-in-this-tree",
+      "reviewed": "Only digest 0.10.7 of the build tools uses it now; the runtime uses block-buffer 0.12. The conservative inclusion stays."
+    },
+    {
+      "package": "cpufeatures@0.2.17",
+      "before": "normal-runtime-candidate",
+      "after": "build-or-proc-macro-only-in-this-tree",
+      "reviewed": "Only sha2 0.10.9 of the build tools uses it now; the runtime uses cpufeatures 0.3. The conservative inclusion stays."
+    },
+    {
+      "package": "crypto-common@0.1.7",
+      "before": "normal-runtime-candidate",
+      "after": "build-or-proc-macro-only-in-this-tree",
+      "reviewed": "Only digest 0.10.7 of the build tools uses it now; the runtime uses crypto-common 0.2. The conservative inclusion stays."
+    },
+    {
+      "package": "digest@0.10.7",
+      "before": "normal-runtime-candidate",
+      "after": "build-or-proc-macro-only-in-this-tree",
+      "reviewed": "Only sha2 0.10.9 of the build tools uses it now; the runtime uses digest 0.11. The conservative inclusion stays."
+    },
+    {
+      "package": "generic-array@0.14.7",
+      "before": "normal-runtime-candidate",
+      "after": "build-or-proc-macro-only-in-this-tree",
+      "reviewed": "Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays."
+    },
+    {
+      "package": "sha2@0.10.9",
+      "before": "normal-runtime-candidate",
+      "after": "build-or-proc-macro-only-in-this-tree",
+      "reviewed": "Now used by build tools only (tauri-codegen); the app uses sha2 0.11.1 at runtime. The conservative inclusion stays."
+    }
+  ],
+  "new_packages": [],
+  "new_outside_tree": [],
+  "removed": [
+    {
+      "package": "dirs-sys@0.4.1",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "dirs@5.0.1",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "serde_spanned@0.6.9",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "toml@0.8.2",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "toml_datetime@0.6.3",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "toml_edit@0.20.2",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "windows-sys@0.48.0",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "windows-targets@0.48.5",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "windows_x86_64_msvc@0.48.5",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "winnow@0.5.40",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    }
+  ],
+  "dropped_documents": [],
+  "unchanged_packages": 354,
+  "decision": "The reviewed decisions stand for the moved packages; reviewed changes and new packages are decided as recorded here. Removed packages and documents that no component uses any more leave the selection.",
+  "candidate_texts_by_sha256": {}
+}

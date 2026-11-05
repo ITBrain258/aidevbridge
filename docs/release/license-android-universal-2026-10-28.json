@@ -21,8 +21,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1069677,
-    "sha256": "9dc63f8273d96df7a3a13d078b082a9ae02fa3740c9d14e3d9d019f6fe215bb8"
+    "bytes": 1054034,
+    "sha256": "600276d6e9a7293574a89a6479bdea0b398f569ef367c60c1789f4f088b44289"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the Android graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -371,12 +371,32 @@
         "android": "normal-runtime-candidate"
       },
       {
+        "id": "cargo:block-buffer@0.10.4",
+        "windows": "build-or-proc-macro-only-in-this-tree",
+        "android": "normal-runtime-candidate"
+      },
+      {
+        "id": "cargo:cpufeatures@0.2.17",
+        "windows": "build-or-proc-macro-only-in-this-tree",
+        "android": "normal-runtime-candidate"
+      },
+      {
+        "id": "cargo:crypto-common@0.1.7",
+        "windows": "build-or-proc-macro-only-in-this-tree",
+        "android": "normal-runtime-candidate"
+      },
+      {
         "id": "cargo:cssparser@0.37.0",
         "windows": "build-or-proc-macro-only-in-this-tree",
         "android": "normal-runtime-candidate"
       },
       {
         "id": "cargo:derive_more@2.1.1",
+        "windows": "build-or-proc-macro-only-in-this-tree",
+        "android": "normal-runtime-candidate"
+      },
+      {
+        "id": "cargo:digest@0.10.7",
         "windows": "build-or-proc-macro-only-in-this-tree",
         "android": "normal-runtime-candidate"
       },
@@ -397,6 +417,11 @@
       },
       {
         "id": "cargo:foldhash@0.2.0",
+        "windows": "build-or-proc-macro-only-in-this-tree",
+        "android": "normal-runtime-candidate"
+      },
+      {
+        "id": "cargo:generic-array@0.14.7",
         "windows": "build-or-proc-macro-only-in-this-tree",
         "android": "normal-runtime-candidate"
       },
@@ -432,6 +457,11 @@
       },
       {
         "id": "cargo:servo_arc@0.4.3",
+        "windows": "build-or-proc-macro-only-in-this-tree",
+        "android": "normal-runtime-candidate"
+      },
+      {
+        "id": "cargo:sha2@0.10.9",
         "windows": "build-or-proc-macro-only-in-this-tree",
         "android": "normal-runtime-candidate"
       },
@@ -544,8 +574,8 @@
       },
       {
         "id": "cargo:block-buffer@0.10.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses block-buffer 0.12. The conservative inclusion stays.",
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses block-buffer 0.12. The conservative inclusion stays."
       },
       {
         "id": "cargo:block-buffer@0.12.1",
@@ -629,8 +659,8 @@
       },
       {
         "id": "cargo:cpufeatures@0.2.17",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses cpufeatures 0.3. The conservative inclusion stays.",
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses cpufeatures 0.3. The conservative inclusion stays."
       },
       {
         "id": "cargo:cpufeatures@0.3.1",
@@ -659,8 +689,8 @@
       },
       {
         "id": "cargo:crypto-common@0.1.7",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses crypto-common 0.2. The conservative inclusion stays.",
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses crypto-common 0.2. The conservative inclusion stays."
       },
       {
         "id": "cargo:crypto-common@0.2.2",
@@ -744,8 +774,8 @@
       },
       {
         "id": "cargo:digest@0.10.7",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses digest 0.11. The conservative inclusion stays.",
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses digest 0.11. The conservative inclusion stays."
       },
       {
         "id": "cargo:digest@0.11.3",
@@ -753,17 +783,7 @@
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
       },
       {
-        "id": "cargo:dirs-sys@0.4.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
-      },
-      {
         "id": "cargo:dirs-sys@0.5.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
-      },
-      {
-        "id": "cargo:dirs@5.0.1",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
       },
@@ -884,8 +904,8 @@
       },
       {
         "id": "cargo:generic-array@0.14.7",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays.",
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays."
       },
       {
         "id": "cargo:generic-array@1.4.5",
@@ -1373,11 +1393,6 @@
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 1.0.151 to 1.0.154 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:serde_spanned@0.6.9",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
-      },
-      {
         "id": "cargo:serde_spanned@1.1.2",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1 to 1.1.2 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 1.1.1 to 1.1.2 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
@@ -1419,8 +1434,8 @@
       },
       {
         "id": "cargo:sha2@0.10.9",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Now used by build tools only (tauri-codegen); the app uses sha2 0.11.1 at runtime. The conservative inclusion stays.",
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Now used by build tools only (tauri-codegen); the app uses sha2 0.11.1 at runtime. The conservative inclusion stays."
       },
       {
         "id": "cargo:sha2@0.11.1",
@@ -1578,19 +1593,9 @@
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 1.53.1 to 1.53.3 on 2026-10-26 for RUSTSEC-2026-0386; same declared license and byte-identical license files. Updated from 1.53.3 to 1.54.1 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:toml_datetime@0.6.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
-      },
-      {
         "id": "cargo:toml_datetime@1.1.2+spec-1.1.0",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.1+spec-1.1.0 to 1.1.2+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 1.1.1+spec-1.1.0 to 1.1.2+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
-      },
-      {
-        "id": "cargo:toml_edit@0.20.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
       },
       {
         "id": "cargo:toml_parser@1.1.5+spec-1.1.0",
@@ -1601,11 +1606,6 @@
         "id": "cargo:toml_writer@1.1.3+spec-1.1.0",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.2+spec-1.1.0 to 1.1.3+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 1.1.2+spec-1.1.0 to 1.1.3+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
-      },
-      {
-        "id": "cargo:toml@0.8.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
       },
       {
         "id": "cargo:toml@1.1.8+spec-1.1.0",
@@ -1686,11 +1686,6 @@
         "id": "cargo:web-time@1.1.0",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. MIT OR Apache-2.0; MIT with the original text.",
         "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. MIT OR Apache-2.0; MIT with the original text."
-      },
-      {
-        "id": "cargo:winnow@0.5.40",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking."
       },
       {
         "id": "cargo:winnow@1.0.4",
@@ -1775,13 +1770,10 @@
       "cargo:windows-numerics@0.3.1",
       "cargo:windows-result@0.4.1",
       "cargo:windows-strings@0.5.1",
-      "cargo:windows-sys@0.48.0",
       "cargo:windows-sys@0.61.2",
-      "cargo:windows-targets@0.48.5",
       "cargo:windows-threading@0.2.1",
       "cargo:windows-version@0.1.7",
       "cargo:windows@0.62.2",
-      "cargo:windows_x86_64_msvc@0.48.5",
       "cargo:winreg@0.56.0",
       "installer:nsis-engine-and-standard-plugins",
       "installer:nsis-lzma-decoder",

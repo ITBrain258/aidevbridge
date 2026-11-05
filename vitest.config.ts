@@ -38,7 +38,6 @@ export default defineConfig({
     // noch aus, dort aendert die Flagge nichts.
     env: {
       NODE_OPTIONS: [
-        // @ts-expect-error process is a nodejs global
         process.env.NODE_OPTIONS,
         "--no-experimental-webstorage",
       ]

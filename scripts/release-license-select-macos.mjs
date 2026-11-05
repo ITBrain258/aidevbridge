@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck -- not yet checked through checkJs (tsconfig.node.json)
 // Derive the macOS universal license selection from the reviewed Windows x64
 // selection. Packages shared with Windows keep their decision and texts,
 // Windows-only families are dropped, and every macOS-only crate and

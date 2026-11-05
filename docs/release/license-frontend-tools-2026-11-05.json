@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-05T11:10:26.497Z",
+  "scope": "Frontend check and test tools: TypeScript 5.6.3 to 6.0.3, Vitest 4.1.12 to 5.1.0, jsdom 29.1.1 to 30.1.3 and the new @types/node; whether the frontend output changes. Vite, esbuild and Rollup stay at their locked versions. Not final application compliance or installer delivery.",
+  "basis": "docs/release/license-frontend-output-2026-09-12.json",
+  "packages": {
+    "typescript": {
+      "before": "5.6.3",
+      "after": "6.0.3",
+      "resolved": "https://registry.npmjs.org/typescript/-/typescript-6.0.3.tgz",
+      "integrity": "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=="
+    },
+    "vitest": {
+      "before": "4.1.12",
+      "after": "5.1.0",
+      "resolved": "https://registry.npmjs.org/vitest/-/vitest-5.1.0.tgz",
+      "integrity": "sha512-MzmNFnrwa8v8lF1bLxw3UJ4EREwVOVb75VqJZmUDRjJ6EluK/x9th7qTbaeDk41WxE1GxWqmTXcdsfobfH5sOA=="
+    },
+    "jsdom": {
+      "before": "29.1.1",
+      "after": "30.1.3",
+      "resolved": "https://registry.npmjs.org/jsdom/-/jsdom-30.1.3.tgz",
+      "integrity": "sha512-hQMUPvRgN7KxsfIytDQji7bimuJeRQa6Qo5+iuiZQk5CafeRxLIA10/cG5YCBFNpD9RO3oqIiN4CO1Y44kxqXg=="
+    },
+    "@types/node": {
+      "before": null,
+      "after": "24.19.2",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.19.2.tgz",
+      "integrity": "sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ=="
+    },
+    "vite": {
+      "before": "6.4.5",
+      "after": "6.4.5",
+      "resolved": "https://registry.npmjs.org/vite/-/vite-6.4.5.tgz",
+      "integrity": "sha512-4enwjFfi4IwtEh0w+jPzpLVOFQiPHmmzPxcHXQOyEur47o6u0jE573DmGpjA+7irXoMLYRZD5ZaFUEneS3abPg=="
+    },
+    "esbuild": {
+      "before": "0.25.12",
+      "after": "0.25.12",
+      "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.25.12.tgz",
+      "integrity": "sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg=="
+    },
+    "rollup": {
+      "before": "4.62.2",
+      "after": "4.62.2",
+      "resolved": "https://registry.npmjs.org/rollup/-/rollup-4.62.2.tgz",
+      "integrity": "sha512-RFnrW4lhXA3s3eqHDZvN654g8OTjzRfqpIRJYczCGB6HzphckVAi/Qh4tbPUbRuDi7s1Llv8g/NspLkttY3gTA=="
+    }
+  },
+  "typescript": {
+    "package_json": {
+      "path": "node_modules/typescript/package.json",
+      "bytes": 3527,
+      "sha256": "9332e97c30d3e53ed54910b89207ed657fb444066484df6e5b6965bf130865e9"
+    },
+    "declared_license": "Apache-2.0",
+    "role": "tsc with noEmit in npm run build and npm run typecheck; src/source-hygiene.test.ts and scripts/release-license-inventory-frontend.mjs use its parser API. No TypeScript runtime library is imported by the frontend sources."
+  },
+  "frontend_output": {
+    "command": "npm run build (tsc && vite build) on the same checkout, before with the locked TypeScript 5.6.3, after with TypeScript 6.0.3, Vitest 5.1.0 and jsdom 30.1.3",
+    "files": [
+      {
+        "path": "dist/index.html",
+        "before": {
+          "bytes": 1945,
+          "sha256": "c4496399985c36602f4ceb6a2100dde88d048cb987bec0a0caa0defe8a026662"
+        },
+        "after": {
+          "bytes": 1945,
+          "sha256": "c4496399985c36602f4ceb6a2100dde88d048cb987bec0a0caa0defe8a026662"
+        }
+      },
+      {
+        "path": "dist/assets/index-BMC3bw61.css",
+        "before": {
+          "bytes": 67322,
+          "sha256": "c1f76583afbd94a1481a2a2b453eb210320b3485b2943442487a44dbcb959f45"
+        },
+        "after": {
+          "bytes": 67322,
+          "sha256": "c1f76583afbd94a1481a2a2b453eb210320b3485b2943442487a44dbcb959f45"
+        }
+      },
+      {
+        "path": "dist/assets/index-DYQalkbw.js",
+        "before": {
+          "bytes": 764614,
+          "sha256": "4d1961d32ff085765e1f4f575eaca06c36fe6f88b65202baea9c143daf21993a"
+        },
+        "after": {
+          "bytes": 764614,
+          "sha256": "4d1961d32ff085765e1f4f575eaca06c36fe6f88b65202baea9c143daf21993a"
+        }
+      }
+    ],
+    "equal": true
+  },
+  "test_only": "Vitest, jsdom and @types/node run in tests and type checks only; the byte-identical output shows that none of them contributes to it. They have no component in the selections.",
+  "decision": "npm:typescript stays excluded at 6.0.3 for the reason recorded at 5.6.3; the frontend output and with it every other npm decision is unchanged."
+}
