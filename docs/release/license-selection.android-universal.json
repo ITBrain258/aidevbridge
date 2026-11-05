@@ -55,8 +55,8 @@
     "files": [
       {
         "path": ".github/workflows/android.yml",
-        "bytes": 21033,
-        "sha256": "8b010a19b11eb0b8c68ab932449ddbbd951b9096bfaf04c1cf8ec2160ea31c96"
+        "bytes": 21746,
+        "sha256": "eddd708bd2ea44fbd13abe54aa49c675ed3c0413d15fe79f2fd47f787e50c1bc"
       },
       {
         "path": "Cargo.lock",
@@ -640,13 +640,13 @@
       },
       {
         "path": "src-tauri/gen/android/build.gradle.kts",
-        "bytes": 376,
-        "sha256": "4e3485f074acc6d6287c2209babcbfef55a387aa697571b9159f03d0fba04334"
+        "bytes": 656,
+        "sha256": "1590c06730cb04cdacb3dfbaa2a85bedf4e70c58a420f30ec25d1fa46f41feb3"
       },
       {
         "path": "src-tauri/gen/android/buildSrc/build.gradle.kts",
-        "bytes": 344,
-        "sha256": "9b22e776e4a09b933785f130924d65ae24d80e57ec2da494737fe779761e5aeb"
+        "bytes": 475,
+        "sha256": "afae17dc55086daea6619b25b95603e85ff93d0fc226d8a945043c8ca9241a1f"
       },
       {
         "path": "src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties",
