@@ -560,14 +560,18 @@ zeigen: die Konsole bei echten Rechten und echter CSP, die Eingabe beim
    im Prompt des Agents. Dieser Fall ist der Veto-Punkt des Maintainers
    (U5): Stört die gepufferte Eingabe dort, fällt die Entscheidung, ob sie
    bleibt.
-4. **Abgelehnte Agent-Signatur** (nur mit passender Hardware). Einen
-   FIDO-Schlüssel (sk-ed25519) in den ssh-agent laden, mit Anmeldung über
-   den Agent verbinden und den Schlüssel nicht berühren; alternativ unter
-   macOS `ssh-add -c <Schlüssel>` und die Bestätigung ablehnen.
+4. **Abgelehnte Agent-Signatur** (nur mit passender Hardware). Den Agent
+   leeren (`ssh-add -D`), nur einen FIDO-Schlüssel (sk-ed25519) laden, mit
+   Anmeldung über den Agent verbinden und den Schlüssel nicht berühren;
+   alternativ unter macOS nur `ssh-add -c <Schlüssel>` und die Bestätigung
+   ablehnen.
    Erwartung: „Secure signing failed. Try again or choose another
    authentication method.“ statt „Host not reachable…“ und keine weitere
-   Bestätigungsabfrage. Gegenprobe: Mit bestätigter Signatur verbindet der
-   Host, ein unerreichbarer Host meldet weiter „Host not reachable“.
+   Bestätigungsabfrage. Zweiter Fall (seit 0.2.7): zusätzlich einen zweiten,
+   auf dem Host berechtigten Schlüssel ohne Rückfrage laden; nach der
+   abgelehnten ersten Signatur meldet sich die App mit dem zweiten an.
+   Gegenprobe: Mit bestätigter Signatur verbindet der Host, ein
+   unerreichbarer Host meldet weiter „Host not reachable“.
 5. **Hostnamen.** Im Host-Dialog nacheinander `user@host`, `a b` und `*`
    als Hostnamen speichern, dann einen bestehenden Host auf `user@host`
    ändern.
