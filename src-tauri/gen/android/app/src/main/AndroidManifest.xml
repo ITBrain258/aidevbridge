@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- SSH zu den eigenen Hosts. Kein weiteres Recht (Spec 2026-10-27 §7.3). -->
+    <!-- SSH zu den eigenen Hosts (Spec 2026-10-27 §7.3). Ab Android 17 braucht
+         jede Verbindung ins lokale Netz zusaetzlich ACCESS_LOCAL_NETWORK; die
+         App fragt danach erst, wenn ein Host im lokalen Netz liegt
+         (LocalNetworkPlugin.kt). Kein weiteres Recht. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
 
     <!-- Keine Sicherung in die Cloud und keine Uebertragung auf ein neues
          Geraet: Im privaten Speicher liegen SSH-Schluessel, known_hosts und

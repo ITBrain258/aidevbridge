@@ -7,6 +7,7 @@
 pub mod commands;
 pub mod connection;
 pub mod keymap;
+pub mod local_network;
 pub mod paths;
 pub mod preflight;
 pub mod remote;
@@ -110,6 +111,11 @@ pub fn run() {
     // WebView kein `fs:`-Recht.
     #[cfg(target_os = "android")]
     let builder = builder.plugin(tauri_plugin_fs::init());
+    // Android 17: fragt vor dem Verbinden nach dem Zugriff aufs lokale Netz
+    // (`local_network`). Nur serverseitig wie das fs-Plugin; der WebView ruft
+    // die Befehle der Kotlin-Klasse nicht auf.
+    #[cfg(target_os = "android")]
+    let builder = builder.plugin(local_network::init());
     builder
         .manage(std::sync::Arc::new(commands::AppState::from_env()))
         .invoke_handler(tauri::generate_handler![
