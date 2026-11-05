@@ -1,0 +1,1 @@
+Wie OpenSSH bevorzugt die App beim Verbinden den Schlüsseltyp, unter dem ein Host schon bekannt ist, und fragt dann nicht erneut nach. Die SSH-Bibliothek ist auf dem neuesten Stand (russh 0.65.1) und nimmt ECDSA-Signaturen von Servern an, die die Werte mit Nullen auffüllen, etwa von Netzwerkgeräten. Der Android-Bau nutzt aktuelle Werkzeuge und Bibliotheken.

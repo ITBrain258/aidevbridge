@@ -257,7 +257,8 @@ as a client. Its tests start russh servers on 127.0.0.1 as test peers,
 nothing else does.
 
 Two low advisories published on 3 November 2026 cover russh 0.65.0, which
-0.2.5 and 0.2.6 carry, but not the app; 0.65.1 fixes both:
+0.2.5 and 0.2.6 carry, but not the app; 0.65.1, which 0.2.7 carries, fixes
+both:
 
 - [GHSA-9264-jvgf-6w2f](https://github.com/warp-tech/russh/security/advisories/GHSA-9264-jvgf-6w2f):
   russh calls the client callback `kex_done` with the shared secret of the

@@ -168,6 +168,19 @@ AGP 9.3 und Kotlin 2.2:
    Kotlins `license/`) unter `docs/release/licenses/` mit Version im Namen.
    Dann `npm run licenses:derive`, `licenses:status` und `licenses:check`.
 
+Das Archiv einer Bibliothek wählt die Ableitung wie Gradle: über die
+Android-Laufzeitvariante der Modul-Metadaten (`.module`), sonst
+`<artifact>-<version>.aar` oder `.jar`. Leitet die Variante auf ein anderes
+Modul um, gehört in `MAVEN` ein `redirect` auf genau dieses Modul.
+
+Die NDK-Belege (`evidence.ndk.targets.<ziel>.built_library` in
+`license-android-universal-2026-10-28.json`) liest die Ableitung aus
+`target/<ziel>/release/libaidevbridge_lib.so`. Fehlt eine dieser
+Bibliotheken, setzt sie den Beleg auf `null`. Dann vorher alle drei Ziele
+bauen, oder den zuletzt aufgezeichneten Beleg übernehmen, wenn sich NDK und
+native Abhängigkeiten nicht geändert haben, und die Datei mit
+`--third-party` neu binden (so bei 0.2.6 und 0.2.7).
+
 ## Tauri-CLI und Installer-Werkzeuge
 
 Die Release-Skripte binden den Bundler an eine CLI-Version

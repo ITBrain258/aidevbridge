@@ -14,13 +14,13 @@
     "features": [
       "tauri/custom-protocol"
     ],
-    "product_version": "0.2.6"
+    "product_version": "0.2.7"
   },
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1054034,
-    "sha256": "600276d6e9a7293574a89a6479bdea0b398f569ef367c60c1789f4f088b44289"
+    "bytes": 1054289,
+    "sha256": "4e513e9a2e7bfe3603ec59c5e2c207d68740f3f1da354715817762d03487f2cd"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -811,7 +811,7 @@
       {
         "id": "cargo:miniz_oxide@0.8.9",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-10-29: Now used by build tools only; the runtime uses miniz_oxide 0.9.1. The conservative inclusion stays.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-10-29: Now used by build tools only; the runtime uses miniz_oxide 0.9.1. The conservative inclusion stays."
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. On macOS, muda 0.20.0 depends on png 0.18.1 ([target.'cfg(target_os = \"macos\")'.dependencies.png] in its Cargo.toml); png uses miniz_oxide 0.8.9 directly and 0.9.1 through flate2 at run time. tauri-codegen uses png at build time as well."
       },
       {
         "id": "cargo:miniz_oxide@0.9.1",

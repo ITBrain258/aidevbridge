@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-11-05
+
+russh 0.65.1, die Abhaengigkeitsstufen vom 05.11. (Vite 8, TypeScript 6, Gradle 9 mit Android-Gradle-Plugin 9 und Kotlin 2, `dirs`, `toml` und `sha2`), der naechste Agent-Schluessel nach einer verweigerten Signatur und Hostschluessel nach `known_hosts` geordnet; dazu die Befunde einer Pruefung vor dem Release.
+
 ### Added
 
 - CI: Die Testinstallation unter macOS listet nach dem Start auf, was die App unter `~/Library` angelegt hat, und behaelt die Liste als Artefakt; ein Fehler beim Auflisten haelt das Release nicht auf. Die erste Messung auf Apple silicon und Intel bestaetigt `PRIVACY.md`: nur die Daten der Webansicht unter `~/Library/WebKit` und `~/Library/Caches`.

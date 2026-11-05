@@ -647,8 +647,8 @@ Stocken.
 
 ## 11. Änderungen aus dem Code-Review vom 03.11.
 
-Einmal an den Paketen von 0.2.6, die diese Änderungen tragen; der Maintainer
-hat das Release vor dieser Abnahme freigegeben (Zusammenfassung in
+Einmal an den Paketen von 0.2.7, die diese Änderungen seit 0.2.6 tragen; der
+Maintainer hat das Release vor dieser Abnahme freigegeben (Zusammenfassung in
 [`docs/stand.md`](stand.md)). Was Tests nicht zeigen: das
 Banner am echten Fenster, das Tippen über eine echte Verbindung, was tmux
 bei `set-clipboard on` und `allow-passthrough on` wirklich weiterreicht und

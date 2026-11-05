@@ -13,7 +13,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.2.6",
+    "product_version": "0.2.7",
     "bundle_targets": [
       "app",
       "dmg"
@@ -44,6 +44,9 @@
     "docs/release/license-rust-update-2026-10-30.json",
     "docs/release/license-rust-update-2026-11-05.json",
     "docs/release/license-rust-update-2026-11-05-dup-crates.json",
+    "docs/release/license-frontend-lucide-1.69.0-2026-11-05.json",
+    "docs/release/license-frontend-tools-2026-11-05.json",
+    "docs/release/license-frontend-vite-8-2026-11-05.json",
     "docs/release/license-macos-universal-2026-10-25.json"
   ],
   "inputs": {
@@ -51,7 +54,7 @@
       {
         "path": "Cargo.lock",
         "bytes": 146461,
-        "sha256": "d5096e995ba622b2d13ae5562f5a35d77ef01b839be991c1c8da45af09de6c2c"
+        "sha256": "ed51779e6b85665337d970d592bae82ecb43de9decdccf343862946283863ab2"
       },
       {
         "path": "Cargo.toml",
@@ -70,8 +73,8 @@
       },
       {
         "path": "THIRD_PARTY_LICENSES.md",
-        "bytes": 18444,
-        "sha256": "42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "bytes": 18588,
+        "sha256": "eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       },
       {
         "path": "docs/release/license-and-unicode-2026-09-12.json",
@@ -121,12 +124,12 @@
       {
         "path": "docs/release/license-inventory-2026-10-25-macos-rust.json",
         "bytes": 183587,
-        "sha256": "9f5c7b3e631e6bc4979c954c8413d00e6bdc591cad884a6c832db322f6025967"
+        "sha256": "4dbe787d1429a436846572236c0c6624c2e1096e42eb4711c6bbf9bc1d5d6174"
       },
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
-        "bytes": 131644,
-        "sha256": "1eb3223981ad9515c6b39fe24c9d9326d3425b325d0f2e4ea5f3d04f86ebe328"
+        "bytes": 131756,
+        "sha256": "d165c06e8cdbee11de647d1ca75d38cf4d382e86abc43ec8f591a334d533a109"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -505,13 +508,13 @@
       },
       {
         "path": "package-lock.json",
-        "bytes": 65453,
-        "sha256": "15d23fc70f5bc695a47da70afed674523278223fd76158898c9c169193b944da"
+        "bytes": 65465,
+        "sha256": "506ca157bc3bb1f1acfe8b6223590198d8506b0e67ce8f1f8367e37d85f77474"
       },
       {
         "path": "package.json",
-        "bytes": 1754,
-        "sha256": "3c4bd8a245cbcd41fdec3e4bd759b4d37a76c2959209db410cc2633dc27ff903"
+        "bytes": 1805,
+        "sha256": "e1776b94d7bdcccc2bc7c40c83e91b29e798419a159232bf4673b3fbf34079cb"
       },
       {
         "path": "rust-toolchain.toml",
@@ -541,7 +544,7 @@
       {
         "path": "src-tauri/Cargo.toml",
         "bytes": 5844,
-        "sha256": "dde824e7ea00f13a3170809f747f4effabeee2ca934f90bc2330a15445d2ac2b"
+        "sha256": "e0bb336440cfe8acb03efb61de29f1af7a61eb8f4c512dd6786bb8cd637369e4"
       },
       {
         "path": "src-tauri/Info.plist",
@@ -556,7 +559,7 @@
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1510,
-        "sha256": "1ad2ce54c2403caa34d1df02fd1b43b1799d27c101734b90863974c28726278d"
+        "sha256": "a0ac62b7c53fffe916239e6e54f1ef1638e27aa161e19ce6e850122ba8b860fd"
       },
       {
         "path": "src-tauri/tauri.release.macos.json",
@@ -690,8 +693,8 @@
       },
       {
         "path": "vite.config.ts",
-        "bytes": 4373,
-        "sha256": "f9587fb05050b03d3e812e5e0ea46eafa3189ee3ee7e5832421af8218b77aeb5"
+        "bytes": 5308,
+        "sha256": "7b0a25932e7f158c0a2ac6e7ab28247a2819e23e0e2dc9e960fd9db4e61b6adf"
       }
     ],
     "trees": [
@@ -1094,8 +1097,8 @@
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
-            "bytes": 67467,
-            "sha256": "d070be165297e75599e4047e6628d7d512680206c36bd1421e53c5091f31a76f"
+            "bytes": 69499,
+            "sha256": "05613b16d75eaada2ffd354d6fc667e3979f318d155763cdb90e5bb13bd7e2bf"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
@@ -1616,7 +1619,7 @@
           {
             "path": "vendor/russh/src/channels/channel_ref.rs",
             "bytes": 2667,
-            "sha256": "471def3a679c4d7b6562f0cee3ff9a4f6a96d89dba9a660dc65cd9c40cff8200"
+            "sha256": "e91231e820eebcb1c3142e14296e36ba164d5aeecd7ae0458666fee4f2efe488"
           },
           {
             "path": "vendor/russh/src/channels/channel_stream.rs",
@@ -1626,7 +1629,7 @@
           {
             "path": "vendor/russh/src/channels/end_observer.rs",
             "bytes": 4303,
-            "sha256": "9f54ff577f33747506d39e4087d5a47783113bdac40f5bf658233db53ac822bc"
+            "sha256": "02055c735b957a6026df5e6cd81039d5bfea321ecdc08c392371c58ba0e8b9bb"
           },
           {
             "path": "vendor/russh/src/channels/io/mod.rs",
@@ -1646,12 +1649,12 @@
           {
             "path": "vendor/russh/src/channels/mod.rs",
             "bytes": 27220,
-            "sha256": "37622d861c1bd570712f2206f835e5ba3a9c2a9824d0a3783c751bc5271ff8bf"
+            "sha256": "cf6a5e4a3157dbf3df54234b12e1c43296472b881b3b9b8f9b9352516f7c2fc8"
           },
           {
             "path": "vendor/russh/src/channels/window_credit.rs",
             "bytes": 3320,
-            "sha256": "2b30e6e83a5a3e70ebc32a4dacdac6bcab17bc5e7305b9bf48aa6273ed54864f"
+            "sha256": "fd38c25d7715a086fc3fb1a35a9a234b8a1bddea31a64e64c91f8de2568b45b3"
           },
           {
             "path": "vendor/russh/src/cipher/benchmark.rs",
@@ -1691,7 +1694,7 @@
           {
             "path": "vendor/russh/src/client/encrypted.rs",
             "bytes": 76116,
-            "sha256": "cafe296c45df9ebd0093fc2939dde331f6842f0eb95cb12dee63a95b39f5915f"
+            "sha256": "c6ea0ccb415f88b29cefd11d28aaeefd8807c3f691ad6424bbe660e146a2766c"
           },
           {
             "path": "vendor/russh/src/client/kex.rs",
@@ -1701,12 +1704,12 @@
           {
             "path": "vendor/russh/src/client/mod.rs",
             "bytes": 123062,
-            "sha256": "9baf6145cb7cec9efe7946eb0f3cc7cc94d8291bc147c0db3821576ba746d883"
+            "sha256": "1331c81ffe995b6a8e6b7ea100fbb94dcd7280c005734a4994d025f3dfe0fea4"
           },
           {
             "path": "vendor/russh/src/client/session.rs",
             "bytes": 23989,
-            "sha256": "0c4ae3af03096c701145935e71005c9b64bde763ae98f903217c8ce0629ad1dc"
+            "sha256": "c30da90117e0e4cf112e6c268bbf7090f91c22610626167bf8743740548482b5"
           },
           {
             "path": "vendor/russh/src/client/test.rs",
@@ -1826,7 +1829,7 @@
           {
             "path": "vendor/russh/src/lib_inner.rs",
             "bytes": 17353,
-            "sha256": "396d20144f65ed4c6eea1bcc4275bb30a7373bb63b68cf896b744f4c3ece98fc"
+            "sha256": "9cf6213d94b8157fc47840a84a432eb2c4b2dacd04d647e604b613f8671841f5"
           },
           {
             "path": "vendor/russh/src/mac/crypto.rs",
@@ -1871,7 +1874,7 @@
           {
             "path": "vendor/russh/src/server/encrypted.rs",
             "bytes": 87250,
-            "sha256": "f91dae8ddc44773131739894b84df98f68a890daeba0231b7686c0ed4d4adf91"
+            "sha256": "0302cc8e768a838a55b21963162eb4fdf023b93e8d42fea3daea34e498a29ad2"
           },
           {
             "path": "vendor/russh/src/server/kex.rs",
@@ -1886,12 +1889,12 @@
           {
             "path": "vendor/russh/src/server/session.rs",
             "bytes": 70122,
-            "sha256": "27c9d035a565ce1ad3b1340d425126903ec1acf3a914be838726d88e1f839564"
+            "sha256": "62c31587b373b1825754acafc0d81e354da3d78ceb4ce955d6ed9994ff878b5c"
           },
           {
             "path": "vendor/russh/src/session.rs",
             "bytes": 58237,
-            "sha256": "e6207385a28f890d38b23aec234c0a239f28d722703ac83fccb826e9f17be308"
+            "sha256": "33e63a02b5746d673f575fdf8fd6331f4aaa019487f25a8e278ab817b99af287"
           },
           {
             "path": "vendor/russh/src/ssh_read.rs",
@@ -1911,12 +1914,12 @@
           {
             "path": "vendor/russh/src/tests/channel_close_patch.rs",
             "bytes": 8308,
-            "sha256": "4ef66975ea61bcc0439bacdd0d31408a2a44559b74901c2162e98c540e6f2693"
+            "sha256": "0005e122942e8bf7534729e187835579604f559cf5987d7a58d684a1d4b7f2b1"
           },
           {
             "path": "vendor/russh/src/tests/channel_end_observer.rs",
             "bytes": 19800,
-            "sha256": "aa19782ae45d098d63f6872d30a8d4b4296f8f8b6a23c8e0126b07455ba03c05"
+            "sha256": "0d1f1d51f288a8fd5971b23938e1aaa2e84bf5df0d6e1967d576d47c32f5b99b"
           },
           {
             "path": "vendor/russh/tests/auth_agent_req_channel_reply.rs",
@@ -2051,11 +2054,11 @@
         "declared_license": "Unlicense OR MIT"
       },
       {
-        "package": "aidevbridge@0.2.6",
+        "package": "aidevbridge@0.2.7",
         "source": null,
         "manifest": {
           "bytes": 5844,
-          "sha256": "dde824e7ea00f13a3170809f747f4effabeee2ca934f90bc2330a15445d2ac2b"
+          "sha256": "e0bb336440cfe8acb03efb61de29f1af7a61eb8f4c512dd6786bb8cd637369e4"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5293,25 +5296,25 @@
         "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
       },
       {
-        "package": "aidevbridge@0.2.6",
+        "package": "aidevbridge@0.2.7",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.2.6",
+        "package": "aidevbridge@0.2.7",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.2.6",
+        "package": "aidevbridge@0.2.7",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.2.6",
+        "package": "aidevbridge@0.2.7",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11266,9 +11269,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.2.6",
+      "id": "cargo:aidevbridge@0.2.7",
       "name": "aidevbridge",
-      "version": "0.2.6",
+      "version": "0.2.7",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",
@@ -16177,7 +16180,7 @@
       "documents": [
         "sha256:799e9ca9d179295ef372f25d3769cdda7d25bb2668add6a6a1e22d1e4c678b8d"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-10-29: Now used by build tools only; the runtime uses miniz_oxide 0.9.1. The conservative inclusion stays.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. On macOS, muda 0.20.0 depends on png 0.18.1 ([target.'cfg(target_os = \"macos\")'.dependencies.png] in its Cargo.toml); png uses miniz_oxide 0.8.9 directly and 0.9.1 through flate2 at run time. tauri-codegen uses png at build time as well.",
       "source_urls": [
         "https://static.crates.io/crates/miniz_oxide/miniz_oxide-0.8.9.crate",
         "https://crates.io/crates/miniz_oxide/0.8.9",
@@ -21942,17 +21945,18 @@
     {
       "id": "frontend:tauri-vendored-tslib",
       "name": "Tauri-vendored external/tslib",
-      "version": "parent @tauri-apps/api 2.11.1",
+      "version": "parent @tauri-apps/api 2.12.4",
       "declared_license": null,
       "selected_license": "0BSD",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Re-decided on 2026-10-20: the production JS contains __classPrivateFieldGet and __classPrivateFieldSet, reached through @tauri-apps/api/window -> image.js (Image extends Resource from core.js); the earlier exclusion no longer holds. The verbatim Microsoft notice of the vendored file (0BSD terms, no attribution duty) is retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
         "THIRD_PARTY_LICENSES.md",
-        "scripts/release-license-inventory-frontend.mjs"
+        "scripts/release-license-inventory-frontend.mjs",
+        "docs/release/license-frontend-tauri-2.12-2026-10-29.json"
       ],
       "source_urls": []
     },
@@ -21964,7 +21968,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Ten helpers for private class members (checkPrivateRedeclaration, classPrivateMethodInitSpec, typeof, toPrimitive, toPropertyKey, defineProperty, classPrivateFieldInitSpec, assertClassBrand, classPrivateFieldGet2, classPrivateFieldSet2), 1118 bytes, which oxc adds for the Safari 14 and Chrome 87 targets. @oxc-project/runtime states that its code is copied from @babel/runtime; THIRD_PARTY_LICENSES.md retains the MIT texts of both. Decided on 2026-11-05 (docs/release/license-frontend-vite-8-2026-11-05.json).",
       "decision_basis": [
@@ -21983,7 +21987,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices. For the window-title and attention calls the bundle also contains window.js, dpi.js and image.js, and for the Android back gesture app.js; they carry the same Commons Conservancy header, which THIRD_PARTY_LICENSES.md lists. Updated to 2.12.4 on 2026-10-29 (docs/release/license-frontend-tauri-2.12-2026-10-29.json): same notices in every bundled module, license files renamed with the same bytes.",
       "decision_basis": [
@@ -22002,7 +22006,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices. Updated to 2.8.4 on 2026-10-29 (docs/release/license-frontend-tauri-2.12-2026-10-29.json): same license file and notices.",
       "decision_basis": [
@@ -22038,7 +22042,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22056,7 +22060,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22074,7 +22078,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22092,7 +22096,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Bundled for Ctrl+click links. Its MIT text and copyright line (identical bytes to addon-search) and the two module headers shared with the other xterm packages are retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
@@ -22111,7 +22115,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22129,7 +22133,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Actual rendered frontend module contribution and retained original source notices.",
       "decision_basis": [
@@ -22147,7 +22151,7 @@
       "selected_license": "ISC AND MIT (Feather)",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Icon geometries copied into src/icons.ts (ICON_NAMES, generated by scripts/gen-icons.mjs) and the triangle-alert geometry inlined as a CSS mask in src/styles.css; the full ISC and Feather MIT texts are retained. Updated to 1.69.0 on 2026-11-05 (docs/release/license-frontend-lucide-1.69.0-2026-11-05.json): same license text, byte-identical geometries.",
       "decision_basis": [
@@ -22199,7 +22203,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Vite 8 bundles with it. Its native library (@rolldown/binding-*, same version) carries and emits the modulepreload polyfill and the Babel helpers for private class members into the frontend output; the rolldown MIT text is retained in THIRD_PARTY_LICENSES.md. Decided on 2026-11-05 (docs/release/license-frontend-vite-8-2026-11-05.json).",
       "decision_basis": [
@@ -22217,7 +22221,7 @@
       "selected_license": "MIT",
       "disposition": "include",
       "documents": [
-        "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517"
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
       ],
       "reason": "Only the emitted modulepreload polyfill; no wholesale Vite build dependency payload. Updated to 8.3.6 on 2026-11-05 (docs/release/license-frontend-vite-8-2026-11-05.json): rolldown's built-in Vite plugin now emits the same polyfill program; the Vite core MIT text is unchanged.",
       "decision_basis": [
@@ -26718,10 +26722,10 @@
       ]
     },
     {
-      "id": "sha256:42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517",
+      "id": "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9",
       "file_name": "THIRD_PARTY_LICENSES.md",
-      "bytes": 18444,
-      "sha256": "42d37abc3dd3c79bdea1b055b252e1430b25842784bd96deb26eac64c92d6517",
+      "bytes": 18588,
+      "sha256": "eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9",
       "sources": [
         {
           "kind": "file",
