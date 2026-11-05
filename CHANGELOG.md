@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Added
+
+- CI: Die Testinstallation unter macOS listet nach dem Start auf, was die App unter `~/Library` angelegt hat, und behaelt die Liste als Artefakt. Die erste Messung auf Apple silicon und Intel bestaetigt `PRIVACY.md`: nur die Daten der Webansicht unter `~/Library/WebKit` und `~/Library/Caches`.
+
 ## [0.2.6] - 2026-11-03
 
 Ergebnis eines Code-Reviews: Die SSH-Verbindung schaltet den Nagle-Algorithmus ab, zwei kleine Fehler in der Oberflaeche sind behoben, die Doku zu Zwischenablage, Datenschutz und Beitragen ist berichtigt, und die CI prueft auch das eingebettete russh.

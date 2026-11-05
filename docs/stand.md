@@ -534,11 +534,15 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Projektdateien:** ein `CODE_OF_CONDUCT.md` (braucht einen Kontakt)
       und ein Weg für Fragen (Discussions oder leere Issues); ob erledigte
       Pläne aus `plans/` fallen und dieses Dokument gekürzt wird.
-    - **Ablageorte unter macOS:** `PRIVACY.md` sagt, die App lege nichts
-      anderswo ab; für macOS ist das an keinem echten Mac gemessen (denkbar
-      sind `~/Library/Preferences/<id>.plist`,
-      `~/Library/Saved Application State/<id>.savedState` und
-      `~/Library/HTTPStorages/<id>`). Die Prüfung steht in der
+    - **Ablageorte unter macOS:** am 05.11. auf echten Macs gemessen
+      (Apple silicon und Intel, Testinstallation in `packages.yml`, PR #31):
+      Nach einem Start ohne Verbindung liegen unter `~/Library` nur
+      `WebKit/<id>/WebsiteData` und `Caches/<id>/WebKit`, wie `PRIVACY.md`
+      sagt. Eine `Preferences`-plist (die defaults-Domain fehlt),
+      `Saved Application State` und `HTTPStorages` gibt es nicht;
+      `Application Support` entsteht erst mit `settings.toml`. Die Liste
+      läuft bei jedem Push mit (Artefakt `macos-start-<arch>`). Ob Verbindungen
+      und Gebrauch mehr anlegen, prüft weiter die
       [Handabnahme §11](abnahme-handarbeit.md#11-änderungen-aus-dem-code-review-vom-0311),
       Schritt 5; findet sie mehr, ziehen `PRIVACY.md`, `SECURITY.md` und
       `guide/data.md` gemeinsam nach.
