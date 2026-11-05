@@ -22,7 +22,7 @@ jobs:
   # Drei Jobs, damit eine Meldung auf der einen Seite die Pruefung der anderen
   # nicht verdeckt.
   rust:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -38,7 +38,7 @@ jobs:
       # Warnungen (unsound, unmaintained, yanked) nicht.
       - run: cargo audit --ignore RUSTSEC-2023-0071
   npm:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,7 +49,7 @@ jobs:
       # Meldung laesst den Lauf scheitern.
       - run: npm audit --package-lock-only --omit=dev
   vendored:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

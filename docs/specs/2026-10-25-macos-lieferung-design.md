@@ -187,3 +187,13 @@ Profile `windows-x64` (Vorgabe) und `macos-universal`.
   ungetestet.
 - Bindung der Auswahl an das gebaute Binary: Lastbefehle prüft der Bau schon,
   die Zuordnung der std-Zweige zu Objekten im Binary noch nicht.
+
+## Nachtrag vom 05.11.2026: feste Runner-Images
+
+Die Workflows nennen feste Images statt `*-latest`, damit ein Wechsel bei
+GitHub keinen Bau unbemerkt ändert; ein neueres Image kommt mit einem Pull
+Request. Statt `windows-latest` steht `windows-2025` (Windows Server 2025
+mit Visual Studio 2026), statt `macos-latest` `macos-26` (Apple silicon),
+statt `ubuntu-latest` `ubuntu-24.04`; `macos-15-intel` bleibt. Das sind die
+Images, auf die die `*-latest`-Namen am 05.11. zeigten, auch beim Release von
+0.2.6. Abschnitt 5 gilt mit diesen Namen.
