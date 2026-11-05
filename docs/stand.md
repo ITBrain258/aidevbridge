@@ -593,11 +593,15 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       die Auswertung von `ssh_config` mit `Host` und `Match` und HMAC-SHA1
       mit Zufallssalz. Bis dahin nennt die [Grenzen-Anleitung](guide/limits.md)
       den Klartext-Eintrag und `ssh-keygen -H`.
-    - **CI:** ein lokaler sshd mit tmux im Ubuntu-Job, damit die Live-Tests
-      dort laufen, oder die bisher ungenutzten Pakete `openssh-server` und
-      `tmux` streichen; feste Runner-Images statt `windows-latest` und
-      `macos-latest`, die die [macOS-Spec](specs/2026-10-25-macos-lieferung-design.md)
-      festlegt. Beides nur mit echten CI-Läufen.
+    - **CI:** erledigt mit PR #29. Die Live-Tests laufen im Ubuntu-Job gegen
+      einen sshd auf dem Runner, mit eigenem Schlüssel und Testsocket; die
+      Runner-Images sind fest
+      ([Nachtrag der macOS-Spec](specs/2026-10-25-macos-lieferung-design.md#nachtrag-vom-05112026-feste-runner-images)).
+      Offen dabei: Der [Beleg zur VC-Laufzeit](release/license-windows-runtime-2026-09-12.md)
+      beschreibt einen lokalen Bau mit Visual Studio 2022 (MSVC 14.44); die
+      CI baut die Releases auf `windows-2025` mit Visual Studio 2026. Ob die
+      statisch gelinkten Laufzeitobjekte dort dieselbe Auswahl tragen, prüft
+      der Maintainer an einem Release-Bau.
     - **Projektdateien:** ein `CODE_OF_CONDUCT.md` (braucht einen Kontakt)
       und ein Weg für Fragen (Discussions oder leere Issues); ob erledigte
       Pläne aus `plans/` fallen und dieses Dokument gekürzt wird.

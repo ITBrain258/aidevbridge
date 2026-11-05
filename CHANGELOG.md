@@ -12,6 +12,7 @@ dem Namen agentbridge.
 
 ### Changed
 
+- CI: Die Live-Tests, die sonst nur gegen einen Testhost liefen, laufen im Ubuntu-Job gegen einen SSH-Server auf dem Runner selbst, mit einem eigens erzeugten Schluessel und eigenem tmux-Socket. Alle Workflows nennen feste Runner-Images (`windows-2025`, `macos-26`, `ubuntu-24.04`) statt `*-latest`; die Rust-Jobs heissen `rust (windows)`, `rust (ubuntu)` und `rust (macos)`.
 - CI: `vendored.yml` fuehrt neben den Bibliothekstests auch die Integrationstests des eingebetteten russh aus; seit 0.65.1 kompilieren sie unveraendert.
 - Icons: `lucide-static` 1.69.0 statt 1.41.0. Die 19 Icons der App haben dieselbe Geometrie, `src/icons.ts` bleibt gleich. Das Lizenzinventar vergleicht eingebettete Icons jetzt mit allen SVG-Dateien von lucide, auch mit Aliasnamen wie `triangle-alert`, die `icon-nodes.json` nicht mehr fuehrt.
 - Windows-Release: Die statische Bindung der VC-Laufzeit steht als `build.windows.staticVCRuntime` in `tauri.release.windows.json`. Die Umgebungsvariable `STATIC_VCRUNTIME`, die `tauri-build` als veraltet meldet, setzt das Release-Skript nicht mehr und weist eine geerbte weiter ab.

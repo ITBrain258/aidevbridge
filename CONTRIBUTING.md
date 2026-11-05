@@ -104,6 +104,9 @@ a disposable test host, never a machine with sessions you care about.
   and tmux tests derive further names such as `<socket>_pty2` and
   `<socket>_tmux3`: reserve the base name and all its suffixes for the run.
   The check cannot tell whether someone else on the host already uses a name.
+- The CI runs these tests on Ubuntu against an SSH server on the runner
+  itself (`.github/workflows/ci.yml`, step "Local SSH test host for the live
+  tests"); the acceptance suite stays manual.
 - Run with `--no-fail-fast` and `--nocapture` and keep the output: skipped
   branches (RSA key, password, SSH agent) are only visible there.
 - Run with `--test-threads=4`: the key preparation admits eight jobs per
