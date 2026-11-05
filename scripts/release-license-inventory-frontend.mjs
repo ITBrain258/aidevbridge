@@ -165,8 +165,11 @@ const entryHeaders = runtimeEntries.map(({ path: p, reached_from }) => {
 // lucide-static und mit den Feather-Namen verglichen; eine nicht lesbare
 // data-URI erscheint mit svg_sha256 null, statt zu fehlen.
 const svgPathData = (svg) => [...svg.matchAll(/\bd=(["'])(.*?)\1/g)].map((match) => match[2]);
-const lucideGeometry = Object.entries(json("node_modules/lucide-static/icon-nodes.json"))
-  .map(([name, nodes]) => [name, JSON.stringify(nodes.filter(([, attributes]) => typeof attributes?.d === "string").map(([, attributes]) => attributes.d))]);
+// Verglichen wird mit allen SVG-Dateien, auch den Aliasnamen: icon-nodes.json
+// fuehrt seit 1.69 nur die kanonischen Namen (triangle-alert heisst dort
+// triangle-exclamation-point), gen-icons.mjs und das CSS nehmen die Dateien.
+const lucideGeometry = fs.readdirSync(path.join(root, "node_modules/lucide-static/icons")).filter((name) => name.endsWith(".svg")).sort()
+  .map((name) => [name.slice(0, -4), JSON.stringify(svgPathData(innerMarkup(read(`node_modules/lucide-static/icons/${name}`).toString())))]);
 const featherGeometry = inheritedGeometry.map(([name, inner]) => [name, JSON.stringify(svgPathData(inner))]);
 function decodeSvgUri(uri) {
   const comma = uri.indexOf(",");
