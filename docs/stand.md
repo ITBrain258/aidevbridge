@@ -314,11 +314,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
 13. **Review vom 03.11., zurückgestellt:**
     - **Gehashte Einträge in `known_hosts` schreiben** bei `HashKnownHosts
       yes`: braucht die Auswertung von `ssh_config` mit `Host` und `Match`
-      und HMAC-SHA1 mit Zufallssalz. Empfehlung vom 05.11.: zurückgestellt
-      lassen, weil unter Windows und macOS kaum jemand `HashKnownHosts`
-      setzt; die [Grenzen-Anleitung](guide/limits.md) nennt den
-      Klartext-Eintrag und `ssh-keygen -H`. Gehashte Einträge lesen kann die
-      App.
+      und HMAC-SHA1 mit Zufallssalz. Am 05.11. vom Maintainer
+      zurückgestellt, weil unter Windows und macOS kaum jemand
+      `HashKnownHosts` setzt; die [Grenzen-Anleitung](guide/limits.md) und
+      `PRIVACY.md` nennen den Klartext-Eintrag und `ssh-keygen -H`. Gehashte
+      Einträge lesen kann die App. Begründung, die fünf Wege und wann das
+      Thema wieder aufkommt: [Entscheidung vom 05.11.](specs/2026-11-05-known-hosts-hashen-design.md).
     - **Ablageorte unter macOS:** Nach einem Start ohne Verbindung liegen
       unter `~/Library` nur `WebKit/<id>/WebsiteData` und `Caches/<id>/WebKit`,
       wie `PRIVACY.md` sagt (gemessen am 05.11. auf Apple silicon und Intel,
