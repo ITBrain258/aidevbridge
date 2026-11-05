@@ -58,7 +58,7 @@ const UPSTREAM_TEXTS = {
 // Inputs of the Windows payload that the Android payload does not use (the
 // same list as for macOS).
 const WINDOWS_ONLY_FILES = [
-  'docs/release/license-webview2-bindings-2026-09-12.json', 'docs/release/license-webview2-sdk-2026-09-12.json', 'docs/release/license-windows-runtime-2026-09-12.json',
+  'docs/release/license-webview2-bindings-2026-09-12.json', 'docs/release/license-webview2-sdk-2026-09-12.json', 'docs/release/license-windows-runtime-2026-09-12.json', 'docs/release/license-windows-runtime-2026-11-05.json',
   `${LICENSES}/microsoft-web-webview2-1.0.3650.58-LICENSE.txt`, `${LICENSES}/microsoft-web-webview2-1.0.3650.58-NOTICE.txt`, `${LICENSES}/microsoft-webview2-evergreen-2026-09-12-LICENSE.txt`, `${LICENSES}/microsoft-windows-runtime-NOTICE.txt`,
   `${LICENSES}/nsis-3.13-COPYING.txt`, `${LICENSES}/nsis-3.13-Modern-UI-2-LICENSE.txt`, `${LICENSES}/nsis-3.13-NSISdl-LICENSE.txt`, `${LICENSES}/nsis-tauri-utils-0.5.3-LICENSE-MIT.txt`,
   `${LICENSES}/webview2-rs-0.38.2-macros-0.8.1-LICENSE-MIT.txt`, `${LICENSES}/wix-3.14.1-LICENSE.txt`,

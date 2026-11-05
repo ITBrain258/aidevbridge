@@ -1,10 +1,10 @@
 Microsoft components used by the Windows version of aidevbridge
 
 aidevbridge contains Microsoft Visual C++ startup and exception-runtime code
-from the MSVC 14.44 toolset, linked into the executable. These Microsoft
-components remain subject to their applicable Microsoft terms. aidevbridge's
-own open-source license terms do not relicense Microsoft's proprietary
-runtime code.
+from the Microsoft C++ (MSVC) Build Tools, linked into the executable. These
+Microsoft components remain subject to their applicable Microsoft terms.
+aidevbridge's own open-source license terms do not relicense Microsoft's
+proprietary runtime code.
 
 The Windows version uses Microsoft Edge WebView2 Runtime. WebView2 is a
 separately installed Microsoft component, shared with other applications and

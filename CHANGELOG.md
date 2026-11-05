@@ -6,6 +6,11 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- Lizenzen: Die Ordner `licenses` aller drei Pakete fuehren die Herkunftszeilen aus dem Quelltext von crypto-bigint 0.7.10 (`crypto-bigint-0.7.10-SOURCE-NOTICES.txt`), Vermerke des Privacy Scaling Explorations Team, der Rust Project Developers und von Sam Kumar. Der Windows-Laufzeithinweis nennt kein festes MSVC-Toolset mehr; die Release-EXE, mit Visual Studio 2026 gebaut, linkt dieselben Teile der Microsoft-Laufzeit wie bisher (`docs/release/license-windows-runtime-2026-11-05.md`).
+- CI: `packages.yml` bewahrt die PDB des Windows-Baus 90 Tage als Artefakt `windows-symbols` auf, fuer die Pruefung der gelinkten Microsoft-Laufzeit nach einem Werkzeugwechsel. Ins Release kommt sie nicht.
+
 ## [0.2.7] - 2026-11-05
 
 russh 0.65.1, die Abhaengigkeitsstufen vom 05.11. (Vite 8, TypeScript 6, Gradle 9 mit Android-Gradle-Plugin 9 und Kotlin 2, `dirs`, `toml` und `sha2`), der naechste Agent-Schluessel nach einer verweigerten Signatur und Hostschluessel nach `known_hosts` geordnet; dazu die Befunde einer Pruefung vor dem Release.

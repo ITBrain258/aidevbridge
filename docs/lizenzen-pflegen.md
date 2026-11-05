@@ -60,6 +60,10 @@ Von Hand bleiben, das Werkzeug meldet sie unter `manual`:
      (Repository, Schwester-Crate, gemeinsamer Text) für die neue Version
      geprüft wurde, etwa durch Vergleich mit der Lizenzdatei am
      Veröffentlichungs-Commit (`.cargo_vcs_info.json`).
+     Darunter fällt auch eine eigene Quellhinweisdatei wie
+     `crypto-bigint-0.7.10-SOURCE-NOTICES.txt`: die zitierten Zeilen im
+     neuen Archiv nachsehen, die Datei für die neue Version neu anlegen und
+     unter `external` festhalten, wie geprüft wurde.
    - `reason` ersetzt eine Begründung, deren Beleg die alte Version nennt.
    - `new` entscheidet ein neues Paket (nur MIT), `role` eine neue Rolle.
 

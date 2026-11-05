@@ -12,7 +12,7 @@
     "installer_webview2_mode": "downloadBootstrapper",
     "installer_webview2_silent": true,
     "meaning": "License text selection for the application plus explicitly disclosed source/build families; not binary or installer acceptance.",
-    "historical_evidence": "Native family decisions are those of the 2026-09-12 review; frontend decisions those of the 2026-09-12 frontend report (docs/release/license-frontend-output-2026-09-12.json). Rebound on 2026-10-20 for aidevbridge 0.2.0: changed own sources, generated permissions and the vendored russh change notices were re-hashed; @xterm/addon-web-links, the Tauri window/dpi/image modules and the vendored tslib helpers were added after a fresh frontend inventory; pageant 0.2.1 -> 0.2.4. No historical EXE, PDB or dist directory is required as a notice preparation input. Final rebuilt artifacts remain separate acceptance inputs. Rebound on 2026-10-27 for the security updates of 2026-10-26 to crypto-bigint 0.7.5 -> 0.7.10, ctutils 0.4.2 -> 0.4.6 and tokio 1.53.1 -> 1.53.3 (docs/release/license-rust-crypto-tokio-2026-10-26.json): same declared licenses and byte-identical license files, so the decisions stand. Updated on 2026-10-29 for a Cargo.lock update (docs/release/license-rust-update-2026-10-29.json): 144 packages moved to new versions (29 of them reviewed by hand), 6 new packages decided, 2 role changes, 30 packages left the graph, 8 new packages outside the Windows tree are excluded. Updated on 2026-10-30 for a Cargo.lock update (docs/release/license-rust-update-2026-10-30.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05-dup-crates.json): 0 packages moved to new versions (0 reviewed by hand), 0 new packages decided, 6 role changes, 10 packages left the graph, 0 new packages outside the Windows tree excluded."
+    "historical_evidence": "Native family decisions are those of the 2026-09-12 review; frontend decisions those of the 2026-09-12 frontend report (docs/release/license-frontend-output-2026-09-12.json). Rebound on 2026-10-20 for aidevbridge 0.2.0: changed own sources, generated permissions and the vendored russh change notices were re-hashed; @xterm/addon-web-links, the Tauri window/dpi/image modules and the vendored tslib helpers were added after a fresh frontend inventory; pageant 0.2.1 -> 0.2.4. No historical EXE, PDB or dist directory is required as a notice preparation input. Final rebuilt artifacts remain separate acceptance inputs. Rebound on 2026-10-27 for the security updates of 2026-10-26 to crypto-bigint 0.7.5 -> 0.7.10, ctutils 0.4.2 -> 0.4.6 and tokio 1.53.1 -> 1.53.3 (docs/release/license-rust-crypto-tokio-2026-10-26.json): same declared licenses and byte-identical license files, so the decisions stand. Updated on 2026-10-29 for a Cargo.lock update (docs/release/license-rust-update-2026-10-29.json): 144 packages moved to new versions (29 of them reviewed by hand), 6 new packages decided, 2 role changes, 30 packages left the graph, 8 new packages outside the Windows tree are excluded. Updated on 2026-10-30 for a Cargo.lock update (docs/release/license-rust-update-2026-10-30.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05-dup-crates.json): 0 packages moved to new versions (0 reviewed by hand), 0 new packages decided, 6 role changes, 10 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for the Visual Studio 2026 release build (docs/release/license-windows-runtime-2026-11-05.json): the 0.2.7 EXE built on the GitHub runner image windows-2025-vs2026 with MSVC 14.51 links the same Microsoft runtime families as the 2026-09-12 review; the Windows runtime notice no longer names a toolset version. In-source notices of crypto-bigint 0.7.10 added (docs/release/license-crypto-bigint-notices-2026-11-05.json)."
   },
   "selection_policy": [
     "Each component below has an explicit decision. The helper does not derive permission from historical inventory status fields or parse SPDX expressions to choose licenses.",
@@ -45,7 +45,9 @@
     "docs/release/license-rust-update-2026-11-05-dup-crates.json",
     "docs/release/license-frontend-lucide-1.69.0-2026-11-05.json",
     "docs/release/license-frontend-tools-2026-11-05.json",
-    "docs/release/license-frontend-vite-8-2026-11-05.json"
+    "docs/release/license-frontend-vite-8-2026-11-05.json",
+    "docs/release/license-windows-runtime-2026-11-05.json",
+    "docs/release/license-crypto-bigint-notices-2026-11-05.json"
   ],
   "inputs": {
     "files": [
@@ -78,6 +80,11 @@
         "path": "docs/release/license-and-unicode-2026-09-12.json",
         "bytes": 88116,
         "sha256": "eb23800ebd2de8c120f65eaf514a3ebd6b095b8642b661a8aaa7f56323d87146"
+      },
+      {
+        "path": "docs/release/license-crypto-bigint-notices-2026-11-05.json",
+        "bytes": 5133,
+        "sha256": "090701aef7ef7f1108e39e49a5c1bcf3b16c2973a7f6f49c9c261cd1850a9e03"
       },
       {
         "path": "docs/release/license-frontend-lucide-1.69.0-2026-11-05.json",
@@ -185,6 +192,11 @@
         "sha256": "60021ee06cb58d454a6567978a72790dcd520f055e409c7a578d802f3fccffbe"
       },
       {
+        "path": "docs/release/license-windows-runtime-2026-11-05.json",
+        "bytes": 14355,
+        "sha256": "b5c2b99059c2aff95ebd0d4cfceabb7edda04d89695d4bba6d4fbcb0150e4486"
+      },
+      {
         "path": "docs/release/licenses/alloc-stdlib-0.2.4-LICENSE-BSD-3-Clause.txt",
         "bytes": 1483,
         "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae"
@@ -208,6 +220,11 @@
         "path": "docs/release/licenses/compiler-builtins-0.1.160-libm-LICENSE.txt",
         "bytes": 14088,
         "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7"
+      },
+      {
+        "path": "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt",
+        "bytes": 1512,
+        "sha256": "c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491"
       },
       {
         "path": "docs/release/licenses/delegate-0.13.5-LICENSE-MIT.txt",
@@ -241,8 +258,8 @@
       },
       {
         "path": "docs/release/licenses/microsoft-windows-runtime-NOTICE.txt",
-        "bytes": 1379,
-        "sha256": "8400cde456c2dc905a21e0a1aee67ef91a528277113d96ec497cdbf055dd269f"
+        "bytes": 1393,
+        "sha256": "426cccbddef968ef11c64a1b4b2371b0d3f8897b1b84c35814657c30daef029c"
       },
       {
         "path": "docs/release/licenses/nsis-3.13-COPYING.txt",
@@ -12782,9 +12799,10 @@
         "zeroize"
       ],
       "documents": [
-        "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
+        "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
+        "sha256:c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files.",
+      "reason": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05).",
       "source_urls": [
         "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
         "https://crates.io/crates/crypto-bigint/0.7.10",
@@ -12792,7 +12810,8 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/crypto-bigint@0.7.5",
-        "docs/release/license-rust-crypto-tokio-2026-10-26.json"
+        "docs/release/license-rust-crypto-tokio-2026-10-26.json",
+        "docs/release/license-crypto-bigint-notices-2026-11-05.json"
       ],
       "source_archive": {
         "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
@@ -22016,19 +22035,21 @@
     {
       "id": "native:msvc-windows-runtime",
       "name": "Microsoft C/C++ runtime and Windows imports",
-      "version": "MSVC 14.44.35207 / Windows x64",
+      "version": "MSVC 14.51 (Visual Studio 2026) / Windows x64",
       "declared_license": "Microsoft Visual Studio distributable-code and Windows terms",
       "selected_license": "LicenseRef-Microsoft-Distributable-Code",
       "disposition": "include",
       "documents": [
-        "sha256:8400cde456c2dc905a21e0a1aee67ef91a528277113d96ec497cdbf055dd269f"
+        "sha256:426cccbddef968ef11c64a1b4b2371b0d3f8897b1b84c35814657c30daef029c"
       ],
-      "reason": "Linked libcmt/libvcruntime code and ordinary Windows/UCRT imports are distinguished in the accepted report. No separate VC redist/DLL/LIB file is selected; Windows system DLLs remain system prerequisites.",
+      "reason": "Linked libcmt/libvcruntime code and ordinary Windows/UCRT imports are distinguished in the accepted report of 2026-09-12; the release build of 0.2.7 on the GitHub runner image windows-2025-vs2026 (Visual Studio Enterprise 2026, MSVC 14.51) links the same families (Rich header and import comparison, 2026-11-05). No separate VC redist/DLL/LIB file is selected; Windows system DLLs remain system prerequisites.",
       "decision_basis": [
-        "docs/release/license-windows-runtime-2026-09-12.json"
+        "docs/release/license-windows-runtime-2026-09-12.json",
+        "docs/release/license-windows-runtime-2026-11-05.json"
       ],
       "source_urls": [
-        "https://learn.microsoft.com/en-us/visualstudio/releases/2022/redistribution"
+        "https://learn.microsoft.com/en-us/visualstudio/releases/2026/redistribution",
+        "https://visualstudio.microsoft.com/license-terms/vs2026-ga-pro-enterprise/"
       ]
     },
     {
@@ -22315,7 +22336,7 @@
       "disposition": "include",
       "documents": [
         "sha256:7d13f1952f688824aa83d198dddaa45ed8a3721709d5a774a347853afbb893c0",
-        "sha256:8400cde456c2dc905a21e0a1aee67ef91a528277113d96ec497cdbf055dd269f"
+        "sha256:426cccbddef968ef11c64a1b4b2371b0d3f8897b1b84c35814657c30daef029c"
       ],
       "reason": "Terms/notice disclosure for an external prerequisite. No Runtime/bootstrapper bytes are selected in the application folder. NSIS/MSI downloadBootstrapper is silent; portable ZIP requires installed Runtime. Terms mediation and the precisely recorded download-link wording conflict remain delivery tasks.",
       "decision_basis": [
@@ -24135,6 +24156,22 @@
       ]
     },
     {
+      "id": "sha256:c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491",
+      "file_name": "crypto-bigint-0.7.10-SOURCE-NOTICES.txt",
+      "bytes": 1512,
+      "sha256": "c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
+    },
+    {
       "id": "sha256:5b0ae40d1a35f7ae6591a28e44771240e6a88cb03a66c9189a45b9681639b466",
       "file_name": "plist-1.10.3-LICENCE.txt",
       "bytes": 1057,
@@ -24910,10 +24947,10 @@
       ]
     },
     {
-      "id": "sha256:8400cde456c2dc905a21e0a1aee67ef91a528277113d96ec497cdbf055dd269f",
+      "id": "sha256:426cccbddef968ef11c64a1b4b2371b0d3f8897b1b84c35814657c30daef029c",
       "file_name": "microsoft-windows-runtime-NOTICE.txt",
-      "bytes": 1379,
-      "sha256": "8400cde456c2dc905a21e0a1aee67ef91a528277113d96ec497cdbf055dd269f",
+      "bytes": 1393,
+      "sha256": "426cccbddef968ef11c64a1b4b2371b0d3f8897b1b84c35814657c30daef029c",
       "sources": [
         {
           "kind": "file",
