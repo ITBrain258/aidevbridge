@@ -349,6 +349,10 @@ where
         // Session danach nutzbar; bis 0.63 hing sie. Jeder andere Fehler
         // bricht ab: Ohne Session (`Send`) oder mit einem gestoerten Agenten
         // (IO- oder Protokollfehler) scheitert auch die naechste Identitaet.
+        // Beendet der Server die Session erst nach einer Verweigerung (etwa
+        // MaxAuthTries oder LoginGraceTime, waehrend die Rueckfrage offen
+        // war), bleibt die Verweigerung der Grund: `SigningFailed` haelt die
+        // automatische Wiederverbindung an, statt erneut nachzufragen.
         let result = match handle
             .authenticate_publickey_with(user, key, hash, &mut agent)
             .await
@@ -357,6 +361,9 @@ where
             Err(russh::AgentAuthError::Key(russh::keys::Error::AgentFailure)) => {
                 refused = true;
                 continue;
+            }
+            Err(russh::AgentAuthError::Send(_)) if refused => {
+                return Err(AuthError::SigningFailed);
             }
             Err(error) => return Err(agent_sign_error(error)),
         };
@@ -1287,10 +1294,13 @@ sJWR7W+cGvJ/vLsw==
     }
 
     /// Bietet jeden Schluessel per PK_OK an, sodass der Client wirklich
-    /// signieren muss. Eine Signatur nimmt er nur fuer `accept` an.
+    /// signieren muss. Eine Signatur nimmt er nur fuer `accept` an. Mit
+    /// `hang_up_at` beendet er die Session beim so vielten Angebot, wie ein
+    /// Server nach MaxAuthTries oder LoginGraceTime.
     struct OfferingServer {
         offered: Arc<AtomicUsize>,
         accept: Option<russh::keys::PublicKey>,
+        hang_up_at: Option<usize>,
     }
 
     impl russh::server::Handler for OfferingServer {
@@ -1300,7 +1310,10 @@ sJWR7W+cGvJ/vLsw==
             _: &str,
             _: russh::server::PublicKeyOffer<'_>,
         ) -> Result<russh::server::Auth, Self::Error> {
-            self.offered.fetch_add(1, Ordering::SeqCst);
+            let offer = self.offered.fetch_add(1, Ordering::SeqCst) + 1;
+            if self.hang_up_at == Some(offer) {
+                return Err(russh::Error::Disconnect);
+            }
             Ok(russh::server::Auth::Accept)
         }
         async fn auth_publickey(
@@ -1426,6 +1439,14 @@ sJWR7W+cGvJ/vLsw==
         identities: Vec<(russh::keys::PublicKey, AgentAnswer)>,
         accept: Option<russh::keys::PublicKey>,
     ) -> AgentRun {
+        run_agent_auth_with(identities, accept, None).await
+    }
+
+    async fn run_agent_auth_with(
+        identities: Vec<(russh::keys::PublicKey, AgentAnswer)>,
+        accept: Option<russh::keys::PublicKey>,
+        hang_up_at: Option<usize>,
+    ) -> AgentRun {
         use std::time::Duration;
 
         let host_key = russh::keys::decode_secret_key(PLAIN_PKCS8, None).unwrap();
@@ -1442,6 +1463,7 @@ sJWR7W+cGvJ/vLsw==
         let handler = OfferingServer {
             offered: offered.clone(),
             accept,
+            hang_up_at,
         };
         let mut server = tokio::spawn(async move {
             russh::server::run_stream(server_config, server_io, handler)
@@ -1579,5 +1601,35 @@ sJWR7W+cGvJ/vLsw==
         );
         assert_eq!(run.offered, 1, "only the first identity");
         assert_eq!(run.sign_requests, 1);
+    }
+
+    /// Beendet der Server die Session nach einer verweigerten Signatur, etwa
+    /// weil MaxAuthTries erreicht ist, bleibt die Verweigerung der Grund und
+    /// wird nicht zu "Host nicht erreichbar".
+    #[tokio::test]
+    async fn a_session_lost_after_a_refusal_stays_a_signing_failure() {
+        let [first, second] = agent_fixture_keys();
+        let run = run_agent_auth_with(
+            vec![
+                (first.public_key().clone(), AgentAnswer::Refuse),
+                (
+                    second.public_key().clone(),
+                    AgentAnswer::Sign(Box::new(second)),
+                ),
+            ],
+            None,
+            Some(2),
+        )
+        .await;
+        assert!(
+            matches!(run.result, Err(AuthError::SigningFailed)),
+            "classified as {:?}",
+            run.result
+        );
+        assert_eq!(run.offered, 2);
+        assert_eq!(
+            run.sign_requests, 1,
+            "the second key never reaches the agent"
+        );
     }
 }
