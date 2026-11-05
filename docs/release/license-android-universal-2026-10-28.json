@@ -16,13 +16,13 @@
     "features": [
       "tauri/custom-protocol"
     ],
-    "product_version": "0.2.6"
+    "product_version": "0.2.7"
   },
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1054034,
-    "sha256": "b7e19ddf982d97b2c79725c0c896d86f5df089e9e2aefef9c45270393e5b10d8"
+    "bytes": 1054289,
+    "sha256": "4e513e9a2e7bfe3603ec59c5e2c207d68740f3f1da354715817762d03487f2cd"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the Android graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -270,7 +270,18 @@
             "bytes": 480,
             "sha256": "d161f2951569046a09fb534f80f7c532d583aab9228b5c9d2ccf6f8c8fd27ec3"
           },
-          "built_library": null
+          "built_library": {
+            "sha256": "2d9319495a180e16d76b48db9f7b4fd7ca0b26dd3279b29e824ba43015f00824",
+            "needed": [
+              "libandroid.so",
+              "libc.so",
+              "libdl.so",
+              "liblog.so",
+              "libm.so"
+            ],
+            "libunwind_linked": true,
+            "crt_linked": true
+          }
         },
         "x86_64-linux-android": {
           "libunwind": {
@@ -293,7 +304,18 @@
             "bytes": 696,
             "sha256": "793ea43b5c52399fdc7a4c7bbf04c02abaf59d2c34d0b630ece694110f6f3b2c"
           },
-          "built_library": null
+          "built_library": {
+            "sha256": "7acf71092a09732774fd1642f9c0514bc4ac388dc63f5737f18d5cd923ebabd7",
+            "needed": [
+              "libandroid.so",
+              "libc.so",
+              "libdl.so",
+              "liblog.so",
+              "libm.so"
+            ],
+            "libunwind_linked": true,
+            "crt_linked": true
+          }
         }
       }
     },
@@ -592,7 +614,7 @@
       {
         "id": "cargo:block-buffer@0.10.4",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses block-buffer 0.12. The conservative inclusion stays.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses block-buffer 0.12. The conservative inclusion stays."
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Used through digest 0.10.7 and sha2 0.10.9. On Android, wry 0.57.1 uses sha2 0.10 at run time ([target.'cfg(target_os = \"android\")'.dependencies.sha2] in its Cargo.toml); the app itself uses block-buffer 0.12."
       },
       {
         "id": "cargo:block-buffer@0.12.1",
@@ -677,7 +699,7 @@
       {
         "id": "cargo:cpufeatures@0.2.17",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses cpufeatures 0.3. The conservative inclusion stays.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses cpufeatures 0.3. The conservative inclusion stays."
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Used through sha2 0.10.9. On Android, wry 0.57.1 uses sha2 0.10 at run time ([target.'cfg(target_os = \"android\")'.dependencies.sha2] in its Cargo.toml); the app itself uses cpufeatures 0.3."
       },
       {
         "id": "cargo:cpufeatures@0.3.1",
@@ -707,7 +729,7 @@
       {
         "id": "cargo:crypto-common@0.1.7",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses crypto-common 0.2. The conservative inclusion stays.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only digest 0.10.7 of the build tools uses it now; the runtime uses crypto-common 0.2. The conservative inclusion stays."
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Used through digest 0.10.7 and sha2 0.10.9. On Android, wry 0.57.1 uses sha2 0.10 at run time ([target.'cfg(target_os = \"android\")'.dependencies.sha2] in its Cargo.toml); the app itself uses crypto-common 0.2."
       },
       {
         "id": "cargo:crypto-common@0.2.2",
@@ -792,7 +814,7 @@
       {
         "id": "cargo:digest@0.10.7",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses digest 0.11. The conservative inclusion stays.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only sha2 0.10.9 of the build tools uses it now; the runtime uses digest 0.11. The conservative inclusion stays."
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Used through sha2 0.10.9. On Android, wry 0.57.1 uses sha2 0.10 at run time ([target.'cfg(target_os = \"android\")'.dependencies.sha2] in its Cargo.toml); the app itself uses digest 0.11."
       },
       {
         "id": "cargo:digest@0.11.3",
@@ -922,7 +944,7 @@
       {
         "id": "cargo:generic-array@0.14.7",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays."
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Used through block-buffer 0.10.4 and crypto-common 0.1.7 of sha2 0.10.9. On Android, wry 0.57.1 uses sha2 0.10 at run time ([target.'cfg(target_os = \"android\")'.dependencies.sha2] in its Cargo.toml)."
       },
       {
         "id": "cargo:generic-array@1.4.5",
@@ -1452,7 +1474,7 @@
       {
         "id": "cargo:sha2@0.10.9",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Now used by build tools only (tauri-codegen); the app uses sha2 0.11.1 at runtime. The conservative inclusion stays.",
-        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Role changed on 2026-11-05: Now used by build tools only (tauri-codegen); the app uses sha2 0.11.1 at runtime. The conservative inclusion stays."
+        "android": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. On Android, wry 0.57.1 uses sha2 0.10 at run time ([target.'cfg(target_os = \"android\")'.dependencies.sha2] in its Cargo.toml); the app itself uses sha2 0.11.1."
       },
       {
         "id": "cargo:sha2@0.11.1",

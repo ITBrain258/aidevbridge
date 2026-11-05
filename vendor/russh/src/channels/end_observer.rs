@@ -1,4 +1,4 @@
-// AgentBridge local modifications to russh 0.65.0, 2026-09-12.
+// AgentBridge local modifications to russh 0.65.1, 2026-09-12.
 // Apache-2.0, the same license as russh. No message sender is retained here.
 use std::sync::{Arc, Mutex, MutexGuard};
 

@@ -1,0 +1,1 @@
+Like OpenSSH, the app prefers the key type a host is already known by when it connects, and doesn't ask again. The SSH library is up to date (russh 0.65.1) and accepts ECDSA signatures from servers that pad the values with zeros, such as network devices. The Android build uses current tools and libraries.

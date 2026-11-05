@@ -162,8 +162,8 @@ const entryHeaders = runtimeEntries.map(({ path: p, reached_from }) => {
   return { ...file(p), reached_from, header_blocks: [...new Set(blocks)], line_headers: lineHeaders };
 });
 // Als data-URI in getracktes CSS eingebettete Icons sind ebenfalls kopierte
-// Geometrie. Ihre Pfaddaten werden mit allen Icons aus icon-nodes.json von
-// lucide-static und mit den Feather-Namen verglichen; eine nicht lesbare
+// Geometrie. Ihre Pfaddaten werden mit allen Icon-Dateien von lucide-static
+// und mit den Feather-Namen verglichen; eine nicht lesbare
 // data-URI erscheint mit svg_sha256 null, statt zu fehlen.
 const svgPathData = (svg) => [...svg.matchAll(/\bd=(["'])(.*?)\1/g)].map((match) => match[2]);
 // Verglichen wird mit allen SVG-Dateien, auch den Aliasnamen: icon-nodes.json
@@ -217,7 +217,9 @@ function findPolyfill() {
     const text = read(binding).toString("latin1");
     const start = text.indexOf("(function polyfill()");
     if (start < 0) continue;
-    const source = text.slice(start, text.indexOf("})();", start) + 5);
+    const end = text.indexOf("})();", start);
+    if (end < 0) throw new Error(`modulepreload polyfill in ${binding} has no end marker`);
+    const source = text.slice(start, end + 5);
     return { package: "rolldown", path: binding, source, location: { byte_offset: start } };
   }
   throw new Error("modulepreload polyfill found neither in Vite's chunks nor in a rolldown binding");

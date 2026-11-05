@@ -183,7 +183,7 @@ export const MAVEN = {
   'androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0': apache(ANDROIDX, { archive: ['META-INF/androidx/lifecycle/lifecycle-viewmodel-ktx/LICENSE.txt'] }),
   'androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0': apache(ANDROIDX, { archive: ['META-INF/androidx/lifecycle/lifecycle-viewmodel-savedstate/LICENSE.txt'] }),
   'androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0': { redirect: 'androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.11.0' },
-  'androidx.lifecycle:lifecycle-viewmodel:2.11.0': apache(ANDROIDX, { archive: ['META-INF/androidx/lifecycle/lifecycle-viewmodel/LICENSE.txt'] }),
+  'androidx.lifecycle:lifecycle-viewmodel:2.11.0': { redirect: 'androidx.lifecycle:lifecycle-viewmodel-android:2.11.0' },
   'androidx.loader:loader:1.0.0': apache(ANDROIDX),
   // New with activity 1.13 (2026-11-05): the back and predictive-back events behind OnBackPressedDispatcher.
   'androidx.navigationevent:navigationevent-android:1.0.0': apache(ANDROIDX, { archive: ['META-INF/androidx/navigationevent/navigationevent/LICENSE.txt'] }),
@@ -231,9 +231,18 @@ const WINDOWS_OUTSIDE = 'Outside the locked Windows release normal/build graph (
 const OUTSIDE = 'Outside the locked Android release normal/build graph (development or other target). No source/code from this package is selected for the application payload.';
 const GENERIC = /^(Explicit \S+ selection using the complete original text\. )(?:Windows runtime candidate notice coverage; no claim every object survives linking\.|Conservative permissive build\/source family disclosure; no claim that the tool program is delivered\.)(.*)$/s;
 const WINDOWS_WORDS = /Windows|WebView2|COFF|\bPE\b|\bEXE\b|\bPDB\b|MSVC/;
-// Shared decisions whose Windows reason cites Windows build evidence. The
-// decision stands for Android on the evidence given here.
-const ANDROID_REASONS = {};
+// Shared decisions whose Windows reason cites Windows build evidence or a
+// Windows role. The decision stands for Android on the evidence given here.
+const RUNTIME_MIT = `Explicit MIT selection using the complete original text. ${RUNTIME} `;
+const WRY_SHA2 = "On Android, wry 0.57.1 uses sha2 0.10 at run time ([target.'cfg(target_os = \"android\")'.dependencies.sha2] in its Cargo.toml)";
+const ANDROID_REASONS = {
+  'sha2@0.10.9': `${RUNTIME_MIT}${WRY_SHA2}; the app itself uses sha2 0.11.1.`,
+  'digest@0.10.7': `${RUNTIME_MIT}Used through sha2 0.10.9. ${WRY_SHA2}; the app itself uses digest 0.11.`,
+  'block-buffer@0.10.4': `${RUNTIME_MIT}Used through digest 0.10.7 and sha2 0.10.9. ${WRY_SHA2}; the app itself uses block-buffer 0.12.`,
+  'crypto-common@0.1.7': `${RUNTIME_MIT}Used through digest 0.10.7 and sha2 0.10.9. ${WRY_SHA2}; the app itself uses crypto-common 0.2.`,
+  'generic-array@0.14.7': `${RUNTIME_MIT}Used through block-buffer 0.10.4 and crypto-common 0.1.7 of sha2 0.10.9. ${WRY_SHA2}.`,
+  'cpufeatures@0.2.17': `${RUNTIME_MIT}Used through sha2 0.10.9. ${WRY_SHA2}; the app itself uses cpufeatures 0.3.`,
+};
 
 // Packages the Windows selection excludes that the Android library contains:
 // on Android, wry depends on dom_query at run time
@@ -420,6 +429,38 @@ export function lockedLibraries(lockText) {
   return libraries.sort();
 }
 
+// The archive Gradle puts on the Android release runtime classpath. With
+// Gradle module metadata it is the file of the java-runtime library variant
+// for Android (environment android or platform androidJvm before plain JVM,
+// the release build type before others), or that variant's redirect
+// (`available-at`); without metadata it is the POM's
+// <artifact>-<version>.aar or .jar. The cache can hold further files of the
+// same version that are not on that classpath: KMP metadata jars, a
+// `-all.jar`, a root .aar for clients without module metadata.
+export function runtimeArchive({ artifact, version, module, names }) {
+  const id = `${artifact}:${version}`;
+  if (!module) {
+    const hits = names.filter(n => n === `${artifact}-${version}.aar` || n === `${artifact}-${version}.jar`);
+    ensure(new Set(hits).size <= 1, `${id}: both an .aar and a .jar in the Gradle cache`);
+    return { archive: hits[0] ?? null, redirect: null };
+  }
+  const runtime = module.variants.filter(v => v.attributes?.['org.gradle.usage'] === 'java-runtime' && (v.attributes['org.gradle.category'] ?? 'library') === 'library');
+  if (runtime.length === 0) return { archive: null, redirect: null };
+  const rank = ({ attributes: a }) => a['org.gradle.jvm.environment'] === 'android' || a['org.jetbrains.kotlin.platform.type'] === 'androidJvm' ? 0
+    : a['org.jetbrains.kotlin.platform.type'] === 'jvm' || a['org.gradle.jvm.environment'] === 'standard-jvm' ? 1 : 2;
+  const best = Math.min(...runtime.map(rank));
+  let found = runtime.filter(v => rank(v) === best);
+  if (found.length > 1) found = found.filter(v => (v.attributes['com.android.build.api.attributes.BuildTypeAttr'] ?? 'release') === 'release');
+  ensure(found.length === 1, `${id}: ${found.length} Android runtime variants (${found.map(v => v.name).join(', ')})`);
+  const [variant] = found;
+  const at = variant['available-at'];
+  if (at) return { archive: null, redirect: `${at.group}:${at.module}:${at.version}` };
+  const files = (variant.files ?? []).map(f => f.name).filter(n => /\.(?:aar|jar)$/.test(n));
+  ensure(files.length === 1, `${id}: variant ${variant.name} names ${files.length} archives`);
+  ensure(names.includes(files[0]), `${id}: ${files[0]} is not in the Gradle cache; build the Android app once`);
+  return { archive: files[0], redirect: null };
+}
+
 function mavenArtifact(coordinate) {
   const [group, artifact, version] = coordinate.split(':');
   const dir = path.join(gradleHome(), 'caches/modules-2/files-2.1', group, artifact, version);
@@ -427,10 +468,14 @@ function mavenArtifact(coordinate) {
   const files = fs.readdirSync(dir).flatMap(h => fs.readdirSync(path.join(dir, h)).map(f => path.join(dir, h, f)));
   const pom = files.find(f => f.endsWith('.pom'));
   ensure(pom, `${coordinate} has no POM in the Gradle cache`);
-  const archive = files.find(f => /\.(?:aar|jar)$/.test(f) && !/-(?:sources|javadoc)\.jar$/.test(f));
+  const moduleFile = files.find(f => f.endsWith('.module'));
+  const selected = runtimeArchive({ artifact, version, module: moduleFile ? JSON.parse(fs.readFileSync(moduleFile, 'utf8')) : null, names: files.map(f => path.basename(f)) });
+  const archives = files.filter(f => path.basename(f) === selected.archive);
+  ensure(archives.length <= 1, `${coordinate}: ${selected.archive} twice in the Gradle cache`);
+  const archive = archives[0];
   const pomText = fs.readFileSync(pom, 'utf8');
   const licenses = [...pomText.matchAll(/<license>[\s\S]*?<name>([^<]*)<\/name>(?:[\s\S]*?<url>([^<]*)<\/url>)?/g)].map(m => ({ name: m[1].trim(), url: m[2]?.trim() ?? null }));
-  return { coordinate, group, artifact, version, pom: { file: path.basename(pom), ...record(fs.readFileSync(pom)) }, archive: archive ? { file: path.basename(archive), ...record(fs.readFileSync(archive)), path: archive } : null, licenses, parent: /<parent>[\s\S]*?<artifactId>([^<]*)<\/artifactId>/.exec(pomText)?.[1] ?? null };
+  return { coordinate, group, artifact, version, pom: { file: path.basename(pom), ...record(fs.readFileSync(pom)) }, archive: archive ? { file: path.basename(archive), ...record(fs.readFileSync(archive)), path: archive } : null, redirect: selected.redirect, licenses, parent: /<parent>[\s\S]*?<artifactId>([^<]*)<\/artifactId>/.exec(pomText)?.[1] ?? null };
 }
 
 // The bytes of one license entry of an artifact, looking into an AAR's classes.jar too.
@@ -698,9 +743,10 @@ export function deriveSelection(root, { metadata = androidMetadata(root), roles 
       ensure(!artifact.archive, `${coordinate} is a platform but has an archive`);
       component.reason = 'A Gradle platform (BOM) that only pins versions; it carries no code or resources.';
     } else if (decision.redirect) {
-      ensure(!artifact.archive && libraries.includes(decision.redirect), `${coordinate}: expected Gradle module metadata redirecting to ${decision.redirect}`);
+      ensure(!artifact.archive && artifact.redirect === decision.redirect && libraries.includes(decision.redirect), `${coordinate}: expected Gradle module metadata redirecting to ${decision.redirect}, found ${artifact.redirect}`);
       component.reason = `Gradle module metadata only; its code is ${decision.redirect}, listed separately.`;
     } else {
+      ensure(!artifact.redirect, `${coordinate}: Gradle module metadata redirects to ${artifact.redirect}; decide it as a redirect`);
       ensure(artifact.archive, `${coordinate} has no archive in the Gradle cache`);
       ensure(/Apache/i.test(declared ?? '') || decision.note, `${coordinate}: the POM declares ${declared}`);
       component.selected_license = 'Apache-2.0';
@@ -746,7 +792,7 @@ function inventory(derived) {
   });
   const libraries = derived.libraries.map(coordinate => {
     const a = derived.artifacts.get(coordinate);
-    return { coordinate, pom: a.pom, archive: a.archive ? { file: a.archive.file, bytes: a.archive.bytes, sha256: a.archive.sha256 } : null, declared_licenses: a.licenses, pom_parent: a.parent };
+    return { coordinate, pom: a.pom, archive: a.archive ? { file: a.archive.file, bytes: a.archive.bytes, sha256: a.archive.sha256 } : null, redirect: a.redirect, declared_licenses: a.licenses, pom_parent: a.parent };
   });
   const texts = {};
   for (const [hex, bytes] of [...derived.newTexts].sort(([a], [b]) => a.localeCompare(b))) {

@@ -212,9 +212,12 @@ jobs:
           fi
       # What one start leaves under ~/Library, for the storage list in
       # PRIVACY.md (docs/stand.md point 13). Without a connection or any use;
-      # the hand acceptance (section 11, step 5) checks the rest.
+      # the hand acceptance (section 11, step 5) checks the rest. A listing
+      # only: a failed find (a protected folder, a file that vanishes while
+      # WebKit helpers end) must not stop the release.
       - name: List what the app left under ~/Library
         if: always()
+        continue-on-error: true
         run: |
           set -uo pipefail
           id=io.github.itbrain258.aidevbridge

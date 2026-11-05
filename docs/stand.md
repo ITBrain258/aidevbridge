@@ -1,20 +1,12 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.6` vom 03.11.2026 (Tag `v0.2.6` auf `fcf4810`); die CI
-hat alle Pakete gebaut und an das Release gehängt. Seitdem in `main`, noch
-nicht veröffentlicht (Einzelheiten im [CHANGELOG](../CHANGELOG.md), Abschnitt
-„Unreleased“):
-
-- russh 0.65.1 (PR #24); die zwei am 03.11. akzeptierten Meldungen fallen weg.
-- Die Abhängigkeitsstufen vom 05.11. (Punkt 12): `lucide-static` 1.69 und
-  `staticVCRuntime` (PR #25), `dirs` 7, `toml` 1 und `sha2` 0.11 (PR #26),
-  TypeScript 6, Vitest 5, jsdom 30 und `npm run typecheck` (PR #27), Vite 8
-  (PR #32).
-- Verweigert der Agent eine Signatur, probiert die App den nächsten Schlüssel
-  (PR #28); Hostschlüssel-Algorithmen nach `known_hosts` geordnet (PR #30).
-- CI: Live-Tests gegen einen sshd auf dem Runner, feste Runner-Images
-  (PR #29); die macOS-Testinstallation listet, was die App unter `~/Library`
-  anlegt (PR #31).
+**Stand:** Version `0.2.7` vom 05.11.2026 (Tag `v0.2.7` auf dem Merge-Commit
+von PR #35); beim Tag baut die CI alle Pakete und hängt sie an das Release.
+0.2.7 bringt russh 0.65.1, die Abhängigkeitsstufen vom 05.11. (Punkt 12),
+den nächsten Agent-Schlüssel nach einer verweigerten Signatur (PR #28),
+Hostschlüssel nach `known_hosts` geordnet (PR #30), Live-Tests in der CI
+(PR #29) und die Befunde der Prüfung vor dem Release (PR #35); Einzelheiten
+im [CHANGELOG](../CHANGELOG.md).
 
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.).
 Frühere Releases und ihre Einzelheiten stehen im CHANGELOG, frühere Prüfungen
@@ -143,23 +135,26 @@ Build-Provenienz an ihnen hängen.
 | M3.1 Standard-Socket | nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md), mit 0.2.2 ausgeliefert und [abgenommen](messungen/messung-2026-10-25-m31-abnahme.md) |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert ([Beleg zu NSIS 3.13](release/windows-installer-nsis-3.13-2026-10-30.md)); `packages.yml` baut sie bei jedem Tag, installiert und startet jedes Paket auf einem frischen Runner und hängt sie an das Release |
 | macOS-Lieferung | nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md), seit 0.2.3: Universal-DMG, ad-hoc signiert, [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 390 Komponenten; Testinstallation auf Apple silicon und Intel |
-| Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: API 36 ab Android 7.0, kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 481 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
-| Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32); die offenen Stufen unter Punkt 12 |
+| Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: API 36 ab Android 7.0, kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 485 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
+| Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32, #34); die offenen Stufen unter Punkt 12 |
 
 ## Letzte Prüfung
 
-Am 05.11.2026 nach den Merges von PR #24 bis #32: Auf `main` (`80e6959`) sind
-CI, `android.yml` und `packages.yml` grün; `rust (macos)` erst im zweiten
-Versuch, weil der erste Runner jede Temp-Datei mit einem Ein-/Ausgabefehler
-(os error 5) abwies. Jeder Pull Request lief vorher mit CI, Audit,
-`vendored.yml`, `packages.yml` und `android.yml` grün; der Ubuntu-Job führt
-seit PR #29 die Live-Tests gegen einen sshd auf dem Runner aus, darunter den
-Test, dass ein nur mit ECDSA bekannter Host ohne Rückfrage verbindet.
-Release-Probeläufe von `packages.yml` (Windows-Pakete und DMG, installiert und
-gestartet) gab es für PR #25 und PR #32. Lokal: 735 Rust-Tests, 2882
-Frontend-Tests, 147 Skripttests, `npm run typecheck`; `check` grün für
-windows-x64 (393/207), macos-universal (390/201) und android-universal
-(481/227).
+Am 05.11.2026 vor dem Release 0.2.7: Fünf voneinander unabhängige Prüfungen
+(Rust und SSH, Frontend und Bau, Lizenzbelege, CI und Android, Doku) haben
+alles seit 0.2.6 gelesen; ihre Befunde behebt PR #35. Auf `main` (`4726bc8`)
+waren CI, `android.yml` und `packages.yml` grün, die macOS-Jobs erst im
+zweiten und dritten Versuch, weil GitHub keinen macOS-arm64-Runner zuteilte.
+Im Release-PR liefen CI, `packages.yml` und `android.yml` grün, dazu die
+Release-Probeläufe beider Workflows (Windows-Pakete und DMG installiert und
+gestartet; APK und App Bundle für drei ABIs). Der Ubuntu-Job bestand 738
+Tests, darunter die Live-Tests mit ed25519- und RSA-Schlüssel und für einen
+nur mit ECDSA bekannten Host. Lokal: die Auth-Tests, 155 Skripttests,
+`npm run typecheck` und `npm run build` mit der Prüfung der
+Lizenzhinweise; `check` grün für windows-x64 (393/207), macos-universal
+(390/201) und android-universal (485/228). Ein lokaler Android-Bau aller drei
+ABIs brach aus Speichermangel ab; die NDK-Belege für armv7 und x86_64 stehen
+wie bei 0.2.6 aufgezeichnet.
 
 Die letzte VM-Abnahme (`acceptance_vm`, 11 von 11) lief am 27.10. auf dem Stand
 `7b961cf` gegen einen lokalen Linux-Testhost.
@@ -205,7 +200,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    oder ein Installer, beide mit dem Ordner `licenses/`; die nackte EXE aus
    `npm run build:app` bleibt auf dem eigenen Rechner. Offen:
    - Die Installerabnahme (bestanden am 24.10. an 0.2.0) ist mit NSIS 3.13 neu
-     fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.2.6. Das
+     fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.2.7. Das
      Manifest jedes Laufs meldet `nsis_msi_payload`, `installer_terms_ui`,
      `installer_stub_notices`, `native_import_family_review` und
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie

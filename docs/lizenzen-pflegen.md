@@ -93,13 +93,17 @@ private Klassenmitglieder einfügt) samt Lizenztexten und Hinweisen. Seit
 Vite 8 erzeugt rolldowns native Bibliothek Polyfill und Helfer; ein Update
 von Vite oder rolldown prüft beide neu, wie in
 `license-frontend-vite-8-2026-11-05.json`. Die Lizenzkommentare im Bundle
-hält `vite.config.ts` (`comments.legal` für JS, ein Plugin für CSS). Bei einem Update die betroffenen `npm:`-Komponenten der
-Windows-Auswahl von Hand umziehen (Version, URLs, Begründung), einen Beleg
-unter `docs/release/` anlegen (Muster:
-`license-frontend-tauri-2.12-2026-10-29.json`,
-`license-frontend-vite-6.4.5-2026-10-29.json`), die geänderten Dateien mit
-`--third-party` neu binden, `THIRD_PARTY_LICENSES.md` nachziehen, dann
-`npm run licenses:derive` und die Prüfungen wie oben.
+hält `vite.config.ts` (`comments.legal` für JS, ein Plugin für CSS);
+`scripts/check-dist-notices.mjs` prüft sie nach jedem Bau. Bei einem Update
+die betroffenen `npm:`-Komponenten der Windows-Auswahl von Hand umziehen
+(Version, URLs, Begründung), einen Beleg unter `docs/release/` anlegen
+(Muster: `license-frontend-tauri-2.12-2026-10-29.json`,
+`license-frontend-vite-8-2026-11-05.json`) und in `decision_reports` der
+Windows-Auswahl eintragen, die geänderten Dateien mit `--third-party` neu
+binden, `THIRD_PARTY_LICENSES.md` nachziehen, dann `npm run licenses:derive`
+und die Prüfungen wie oben. `scripts/release-license-inventory-frontend.mjs`
+liest den Polyfill aus der rolldown-Bibliothek der eigenen Plattform: Pfad,
+Hash und Byte-Offset gelten nur für sie, der Hash des Polyfill-Texts überall.
 
 ## Eingebettete Crates (`vendor/`)
 
@@ -163,6 +167,19 @@ AGP 9.3 und Kotlin 2.2:
    Eintrag in `MAVEN`; neue Texte aus einem Upstream-Repository (etwa
    Kotlins `license/`) unter `docs/release/licenses/` mit Version im Namen.
    Dann `npm run licenses:derive`, `licenses:status` und `licenses:check`.
+
+Das Archiv einer Bibliothek wählt die Ableitung wie Gradle: über die
+Android-Laufzeitvariante der Modul-Metadaten (`.module`), sonst
+`<artifact>-<version>.aar` oder `.jar`. Leitet die Variante auf ein anderes
+Modul um, gehört in `MAVEN` ein `redirect` auf genau dieses Modul.
+
+Die NDK-Belege (`evidence.ndk.targets.<ziel>.built_library` in
+`license-android-universal-2026-10-28.json`) liest die Ableitung aus
+`target/<ziel>/release/libaidevbridge_lib.so`. Fehlt eine dieser
+Bibliotheken, setzt sie den Beleg auf `null`. Dann vorher alle drei Ziele
+bauen, oder den zuletzt aufgezeichneten Beleg übernehmen, wenn sich NDK und
+native Abhängigkeiten nicht geändert haben, und die Datei mit
+`--third-party` neu binden (so bei 0.2.6 und 0.2.7).
 
 ## Tauri-CLI und Installer-Werkzeuge
 

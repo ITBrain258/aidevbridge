@@ -8,7 +8,8 @@ To build the desktop app you need Windows 10 or 11 (x64), or macOS 11 or newer, 
   first use.
 - On Windows the Microsoft C++ Build Tools (MSVC) and the WebView2 Runtime,
   on macOS the Xcode Command Line Tools (`xcode-select --install`).
-- Node.js 24 or newer.
+- Node.js 24.15 or newer, not 25 (jsdom 30 and Vitest 5 support 24.15+ and
+  26+).
 
 ```sh
 npm ci
@@ -50,8 +51,9 @@ and the same test socket.
 [CONTRIBUTING.md](../../CONTRIBUTING.md#live-tests-against-a-test-host) explains
 each of them and the rules for the socket name. `.github/workflows/ci.yml`
 runs the frontend tests and build on Linux, the Rust checks on Windows, Linux
-and macOS, the license check on Linux and the script tests on Windows, also
-without an SSH host.
+and macOS, the license check on Linux and the script tests on Windows; the
+Ubuntu job also runs the live tests against an SSH server on the runner, and
+the frontend job runs the type check.
 `.github/workflows/packages.yml` builds the installers, installs each one on
 a fresh runner and starts the app until its window appears; see
 [Release packages in CI](#release-packages-in-ci).
@@ -73,7 +75,7 @@ packages from `npm run build:windows`.
 npm run build:windows
 ```
 
-This needs Windows x64, PowerShell 7, Node.js 24 or newer, the pinned Rust
+This needs Windows x64, PowerShell 7, Node.js 24.15 or newer, the pinned Rust
 toolchain, the MSVC Build Tools and a clean, committed Git checkout; a source
 ZIP downloaded from GitHub only works with `npm run build:app`. Keep the
 checkout path short: the run builds 140 characters and more below it, and the
@@ -107,8 +109,8 @@ whole routine. The pipeline does not sign, install or publish anything.
 npm run build:macos
 ```
 
-This needs macOS on Apple silicon, the Xcode Command Line Tools, Node.js 24
-or newer, the pinned Rust toolchain with both Apple targets
+This needs macOS on Apple silicon, the Xcode Command Line Tools, Node.js
+24.15 or newer, the pinned Rust toolchain with both Apple targets
 (`rustup target add --toolchain 1.97.1 aarch64-apple-darwin x86_64-apple-darwin`)
 and a clean, committed Git checkout. It builds one universal binary for Apple
 silicon and Intel, packs the app and its DMG, signs them ad-hoc and checks

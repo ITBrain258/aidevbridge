@@ -17,8 +17,8 @@ issues and pull requests as time allows; there is no response deadline.
 ## Build and test
 
 You need Windows 10 or 11 (x64) or macOS 11 or newer, the Rust toolchain
-from `rust-toolchain.toml` (installed by `rustup` on first use), Node.js 24
-or newer and, on Windows, the Microsoft C++ Build Tools (MSVC) and the
+from `rust-toolchain.toml` (installed by `rustup` on first use), Node.js
+24.15 or newer (not 25) and, on Windows, the Microsoft C++ Build Tools (MSVC) and the
 WebView2 Runtime, on macOS the Xcode Command Line Tools; see the
 [build guide](docs/guide/building.md).
 
@@ -73,8 +73,8 @@ the warnings `cargo audit` prints without failing.
 `Cargo.toml`, `src-tauri/Cargo.toml` or `rust-toolchain.toml` change, and when
 started by hand. The vendored russh is not a workspace member, so
 `cargo test --all` skips it; this workflow copies it into a temporary
-workspace and runs its library tests (`cargo test -p russh --lib`) with the
-app's features. The workflow step repeats the features of the russh line in
+workspace and runs its library and integration tests
+(`cargo test -p russh --lib --tests`) with the app's features. The workflow step repeats the features of the russh line in
 `src-tauri/Cargo.toml`; `scripts/vendored-workflow.test.mjs` checks that the
 list in the workflow still matches. Like `audit.yml`, the workflow is not
 part of the checks above.
@@ -106,7 +106,7 @@ a disposable test host, never a machine with sessions you care about.
   The check cannot tell whether someone else on the host already uses a name.
 - The CI runs these tests on Ubuntu against an SSH server on the runner
   itself (`.github/workflows/ci.yml`, step "Local SSH test host for the live
-  tests"); the acceptance suite stays manual.
+  tests"), with an ed25519 and an RSA key; the acceptance suite stays manual.
 - Run with `--no-fail-fast` and `--nocapture` and keep the output: skipped
   branches (RSA key, password, SSH agent) are only visible there.
 - Run with `--test-threads=4`: the key preparation admits eight jobs per

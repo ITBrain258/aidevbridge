@@ -73,7 +73,9 @@
   OpenSSH, the key types a host already has in `known_hosts` come first when
   the app negotiates the host key: a host known only by its ECDSA or RSA key
   presents that key and connects without a question, even if it also has an
-  ed25519 key. A host
+  ed25519 key (for RSA with `rsa-sha2-256` or `rsa-sha2-512`; `ssh-rsa` with
+  SHA-1 stays the last resort). If that known key has changed, the app
+  refuses it as a changed key, as OpenSSH does. A host
   key you confirm on first contact is added as a plain entry with the host
   name in clear text, also when you use `HashKnownHosts yes`;
   `ssh-keygen -H` hashes the file afterwards (it keeps the old file with

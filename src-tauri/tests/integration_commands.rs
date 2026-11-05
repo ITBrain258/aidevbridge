@@ -109,7 +109,7 @@ impl aidevbridge_lib::transport::HostKeyPolicy for RecordAndReject {
 
 /// Steht der Host nur mit einem anderen Schluesseltyp als ed25519 in
 /// `known_hosts`, handelt die App diesen Typ aus und verbindet ohne
-/// Rueckfrage, wie OpenSSH (stand.md, Punkt 13). Der Test lernt den
+/// Rueckfrage, wie OpenSSH (docs/guide/limits.md). Der Test lernt den
 /// ECDSA-Schluessel des Testhosts aus einer ersten Verbindung, die nur ECDSA
 /// kennt und vor der Anmeldung abbricht; ohne ECDSA-Schluessel auf dem Host
 /// meldet er SKIP.
@@ -146,11 +146,7 @@ async fn a_host_known_only_by_its_ecdsa_key_connects_without_a_prompt() {
     let host_id = connect_host_with_known_hosts(
         &state,
         spec,
-        format!(
-            "{} {key_type} {key_b64}
-",
-            host.hostname
-        ),
+        format!("{} {key_type} {key_b64}\n", host.hostname),
         dummy_known_hosts_path(),
         Arc::new(PanicIfAskedSink),
         TEST_PROMPT_TIMEOUT,
