@@ -98,7 +98,8 @@ unter `docs/release/` anlegen (Muster:
 
 `vendor/russh` ist russh mit eigenen Änderungen; Cargo sieht es als
 Pfad-Paket, `cargo audit` und Dependabot sehen es nicht (dafür der Job
-`vendored` in `audit.yml`). Ein Upstream-Wechsel, wie am 30.10. auf 0.65.0:
+`vendored` in `audit.yml`). Ein Upstream-Wechsel, wie am 30.10. auf 0.65.0
+und am 05.11. auf 0.65.1:
 
 1. Altes und neues Paket von crates.io laden und gegen die Prüfsumme des
    Index prüfen, das alte zusätzlich gegen `UPSTREAM-SHA256SUMS`.
@@ -106,13 +107,14 @@ Pfad-Paket, `cargo audit` und Dependabot sehen es nicht (dafür der Job
    eigene Fassung, altes Paket, neues Paket), Konflikte von Hand lösen,
    `UPSTREAM-SHA256SUMS` und `AGENTBRIDGE-PATCH.md` neu schreiben, die
    exakte Version in `src-tauri/Cargo.toml` und den Kommentar im
-   Root-Manifest nachziehen. Der Satz in `AGENTBRIDGE-PATCH.md`, die Tests
-   des Crates liefen in keiner CI der App, fällt dabei weg.
+   Root-Manifest nachziehen. Akzeptierte Meldungen, die die neue Version
+   behebt, aus `ACCEPTED` in `scripts/check-vendored-advisories.mjs` und aus
+   `SECURITY.md` nehmen.
 3. Die App testen (`--test-threads=4`) und die Tests des Crates in einem
    temporären Workspace mit einer Kopie und den Produktions-Features, wie
-   in `AGENTBRIDGE-PATCH.md` beschrieben. Dieselben Bibliothekstests laufen
-   auch in `.github/workflows/vendored.yml`, im Pull Request des Updates
-   und danach bei jeder Änderung am Crate.
+   in `AGENTBRIDGE-PATCH.md` beschrieben. Dieselben Bibliotheks- und
+   Integrationstests laufen auch in `.github/workflows/vendored.yml`, im
+   Pull Request des Updates und danach bei jeder Änderung am Crate.
 4. Lizenzen: `node scripts/release-license-update-cargo.mjs --write --date=…`
    zieht die Komponente um (deklarierte Lizenz und Lizenzdatei gleich),
    den Beleg mit `--add` binden, `Cargo.lock` mit `--third-party`, den
