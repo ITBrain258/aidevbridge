@@ -1,13 +1,14 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.6` vom 03.11.2026 (Tag `v0.2.6`) bringt das
-Code-Review vom 03.11.2026; die Pakete baut und hängt die CI am Tag an.
+**Stand:** Version `0.2.6` vom 03.11.2026 (Tag `v0.2.6` auf `fcf4810`, dem
+Merge von PR #22) bringt das Code-Review vom 03.11.2026; die CI hat alle
+Pakete gebaut und an das Release gehängt.
 Vorher: `0.2.5` vom 31.10.2026, ein Sicherheitsrelease, Tag `v0.2.5` auf
 `fd93cc7`. Offen ist die Prüfung der Setup-EXE mit NSIS 3.13 durch den
 Maintainer (Punkt 6).
 
-**Neu in 0.2.6 gegenüber 0.2.5** (Branch `chore/review-2026-11`, Lizenzauswahlen
-für alle drei Plattformen neu gebunden, keine Komponente geändert):
+**Neu in 0.2.6 gegenüber 0.2.5** (PR #22, Lizenzauswahlen für alle drei
+Plattformen neu gebunden, keine Komponente geändert):
 
 - **Korrekturen:** Ein Fehlerbanner kommt zurück, wenn ein neutraler Hinweis
   über ihm schließt; die Statusabfrage setzt nicht mehr aus, wenn die Uhr
@@ -204,15 +205,26 @@ Build-Provenienz an ihnen hängen.
 
 ## Letzte Prüfung
 
-Am 03.11.2026 für 0.2.6, lokal unter Windows auf dem Branch
-`chore/review-2026-11`, ohne Testhost: `cargo fmt` und `clippy -D warnings`
-sauber, 730 Rust-Tests mit `--test-threads=4` (11 ignoriert, `acceptance_vm`),
-2882 Frontend-Tests, `npm run build` und `build:app`, 146 Skripttests und die
-225 Bibliothekstests des eingebetteten russh mit dem Befehl aus
-`vendored.yml`. Lizenzen nach dem Versionswechsel neu gebunden: keine
-Abweichung, `check` grün für windows-x64 (402/208), macos-universal (396/202)
-und android-universal (487/228). Die CI und die Handläufe von `packages.yml`
-und `android.yml` laufen im Pull Request vor dem Merge.
+Am 04.11.2026 nach dem Release von 0.2.6: Auf dem Merge-Commit `fcf4810` und
+am Tag `v0.2.6` sind CI, Audit, `vendored.yml`, `packages.yml` und
+`android.yml` grün. Zwei macOS-Jobs bekamen zuerst keinen Runner (Engpass bei
+GitHub) und liefen nach einem Neustart grün. Alle sechs Dateien des Releases
+tragen Herkunftsnachweise für `refs/tags/v0.2.6`; das APK ist mit demselben
+Schlüssel signiert wie 0.2.5. Ein von Hand gestarteter Audit-Lauf ist grün,
+Dependabot meldet nichts. Lokal auf `main`: 2882 Frontend-Tests, 146
+Skripttests, die Typprüfung und `licenses:check` für alle drei Auswahlen grün.
+
+Am 03.11.2026 für 0.2.6, lokal unter Windows auf dem Branch von PR #22, ohne
+Testhost: `cargo fmt` und `clippy -D warnings` sauber, 730 Rust-Tests mit
+`--test-threads=4` (11 ignoriert, `acceptance_vm`), 2882 Frontend-Tests,
+`npm run build` und `build:app`, 146 Skripttests und die 225
+Bibliothekstests des eingebetteten russh mit dem Befehl aus `vendored.yml`.
+Lizenzen nach dem Versionswechsel neu gebunden: keine Abweichung, `check` grün
+für windows-x64 (402/208), macos-universal (396/202) und android-universal
+(487/228). Im Pull Request waren CI, Audit, `vendored.yml`, `packages.yml` und
+`android.yml` grün, die Handläufe von `packages.yml` und `android.yml` auf
+`9ec0caa`; der Kopf `3d71446` trägt danach nur die zwei russh-Meldungen als
+akzeptiert ein und ändert keinen Code der App.
 
 Am 31.10.2026 für 0.2.5: In der CI auf dem Merge-Commit `8aaa46b` sind Rust auf
 Windows, Ubuntu und macOS, Frontend, Skripte, der Job `licenses`, Audit,
@@ -282,7 +294,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
 6. **Lieferung:** Alle drei Lizenzauswahlen
    ([Windows](release/license-selection.windows-x64.json),
    [macOS](release/license-selection.macos-universal.json),
-   [Android](release/license-selection.android-universal.json)) sind für 0.2.5
+   [Android](release/license-selection.android-universal.json)) sind für 0.2.6
    gebunden; den Ablauf beschreibt die [Anleitung](lizenzen-pflegen.md). Jede
    weitergegebene Kopie trägt die Lizenzhinweise: An andere, auch an Beta-Tester,
    geht nur das ZIP oder ein Installer aus `npm run build:windows` oder dem
@@ -294,7 +306,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    (`nsis_msi_payload`, `installer_terms_ui`, `installer_stub_notices`), weil ein
    Bau sie nicht kennt; erneut abzunehmen ist sie, wenn sich Installer,
    Lizenzseite oder Stubs ändern. **Das ist mit NSIS 3.13 der Fall:** Der
-   Maintainer prüft die Setup-EXE an den Paketen von 0.2.5. Offen bleiben
+   Maintainer prüft die Setup-EXE an den Paketen von 0.2.6; 0.2.5 und 0.2.6
+   bauen mit derselben Tauri-CLI 2.12.4 und NSIS 3.13. Offen bleiben
    `native_import_family_review` für die Durchsicht der nativen Importe der EXE
    und `product_and_windows_acceptance` für die Abnahme am Fenster.
    Lokal gebaute Binaries enthalten die Pfade des Cargo-Registers
@@ -489,7 +502,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - Klein: `tauri-build` 2.7.4 meldet `STATIC_VCRUNTIME` (gesetzt von
       `release-windows-artifacts.mjs`) als veraltet; es linkt weiter
       statisch, und die Ersatzoption `build.windows.staticVCRuntime` ist
-      standardmäßig an. `lucide-static` (Icons) steht auf 1.41, aktuell 1.65.
+      standardmäßig an. `lucide-static` (Icons) steht auf 1.41, aktuell
+      1.68 (04.11.).
     - Nach russh 0.65: Nach einer abgelehnten Agent-Signatur weitere
       Identitäten probieren, was 0.65 erlaubt (upstream #788,
       `src-tauri/src/ssh/auth.rs`). Eigene Änderungen upstream anbieten,
