@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import zlib from 'node:zlib';
-import { lockedLibraries, zipEntries, MAVEN, NEW_CRATES, TARGETS } from './release-license-select-android.mjs';
+import { lockedLibraries, zipEntries, runtimeArchive, MAVEN, NEW_CRATES, TARGETS } from './release-license-select-android.mjs';
 
 // A ZIP archive with stored (0) and deflated (8) entries, as JAR and AAR files are.
 function zip(entries) {
@@ -72,4 +72,42 @@ test('the committed selection covers the three ABIs and decides every Android-on
     assert.equal(component.selected_license, 'MPL-2.0', id);
     assert.match(component.reason, /Source Code Form is available at https:\/\/static\.crates\.io\//, id);
   }
+});
+
+// Gradle module metadata as AndroidX and Kotlin publish it, cut down to the
+// attributes the selection reads.
+const variant = (name, attributes, extra = {}) => ({ name, attributes: { 'org.gradle.category': 'library', ...attributes }, ...extra });
+const runtimeJvm = { 'org.gradle.usage': 'java-runtime', 'org.jetbrains.kotlin.platform.type': 'jvm' };
+const metadataApi = { 'org.gradle.usage': 'kotlin-metadata', 'org.jetbrains.kotlin.platform.type': 'common' };
+
+test('the archive is the one of the Android runtime variant, not a metadata jar or a root aar', () => {
+  const kmp = { variants: [
+    variant('metadataApiElements', metadataApi, { files: [{ name: 'lib-metadata-1.0.jar' }] }),
+    variant('androidRuntimeElements-published', { ...runtimeJvm, 'org.gradle.jvm.environment': 'android' }, { 'available-at': { group: 'g', module: 'lib-android', version: '1.0' } }),
+    variant('jvmRuntimeElements-published', { ...runtimeJvm, 'org.gradle.jvm.environment': 'standard-jvm' }, { 'available-at': { group: 'g', module: 'lib-jvm', version: '1.0' } }),
+  ] };
+  assert.deepEqual(runtimeArchive({ artifact: 'lib', version: '1.0', module: kmp, names: ['lib-metadata-1.0.jar', 'lib-1.0.aar', 'lib-1.0.pom'] }), { archive: null, redirect: 'g:lib-android:1.0' });
+  const android = { variants: [variant('releaseRuntimeElements-published', { 'org.gradle.usage': 'java-runtime', 'org.jetbrains.kotlin.platform.type': 'androidJvm' }, { files: [{ name: 'lib-release.aar' }] })] };
+  assert.deepEqual(runtimeArchive({ artifact: 'lib-android', version: '1.0', module: android, names: ['lib-release.aar'] }), { archive: 'lib-release.aar', redirect: null });
+  const stdlib = { variants: [
+    variant('jvmRuntimeElements', runtimeJvm, { files: [{ name: 'kotlin-stdlib-2.2.10.jar' }] }),
+    variant('metadataApiElements', metadataApi, { files: [{ name: 'kotlin-stdlib-2.2.10-all.jar' }] }),
+  ] };
+  assert.deepEqual(runtimeArchive({ artifact: 'kotlin-stdlib', version: '2.2.10', module: stdlib, names: ['kotlin-stdlib-2.2.10-all.jar', 'kotlin-stdlib-2.2.10.jar'] }), { archive: 'kotlin-stdlib-2.2.10.jar', redirect: null });
+});
+
+test('without module metadata only <artifact>-<version> counts, and a platform has no archive', () => {
+  assert.deepEqual(runtimeArchive({ artifact: 'core', version: '1.0', module: null, names: ['core-1.0-sources.jar', 'core-metadata-1.0.jar', 'core-1.0.aar'] }), { archive: 'core-1.0.aar', redirect: null });
+  assert.deepEqual(runtimeArchive({ artifact: 'core', version: '1.0', module: null, names: ['core-1.0.pom'] }), { archive: null, redirect: null });
+  const bom = { variants: [variant('apiElements', { 'org.gradle.category': 'platform', 'org.gradle.usage': 'java-runtime' })] };
+  assert.deepEqual(runtimeArchive({ artifact: 'bom', version: '1.0', module: bom, names: [] }), { archive: null, redirect: null });
+});
+
+test('two equally good runtime variants or a missing file fail', () => {
+  const two = { variants: [
+    variant('a', { ...runtimeJvm, 'org.gradle.jvm.environment': 'android' }, { files: [{ name: 'a.aar' }] }),
+    variant('b', { ...runtimeJvm, 'org.gradle.jvm.environment': 'android' }, { files: [{ name: 'b.aar' }] }),
+  ] };
+  assert.throws(() => runtimeArchive({ artifact: 'x', version: '1', module: two, names: ['a.aar', 'b.aar'] }), /2 Android runtime variants/);
+  assert.throws(() => runtimeArchive({ artifact: 'x', version: '1', module: { variants: [two.variants[0]] }, names: [] }), /not in the Gradle cache/);
 });

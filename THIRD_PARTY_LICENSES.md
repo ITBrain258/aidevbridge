@@ -215,7 +215,7 @@ SOFTWARE.
 
 ## rolldown (bundler that emits the polyfill and the helpers)
 
-Source: package `rolldown` 1.2.16, which Vite 8 builds with. Its native library (`@rolldown/binding-*`) carries the modulepreload polyfill above and the Babel helpers below and writes them into the bundle. The MIT text from `node_modules/rolldown/LICENSE` follows verbatim.
+Source: package `rolldown` 1.2.16, which Vite 8 builds with. Its native library (`@rolldown/binding-*`) carries the modulepreload polyfill above and the Babel helpers below and writes them into the bundle. The MIT part of `node_modules/rolldown/LICENSE` follows verbatim; the rest of that file points to rolldown's list of the libraries it derives from, which covers rolldown's own code, not the polyfill or the helpers.
 
 MIT License
 
@@ -243,7 +243,7 @@ SOFTWARE.
 
 ## Babel runtime helpers (private class fields, via oxc)
 
-The frontend is built for Safari 14 and Chrome 87, which lack parts of the private class member syntax. The compiler (oxc, inside rolldown) rewrites it and adds ten helper functions to the bundle: `checkPrivateRedeclaration`, `classPrivateMethodInitSpec`, `typeof`, `toPrimitive`, `toPropertyKey`, `defineProperty`, `classPrivateFieldInitSpec`, `assertClassBrand`, `classPrivateFieldGet2` and `classPrivateFieldSet2`. They come from `@oxc-project/runtime` 0.156.0, whose code "is copied from the published package `@babel/runtime`" (its README). The MIT text of `@babel/runtime` follows verbatim, then the MIT text of `@oxc-project/runtime`.
+The frontend is built for Safari 14 and Chrome 87, which lack parts of the private class member syntax. The compiler (oxc, inside rolldown) rewrites it and adds ten helper functions to the bundle: `checkPrivateRedeclaration`, `classPrivateMethodInitSpec`, `typeof`, `toPrimitive`, `toPropertyKey`, `defineProperty`, `classPrivateFieldInitSpec`, `assertClassBrand`, `classPrivateFieldGet2` and `classPrivateFieldSet2`. They come from `@oxc-project/runtime` 0.156.0, whose README says: "Code copied from the published package `@babel/runtime`." The MIT text of `@babel/runtime` follows verbatim, then the MIT text of `@oxc-project/runtime`.
 
 MIT License
 

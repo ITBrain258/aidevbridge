@@ -42,7 +42,10 @@
     "docs/release/windows-installer-nsis-3.13-2026-10-30.md",
     "docs/release/license-rust-update-2026-10-30.json",
     "docs/release/license-rust-update-2026-11-05.json",
-    "docs/release/license-rust-update-2026-11-05-dup-crates.json"
+    "docs/release/license-rust-update-2026-11-05-dup-crates.json",
+    "docs/release/license-frontend-lucide-1.69.0-2026-11-05.json",
+    "docs/release/license-frontend-tools-2026-11-05.json",
+    "docs/release/license-frontend-vite-8-2026-11-05.json"
   ],
   "inputs": {
     "files": [
@@ -21799,7 +21802,7 @@
     {
       "id": "frontend:tauri-vendored-tslib",
       "name": "Tauri-vendored external/tslib",
-      "version": "parent @tauri-apps/api 2.11.1",
+      "version": "parent @tauri-apps/api 2.12.4",
       "declared_license": null,
       "selected_license": "0BSD",
       "disposition": "include",
@@ -21809,7 +21812,8 @@
       "reason": "Re-decided on 2026-10-20: the production JS contains __classPrivateFieldGet and __classPrivateFieldSet, reached through @tauri-apps/api/window -> image.js (Image extends Resource from core.js); the earlier exclusion no longer holds. The verbatim Microsoft notice of the vendored file (0BSD terms, no attribution duty) is retained in THIRD_PARTY_LICENSES.md.",
       "decision_basis": [
         "THIRD_PARTY_LICENSES.md",
-        "scripts/release-license-inventory-frontend.mjs"
+        "scripts/release-license-inventory-frontend.mjs",
+        "docs/release/license-frontend-tauri-2.12-2026-10-29.json"
       ],
       "source_urls": []
     },
