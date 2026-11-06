@@ -165,11 +165,17 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
 
 ## Releases
 
-1. `npm run bump <version>` and a CHANGELOG entry.
-2. Bring the three license selections up to date with `npm run licenses:status`
-   and `npm run licenses:rebind-own`, set the version at its places by hand and
-   confirm with `npm run licenses:check`. [The license guide](docs/lizenzen-pflegen.md)
-   (in German) describes every case.
+1. `npm run bump <version>`, a CHANGELOG entry, the store text
+   `fastlane/metadata/android/{de-DE,en-US}/changelogs/<versionCode>.txt`
+   (without it Google Play shows `default.txt`, "first Android version") and the
+   header of `docs/stand.md`; for a new minor version also the supported
+   versions in `SECURITY.md`.
+2. Bring the three license selections up to date: set the version at its places
+   in the Windows selection by hand, run `npm run licenses:rebind-own`, then
+   `npm run licenses:derive` for macOS and Android (it needs `NDK_HOME`, and the
+   NDK evidence of an ABI without a local build must be restored), and confirm
+   with `npm run licenses:status` and `npm run licenses:check`.
+   [The license guide](docs/lizenzen-pflegen.md) (in German) describes every case.
 3. Optionally start the packages and Android workflows by hand with **release**
    on: they make the release builds without publishing them.
 4. Push the tag `v<version>`. Only an administrator can create tags `v*`. The

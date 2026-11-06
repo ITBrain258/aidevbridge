@@ -66,9 +66,10 @@ betrifft es nur Nutzer in diesen Ländern.
   ABIs arm64-v8a, armeabi-v7a und x86_64; x86 (32 Bit) entfällt.
 - NDK **r29** (`29.0.14206865`), Build-Tools 36.0.0, Rust 1.97.1 aus
   `rust-toolchain.toml` mit den drei Android-Zielen.
-- **JDK 21 für Gradle.** Das Projekt nutzt Gradle 8.14 und das
-  Android-Gradle-Plugin 8.11 aus Tauris Vorlage; beide laufen nicht auf dem
-  Java 25, das Android Studio 2026.2 mitbringt.
+- **JDK 21 für Gradle.** Das Projekt nutzte Gradle 8.14 und das
+  Android-Gradle-Plugin 8.11 aus Tauris Vorlage, seit dem Nachtrag vom
+  05.11.2026 Gradle 9.6 und AGP 9.3; keines davon läuft auf dem Java 25, das
+  Android Studio 2026.2 mitbringt.
   `gradle/gradle-daemon-jvm.properties` verlangt Java 21, Android Studio und
   Gradle wählen es damit selbst. Ein Sprung auf Gradle 9 und AGP 9 lohnt erst,
   wenn Tauris Vorlage ihn macht.
@@ -445,7 +446,8 @@ ThreeTen-Backport, dessen BSD-3-Clause-Text dazukommt.
 ## Nachtrag vom 05.11.2026: Ziel-SDK 37 und das lokale Netz
 
 compileSdk und targetSdk gehen auf 37 (Android 17), wie es die Vorlage der
-Tauri-CLI schon setzt; Play verlangt 37 erst ab August 2027. Das SDK-Paket
+Tauri-CLI schon setzt; Play verlangt 37 voraussichtlich ab August 2027 (nach
+Googles üblichem Takt, angekündigt ist es noch nicht). Das SDK-Paket
 heißt seit Android 17 `platforms;android-37.0`, `android.yml` installiert es.
 
 Die eine Verhaltensänderung, die die App trifft: Für Apps mit targetSdk 37
@@ -453,7 +455,8 @@ sperrt Android 17 jede Verbindung ins lokale Netz, bis der Nutzer
 `ACCESS_LOCAL_NETWORK` erlaubt, eine Laufzeit-Berechtigung der Gruppe
 „Geräte in der Nähe“. Die Sperre sitzt im Netzwerkstack und gilt auch für die
 Sockets der Rust-Bibliothek; ein gesperrter TCP-Aufbau endet in einer
-Zeitüberschreitung ohne Hinweis auf den Grund. DNS (Port 53) bleibt frei.
+Zeitüberschreitung. Den Grund nennt erst `android_getnetworkblockedreason`
+aus dem NDK von API 37, das die App nicht aufruft. DNS (Port 53) bleibt frei.
 Mit targetSdk 36 bekommt die App den Zugriff über `INTERNET`, laut Google nur
 übergangsweise.
 
@@ -462,18 +465,25 @@ Mit targetSdk 36 bekommt die App den Zugriff über `INTERNET`, laut Google nur
   Berechtigung und zeigt den Systemdialog. Vor Android 17 gilt sie als
   erteilt: Dort gibt es sie nicht, und `INTERNET` genügt.
 - `src-tauri/src/local_network.rs`: `connect_host` fragt vor dem Aufbau,
-  wenn die Berechtigung fehlt und das Ziel lokal ist. Lokal sind private
-  IPv4-Bereiche, Link-local, Multicast und Broadcast, IPv6 `fc00::/7` und
-  Link-local, IPv4 in IPv6 sowie Namen unter `.local`; ein anderer Name wird
-  dafür aufgelöst. Loopback und `100.64.0.0/10` (Carrier-NAT, Tailscale)
-  zählen nicht dazu. Googles Doku zählt die Bereiche nicht auf.
+  wenn die Berechtigung fehlt und das Ziel lokal ist, und erst nach der
+  Prüfung des Hostnamens: Ein unbrauchbarer Name erreicht weder Dialog noch
+  Namensauflösung. Lokal sind private IPv4-Bereiche, Link-local, Multicast
+  und Broadcast, IPv6 `fc00::/7`, Link-local und Multicast, IPv4 in IPv6
+  sowie Namen unter `.local`; ein anderer Name wird dafür aufgelöst.
+  Loopback, `100.64.0.0/10` (Carrier-NAT, Tailscale) und Tailscales
+  IPv6-Bereich `fd7a:115c:a1e0::/48` zählen nicht dazu, der Weg dorthin führt
+  über den Anbieter oder ein VPN. Googles Doku zählt die Bereiche nicht auf.
 - Lehnt der Nutzer ab, verbindet die App trotzdem: Was gesperrt ist,
   entscheidet allein das System, und ein über VPN erreichbarer privater Host
   bliebe sonst ohne Grund zu. Scheitert der Aufbau dann mit
-  Zeitüberschreitung oder „nicht erreichbar“, meldet die App
-  `local_network_denied` mit dem Weg in die Einstellungen. Der Code steht
-  nicht unter den wiederholbaren (`reconnect.ts`), das Neuverbinden aus §5.4
-  hält also an. Nach zwei Ablehnungen zeigt Android keinen Dialog mehr.
+  Zeitüberschreitung oder „nicht erreichbar“, bevor ein Hostschlüssel
+  ankam, meldet die App `local_network_denied` mit dem Weg in die
+  Einstellungen. Kam der Hostschlüssel schon an, stand die Verbindung, und
+  der Fehler bleibt, wie er ist (etwa die abgelaufene Hostschlüsselfrage).
+  Der Code steht nicht unter den wiederholbaren (`reconnect.ts`), das
+  Neuverbinden aus §5.4 hält also an. Nach Ablehnungen zeigt Android den
+  Dialog nicht bei jedem Versuch wieder; die Meldung nennt deshalb die
+  Einstellung.
 - Beim Start verbinden mehrere Hosts zugleich. Sie fragen nacheinander, weil
   Tauris `PluginManager` nur einen Rückruf für Berechtigungsantworten hält;
   wer bis 10 s nach einer Ablehnung drankommt, fragt nicht noch einmal.

@@ -1,7 +1,7 @@
 # Privacy policy
 
 This policy covers aidevbridge on Android, Windows and macOS, including the app
-distributed through Google Play. It was last changed on 3 November 2026.
+distributed through Google Play. It was last changed on 6 November 2026.
 
 ## Short version
 

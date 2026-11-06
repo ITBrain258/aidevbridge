@@ -135,7 +135,7 @@ Build-Provenienz an ihnen hängen.
 | M3.1 Standard-Socket | nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md), mit 0.2.2 ausgeliefert und [abgenommen](messungen/messung-2026-10-25-m31-abnahme.md) |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert ([Beleg zu NSIS 3.13](release/windows-installer-nsis-3.13-2026-10-30.md)); `packages.yml` baut sie bei jedem Tag, installiert und startet jedes Paket auf einem frischen Runner und hängt sie an das Release |
 | macOS-Lieferung | nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md), seit 0.2.3: Universal-DMG, ad-hoc signiert, [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 390 Komponenten; Testinstallation auf Apple silicon und Intel |
-| Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: API 36 ab Android 7.0, kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 485 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
+| Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: ab Android 7.0, Ziel API 36, in `main` seit 06.11. API 37 mit der Berechtigung fürs lokale Netz (ausgeliefert ab dem nächsten Release); kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 485 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
 | Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32, #34); die offenen Stufen unter Punkt 12 |
 
 ## Letzte Prüfung
@@ -153,8 +153,9 @@ nur mit ECDSA bekannten Host. Lokal: die Auth-Tests, 155 Skripttests,
 `npm run typecheck` und `npm run build` mit der Prüfung der
 Lizenzhinweise; `check` grün für windows-x64 (393/207), macos-universal
 (390/201) und android-universal (485/228). Ein lokaler Android-Bau aller drei
-ABIs brach aus Speichermangel ab; die NDK-Belege für armv7 und x86_64 stehen
-wie bei 0.2.6 aufgezeichnet.
+ABIs brach aus Speichermangel ab; die NDK-Belege für armv7 und x86_64 stammen
+noch von der ersten Android-Auswahl vom 28.10. (seitdem unverändert: NDK,
+Toolchain, `build.rs`; nach 0.2.7 auch `Cargo.lock`).
 
 Die letzte VM-Abnahme (`acceptance_vm`, 11 von 11) lief am 27.10. auf dem Stand
 `7b961cf` gegen einen lokalen Linux-Testhost.
@@ -216,12 +217,18 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie
      nicht kennt.
    - Eine grobe Suche fand Copyright-Zeilen im Quelltext, die kein
-     ausgelieferter Text nennt, auch in futures-channel (ein BSD-Kopf von
-     Dmitry Vyukov mit Pflicht zur Wiedergabe in Binärform), polyval, uuid,
-     crypto-primes, muda und tauri
+     ausgelieferter Text nennt
      ([Liste](release/license-crypto-bigint-notices-2026-11-05.json),
-     `other_crates`). Zu entscheiden ist, ob eine begrenzte Durchsicht der
-     Laufzeit-Crates sie wie bei crypto-bigint aufnimmt.
+     `other_crates`). Seit 06.11. liegen die zwei mit einer Pflicht, den
+     Vermerk zu erhalten, wörtlich bei: futures-channel (BSD-Kopf von Dmitry
+     Vyukov) und crypto-primes (fdlibm von Sun Microsystems)
+     ([Beleg](release/license-source-notices-2026-11-06.json)). Die übrigen
+     (polyval, uuid, muda, curve25519-dalek, cpubits, der, toml, tauri) sind
+     bloße Herkunftszeilen ohne solche Pflicht und bleiben offen.
+   - Die NDK-Belege für armv7 und x86_64 stammen vom 28.10.; `licenses:derive`
+     braucht für sie einen lokalen Bau aller drei ABIs, der hier am Speicher
+     scheitert. Ein Schritt im Release-Job von `android.yml`, der dieselben
+     Werte aus dem CI-Bau schreibt, ersetzte ihn.
    - Lokal gebaute Pakete bis 0.2.2 enthalten Pfade des Cargo-Registers mit
      dem Benutzernamen des Bauprofils; hingenommen, seit 0.2.3 baut die CI.
 7. **Echte Abnahmen:**
@@ -291,7 +298,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     klären (Review vom 03.11.): ob Android den WebView im Hintergrund so
     anhält, dass die Acks länger als 30 s ausbleiben; dann schließt
     `STALL_TIMEOUT` die Terminals, und die Kacheln hängen sich nach der
-    Rückkehr neu an.
+    Rückkehr neu an. Am Gerät mit Android 17 offen (Ziel-SDK 37): die
+    Prüfung der Berechtigung fürs lokale Netz nach Schritt B3 der
+    [Anleitung](android-veroeffentlichung.md) (bestätigt am 06.11. ist nur,
+    dass der CI-Bau startet und verbindet), und ob Android Loopback oder
+    Hosts hinter einem VPN sperrt.
 12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
     gebunden ist. Erledigt bis zum 05.11.: Tauri 2.12, Tauri-CLI 2.12.4 mit
@@ -302,14 +313,13 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     Android Gradle 9.6, AGP 9.3, Kotlin 2.2 und die androidx-Updates mit
     Locks für den Buildscript-Classpath, `verification-metadata.xml` und
     Clippy für das Android-Ziel (PR #34,
-    [Nachtrag der Android-Spec](specs/2026-10-27-android-design.md#nachtrag-vom-05112026-gradle-9-agp-9-und-kotlin-2)).
+    [Nachtrag der Android-Spec](specs/2026-10-27-android-design.md#nachtrag-vom-05112026-gradle-9-agp-9-und-kotlin-2)),
+    am 06.11. das Ziel-SDK 37 mit der Berechtigung fürs lokale Netz, die
+    Android 17 dafür verlangt (PR #37,
+    [Nachtrag der Android-Spec](specs/2026-10-27-android-design.md#nachtrag-vom-05112026-ziel-sdk-37-und-das-lokale-netz)).
     Offen:
-    - **Ziel-SDK 37:** erledigt (PR #37) mit der Berechtigung fürs lokale
-      Netz, die Android 17 dafür verlangt
-      ([Nachtrag der Android-Spec](specs/2026-10-27-android-design.md#nachtrag-vom-05112026-ziel-sdk-37-und-das-lokale-netz));
-      der CI-Bau lief am 06.11. auf einem Telefon mit Android 17. Mit Tauri v3
-      fallen die Übergangsschalter `android.builtInKotlin=false` und
-      `android.newDsl=false`.
+    - **Tauri v3:** Mit ihm fallen die Übergangsschalter
+      `android.builtInKotlin=false` und `android.newDsl=false`.
     - **TypeScript 7:** Der native Compiler hat in 7.0 keine stabile JS-API;
       `src/source-hygiene.test.ts` und `release-license-inventory-frontend.mjs`
       brauchen `ts.createSourceFile`.
