@@ -1,6 +1,6 @@
 # aidevbridge im Google Play Store: Anleitung
 
-Stand 31.10.2026. Diese Anleitung führt vom fertigen Android-Projekt in `main`
+Stand 06.11.2026. Diese Anleitung führt vom fertigen Android-Projekt in `main`
 bis zur App im Play Store und zu jedem späteren Update. Die Entscheidungen
 dahinter stehen in der [Spec](specs/2026-10-27-android-design.md), der Stand
 der Schritte im [Plan](plans/2026-10-27-android.md).
@@ -45,7 +45,7 @@ vom echten Gerät und der Test am Telefon.
 
 ### B1 Werkzeuge und Signaturschlüssel
 
-Für lokale Bauten: Android-SDK (Plattform 36, Build-Tools, NDK r29) in
+Für lokale Bauten: Android-SDK (Plattform `platforms;android-37.0`, Build-Tools, NDK r29) in
 `%LOCALAPPDATA%\Android\Sdk`, JDK 21 in `%USERPROFILE%\.jdks\jdk-21.0.12.1+1` und
 die Rust-Ziele für Android. Der Signaturschlüssel liegt außerhalb des
 Repositorys; `scripts/android-github-secrets.ps1` sucht ihn in
@@ -118,6 +118,17 @@ Telefon:
    - App in den Hintergrund und nach ein paar Minuten zurück: der Host
      verbindet sich neu.
    - Drehen ins Querformat.
+   - Nur mit Android 17 oder neuer, Host im lokalen Netz (etwa `192.168.x.x`):
+     Vor der ersten Verbindung fragt Android nach „Geräte in der Nähe“;
+     nach „Zulassen“ verbindet die App. Dann unter Einstellungen → Apps →
+     aidevbridge → Berechtigungen → Geräte in der Nähe auf „Nicht zulassen“,
+     erneut verbinden und im Dialog ablehnen: Statt einer
+     Zeitüberschreitung erscheint die Meldung mit dem Weg in die
+     Einstellungen, und die App versucht es nicht von selbst weiter. In den
+     Einstellungen wieder erlauben: Die nächste Verbindung klappt ohne
+     Dialog. Ein Host im Internet verbindet ohne Dialog. Mit mehreren
+     lokalen Hosts und abgelehnter Berechtigung fragt die App beim Start nur
+     einmal. Unter Android 16 und älter erscheint kein Dialog.
 3. **Bildschirmfotos:** Unter
    `fastlane/metadata/android/<Sprache>/images/phoneScreenshots/` liegen schon
    drei vorläufige (Terminal, Hostliste, neuer Schlüssel). Sie zeigen die
@@ -237,6 +248,13 @@ dessen Zugangsdaten hier eintragen.
 2. Damit ist der Fragebogen fertig: Die Fragen nach Verschlüsselung und
    Löschung stellt Play nur nach einem „Ja“.
 
+Die Berechtigung `ACCESS_LOCAL_NETWORK` („Geräte in der Nähe“, ab Ziel-SDK
+37) ändert an diesen Antworten nichts: Die App sucht keine Geräte und erhebt
+nichts, sie verbindet nur zu den eingetragenen Hosts. Ein eigenes
+Erklärungsformular für diese Berechtigung nennt Googles Doku nicht; beim
+ersten App Bundle mit Ziel-SDK 37 trotzdem prüfen, ob die Play Console etwas
+anmerkt.
+
 ### C6 Erste Version hochladen (interner Test)
 
 Die allererste Version muss von Hand hochgeladen werden; danach übernimmt die
@@ -352,10 +370,11 @@ oder eine andere Spur, die du dort wählst.
    Änderung daran lehnt der Release-Lauf sie ab. Den Ablauf beschreibt
    [Lizenzen pflegen](lizenzen-pflegen.md).
 2. Version erhöhen wie bisher: `npm run bump 0.3.0`, `CHANGELOG.md` pflegen.
-3. Optional eigener Store-Text für diese Version:
+3. Store-Text für diese Version in beiden Sprachen:
    `fastlane/metadata/android/<Sprache>/changelogs/<versionCode>.txt`, mit
-   versionCode = Major × 1.000.000 + Minor × 1.000 + Patch (0.3.0 → 3000;
-   höchstens 500 Zeichen). Sonst gilt `default.txt`.
+   versionCode = Major × 1.000.000 + Minor × 1.000 + Patch (0.2.8 → 2008,
+   0.3.0 → 3000; höchstens 500 Zeichen). Fehlt die Datei, nimmt `android.yml`
+   ohne Warnung `default.txt`, und Play zeigt „Erste Android-Version“.
 4. **Probelauf ohne Tag:** auf dem Release-Branch **Actions → Android → Run workflow →
    release ✓** und ebenso **Packages → release ✓**. Das baut alles wie ein
    Release und prüft die Lizenztexte, signiert und veröffentlicht aber nichts.

@@ -21,8 +21,9 @@ import { RETRY_DELAYS_MS, retryDelay } from "./retry-schedule";
  * einem bekannten Host kommt keine Frage vor), oder es waren schon zu viele
  * Verbindungsversuche oder Aufloesungen unterwegs. Alles andere
  * (`auth_rejected`, `password_required`, `passphrase_required`,
- * `host_key_rejected`, `connect_cancelled`, `other` -- dazu gehoert ein
- * abgestuerzter Aufloesungs-Worker) braucht den Nutzer. */
+ * `host_key_rejected`, `connect_cancelled`, `local_network_denied` -- unter
+ * Android 17 fehlt die Berechtigung fuers lokale Netz --, `other` -- dazu
+ * gehoert ein abgestuerzter Aufloesungs-Worker) braucht den Nutzer. */
 const RETRYABLE_CONNECT_CODES: readonly string[] = ["host_unreachable", "connect_timeout", "connect_capacity"];
 
 /** So lange muss eine neu aufgebaute Verbindung halten, bevor ein neuer

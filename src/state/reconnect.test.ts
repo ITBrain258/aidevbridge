@@ -18,6 +18,7 @@ describe("isRetryableConnectError (UX-Spec §5.4)", () => {
     "passphrase_required",
     "host_key_rejected",
     "connect_cancelled",
+    "local_network_denied",
     "other",
   ])("wiederholt %s nie", (code) => {
     expect(isRetryableConnectError({ code, message: "x" })).toBe(false);

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-06T14:03:34.000Z",
+  "scope": "In-source notices of futures-channel 0.3.34 and crypto-primes 0.7.2 (Windows, macOS and Android selections) whose terms ask for the notice to be kept, and which the selected LICENSE-MIT does not carry; whether they are delivered and in which form. Not final application compliance or installer delivery.",
+  "basis": "docs/release/license-crypto-bigint-notices-2026-11-05.json (other_crates: heuristic candidates; these two carry an explicit condition to keep the notice)",
+  "crates": [
+    {
+      "package": "futures-channel@0.3.34",
+      "archive": {
+        "url": "https://static.crates.io/crates/futures-channel/futures-channel-0.3.34.crate",
+        "bytes": 33165,
+        "sha256": "b1f9e3d69d39e4862ffed03ed071a76f9a13ba1d9109d355b0f0aa6b15e393c4",
+        "equals_cargo_lock_checksum": true
+      },
+      "notice": {
+        "path": "src/mpsc/queue.rs",
+        "lines": "1-26",
+        "file_bytes": 6821,
+        "file_sha256": "22034085dc22050b708a37854e215fc7cbb16d65edc60370cb5d8f4b7faca18e",
+        "holder": "Dmitry Vyukov",
+        "condition": "BSD-2-Clause-style header: \"Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\"",
+        "text_first_line": "/* Copyright (c) 2010-2011 Dmitry Vyukov. All rights reserved."
+      },
+      "reachability": "src/mpsc/queue.rs backs futures-channel's mpsc channels, compiled with the std feature that futures-util enables; whether its code survives linking is not claimed.",
+      "output": {
+        "path": "docs/release/licenses/futures-channel-0.3.34-SOURCE-NOTICES.txt",
+        "bytes": 2199,
+        "sha256": "0bd3472b7e3f9f67d25c3a284521beba4e1118a8e880237e6b385afdf895595d",
+        "check": "The quoted block equals the named line range of the archive file byte for byte."
+      }
+    },
+    {
+      "package": "crypto-primes@0.7.2",
+      "archive": {
+        "url": "https://static.crates.io/crates/crypto-primes/crypto-primes-0.7.2.crate",
+        "bytes": 191278,
+        "sha256": "3633a51a39c69ebbaa4feaa694bd83d241e4093901c84a0963b19d9bb3f0cf8f",
+        "equals_cargo_lock_checksum": true
+      },
+      "notice": {
+        "path": "src/hazmat/libm.rs",
+        "lines": "6-16",
+        "file_bytes": 9159,
+        "file_sha256": "2997608c2a41a5e0f9d63d9024eb6845a2214f0e85cbc96559ec69ed554b9de3",
+        "holder": "Sun Microsystems, Inc. (fdlibm, via FreeBSD msun e_log2.c)",
+        "condition": "fdlibm notice: \"Permission to use, copy, modify, and distribute this software is freely granted, provided that this notice is preserved.\"",
+        "text_first_line": "/* origin: FreeBSD /usr/src/lib/msun/src/e_log2.c */"
+      },
+      "reachability": "src/hazmat/libm.rs holds the log2 function crypto-primes extracted from libm; whether its code survives linking is not claimed.",
+      "output": {
+        "path": "docs/release/licenses/crypto-primes-0.7.2-SOURCE-NOTICES.txt",
+        "bytes": 1062,
+        "sha256": "724c4301df491285a0438aa890cd17ee181ab0bcebd9737b4052c6d92cd0dbef",
+        "check": "The quoted block equals the named line range of the archive file byte for byte."
+      }
+    }
+  ],
+  "decision": "Both packages keep MIT and their LICENSE-MIT and additionally deliver the quoted notice blocks verbatim in <package>-<version>-SOURCE-NOTICES.txt, in all three selections (the selection policy retains associated copyright and source notices; pattern: crypto-bigint-0.7.10-SOURCE-NOTICES.txt). No separate BSD-2-Clause text is added: the quoted futures-channel header is itself the complete license notice of that file.",
+  "remaining": "The other candidates of the crypto-bigint report (polyval, uuid, muda, curve25519-dalek, cpubits, der, toml, tauri) carry attribution lines without a condition to reproduce them; they stay undecided."
+}

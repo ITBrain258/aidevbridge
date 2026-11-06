@@ -27,6 +27,29 @@ async fn connect_to_fixture(
     sink: Arc<dyn HostKeyRequestSink>,
     prompt_timeout: Duration,
 ) -> Result<String, ConnectError> {
+    connect_to_fixture_gated(
+        state,
+        attempt,
+        port,
+        known_hosts_text,
+        sink,
+        prompt_timeout,
+        crate::local_network::Gate::Open,
+    )
+    .await
+}
+
+/// Wie `connect_to_fixture`, mit dem Ergebnis der Abfrage fuers lokale Netz
+/// (Android 17), das `connect_host` sonst mitgibt.
+async fn connect_to_fixture_gated(
+    state: &Arc<AppState>,
+    attempt: &mut ConnectAttempt,
+    port: u16,
+    known_hosts_text: String,
+    sink: Arc<dyn HostKeyRequestSink>,
+    prompt_timeout: Duration,
+    local_network: crate::local_network::Gate,
+) -> Result<String, ConnectError> {
     let mut tries = 1;
     loop {
         let result = connect_host_core(
@@ -44,6 +67,7 @@ async fn connect_to_fixture(
             PathBuf::from("unused-hermetic-known-hosts"),
             sink.clone(),
             prompt_timeout,
+            local_network,
         )
         .await;
         let busy = matches!(&result, Err(error) if error.code == "connect_capacity");
@@ -574,6 +598,73 @@ async fn an_unanswered_host_key_prompt_expires_with_its_own_text_and_code() {
     );
 }
 
+/// Android 17: Hat der Nutzer den Zugriff aufs lokale Netz abgelehnt und
+/// erreicht die App den Host trotzdem (etwa ueber ein VPN), ist eine spaetere
+/// Zeitueberschreitung nicht die Sperre. Die abgelaufene Hostschluesselfrage
+/// behaelt Text und Code.
+#[tokio::test]
+async fn a_denied_local_network_keeps_errors_after_the_host_key_arrived() {
+    let server = host_key_server().await;
+    let state = Arc::new(AppState::default());
+    let id = begin_connect_impl(&state).unwrap();
+    let mut attempt = ConnectAttempt::take(&state, id).unwrap();
+    let error = timeout(
+        TEST_END,
+        connect_to_fixture_gated(
+            &state,
+            &mut attempt,
+            server.port,
+            String::new(),
+            Arc::new(NeverAnswers),
+            Duration::from_millis(150),
+            crate::local_network::Gate::Denied,
+        ),
+    )
+    .await
+    .unwrap()
+    .unwrap_err();
+    drop(attempt);
+    server.task.abort();
+    assert_eq!(error.code, "connect_timeout");
+    assert_eq!(
+        error.message,
+        "The host key wasn't confirmed in time, so aidevbridge didn't connect."
+    );
+}
+
+/// Kommt die Verbindung gar nicht zustande, nennt die Meldung bei
+/// abgelehnter Berechtigung den wahrscheinlichen Grund und den Weg in die
+/// Einstellungen.
+#[tokio::test]
+async fn a_denied_local_network_explains_a_host_that_was_not_reached() {
+    let port = {
+        let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))
+            .await
+            .unwrap();
+        listener.local_addr().unwrap().port()
+    };
+    let state = Arc::new(AppState::default());
+    let id = begin_connect_impl(&state).unwrap();
+    let mut attempt = ConnectAttempt::take(&state, id).unwrap();
+    let error = timeout(
+        TEST_END,
+        connect_to_fixture_gated(
+            &state,
+            &mut attempt,
+            port,
+            String::new(),
+            Arc::new(RejectPrompt),
+            Duration::from_secs(1),
+            crate::local_network::Gate::Denied,
+        ),
+    )
+    .await
+    .unwrap()
+    .unwrap_err();
+    assert_eq!(error.code, crate::local_network::DENIED_CODE);
+    assert_eq!(error.message, crate::local_network::DENIED_MESSAGE);
+}
+
 /// Bestaetigt jede Rueckfrage sofort, wie ein Nutzer, der dem Schluessel
 /// vertraut, und zaehlt sie.
 struct AcceptsEveryPrompt {
@@ -657,6 +748,7 @@ async fn connect_once(state: &Arc<AppState>, spec: HostSpecDto) -> Result<String
         PathBuf::from("unused-hermetic-known-hosts"),
         Arc::new(RejectPrompt),
         Duration::from_secs(1),
+        crate::local_network::Gate::Open,
     )
     .await
 }

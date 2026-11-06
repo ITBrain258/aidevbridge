@@ -296,6 +296,21 @@ const byPath = (a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0;
 const licenseName = /^(?:licen[sc]e|licen[sc]ing|copying|copyright|notice|unlicense)(?:$|[._-])/i;
 const exe = name => process.platform === 'win32' ? `${name}.exe` : name;
 
+/**
+ * minSdk and targetSdk as app/build.gradle.kts sets them. The selection's
+ * scope travels into the APK (assets/licenses/manifest.json), so it states
+ * the levels of the build instead of numbers of its own.
+ * @param {string} gradleText
+ */
+export function sdkLevels(gradleText) {
+  const read = name => {
+    const found = [...gradleText.matchAll(new RegExp(`^\\s*${name}\\s*=\\s*(\\d+)\\s*$`, 'gm'))];
+    ensure(found.length === 1, `app/build.gradle.kts: expected one "${name} = <number>", found ${found.length}`);
+    return Number(found[0][1]);
+  };
+  return { minimum_sdk: read('minSdk'), target_sdk: read('targetSdk') };
+}
+
 function readFile(root, relative) {
   const file = path.join(root, ...relative.split('/'));
   const info = fs.lstatSync(file);
@@ -873,6 +888,9 @@ function trees(root, windows) {
 
 function selection(derived, root, pending) {
   const { windows } = derived;
+  const sdk = sdkLevels(readFile(root, 'src-tauri/gen/android/app/build.gradle.kts').toString('utf8'));
+  // The bionic CRT objects come from the sysroot of the minimum API level.
+  ensure(sdk.minimum_sdk === NDK_API, `minSdk ${sdk.minimum_sdk} differs from NDK_API ${NDK_API}`);
   const files = windows.inputs.files.filter(f => !WINDOWS_ONLY_FILES.includes(f.path)).map(f => f.path);
   for (const file of WINDOWS_ONLY_FILES) ensure(windows.inputs.files.some(f => f.path === file), `Not a Windows input: ${file}`);
   const allFiles = [...new Set([...files, ...ANDROID_FILES, ...derived.documents.flatMap(d => d.sources.filter(s => s.kind === 'file').map(s => s.path))])].sort();
@@ -889,7 +907,7 @@ function selection(derived, root, pending) {
     selection_id: `aidevbridge-android-universal-${DATE}`,
     scope: {
       target: 'android-universal', cargo_targets: TARGETS, build_host: BUILD_HOST, default_features: true, cargo_features: ['tauri/custom-protocol'], rust_toolchain: TOOLCHAIN, product_version: derived.pkgVersion,
-      android_ndk: NDK_VERSION, minimum_sdk: 24, target_sdk: 36, abis: ['arm64-v8a', 'armeabi-v7a', 'x86_64'],
+      android_ndk: NDK_VERSION, minimum_sdk: sdk.minimum_sdk, target_sdk: sdk.target_sdk, abis: ['arm64-v8a', 'armeabi-v7a', 'x86_64'],
       meaning: 'License text selection for the Android application (one APK and App Bundle for arm64, armv7 and x86_64) plus explicitly disclosed source/build families; not binary, APK or App Bundle acceptance.',
       historical_evidence: `Derived on ${DATE} from ${WINDOWS} (selection ${windows.selection_id}) by scripts/release-license-select-android.mjs; ${REPORT} records the Android evidence, every dropped and added component and every reworded reason. Shared decisions keep their Windows decision reports; their Windows binary evidence is not repeated for Android.`,
     },

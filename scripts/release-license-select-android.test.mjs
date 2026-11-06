@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import zlib from 'node:zlib';
-import { lockedLibraries, zipEntries, runtimeArchive, MAVEN, NEW_CRATES, TARGETS } from './release-license-select-android.mjs';
+import { lockedLibraries, zipEntries, runtimeArchive, sdkLevels, MAVEN, NEW_CRATES, TARGETS } from './release-license-select-android.mjs';
 
 // A ZIP archive with stored (0) and deflated (8) entries, as JAR and AAR files are.
 function zip(entries) {
@@ -72,6 +72,16 @@ test('the committed selection covers the three ABIs and decides every Android-on
     assert.equal(component.selected_license, 'MPL-2.0', id);
     assert.match(component.reason, /Source Code Form is available at https:\/\/static\.crates\.io\//, id);
   }
+});
+
+test('the SDK levels of the selection are the ones the build sets', () => {
+  const gradle = fs.readFileSync('src-tauri/gen/android/app/build.gradle.kts', 'utf8');
+  const levels = sdkLevels(gradle);
+  const selection = JSON.parse(fs.readFileSync('docs/release/license-selection.android-universal.json', 'utf8'));
+  assert.deepEqual({ minimum_sdk: selection.scope.minimum_sdk, target_sdk: selection.scope.target_sdk }, levels);
+  assert.deepEqual(sdkLevels('    minSdk = 24\n        targetSdk = 37\n'), { minimum_sdk: 24, target_sdk: 37 });
+  assert.throws(() => sdkLevels('minSdk = 24\n'), /expected one "targetSdk = <number>", found 0/);
+  assert.throws(() => sdkLevels('minSdk = 24\ntargetSdk = 36\ntargetSdk = 37\n'), /found 2/);
 });
 
 // Gradle module metadata as AndroidX and Kotlin publish it, cut down to the

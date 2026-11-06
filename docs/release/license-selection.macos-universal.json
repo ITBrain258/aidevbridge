@@ -48,7 +48,8 @@
     "docs/release/license-frontend-tools-2026-11-05.json",
     "docs/release/license-frontend-vite-8-2026-11-05.json",
     "docs/release/license-crypto-bigint-notices-2026-11-05.json",
-    "docs/release/license-macos-universal-2026-10-25.json"
+    "docs/release/license-macos-universal-2026-10-25.json",
+    "docs/release/license-source-notices-2026-11-06.json"
   ],
   "inputs": {
     "files": [
@@ -183,6 +184,11 @@
         "sha256": "d2db091c6b8aa5a315664b6d128f2daf4137b1940705cd701392495831502814"
       },
       {
+        "path": "docs/release/license-source-notices-2026-11-06.json",
+        "bytes": 3988,
+        "sha256": "c42d56803ab6b655e26472a05467e5bcafb93d2d6ffd7ac2a76af4c4cbf86a34"
+      },
+      {
         "path": "docs/release/license-unic-2026-09-12.json",
         "bytes": 84653,
         "sha256": "94f3bd1d05b18956738586a2e50121b9f4fdc1570359f143eb9b727ae58803eb"
@@ -218,6 +224,11 @@
         "sha256": "c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491"
       },
       {
+        "path": "docs/release/licenses/crypto-primes-0.7.2-SOURCE-NOTICES.txt",
+        "bytes": 1062,
+        "sha256": "724c4301df491285a0438aa890cd17ee181ab0bcebd9737b4052c6d92cd0dbef"
+      },
+      {
         "path": "docs/release/licenses/delegate-0.13.5-LICENSE-MIT.txt",
         "bytes": 1078,
         "sha256": "be7ee8aa49dc586023669a0c600a0536fce6a9f61264a53a67cdd842564ed899"
@@ -226,6 +237,11 @@
         "path": "docs/release/licenses/dpi-0.1.2-LICENSE-APACHE.txt",
         "bytes": 11323,
         "sha256": "6dc0e068dcf3a5bc8e054205b85b7720e1d49265bbc64bf515d2cf79197df69a"
+      },
+      {
+        "path": "docs/release/licenses/futures-channel-0.3.34-SOURCE-NOTICES.txt",
+        "bytes": 2199,
+        "sha256": "0bd3472b7e3f9f67d25c3a284521beba4e1118a8e880237e6b385afdf895595d"
       },
       {
         "path": "docs/release/licenses/icu4x-2.2.0-LICENSE.txt",
@@ -772,8 +788,8 @@
           },
           {
             "path": "src/state/reconnect.ts",
-            "bytes": 8670,
-            "sha256": "5c50287f2995eb8db5f1b475bd3a1bf3c35d5bb91682ad6df6efd9b7410edcd9"
+            "bytes": 8761,
+            "sha256": "cfe993aac17f7e18af1e4f4414912e4d47afa6aa2bcc72a423d89b9666aca358"
           },
           {
             "path": "src/state/retry-schedule.ts",
@@ -1018,13 +1034,13 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 183949,
-            "sha256": "06cf881020572cdb635356569d6977f771fb2da76c47892732f99fb9e82a5f6e"
+            "bytes": 185142,
+            "sha256": "7951a64e4b4aea39bbeb75faae0b422659cb3c3f99f74736800f62b5215d179a"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
-            "bytes": 23738,
-            "sha256": "85fccf5ffbd628484fdab9401ce6e1d4b3c71ab180d82239d7a9a808be94e145"
+            "bytes": 26648,
+            "sha256": "3a15d2f3fe69ce40077dac4c9f6fe609d617631c0ab95e4e3ea11293befc7c51"
           },
           {
             "path": "src-tauri/src/commands/history_tests.rs",
@@ -1073,8 +1089,8 @@
           },
           {
             "path": "src-tauri/src/local_network.rs",
-            "bytes": 10886,
-            "sha256": "97ea67e885537b818077dceb001327e8c7ac9dfb8690634d6434c20ae9c21320"
+            "bytes": 11723,
+            "sha256": "7b164de046ab8c663337e06be6d234d4a3a2b9e81bd474b49d3ea1d10ab7cdd6"
           },
           {
             "path": "src-tauri/src/main.rs",
@@ -12922,9 +12938,10 @@
       "technical_role": "normal-runtime-candidate",
       "release_tree_features": [],
       "documents": [
-        "sha256:1e860b66ad4646c4f188d5ee6f0be5192089c1c066cb42a6d25285c250543444"
+        "sha256:1e860b66ad4646c4f188d5ee6f0be5192089c1c066cb42a6d25285c250543444",
+        "sha256:724c4301df491285a0438aa890cd17ee181ab0bcebd9737b4052c6d92cd0dbef"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. The fdlibm notice of src/hazmat/libm.rs (Sun Microsystems, \"provided that this notice is preserved\") is retained verbatim in crypto-primes-0.7.2-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/crypto-primes/crypto-primes-0.7.2.crate",
         "https://crates.io/crates/crypto-primes/0.7.2",
@@ -12932,7 +12949,8 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/crypto-primes@0.7.2",
-        "docs/release/license-macos-universal-2026-10-25.json"
+        "docs/release/license-macos-universal-2026-10-25.json",
+        "docs/release/license-source-notices-2026-11-06.json"
       ],
       "source_archive": {
         "url": "https://static.crates.io/crates/crypto-primes/crypto-primes-0.7.2.crate",
@@ -14471,9 +14489,10 @@
         "std"
       ],
       "documents": [
-        "sha256:6652c868f35dfe5e8ef636810a4e576b9d663f3a17fb0f5613ad73583e1b88fd"
+        "sha256:6652c868f35dfe5e8ef636810a4e576b9d663f3a17fb0f5613ad73583e1b88fd",
+        "sha256:0bd3472b7e3f9f67d25c3a284521beba4e1118a8e880237e6b385afdf895595d"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notice of src/mpsc/queue.rs (Dmitry Vyukov, a BSD-2-Clause-style header whose binary-form condition asks for the notice in the documentation) is retained verbatim in futures-channel-0.3.34-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/futures-channel/futures-channel-0.3.34.crate",
         "https://crates.io/crates/futures-channel/0.3.34",
@@ -14482,7 +14501,8 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/futures-channel@0.3.33",
         "docs/release/license-rust-update-2026-10-29.json",
-        "docs/release/license-macos-universal-2026-10-25.json"
+        "docs/release/license-macos-universal-2026-10-25.json",
+        "docs/release/license-source-notices-2026-11-06.json"
       ],
       "source_archive": {
         "url": "https://static.crates.io/crates/futures-channel/futures-channel-0.3.34.crate",
@@ -23707,6 +23727,22 @@
       ]
     },
     {
+      "id": "sha256:724c4301df491285a0438aa890cd17ee181ab0bcebd9737b4052c6d92cd0dbef",
+      "file_name": "crypto-primes-0.7.2-SOURCE-NOTICES.txt",
+      "bytes": 1062,
+      "sha256": "724c4301df491285a0438aa890cd17ee181ab0bcebd9737b4052c6d92cd0dbef",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/crypto-primes-0.7.2-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/crypto-primes-0.7.2-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
+    },
+    {
       "id": "sha256:bccaa8b6c09f94e81f06696e179dbe058464bbdfbc823b6d49cada1d71e84ac3",
       "file_name": "ctor-1.0.13-LICENSE-MIT.txt",
       "bytes": 1022,
@@ -24335,6 +24371,22 @@
         "https://crates.io/crates/futures-task/0.3.34",
         "https://crates.io/crates/futures-util/0.3.34"
       ]
+    },
+    {
+      "id": "sha256:0bd3472b7e3f9f67d25c3a284521beba4e1118a8e880237e6b385afdf895595d",
+      "file_name": "futures-channel-0.3.34-SOURCE-NOTICES.txt",
+      "bytes": 2199,
+      "sha256": "0bd3472b7e3f9f67d25c3a284521beba4e1118a8e880237e6b385afdf895595d",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/futures-channel-0.3.34-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/futures-channel-0.3.34-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
     },
     {
       "id": "sha256:c09aae9d3c77b531f56351a9947bc7446511d6b025b3255312d3e3442a9a7583",

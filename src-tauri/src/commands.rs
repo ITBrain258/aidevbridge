@@ -1570,11 +1570,15 @@ fn usable_hostname(hostname: &str) -> Result<(), &'static str> {
     }
 }
 
+/// `local_network` ist das Ergebnis der Abfrage, die Android 17 fuer Hosts
+/// im lokalen Netz verlangt (`local_network::prepare`); ausserhalb von
+/// Android immer `Gate::Open`.
 pub async fn connect_host_impl(
     state: &Arc<AppState>,
     sink: Arc<dyn HostKeyRequestSink>,
     host_id: String,
     spec: HostSpecDto,
+    local_network: crate::local_network::Gate,
 ) -> Result<String, ConnectError> {
     let mut attempt = ConnectAttempt::take(state, host_id)?;
     let known_hosts_path = crate::paths::ssh_dir()
@@ -1594,6 +1598,7 @@ pub async fn connect_host_impl(
         known_hosts_path,
         sink,
         HOST_KEY_PROMPT_TIMEOUT,
+        local_network,
     )
     .await
 }
@@ -1622,11 +1627,15 @@ pub async fn connect_host_with_known_hosts(
         known_hosts_path,
         sink,
         prompt_timeout,
+        crate::local_network::Gate::Open,
     )
     .await
     .map_err(|error| error.message)
 }
 
+// Acht Parameter: die Tests geben `known_hosts`, die Frist der Rueckfrage und
+// das Ergebnis der Abfrage fuers lokale Netz einzeln vor.
+#[allow(clippy::too_many_arguments)]
 async fn connect_host_core(
     state: &Arc<AppState>,
     attempt: &mut ConnectAttempt,
@@ -1635,6 +1644,7 @@ async fn connect_host_core(
     known_hosts_path: PathBuf,
     sink: Arc<dyn HostKeyRequestSink>,
     prompt_timeout: Duration,
+    local_network: crate::local_network::Gate,
 ) -> Result<String, ConnectError> {
     // Vor jeder Namensaufloesung und jedem TCP-Aufbau: ein Name, der nie ein
     // Hostname sein kann, darf weder den Resolver noch die TOFU-Rueckfrage
@@ -1674,11 +1684,19 @@ async fn connect_host_core(
             code: "host_key_rejected",
             message: error.to_string(),
         }),
-        Err(error) => Err(classify_connect_error(
-            &error,
-            policy.last_decision(),
-            &host,
-        )),
+        Err(error) => {
+            let decision = policy.last_decision();
+            let classified = classify_connect_error(&error, decision, &host);
+            // Android 17 sperrt den Weg zum Host. Kam schon ein
+            // Hostschluessel an, stand die Verbindung, und eine
+            // Zeitueberschreitung danach (die Rueckfrage, die Anmeldung) hat
+            // einen anderen Grund als die fehlende Berechtigung.
+            Err(if decision.is_none() {
+                local_network.explain(classified)
+            } else {
+                classified
+            })
+        }
     }
 }
 
@@ -2883,11 +2901,15 @@ pub async fn connect_host(
 ) -> Result<String, ConnectError> {
     // Android 17: vor dem Aufbau die Berechtigung fuers lokale Netz
     // (`local_network`). Der Dialog laeuft innerhalb der Gesamtfrist des
-    // Versuchs (240 s), nicht in der Frist des Netzes.
-    let local_network = crate::local_network::prepare(&app, &spec.hostname, spec.port).await;
-    connect_host_impl(state.inner(), Arc::new(app), host_id, spec)
-        .await
-        .map_err(|error| local_network.explain(error))
+    // Versuchs (240 s), nicht in der Frist des Netzes. Ein Name, der nie ein
+    // Hostname sein kann, erreicht weder den Dialog noch die
+    // Namensaufloesung; `connect_host_core` weist ihn gleich ab.
+    let local_network = if known_hosts::is_acceptable_hostname(&spec.hostname) {
+        crate::local_network::prepare(&app, &spec.hostname, spec.port).await
+    } else {
+        crate::local_network::Gate::Open
+    };
+    connect_host_impl(state.inner(), Arc::new(app), host_id, spec, local_network).await
 }
 
 #[tauri::command]

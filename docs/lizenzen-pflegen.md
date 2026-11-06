@@ -61,9 +61,14 @@ Von Hand bleiben, das Werkzeug meldet sie unter `manual`:
      geprüft wurde, etwa durch Vergleich mit der Lizenzdatei am
      Veröffentlichungs-Commit (`.cargo_vcs_info.json`).
      Darunter fällt auch eine eigene Quellhinweisdatei wie
-     `crypto-bigint-0.7.10-SOURCE-NOTICES.txt`: die zitierten Zeilen im
+     `crypto-bigint-0.7.10-SOURCE-NOTICES.txt`,
+     `futures-channel-0.3.34-SOURCE-NOTICES.txt` oder
+     `crypto-primes-0.7.2-SOURCE-NOTICES.txt`: die zitierten Zeilen im
      neuen Archiv nachsehen, die Datei für die neue Version neu anlegen und
-     unter `external` festhalten, wie geprüft wurde.
+     unter `external` festhalten, wie geprüft wurde. Welche Vermerke so
+     beiliegen und warum, steht in
+     `license-crypto-bigint-notices-2026-11-05.json` und
+     `license-source-notices-2026-11-06.json`.
    - `reason` ersetzt eine Begründung, deren Beleg die alte Version nennt.
    - `new` entscheidet ein neues Paket (nur MIT), `role` eine neue Rolle.
 
@@ -183,7 +188,15 @@ Die NDK-Belege (`evidence.ndk.targets.<ziel>.built_library` in
 Bibliotheken, setzt sie den Beleg auf `null`. Dann vorher alle drei Ziele
 bauen, oder den zuletzt aufgezeichneten Beleg übernehmen, wenn sich NDK und
 native Abhängigkeiten nicht geändert haben, und die Datei mit
-`--third-party` neu binden (so bei 0.2.6 und 0.2.7).
+`--third-party` neu binden (so bei 0.2.6 und 0.2.7). Die Belege für armv7
+und x86_64 stammen noch von der ersten Android-Auswahl vom 28.10.; arm64
+wurde mit 0.2.5 und 0.2.7 neu aufgezeichnet.
+
+Beim Release kommt zur Version in der Windows-Auswahl (siehe oben) die
+Ableitung `npm run licenses:derive`: Erst sie trägt die Version in die
+macOS- und Android-Auswahl und in ihre Belege und Inventare und schreibt den
+Bezug auf die Windows-Auswahl (`base_selection`) neu; geprüft wird das sonst
+nicht.
 
 ## Tauri-CLI und Installer-Werkzeuge
 
