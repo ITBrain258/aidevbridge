@@ -61,6 +61,8 @@ jobs:
             --ks-pass pass:checkcheck --out "$RUNNER_TEMP/app.apk" \
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
       - name: Start the app
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           adb="$ANDROID_HOME/platform-tools/adb"
@@ -71,6 +73,21 @@ jobs:
           until [ "$("$adb" shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 5; done
           "$adb" shell getprop ro.build.version.sdk
           "$adb" shell wm dismiss-keyguard || true
+          # For comparison: the last release (target SDK 36) in the same
+          # emulator. Its result fails nothing.
+          if gh release download --repo "$GITHUB_REPOSITORY" --pattern '*-android.apk' --dir "$RUNNER_TEMP/release"; then
+            "$adb" install "$RUNNER_TEMP"/release/*.apk
+            "$adb" logcat -c
+            "$adb" shell am start -W -n "$PACKAGE_NAME/.MainActivity" || true
+            sleep 30
+            "$adb" logcat -d > "$RUNNER_TEMP/logcat-release.txt"
+            if "$adb" shell pidof "$PACKAGE_NAME" > /dev/null; then
+              echo "Last release: running 30 s after its start."
+            else
+              echo "::warning::Last release: not running 30 s after its start"
+            fi
+            "$adb" uninstall "$PACKAGE_NAME"
+          fi
           "$adb" install "$RUNNER_TEMP/app.apk"
           "$adb" logcat -c
           "$adb" shell am start -W -n "$PACKAGE_NAME/.MainActivity"
@@ -91,6 +108,7 @@ jobs:
           name: android-emulator-log
           path: |
             ${{ runner.temp }}/logcat.txt
+            ${{ runner.temp }}/logcat-release.txt
             ${{ runner.temp }}/emulator.txt
             ${{ runner.temp }}/screen.png
           if-no-files-found: ignore
