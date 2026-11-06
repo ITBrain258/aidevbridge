@@ -20,7 +20,7 @@ jobs:
   start:
     name: Start on Android 17 (emulator)
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { persist-credentials: false }
@@ -66,11 +66,15 @@ jobs:
         run: |
           set -euo pipefail
           adb="$ANDROID_HOME/platform-tools/adb"
+          # avdmanager and the emulator look for AVDs in different places
+          # unless both are told.
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/avd"
+          mkdir -p "$ANDROID_AVD_HOME"
           echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n check -k "$SYSTEM_IMAGE" > /dev/null
           "$ANDROID_HOME/emulator/emulator" -avd check -no-window -no-audio -no-boot-anim -no-snapshot \
             -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.txt" 2>&1 &
-          "$adb" wait-for-device
-          until [ "$("$adb" shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 5; done
+          timeout 600 "$adb" wait-for-device
+          timeout 600 bash -c "until [ \"\$('$adb' shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')\" = 1 ]; do sleep 5; done"
           "$adb" shell getprop ro.build.version.sdk
           "$adb" shell wm dismiss-keyguard || true
           # For comparison: the last release (target SDK 36) in the same
