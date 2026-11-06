@@ -9,6 +9,8 @@ dem Namen agentbridge.
 ### Changed
 
 - Android: Ziel ist Android 17 (API 37). Android 17 sperrt fuer solche Apps das lokale Netz, bis der Nutzer "Geraete in der Naehe" erlaubt; die App fragt danach vor der ersten Verbindung zu einem Host im lokalen Netz (private Adressen, Link-local, Namen unter `.local`). Wird die Berechtigung abgelehnt und scheitert die Verbindung, nennt die Meldung den Grund und den Weg in die Einstellungen statt einer Zeitueberschreitung; das automatische Neuverbinden haelt dann an. Hosts im Internet brauchen keine Berechtigung. `PRIVACY.md` und die Installationsanleitung nennen die neue Berechtigung.
+- Lizenzen: Die Ordner `licenses` aller drei Pakete fuehren die Herkunftszeilen aus dem Quelltext von crypto-bigint 0.7.10 (`crypto-bigint-0.7.10-SOURCE-NOTICES.txt`), Vermerke des Privacy Scaling Explorations Team, der Rust Project Developers und von Sam Kumar. Der Windows-Laufzeithinweis nennt kein festes MSVC-Toolset mehr; die Release-EXE, mit Visual Studio 2026 gebaut, linkt dieselben Teile der Microsoft-Laufzeit wie bisher (`docs/release/license-windows-runtime-2026-11-05.md`).
+- CI: `packages.yml` bewahrt die PDB des Windows-Baus 90 Tage als Artefakt `windows-symbols` auf, fuer die Pruefung der gelinkten Microsoft-Laufzeit nach einem Werkzeugwechsel. Ins Release kommt sie nicht.
 
 ## [0.2.7] - 2026-11-05
 

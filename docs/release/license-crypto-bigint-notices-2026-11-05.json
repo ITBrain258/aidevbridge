@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-05T21:40:00.000Z",
+  "scope": "In-source attribution lines of crypto-bigint 0.7.10 (Windows, macOS and Android selections) that the selected LICENSE-MIT does not carry; whether they are delivered and in which form. Not final application compliance or installer delivery.",
+  "basis": "docs/release/license-rust-crypto-tokio-2026-10-26.json",
+  "archive": {
+    "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
+    "bytes": 308988,
+    "sha256": "9c035cb64cba03dad2fb921f3e218785e8cf9a41790da5eb3a1400f62fa2be11",
+    "equals_cargo_lock_checksum": true
+  },
+  "notices": [
+    {
+      "path": "src/modular/safegcd.rs",
+      "lines": "4-8",
+      "file_bytes": 20657,
+      "file_sha256": "87e43dfd7950acc9c710bd1596263f4d153f5b467888f2422646c3c99f4cda0b",
+      "holder": "Privacy Scaling Explorations Team",
+      "text_first_line": "//! Adapted from the Apache 2.0+MIT licensed implementation originally from:"
+    },
+    {
+      "path": "src/modular/boxed_monty_form/mul.rs",
+      "lines": "3-6",
+      "file_bytes": 9199,
+      "file_sha256": "d1803be45c8271640387c60ea2ab0a20fc798f866e37f240a79b2934e35e0133",
+      "holder": "The Rust Project Developers",
+      "text_first_line": "//! Some parts adapted from `monty.rs` in `num-bigint`:"
+    },
+    {
+      "path": "src/uint/mul/schoolbook.rs",
+      "lines": "85-88",
+      "file_bytes": 5840,
+      "file_sha256": "b4a9f73ebd93b049408a56d4f9ed2b5ca83fb6a44b7dc79ea41182834b21e59e",
+      "holder": "Sam Kumar (jedi-pairing), with the relicensing permission quoted in the file",
+      "text_first_line": "    // Translated from https://github.com/ucbrise/jedi-pairing/blob/c4bf151/include/core/bigint.hpp#L410"
+    }
+  ],
+  "upstream": {
+    "halo2curves": {
+      "repository": "https://github.com/privacy-ethereum/halo2curves",
+      "pull_requests": [
+        "https://github.com/taikoxyz/halo2curves/pull/2 (merged 2023-08-29)",
+        "https://github.com/privacy-ethereum/halo2curves/pull/83 (merged 2023-10-19 as a83509660676f252d8534684fcc718603e72b1ee, head taikoxyz/halo2curves)"
+      ],
+      "finding": "At a835096 the repository ships LICENSE-MIT and LICENSE-APACHE without a copyright line and no NOTICE file; Cargo.toml says authors = [\"Privacy Scaling Explorations team\"], license = \"MIT/Apache-2.0\". The line in safegcd.rs is therefore the only copyright notice of the adapted code."
+    },
+    "num-bigint": {
+      "source": "https://github.com/rust-num/num-bigint/blob/2cea7f4/src/biguint/monty.rs",
+      "finding": "LICENSE-MIT at 2cea7f4 reads \"Copyright (c) 2014 The Rust Project Developers\", the holder named in mul.rs."
+    },
+    "jedi-pairing": {
+      "source": "https://github.com/ucbrise/jedi-pairing/blob/c4bf151/include/core/bigint.hpp",
+      "finding": "bigint.hpp at c4bf151 is BSD-3-Clause, Copyright (c) 2018 Sam Kumar and Copyright (c) 2018 University of California, Berkeley. Sam Kumar wrote on 2022-12-24 in https://github.com/RustCrypto/crypto-bigint/pull/133#discussion_r1056870411: \"I'm OK with it being licensed as Apache 2.0 + MIT.\""
+    }
+  },
+  "output": {
+    "path": "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt",
+    "bytes": 1512,
+    "sha256": "c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491",
+    "check": "Each quoted block equals the named line range of the archive file byte for byte."
+  },
+  "decision": "cargo:crypto-bigint@0.7.10 keeps MIT and its LICENSE-MIT and additionally delivers the three attribution blocks verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt, in all three selections (the selection policy retains associated copyright and source notices; pattern: ring-0.17.14-source-copyright-NOTICES.txt). No BSD-3-Clause text is added for the schoolbook translation: the crate declares Apache-2.0 OR MIT and documents the author's permission. Remaining doubt: the permission comes from the individual author, not from the co-holder UC Berkeley; if maximal caution is wanted, ship the original BSD-3-Clause header of bigint.hpp.",
+  "other_crates": {
+    "status": "heuristic scan, not a decision",
+    "method": "Copyright lines in the Rust sources of runtime crates whose holder appears in none of the delivered texts of that crate; contains false positives.",
+    "candidates": [
+      "futures-channel 0.3.34 src/mpsc/queue.rs (Dmitry Vyukov, BSD-2-style header with a binary-reproduction clause)",
+      "polyval 0.7.3 src/backend/intrinsics (HPCrypt Contributors)",
+      "uuid (The Uuid Project Developers)",
+      "crypto-primes 0.7.2 src/hazmat/libm.rs (Sun Microsystems, fdlibm)",
+      "muda 0.20.0 src/platform_impl/gtk*/icon.rs (The winit contributors)",
+      "curve25519-dalek 5.0.0 src/backend/serial/scalar_mul/pippenger.rs (Oleg Andreev)",
+      "cpubits 0.1.1 src/lib.rs (Alex Crichton)",
+      "der 0.8.3 src/datetime.rs (The humantime Developers)",
+      "toml (The Serde Developers)",
+      "tauri (the Deno authors)"
+    ],
+    "not_affected": "tao, dpi and russh select Apache-2.0; ring, base64ct, subtle and urlpattern were false positives."
+  }
+}

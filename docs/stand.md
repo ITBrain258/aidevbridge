@@ -198,21 +198,30 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    den Ablauf beschreibt die [Anleitung](lizenzen-pflegen.md). Jede
    weitergegebene Kopie trägt die Lizenzhinweise: An andere geht nur das ZIP
    oder ein Installer, beide mit dem Ordner `licenses/`; die nackte EXE aus
-   `npm run build:app` bleibt auf dem eigenen Rechner. Offen:
+   `npm run build:app` bleibt auf dem eigenen Rechner. Die EXE von 0.2.7 aus
+   der CI (Visual Studio 2026, MSVC 14.51) linkt laut Importtabelle und
+   Rich-Header dieselben Microsoft-Laufzeitfamilien wie der lokale Bau vom
+   12.09.; zu liefern ist nichts zusätzlich
+   ([Beleg vom 05.11.](release/license-windows-runtime-2026-11-05.md)). Ihre
+   PDB ist nicht erhalten; seitdem bewahrt `packages.yml` sie 90 Tage als
+   Artefakt `windows-symbols` auf, damit der nächste Werkzeugwechsel Modul
+   für Modul geprüft werden kann. Seit dem 05.11. liefern alle drei
+   Auswahlen auch die Herkunftszeilen aus dem Quelltext von crypto-bigint
+   ([Quellhinweise](release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt)).
+   Offen:
    - Die Installerabnahme (bestanden am 24.10. an 0.2.0) ist mit NSIS 3.13 neu
      fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.2.7. Das
      Manifest jedes Laufs meldet `nsis_msi_payload`, `installer_terms_ui`,
      `installer_stub_notices`, `native_import_family_review` und
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie
      nicht kennt.
-   - Der [Beleg zur VC-Laufzeit](release/license-windows-runtime-2026-09-12.md)
-     beschreibt einen lokalen Bau mit Visual Studio 2022 (MSVC 14.44); die CI
-     baut die Releases auf `windows-2025` mit Visual Studio 2026. Ob die
-     statisch gelinkten Laufzeitobjekte dort dieselbe Auswahl tragen, prüft
-     der Maintainer an einem Release-Bau.
-   - crypto-bigint trägt in `src/modular/safegcd.rs` den Vermerk „Copyright
-     (c) 2023 Privacy Scaling Explorations Team“, den die Auswahl nicht als
-     Hinweis führt. Zu entscheiden ist, ob er dazukommt.
+   - Eine grobe Suche fand Copyright-Zeilen im Quelltext, die kein
+     ausgelieferter Text nennt, auch in futures-channel (ein BSD-Kopf von
+     Dmitry Vyukov mit Pflicht zur Wiedergabe in Binärform), polyval, uuid,
+     crypto-primes, muda und tauri
+     ([Liste](release/license-crypto-bigint-notices-2026-11-05.json),
+     `other_crates`). Zu entscheiden ist, ob eine begrenzte Durchsicht der
+     Laufzeit-Crates sie wie bei crypto-bigint aufnimmt.
    - Lokal gebaute Pakete bis 0.2.2 enthalten Pfade des Cargo-Registers mit
      dem Benutzernamen des Bauprofils; hingenommen, seit 0.2.3 baut die CI.
 7. **Echte Abnahmen:**

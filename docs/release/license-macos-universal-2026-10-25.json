@@ -19,8 +19,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1054289,
-    "sha256": "4e513e9a2e7bfe3603ec59c5e2c207d68740f3f1da354715817762d03487f2cd"
+    "bytes": 1056744,
+    "sha256": "e8283ac60741e0fee16d65ae2b684830bf3227c14b2af972d460f4a425234176"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -440,8 +440,8 @@
       },
       {
         "id": "cargo:crypto-bigint@0.7.10",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05)."
       },
       {
         "id": "cargo:crypto-common@0.1.7",

@@ -1,0 +1,31 @@
+crypto-bigint 0.7.10 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive crypto-bigint-0.7.10.crate (SHA-256
+9c035cb64cba03dad2fb921f3e218785e8cf9a41790da5eb3a1400f62fa2be11).
+The release license choice is MIT; the full text is supplied in
+crypto-bigint-0.7.10-LICENSE-MIT.txt.
+
+src/modular/safegcd.rs:4-8
+//! Adapted from the Apache 2.0+MIT licensed implementation originally from:
+//! <https://github.com/taikoxyz/halo2curves/pull/2>
+//! <https://github.com/privacy-scaling-explorations/halo2curves/pull/83>
+//!
+//! Copyright (c) 2023 Privacy Scaling Explorations Team
+
+src/modular/boxed_monty_form/mul.rs:3-6
+//! Some parts adapted from `monty.rs` in `num-bigint`:
+//! <https://github.com/rust-num/num-bigint/blob/2cea7f4/src/biguint/monty.rs>
+//!
+//! Originally (c) 2014 The Rust Project Developers, dual licensed Apache 2.0+MIT.
+
+src/uint/mul/schoolbook.rs:85-88
+    // Translated from https://github.com/ucbrise/jedi-pairing/blob/c4bf151/include/core/bigint.hpp#L410
+    //
+    // Permission to relicense the resulting translation as Apache 2.0 + MIT was given
+    // by the original author Sam Kumar: https://github.com/RustCrypto/crypto-bigint/pull/133#discussion_r1056870411
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.

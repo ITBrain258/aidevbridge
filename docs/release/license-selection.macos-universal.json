@@ -47,6 +47,7 @@
     "docs/release/license-frontend-lucide-1.69.0-2026-11-05.json",
     "docs/release/license-frontend-tools-2026-11-05.json",
     "docs/release/license-frontend-vite-8-2026-11-05.json",
+    "docs/release/license-crypto-bigint-notices-2026-11-05.json",
     "docs/release/license-macos-universal-2026-10-25.json"
   ],
   "inputs": {
@@ -80,6 +81,11 @@
         "path": "docs/release/license-and-unicode-2026-09-12.json",
         "bytes": 88116,
         "sha256": "eb23800ebd2de8c120f65eaf514a3ebd6b095b8642b661a8aaa7f56323d87146"
+      },
+      {
+        "path": "docs/release/license-crypto-bigint-notices-2026-11-05.json",
+        "bytes": 5133,
+        "sha256": "090701aef7ef7f1108e39e49a5c1bcf3b16c2973a7f6f49c9c261cd1850a9e03"
       },
       {
         "path": "docs/release/license-frontend-lucide-1.69.0-2026-11-05.json",
@@ -128,8 +134,8 @@
       },
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
-        "bytes": 131756,
-        "sha256": "d165c06e8cdbee11de647d1ca75d38cf4d382e86abc43ec8f591a334d533a109"
+        "bytes": 132166,
+        "sha256": "6a3ad9a3e4b1c98b4590058aab058265378b35d27b1853d133768ea64e06faad"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -205,6 +211,11 @@
         "path": "docs/release/licenses/compiler-builtins-0.1.160-libm-LICENSE.txt",
         "bytes": 14088,
         "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7"
+      },
+      {
+        "path": "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt",
+        "bytes": 1512,
+        "sha256": "c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491"
       },
       {
         "path": "docs/release/licenses/delegate-0.13.5-LICENSE-MIT.txt",
@@ -12821,9 +12832,10 @@
         "zeroize"
       ],
       "documents": [
-        "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
+        "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
+        "sha256:c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05).",
       "source_urls": [
         "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
         "https://crates.io/crates/crypto-bigint/0.7.10",
@@ -12832,6 +12844,7 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/crypto-bigint@0.7.5",
         "docs/release/license-rust-crypto-tokio-2026-10-26.json",
+        "docs/release/license-crypto-bigint-notices-2026-11-05.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
@@ -23614,6 +23627,22 @@
         "https://crates.io/crates/crossbeam-channel/0.5.17",
         "https://github.com/crossbeam-rs/crossbeam"
       ]
+    },
+    {
+      "id": "sha256:c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491",
+      "file_name": "crypto-bigint-0.7.10-SOURCE-NOTICES.txt",
+      "bytes": 1512,
+      "sha256": "c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
     },
     {
       "id": "sha256:3521672491a3479422d5fe1aca6645dd2984090f85da6e5205abfb18fb7a6897",
