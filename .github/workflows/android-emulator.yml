@@ -2,7 +2,11 @@ name: Android emulator
 # Starts the app in the Android emulator (Android 17, x86_64) and keeps the
 # system log: a crash at start shows up here without a phone at the PC. The
 # build is a release build like the published one (R8 included), signed with
-# a throwaway key made in this job; nothing leaves the job but the log.
+# a throwaway key made in this job; nothing leaves the job but the logs.
+#
+# Diagnosis of the crash at start on target SDK 37: the job builds the
+# branch as it is and a second time without registering the local network
+# plugin (lib.rs), and starts both.
 on:
   pull_request:
   workflow_dispatch:
@@ -20,7 +24,7 @@ jobs:
   start:
     name: Start on Android 17 (emulator)
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { persist-credentials: false }
@@ -45,24 +49,27 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - run: npm ci
-      - name: Build for x86_64
+      - name: Build for x86_64, with and without the plugin
         run: |
           set -euo pipefail
           assets=src-tauri/gen/android/app/src/main/assets/licenses
           mkdir -p "$assets"
           printf 'aidevbridge emulator check of commit %s. Not for distribution.\n' "$GITHUB_SHA" > "$assets/README.txt"
-          npm run tauri -- android build --ci --apk --target x86_64
-      - name: Sign with a throwaway key
-        run: |
-          set -euo pipefail
           keytool -genkeypair -keystore "$RUNNER_TEMP/check.jks" -storepass checkcheck -keypass checkcheck \
             -alias check -keyalg RSA -keysize 2048 -validity 2 -dname CN=emulator-check
-          "$ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner" sign --ks "$RUNNER_TEMP/check.jks" \
-            --ks-pass pass:checkcheck --out "$RUNNER_TEMP/app.apk" \
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+          unsigned=src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+          sign() {
+            "$ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner" sign --ks "$RUNNER_TEMP/check.jks" \
+              --ks-pass pass:checkcheck --out "$1" "$unsigned"
+          }
+          npm run tauri -- android build --ci --apk --target x86_64
+          sign "$RUNNER_TEMP/app.apk"
+          grep -q 'builder.plugin(local_network::init())' src-tauri/src/lib.rs
+          sed -i 's/builder.plugin(local_network::init())/builder/' src-tauri/src/lib.rs
+          npm run tauri -- android build --ci --apk --target x86_64
+          sign "$RUNNER_TEMP/app-without-plugin.apk"
+          git checkout -- src-tauri/src/lib.rs
       - name: Start the app
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           adb="$ANDROID_HOME/platform-tools/adb"
@@ -76,16 +83,12 @@ jobs:
             -gpu swiftshader_indirect -camera-back none -camera-front none \
             > "$RUNNER_TEMP/emulator.txt" 2>&1 &
           timeout 300 "$adb" wait-for-device
-          echo "device is there, waiting for the boot"
           for i in $(seq 1 120); do
             [ "$("$adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] && break
-            if [ $((i % 6)) = 0 ]; then
-              echo "boot after $((i * 10)) s: bootanim=$("$adb" shell getprop init.svc.bootanim 2>/dev/null | tr -d '\r')"
-            fi
             sleep 10
           done
-          [ "$("$adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] || { echo "::error::no boot in 20 minutes"; tail -40 "$RUNNER_TEMP/emulator.txt"; exit 1; }
-          "$adb" shell getprop ro.build.version.sdk
+          [ "$("$adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] || { echo "::error::no boot in 20 minutes"; exit 1; }
+          echo "Android $("$adb" shell getprop ro.build.version.release | tr -d '\r'), API $("$adb" shell getprop ro.build.version.sdk | tr -d '\r')"
           # Right after the boot the package service may still restart;
           # installs then fail with "Can't find service: package".
           ready() {
@@ -98,63 +101,40 @@ jobs:
           }
           install() {
             for attempt in 1 2 3 4 5; do
-              ready && "$adb" install "$1" && return 0
+              ready && "$adb" install -r "$1" && return 0
               echo "install attempt $attempt failed"
               sleep 15
             done
             return 1
           }
-          sleep 30
-          if ! ready; then
-            "$adb" logcat -d > "$RUNNER_TEMP/logcat.txt" || true
-            echo "::error::The package service did not come up"
-            exit 1
-          fi
-          "$adb" shell wm dismiss-keyguard || true
-          # For comparison: the last release (target SDK 36) in the same
-          # emulator. Its result fails nothing.
-          if gh release download --repo "$GITHUB_REPOSITORY" --pattern '*-android.apk' --dir "$RUNNER_TEMP/release" &&
-            install "$(ls "$RUNNER_TEMP"/release/*.apk)"; then
-            "$adb" logcat -c
+          # Starts one APK and keeps its log; prints whether it still runs.
+          check() {
+            local name=$1 apk=$2
+            echo "=== $name ==="
+            install "$apk" || { echo "::error::$name: not installed"; return 1; }
+            "$adb" logcat -c || true
             "$adb" shell am start -W -n "$PACKAGE_NAME/.MainActivity" || true
-            sleep 30
-            "$adb" logcat -d > "$RUNNER_TEMP/logcat-release.txt"
+            sleep 40
+            "$adb" logcat -d > "$RUNNER_TEMP/logcat-$name.txt" || true
+            grep -E "AndroidRuntime|FATAL|Fatal signal|Abort message|panicked|RustStdoutStderr|Tauri|wry|libaidevbridge|$PACKAGE_NAME" \
+              "$RUNNER_TEMP/logcat-$name.txt" | grep -v "surfaceflinger" | head -150 || true
             if "$adb" shell pidof "$PACKAGE_NAME" > /dev/null; then
-              echo "Last release: running 30 s after its start."
+              echo "RESULT $name: running 40 s after its start"
             else
-              echo "::warning::Last release: not running 30 s after its start"
-              grep -E "AndroidRuntime|FATAL|Fatal signal|Abort message|panicked|RustStdoutStderr" \
-                "$RUNNER_TEMP/logcat-release.txt" | head -80 || true
+              echo "RESULT $name: NOT running 40 s after its start"
             fi
-            "$adb" uninstall "$PACKAGE_NAME" || true
-          else
-            echo "::warning::Last release: not installed"
-          fi
-          if ! install "$RUNNER_TEMP/app.apk"; then
-            "$adb" logcat -d > "$RUNNER_TEMP/logcat.txt" || true
-            echo "::error::The new APK could not be installed"
-            exit 1
-          fi
-          "$adb" logcat -c
-          "$adb" shell am start -W -n "$PACKAGE_NAME/.MainActivity"
-          sleep 45
-          "$adb" logcat -d > "$RUNNER_TEMP/logcat.txt"
-          "$adb" shell screencap -p /sdcard/screen.png && "$adb" pull /sdcard/screen.png "$RUNNER_TEMP/screen.png" || true
-          echo "--- crash and app lines ---"
-          grep -E "AndroidRuntime|FATAL|Fatal signal|Abort message|panicked|RustStdoutStderr|Tauri|tauri|wry|$PACKAGE_NAME|DEBUG +:|libaidevbridge" \
-            "$RUNNER_TEMP/logcat.txt" | head -300 || true
-          if ! "$adb" shell pidof "$PACKAGE_NAME" > /dev/null; then
-            echo "::error::The app is not running 45 s after its start"
-            exit 1
-          fi
-          echo "The app is running."
+            "$adb" shell am force-stop "$PACKAGE_NAME" || true
+          }
+          sleep 30
+          ready || { echo "::error::The package service did not come up"; exit 1; }
+          "$adb" shell wm dismiss-keyguard || true
+          check with-plugin "$RUNNER_TEMP/app.apk" || true
+          check without-plugin "$RUNNER_TEMP/app-without-plugin.apk" || true
       - if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: android-emulator-log
           path: |
-            ${{ runner.temp }}/logcat.txt
-            ${{ runner.temp }}/logcat-release.txt
+            ${{ runner.temp }}/logcat-*.txt
             ${{ runner.temp }}/emulator.txt
-            ${{ runner.temp }}/screen.png
           if-no-files-found: ignore
