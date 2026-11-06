@@ -86,11 +86,35 @@ jobs:
           done
           [ "$("$adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] || { echo "::error::no boot in 20 minutes"; tail -40 "$RUNNER_TEMP/emulator.txt"; exit 1; }
           "$adb" shell getprop ro.build.version.sdk
+          # Right after the boot the package service may still restart;
+          # installs then fail with "Can't find service: package".
+          ready() {
+            for _ in $(seq 1 60); do
+              timeout 60 "$adb" wait-for-device || true
+              "$adb" shell pm path android 2>/dev/null | grep -q package: && return 0
+              sleep 5
+            done
+            return 1
+          }
+          install() {
+            for attempt in 1 2 3 4 5; do
+              ready && "$adb" install "$1" && return 0
+              echo "install attempt $attempt failed"
+              sleep 15
+            done
+            return 1
+          }
+          sleep 30
+          if ! ready; then
+            "$adb" logcat -d > "$RUNNER_TEMP/logcat.txt" || true
+            echo "::error::The package service did not come up"
+            exit 1
+          fi
           "$adb" shell wm dismiss-keyguard || true
           # For comparison: the last release (target SDK 36) in the same
           # emulator. Its result fails nothing.
           if gh release download --repo "$GITHUB_REPOSITORY" --pattern '*-android.apk' --dir "$RUNNER_TEMP/release" &&
-            "$adb" install "$RUNNER_TEMP"/release/*.apk; then
+            install "$(ls "$RUNNER_TEMP"/release/*.apk)"; then
             "$adb" logcat -c
             "$adb" shell am start -W -n "$PACKAGE_NAME/.MainActivity" || true
             sleep 30
@@ -106,7 +130,11 @@ jobs:
           else
             echo "::warning::Last release: not installed"
           fi
-          "$adb" install "$RUNNER_TEMP/app.apk"
+          if ! install "$RUNNER_TEMP/app.apk"; then
+            "$adb" logcat -d > "$RUNNER_TEMP/logcat.txt" || true
+            echo "::error::The new APK could not be installed"
+            exit 1
+          fi
           "$adb" logcat -c
           "$adb" shell am start -W -n "$PACKAGE_NAME/.MainActivity"
           sleep 45
