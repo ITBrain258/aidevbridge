@@ -50,13 +50,38 @@ async fn connect_to_fixture_gated(
     prompt_timeout: Duration,
     local_network: crate::local_network::Gate,
 ) -> Result<String, ConnectError> {
+    connect_name_gated(
+        state,
+        attempt,
+        "127.0.0.1",
+        port,
+        known_hosts_text,
+        sink,
+        prompt_timeout,
+        local_network,
+    )
+    .await
+}
+
+/// Wie `connect_to_fixture_gated`, mit einem anderen Hostnamen.
+#[allow(clippy::too_many_arguments)]
+async fn connect_name_gated(
+    state: &Arc<AppState>,
+    attempt: &mut ConnectAttempt,
+    hostname: &str,
+    port: u16,
+    known_hosts_text: String,
+    sink: Arc<dyn HostKeyRequestSink>,
+    prompt_timeout: Duration,
+    local_network: crate::local_network::Gate,
+) -> Result<String, ConnectError> {
     let mut tries = 1;
     loop {
         let result = connect_host_core(
             state,
             attempt,
             HostSpecDto {
-                hostname: "127.0.0.1".into(),
+                hostname: hostname.into(),
                 port,
                 user: "fixture-user".into(),
                 key_path: None,
@@ -634,9 +659,40 @@ async fn a_denied_local_network_keeps_errors_after_the_host_key_arrived() {
 
 /// Kommt die Verbindung gar nicht zustande, nennt die Meldung bei
 /// abgelehnter Berechtigung den wahrscheinlichen Grund und den Weg in die
-/// Einstellungen.
+/// Einstellungen. Ein Name, der nicht aufloest, steht fuer einen Host, den
+/// die App nie erreicht: Unter Android 17 trifft das etwa Namen unter
+/// `.local`, deren mDNS-Anfrage die Sperre schluckt.
 #[tokio::test]
 async fn a_denied_local_network_explains_a_host_that_was_not_reached() {
+    let state = Arc::new(AppState::default());
+    let id = begin_connect_impl(&state).unwrap();
+    let mut attempt = ConnectAttempt::take(&state, id).unwrap();
+    // Haengt die Namensaufloesung, endet der Versuch nach der Frist des
+    // Netzes (15 s) und wird ebenso erklaert.
+    let error = timeout(
+        Duration::from_secs(30),
+        connect_name_gated(
+            &state,
+            &mut attempt,
+            "aidevbridge-unreachable.invalid",
+            22,
+            String::new(),
+            Arc::new(RejectPrompt),
+            Duration::from_secs(1),
+            crate::local_network::Gate::Denied,
+        ),
+    )
+    .await
+    .unwrap()
+    .unwrap_err();
+    assert_eq!(error.code, crate::local_network::DENIED_CODE);
+    assert_eq!(error.message, crate::local_network::DENIED_MESSAGE);
+}
+
+/// Weist der Host den TCP-Aufbau ab, hat er geantwortet: Der Weg war offen,
+/// die Meldung bleibt die des Netzes.
+#[tokio::test]
+async fn a_denied_local_network_keeps_a_refused_connection() {
     let port = {
         let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))
             .await
@@ -661,8 +717,44 @@ async fn a_denied_local_network_explains_a_host_that_was_not_reached() {
     .await
     .unwrap()
     .unwrap_err();
-    assert_eq!(error.code, crate::local_network::DENIED_CODE);
-    assert_eq!(error.message, crate::local_network::DENIED_MESSAGE);
+    assert_eq!(error.code, "host_unreachable");
+    assert_ne!(error.message, crate::local_network::DENIED_MESSAGE);
+}
+
+/// Stand die TCP-Verbindung und brach der Host sie vor dem Hostschluessel
+/// ab, war der Weg ebenfalls offen, etwa ueber ein VPN.
+#[tokio::test]
+async fn a_denied_local_network_keeps_a_connection_the_host_closed() {
+    let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))
+        .await
+        .unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let server = tokio::spawn(async move {
+        while let Ok((stream, _)) = listener.accept().await {
+            drop(stream);
+        }
+    });
+    let state = Arc::new(AppState::default());
+    let id = begin_connect_impl(&state).unwrap();
+    let mut attempt = ConnectAttempt::take(&state, id).unwrap();
+    let error = timeout(
+        TEST_END,
+        connect_to_fixture_gated(
+            &state,
+            &mut attempt,
+            port,
+            String::new(),
+            Arc::new(RejectPrompt),
+            Duration::from_secs(1),
+            crate::local_network::Gate::Denied,
+        ),
+    )
+    .await
+    .unwrap()
+    .unwrap_err();
+    server.abort();
+    assert_ne!(error.code, crate::local_network::DENIED_CODE);
+    assert_ne!(error.message, crate::local_network::DENIED_MESSAGE);
 }
 
 /// Bestaetigt jede Rueckfrage sofort, wie ein Nutzer, der dem Schluessel

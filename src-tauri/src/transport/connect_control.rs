@@ -62,6 +62,7 @@ struct State {
     cancelled: bool,
     network: Option<NetworkClock>,
     tofu_waiting: bool,
+    tcp_connected: bool,
 }
 
 struct Inner {
@@ -128,6 +129,16 @@ impl ConnectControl {
 
     pub fn is_cancelled(&self) -> bool {
         self.0.state.lock().unwrap().cancelled
+    }
+
+    /// The TCP connection to the host is up. Whatever fails after this did not
+    /// fail on a block of the way there (Android 17, `local_network`).
+    pub(crate) fn mark_tcp_connected(&self) {
+        self.0.state.lock().unwrap().tcp_connected = true;
+    }
+
+    pub fn tcp_connected(&self) -> bool {
+        self.0.state.lock().unwrap().tcp_connected
     }
 
     /// Waits for explicit cancellation, not for a timeout. Budgeted operations

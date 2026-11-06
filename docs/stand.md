@@ -136,26 +136,26 @@ Build-Provenienz an ihnen hängen.
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert ([Beleg zu NSIS 3.13](release/windows-installer-nsis-3.13-2026-10-30.md)); `packages.yml` baut sie bei jedem Tag, installiert und startet jedes Paket auf einem frischen Runner und hängt sie an das Release |
 | macOS-Lieferung | nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md), seit 0.2.3: Universal-DMG, ad-hoc signiert, [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 390 Komponenten; Testinstallation auf Apple silicon und Intel |
 | Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: ab Android 7.0, Ziel API 36, in `main` seit 06.11. API 37 mit der Berechtigung fürs lokale Netz (ausgeliefert ab dem nächsten Release); kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 485 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
-| Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32, #34); die offenen Stufen unter Punkt 12 |
+| Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32, #34) und am 06.11. das Ziel-SDK 37 (PR #37); die offenen Stufen unter Punkt 12 |
 
 ## Letzte Prüfung
 
-Am 05.11.2026 vor dem Release 0.2.7: Fünf voneinander unabhängige Prüfungen
-(Rust und SSH, Frontend und Bau, Lizenzbelege, CI und Android, Doku) haben
-alles seit 0.2.6 gelesen; ihre Befunde behebt PR #35. Auf `main` (`4726bc8`)
-waren CI, `android.yml` und `packages.yml` grün, die macOS-Jobs erst im
-zweiten und dritten Versuch, weil GitHub keinen macOS-arm64-Runner zuteilte.
-Im Release-PR liefen CI, `packages.yml` und `android.yml` grün, dazu die
-Release-Probeläufe beider Workflows (Windows-Pakete und DMG installiert und
-gestartet; APK und App Bundle für drei ABIs). Der Ubuntu-Job bestand 738
-Tests, darunter die Live-Tests mit ed25519- und RSA-Schlüssel und für einen
-nur mit ECDSA bekannten Host. Lokal: die Auth-Tests, 155 Skripttests,
-`npm run typecheck` und `npm run build` mit der Prüfung der
-Lizenzhinweise; `check` grün für windows-x64 (393/207), macos-universal
-(390/201) und android-universal (485/228). Ein lokaler Android-Bau aller drei
-ABIs brach aus Speichermangel ab; die NDK-Belege für armv7 und x86_64 stammen
-noch von der ersten Android-Auswahl vom 28.10. (seitdem unverändert: NDK,
-Toolchain, `build.rs`; nach 0.2.7 auch `Cargo.lock`).
+Am 06.11.2026 vor dem nächsten Release, zweimal mit je drei bis vier
+voneinander unabhängigen Prüfungen, die nur lasen: nach PR #37 und #38 (ihre
+Befunde behebt PR #39) und danach auf `main` (`ae843c0`) für Code, CI und
+Release-Ablauf, Lizenzen und Sicherheitsmeldungen sowie Doku und Datenschutz
+(ihre Befunde behebt PR #40). Auf `ae843c0` waren CI,
+`android.yml` und `packages.yml` grün, ebenso die Release-Probeläufe beider
+Workflows auf demselben Baum, noch mit Version 0.2.7. Der CI-Job `licenses`
+meldete keine Abweichung und `check` grün für windows-x64 (393/210),
+macos-universal (390/204) und android-universal (485/231). Keine offene
+Meldung von Dependabot, `npm audit` oder für das eingebettete russh; neu
+eingeordnet ist Jackson 2.15.3 in der Android-App
+([`SECURITY.md`](../SECURITY.md)). Im Baum und in den Commits seit 0.2.7
+stehen keine Angaben zu Rechner, Konten oder Geräten. Die NDK-Belege für
+armv7 und x86_64 stammen noch von der ersten Android-Auswahl vom 28.10.
+(seitdem unverändert: NDK, Toolchain, `build.rs`; nach 0.2.7 auch
+`Cargo.lock`).
 
 Die letzte VM-Abnahme (`acceptance_vm`, 11 von 11) lief am 27.10. auf dem Stand
 `7b961cf` gegen einen lokalen Linux-Testhost.
@@ -291,21 +291,32 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - Die Vorschläge aus `~/.ssh/config` schneiden einen Kommentar am
       Zeilenende nicht ab: `Host web # prod` ergibt `web`, `#` und `prod`.
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne Eile:
-    der geschlossene Test mit 12 Testern über 14 Tage, die Datenschutz-URL
+    der geschlossene Test mit 12 Testern über 14 Tage (startet bald; bis
+    dahin gibt es die App nur als APK auf GitHub), die Datenschutz-URL
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
     selbst hoch ([Anleitung](android-veroeffentlichung.md)). Am Gerät zu
     klären (Review vom 03.11.): ob Android den WebView im Hintergrund so
     anhält, dass die Acks länger als 30 s ausbleiben; dann schließt
     `STALL_TIMEOUT` die Terminals, und die Kacheln hängen sich nach der
-    Rückkehr neu an. Am Gerät mit Android 17 offen (Ziel-SDK 37): die
-    Prüfung der Berechtigung fürs lokale Netz nach Schritt B3 der
-    [Anleitung](android-veroeffentlichung.md) (bestätigt am 06.11. ist nur,
-    dass der CI-Bau startet und verbindet), und ob Android Loopback oder
-    Hosts hinter einem VPN sperrt.
+    Rückkehr neu an. Ziel-SDK 37: Die Prüfung der Berechtigung fürs lokale
+    Netz nach Schritt B3 der [Anleitung](android-veroeffentlichung.md) bestand
+    am 06.11. auf einem Telefon mit Android 17. Hosts hinter einem VPN sperrt
+    Android laut seiner Doku nicht; ob es Loopback sperrt, ist ungeprüft.
+    Offen aus dem Review vom 06.11. (Spec-Nachtrag zum Ziel-SDK 37):
+    - Die App erkennt das lokale Netz an Adressbereichen, Android an der
+      Schnittstelle. Ein Host im WLAN mit öffentlicher IPv6-Adresse bekommt
+      keinen Dialog; genauer ginge es mit den Präfixen aus `LinkProperties`,
+      das braucht einen Gerätetest.
+    - Die Namensauflösung, mit der `prepare` ein Ziel einordnet, läuft
+      außerhalb des begrenzten Pools der Verbindungen und wird nach 10 s nur
+      verlassen, nicht beendet. `prepare` bemerkt auch kein Abbrechen des
+      Versuchs; ein abgebrochener Versuch kann noch einen Dialog öffnen.
+    - Ein Dialog, der 120 s offen bleibt, gilt als unbeantwortet; ein
+      weiterer Host fragt dann, während er noch offen ist.
 12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
-    gebunden ist. Erledigt bis zum 05.11.: Tauri 2.12, Tauri-CLI 2.12.4 mit
+    gebunden ist. Erledigt bis zum 06.11.: Tauri 2.12, Tauri-CLI 2.12.4 mit
     NSIS 3.13, russh 0.65.1, `lucide-static` 1.69, `dirs` 7, `toml` 1,
     `sha2` 0.11, TypeScript 6, Vitest 5, jsdom 30 und Vite 8 (mit Ziel
     Safari 14 und Chrome 87 wie bisher;
@@ -323,6 +334,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **TypeScript 7:** Der native Compiler hat in 7.0 keine stabile JS-API;
       `src/source-hygiene.test.ts` und `release-license-inventory-frontend.mjs`
       brauchen `ts.createSourceFile`.
+    - **Jackson 2.15.3** in der Android-App, über Tauris Android-Bibliothek:
+      15 Meldungen, alle in 2.18.11 behoben und für die App nicht erreichbar
+      ([`SECURITY.md`](../SECURITY.md)). Ein Gradle-Constraint auf 2.18.11
+      braucht einen eigenen Pull Request; kein Workflow prüft bisher die
+      Android-Bibliotheken auf Meldungen (etwa `app/gradle.lockfile` gegen
+      OSV in `audit.yml`).
     - **Rust 1.99:** erst, wenn ein Crate sie verlangt. Die Stellen, die die
       Version nennen, gleicht `scripts/rust-toolchain.test.mjs` mit
       `rust-toolchain.toml` ab, die Belege der Standardbibliothek nicht.

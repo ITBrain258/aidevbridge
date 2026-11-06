@@ -302,21 +302,46 @@ don't fail the audit workflow:
 - `zbus_names`, `zvariant` and `zvariant_derive` (RUSTSEC-2026-0371,
   RUSTSEC-2026-0370 and RUSTSEC-2026-0372): unmaintained; D-Bus code of
   `tauri-plugin-opener`;
-- `unic-char-property`, `unic-char-range`, `unic-common`, `unic-ucd-ident`
-  and `unic-ucd-version` (RUSTSEC-2025-0081, RUSTSEC-2025-0075,
-  RUSTSEC-2025-0080, RUSTSEC-2025-0100 and RUSTSEC-2025-0098):
-  unmaintained; Tauri's `tauri-utils` uses them through `urlpattern`.
+- `async-executor` 1.14.0: yanked, because dropping an `Executor` could use
+  freed memory (fixed in 1.14.1); it comes in through `zbus`, the D-Bus code
+  of `tauri-plugin-opener`.
 
-Of these, the Windows and macOS builds contain only the `unic` crates,
-which are marked unmaintained without a known vulnerability. Tauri uses
-`glib`, and with it `proc-macro-error`, only for its Linux GTK backend, and
+None of these is in a package the project ships. Tauri uses `glib`, and with
+it `proc-macro-error`, only for its Linux GTK backend, and
 `tauri-plugin-opener` uses D-Bus only on Linux: `cargo tree -i glib` (and
-the same for `proc-macro-error`, `zbus_names` and `zvariant`) with
-`--target x86_64-pc-windows-msvc`, `--target aarch64-apple-darwin` or
-`--target x86_64-apple-darwin` finds nothing.
+the same for `proc-macro-error`, `zbus_names`, `zvariant` and
+`async-executor`) with `--target x86_64-pc-windows-msvc`,
+`--target aarch64-apple-darwin`, `--target x86_64-apple-darwin` or
+`--target aarch64-linux-android` finds nothing. The `unic` crates that
+Tauri used through `urlpattern` until 2.12 are no longer in `Cargo.lock`.
 
 To resolve: the warnings go away when Tauri and its plugins move to newer
-GTK, D-Bus and URL pattern crates.
+GTK and D-Bus crates.
+
+### Known advisories for Jackson in the Android app
+
+The Android app contains `jackson-core` and `jackson-databind` 2.15.3, with
+`jackson-annotations` and `jackson-datatype-json-org`. They come with
+Tauri's Android library (`tauri` 2.12.5), which pins that version; the
+desktop packages contain no Java code. GitHub's advisory database lists 15
+advisories for 2.15.3, seven of them rated high, published between February
+and October 2026 and fixed in 2.18.11: denial of service through very long
+numbers or tokens and through forward references, bypasses of the validators
+for polymorphic types, and name lookups while reading `InetAddress`,
+`InetSocketAddress` or `Path` values.
+
+The app doesn't use Jackson in a way these need. Tauri reads with it only the
+calls to the app's Android plugins and their configuration: JSON that Tauri's
+Rust side writes, read with `ObjectMapper.readValue` into fixed classes,
+without default typing or `@JsonTypeInfo` (`mobile/android` in the `tauri`
+crate, `Invoke.kt` and `PluginManager.kt`). Text from a host, such as a link
+you open, can reach it only as a string inside well-formed JSON.
+
+To resolve: the advisories go away when Tauri moves to a fixed Jackson
+version, or with a Gradle constraint on 2.18.11 in the app. That needs its own
+pull request: lockfile, `verification-metadata.xml`, the license check and a
+test on Android 7.0. Dependabot and the audit workflow don't check the
+Android libraries.
 
 ### Unsigned binaries and checking a download
 

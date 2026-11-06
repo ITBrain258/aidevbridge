@@ -128,7 +128,10 @@ Telefon:
      Einstellungen wieder erlauben: Die nächste Verbindung klappt ohne
      Dialog. Ein Host im Internet verbindet ohne Dialog. Mit mehreren
      lokalen Hosts und abgelehnter Berechtigung fragt die App beim Start nur
-     einmal. Unter Android 16 und älter erscheint kein Dialog.
+     einmal. Unter Android 16 und älter erscheint kein Dialog. Wer ein VPN ins
+     eigene Netz hat (etwa WireGuard): mit abgelehnter Berechtigung über das
+     VPN verbinden; die Verbindung klappt, und nach einer Unterbrechung
+     verbindet die App von selbst neu, ohne Meldung zur Berechtigung.
 3. **Bildschirmfotos:** Unter
    `fastlane/metadata/android/<Sprache>/images/phoneScreenshots/` liegen schon
    drei vorläufige (Terminal, Hostliste, neuer Schlüssel). Sie zeigen die
@@ -365,21 +368,28 @@ oder eine andere Spur, die du dort wählst.
 
 ## E Jede neue Version
 
-1. **Lizenzauswahlen neu binden.** Jede Auswahl (Windows, macOS, Android)
-   bindet die Quellen, Lockdateien und Workflows mit ihren Hashes; nach jeder
-   Änderung daran lehnt der Release-Lauf sie ab. Den Ablauf beschreibt
-   [Lizenzen pflegen](lizenzen-pflegen.md).
-2. Version erhöhen wie bisher: `npm run bump 0.3.0`, `CHANGELOG.md` pflegen.
+1. Version erhöhen wie bisher: `npm run bump 0.3.0`, `CHANGELOG.md` pflegen.
+2. **Lizenzauswahlen neu binden**, nach dem Erhöhen der Version: Jede Auswahl
+   (Windows, macOS, Android) bindet die Quellen, Lockdateien und Workflows mit
+   ihren Hashes; nach jeder Änderung daran lehnt der Release-Lauf sie ab, und
+   `licenses:derive` verlangt die neue Version in der Windows-Auswahl. Den
+   Ablauf beschreiben [Lizenzen pflegen](lizenzen-pflegen.md#eigene-quellen) und
+   `CONTRIBUTING.md`, Abschnitt „Releases“.
 3. Store-Text für diese Version in beiden Sprachen:
    `fastlane/metadata/android/<Sprache>/changelogs/<versionCode>.txt`, mit
    versionCode = Major × 1.000.000 + Minor × 1.000 + Patch (0.2.8 → 2008,
    0.3.0 → 3000; höchstens 500 Zeichen). Fehlt die Datei, nimmt `android.yml`
    ohne Warnung `default.txt`, und Play zeigt „Erste Android-Version“.
-4. **Probelauf ohne Tag:** auf dem Release-Branch **Actions → Android → Run workflow →
-   release ✓** und ebenso **Packages → release ✓**. Das baut alles wie ein
-   Release und prüft die Lizenztexte, signiert und veröffentlicht aber nichts.
-5. Release-Branch per Pull Request nach `main` führen, dann auf `main` den Tag
-   setzen. Tags `v*` darf nur ein Admin anlegen (D1):
+4. **Probelauf ohne Tag**, vor jedem Tag: auf dem Release-Branch **Actions →
+   Android → Run workflow → release ✓** und ebenso **Packages → release ✓**. Das
+   baut alles wie ein Release und prüft die Lizenztexte und die Produktversion
+   der Auswahlen, signiert und veröffentlicht aber nichts. Die Pflicht-Checks
+   des Pull Requests prüfen die Produktversion nicht.
+5. Release-Branch per Pull Request nach `main` führen. Bis zum Tag nichts
+   mehr mergen, was eine gebundene Datei ändert, etwa `android.yml` oder ein
+   Actions-Update von Dependabot. Dann prüfen, dass `package.json` auf dem
+   Merge-Commit die neue Version trägt, und auf `main` den Tag setzen. Tags
+   `v*` darf nur ein Admin anlegen (D1):
 
    ```powershell
    git tag v0.3.0
@@ -415,6 +425,6 @@ neue Patch-Version.
 | Play: „The caller does not have permission“ | Dienstkonto in der Play Console nicht eingeladen oder ohne Recht für die App (D2 Schritt 4); nach dem Einladen kann es bis zu einem Tag dauern. |
 | Job `sign`: „Secret … is missing“ | D1 ausführen. |
 | Job `sign` eines Laufs von Hand: „… is not allowed to deploy to android-release“ | Das Environment gilt nur für Tags; „Use workflow from“ auf den Tag stellen (E). |
-| Build-Job eines Tags: „release-licenses: Input changed or missing“ | Die Lizenzauswahl ist nicht neu gebunden (E1). Der Tag selbst lässt sich nicht reparieren: neu binden, neue Patch-Version. |
+| Build-Job eines Tags: „release-licenses: Input changed or missing“ | Die Lizenzauswahl ist nicht neu gebunden (E2). Der Tag selbst lässt sich nicht reparieren: neu binden, neue Patch-Version. |
 | App startet, bleibt aber schwarz | `adb logcat -s RustStdoutStderr Tauri chromium` zeigt die Ursache; bitte mitschicken. |
 | Die Play-Version lässt sich nicht über die GitHub-APK installieren | Gewollt: verschiedene Signaturen (Spec §3). Erst deinstallieren. |

@@ -23,7 +23,18 @@
 - **Android:** the system stops the connections when the app has been in the
   background for a while; on return, hosts with a key reconnect by themselves.
   There is no ssh-agent on Android. On a phone the app shows one terminal at a
-  time. A Google Play version is in a closed test.
+  time. A Google Play version will follow after a closed test.
+- **Android 17 and the local network:** the app asks for **Nearby devices** only
+  for hosts it recognizes as local: private IPv4 and IPv6 addresses, link-local
+  and multicast addresses, names ending in `.local` and names that resolve to
+  such an address. Tailscale addresses (`100.64.0.0/10`, `fd7a:115c:a1e0::/48`)
+  and loopback don't count. A host on your Wi-Fi with a public IPv6 address gets
+  no prompt; until you allow Nearby devices in Android's settings, connecting to
+  it times out. If you declined and a connection to a local host fails before the
+  host answered, the app names the permission as the likely reason and doesn't
+  reconnect by itself. Android doesn't block hosts reached over a VPN: once the
+  app has reached a host despite the declined permission, it doesn't ask for that
+  host again until it restarts. Whether Android blocks loopback is untested.
 - **Authentication:** a key file, the Windows OpenSSH agent (the `ssh-agent`
   service; on macOS the agent of `SSH_AUTH_SOCK`) or a password. No keyboard-interactive or two-factor prompts, no
   Pageant, no jump hosts or proxies. The import from `~/.ssh/config` reads
