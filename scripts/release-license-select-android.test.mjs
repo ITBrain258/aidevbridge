@@ -63,6 +63,13 @@ test('the committed selection covers the three ABIs and decides every Android-on
   for (const id of ['native:android-ndk-llvm-runtime', 'native:android-ndk-crt', 'native:android-system-libraries']) assert.ok(ids.has(id), id);
   const included = selection.components.filter(c => c.disposition === 'include');
   assert.ok(included.every(c => c.documents.length > 0));
+  // An Android-only crate with in-source notices delivers each notice file.
+  const files = new Map(selection.documents.map(d => [d.id, d.sources.filter(s => s.kind === 'file').map(s => s.path)]));
+  for (const [key, decision] of Object.entries(NEW_CRATES).filter(([, d]) => d.notices)) {
+    const component = selection.components.find(c => c.id === `cargo:${key}`);
+    const delivered = component.documents.flatMap(id => files.get(id) ?? []);
+    for (const notice of decision.notices) assert.ok(delivered.includes(notice), `${key}: ${notice}`);
+  }
   // By name, not version: the MPL-2.0 crates stay runtime on Android across updates.
   for (const name of ['cssparser', 'selectors', 'dtoa-short']) {
     const component = selection.components.find(c => c.id.startsWith('cargo:') && c.name === name);

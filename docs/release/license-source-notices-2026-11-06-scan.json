@@ -1,0 +1,443 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-06T18:00:00.000Z",
+  "scope": "A complete scan of the in-source copyright and attribution lines of every included cargo and npm component of the Windows, macOS and Android selections, compared with the texts each component delivers; which lines are delivered additionally. Not final application compliance or installer delivery.",
+  "basis": [
+    "docs/release/license-crypto-bigint-notices-2026-11-05.json",
+    "docs/release/license-source-notices-2026-11-06.json"
+  ],
+  "method": [
+    "Sources: the registry sources of the locked archives (vendor/russh for russh, node_modules for npm), 405 components; .rs, C, assembly, JS and CSS files outside tests, benches, examples and build.rs.",
+    "A hit is a comment line with \"Copyright\", \"(c) <year>\" or \"©\" that is not license boilerplate. Its holder (the line without years and markers) counts as covered when the component's delivered texts contain it or all its significant words.",
+    "67 components had 549 uncovered lines; each was read in its file and decided by the rules below."
+  ],
+  "rules": [
+    "Delivered: the file is compiled into a shipped binary, the component's license asks to keep the notice in copies or binary form (MIT, BSD, W3C), and the line names a holder of adapted third-party code, or the crate's only copyright notice, that no delivered text names.",
+    "Not delivered: the holder is already named in the delivered texts, or the line names the crate's own authors while the delivered texts carry the crate's copyright notice.",
+    "Not delivered: the selected license is Apache-2.0, which keeps in-source copyright notices in the Source form only, unless the file embeds code under another license that asks for its notice (tao's W3C part).",
+    "Not delivered: the file is not compiled for Windows, macOS or Android, the component is a build tool or proc macro on every platform, or the hit is a false positive."
+  ],
+  "shipped": [
+    {
+      "package": "tao@0.37.2",
+      "selected_license": "Apache-2.0",
+      "delivered_texts": [
+        "dpi-0.1.2-LICENSE-APACHE.txt",
+        "tao-0.37.2-LICENSE.spdx.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/tao/tao-0.37.2.crate",
+        "sha256": "d5777b06fe6435126ae8d816eba269e050e1e10d302cf5461e9c49eccabc3548",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/keyboard.rs",
+          "lines": "7-74",
+          "file_bytes": 57927,
+          "file_sha256": "15d617134e6bf5baf499c7e68bb29d5c268649ade44976bc3a22cb50580fc584"
+        }
+      ],
+      "holder": "W3C (MIT, ERCIM, Keio, Beihang); World Wide Web Consortium",
+      "condition": "W3C Software and Document License: \"provided that you include the following on ALL copies of the work or portions thereof, including modifications: The full text of this NOTICE in a location viewable to users of the redistributed or derivative work.\"",
+      "compiled": "src/keyboard.rs defines the Key and KeyCode enums that tao uses on every platform.",
+      "output": {
+        "path": "docs/release/licenses/tao-0.37.2-SOURCE-NOTICES.txt",
+        "bytes": 4247,
+        "sha256": "31608a0d513fb3bd83f02bee58417027cce00c9757c902b77352b35352c59fac",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "curve25519-dalek@5.0.0",
+      "selected_license": "BSD-3-Clause",
+      "delivered_texts": [
+        "curve25519-dalek-5.0.0-LICENSE.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/curve25519-dalek/curve25519-dalek-5.0.0.crate",
+        "sha256": "b5eed333089e2e1c1ac8c6c0398e5e2497b4c9926ca6d0365ed1e099afa5bc23",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/backend/serial/scalar_mul/pippenger.rs",
+          "lines": "1-8",
+          "file_bytes": 7692,
+          "file_sha256": "6b376ccec552d2dff47aaacbbf81b26430694834c3939c4351dc1d952284bed8"
+        },
+        {
+          "path": "src/backend/vector/scalar_mul/pippenger.rs",
+          "lines": "1-8",
+          "file_bytes": 6704,
+          "file_sha256": "0d97921c25bd247e9eebc4964dc5830661e641142f3655666f7a536f502acc8f"
+        }
+      ],
+      "holder": "Oleg Andreev",
+      "condition": "The files point to the crate LICENSE (BSD-3-Clause), whose clause 2 asks binary redistributions to reproduce the copyright notice.",
+      "compiled": "Both pippenger modules are compiled with the alloc feature, which the release enables; the vector one on x86_64.",
+      "output": {
+        "path": "docs/release/licenses/curve25519-dalek-5.0.0-SOURCE-NOTICES.txt",
+        "bytes": 1111,
+        "sha256": "7522b50546db3f98775fb8c0a279b3842957928c40b82b11d68eb8f9eb5e223f",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "tauri@2.12.5",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "tauri-plugin-2.7.2-LICENSE-MIT.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/tauri/tauri-2.12.5.crate",
+        "sha256": "5fb0244332cfb9cee7e2a568bf5da29a36ed8fdbd717f6f47a66b6b7b358c072",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/resources/mod.rs",
+          "lines": "1-6",
+          "file_bytes": 8322,
+          "file_sha256": "c70407d96ebe8851ed7d269cdd7ee167c148d542dc08026086ddb8473f46a4ce"
+        }
+      ],
+      "holder": "the Deno authors (2018-2023)",
+      "condition": "MIT: the copyright notice of the adapted Deno code shall be included in all copies or substantial portions. The delivered urlpattern text names the Deno authors for a different work (2021).",
+      "compiled": "src/resources/mod.rs is the resource table of every Tauri app.",
+      "output": {
+        "path": "docs/release/licenses/tauri-2.12.5-SOURCE-NOTICES.txt",
+        "bytes": 958,
+        "sha256": "3858ae4e9156109412cdb0c0a4964e35b2cc89d4f0570a8d705cf6084f085bfa",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "tauri-plugin-fs@2.7.1",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "tauri-plugin-dialog-2.8.4-LICENSE_MIT.txt",
+        "tauri-plugin-dialog-2.8.4-LICENSE.spdx.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/tauri-plugin-fs/tauri-plugin-fs-2.7.1.crate",
+        "sha256": "5d58eb1d4984e535f47a642ffec09a2da6f5c18a12b5902d12126cb7626d628b",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/commands.rs",
+          "lines": "1-4",
+          "file_bytes": 68297,
+          "file_sha256": "c634789dc7f01f6dc7ba3a75b16b055d9d23fc2f5bb9819dd4b8a630783b1beb"
+        }
+      ],
+      "holder": "the Deno authors (2018-2023)",
+      "condition": "MIT notice of the adapted Deno code, as for tauri.",
+      "compiled": "src/commands.rs holds the plugin commands.",
+      "output": {
+        "path": "docs/release/licenses/tauri-plugin-fs-2.7.1-SOURCE-NOTICES.txt",
+        "bytes": 860,
+        "sha256": "5dfeb9d957574cfc4ebdf0df07f5bdfc2636021898875845983f30c8fb5e4392",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "polyval@0.7.3",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "aes-gcm-0.11.1-LICENSE-MIT.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/polyval/polyval-0.7.3.crate",
+        "sha256": "f0fa31d631f2b2cb2a544d0aa321ce847a94764d701ca2becc411138b93d49cd",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/backend/intrinsics/x86.rs",
+          "lines": "1-3",
+          "file_bytes": 7018,
+          "file_sha256": "6b7c210c1744bc01d14b0177f1c89cd97221df2929ffbe96835417b3d62e2222"
+        },
+        {
+          "path": "src/backend/intrinsics/armv8.rs",
+          "lines": "1-3",
+          "file_bytes": 7093,
+          "file_sha256": "ffc583dcd4f1ed2bdd6017be32a2744b4a2315f73ee246b520d6f1f5207c7d9c"
+        },
+        {
+          "path": "src/field_element/mul32.rs",
+          "lines": "1-6",
+          "file_bytes": 6194,
+          "file_sha256": "9dc3b39b87bcd986920e8a6b653015c3deaa58b1efff05216de4cede65d74755"
+        },
+        {
+          "path": "src/field_element/mul64.rs",
+          "lines": "1-6",
+          "file_bytes": 3297,
+          "file_sha256": "681010575041bb6f7ad1b4f0281e4e6317b16ee4de7d0103d87163c41f914cab"
+        }
+      ],
+      "holder": "HPCrypt Contributors; Thomas Pornin (BearSSL)",
+      "condition": "Code adapted from MIT-licensed HPCrypt and BearSSL; MIT asks to include their copyright notices.",
+      "compiled": "The intrinsics backend is compiled on x86_64 and aarch64, the field element of the width of the target (mul32 or mul64) everywhere.",
+      "output": {
+        "path": "docs/release/licenses/polyval-0.7.3-SOURCE-NOTICES.txt",
+        "bytes": 1683,
+        "sha256": "7b613a47730617eada9b8d405aca34708fd2e818e2fdd31dae7c173caf55319c",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "der@0.8.3",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "const-oid-0.10.2-LICENSE-MIT.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/der/der-0.8.3.crate",
+        "sha256": "6a996a108feb8b427a6e12fcf6af4aa83409b79d72c15337d7741368131ee004",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/datetime.rs",
+          "lines": "4-6",
+          "file_bytes": 15682,
+          "file_sha256": "51d74f979a2be2440c9f7cf1ce28c74154e91f02cf5f7552bc4b077144d3f3b7"
+        }
+      ],
+      "holder": "The humantime Developers",
+      "condition": "Code adapted from humantime (MIT OR Apache-2.0); MIT asks to include its copyright notice.",
+      "compiled": "src/datetime.rs backs the ASN.1 time types.",
+      "output": {
+        "path": "docs/release/licenses/der-0.8.3-SOURCE-NOTICES.txt",
+        "bytes": 736,
+        "sha256": "d41a311cf68b4ece1e1da9fd8e53fdbe9d80496b1dabf7c0dbd205c5dd7c34c1",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "toml@1.1.8+spec-1.1.0",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "serde_spanned-0.6.9-LICENSE-MIT.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/toml/toml-1.1.8+spec-1.1.0.crate",
+        "sha256": "20489e00e4d8741d6be680764cc12e270655e375a20d1011e844a9c3379e678d",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/map.rs",
+          "lines": "1-7",
+          "file_bytes": 18947,
+          "file_sha256": "e900f48839a0ec7e0a69620c8f8fb1d312e3f4d7f27376648964e05cb03393d0"
+        }
+      ],
+      "holder": "Serde Developers",
+      "condition": "Code adapted from serde_json's map (MIT OR Apache-2.0); MIT asks to include its copyright notice.",
+      "compiled": "src/map.rs is the table type of toml.",
+      "output": {
+        "path": "docs/release/licenses/toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt",
+        "bytes": 961,
+        "sha256": "af84fa24eab1a5f054e0e3e99ded634579be8373c926107932a1e38d695380bc",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "cookie@0.18.2",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "cookie-0.18.2-LICENSE-MIT.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/cookie/cookie-0.18.2.crate",
+        "sha256": "1a373e3602691c3cdea496d2f0ee5935151e6168fe87739483c463db1b2f2f87",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/secure/macros.rs",
+          "lines": "42-43",
+          "file_bytes": 1680,
+          "file_sha256": "61fad1d1e4913035b2a2de7e103ab9c3b4eb93cf7ab6d127ea2adbc278325303"
+        }
+      ],
+      "holder": "Nikolai Vazquez (static_assertions)",
+      "condition": "A macro copied from static_assertions (MIT OR Apache-2.0). It only expands to compile-time assertions; kept as a conservative superset.",
+      "compiled": "src/secure/macros.rs is used by the secure cookie code; the macro leaves no run-time code.",
+      "output": {
+        "path": "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt",
+        "bytes": 773,
+        "sha256": "eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "dtoa@1.0.11",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "unic-0.9.0-LICENSE-MIT.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/dtoa/dtoa-1.0.11.crate",
+        "sha256": "4c3cf4824e2d5f025c7b531afcb2325364084a16806f6d47fbc1f5fbd9960590",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/diyfp.rs",
+          "lines": "9-27",
+          "file_bytes": 9400,
+          "file_sha256": "a1b37e7b41b06a50df9772c07f75fd420c7f98348f4ee6525a64dcd66735c376"
+        },
+        {
+          "path": "src/dtoa.rs",
+          "lines": "9-27",
+          "file_bytes": 17676,
+          "file_sha256": "e5df6ba43308c529334b3292362941e93483e867e30cc579aade45461127e1ee"
+        }
+      ],
+      "holder": "THL A29 Limited, a Tencent company, and Milo Yip (RapidJSON)",
+      "condition": "The Rust code translates RapidJSON's MIT-licensed C++ code, which the files keep in comments together with its license note.",
+      "compiled": "Compiled into the Android library (runtime role there); build-only on Windows and macOS.",
+      "output": {
+        "path": "docs/release/licenses/dtoa-1.0.11-SOURCE-NOTICES.txt",
+        "bytes": 2219,
+        "sha256": "09db897bd6c6bbcc016340097c685e6b02662f59119ca78065fca5041de0b688",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "is-wsl@0.4.0",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "is-docker-0.2.0-LICENSE.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/is-wsl/is-wsl-0.4.0.crate",
+        "sha256": "173609498df190136aa7dea1a91db051746d339e18476eed5ca40521f02d7aa5",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/lib.rs",
+          "lines": "36-59",
+          "file_bytes": 2358,
+          "file_sha256": "359eae027238e6a2d5aa3f9928edf891b3daf3a3130c8781c1c91ce7bdf553ab"
+        }
+      ],
+      "holder": "Siyu Wang (sys-info)",
+      "condition": "A function copied from sys-info with its complete MIT license text, which asks to include the notice in all copies or substantial portions.",
+      "compiled": "get_os_release has no cfg and is compiled into the Android library.",
+      "output": {
+        "path": "docs/release/licenses/is-wsl-0.4.0-SOURCE-NOTICES.txt",
+        "bytes": 1903,
+        "sha256": "75f8bb2a599b81ecccd9dac7b88f655fdbeb953d43fab426b5621b985b154a15",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    },
+    {
+      "package": "cesu8@1.1.0",
+      "selected_license": "MIT",
+      "delivered_texts": [
+        "cesu8-1.1.0-COPYRIGHT-RUST.txt",
+        "spdx-license-list-3.29.0-MIT.txt"
+      ],
+      "archive": {
+        "url": "https://static.crates.io/crates/cesu8/cesu8-1.1.0.crate",
+        "sha256": "6d43a04d8753f35258c91f8ec639f792891f748a1edbd759cf1dcea3382ad83c",
+        "equals_cargo_lock_checksum": true
+      },
+      "notices": [
+        {
+          "path": "src/lib.rs",
+          "lines": "1-2",
+          "file_bytes": 16846,
+          "file_sha256": "402f647c80ccaa86f43a5571cc081aa66777d2a538ce9d9dc52a7e588ef137c9"
+        }
+      ],
+      "holder": "The Rust Project Developers and Eric Kidd",
+      "condition": "The crate ships no copyright line besides this header (its delivered texts are COPYRIGHT-RUST.txt and the SPDX MIT template), so the header is the only copyright notice of the crate.",
+      "compiled": "src/lib.rs is the whole crate; Android only.",
+      "output": {
+        "path": "docs/release/licenses/cesu8-1.1.0-SOURCE-NOTICES.txt",
+        "bytes": 783,
+        "sha256": "f0a52ae98c0dd8f2cd6590706a62bfcfd2e7e103203d02c9be57f0babde25d00",
+        "check": "Each quoted block equals the named line range of the registry source of the locked archive byte for byte."
+      }
+    }
+  ],
+  "not_shipped": {
+    "false positive of the scan (a byte table entry for \"©\", documentation text or test strings)": [
+      "aho-corasick@1.1.5",
+      "memchr@2.8.3",
+      "regex-syntax@0.8.11",
+      "tauri-utils@2.10.2 (config.rs documentation, html.rs test strings)",
+      "utf_types@1.0.0 (public-domain dedication of test code)"
+    ],
+    "holder already named in the delivered texts, or the crate's own authors under another label while the delivered texts carry the crate's copyright notice": [
+      "bit-set@0.8.0",
+      "bit-vec@0.8.0",
+      "bitflags@2.13.2",
+      "glob@0.3.4",
+      "log@0.4.34",
+      "num-bigint@0.5.1",
+      "num-integer@0.1.47",
+      "num-traits@0.2.19",
+      "icu_provider@2.4.0",
+      "servo_arc@0.4.3",
+      "unicode-segmentation@1.13.3",
+      "flate2@1.1.10",
+      "socket2@0.6.5",
+      "string_cache@0.9.0",
+      "core-foundation@0.10.1",
+      "core-foundation-sys@0.8.7",
+      "core-graphics@0.25.0",
+      "core-graphics-types@0.2.0",
+      "lock_api@0.4.14",
+      "parking_lot@0.12.5",
+      "parking_lot_core@0.9.12",
+      "brotli-decompressor@6.2.0 (Google, brotli NOTICE)",
+      "cpubits@0.1.1 (Alex Crichton, the cfg-if text)",
+      "p384@0.14.0 and p521@0.14.0 (the fiat-crypto authors, ring's fiat texts)",
+      "uuid@1.29.0 (The Uuid Project Developers; its LICENSE-MIT names the Rust Project Developers and the uuid maintainers)",
+      "curve25519-dalek@5.0.0 src/scalar.rs (Brian Smith, ring texts)",
+      "tauri-plugin-dialog@2.8.4, tauri-plugin-fs@2.7.1, tauri-plugin-opener@2.7.2, tauri-plugin-window-state@2.5.0, tauri-runtime@2.12.2, tauri-runtime-wry@2.12.3, tauri-utils@2.10.2, tauri@2.12.5 (Tauri Programme within The Commons Conservancy)"
+    ],
+    "selected license Apache-2.0: section 4(c) keeps copyright notices in the Source form; there is no NOTICE file": [
+      "russh@0.65.1 and russh-cryptovec@0.62.0 (Pierre-Étienne Meunier)",
+      "sync_wrapper@1.0.2 (Actyx AG)",
+      "siphasher@1.0.4",
+      "tao@0.37.2 (The winit contributors; its W3C part is delivered)"
+    ],
+    "file not compiled for Windows, macOS or Android": [
+      "muda@0.20.0 src/platform_impl/gtk*/icon.rs (Linux only)",
+      "dpi@0.1.2 src/libm.rs (only without the std feature, which the release enables)",
+      "serde_json@1.0.154 src/lexical (only with float_roundtrip, which is off)",
+      "tower@0.5.3 src/load/peak_ewma.rs (only with the load feature, which is off)",
+      "uuid@1.29.0 src/rng.rs getrandom copy (wasm32 only)"
+    ],
+    "build tool or proc macro on every platform, not in the application binaries": [
+      "camino@1.2.6",
+      "find-msvc-tools@0.1.15",
+      "ident_case@1.0.1",
+      "rustc_version@0.4.1",
+      "schemars_derive@0.8.22",
+      "string_cache_codegen@0.6.1",
+      "tauri-build@2.7.4",
+      "tauri-codegen@2.7.4",
+      "tauri-macros@2.7.4",
+      "tauri-plugin@2.7.2",
+      "tauri-winres@0.3.7"
+    ],
+    "npm build tool, not bundled into the frontend": [
+      "vite@8.3.6 dist/node chunks"
+    ]
+  },
+  "outside_the_scan": "Rust standard library (rust-1.97.1 texts), Android NDK (complete NOTICE files) and Maven libraries of the APK (binary archives; their own texts are selected from the archives).",
+  "decision": "Each shipped package keeps its selected license and texts and additionally delivers the quoted blocks verbatim in <package>-<version>-SOURCE-NOTICES.txt, in every selection that includes it (pattern: crypto-bigint, futures-channel, crypto-primes). With this scan the open item of docs/stand.md point 6 is closed; a version change of one of these packages is caught by release-license-update-cargo.mjs as a text from outside the crate."
+}

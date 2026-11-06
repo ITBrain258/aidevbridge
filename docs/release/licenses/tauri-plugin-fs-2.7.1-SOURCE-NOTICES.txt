@@ -1,0 +1,18 @@
+tauri-plugin-fs 2.7.1 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive tauri-plugin-fs-2.7.1.crate (SHA-256
+5d58eb1d4984e535f47a642ffec09a2da6f5c18a12b5902d12126cb7626d628b).
+The release license choice is MIT; the full text is supplied in
+tauri-plugin-dialog-2.8.4-LICENSE_MIT.txt, tauri-plugin-dialog-2.8.4-LICENSE.spdx.txt.
+
+src/commands.rs:1-4
+// Copyright 2019-2023 Tauri Programme within The Commons Conservancy
+// Copyright 2018-2023 the Deno authors.
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.

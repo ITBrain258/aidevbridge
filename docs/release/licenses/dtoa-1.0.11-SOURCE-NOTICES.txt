@@ -1,0 +1,54 @@
+dtoa 1.0.11 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive dtoa-1.0.11.crate (SHA-256
+4c3cf4824e2d5f025c7b531afcb2325364084a16806f6d47fbc1f5fbd9960590).
+The release license choice is MIT; the full text is supplied in
+unic-0.9.0-LICENSE-MIT.txt.
+
+src/diyfp.rs:9-27
+// The C++ implementation preserved here in comments is licensed as follows:
+//
+// Tencent is pleased to support the open source community by making RapidJSON
+// available.
+//
+// Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All
+// rights reserved.
+//
+// Licensed under the MIT License (the "License"); you may not use this file
+// except in compliance with the License. You may obtain a copy of the License
+// at
+//
+// http://opensource.org/licenses/MIT
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+src/dtoa.rs:9-27
+// The C++ implementation preserved here in comments is licensed as follows:
+//
+// Tencent is pleased to support the open source community by making RapidJSON
+// available.
+//
+// Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All
+// rights reserved.
+//
+// Licensed under the MIT License (the "License"); you may not use this file
+// except in compliance with the License. You may obtain a copy of the License
+// at
+//
+// http://opensource.org/licenses/MIT
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.

@@ -1,0 +1,20 @@
+tauri 2.12.5 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive tauri-2.12.5.crate (SHA-256
+5fb0244332cfb9cee7e2a568bf5da29a36ed8fdbd717f6f47a66b6b7b358c072).
+The release license choice is MIT; the full text is supplied in
+tauri-plugin-2.7.2-LICENSE-MIT.txt.
+
+src/resources/mod.rs:1-6
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// Copyright 2019-2024 Tauri Programme within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
+// a modified version of https://github.com/denoland/deno/blob/0ae83847f498a2886ae32172e50fd5bdbab2f524/core/resources.rs#L220
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.

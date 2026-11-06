@@ -1,0 +1,16 @@
+cookie 0.18.2 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive cookie-0.18.2.crate (SHA-256
+1a373e3602691c3cdea496d2f0ee5935151e6168fe87739483c463db1b2f2f87).
+The release license choice is MIT; the full text is supplied in
+cookie-0.18.2-LICENSE-MIT.txt.
+
+src/secure/macros.rs:42-43
+// This is courtesty of `static_assertions`. That library is Copyright (c) 2017
+// Nikolai Vazquez. See https://github.com/nvzqz/static-assertions-rs for more.
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.

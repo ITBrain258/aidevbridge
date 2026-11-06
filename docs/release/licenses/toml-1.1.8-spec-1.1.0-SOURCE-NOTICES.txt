@@ -1,0 +1,21 @@
+toml 1.1.8+spec-1.1.0 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive toml-1.1.8+spec-1.1.0.crate (SHA-256
+20489e00e4d8741d6be680764cc12e270655e375a20d1011e844a9c3379e678d).
+The release license choice is MIT; the full text is supplied in
+serde_spanned-0.6.9-LICENSE-MIT.txt.
+
+src/map.rs:1-7
+// Copyright 2017 Serde Developers
+//
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.
