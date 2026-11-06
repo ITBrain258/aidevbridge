@@ -45,6 +45,13 @@ Von Hand bleiben, das Werkzeug meldet sie unter `manual`:
 - ein gebundener Eingang, der fehlt, und eine Bauvariable unter
   `inputs.absent`, die aufgetaucht ist.
 
+`npm run bump` ändert beim Release auch die Versionszeile des eigenen Pakets
+in `Cargo.lock` und `package-lock.json`. Beide Dateien binden die Auswahlen
+als Fremdcode, `rebind-own` fasst sie nicht an. Zeigt der Diff nur diese
+Zeile, bindet sie
+`node scripts/release-license-rebind.mjs --write --third-party Cargo.lock package-lock.json`
+in allen drei Auswahlen neu; danach `npm run licenses:derive`.
+
 ## Rust-Abhängigkeiten
 
 1. `cargo update` (oder gezielt `-p`), Tests und Clippy.

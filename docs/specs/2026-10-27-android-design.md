@@ -476,14 +476,25 @@ Mit targetSdk 36 bekommt die App den Zugriff über `INTERNET`, laut Google nur
 - Lehnt der Nutzer ab, verbindet die App trotzdem: Was gesperrt ist,
   entscheidet allein das System, und ein über VPN erreichbarer privater Host
   bliebe sonst ohne Grund zu. Scheitert der Aufbau dann mit
-  Zeitüberschreitung oder „nicht erreichbar“, bevor ein Hostschlüssel
-  ankam, meldet die App `local_network_denied` mit dem Weg in die
-  Einstellungen. Kam der Hostschlüssel schon an, stand die Verbindung, und
-  der Fehler bleibt, wie er ist (etwa die abgelaufene Hostschlüsselfrage).
-  Der Code steht nicht unter den wiederholbaren (`reconnect.ts`), das
-  Neuverbinden aus §5.4 hält also an. Nach Ablehnungen zeigt Android den
-  Dialog nicht bei jedem Versuch wieder; die Meldung nennt deshalb die
-  Einstellung.
+  Zeitüberschreitung oder „nicht erreichbar“, bevor der Host geantwortet
+  hat, meldet die App `local_network_denied` mit dem Weg in die
+  Einstellungen. Geantwortet hat der Host, wenn die TCP-Verbindung stand,
+  ein Hostschlüssel ankam oder er den Aufbau abwies (`ConnectionRefused`,
+  `ConnectionReset`); dann bleibt der Fehler, wie er ist (etwa die
+  abgelaufene Hostschlüsselfrage). Der Code steht nicht unter den
+  wiederholbaren (`reconnect.ts`), das Neuverbinden aus §5.4 hält also an.
+  Nach Ablehnungen zeigt Android den Dialog nicht bei jedem Versuch wieder;
+  die Meldung nennt deshalb die Einstellung.
+- Android grenzt das lokale Netz nach der Schnittstelle ab, nicht nach
+  Adressen: gesperrt ist der Weg über WLAN und Ethernet, nicht der über ein
+  VPN oder das Mobilfunknetz. Erreicht die App einen Host trotz Ablehnung,
+  merkt sie sich Name und Port bis zu ihrem Ende; für ihn fragt sie nicht
+  mehr, und ein späterer Fehler gilt nicht als Sperre. Umgekehrt fragt sie
+  nicht für einen Host im WLAN mit öffentlicher IPv6-Adresse, weil sie das
+  lokale Netz an den Adressbereichen erkennt; ohne Berechtigung läuft der
+  Aufbau dorthin in die Zeitüberschreitung
+  ([Grenzen](../guide/limits.md)). Genauer ginge es mit den Präfixen des
+  aktiven Netzes aus Androids `LinkProperties`.
 - Beim Start verbinden mehrere Hosts zugleich. Sie fragen nacheinander, weil
   Tauris `PluginManager` nur einen Rückruf für Berechtigungsantworten hält;
   wer bis 10 s nach einer Ablehnung drankommt, fragt nicht noch einmal.
@@ -494,8 +505,10 @@ Mit targetSdk 36 bekommt die App den Zugriff über `INTERNET`, laut Google nur
   Kontakte, Widgets und kein Audio im Hintergrund.
 
 Am 06.11. lief der CI-Bau des Branches auf einem Telefon mit Android 17 und
-verband sich. Offen bleibt, ob Android Loopback oder Hosts hinter einem VPN
-sperrt.
+verband sich; am selben Tag bestand dort auch die Prüfung nach Schritt B3 der
+[Anleitung](../android-veroeffentlichung.md) (Ablehnen, Meldung, Erlauben in
+den Einstellungen, mehrere Hosts). Hosts hinter einem VPN sperrt Android laut
+seiner Doku nicht; ob es Loopback sperrt, ist ungeprüft.
 
 Ein lokaler Bau außerhalb der Tauri-CLI braucht deren
 `app/proguard-tauri.pro` (git ignoriert sie): Die Regel hält

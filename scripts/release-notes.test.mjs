@@ -71,6 +71,7 @@ test('the Android part names the APK, its hash and the signing certificate', () 
   assert.match(text, new RegExp(`${sha('e')}  aidevbridge-0\\.3\\.0-android\\.apk`));
   assert.match(text, new RegExp(`certificate SHA-256: ${certificate}`));
   assert.match(text, /Google Play or this file, not both/);
+  assert.match(text, /From Android 17 on, the app asks for .*Nearby devices/);
   assert.throws(() => androidSection({ version: '0.3.0', file: 'app-universal-release.apk', sha256: sha('e'), certificate }), /Unexpected file name/);
   assert.throws(() => androidSection({ version: '0.3.0', file: 'aidevbridge-0.3.0-android.apk', sha256: sha('e'), certificate: 'abc' }), /certificate digest/);
 });
