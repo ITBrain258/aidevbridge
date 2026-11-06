@@ -1655,6 +1655,7 @@ async fn connect_host_core(
     // Vor dem Zerlegen von `spec`: die Meldung zu einem geaenderten
     // Hostschluessel nennt den Host unter seinem Namen in `known_hosts`.
     let host = known_hosts::host_token(&spec.hostname, spec.port);
+    let target = (spec.hostname.clone(), spec.port);
     let host_spec = HostSpec {
         hostname: spec.hostname,
         port: spec.port,
@@ -1669,7 +1670,7 @@ async fn connect_host_core(
         prompt_timeout,
         attempt.control.clone(),
     ));
-    match HostConnection::connect(
+    let result = HostConnection::connect(
         attempt.host_id.clone(),
         host_spec,
         method,
@@ -1677,25 +1678,32 @@ async fn connect_host_core(
         attempt.control.clone(),
         Arc::new(ConnectionEventSink(sink)),
     )
-    .await
-    {
+    .await;
+    // Android 17 sperrt ohne Berechtigung den Weg ins lokale Netz, nicht
+    // aber ueber ein VPN. Stand die TCP-Verbindung, kam ein Hostschluessel
+    // an oder wies der Host den Aufbau ab, war der Weg offen: Ein Fehler
+    // danach (die Rueckfrage, die Anmeldung) hat einen anderen Grund, und
+    // fuer diesen Host fragt die App bis zu ihrem Ende nicht mehr.
+    let reached = match &result {
+        Ok(_) => true,
+        Err(error) => {
+            policy.last_decision().is_some()
+                || attempt.control.tcp_connected()
+                || crate::local_network::host_answered(error)
+        }
+    };
+    if reached && local_network == crate::local_network::Gate::Denied {
+        crate::local_network::note_reached(&target.0, target.1);
+    }
+    match result {
         Ok(transport) => attempt.publish(transport),
         Err(error) if error.is::<PairIdentityRejected>() => Err(ConnectError {
             code: "host_key_rejected",
             message: error.to_string(),
         }),
         Err(error) => {
-            let decision = policy.last_decision();
-            let classified = classify_connect_error(&error, decision, &host);
-            // Android 17 sperrt den Weg zum Host. Kam schon ein
-            // Hostschluessel an, stand die Verbindung, und eine
-            // Zeitueberschreitung danach (die Rueckfrage, die Anmeldung) hat
-            // einen anderen Grund als die fehlende Berechtigung.
-            Err(if decision.is_none() {
-                local_network.explain(classified)
-            } else {
-                classified
-            })
+            let classified = classify_connect_error(&error, policy.last_decision(), &host);
+            Err(local_network.explain(classified, reached))
         }
     }
 }

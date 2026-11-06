@@ -376,6 +376,9 @@ impl RusshTransport {
                         .await
                         .map_err(Into::into)
                         .context(AuthError::HostUnreachable)?;
+                    // Der Weg zum Host steht; was jetzt scheitert, war keine
+                    // Sperre des lokalen Netzes (`local_network`).
+                    control.mark_tcp_connected();
                     // Wie OpenSSH fuer interaktive Sitzungen: kein Nagle, sonst
                     // warten Tastendruecke und Fensteranpassungen auf das ACK
                     // des vorigen Pakets. `client::Config::nodelay` wirkt nur in
