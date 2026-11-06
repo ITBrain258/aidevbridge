@@ -72,7 +72,8 @@ jobs:
           mkdir -p "$ANDROID_AVD_HOME"
           echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n check -k "$SYSTEM_IMAGE" > /dev/null
           "$ANDROID_HOME/emulator/emulator" -avd check -no-window -no-audio -no-boot-anim -no-snapshot \
-            -accel on -cores 4 -memory 4096 -gpu swiftshader_indirect -camera-back none -camera-front none \
+            -accel on -cores 4 -memory 4096 -partition-size 8192 \
+            -gpu swiftshader_indirect -camera-back none -camera-front none \
             > "$RUNNER_TEMP/emulator.txt" 2>&1 &
           timeout 300 "$adb" wait-for-device
           echo "device is there, waiting for the boot"
@@ -88,8 +89,8 @@ jobs:
           "$adb" shell wm dismiss-keyguard || true
           # For comparison: the last release (target SDK 36) in the same
           # emulator. Its result fails nothing.
-          if gh release download --repo "$GITHUB_REPOSITORY" --pattern '*-android.apk' --dir "$RUNNER_TEMP/release"; then
-            "$adb" install "$RUNNER_TEMP"/release/*.apk
+          if gh release download --repo "$GITHUB_REPOSITORY" --pattern '*-android.apk' --dir "$RUNNER_TEMP/release" &&
+            "$adb" install "$RUNNER_TEMP"/release/*.apk; then
             "$adb" logcat -c
             "$adb" shell am start -W -n "$PACKAGE_NAME/.MainActivity" || true
             sleep 30
@@ -98,8 +99,12 @@ jobs:
               echo "Last release: running 30 s after its start."
             else
               echo "::warning::Last release: not running 30 s after its start"
+              grep -E "AndroidRuntime|FATAL|Fatal signal|Abort message|panicked|RustStdoutStderr" \
+                "$RUNNER_TEMP/logcat-release.txt" | head -80 || true
             fi
-            "$adb" uninstall "$PACKAGE_NAME"
+            "$adb" uninstall "$PACKAGE_NAME" || true
+          else
+            echo "::warning::Last release: not installed"
           fi
           "$adb" install "$RUNNER_TEMP/app.apk"
           "$adb" logcat -c
