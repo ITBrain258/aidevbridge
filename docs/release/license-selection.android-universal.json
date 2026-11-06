@@ -97,7 +97,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 162841,
-        "sha256": "24a78ad3a336c1619ef32b37efc388a3f1485fd6fad9ea8ae191e8506867158b"
+        "sha256": "30dd14fa57821886e64e24a28115cbd10c11dbf5d4ff38c20a71910f8eaec099"
       },
       {
         "path": "docs/release/license-crypto-bigint-notices-2026-11-05.json",
@@ -1195,13 +1195,13 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 185142,
-            "sha256": "7951a64e4b4aea39bbeb75faae0b422659cb3c3f99f74736800f62b5215d179a"
+            "bytes": 185578,
+            "sha256": "26872ed183bd3f5366e1c0ea213c1892949e30639e265006854c348cc76f97f9"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
-            "bytes": 26648,
-            "sha256": "3a15d2f3fe69ce40077dac4c9f6fe609d617631c0ab95e4e3ea11293befc7c51"
+            "bytes": 29627,
+            "sha256": "8d841bf39ae9f7354ff3505c67b88dbdb9eea6573c142a8e3c0552ddec99d563"
           },
           {
             "path": "src-tauri/src/commands/history_tests.rs",
@@ -1250,8 +1250,8 @@
           },
           {
             "path": "src-tauri/src/local_network.rs",
-            "bytes": 11723,
-            "sha256": "7b164de046ab8c663337e06be6d234d4a3a2b9e81bd474b49d3ea1d10ab7cdd6"
+            "bytes": 15709,
+            "sha256": "29a045b5e47712eee0d5d3e6a00fcdee3ed87ede5da7e4f6d19d258afa222da4"
           },
           {
             "path": "src-tauri/src/main.rs",
@@ -1400,8 +1400,8 @@
           },
           {
             "path": "src-tauri/src/transport/connect_control.rs",
-            "bytes": 16233,
-            "sha256": "8e3c3030b9aa57ca23fd897b590d25b6988408cf222c3dcd7c2d8ba1581b086c"
+            "bytes": 16622,
+            "sha256": "8a457951a3ab9e154c1f2fc0955f25ba0ded4d181a1c9c62d8957d469fa766a7"
           },
           {
             "path": "src-tauri/src/transport/mod.rs",
@@ -1415,8 +1415,8 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
-            "bytes": 32165,
-            "sha256": "50db2c8131350208f41977564ad0ce69bce279700e983509379f31ed96389ec2"
+            "bytes": 32361,
+            "sha256": "f40f895d586d589801c7a08c9b60be527e3406411e9c0d4fc73b95a1efc597ab"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",

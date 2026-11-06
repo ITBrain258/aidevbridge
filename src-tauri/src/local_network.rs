@@ -12,15 +12,22 @@
 //! die App trotzdem: Welche Adressen Android sperrt, entscheidet allein das
 //! System, und Googles Doku zaehlt die Bereiche nicht auf. Eine Adresse, die
 //! hier als lokal gilt, ueber ein VPN aber erreichbar ist, bliebe sonst ohne
-//! Grund gesperrt. Scheitert der Aufbau dann am Netz, bevor ein
-//! Hostschluessel ankam, setzt `Gate::explain` den Grund an die Stelle der
+//! Grund gesperrt. Scheitert der Aufbau dann am Netz, bevor der Host
+//! geantwortet hat, setzt `Gate::explain` den Grund an die Stelle der
 //! Zeitueberschreitung (`connect_host_core`). Der eigene Code
 //! `local_network_denied` haelt auch das Neuverbinden aus UX-Spec §5.4 an:
 //! ohne Erlaubnis scheiterte jeder weitere Versuch genauso.
 //!
+//! Android sperrt nur den Weg ueber WLAN und Ethernet, nicht ueber ein VPN
+//! oder das Mobilfunknetz. Erreicht die App einen Host trotz Ablehnung, merkt
+//! sie sich das bis zum Ende der App (`note_reached`): Fuer ihn fragt sie
+//! nicht mehr, und ein spaeterer Fehler gilt nicht als Sperre.
+//!
 //! Auf dem Desktop und vor Android 17 ist `prepare` ohne Wirkung.
 
+use std::collections::BTreeSet;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::sync::{Mutex, PoisonError};
 
 use crate::commands::ConnectError;
 
@@ -84,20 +91,63 @@ pub enum Gate {
 }
 
 impl Gate {
-    /// Ersetzt einen Netzfehler durch den Grund, wenn die Berechtigung fehlt.
-    /// Andere Fehler (Anmeldung, Hostschluessel, Abbruch) bleiben, wie sie
-    /// sind. `connect_host_core` ruft das nur, solange kein Hostschluessel
-    /// ankam: Danach stand die Verbindung, und auch eine
-    /// Zeitueberschreitung hat einen anderen Grund.
-    pub fn explain(self, error: ConnectError) -> ConnectError {
+    /// Ersetzt einen Netzfehler durch den Grund, wenn die Berechtigung fehlt
+    /// und der Host nicht geantwortet hat. `reached`: Der TCP-Aufbau gelang,
+    /// ein Hostschluessel kam an, oder der Host wies den Aufbau ab
+    /// (`host_answered`). Dann stand der Weg offen, und auch eine
+    /// Zeitueberschreitung hat einen anderen Grund. Andere Fehler (Anmeldung,
+    /// Hostschluessel, Abbruch) bleiben, wie sie sind.
+    pub fn explain(self, error: ConnectError, reached: bool) -> ConnectError {
         match (self, error.code) {
-            (Gate::Denied, "connect_timeout" | "host_unreachable") => ConnectError {
+            (Gate::Denied, "connect_timeout" | "host_unreachable") if !reached => ConnectError {
                 code: DENIED_CODE,
                 message: DENIED_MESSAGE.to_string(),
             },
             _ => error,
         }
     }
+}
+
+/// Hat der Host selbst auf den Aufbau geantwortet? Einen abgewiesenen oder
+/// zurueckgesetzten TCP-Aufbau meldet der Host; die Sperre von Android 17
+/// laesst den Aufbau dagegen ins Leere laufen.
+pub fn host_answered(error: &anyhow::Error) -> bool {
+    error.chain().any(|cause| {
+        cause.downcast_ref::<std::io::Error>().is_some_and(|error| {
+            matches!(
+                error.kind(),
+                std::io::ErrorKind::ConnectionRefused
+                    | std::io::ErrorKind::ConnectionReset
+                    | std::io::ErrorKind::ConnectionAborted
+            )
+        })
+    })
+}
+
+/// Hosts, die die App trotz abgelehnter Berechtigung erreicht hat, mit Port.
+/// Die Liste lebt nur bis zum Ende der App: Ein Host, der heute ueber ein VPN
+/// erreichbar ist, kann morgen im WLAN liegen.
+static REACHED: Mutex<BTreeSet<(String, u16)>> = Mutex::new(BTreeSet::new());
+
+fn reached_key(hostname: &str, port: u16) -> (String, u16) {
+    (hostname.trim_end_matches('.').to_ascii_lowercase(), port)
+}
+
+/// `connect_host_core` meldet einen Host, den es trotz `Gate::Denied`
+/// erreicht hat.
+pub fn note_reached(hostname: &str, port: u16) {
+    REACHED
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .insert(reached_key(hostname, port));
+}
+
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+fn was_reached(hostname: &str, port: u16) -> bool {
+    REACHED
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .contains(&reached_key(hostname, port))
 }
 
 /// Vor dem Verbindungsaufbau: fragt nach der Berechtigung, wenn sie fehlt und
@@ -129,7 +179,7 @@ mod android {
     use tauri::plugin::{Builder, PluginHandle, TauriPlugin};
     use tauri::{AppHandle, Manager, Runtime};
 
-    use super::{is_local_address, is_local_name, Gate};
+    use super::{is_local_address, is_local_name, was_reached, Gate};
 
     /// Die Kotlin-Klasse `LocalNetworkPlugin` in `gen/android`.
     struct LocalNetwork<R: Runtime> {
@@ -191,6 +241,11 @@ mod android {
         let Some(plugin) = app.try_state::<LocalNetwork<R>>() else {
             return Gate::Open;
         };
+        // Schon einmal trotz Ablehnung erreicht: Der Weg fuehrt nicht durch
+        // die Sperre, etwa ueber ein VPN.
+        if was_reached(hostname, port) {
+            return Gate::Open;
+        }
         // Ein Fehler im Plugin zaehlt wie eine Erlaubnis: Dann entscheidet
         // das System, wie ohne diese Abfrage.
         if ask(&plugin.handle, "checkLocalNetwork").await != Some(false) {
@@ -259,8 +314,12 @@ mod tests {
             "255.255.255.255",
             "fd12:3456:789a::1",
             "fe80::1",
+            "febf::1",
             "ff02::fb",
+            "fc00::1",
+            "fd7a:115c:a1e1::1",
             "::ffff:192.168.1.2",
+            "::ffff:10.0.0.1",
         ] {
             assert!(local(address), "{address}");
         }
@@ -274,13 +333,19 @@ mod tests {
             "192.0.2.20",
             "100.64.0.1",
             "100.101.102.103",
+            "100.128.0.1",
             "fd7a:115c:a1e0::1",
-            "fd7a:115c:a1e0:ab12:4843:cd96:6258:b240",
+            "fd7a:115c:a1e0:ab12:4843:cd96:6465:6667",
+            "fec0::1",
             "127.0.0.1",
             "::1",
+            "0.0.0.0",
+            "::",
             "2001:db8::1",
             "2a00:1450:4001::1",
             "::ffff:8.8.8.8",
+            "::ffff:100.64.0.1",
+            "::192.168.1.2",
         ] {
             assert!(!local(address), "{address}");
         }
@@ -305,7 +370,7 @@ mod tests {
     #[test]
     fn a_denied_gate_explains_network_failures_only() {
         for code in ["connect_timeout", "host_unreachable"] {
-            let explained = Gate::Denied.explain(error(code));
+            let explained = Gate::Denied.explain(error(code), false);
             assert_eq!(explained.code, DENIED_CODE);
             assert_eq!(explained.message, DENIED_MESSAGE);
         }
@@ -315,17 +380,57 @@ mod tests {
             "connect_cancelled",
             "other",
         ] {
-            let kept = Gate::Denied.explain(error(code));
+            let kept = Gate::Denied.explain(error(code), false);
+            assert_eq!((kept.code, kept.message.as_str()), (code, "original"));
+        }
+    }
+
+    #[test]
+    fn a_denied_gate_keeps_failures_after_the_host_answered() {
+        for code in ["connect_timeout", "host_unreachable"] {
+            let kept = Gate::Denied.explain(error(code), true);
             assert_eq!((kept.code, kept.message.as_str()), (code, "original"));
         }
     }
 
     #[test]
     fn an_open_gate_keeps_every_error() {
-        let kept = Gate::Open.explain(error("connect_timeout"));
+        let kept = Gate::Open.explain(error("connect_timeout"), false);
         assert_eq!(
             (kept.code, kept.message.as_str()),
             ("connect_timeout", "original")
         );
+    }
+
+    fn io_failure(kind: std::io::ErrorKind) -> anyhow::Error {
+        anyhow::Error::from(std::io::Error::from(kind)).context("Host not reachable.")
+    }
+
+    #[test]
+    fn a_refused_or_reset_connection_was_answered_by_the_host() {
+        for kind in [
+            std::io::ErrorKind::ConnectionRefused,
+            std::io::ErrorKind::ConnectionReset,
+            std::io::ErrorKind::ConnectionAborted,
+        ] {
+            assert!(host_answered(&io_failure(kind)), "{kind:?}");
+        }
+        for kind in [
+            std::io::ErrorKind::TimedOut,
+            std::io::ErrorKind::HostUnreachable,
+            std::io::ErrorKind::NetworkUnreachable,
+            std::io::ErrorKind::PermissionDenied,
+        ] {
+            assert!(!host_answered(&io_failure(kind)), "{kind:?}");
+        }
+        assert!(!host_answered(&anyhow::anyhow!("no such host")));
+    }
+
+    #[test]
+    fn a_reached_host_is_remembered_by_name_and_port() {
+        note_reached("Reached-Host.example.", 2222);
+        assert!(was_reached("reached-host.example", 2222));
+        assert!(!was_reached("reached-host.example", 22));
+        assert!(!was_reached("other-host.example", 2222));
     }
 }

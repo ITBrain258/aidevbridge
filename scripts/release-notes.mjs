@@ -105,6 +105,7 @@ export function androidSection({ version, file, sha256, certificate }) {
     `| \`${file}\` | App package. Open it on the device and allow the installation from this source. |`,
     '',
     '- **Google Play or this file, not both.** The Play Store version is signed by Google; this file is signed with the project\'s own key. Android refuses to update one with the other; switching means uninstalling first, which removes the saved hosts and keys.',
+    '- **Local network.** From Android 17 on, the app asks for **Nearby devices** before it connects to a host on your local network. Allow it, or hosts on your Wi-Fi stay unreachable; hosts on the internet need no permission.',
     '- Apps such as Obtainium can install and update this file directly from the releases page.',
     '',
     'SHA-256 of the file and of the signing certificate:',

@@ -169,16 +169,28 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    `fastlane/metadata/android/{de-DE,en-US}/changelogs/<versionCode>.txt`
    (without it Google Play shows `default.txt`, "first Android version") and the
    header of `docs/stand.md`; for a new minor version also the supported
-   versions in `SECURITY.md`.
+   versions in `SECURITY.md`. If the interface changed, render the pictures
+   again ([Images](docs/guide/building.md#images)) in the same pull request.
 2. Bring the three license selections up to date: set the version at its places
-   in the Windows selection by hand, run `npm run licenses:rebind-own`, then
-   `npm run licenses:derive` for macOS and Android (it needs `NDK_HOME`, and the
-   NDK evidence of an ABI without a local build must be restored), and confirm
-   with `npm run licenses:status` and `npm run licenses:check`.
+   in the Windows selection by hand and run `npm run licenses:rebind-own`. The
+   bump also changes the version line of the own package in `Cargo.lock` and
+   `package-lock.json`, which the selections bind as third-party files: check
+   that nothing else changed in them, then rebind them with
+   `node scripts/release-license-rebind.mjs --write --third-party Cargo.lock package-lock.json`.
+   Then run `npm run licenses:derive` for macOS and Android (it needs
+   `NDK_HOME`, and the NDK evidence of an ABI without a local build must be
+   restored), and confirm with `npm run licenses:status` and
+   `npm run licenses:check`.
    [The license guide](docs/lizenzen-pflegen.md) (in German) describes every case.
-3. Optionally start the packages and Android workflows by hand with **release**
-   on: they make the release builds without publishing them.
-4. Push the tag `v<version>`. Only an administrator can create tags `v*`. The
+3. Start the packages and Android workflows by hand with **release** on, on the
+   head of the release pull request: they make the release builds without
+   publishing them. The required checks only warn about own files that are not
+   rebound and don't check the product version in the selections; these runs
+   are the last check before the tag. From then on, merge nothing that changes a
+   bound file, such as `android.yml` or an Actions update from Dependabot,
+   until the tag is pushed.
+4. Check that `package.json` on the merge commit carries the new version, then
+   push the tag `v<version>`. Only an administrator can create tags `v*`. The
    packages workflow builds MSI, setup EXE, ZIP and the disk image, installs and
    starts each one, and attaches them to the release of the tag, creating it if
    needed; the Android workflow signs and attaches the APK. Do not use a draft,
@@ -189,8 +201,6 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    the new build, or that has no digest, stops the run before anything is attached.
    To rebuild such a file on purpose, delete it from the release by hand and run
    the workflow again.
-5. If the interface changed, render the pictures again
-   ([Images](docs/guide/building.md#images)).
 
 ## Language
 
