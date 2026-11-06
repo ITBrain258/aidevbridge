@@ -483,7 +483,13 @@ Mit targetSdk 36 bekommt die App den Zugriff über `INTERNET`, laut Google nur
   TLS außer im WebView (Certificate Transparency und ECH), keine SMS,
   Kontakte, Widgets und kein Audio im Hintergrund.
 
-Offen ist die Prüfung am Gerät mit Android 17: Dialog beim ersten lokalen
-Host, Verbindung nach dem Erlauben, die Meldung nach dem Ablehnen, ein Host im
-Internet ohne Dialog, und ob Android Loopback oder Hosts hinter einem VPN
+Am 06.11. lief der CI-Bau des Branches auf einem Telefon mit Android 17 und
+verband sich. Offen bleibt, ob Android Loopback oder Hosts hinter einem VPN
 sperrt.
+
+Ein lokaler Bau außerhalb der Tauri-CLI braucht deren
+`app/proguard-tauri.pro` (git ignoriert sie): Die Regel hält
+`TauriActivity.getPluginManager` für R8. Ohne sie entfernt R8 die Methode,
+die Registrierung der Plugins über JNI scheitert, und die Release-APK schließt
+sich gleich nach dem Start, auch mit targetSdk 36. Die ersten Test-APKs vom
+05.11. hatten genau diesen Fehler.

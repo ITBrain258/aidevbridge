@@ -304,11 +304,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     Clippy für das Android-Ziel (PR #34,
     [Nachtrag der Android-Spec](specs/2026-10-27-android-design.md#nachtrag-vom-05112026-gradle-9-agp-9-und-kotlin-2)).
     Offen:
-    - **Ziel-SDK 37:** umgesetzt im Branch `feat/android-sdk-37` mit der
-      Berechtigung fürs lokale Netz, die Android 17 dafür verlangt
+    - **Ziel-SDK 37:** erledigt (PR #37) mit der Berechtigung fürs lokale
+      Netz, die Android 17 dafür verlangt
       ([Nachtrag der Android-Spec](specs/2026-10-27-android-design.md#nachtrag-vom-05112026-ziel-sdk-37-und-das-lokale-netz));
-      offen ist die Prüfung am Gerät mit Android 17. Mit Tauri v3 fallen die
-      Übergangsschalter `android.builtInKotlin=false` und
+      der CI-Bau lief am 06.11. auf einem Telefon mit Android 17. Mit Tauri v3
+      fallen die Übergangsschalter `android.builtInKotlin=false` und
       `android.newDsl=false`.
     - **TypeScript 7:** Der native Compiler hat in 7.0 keine stabile JS-API;
       `src/source-hygiene.test.ts` und `release-license-inventory-frontend.mjs`
