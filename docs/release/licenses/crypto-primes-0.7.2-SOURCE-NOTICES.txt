@@ -1,0 +1,25 @@
+crypto-primes 0.7.2 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive crypto-primes-0.7.2.crate (SHA-256
+3633a51a39c69ebbaa4feaa694bd83d241e4093901c84a0963b19d9bb3f0cf8f).
+The release license choice is MIT; the full text is supplied in
+crypto-primes-0.7.2-LICENSE-MIT.txt.
+
+src/hazmat/libm.rs:6-16
+/* origin: FreeBSD /usr/src/lib/msun/src/e_log2.c */
+/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ */
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.
