@@ -74,8 +74,13 @@ in allen drei Auswahlen neu; danach `npm run licenses:derive`.
      neuen Archiv nachsehen, die Datei für die neue Version neu anlegen und
      unter `external` festhalten, wie geprüft wurde. Welche Vermerke so
      beiliegen und warum, steht in
-     `license-crypto-bigint-notices-2026-11-05.json` und
-     `license-source-notices-2026-11-06.json`.
+     `license-crypto-bigint-notices-2026-11-05.json`,
+     `license-source-notices-2026-11-06.json` und, für alle Komponenten,
+     `license-source-notices-2026-11-06-scan.json` (dort auch die Regeln,
+     nach denen ein neues Paket zu prüfen ist). Ein `+` in der Version wird
+     im Dateinamen zu `-` (`toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt`).
+     Ein Paket nur des Android-Graphen nennt seine Datei unter `notices` in
+     `NEW_CRATES` von `scripts/release-license-select-android.mjs`.
    - `reason` ersetzt eine Begründung, deren Beleg die alte Version nennt.
    - `new` entscheidet ein neues Paket (nur MIT), `role` eine neue Rolle.
 

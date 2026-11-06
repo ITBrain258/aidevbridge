@@ -1,0 +1,38 @@
+polyval 0.7.3 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive polyval-0.7.3.crate (SHA-256
+f0fa31d631f2b2cb2a544d0aa321ce847a94764d701ca2becc411138b93d49cd).
+The release license choice is MIT; the full text is supplied in
+aes-gcm-0.11.1-LICENSE-MIT.txt.
+
+src/backend/intrinsics/x86.rs:1-3
+//! VPCLMULQDQ optimized POLYVAL implementation using R/F Algorithm
+//! Adapted from the implementation in the Apache 2.0 + MIT-licensed HPCrypt library
+//! Copyright (c) 2024 HPCrypt Contributors
+
+src/backend/intrinsics/armv8.rs:1-3
+//! ARMv8 NEON + PMULL optimized POLYVAL implementation using R/F Algorithm
+//! Adapted from the implementation in the Apache 2.0 + MIT-licensed HPCrypt library
+//! Copyright (c) 2024 HPCrypt Contributors
+
+src/field_element/mul32.rs:1-6
+//! Constant-time software implementation of POLYVAL for 32-bit architectures
+//! Adapted from BearSSL's `ghash_ctmul32.c`:
+//!
+//! <https://bearssl.org/gitweb/?p=BearSSL;a=blob;f=src/hash/ghash_ctmul32.c;hb=4b6046412>
+//!
+//! Copyright (c) 2016 Thomas Pornin <pornin@bolet.org>
+
+src/field_element/mul64.rs:1-6
+//! Constant-time software implementation of POLYVAL for 64-bit architectures.
+//! Adapted from BearSSL's `ghash_ctmul64.c`:
+//!
+//! <https://bearssl.org/gitweb/?p=BearSSL;a=blob;f=src/hash/ghash_ctmul64.c;hb=4b6046412>
+//!
+//! Copyright (c) 2016 Thomas Pornin <pornin@bolet.org>
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.

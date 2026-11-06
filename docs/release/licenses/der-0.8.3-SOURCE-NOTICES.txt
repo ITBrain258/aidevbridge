@@ -1,0 +1,17 @@
+der 0.8.3 source notices
+
+aidevbridge compilation of exact original notices and their source mappings.
+It is not an upstream file and is not itself a substitute for full license texts.
+Each quoted line below is copied verbatim from the specified file of the
+crates.io archive der-0.8.3.crate (SHA-256
+6a996a108feb8b427a6e12fcf6af4aa83409b79d72c15337d7741368131ee004).
+The release license choice is MIT; the full text is supplied in
+const-oid-0.10.2-LICENSE-MIT.txt.
+
+src/datetime.rs:4-6
+// Adapted from the `humantime` crate.
+// Copyright (c) 2016 The humantime Developers
+// Released under the MIT OR Apache 2.0 licenses
+
+The source set is a conservative notice superset, not a list of code proven
+present in the application binaries.

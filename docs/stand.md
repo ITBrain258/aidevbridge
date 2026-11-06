@@ -206,9 +206,15 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    ([Beleg vom 05.11.](release/license-windows-runtime-2026-11-05.md)). Ihre
    PDB ist nicht erhalten; seitdem bewahrt `packages.yml` sie 90 Tage als
    Artefakt `windows-symbols` auf, damit der nächste Werkzeugwechsel Modul
-   für Modul geprüft werden kann. Seit dem 05.11. liefern alle drei
-   Auswahlen auch die Herkunftszeilen aus dem Quelltext von crypto-bigint
-   ([Quellhinweise](release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt)).
+   für Modul geprüft werden kann. Copyright-Zeilen im Quelltext, die kein
+   ausgelieferter Text nennt, liefern die Auswahlen wörtlich in
+   `<Paket>-<Version>-SOURCE-NOTICES.txt` mit: seit dem 05.11. für
+   crypto-bigint, seit dem 06.11. für futures-channel und crypto-primes und
+   nach einem Scan aller 405 Komponenten für tao (W3C-Lizenz der
+   Tastaturnamen), curve25519-dalek, tauri, tauri-plugin-fs, polyval, der,
+   toml, cookie und dtoa, auf Android auch für is-wsl und cesu8. Warum die
+   übrigen Treffer nicht dazugehören, steht im
+   [Beleg](release/license-source-notices-2026-11-06-scan.json).
    Offen:
    - Die Installerabnahme (bestanden am 24.10. an 0.2.0) ist mit NSIS 3.13 neu
      fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.2.7. Das
@@ -216,15 +222,6 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
      `installer_stub_notices`, `native_import_family_review` und
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie
      nicht kennt.
-   - Eine grobe Suche fand Copyright-Zeilen im Quelltext, die kein
-     ausgelieferter Text nennt
-     ([Liste](release/license-crypto-bigint-notices-2026-11-05.json),
-     `other_crates`). Seit 06.11. liegen die zwei mit einer Pflicht, den
-     Vermerk zu erhalten, wörtlich bei: futures-channel (BSD-Kopf von Dmitry
-     Vyukov) und crypto-primes (fdlibm von Sun Microsystems)
-     ([Beleg](release/license-source-notices-2026-11-06.json)). Die übrigen
-     (polyval, uuid, muda, curve25519-dalek, cpubits, der, toml, tauri) sind
-     bloße Herkunftszeilen ohne solche Pflicht und bleiben offen.
    - Die NDK-Belege für armv7 und x86_64 stammen vom 28.10.; `licenses:derive`
      braucht für sie einen lokalen Bau aller drei ABIs, der hier am Speicher
      scheitert. Ein Schritt im Release-Job von `android.yml`, der dieselben

@@ -19,8 +19,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1056744,
-    "sha256": "e8283ac60741e0fee16d65ae2b684830bf3227c14b2af972d460f4a425234176"
+    "bytes": 1069401,
+    "sha256": "5d05e8a9322e7bdd901aa886e08b2a4d3539a4514ee038a011f37376061e26bb"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -405,8 +405,8 @@
       },
       {
         "id": "cargo:cookie@0.18.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:cpubits@0.1.1",
@@ -455,8 +455,8 @@
       },
       {
         "id": "cargo:crypto-primes@0.7.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. The fdlibm notice of src/hazmat/libm.rs (Sun Microsystems, \"provided that this notice is preserved\") is retained verbatim in crypto-primes-0.7.2-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. The fdlibm notice of src/hazmat/libm.rs (Sun Microsystems, \"provided that this notice is preserved\") is retained verbatim in crypto-primes-0.7.2-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:ctor@1.0.13",
@@ -475,8 +475,8 @@
       },
       {
         "id": "cargo:curve25519-dalek@5.0.0",
-        "windows": "Explicit BSD-3-Clause selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit BSD-3-Clause selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit BSD-3-Clause selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. The in-source notices of src/backend/serial/scalar_mul/pippenger.rs and src/backend/vector/scalar_mul/pippenger.rs are retained verbatim in curve25519-dalek-5.0.0-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit BSD-3-Clause selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. The in-source notices of src/backend/serial/scalar_mul/pippenger.rs and src/backend/vector/scalar_mul/pippenger.rs are retained verbatim in curve25519-dalek-5.0.0-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:data-encoding@2.11.1",
@@ -500,8 +500,8 @@
       },
       {
         "id": "cargo:der@0.8.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.1 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.1 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.1 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/datetime.rs are retained verbatim in der-0.8.3-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.1 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/datetime.rs are retained verbatim in der-0.8.3-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:deranged@0.5.9",
@@ -590,8 +590,8 @@
       },
       {
         "id": "cargo:futures-channel@0.3.34",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notice of src/mpsc/queue.rs (Dmitry Vyukov, a BSD-2-Clause-style header whose binary-form condition asks for the notice in the documentation) is retained verbatim in futures-channel-0.3.34-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.3.33 to 0.3.34 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notice of src/mpsc/queue.rs (Dmitry Vyukov, a BSD-2-Clause-style header whose binary-form condition asks for the notice in the documentation) is retained verbatim in futures-channel-0.3.34-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:futures-core@0.3.34",
@@ -970,8 +970,8 @@
       },
       {
         "id": "cargo:polyval@0.7.3",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. The in-source notices of src/backend/intrinsics/x86.rs, src/backend/intrinsics/armv8.rs, src/field_element/mul32.rs and src/field_element/mul64.rs are retained verbatim in polyval-0.7.3-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. The in-source notices of src/backend/intrinsics/x86.rs, src/backend/intrinsics/armv8.rs, src/field_element/mul32.rs and src/field_element/mul64.rs are retained verbatim in polyval-0.7.3-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:potential_utf@0.1.6",
@@ -1230,8 +1230,8 @@
       },
       {
         "id": "cargo:tao@0.37.2",
-        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.35.3 to 0.37.2 on 2026-10-29; same declared license, role and byte-identical license files.",
-        "macos": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.35.3 to 0.37.2 on 2026-10-29; same declared license, role and byte-identical license files."
+        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.35.3 to 0.37.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/keyboard.rs (the W3C license and short notice of the UI Events specification) are retained verbatim in tao-0.37.2-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.35.3 to 0.37.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/keyboard.rs (the W3C license and short notice of the UI Events specification) are retained verbatim in tao-0.37.2-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:tauri-plugin-dialog@2.8.4",
@@ -1240,8 +1240,8 @@
       },
       {
         "id": "cargo:tauri-plugin-fs@2.7.1",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.1 to 2.7.1 on 2026-10-29; same declared license, role and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.1 to 2.7.1 on 2026-10-29; same declared license, role and byte-identical license files."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.1 to 2.7.1 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/commands.rs are retained verbatim in tauri-plugin-fs-2.7.1-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.1 to 2.7.1 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/commands.rs are retained verbatim in tauri-plugin-fs-2.7.1-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:tauri-plugin-opener@2.7.2",
@@ -1270,8 +1270,8 @@
       },
       {
         "id": "cargo:tauri@2.12.5",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.5 to 2.12.5 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.5 to 2.12.5 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.5 to 2.12.5 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines. The in-source notices of src/resources/mod.rs are retained verbatim in tauri-2.12.5-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.11.5 to 2.12.5 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines. The in-source notices of src/resources/mod.rs are retained verbatim in tauri-2.12.5-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:thiserror@2.0.21",
@@ -1320,8 +1320,8 @@
       },
       {
         "id": "cargo:toml@1.1.8+spec-1.1.0",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.3+spec-1.1.0 to 1.1.8+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.3+spec-1.1.0 to 1.1.8+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged."
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.3+spec-1.1.0 to 1.1.8+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged. The in-source notices of src/map.rs are retained verbatim in toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt (2026-11-06).",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.1.3+spec-1.1.0 to 1.1.8+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged. The in-source notices of src/map.rs are retained verbatim in toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt (2026-11-06)."
       },
       {
         "id": "cargo:tray-icon@0.25.1",

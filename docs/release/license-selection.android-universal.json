@@ -53,8 +53,9 @@
     "docs/release/license-frontend-tools-2026-11-05.json",
     "docs/release/license-frontend-vite-8-2026-11-05.json",
     "docs/release/license-crypto-bigint-notices-2026-11-05.json",
-    "docs/release/license-android-universal-2026-10-28.json",
-    "docs/release/license-source-notices-2026-11-06.json"
+    "docs/release/license-source-notices-2026-11-06.json",
+    "docs/release/license-source-notices-2026-11-06-scan.json",
+    "docs/release/license-android-universal-2026-10-28.json"
   ],
   "inputs": {
     "files": [
@@ -95,8 +96,8 @@
       },
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
-        "bytes": 159417,
-        "sha256": "45bbf760cac13ac52499c2eaec1ffae9d43a221a0787e9381404c2096289f84b"
+        "bytes": 162841,
+        "sha256": "30dd14fa57821886e64e24a28115cbd10c11dbf5d4ff38c20a71910f8eaec099"
       },
       {
         "path": "docs/release/license-crypto-bigint-notices-2026-11-05.json",
@@ -194,6 +195,11 @@
         "sha256": "d2db091c6b8aa5a315664b6d128f2daf4137b1940705cd701392495831502814"
       },
       {
+        "path": "docs/release/license-source-notices-2026-11-06-scan.json",
+        "bytes": 20915,
+        "sha256": "d2388ba3d82d35767266fa29bd1fbfe71bece77d8091fe1f50bdfda7cca573a9"
+      },
+      {
         "path": "docs/release/license-source-notices-2026-11-06.json",
         "bytes": 3988,
         "sha256": "c42d56803ab6b655e26472a05467e5bcafb93d2d6ffd7ac2a76af4c4cbf86a34"
@@ -229,6 +235,11 @@
         "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94"
       },
       {
+        "path": "docs/release/licenses/cesu8-1.1.0-SOURCE-NOTICES.txt",
+        "bytes": 783,
+        "sha256": "f0a52ae98c0dd8f2cd6590706a62bfcfd2e7e103203d02c9be57f0babde25d00"
+      },
+      {
         "path": "docs/release/licenses/compiler-builtins-0.1.160-LICENSE.txt",
         "bytes": 15078,
         "sha256": "ab6eec6caf0fa5775e411c7a8bc6a45c4ef2956b0980b157ab74fc5cd62a928b"
@@ -237,6 +248,11 @@
         "path": "docs/release/licenses/compiler-builtins-0.1.160-libm-LICENSE.txt",
         "bytes": 14088,
         "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7"
+      },
+      {
+        "path": "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt",
+        "bytes": 773,
+        "sha256": "eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715"
       },
       {
         "path": "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt",
@@ -249,14 +265,29 @@
         "sha256": "724c4301df491285a0438aa890cd17ee181ab0bcebd9737b4052c6d92cd0dbef"
       },
       {
+        "path": "docs/release/licenses/curve25519-dalek-5.0.0-SOURCE-NOTICES.txt",
+        "bytes": 1111,
+        "sha256": "7522b50546db3f98775fb8c0a279b3842957928c40b82b11d68eb8f9eb5e223f"
+      },
+      {
         "path": "docs/release/licenses/delegate-0.13.5-LICENSE-MIT.txt",
         "bytes": 1078,
         "sha256": "be7ee8aa49dc586023669a0c600a0536fce6a9f61264a53a67cdd842564ed899"
       },
       {
+        "path": "docs/release/licenses/der-0.8.3-SOURCE-NOTICES.txt",
+        "bytes": 736,
+        "sha256": "d41a311cf68b4ece1e1da9fd8e53fdbe9d80496b1dabf7c0dbd205c5dd7c34c1"
+      },
+      {
         "path": "docs/release/licenses/dpi-0.1.2-LICENSE-APACHE.txt",
         "bytes": 11323,
         "sha256": "6dc0e068dcf3a5bc8e054205b85b7720e1d49265bbc64bf515d2cf79197df69a"
+      },
+      {
+        "path": "docs/release/licenses/dtoa-1.0.11-SOURCE-NOTICES.txt",
+        "bytes": 2219,
+        "sha256": "09db897bd6c6bbcc016340097c685e6b02662f59119ca78065fca5041de0b688"
       },
       {
         "path": "docs/release/licenses/futures-channel-0.3.34-SOURCE-NOTICES.txt",
@@ -267,6 +298,11 @@
         "path": "docs/release/licenses/icu4x-2.2.0-LICENSE.txt",
         "bytes": 2195,
         "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+      },
+      {
+        "path": "docs/release/licenses/is-wsl-0.4.0-SOURCE-NOTICES.txt",
+        "bytes": 1903,
+        "sha256": "75f8bb2a599b81ecccd9dac7b88f655fdbeb953d43fab426b5621b985b154a15"
       },
       {
         "path": "docs/release/licenses/jni-sys-64d77b7-LICENSE-MIT.txt",
@@ -307,6 +343,11 @@
         "path": "docs/release/licenses/kotlinx.serialization-1.7.3-NOTICE.txt",
         "bytes": 497,
         "sha256": "ec77bba5c852830abfdefcdefbf4a22577ff4df79ec323a898d5100ca1d6f8d6"
+      },
+      {
+        "path": "docs/release/licenses/polyval-0.7.3-SOURCE-NOTICES.txt",
+        "bytes": 1683,
+        "sha256": "7b613a47730617eada9b8d405aca34708fd2e818e2fdd31dae7c173caf55319c"
       },
       {
         "path": "docs/release/licenses/ring-0.17.14-LICENSE-BoringSSL.txt",
@@ -424,9 +465,29 @@
         "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5"
       },
       {
+        "path": "docs/release/licenses/tao-0.37.2-SOURCE-NOTICES.txt",
+        "bytes": 4247,
+        "sha256": "31608a0d513fb3bd83f02bee58417027cce00c9757c902b77352b35352c59fac"
+      },
+      {
+        "path": "docs/release/licenses/tauri-2.12.5-SOURCE-NOTICES.txt",
+        "bytes": 958,
+        "sha256": "3858ae4e9156109412cdb0c0a4964e35b2cc89d4f0570a8d705cf6084f085bfa"
+      },
+      {
         "path": "docs/release/licenses/tauri-plugin-2.6.3-LICENSE-MIT.txt",
         "bytes": 1090,
         "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d"
+      },
+      {
+        "path": "docs/release/licenses/tauri-plugin-fs-2.7.1-SOURCE-NOTICES.txt",
+        "bytes": 860,
+        "sha256": "5dfeb9d957574cfc4ebdf0df07f5bdfc2636021898875845983f30c8fb5e4392"
+      },
+      {
+        "path": "docs/release/licenses/toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt",
+        "bytes": 961,
+        "sha256": "af84fa24eab1a5f054e0e3e99ded634579be8373c926107932a1e38d695380bc"
       },
       {
         "path": "docs/release/licenses/unic-0.9.0-COPYRIGHT.md",
@@ -625,8 +686,8 @@
       },
       {
         "path": "scripts/release-license-select-android.mjs",
-        "bytes": 86172,
-        "sha256": "4098690a8666e7619798024707299a1d8a836e6aeae6abbbf86dd1f0734e6139"
+        "bytes": 87031,
+        "sha256": "8324d2b0d8a3569d0b49e4d30226773c05e928076f0e02bbe316eda7e910f39a"
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
@@ -12564,9 +12625,10 @@
       "release_tree_features": [],
       "documents": [
         "sha256:5ca77347e58205d3b543c04a9c5bdd11d20a9f3108a7b246640edffa999b5f35",
-        "sha256:b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5"
+        "sha256:b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5",
+        "sha256:f0a52ae98c0dd8f2cd6590706a62bfcfd2e7e103203d02c9be57f0babde25d00"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. The crate ships only COPYRIGHT-RUST.txt, the Rust project copyright file for the code it derives from Rust std; it is retained verbatim with the canonical SPDX MIT text it names.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. The crate ships only COPYRIGHT-RUST.txt, the Rust project copyright file for the code it derives from Rust std; it is retained verbatim with the canonical SPDX MIT text it names. The copyright header of src/lib.rs, the only copyright line of the crate, is retained verbatim in cesu8-1.1.0-SOURCE-NOTICES.txt.",
       "source_urls": [
         "https://static.crates.io/crates/cesu8/cesu8-1.1.0.crate",
         "https://crates.io/crates/cesu8/1.1.0",
@@ -12575,7 +12637,8 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-10-28-android.json#packages/cesu8@1.1.0",
-        "docs/release/license-android-universal-2026-10-28.json"
+        "docs/release/license-android-universal-2026-10-28.json",
+        "docs/release/license-source-notices-2026-11-06-scan.json"
       ],
       "source_archive": {
         "url": "https://static.crates.io/crates/cesu8/cesu8-1.1.0.crate",
@@ -12851,9 +12914,10 @@
       "technical_role": "normal-runtime-candidate",
       "release_tree_features": [],
       "documents": [
-        "sha256:f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea"
+        "sha256:f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea",
+        "sha256:eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/cookie/cookie-0.18.2.crate",
         "https://crates.io/crates/cookie/0.18.2",
@@ -12862,6 +12926,7 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/cookie@0.18.1",
         "docs/release/license-rust-update-2026-10-29.json",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -13164,8 +13229,8 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/crypto-primes@0.7.2",
-        "docs/release/license-android-universal-2026-10-28.json",
-        "docs/release/license-source-notices-2026-11-06.json"
+        "docs/release/license-source-notices-2026-11-06.json",
+        "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
         "url": "https://static.crates.io/crates/crypto-primes/crypto-primes-0.7.2.crate",
@@ -13359,9 +13424,10 @@
         "zeroize"
       ],
       "documents": [
-        "sha256:403c53069750101aeb9df7e15f127056ceaf7e4e92d0b919a1f4c084afd5f1d4"
+        "sha256:403c53069750101aeb9df7e15f127056ceaf7e4e92d0b919a1f4c084afd5f1d4",
+        "sha256:7522b50546db3f98775fb8c0a279b3842957928c40b82b11d68eb8f9eb5e223f"
       ],
-      "reason": "Explicit BSD-3-Clause selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking.",
+      "reason": "Explicit BSD-3-Clause selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. The in-source notices of src/backend/serial/scalar_mul/pippenger.rs and src/backend/vector/scalar_mul/pippenger.rs are retained verbatim in curve25519-dalek-5.0.0-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/curve25519-dalek/curve25519-dalek-5.0.0.crate",
         "https://crates.io/crates/curve25519-dalek/5.0.0",
@@ -13369,6 +13435,7 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/curve25519-dalek@5.0.0",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -13609,9 +13676,10 @@
         "zeroize"
       ],
       "documents": [
-        "sha256:73b9dc2e79c7308998dd30296e073aefaefb944a68fb89aa412c23c0edcabcaa"
+        "sha256:73b9dc2e79c7308998dd30296e073aefaefb944a68fb89aa412c23c0edcabcaa",
+        "sha256:d41a311cf68b4ece1e1da9fd8e53fdbe9d80496b1dabf7c0dbd205c5dd7c34c1"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.8.1 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.8.1 to 0.8.3 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/datetime.rs are retained verbatim in der-0.8.3-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/der/der-0.8.3.crate",
         "https://crates.io/crates/der/0.8.3",
@@ -13620,6 +13688,7 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/der@0.8.1",
         "docs/release/license-rust-update-2026-10-29.json",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -13988,9 +14057,10 @@
       "technical_role": "normal-runtime-candidate",
       "release_tree_features": [],
       "documents": [
-        "sha256:23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        "sha256:23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "sha256:09db897bd6c6bbcc016340097c685e6b02662f59119ca78065fca5041de0b688"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. The in-source notices of src/diyfp.rs and src/dtoa.rs are retained verbatim in dtoa-1.0.11-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/dtoa/dtoa-1.0.11.crate",
         "https://crates.io/crates/dtoa/1.0.11",
@@ -13998,6 +14068,7 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/dtoa@1.0.11",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -14572,8 +14643,8 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/futures-channel@0.3.33",
         "docs/release/license-rust-update-2026-10-29.json",
-        "docs/release/license-android-universal-2026-10-28.json",
-        "docs/release/license-source-notices-2026-11-06.json"
+        "docs/release/license-source-notices-2026-11-06.json",
+        "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
         "url": "https://static.crates.io/crates/futures-channel/futures-channel-0.3.34.crate",
@@ -16030,9 +16101,10 @@
       "technical_role": "normal-runtime-candidate",
       "release_tree_features": [],
       "documents": [
-        "sha256:7377e48a67377f0baa9ccee6425e125eb7b96d5b8e706f4c99479ca4ffa21b77"
+        "sha256:7377e48a67377f0baa9ccee6425e125eb7b96d5b8e706f4c99479ca4ffa21b77",
+        "sha256:75f8bb2a599b81ecccd9dac7b88f655fdbeb953d43fab426b5621b985b154a15"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. src/lib.rs copies get_os_release from sys-info with its MIT notice (Copyright (c) 2015 Siyu Wang); the block is retained verbatim in is-wsl-0.4.0-SOURCE-NOTICES.txt.",
       "source_urls": [
         "https://static.crates.io/crates/is-wsl/is-wsl-0.4.0.crate",
         "https://crates.io/crates/is-wsl/0.4.0",
@@ -16040,7 +16112,8 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-10-28-android.json#packages/is-wsl@0.4.0",
-        "docs/release/license-android-universal-2026-10-28.json"
+        "docs/release/license-android-universal-2026-10-28.json",
+        "docs/release/license-source-notices-2026-11-06-scan.json"
       ],
       "source_archive": {
         "url": "https://static.crates.io/crates/is-wsl/is-wsl-0.4.0.crate",
@@ -17875,9 +17948,10 @@
         "zeroize"
       ],
       "documents": [
-        "sha256:b8c6939380a400f53e11923d50fcc4dd2fa1ba8339fd9d04cda38a0251b6c9b0"
+        "sha256:b8c6939380a400f53e11923d50fcc4dd2fa1ba8339fd9d04cda38a0251b6c9b0",
+        "sha256:7b613a47730617eada9b8d405aca34708fd2e818e2fdd31dae7c173caf55319c"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. The in-source notices of src/backend/intrinsics/x86.rs, src/backend/intrinsics/armv8.rs, src/field_element/mul32.rs and src/field_element/mul64.rs are retained verbatim in polyval-0.7.3-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/polyval/polyval-0.7.3.crate",
         "https://crates.io/crates/polyval/0.7.3",
@@ -17885,6 +17959,7 @@
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/polyval@0.7.3",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -20331,9 +20406,10 @@
       ],
       "documents": [
         "sha256:6dc0e068dcf3a5bc8e054205b85b7720e1d49265bbc64bf515d2cf79197df69a",
-        "sha256:02b6448337b757772d90e5f31caaa0f9e6afaad2221c01771d0a3deaa4d4196c"
+        "sha256:02b6448337b757772d90e5f31caaa0f9e6afaad2221c01771d0a3deaa4d4196c",
+        "sha256:31608a0d513fb3bd83f02bee58417027cce00c9757c902b77352b35352c59fac"
       ],
-      "reason": "Explicit Apache-2.0 selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.35.3 to 0.37.2 on 2026-10-29; same declared license, role and byte-identical license files.",
+      "reason": "Explicit Apache-2.0 selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.35.3 to 0.37.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/keyboard.rs (the W3C license and short notice of the UI Events specification) are retained verbatim in tao-0.37.2-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/tao/tao-0.37.2.crate",
         "https://crates.io/crates/tao/0.37.2",
@@ -20342,6 +20418,7 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/tao@0.35.3",
         "docs/release/license-rust-update-2026-10-29.json",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -20482,9 +20559,10 @@
       "release_tree_features": [],
       "documents": [
         "sha256:89ff9689dcf9dd53968785d05a26f7898bb169dbfcada8d032b3e68cf0d55607",
-        "sha256:eb8a6c84630461b352badcab1dbe5d0168c56d377358b2b8c86b51003272d5ef"
+        "sha256:eb8a6c84630461b352badcab1dbe5d0168c56d377358b2b8c86b51003272d5ef",
+        "sha256:5dfeb9d957574cfc4ebdf0df07f5bdfc2636021898875845983f30c8fb5e4392"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 2.5.1 to 2.7.1 on 2026-10-29; same declared license, role and byte-identical license files.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 2.5.1 to 2.7.1 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/commands.rs are retained verbatim in tauri-plugin-fs-2.7.1-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/tauri-plugin-fs/tauri-plugin-fs-2.7.1.crate",
         "https://crates.io/crates/tauri-plugin-fs/2.7.1",
@@ -20493,6 +20571,7 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/tauri-plugin-fs@2.5.1",
         "docs/release/license-rust-update-2026-10-29.json",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -20740,9 +20819,10 @@
         "x11"
       ],
       "documents": [
-        "sha256:9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d"
+        "sha256:9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
+        "sha256:3858ae4e9156109412cdb0c0a4964e35b2cc89d4f0570a8d705cf6084f085bfa"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 2.11.5 to 2.12.5 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 2.11.5 to 2.12.5 on 2026-10-29; License files renamed with the same bytes; Cargo.toml.orig and build.rs changed without license or notice lines. The in-source notices of src/resources/mod.rs are retained verbatim in tauri-2.12.5-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/tauri/tauri-2.12.5.crate",
         "https://crates.io/crates/tauri/2.12.5",
@@ -20751,6 +20831,7 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/tauri@2.11.5",
         "docs/release/license-rust-update-2026-10-29.json",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -21285,9 +21366,10 @@
         "std"
       ],
       "documents": [
-        "sha256:6efb0476a1cc085077ed49357026d8c173bf33017278ef440f222fb9cbcb66e6"
+        "sha256:6efb0476a1cc085077ed49357026d8c173bf33017278ef440f222fb9cbcb66e6",
+        "sha256:af84fa24eab1a5f054e0e3e99ded634579be8373c926107932a1e38d695380bc"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 1.1.3+spec-1.1.0 to 1.1.8+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 1.1.3+spec-1.1.0 to 1.1.8+spec-1.1.0 on 2026-10-29; Only the Apache-2.0 copyright placeholder was filled in; the shipped MIT text is unchanged. The in-source notices of src/map.rs are retained verbatim in toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt (2026-11-06).",
       "source_urls": [
         "https://static.crates.io/crates/toml/toml-1.1.8+spec-1.1.0.crate",
         "https://crates.io/crates/toml/1.1.8+spec-1.1.0",
@@ -21296,6 +21378,7 @@
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/toml@1.1.3+spec-1.1.0",
         "docs/release/license-rust-update-2026-10-29.json",
+        "docs/release/license-source-notices-2026-11-06-scan.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
@@ -25540,6 +25623,22 @@
       ]
     },
     {
+      "id": "sha256:f0a52ae98c0dd8f2cd6590706a62bfcfd2e7e103203d02c9be57f0babde25d00",
+      "file_name": "cesu8-1.1.0-SOURCE-NOTICES.txt",
+      "bytes": 783,
+      "sha256": "f0a52ae98c0dd8f2cd6590706a62bfcfd2e7e103203d02c9be57f0babde25d00",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/cesu8-1.1.0-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/cesu8-1.1.0-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
+    },
+    {
       "id": "sha256:ebaac853b53fec0ed475796f533ce676912a4df9ad9d8a621fa76d5060591e10",
       "file_name": "cfb-0.14.0-LICENSE.txt",
       "bytes": 1074,
@@ -25706,6 +25805,22 @@
         "https://crates.io/crates/cookie/0.18.2",
         "https://github.com/SergioBenitez/cookie-rs"
       ]
+    },
+    {
+      "id": "sha256:eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715",
+      "file_name": "cookie-0.18.2-SOURCE-NOTICES.txt",
+      "bytes": 773,
+      "sha256": "eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
     },
     {
       "id": "sha256:003736bc98408b53511b9cc8ff5d1af3bf0a8f17d53841cc39d8ab1b96a195b0",
@@ -25992,6 +26107,22 @@
       ]
     },
     {
+      "id": "sha256:7522b50546db3f98775fb8c0a279b3842957928c40b82b11d68eb8f9eb5e223f",
+      "file_name": "curve25519-dalek-5.0.0-SOURCE-NOTICES.txt",
+      "bytes": 1111,
+      "sha256": "7522b50546db3f98775fb8c0a279b3842957928c40b82b11d68eb8f9eb5e223f",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/curve25519-dalek-5.0.0-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/curve25519-dalek-5.0.0-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
+    },
+    {
       "id": "sha256:8ea93490d74a5a1b1af3ff71d786271b3f1e5f0bea79ac16e02ec533cef040d6",
       "file_name": "darling-0.24.1-LICENSE.txt",
       "bytes": 1067,
@@ -26048,6 +26179,22 @@
       ],
       "source_names": [
         "docs/release/licenses/delegate-0.13.5-LICENSE-MIT.txt"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "sha256:d41a311cf68b4ece1e1da9fd8e53fdbe9d80496b1dabf7c0dbd205c5dd7c34c1",
+      "file_name": "der-0.8.3-SOURCE-NOTICES.txt",
+      "bytes": 736,
+      "sha256": "d41a311cf68b4ece1e1da9fd8e53fdbe9d80496b1dabf7c0dbd205c5dd7c34c1",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/der-0.8.3-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/der-0.8.3-SOURCE-NOTICES.txt"
       ],
       "source_urls": []
     },
@@ -26227,6 +26374,22 @@
         "https://crates.io/crates/dtoa-short/0.3.5",
         "https://github.com/upsuper/dtoa-short"
       ]
+    },
+    {
+      "id": "sha256:09db897bd6c6bbcc016340097c685e6b02662f59119ca78065fca5041de0b688",
+      "file_name": "dtoa-1.0.11-SOURCE-NOTICES.txt",
+      "bytes": 2219,
+      "sha256": "09db897bd6c6bbcc016340097c685e6b02662f59119ca78065fca5041de0b688",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/dtoa-1.0.11-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/dtoa-1.0.11-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
     },
     {
       "id": "sha256:a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
@@ -27127,6 +27290,22 @@
       ]
     },
     {
+      "id": "sha256:75f8bb2a599b81ecccd9dac7b88f655fdbeb953d43fab426b5621b985b154a15",
+      "file_name": "is-wsl-0.4.0-SOURCE-NOTICES.txt",
+      "bytes": 1903,
+      "sha256": "75f8bb2a599b81ecccd9dac7b88f655fdbeb953d43fab426b5621b985b154a15",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/is-wsl-0.4.0-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/is-wsl-0.4.0-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
+    },
+    {
       "id": "sha256:1d85bd754b04ceec93e98e890edd1fa3c6a22e81bcb32135806beeccefa51cd1",
       "file_name": "jni-sys-64d77b7-LICENSE-MIT.txt",
       "bytes": 1071,
@@ -27629,6 +27808,22 @@
         "https://crates.io/crates/poly1305/0.9.1",
         "https://github.com/RustCrypto/universal-hashes"
       ]
+    },
+    {
+      "id": "sha256:7b613a47730617eada9b8d405aca34708fd2e818e2fdd31dae7c173caf55319c",
+      "file_name": "polyval-0.7.3-SOURCE-NOTICES.txt",
+      "bytes": 1683,
+      "sha256": "7b613a47730617eada9b8d405aca34708fd2e818e2fdd31dae7c173caf55319c",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/polyval-0.7.3-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/polyval-0.7.3-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
     },
     {
       "id": "sha256:070dbc7dda03a29296f2d58bdb9b7331af90f2abc9f31df22875d1eabaf29852",
@@ -28637,6 +28832,22 @@
       ]
     },
     {
+      "id": "sha256:31608a0d513fb3bd83f02bee58417027cce00c9757c902b77352b35352c59fac",
+      "file_name": "tao-0.37.2-SOURCE-NOTICES.txt",
+      "bytes": 4247,
+      "sha256": "31608a0d513fb3bd83f02bee58417027cce00c9757c902b77352b35352c59fac",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/tao-0.37.2-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/tao-0.37.2-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
+    },
+    {
       "id": "sha256:9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
       "file_name": "tauri-plugin-2.7.2-LICENSE-MIT.txt",
       "bytes": 1090,
@@ -28722,6 +28933,22 @@
       ]
     },
     {
+      "id": "sha256:5dfeb9d957574cfc4ebdf0df07f5bdfc2636021898875845983f30c8fb5e4392",
+      "file_name": "tauri-plugin-fs-2.7.1-SOURCE-NOTICES.txt",
+      "bytes": 860,
+      "sha256": "5dfeb9d957574cfc4ebdf0df07f5bdfc2636021898875845983f30c8fb5e4392",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/tauri-plugin-fs-2.7.1-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/tauri-plugin-fs-2.7.1-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
+    },
+    {
       "id": "sha256:d9fa6b0e6fed50d4961b9c931587af6bd127df13e9473418d3e324f427db4f06",
       "file_name": "tauri-winres-0.3.7-LICENSE.txt",
       "bytes": 1129,
@@ -28740,6 +28967,22 @@
         "https://crates.io/crates/tauri-winres/0.3.7",
         "https://github.com/tauri-apps/winres"
       ]
+    },
+    {
+      "id": "sha256:3858ae4e9156109412cdb0c0a4964e35b2cc89d4f0570a8d705cf6084f085bfa",
+      "file_name": "tauri-2.12.5-SOURCE-NOTICES.txt",
+      "bytes": 958,
+      "sha256": "3858ae4e9156109412cdb0c0a4964e35b2cc89d4f0570a8d705cf6084f085bfa",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/tauri-2.12.5-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/tauri-2.12.5-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
     },
     {
       "id": "sha256:60a7062291b01ba068f300612cdbdc20382ac1d4934f07bcdd7167c15299f309",
@@ -28826,6 +29069,22 @@
         "https://github.com/tokio-rs/tokio",
         "https://crates.io/crates/tokio-util/0.7.20"
       ]
+    },
+    {
+      "id": "sha256:af84fa24eab1a5f054e0e3e99ded634579be8373c926107932a1e38d695380bc",
+      "file_name": "toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt",
+      "bytes": 961,
+      "sha256": "af84fa24eab1a5f054e0e3e99ded634579be8373c926107932a1e38d695380bc",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/toml-1.1.8-spec-1.1.0-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
     },
     {
       "id": "sha256:5049cf464977eff4b4fcfa7988d84e74116956a3eb9d5f1d451b3f828f945233",

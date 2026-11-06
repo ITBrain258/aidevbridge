@@ -32,6 +32,8 @@ const SELECTION = 'docs/release/license-selection.android-universal.json';
 const INVENTORY = 'docs/release/license-inventory-2026-10-28-android.json';
 const REPORT = 'docs/release/license-android-universal-2026-10-28.json';
 const LICENSES = 'docs/release/licenses';
+// The scan of in-source copyright lines that decided the `notices` of NEW_CRATES.
+const SOURCE_NOTICES_REPORT = 'docs/release/license-source-notices-2026-11-06-scan.json';
 const LOCKFILE = 'src-tauri/gen/android/app/gradle.lockfile';
 const RUNTIME_CLASSPATH = 'universalReleaseRuntimeClasspath';
 const RUST_COMMIT = '8bab26f4f68e0e26f0bb7960be334d5b520ea452';
@@ -88,7 +90,7 @@ const ABSENT = ['.cargo/config', '.cargo/config.toml', 'src-tauri/.cargo/config'
 export const NEW_CRATES = {
   'android_system_properties@0.1.6': { files: ['LICENSE-MIT'] },
   'atomic-waker@1.1.2': { files: ['LICENSE-MIT', 'LICENSE-THIRD-PARTY'], note: 'LICENSE-THIRD-PARTY retains the Apache-2.0 notice of the futures and Tokio code the crate derives from (Copyright 2016 Alex Crichton, 2017 The Tokio Authors).' },
-  'cesu8@1.1.0': { files: ['COPYRIGHT-RUST.txt'], spdxMit: true, note: 'The crate ships only COPYRIGHT-RUST.txt, the Rust project copyright file for the code it derives from Rust std; it is retained verbatim with the canonical SPDX MIT text it names.' },
+  'cesu8@1.1.0': { files: ['COPYRIGHT-RUST.txt'], spdxMit: true, notices: [`${LICENSES}/cesu8-1.1.0-SOURCE-NOTICES.txt`], note: 'The crate ships only COPYRIGHT-RUST.txt, the Rust project copyright file for the code it derives from Rust std; it is retained verbatim with the canonical SPDX MIT text it names. The copyright header of src/lib.rs, the only copyright line of the crate, is retained verbatim in cesu8-1.1.0-SOURCE-NOTICES.txt.' },
   'cfg_aliases@0.2.2': { files: ['LICENSE', 'NOTICES.md'], note: 'The original NOTICES.md for the tectonic_cfg_support code that cfg_aliases reuses is retained.' },
   'combine@4.6.9': { files: ['LICENSE'] },
   'http-body@1.1.0': { files: ['LICENSE'] },
@@ -99,7 +101,7 @@ export const NEW_CRATES = {
   'iana-time-zone@0.1.65': { files: ['LICENSE-MIT'] },
   'ipnet@2.12.2': { files: ['LICENSE-MIT'] },
   'is-docker@0.2.0': { files: ['LICENSE'] },
-  'is-wsl@0.4.0': { files: ['LICENSE'] },
+  'is-wsl@0.4.0': { files: ['LICENSE'], notices: [`${LICENSES}/is-wsl-0.4.0-SOURCE-NOTICES.txt`], note: 'src/lib.rs copies get_os_release from sys-info with its MIT notice (Copyright (c) 2015 Siyu Wang); the block is retained verbatim in is-wsl-0.4.0-SOURCE-NOTICES.txt.' },
   'jni@0.21.1': { files: ['LICENSE-MIT'] },
   'jni-sys@0.3.1': { files: ['LICENSE-MIT'] },
   'jni-sys@0.4.1': { files: ['LICENSE-MIT'] },
@@ -709,6 +711,9 @@ export function deriveSelection(root, { metadata = androidMetadata(root), roles 
       } else {
         component.documents = decision.files.map(file => crateText(key, file));
         if (decision.spdxMit) { component.documents.push(useDocument(SPDX_MIT.path, [SPDX_MIT.url])); component.source_urls.push(SPDX_MIT.url); }
+        // In-source notices the package's texts lack, quoted in a reviewed file.
+        for (const notice of decision.notices ?? []) component.documents.push(useDocument(notice));
+        if (decision.notices) component.decision_basis.push(SOURCE_NOTICES_REPORT);
       }
       component.reason = `Explicit ${selected} selection using the complete original text. ${isRuntime(role) ? RUNTIME : BUILD}${decision.note ? ` ${decision.note}` : ''}`;
     }
