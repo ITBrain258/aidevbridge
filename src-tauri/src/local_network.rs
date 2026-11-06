@@ -3,16 +3,18 @@
 //! Fuer Apps mit `targetSdk` 37 sperrt Android 17 jede Verbindung ins lokale
 //! Netz, bis der Nutzer `ACCESS_LOCAL_NETWORK` erlaubt. Die Sperre sitzt im
 //! Netzwerkstack und trifft auch die Sockets dieser Bibliothek; ein gesperrter
-//! TCP-Aufbau endet laut Google in einer Zeitueberschreitung, ohne Hinweis auf
-//! den Grund.
+//! TCP-Aufbau endet laut Google in einer Zeitueberschreitung. Den Grund
+//! nennt erst `android_getnetworkblockedreason` aus dem NDK von API 37, das
+//! diese App nicht aufruft.
 //!
 //! `prepare` fragt deshalb vor dem Aufbau nach der Berechtigung, wenn sie
 //! fehlt und das Ziel im lokalen Netz liegt. Lehnt der Nutzer ab, verbindet
 //! die App trotzdem: Welche Adressen Android sperrt, entscheidet allein das
 //! System, und Googles Doku zaehlt die Bereiche nicht auf. Eine Adresse, die
 //! hier als lokal gilt, ueber ein VPN aber erreichbar ist, bliebe sonst ohne
-//! Grund gesperrt. Scheitert der Aufbau dann am Netz, setzt `Gate::explain`
-//! den Grund an die Stelle der Zeitueberschreitung. Der eigene Code
+//! Grund gesperrt. Scheitert der Aufbau dann am Netz, bevor ein
+//! Hostschluessel ankam, setzt `Gate::explain` den Grund an die Stelle der
+//! Zeitueberschreitung (`connect_host_core`). Der eigene Code
 //! `local_network_denied` haelt auch das Neuverbinden aus UX-Spec §5.4 an:
 //! ohne Erlaubnis scheiterte jeder weitere Versuch genauso.
 //!
@@ -24,8 +26,8 @@ use crate::commands::ConnectError;
 
 pub const DENIED_CODE: &str = "local_network_denied";
 
-/// Der Text nennt den Weg in den Einstellungen, weil Android nach zwei
-/// Ablehnungen keinen Dialog mehr zeigt.
+/// Der Text nennt den Weg in den Einstellungen, weil Android nach
+/// Ablehnungen den Dialog nicht bei jedem Versuch wieder zeigt.
 pub const DENIED_MESSAGE: &str = "The connection failed, and aidevbridge isn't allowed to reach \
      devices on your local network. Allow \"Nearby devices\" for aidevbridge in Android's \
      settings (Apps → aidevbridge → Permissions), then connect again.";
@@ -35,7 +37,9 @@ pub const DENIED_MESSAGE: &str = "The connection failed, and aidevbridge isn't a
 /// und Multicast, dazu IPv4 in IPv6 (`::ffff:192.168.1.2`). Loopback zaehlt
 /// nicht dazu: Es verlaesst das Geraet nicht. `100.64.0.0/10` (Carrier-NAT,
 /// auch Tailscale) ebenso wenig, der Weg dorthin fuehrt ueber den Anbieter
-/// oder ein VPN.
+/// oder ein VPN; ebenso Tailscales IPv6-Bereich `fd7a:115c:a1e0::/48`, der
+/// sonst als Unique Local zaehlte. Namen in Tailscale loesen meist auf beide
+/// Adressen auf und loesten sonst ueber die IPv6-Adresse den Dialog aus.
 pub fn is_local_address(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(ip) => is_local_v4(ip),
@@ -51,7 +55,15 @@ fn is_local_v4(ip: Ipv4Addr) -> bool {
 }
 
 fn is_local_v6(ip: Ipv6Addr) -> bool {
-    ip.is_unique_local() || ip.is_unicast_link_local() || ip.is_multicast()
+    (ip.is_unique_local() && !is_tailscale_v6(ip))
+        || ip.is_unicast_link_local()
+        || ip.is_multicast()
+}
+
+/// `fd7a:115c:a1e0::/48`, die IPv6-Adressen von Tailscale.
+fn is_tailscale_v6(ip: Ipv6Addr) -> bool {
+    let segments = ip.segments();
+    segments[0] == 0xfd7a && segments[1] == 0x115c && segments[2] == 0xa1e0
 }
 
 /// Namen unter `.local` loest mDNS im lokalen Netz auf; auch dafuer verlangt
@@ -74,7 +86,9 @@ pub enum Gate {
 impl Gate {
     /// Ersetzt einen Netzfehler durch den Grund, wenn die Berechtigung fehlt.
     /// Andere Fehler (Anmeldung, Hostschluessel, Abbruch) bleiben, wie sie
-    /// sind: Dann kam die Verbindung zustande, und die Sperre war es nicht.
+    /// sind. `connect_host_core` ruft das nur, solange kein Hostschluessel
+    /// ankam: Danach stand die Verbindung, und auch eine
+    /// Zeitueberschreitung hat einen anderen Grund.
     pub fn explain(self, error: ConnectError) -> ConnectError {
         match (self, error.code) {
             (Gate::Denied, "connect_timeout" | "host_unreachable") => ConnectError {
@@ -133,7 +147,7 @@ mod android {
     }
 
     /// So lange wartet der Aufbau auf die Antwort im Systemdialog. Kommt
-    /// keine (die Activity wurde neu erzeugt), geht er ohne Antwort weiter,
+    /// keine (der Dialog blieb so lange offen), geht er ohne Antwort weiter,
     /// wie ohne diese Abfrage.
     const ANSWER_WAIT: Duration = Duration::from_secs(120);
     /// Die Namensaufloesung nur fuer die Frage, ob das Ziel lokal ist. Sie
@@ -253,13 +267,15 @@ mod tests {
     }
 
     #[test]
-    fn public_loopback_and_carrier_nat_addresses_are_not_local() {
+    fn public_loopback_carrier_nat_and_tailscale_addresses_are_not_local() {
         for address in [
             "8.8.8.8",
             "172.32.0.1",
             "192.0.2.20",
             "100.64.0.1",
             "100.101.102.103",
+            "fd7a:115c:a1e0::1",
+            "fd7a:115c:a1e0:ab12:4843:cd96:6258:b240",
             "127.0.0.1",
             "::1",
             "2001:db8::1",
