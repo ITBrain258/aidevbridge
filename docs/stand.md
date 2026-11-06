@@ -144,7 +144,7 @@ Am 06.11.2026 vor dem nächsten Release, zweimal mit je drei bis vier
 voneinander unabhängigen Prüfungen, die nur lasen: nach PR #37 und #38 (ihre
 Befunde behebt PR #39) und danach auf `main` (`ae843c0`) für Code, CI und
 Release-Ablauf, Lizenzen und Sicherheitsmeldungen sowie Doku und Datenschutz
-(ihre Befunde behebt der Pull Request nach PR #39). Auf `ae843c0` waren CI,
+(ihre Befunde behebt PR #40). Auf `ae843c0` waren CI,
 `android.yml` und `packages.yml` grün, ebenso die Release-Probeläufe beider
 Workflows auf demselben Baum, noch mit Version 0.2.7. Der CI-Job `licenses`
 meldete keine Abweichung und `check` grün für windows-x64 (393/210),
