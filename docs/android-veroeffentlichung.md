@@ -17,10 +17,11 @@ spätere Update: ein Tag, sonst nichts.
 
 Alles hier liegt in `main`; seit 0.2.4 hängt die APK an jedem Release.
 
-- **Android-Projekt** unter `src-tauri/gen/android`: Ziel Android 16 (API 36),
+- **Android-Projekt** unter `src-tauri/gen/android`: Ziel Android 17 (API 37),
   ab Android 7.0, App-Icon, dunkles Theme, randlose Darstellung mit Platz für
-  Systemleisten und Tastatur, keine Cloud-Sicherung der Schlüssel, einzige
-  Berechtigung Internet.
+  Systemleisten und Tastatur, keine Cloud-Sicherung der Schlüssel,
+  Berechtigungen Internet und ab Android 17 „Geräte in der Nähe“ für Hosts im
+  lokalen Netz.
 - **Backend**: läuft auf Android (eigene Ordner der App statt `~/.ssh`),
   Schlüssel auf dem Gerät erzeugen oder importieren.
 - **Oberfläche fürs Telefon**: kompakte Ansicht mit Session-Schublade,

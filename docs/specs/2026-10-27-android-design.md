@@ -61,7 +61,8 @@ betrifft es nur Nutzer in diesen Ländern.
 - `src-tauri/gen/android` liegt im Repository, mit den Anpassungen aus §4.5,
   §4.6 und §6.2. Erzeugte Dateien (`tauri.properties`, `jniLibs`,
   `assets/tauri.conf.json`, `build/`) ignoriert git.
-- compileSdk und targetSdk 36, minSdk 24 (Android 7.0). Gebaut werden die
+- compileSdk und targetSdk 37 (seit dem Nachtrag vom 05.11.2026, vorher 36),
+  minSdk 24 (Android 7.0). Gebaut werden die
   ABIs arm64-v8a, armeabi-v7a und x86_64; x86 (32 Bit) entfällt.
 - NDK **r29** (`29.0.14206865`), Build-Tools 36.0.0, Rust 1.97.1 aus
   `rust-toolchain.toml` mit den drei Android-Zielen.
@@ -342,7 +343,10 @@ vom Telefon ersetzen sie besser (Plan, Schritt 12).
 
 - Datenschutzerklärung: [`PRIVACY.md`](../../PRIVACY.md), als URL im Store
   `https://github.com/ITBrain258/aidevbridge/blob/main/PRIVACY.md`.
-- Einzige Berechtigung: `INTERNET`.
+- Berechtigungen: `INTERNET` und seit dem Ziel-SDK 37 `ACCESS_LOCAL_NETWORK`
+  (Gruppe „Geräte in der Nähe“) für Hosts im lokalen Netz, siehe Nachtrag vom
+  05.11.2026 zum Ziel-SDK 37. Die App sucht keine Geräte; sie verbindet nur
+  zu eingetragenen Hosts.
 - Datensicherheit („Data safety“): Die App erhebt und teilt keine Daten. Sie
   überträgt nur an Server, die der Nutzer selbst einträgt, und das
   Ende-zu-Ende-verschlüsselt per SSH; Googles Definition nimmt solche
@@ -437,3 +441,55 @@ Windows eingetragen. `android.yml` lässt Clippy mit `-D warnings` für
 `aarch64-linux-android` laufen. Die Lizenzauswahl (§8) führt die neuen
 Bibliotheken; `kotlin-stdlib` 2.2.10 enthält mit `kotlin.time` Code aus
 ThreeTen-Backport, dessen BSD-3-Clause-Text dazukommt.
+
+## Nachtrag vom 05.11.2026: Ziel-SDK 37 und das lokale Netz
+
+compileSdk und targetSdk gehen auf 37 (Android 17), wie es die Vorlage der
+Tauri-CLI schon setzt; Play verlangt 37 erst ab August 2027. Das SDK-Paket
+heißt seit Android 17 `platforms;android-37.0`, `android.yml` installiert es.
+
+Die eine Verhaltensänderung, die die App trifft: Für Apps mit targetSdk 37
+sperrt Android 17 jede Verbindung ins lokale Netz, bis der Nutzer
+`ACCESS_LOCAL_NETWORK` erlaubt, eine Laufzeit-Berechtigung der Gruppe
+„Geräte in der Nähe“. Die Sperre sitzt im Netzwerkstack und gilt auch für die
+Sockets der Rust-Bibliothek; ein gesperrter TCP-Aufbau endet in einer
+Zeitüberschreitung ohne Hinweis auf den Grund. DNS (Port 53) bleibt frei.
+Mit targetSdk 36 bekommt die App den Zugriff über `INTERNET`, laut Google nur
+übergangsweise.
+
+- Das Manifest erklärt `ACCESS_LOCAL_NETWORK`.
+- `LocalNetworkPlugin.kt` (ein Tauri-Plugin der App) liefert den Stand der
+  Berechtigung und zeigt den Systemdialog. Vor Android 17 gilt sie als
+  erteilt: Dort gibt es sie nicht, und `INTERNET` genügt.
+- `src-tauri/src/local_network.rs`: `connect_host` fragt vor dem Aufbau,
+  wenn die Berechtigung fehlt und das Ziel lokal ist. Lokal sind private
+  IPv4-Bereiche, Link-local, Multicast und Broadcast, IPv6 `fc00::/7` und
+  Link-local, IPv4 in IPv6 sowie Namen unter `.local`; ein anderer Name wird
+  dafür aufgelöst. Loopback und `100.64.0.0/10` (Carrier-NAT, Tailscale)
+  zählen nicht dazu. Googles Doku zählt die Bereiche nicht auf.
+- Lehnt der Nutzer ab, verbindet die App trotzdem: Was gesperrt ist,
+  entscheidet allein das System, und ein über VPN erreichbarer privater Host
+  bliebe sonst ohne Grund zu. Scheitert der Aufbau dann mit
+  Zeitüberschreitung oder „nicht erreichbar“, meldet die App
+  `local_network_denied` mit dem Weg in die Einstellungen. Der Code steht
+  nicht unter den wiederholbaren (`reconnect.ts`), das Neuverbinden aus §5.4
+  hält also an. Nach zwei Ablehnungen zeigt Android keinen Dialog mehr.
+- Beim Start verbinden mehrere Hosts zugleich. Sie fragen nacheinander, weil
+  Tauris `PluginManager` nur einen Rückruf für Berechtigungsantworten hält;
+  wer bis 10 s nach einer Ablehnung drankommt, fragt nicht noch einmal.
+- Die übrigen Änderungen für targetSdk 37 treffen die App nicht: Sie lädt
+  ihre Bibliothek mit `System.loadLibrary` aus der APK (die Pflicht zum
+  Schreibschutz gilt `System.load`), fixiert keine Ausrichtung, nutzt kein
+  TLS außer im WebView (Certificate Transparency und ECH), keine SMS,
+  Kontakte, Widgets und kein Audio im Hintergrund.
+
+Am 06.11. lief der CI-Bau des Branches auf einem Telefon mit Android 17 und
+verband sich. Offen bleibt, ob Android Loopback oder Hosts hinter einem VPN
+sperrt.
+
+Ein lokaler Bau außerhalb der Tauri-CLI braucht deren
+`app/proguard-tauri.pro` (git ignoriert sie): Die Regel hält
+`TauriActivity.getPluginManager` für R8. Ohne sie entfernt R8 die Methode,
+die Registrierung der Plugins über JNI scheitert, und die Release-APK schließt
+sich gleich nach dem Start, auch mit targetSdk 36. Die ersten Test-APKs vom
+05.11. hatten genau diesen Fehler.

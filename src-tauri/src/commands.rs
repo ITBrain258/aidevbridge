@@ -2881,7 +2881,13 @@ pub async fn connect_host(
     host_id: String,
     spec: HostSpecDto,
 ) -> Result<String, ConnectError> {
-    connect_host_impl(state.inner(), Arc::new(app), host_id, spec).await
+    // Android 17: vor dem Aufbau die Berechtigung fuers lokale Netz
+    // (`local_network`). Der Dialog laeuft innerhalb der Gesamtfrist des
+    // Versuchs (240 s), nicht in der Frist des Netzes.
+    let local_network = crate::local_network::prepare(&app, &spec.hostname, spec.port).await;
+    connect_host_impl(state.inner(), Arc::new(app), host_id, spec)
+        .await
+        .map_err(|error| local_network.explain(error))
 }
 
 #[tauri::command]

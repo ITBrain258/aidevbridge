@@ -1018,8 +1018,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 183592,
-            "sha256": "1c03cc294778a5eb36008425bba3d502b80e15d72482fa770176ef408e8c9587"
+            "bytes": 183949,
+            "sha256": "06cf881020572cdb635356569d6977f771fb2da76c47892732f99fb9e82a5f6e"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1068,8 +1068,13 @@
           },
           {
             "path": "src-tauri/src/lib.rs",
-            "bytes": 9717,
-            "sha256": "47219546e279e7786390e58d9d26e5081c4994ee01ec1cdffaf8c4507ca4c53a"
+            "bytes": 10035,
+            "sha256": "34eb93019bef133860a59f390a8f35964af94532420852f945ca8fd0cf3cf743"
+          },
+          {
+            "path": "src-tauri/src/local_network.rs",
+            "bytes": 10886,
+            "sha256": "97ea67e885537b818077dceb001327e8c7ac9dfb8690634d6434c20ae9c21320"
           },
           {
             "path": "src-tauri/src/main.rs",

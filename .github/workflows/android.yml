@@ -87,7 +87,7 @@ jobs:
           echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$sdkmanager" --licenses > /dev/null || true
-          "$sdkmanager" --install "platforms;android-36" "build-tools;$BUILD_TOOLS" "ndk;$NDK_VERSION" > /dev/null
+          "$sdkmanager" --install "platforms;android-37.0" "build-tools;$BUILD_TOOLS" "ndk;$NDK_VERSION" > /dev/null
           echo "NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
       # The Android code paths (cfg(target_os = "android")) never compile in
       # ci.yml. Build scripts such as ring's compile C for the target, hence

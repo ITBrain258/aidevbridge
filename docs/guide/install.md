@@ -71,6 +71,12 @@ other, which removes the hosts and keys stored in the app.
 On a phone the app shows one terminal at a time, with the sessions in a drawer, a
 key bar for Esc, Tab, Ctrl, Alt and the arrows, and swipe scrolling.
 
+From Android 17 on, the app asks for **Nearby devices** before its first
+connection to a host on your local network (for example `192.168.x.x`, `10.x.x.x`
+or a name ending in `.local`): Android blocks the local network for every app
+until you allow it. Hosts on the internet need no permission. If you declined, allow
+it under Settings → Apps → aidevbridge → Permissions.
+
 There is no ssh-agent on Android. When you add a host, choose
 **Generate new key…** and add the line it shows to `~/.ssh/authorized_keys` on the
 host, or **Choose file…** to import an existing private key, or **Password**.

@@ -30,7 +30,7 @@ fun signingValue(property: String, env: String): String? =
     System.getenv(env)?.takeIf { it.isNotEmpty() } ?: keystoreProperties.getProperty(property)
 
 android {
-    compileSdk = 36
+    compileSdk = 37
     // Dasselbe NDK wie fuer die Rust-Bibliothek (android.yml, NDK_VERSION);
     // es zieht auch die Symboltabelle fuer Play heraus (release unten).
     ndkVersion = "29.0.14206865"
@@ -50,7 +50,7 @@ android {
         manifestPlaceholders["usesCleartextTraffic"] = "false"
         applicationId = "io.github.itbrain258.aidevbridge"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
         versionName = tauriProperties.getProperty("tauri.android.versionName", "1.0")
     }
