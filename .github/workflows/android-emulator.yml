@@ -72,9 +72,18 @@ jobs:
           mkdir -p "$ANDROID_AVD_HOME"
           echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n check -k "$SYSTEM_IMAGE" > /dev/null
           "$ANDROID_HOME/emulator/emulator" -avd check -no-window -no-audio -no-boot-anim -no-snapshot \
-            -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.txt" 2>&1 &
-          timeout 600 "$adb" wait-for-device
-          timeout 600 bash -c "until [ \"\$('$adb' shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')\" = 1 ]; do sleep 5; done"
+            -accel on -cores 4 -memory 4096 -gpu swiftshader_indirect -camera-back none -camera-front none \
+            > "$RUNNER_TEMP/emulator.txt" 2>&1 &
+          timeout 300 "$adb" wait-for-device
+          echo "device is there, waiting for the boot"
+          for i in $(seq 1 120); do
+            [ "$("$adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] && break
+            if [ $((i % 6)) = 0 ]; then
+              echo "boot after $((i * 10)) s: bootanim=$("$adb" shell getprop init.svc.bootanim 2>/dev/null | tr -d '\r')"
+            fi
+            sleep 10
+          done
+          [ "$("$adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] || { echo "::error::no boot in 20 minutes"; tail -40 "$RUNNER_TEMP/emulator.txt"; exit 1; }
           "$adb" shell getprop ro.build.version.sdk
           "$adb" shell wm dismiss-keyguard || true
           # For comparison: the last release (target SDK 36) in the same
