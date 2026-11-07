@@ -109,9 +109,21 @@ impl AuthError {
             Self::SigningFailed => {
                 "Secure signing failed. Try again or choose another authentication method."
             }
-            Self::AgentUnavailable(_) => {
+            // Der Weg zum Agent ist je System ein anderer: unter Windows der
+            // Dienst hinter der Named Pipe, unter macOS der Socket, den
+            // launchd in `SSH_AUTH_SOCK` setzt (`connect_agent`).
+            Self::AgentUnavailable(_) if cfg!(windows) => {
                 "ssh-agent not reachable. On Windows 11 the service is disabled by default — \
                  start it with: Set-Service ssh-agent -StartupType Automatic; Start-Service ssh-agent"
+            }
+            Self::AgentUnavailable(_) if cfg!(target_os = "macos") => {
+                "ssh-agent not reachable. On macOS launchd provides it: check that \
+                 launchctl getenv SSH_AUTH_SOCK names a socket and that ssh-add -l answers, \
+                 or choose a key file."
+            }
+            Self::AgentUnavailable(_) => {
+                "ssh-agent not reachable. Check that SSH_AUTH_SOCK names a running agent and \
+                 that ssh-add -l answers, or choose a key file."
             }
             Self::AgentNoIdentities(_) => {
                 "ssh-agent is reachable but has no keys loaded. Add one with: ssh-add"

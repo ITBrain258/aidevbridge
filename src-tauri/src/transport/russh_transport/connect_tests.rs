@@ -966,3 +966,102 @@ async fn known_host_key_types_decide_which_key_the_server_presents() {
         let _ = timeout(TEST_END, server).await.unwrap();
     }
 }
+
+/// RFC 8305: Antwortet die erste Adresse nie (ein still verworfenes IPv6, eine
+/// VPN-Route), startet nach `CONNECTION_ATTEMPT_DELAY` die naechste daneben.
+/// Sie gewinnt, lange bevor das Netzbudget ablaeuft; frueher wartete die App
+/// das ganze Budget auf die erste.
+#[tokio::test]
+async fn a_silent_first_address_gets_the_next_one_beside_it_after_the_attempt_delay() {
+    let silent: SocketAddr = "[2001:db8::1]:22".parse().unwrap();
+    let (listener, mut spec) = listener().await;
+    let reachable = listener.local_addr().unwrap();
+    spec.hostname = "silent-first.fixture.invalid".into();
+    let control = ConnectControl::new(ConnectLimits {
+        total: TEST_END,
+        network: TEST_END,
+        ..limits()
+    });
+    let pool = BlockingPool::new(1, 1);
+    let attempted = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let seen = attempted.clone();
+    let started = tokio::time::Instant::now();
+    let stream = control
+        .wait_network(resolve_and_connect(
+            &spec,
+            &control,
+            &pool,
+            move |_, _| Ok(vec![silent, reachable]),
+            move |address| {
+                seen.lock().unwrap().push((address, started.elapsed()));
+                async move {
+                    if address == silent {
+                        std::future::pending::<()>().await;
+                    }
+                    TcpStream::connect(address).await
+                }
+            },
+        ))
+        .await
+        .unwrap()
+        .unwrap();
+    let elapsed = started.elapsed();
+    let attempted = attempted.lock().unwrap().clone();
+    assert_eq!(
+        attempted
+            .iter()
+            .map(|(address, _)| *address)
+            .collect::<Vec<_>>(),
+        vec![silent, reachable]
+    );
+    assert!(attempted[1].1 >= CONNECTION_ATTEMPT_DELAY, "{attempted:?}");
+    assert!(elapsed < Duration::from_secs(2), "{elapsed:?}");
+    assert_eq!(stream.peer_addr().unwrap(), reachable);
+    drop(stream);
+    let _ = timeout(TEST_END, listener.accept()).await.unwrap().unwrap();
+}
+
+/// Scheitert ein Versuch, kommt die naechste Adresse sofort dran, ohne den
+/// Vorsprung abzuwarten.
+#[tokio::test]
+async fn a_failed_attempt_starts_the_next_address_at_once() {
+    let (listener, mut spec) = listener().await;
+    let reachable = listener.local_addr().unwrap();
+    let refused: SocketAddr = "127.0.0.1:1".parse().unwrap();
+    spec.hostname = "failed-first.fixture.invalid".into();
+    let control = ConnectControl::new(ConnectLimits {
+        total: TEST_END,
+        network: TEST_END,
+        ..limits()
+    });
+    let pool = BlockingPool::new(1, 1);
+    let started = tokio::time::Instant::now();
+    let second_at = Arc::new(std::sync::Mutex::new(None));
+    let seen = second_at.clone();
+    let stream = control
+        .wait_network(resolve_and_connect(
+            &spec,
+            &control,
+            &pool,
+            move |_, _| Ok(vec![refused, reachable]),
+            move |address| {
+                if address == reachable {
+                    *seen.lock().unwrap() = Some(started.elapsed());
+                }
+                async move {
+                    if address == refused {
+                        return Err(std::io::Error::from(std::io::ErrorKind::ConnectionRefused));
+                    }
+                    TcpStream::connect(address).await
+                }
+            },
+        ))
+        .await
+        .unwrap()
+        .unwrap();
+    let second_at = second_at.lock().unwrap().expect("second attempt");
+    assert!(second_at < CONNECTION_ATTEMPT_DELAY, "{second_at:?}");
+    assert_eq!(stream.peer_addr().unwrap(), reachable);
+    drop(stream);
+    let _ = timeout(TEST_END, listener.accept()).await.unwrap().unwrap();
+}

@@ -991,8 +991,11 @@ async fn operation_exec_missing_exit_or_excess_output_never_returns_success() {
     }
 }
 
+/// Eine Kachel, die waehrend ihres Oeffnens geschlossen wird, bricht ihre
+/// Steuerbefehle ab. Steht einer davon gerade im Kanaloeffnen, schliesst der
+/// Actor den spaeten Kanal, statt die Steuerverbindung des Hosts zu opfern.
 #[tokio::test]
-async fn operation_pending_exec_open_cancel_aborts_transport_without_submission() {
+async fn operation_cancelled_exec_open_accepts_late_ack_only_to_close_without_submission() {
     for drop_caller in [false, true] {
         Peer::new(Scenario::HoldOpen)
         .await
@@ -1007,19 +1010,48 @@ async fn operation_pending_exec_open_cancel_aborts_transport_without_submission(
                 // Drop the actual allocated caller future, not just a Pin<&mut>.
                 drop(query);
                 assert!(control.is_cancelled());
-                timeout(END, transport.closed()).await.unwrap();
             } else {
                 control.cancel();
                 let error = exec_error(query.await);
                 assert_eq!((error.phase, error.reason, error.submission), (ExecPhase::Open, ExecReason::Cancelled, Submission::NotSubmitted));
             }
+            assert!(transport.is_usable());
+            held.accept().await;
+            observed(&seen.closes, 1).await;
+            assert_eq!(seen.execs.load(Ordering::SeqCst), 0);
+            assert!(transport.is_usable());
+        })
+        .await;
+    }
+}
+
+/// Bleibt die Antwort auf ein abgebrochenes Open auch nach `CLEANUP` aus,
+/// ist die Kanalnummer verloren; erst dann opfert der Actor die
+/// Steuerverbindung.
+#[tokio::test]
+async fn operation_cancelled_exec_open_without_late_ack_aborts_transport_after_cleanup() {
+    Peer::new(Scenario::HoldOpen)
+        .await
+        .check(move |transport, seen, mut delayed| async move {
+            let control = OperationControl::new(END);
+            let mut query =
+                Box::pin(transport.exec_controlled("must-not-be-submitted", control.clone()));
+            let held = tokio::select! {
+                result = &mut query => panic!("unexpected result before open reply: {result:?}"),
+                reply = delayed.recv() => reply.unwrap(),
+            };
+            let cancelled = Instant::now();
+            control.cancel();
+            assert_eq!(exec_error(query.await).reason, ExecReason::Cancelled);
+            assert!(transport.is_usable());
+            timeout(END, transport.closed()).await.unwrap();
+            assert!(cancelled.elapsed() >= Duration::from_secs(2));
             assert!(!transport.is_usable());
             assert_eq!(seen.execs.load(Ordering::SeqCst), 0);
             assert_peer_ended_before_fixture_cleanup(&seen).await;
             drop(held); // only after observing the product's transport abort
         })
         .await;
-    }
 }
 
 #[tokio::test]
@@ -1537,15 +1569,16 @@ async fn operation_control_open_failure_preserves_independent_terminal_io_and_re
             Peer::new(Scenario::HoldOpen)
                 .await
                 .check(move |control, seen, mut delayed| async move {
-                    let budget = OperationControl::new(END);
+                    // Eine Frist, die ein gesendetes Open beendet, opfert die
+                    // Steuerverbindung, wie bisher.
+                    let budget = OperationControl::new(Duration::from_millis(300));
                     let query = control.exec_controlled("control-read", budget.clone());
                     tokio::pin!(query);
                     let held = tokio::select! {
                         result = &mut query => panic!("control ended before held open: {result:?}"),
                         reply = delayed.recv() => reply.unwrap(),
                     };
-                    budget.cancel();
-                    assert_eq!(exec_error(query.await).reason, ExecReason::Cancelled);
+                    assert_eq!(exec_error(query.await).reason, ExecReason::Timeout);
                     assert_peer_ended_before_fixture_cleanup(&seen).await;
                     drop(held);
                     assert!(!control.is_usable());

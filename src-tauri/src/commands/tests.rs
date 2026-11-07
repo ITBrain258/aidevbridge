@@ -987,18 +987,28 @@ fn auth_error_message_prefers_the_user_message_over_the_terse_display() {
 
 /// Der wichtigste Einzelfall (Design §4.5): Windows 11 liefert den
 /// ssh-agent standardmaessig deaktiviert aus. `AgentUnavailable`s
-/// `user_message()` nennt den PowerShell-Befehl, der ihn startet; der Test
-/// haelt fest, dass `auth_error_message` genau diese Meldung liefert.
+/// `user_message()` nennt dort den PowerShell-Befehl, der ihn startet; der
+/// Test haelt fest, dass `auth_error_message` genau diese Meldung liefert.
+/// Unter macOS und Linux gibt es diesen Befehl nicht: dort nennt die Meldung
+/// `SSH_AUTH_SOCK` und `ssh-add -l`.
 #[test]
 fn auth_error_message_carries_the_actionable_ssh_agent_instruction() {
     let e = anyhow::Error::from(AuthError::AgentUnavailable(
         "connection refused".to_string(),
     ));
     let message = auth_error_message(&e);
-    assert!(
-        message.contains("Set-Service ssh-agent"),
-        "die ssh-agent-Meldung muss den Startbefehl enthalten, war: {message}"
-    );
+    if cfg!(windows) {
+        assert!(
+            message.contains("Set-Service ssh-agent"),
+            "die ssh-agent-Meldung muss den Startbefehl enthalten, war: {message}"
+        );
+    } else {
+        assert!(
+            message.contains("SSH_AUTH_SOCK") && message.contains("ssh-add -l"),
+            "die ssh-agent-Meldung muss den Weg zum Agent nennen, war: {message}"
+        );
+        assert!(!message.contains("Set-Service"), "{message}");
+    }
 }
 
 /// Zwei Nicht-Regressionen in einem: eine `AuthError`-Variante bleibt
@@ -3127,6 +3137,43 @@ async fn ready_host_finds_only_a_ready_connection() {
     tokio::time::timeout(
         Duration::from_secs(8),
         disconnect_host_impl(&state, "ready-h0".into()),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    fixture.finish(2).await;
+}
+
+/// Scheitert schon der Befehl `tmux -V` (hier: der Server lehnt sein Kanal-Open
+/// ab, wie bei einem Engpass), scheitert die Liste mit diesem Grund. Sie gibt
+/// die eigenen Sessions nicht als "ungemessen" ohne Bindung aus, und kein
+/// weiterer Befehl geht hinaus.
+#[tokio::test]
+async fn a_failed_version_command_fails_the_list_instead_of_reporting_unmeasured() {
+    let fixture = crate::connection::tests::Fixture::start(2, false, false, false).await;
+    let host = fixture.connect().await.unwrap();
+    host.start_monitor();
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
+    state
+        .hosts
+        .lock()
+        .unwrap()
+        .insert("hermetic-h0".into(), HostSlot::Ready(host));
+    fixture.reject_control_opens(1);
+
+    let listed = tokio::time::timeout(
+        Duration::from_secs(8),
+        list_sockets_impl(&state, "hermetic-h0".into(), false),
+    )
+    .await
+    .unwrap();
+
+    let error = listed.expect_err("the list must fail");
+    assert_eq!(error.code, "other", "{}", error.message);
+    assert!(fixture.control_commands().is_empty());
+    tokio::time::timeout(
+        Duration::from_secs(8),
+        disconnect_host_impl(&state, "hermetic-h0".into()),
     )
     .await
     .unwrap()
