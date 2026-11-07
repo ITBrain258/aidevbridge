@@ -24,7 +24,9 @@ profile:
   host's key changes. On Windows and macOS this is the file `known_hosts` in
   `~/.ssh` (on Windows `%USERPROFILE%\.ssh\known_hosts`), which OpenSSH uses
   as well. The app only appends to it, and its entries stay after you
-  uninstall the app.
+  uninstall the app. A host you confirm in the app is added with its name in
+  clear text, also if you set `HashKnownHosts yes`; `ssh-keygen -H` hashes
+  the file afterwards (see [Limits](docs/guide/limits.md)).
 - **SSH keys you generate or import in the app** (Android). On Windows and
   macOS the app reads your existing keys in `~/.ssh` and never copies them.
 - **Window position and size and the data of the web view** (Windows and
