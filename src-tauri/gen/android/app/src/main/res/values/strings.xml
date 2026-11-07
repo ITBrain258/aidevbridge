@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">"aidevbridge"</string>
     <string name="main_activity_title">"aidevbridge"</string>
+    <string name="webview_outdated_title">Android System WebView is too old</string>
+    <string name="webview_outdated_message">aidevbridge draws its window with the system web view. This device has version %1$s; the app needs version %2$d or newer, or parts of the window and the dialogs do not work. Update Android System WebView (or Chrome) in the Play Store.</string>
+    <string name="webview_outdated_update">Open Play Store</string>
 </resources>

@@ -573,6 +573,96 @@ describe("mountSidebar: Eingabefeld der Hinweisleiste uebersteht ein Neuzeichnen
     expect(after.selectionEnd).toBe(3);
     expect(document.activeElement).toBe(after);
   });
+
+  function failedPasswordHost(): { el: HTMLDivElement; s: AppState; h: ReturnType<typeof handlers> } {
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const s = new AppState();
+    s.upsertHost({
+      ...host("h1"),
+      state: "failed",
+      error: "Wrong password for this account.",
+      errorCode: "password_required",
+      authKind: "password",
+    });
+    s.upsertHost({ ...host("h2"), state: "connected" });
+    const h = handlers();
+    mountSidebar(el, s, h);
+    return { el, s, h };
+  }
+
+  function typeInto(input: HTMLInputElement, value: string): void {
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  const passwordField = (el: HTMLElement) => el.querySelector(".host-notice input[name=password]") as HTMLInputElement;
+  const retry = (el: HTMLElement) => el.querySelector(".host-notice .host-notice-link") as HTMLButtonElement;
+
+  // Der Tastaturweg ohne Enter: tippen, Tab auf "Retry". Das Feld hat dann
+  // keinen Fokus mehr, und ein Neuzeichnen durch einen ANDEREN Host
+  // verwarf den Wert.
+  it("behaelt den getippten Wert auch, wenn der Fokus schon auf Retry steht", () => {
+    const { el, s, h } = failedPasswordHost();
+    typeInto(passwordField(el), "geheim");
+    retry(el).focus();
+
+    s.setHostState("h2", "disconnected");
+
+    expect(passwordField(el).value).toBe("geheim");
+    expect(document.activeElement).toBe(retry(el));
+    retry(el).click();
+    expect(h.onConnectHost).toHaveBeenCalledWith("h1", { password: "geheim" });
+    el.remove();
+  });
+
+  it("Enter im Feld versucht es wie Retry", () => {
+    const { el, h } = failedPasswordHost();
+    const input = passwordField(el);
+    typeInto(input, "geheim");
+
+    const enter = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+    input.dispatchEvent(enter);
+
+    expect(enter.defaultPrevented).toBe(true);
+    expect(h.onConnectHost).toHaveBeenCalledExactlyOnceWith("h1", { password: "geheim" });
+    el.remove();
+  });
+
+  it("Enter waehrend einer Komposition der Eingabemethode versucht nichts", () => {
+    const { el, h } = failedPasswordHost();
+    const input = passwordField(el);
+    typeInto(input, "geheim");
+
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", isComposing: true, bubbles: true, cancelable: true }));
+
+    expect(h.onConnectHost).not.toHaveBeenCalled();
+    el.remove();
+  });
+
+  it("haelt den Wert nicht ueber den Versuch hinaus", () => {
+    const { el, s } = failedPasswordHost();
+    typeInto(passwordField(el), "geheim");
+    retry(el).click();
+
+    // Was `onConnectHost` in main.ts tut: verbinden, erneut scheitern.
+    s.setHostState("h1", "connecting");
+    s.setHostState("h1", "failed", "Wrong password for this account.", "password_required");
+
+    expect(passwordField(el).value).toBe("");
+    el.remove();
+  });
+
+  it("verwirft den Wert, sobald die Hinweisleiste ohne Versuch verschwindet", () => {
+    const { el, s } = failedPasswordHost();
+    typeInto(passwordField(el), "geheim");
+
+    s.setHostState("h1", "disconnected");
+    s.setHostState("h1", "failed", "Wrong password for this account.", "password_required");
+
+    expect(passwordField(el).value).toBe("");
+    el.remove();
+  });
 });
 
 // =====================================================================

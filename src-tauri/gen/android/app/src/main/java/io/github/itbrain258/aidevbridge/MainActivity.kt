@@ -1,12 +1,18 @@
 package io.github.itbrain258.aidevbridge
 
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.webkit.WebSettings
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.webkit.WebViewCompat
 
 class MainActivity : TauriActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,5 +37,54 @@ class MainActivity : TauriActivity() {
       view.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
       WindowInsetsCompat.CONSUMED
     }
+    if (savedInstanceState == null) warnAboutOldWebView()
+  }
+
+  // Die Oberflaeche braucht Android System WebView 105 oder neuer (CSS :has()
+  // und :focus-visible, das Attribut inert). Aelter ist sie nur noch auf einem
+  // Geraet, dessen Webansicht keine Updates bekommt: ohne Play Store, mit
+  // abgeschaltetem Update oder lange offline. Dann sagt ein Dialog, was fehlt,
+  // statt einer Oberflaeche ohne Fokusringe und mit durchlaessigen Dialogen;
+  // die App laeuft trotzdem weiter. Die Version kommt aus dem User-Agent
+  // (`Chrome/NNN`), also in der Zaehlung von Chromium, auch bei Anbietern,
+  // deren Paket eine eigene Versionsnummer traegt. Ohne lesbare Version kein
+  // Dialog.
+  private fun warnAboutOldWebView() {
+    val userAgent = try {
+      WebSettings.getDefaultUserAgent(this)
+    } catch (ignored: RuntimeException) {
+      return
+    }
+    val version = CHROME_VERSION.find(userAgent)?.groupValues?.get(1) ?: return
+    val major = version.substringBefore('.').toIntOrNull() ?: return
+    if (major >= MIN_WEBVIEW_MAJOR) return
+    val webViewPackage =
+      WebViewCompat.getCurrentWebViewPackage(this)?.packageName ?: DEFAULT_WEBVIEW_PACKAGE
+    AlertDialog.Builder(this)
+      .setTitle(R.string.webview_outdated_title)
+      .setMessage(getString(R.string.webview_outdated_message, version, MIN_WEBVIEW_MAJOR))
+      .setPositiveButton(R.string.webview_outdated_update) { _, _ -> openStore(webViewPackage) }
+      .setNegativeButton(android.R.string.cancel, null)
+      .show()
+  }
+
+  private fun openStore(packageName: String) {
+    for (uri in listOf(
+      "market://details?id=$packageName",
+      "https://play.google.com/store/apps/details?id=$packageName",
+    )) {
+      try {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+        return
+      } catch (ignored: ActivityNotFoundException) {
+        // Kein Play Store: dann die Seite im Browser, sonst nichts.
+      }
+    }
+  }
+
+  private companion object {
+    const val MIN_WEBVIEW_MAJOR = 105
+    const val DEFAULT_WEBVIEW_PACKAGE = "com.google.android.webview"
+    val CHROME_VERSION = Regex("""Chrome/(\d+(?:\.\d+)*)""")
   }
 }

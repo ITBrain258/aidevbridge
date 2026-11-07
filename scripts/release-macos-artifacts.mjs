@@ -25,7 +25,7 @@ const CONFIG = 'src-tauri/tauri.release.macos.json';
 const LOCK = 'out/.aidevbridge-macos-release.lock';
 const RUNS = 'out/release-macos';
 const IDENTIFIER = 'io.github.itbrain258.aidevbridge';
-const MINIMUM_SYSTEM = '11.0';
+const MINIMUM_SYSTEM = '12.4';
 export const EXPECTED_CONFIG = {
   build: { beforeBuildCommand: 'node scripts/release-macos-artifacts.mjs before-build', beforeBundleCommand: 'node scripts/release-macos-artifacts.mjs before-bundle' },
   bundle: { targets: ['app', 'dmg'], category: 'DeveloperTool', resources: { '../out/release-notices-macos/': 'licenses/' }, macOS: { minimumSystemVersion: MINIMUM_SYSTEM, signingIdentity: '-', hardenedRuntime: true } },

@@ -10,7 +10,7 @@
       "../out/release-notices-macos/": "licenses/"
     },
     "macOS": {
-      "minimumSystemVersion": "11.0",
+      "minimumSystemVersion": "12.4",
       "signingIdentity": "-",
       "hardenedRuntime": true
     }

@@ -2291,9 +2291,6 @@ kbd {
   /* Spec 2026-10-19 §4.3: absolut im Raster; `width`/`height` inline schliessen
      den Rahmen ein, sonst ragte jede Kachel 2 px in die Luecke. */
   position: absolute;
-  /* Fuer den schmalen Kopf (`@container tile` unten). Die Breite steht inline,
-     die Eindaemmung der Breite aendert also nichts an der Lage. */
-  container: tile / inline-size;
   box-sizing: border-box;
   flex-direction: column;
   min-width: 0;
@@ -2611,24 +2608,25 @@ kbd {
    Host nichts. Dann weicht der Host ganz, die Pille zeigt nur ihren Punkt
    (ihr Wort steht im Tooltip, grid.ts) und der Groessenchip nur die Groesse in
    Warnfarbe. Wort und "narrow" bleiben fuer Bildschirmleser im Baum, mit der
-   Klemm-Technik von `.ab-visually-hidden`. */
-@container tile (max-width: 259px) {
-  .tile-host {
-    display: none;
-  }
+   Klemm-Technik von `.ab-visually-hidden`. Die Klasse setzt `grid.ts` aus der
+   Breite, die es ohnehin inline setzt (`NARROW_TILE_WIDTH`): eine
+   Container-Abfrage kennt WKWebView erst ab Safari 16, die App laeuft ab
+   macOS 12.4 (Safari 15.5). */
+.tile--narrow .tile-host {
+  display: none;
+}
 
-  /* Spec 2026-10-25 §7: vom Kennzeichen bleibt das Symbol. */
-  .tile-head .st-word,
-  .tile-tmux-word,
-  .tile-narrow-rest {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-  }
+/* Spec 2026-10-25 §7: vom Kennzeichen bleibt das Symbol. */
+.tile--narrow .tile-head .st-word,
+.tile--narrow .tile-tmux-word,
+.tile--narrow .tile-narrow-rest {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 /* Abnahme B4: schrumpft, sobald Titel und Host nichts mehr hergeben -- dann
@@ -4299,6 +4297,18 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   .row-host .chev { position: relative; top: 2px; }
   .row-session .ind-box, .dir-row .chev, .preflight-check .icon-box, .base-card-check,
   .tile-btn .icon-box, .tile-copied .icon-box, .sb-btn .icon-box, .st .icon-box, .btn--danger::before { position: relative; top: 1px; }
+}
+
+/* `overflow: clip` kennt WebKit erst ab Safari 16; unter macOS 12.4 und 12.5
+   (WebKit von Safari 15.5) ist die Deklaration ungueltig, und die gekuerzten
+   Beschriftungen liefen ohne Auslassungspunkte in Zaehler und Nachbarkacheln.
+   Dort beschneidet `hidden`. Senkrecht kostet das nichts: ohne `text-box`
+   (siehe oben) ist der Textkasten nicht getrimmt, Unterlaengen liegen darin. */
+@supports not (overflow: clip) {
+  .first-run-suggestion-alias, .first-run-suggestion-detail, .row-label, .row-lane-reason,
+  .tile-head, .tile-chip-text, .tile-title, .tile-host, .tile-lock, .tile-lock-message {
+    overflow: hidden;
+  }
 }
 
 /* Kleinschrift (v2 §6.1): fuer 10 und 11 px "Segoe UI Variable Small" voran. */

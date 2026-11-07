@@ -192,7 +192,14 @@ double-click with `set -g mouse on`); tmux drops OSC 52 from programs, as
 long as passthrough is off. With `on`, any program in the session, or text
 it prints, such as a file shown with `cat`, can replace your clipboard.
 Pasted into a shell without bracketed paste, such text can run commands you
-didn't intend (pastejacking).
+didn't intend (pastejacking). The app removes control characters from
+everything you paste (all C0 characters except tab, line feed and carriage
+return, plus DEL and the C1 range), so pasted text cannot end bracketed paste
+early with its own `ESC [201~` and have the rest run as typed input. Line
+breaks stay: in a shell or program without bracketed paste, each pasted line
+still runs as you paste it. On Android, text that a keyboard app inserts
+from its own clipboard (such as a clipboard suggestion of the keyboard)
+arrives as typed input and is not filtered; the system menu's **Paste** is.
 
 Why it is accepted: the app follows your tmux configuration and version.
 Forcing `external` would take the built-in copy commands of the agents away
@@ -443,6 +450,24 @@ any branch of this repository could name the environment and read the key.
 A repository ruleset ("Release tags v*") lets only an admin create, move or
 delete such a tag, so a workflow or a token without admin rights cannot get
 code signed by tagging it.
+
+### The system web view on systems without updates
+
+The window is drawn by the web view of the system: WebView2 on Windows, the
+WebKit of macOS, Android System WebView (or Chrome) on Android. The app ships
+none of them and gets their security fixes only through the system. On
+macOS 11 and 12, WebKit is renewed only with macOS updates, not with a newer
+Safari; Apple no longer ships security updates for macOS 12 and 13. On Android 7 to 9
+Google no longer updates the web view (Android 7 stops at version 119,
+Android 8 and 9 at 138). The app needs macOS 12.4 and Android System WebView
+105, so it runs on such systems, but a flaw in their web view stays open
+there.
+
+Why it is accepted: the app loads no web pages. It shows its own interface
+from the app bundle, the CSP allows no outside scripts, and the output of
+your hosts reaches the screen as text through xterm.js. Requiring the
+versions the vendors still support would lock out working systems. If you
+can, keep the system and its web view up to date.
 
 ### Several windows at the same time
 

@@ -3920,8 +3920,9 @@ pub async fn list_sessions_impl(
 }
 
 /// Liest den eigenen Socket und, wenn verlangt, den Standard-Socket; den
-/// eigenen zuerst, beide mit derselben Frist. Ein fehlender Host scheitert
-/// ganz, ein Fehler eines Sockets nur fuer diesen.
+/// eigenen zuerst, beide mit derselben Frist. Ein fehlender Host und ein
+/// gescheiterter Befehl `tmux -V` scheitern ganz, ein Fehler eines Sockets
+/// nur fuer diesen.
 pub async fn list_sockets_impl(
     state: &Arc<AppState>,
     host_id: String,
@@ -3938,14 +3939,21 @@ pub async fn list_sockets_impl(
             control_generation: 0,
         })?;
     let transport = transport.command(deadline);
-    let installed = transport
+    // Nur eine Antwort entscheidet, ob die Version gemessen ist. Scheitert
+    // schon der Befehl (kein freier Exec-Platz beim Start mit vielen Kacheln,
+    // Frist, Transport), scheitert die ganze Liste mit diesem Grund, und die
+    // naechste liest erneut; als "ungemessen" verloeren die eigenen Sessions
+    // sonst bis dahin Bindung und Verlauf, unter einem irrefuehrenden Grund.
+    let installed = match transport
         .exec_with_deadline(
             &TmuxClient::new(&state.own_tmux_socket()).version_command(),
             COMMAND_TIMEOUT,
         )
         .await
-        .ok()
-        .and_then(|result| MeasuredVersion::from_response(&result));
+    {
+        Ok(result) => MeasuredVersion::from_response(&result),
+        Err(error) => return Err(operation_error(&transport, &error)),
+    };
     let observed = |listing: &Result<SocketListing, OperationErrorDto>| {
         matches!(listing, Ok(SocketListing::Observed { .. }))
     };

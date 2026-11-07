@@ -413,6 +413,60 @@ async fn closing_during_the_capture_publishes_nothing_and_closes_the_attach() {
     finish(fixture, state).await;
 }
 
+/// Wie oben, aber die Erfassung steht noch im Oeffnen ihres Kanals: Das
+/// Schliessen der Kachel beendet das Oeffnen sofort, der spaete Kanal wird
+/// geschlossen, ohne dass ein Befehl hinausgeht, und die Steuerverbindung des
+/// Hosts bleibt stehen (kein Steuerereignis, kein Neuverbinden).
+#[tokio::test]
+async fn closing_while_the_capture_opens_its_channel_keeps_the_control_connection() {
+    let (fixture, state) = connected().await;
+    fixture.hold_control_opens();
+    let sink = Recorded::default();
+    let opening = {
+        let state = state.clone();
+        let sink = sink.clone();
+        tokio::spawn(async move { open(&state, &sink, 3, request(Duration::from_secs(5))).await })
+    };
+    fixture.wait_pending_control_opens(1).await;
+    let closed_at = tokio::time::Instant::now();
+    close_terminal_tagged_impl(
+        &state,
+        HOST.into(),
+        SocketKind::App,
+        SESSION.into(),
+        Some(OPENING.into()),
+    )
+    .unwrap();
+    let result = timeout(END, opening).await.unwrap().unwrap();
+    assert!(result.is_err(), "a cancelled open must not publish");
+    assert!(
+        closed_at.elapsed() < Duration::from_secs(2),
+        "close ends the open at once"
+    );
+    fixture.release_control_opens().await;
+    timeout(END, async {
+        while fixture.channel_closes(0) == 0 {
+            tokio::time::sleep(Duration::from_millis(5)).await;
+        }
+    })
+    .await
+    .expect("the late control channel is closed");
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    assert!(fixture.control_commands().is_empty());
+    assert!(sink.events().is_empty());
+    assert!(sink.lost().is_empty());
+    // Die Steuerverbindung traegt danach weitere Befehle.
+    let host = state.ready_host(HOST).expect("the host stays connected");
+    host.command(tokio::time::Instant::now() + Duration::from_secs(5))
+        .exec_with_deadline("later-command", Duration::from_secs(5))
+        .await
+        .expect("a later control command runs");
+    // Ein Wechsel nach Degraded meldete sich hier als Steuerereignis.
+    let controls = control_events(&fixture);
+    assert!(controls.is_empty(), "{controls:?}");
+    finish(fixture, state).await;
+}
+
 /// Ohne Bindung (Oeffnen ueber den Namen) gibt es keine Pane-Id und damit
 /// keine Erfassung -- ueber denselben Einstieg wie der Command.
 #[tokio::test]

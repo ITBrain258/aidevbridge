@@ -2,7 +2,8 @@
 
 [Back to the README](../../README.md)
 
-To build the desktop app you need Windows 10 or 11 (x64), or macOS 11 or newer, with:
+To build the desktop app you need Windows 10 or 11 (x64), or macOS 13.5 or newer
+(for Node.js 24; the built app runs on macOS 12.4 and newer), with:
 
 - Rust 1.97.1. `rust-toolchain.toml` pins it, and `rustup` installs it on
   first use.

@@ -135,7 +135,7 @@ import { MAX_TILES_PER_HOST } from "../state/tile-assignment";
 import { createWorkspaceSync, type WorkspaceSync } from "../state/workspace";
 import { DEFAULT_KEYMAP } from "../keymap";
 import { DEFAULT_TERMINAL_PREFS, setTerminalPrefs, terminalPrefs } from "../terminal-prefs";
-import { isCapacityError, mountGrid, type GridHandle, type GridOptions } from "./grid";
+import { NARROW_TILE_WIDTH, isCapacityError, mountGrid, type GridHandle, type GridOptions } from "./grid";
 import type { TerminalError } from "../terminal";
 import type { OpenQueue } from "../terminal-open-queue";
 
@@ -1000,6 +1000,34 @@ describe("mountGrid: Maximieren und Kachelzuordnung", () => {
     const vorher = state.tiles.map((t) => t.sessionKey);
     state.toggleMaximize(state.tiles[1].id);
     expect(state.tiles.map((t) => t.sessionKey)).toEqual(vorher);
+  });
+});
+
+// Unter 260 px zeigt der Kachelkopf nur das Noetigste. Die Klasse folgt der
+// Breite, die das Raster inline setzt; WKWebView unter macOS 12.4 kennt keine
+// Container-Abfrage dafuer.
+describe("mountGrid: schmale Kachel", () => {
+  it("markiert eine Kachel unter NARROW_TILE_WIDTH und nimmt die Marke zurueck, wenn sie breiter wird", () => {
+    // Zwei Kacheln nebeneinander, 8 px Luecke: auf 600 px je 296 px, auf
+    // 500 px je 246 px.
+    expect(NARROW_TILE_WIDTH).toBe(260);
+    stubGridSize(600, 400);
+    const state = stateWithTiles(["s1", "s2"]);
+    const el = document.createElement("div");
+    mount(el, state);
+    const narrow = () => tilesByPosition(el).map((tile) => tile.classList.contains("tile--narrow"));
+    const widths = () => tilesByPosition(el).map((tile) => Number.parseFloat(tile.style.width));
+    expect(widths()).toEqual([296, 296]);
+    expect(narrow()).toEqual([false, false]);
+
+    stubGridSize(500, 400);
+    window.dispatchEvent(new Event("resize"));
+    expect(widths()).toEqual([246, 246]);
+    expect(narrow()).toEqual([true, true]);
+
+    stubGridSize(600, 400);
+    window.dispatchEvent(new Event("resize"));
+    expect(narrow()).toEqual([false, false]);
   });
 });
 

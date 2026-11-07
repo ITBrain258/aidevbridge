@@ -30,7 +30,7 @@ function fixture(t) {
   write('src-tauri/tauri.conf.json', encode({ productName: 'aidevbridge', version: '0.3.0', identifier: 'io.github.itbrain258.aidevbridge', build: { frontendDist: '../dist' }, bundle: {} }));
   write('src-tauri/tauri.release.macos.json', fs.readFileSync(path.join(repository, 'src-tauri/tauri.release.macos.json')));
   write('node_modules/@tauri-apps/cli/package.json', encode({ version: CLI_VERSION }));
-  write('docs/release/license-selection.macos-universal.json', encode({ scope: { product_version: '0.3.0', target: 'universal-apple-darwin', rust_toolchain: '1.97.1', minimum_system_version: '11.0' } }));
+  write('docs/release/license-selection.macos-universal.json', encode({ scope: { product_version: '0.3.0', target: 'universal-apple-darwin', rust_toolchain: '1.97.1', minimum_system_version: '12.4' } }));
   git(['init', '--quiet']); commit();
   return { root, write, read, git, commit };
 }
@@ -87,7 +87,7 @@ test('the contract binds versions and configuration; only release builds need th
   assert.deepEqual(preview.signing, { mode: 'ad-hoc', identity: '-', notarize: false, notary: null });
   const release = releaseContract(f.root, { preview: false, env: {} });
   assert.equal(release.licenses.sha256, sha(f.read('docs/release/license-selection.macos-universal.json')));
-  f.write('docs/release/license-selection.macos-universal.json', encode({ scope: { product_version: '0.2.9', target: 'universal-apple-darwin', rust_toolchain: '1.97.1', minimum_system_version: '11.0' } }));
+  f.write('docs/release/license-selection.macos-universal.json', encode({ scope: { product_version: '0.2.9', target: 'universal-apple-darwin', rust_toolchain: '1.97.1', minimum_system_version: '12.4' } }));
   assert.throws(() => releaseContract(f.root, { preview: false, env: {} }), /regenerate or rebind/);
   assert.equal(releaseContract(f.root, { preview: true, env: {} }).version, '0.3.0');
   f.write('src-tauri/tauri.macos.conf.json', '{}');

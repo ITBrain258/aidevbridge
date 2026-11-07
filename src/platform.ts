@@ -10,3 +10,11 @@
 export function isAndroid(userAgent: string = navigator.userAgent): boolean {
   return /\bAndroid\b/.test(userAgent);
 }
+
+// Laeuft die Oberflaeche unter macOS? WKWebView traegt im User-Agent immer
+// "Macintosh", WebView2 und Androids WebView nie. Dort gelten Option statt
+// Umschalt fuer das Markieren trotz Mausmodus (xterm), Option+Pfeil als
+// Wortsprung und die Pfade und Befehle von macOS in den Texten.
+export function isMacOS(userAgent: string = navigator.userAgent): boolean {
+  return /\bMacintosh\b/.test(userAgent);
+}

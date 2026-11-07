@@ -173,8 +173,14 @@ impl Operations {
                 Ok(Ok(result)) => result.map_err(anyhow::Error::from),
                 Ok(Err(_)) => Err(progress.lock().unwrap().error(ExecReason::Transport).into()),
                 Err(error) => {
+                    // A cancellation leaves a started Open to the actor, which
+                    // closes its late channel (`exec_actor`); a deadline ends
+                    // the connection as before.
                     let current = *progress.lock().unwrap();
-                    if current.phase == ExecPhase::Open && current.open_started {
+                    if error == OperationError::Timeout
+                        && current.phase == ExecPhase::Open
+                        && current.open_started
+                    {
                         self.core.abort();
                     }
                     Err(current.error(error.into()).into())
@@ -391,13 +397,15 @@ async fn exec_actor(
             let _ = reply.send(Err(error(e.into())));
             return;
         }
-        let mut started = false;
-        let opened = step(&core, &control, async {
-            started = true;
+        // Stays owned after a cancellation, like the PTY open in `pty_work`: a
+        // late Open ACK still names a concrete channel, which is then closed.
+        let open = async {
             progress.lock().unwrap().open_started = true;
             core.handle.channel_open_session().await
-        })
-        .await;
+        };
+        tokio::pin!(open);
+        let opened = step(&core, &control, open.as_mut()).await;
+        let started = progress.lock().unwrap().open_started;
         let channel = match opened {
             Ok(Ok(channel)) => channel,
             Ok(Err(russh::Error::ChannelOpenFailure(_))) => {
@@ -409,9 +417,36 @@ async fn exec_actor(
                 let _ = reply.send(Err(error(ExecReason::Transport)));
                 return;
             }
+            Err(StepError::Operation(OperationError::Cancelled)) if started => {
+                // A cancelled caller (a tile closed while it opened) answers at
+                // once and keeps the connection: the late Open ACK, if it comes
+                // within `CLEANUP`, is closed like any other channel. Only an
+                // Open without any answer by then loses its channel ID, and
+                // only then is this control connection sacrificed.
+                let _ = reply.send(Err(error(ExecReason::Cancelled)));
+                let late = tokio::select! {
+                    biased;
+                    _ = core.stopped() => return,
+                    late = timeout(CLEANUP, open) => late,
+                };
+                match late {
+                    Ok(Ok(channel)) => {
+                        let (mut read, write) = channel.split();
+                        if !close_channel(&core, &mut read, &write, Some(Instant::now() + CLEANUP))
+                            .await
+                        {
+                            core.abort();
+                        }
+                    }
+                    Ok(Err(russh::Error::ChannelOpenFailure(_))) => {}
+                    Ok(Err(_)) | Err(_) => core.abort(),
+                }
+                return;
+            }
             Err(e) => {
-                // Losing a possibly submitted Open loses its future channel ID.
-                // Only this control connection is sacrificed; PTY uses another owner.
+                // A deadline that ends a possibly submitted Open loses its
+                // future channel ID. Only this control connection is
+                // sacrificed; PTY uses another owner.
                 if started {
                     core.abort();
                 }

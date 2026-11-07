@@ -50,6 +50,11 @@ struct Seen {
     ended: AtomicUsize,
     hold_terminal_opens: AtomicBool,
     pending_opens: Mutex<Vec<russh::server::ChannelOpenHandle>>,
+    /// Wie `hold_terminal_opens`, fuer die Steuerverbindung (Leg 0).
+    hold_control_opens: AtomicBool,
+    pending_control_opens: Mutex<Vec<russh::server::ChannelOpenHandle>>,
+    /// So viele naechste Kanal-Opens der Steuerverbindung lehnt der Server ab.
+    reject_control_opens: AtomicUsize,
     replies: Mutex<std::collections::VecDeque<(Option<u32>, String, String)>>,
     hold_control_replies: AtomicBool,
     closes: Mutex<Vec<usize>>,
@@ -103,6 +108,20 @@ impl russh::server::Handler for PeerHandler {
         self.seen.opens.lock().unwrap().push(self.leg);
         if self.leg == 1 && self.seen.hold_terminal_opens.load(Ordering::SeqCst) {
             self.seen.pending_opens.lock().unwrap().push(reply);
+        } else if self.leg == 0 && self.seen.hold_control_opens.load(Ordering::SeqCst) {
+            self.seen.pending_control_opens.lock().unwrap().push(reply);
+        } else if self.leg == 0
+            && self
+                .seen
+                .reject_control_opens
+                .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |left| {
+                    left.checked_sub(1)
+                })
+                .is_ok()
+        {
+            reply
+                .reject(russh::ChannelOpenFailure::ResourceShortage)
+                .await;
         } else {
             reply.accept().await;
         }
@@ -343,6 +362,38 @@ impl Fixture {
     pub(crate) async fn release_terminal_opens(&self) {
         self.seen.hold_terminal_opens.store(false, Ordering::SeqCst);
         let pending = std::mem::take(&mut *self.seen.pending_opens.lock().unwrap());
+        for reply in pending {
+            reply.accept().await;
+        }
+    }
+
+    /// Ab jetzt haelt die Steuerverbindung (Leg 0) jedes Kanal-Open an, bis
+    /// `release_control_opens`.
+    pub(crate) fn hold_control_opens(&self) {
+        self.seen.hold_control_opens.store(true, Ordering::SeqCst);
+    }
+
+    pub(crate) async fn wait_pending_control_opens(&self, count: usize) {
+        timeout(END, async {
+            while self.seen.pending_control_opens.lock().unwrap().len() < count {
+                tokio::time::sleep(Duration::from_millis(5)).await;
+            }
+        })
+        .await
+        .expect("actual pending control open");
+    }
+
+    /// Die naechsten `count` Kanal-Opens der Steuerverbindung scheitern mit
+    /// `ResourceShortage`, die folgenden gelingen wieder.
+    pub(crate) fn reject_control_opens(&self, count: usize) {
+        self.seen
+            .reject_control_opens
+            .store(count, Ordering::SeqCst);
+    }
+
+    pub(crate) async fn release_control_opens(&self) {
+        self.seen.hold_control_opens.store(false, Ordering::SeqCst);
+        let pending = std::mem::take(&mut *self.seen.pending_control_opens.lock().unwrap());
         for reply in pending {
             reply.accept().await;
         }

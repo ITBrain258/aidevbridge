@@ -4,8 +4,30 @@
 // jsdom, kein Mock.
 
 import { describe, expect, it } from "vitest";
-import { OSC52_MAX_BYTES, clipboardKeyAction, decodeOsc52 } from "./terminal-clipboard";
+import { OSC52_MAX_BYTES, clipboardKeyAction, decodeOsc52, sanitizePaste } from "./terminal-clipboard";
 import { DEFAULT_TERMINAL_PREFS, type TerminalPrefs } from "./terminal-prefs";
+
+describe("sanitizePaste", () => {
+  it("laesst gewoehnlichen Text samt TAB, Zeilenumbruechen, Umlauten und Emoji unveraendert", () => {
+    const text = "cd ~/projekt\tls -la\r\nGrüße, ✓ 🚀\nend";
+    expect(sanitizePaste(text)).toBe(text);
+  });
+
+  it("entfernt die Endmarke von Bracketed Paste, damit eine Einfuegung ihre Klammer nicht schliesst", () => {
+    expect(sanitizePaste("echo ok\u001b[201~echo injected\n")).toBe("echo ok[201~echo injected\n");
+  });
+
+  it("entfernt jedes C0-Steuerzeichen ausser TAB, LF und CR, dazu DEL und C1", () => {
+    const controls = Array.from({ length: 0x20 }, (_, code) => String.fromCharCode(code))
+      .filter((char) => !"\t\n\r".includes(char))
+      .join("");
+    expect(sanitizePaste(`a${controls}b\u007fc\u0080d\u009be\u009ff`)).toBe("abcdef");
+  });
+
+  it("laesst Zeichen jenseits von C1 stehen, auch NBSP und Zeilentrenner", () => {
+    expect(sanitizePaste("a b c")).toBe("a b c");
+  });
+});
 
 describe("decodeOsc52", () => {
   it("dekodiert das Format von tmux 3.6 mit leerem Pc", () => {

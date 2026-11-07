@@ -33,6 +33,22 @@ export function decodeOsc52(data: string): string | null {
   return new TextDecoder().decode(bytes);
 }
 
+/** C0-Steuerzeichen ausser TAB, LF und CR, dazu DEL und die C1-Zeichen
+ * U+0080 bis U+009F. */
+const PASTE_CONTROLS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/g;
+
+/** Text aus der Zwischenablage, wie er ins Terminal geht: ohne die
+ * Steuerzeichen, die eine Einfuegung nie braucht. Bracketed Paste schuetzt
+ * nur, solange der Text die Endmarke `ESC [201~` nicht selbst traegt;
+ * xterm klammert, filtert aber nichts. Ohne ESC kann keine Einfuegung ihre
+ * Klammer vorzeitig schliessen, und was danach kaeme, liefe nicht als
+ * getippte Eingabe. Das klassische xterm haelt es ebenso
+ * (`allowPasteControls` aus). TAB, Zeilenumbrueche und jedes druckbare
+ * Zeichen bleiben. */
+export function sanitizePaste(text: string): string {
+  return text.replace(PASTE_CONTROLS, "");
+}
+
 export type ClipboardKeyAction = "copy" | "paste-native" | "terminal";
 
 /** Entscheidet fuer ein keydown im Terminal (Tabelle in Spec §6.1).

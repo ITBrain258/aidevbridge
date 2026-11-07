@@ -44,7 +44,7 @@ socket is still named `agentbridge`.
 
 ## macOS
 
-macOS 11 or newer, Apple silicon and Intel: one disk image,
+macOS 12.4 or newer, Apple silicon and Intel: one disk image,
 `aidevbridge-<version>-macos-universal.dmg`. Open it and drag **aidevbridge**
 onto **Applications**.
 
@@ -57,13 +57,21 @@ onto **Applications**.
   stay unreachable.
 - **Tested by machine so far.** The macOS app has passed an automated
   installation and start test, not yet a test by hand on a Mac.
-- The window is drawn by WebKit, which is part of macOS. The license texts are
+- The window is drawn by WebKit, which is part of macOS. On macOS 11 and 12
+  only macOS updates renew it, a newer Safari does not. That is why the app
+  needs macOS 12.4; on macOS 11 parts of the window and the dialogs do not
+  work. The license texts are
   inside the app (`aidevbridge.app/Contents/Resources/licenses/index.html`). To
   remove the app, move it to the Trash.
 
 ## Android
 
-Android 7.0 or newer: `aidevbridge-<version>-android.apk`. Android asks once
+Android 7.0 or newer with Android System WebView 105 or newer (on Android 7 to
+9, Chrome serves as the web view): `aidevbridge-<version>-android.apk`. With an
+older web view the app says so at start and offers the Play Store. On Android 7
+to 9 Google no longer updates the web view (Android 7 stops at version 119,
+Android 8 and 9 at 138): the app runs, but its web view gets no security fixes.
+Android asks once
 whether the app you open it from may install apps. A Google Play version will
 follow after a closed test; until then, install the APK from the releases page. The
 two are signed differently: uninstall one before installing the other, which

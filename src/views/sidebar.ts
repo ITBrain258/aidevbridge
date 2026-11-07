@@ -975,6 +975,14 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   const expandedNotices = new Set<string>();
   const renderedNotices = new Set<string>();
 
+  // Was in das Passwort- oder Passphrasefeld einer Hinweisleiste getippt ist,
+  // je Host und Art, bis zum Verbindungsversuch: "Retry" oder Enter nimmt es
+  // heraus und gibt es an `onConnectHost`. Verschwindet die Leiste ohne
+  // Versuch, faellt es beim naechsten `render()` weg, ebenso beim Entsorgen.
+  // Nie im `AppState` und nie ueber einen Versuch hinaus.
+  const credentialDrafts = new Map<string, string>();
+  const renderedCredentials = new Set<string>();
+
   function noticeMessage(text: string): HTMLParagraphElement {
     const message = document.createElement("p");
     message.className = "host-notice-message";
@@ -1087,19 +1095,16 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // (siehe `onConnectHost` in main.ts). Dauerhaft behoben wird es durch
     // Bearbeiten des Hosts mit Auswahl "Passwort".
     //
-    // Bewusst NICHT ueber das Neuzeichnen hinweg erhalten, SOLANGE das Feld
-    // nicht fokussiert ist: `onConnectHost` setzt den Zustand auf
-    // "connecting", die Leiste verschwindet dabei samt Feld, und ein
-    // erneuter Fehlschlag baut sie LEER wieder auf. Steht der Fokus WEITERHIN
-    // in diesem Feld (MVP-Spec M0.4, Befund 11 der Bewertung 2026-09-04 --
-    // z. B. eine Zustandsaenderung an einem
-    // ANDEREN Host loest ein Neuzeichnen aus, waehrend der Nutzer hier noch
-    // tippt), ueberlebt der getippte Wert das Neuzeichnen (siehe `render()`s
-    // Fokusrettung unten) -- er lebt aber weiterhin NUR im DOM, nie im
-    // `AppState`: "nur im Arbeitsspeicher dieses einen Eingabefelds" ist so
-    // am striktesten eingehalten, ohne dass diese Datei einen neuen,
-    // dauerhafteren Zustand braucht (dieselbe Abwaegung wie `host-form.ts`s
-    // Raeumen vor dem Verbindungsversuch).
+    // Der getippte Wert ueberlebt ein Neuzeichnen, auch ohne Fokus im Feld
+    // (`credentialDrafts`): der Weg "tippen, Tab auf Retry, Enter" laesst das
+    // Feld ohne Fokus, und eine Zustandsaenderung an einem ANDEREN Host
+    // dazwischen baute es sonst leer wieder auf (MVP-Spec M0.4, Befund 11 der
+    // Bewertung 2026-09-04, fuer den Fall mit Fokus). Er lebt nur bis zum
+    // Verbindungsversuch: `onConnectHost` setzt den Zustand auf
+    // "connecting", die Leiste verschwindet samt Feld, und ein erneuter
+    // Fehlschlag baut sie LEER wieder auf (dieselbe Abwaegung wie
+    // `host-form.ts`s Raeumen vor dem Verbindungsversuch). Enter im Feld
+    // versucht es wie "Retry".
     //
     // Das Feld steht nur nach einem Anmeldefehler (`asksForSecret`, gelesen
     // aus `host.errorCode`). Bei einem Netz-, Hostschluessel- oder sonstigen
@@ -1121,7 +1126,21 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
         });
       }
     }
-    if (credential) notice.appendChild(credential.root);
+    const draftKey = credential ? `${host.id}\u0000${credential.kind}` : null;
+    if (credential && draftKey !== null) {
+      renderedCredentials.add(draftKey);
+      credential.input.value = credentialDrafts.get(draftKey) ?? "";
+      credential.input.addEventListener("input", () => {
+        if (credential.input.value === "") credentialDrafts.delete(draftKey);
+        else credentialDrafts.set(draftKey, credential.input.value);
+      });
+      credential.input.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" || event.isComposing) return;
+        event.preventDefault();
+        retryButton.click();
+      });
+      notice.appendChild(credential.root);
+    }
 
     const acts = document.createElement("div");
     acts.className = "acts";
@@ -1142,6 +1161,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       // (siehe Verzweigung oben), die beiden Zweige schliessen sich deshalb
       // gegenseitig aus.
       const typed = credential?.value();
+      if (draftKey !== null) credentialDrafts.delete(draftKey);
       if (credential && typed !== undefined) {
         opts.onConnectHost(
           host.id,
@@ -2402,11 +2422,15 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const laneEl = lane.build(keyToRestore?.startsWith("lane:") ?? false);
     if (laneEl) list.appendChild(laneEl);
     renderedNotices.clear();
+    renderedCredentials.clear();
     for (const host of state.hosts) {
       list.appendChild(buildHostBlock(host));
     }
     for (const key of expandedNotices) {
       if (!renderedNotices.has(key)) expandedNotices.delete(key);
+    }
+    for (const key of credentialDrafts.keys()) {
+      if (!renderedCredentials.has(key)) credentialDrafts.delete(key);
     }
 
     // Spec 7.8: eine leere Liste sagt, was hier stehen wird und wo es
@@ -2501,6 +2525,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   return {
     dispose() {
       disposed = true;
+      credentialDrafts.clear();
       for (const hostId of controlEditors.keys()) closeControlEditor(hostId);
       unsubscribe();
       lane.dispose();

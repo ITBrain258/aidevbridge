@@ -90,7 +90,7 @@ pub(crate) fn is_acceptable_hostname(host: &str) -> bool {
 pub fn append_entry(path: &Path, line: &str) -> anyhow::Result<()> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
-            std::fs::create_dir_all(parent)
+            create_private_dir_all(parent)
                 .with_context(|| format!("could not create {}", parent.display()))?;
         }
     }
@@ -373,6 +373,19 @@ fn hashed_name_matches(salt_and_hash: &str, token: &str) -> bool {
     mac.chain_update(token.to_ascii_lowercase().as_bytes())
         .verify_slice(&hash)
         .is_ok()
+}
+
+/// Legt fehlende Ordner an, unter Unix nur fuer den Nutzer (0700), wie
+/// OpenSSH `~/.ssh` anlegt. Bestehende Ordner behalten ihre Rechte.
+fn create_private_dir_all(dir: &Path) -> std::io::Result<()> {
+    let mut builder = std::fs::DirBuilder::new();
+    builder.recursive(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::DirBuilderExt;
+        builder.mode(0o700);
+    }
+    builder.create(dir)
 }
 
 #[cfg(test)]
@@ -1141,6 +1154,39 @@ mod tests {
     }
 
     // --- append_entry (TOFU, Spec §8.1) ---
+
+    /// Fehlt `~/.ssh`, legt die App es an wie OpenSSH: nur fuer den Nutzer.
+    /// Andere Konten des Rechners saehen sonst `known_hosts` und damit die
+    /// Hosts im Klartext.
+    #[cfg(unix)]
+    #[test]
+    fn append_entry_creates_a_missing_directory_for_the_owner_only() {
+        use std::os::unix::fs::PermissionsExt;
+        let root = unique_temp_path("private_dir");
+        let path = root.join(".ssh").join("known_hosts");
+        append_entry(&path, "192.0.2.64 ssh-ed25519 AAAANEW").unwrap();
+        let mode = std::fs::metadata(root.join(".ssh"))
+            .unwrap()
+            .permissions()
+            .mode();
+        assert_eq!(mode & 0o777, 0o700);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    /// Ein bestehender Ordner behaelt seine Rechte: die App aendert nur, was
+    /// sie selbst anlegt.
+    #[cfg(unix)]
+    #[test]
+    fn append_entry_leaves_an_existing_directory_unchanged() {
+        use std::os::unix::fs::PermissionsExt;
+        let root = unique_temp_path("existing_dir");
+        std::fs::create_dir_all(&root).unwrap();
+        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o755)).unwrap();
+        append_entry(&root.join("known_hosts"), "192.0.2.65 ssh-ed25519 AAAANEW").unwrap();
+        let mode = std::fs::metadata(&root).unwrap().permissions().mode();
+        assert_eq!(mode & 0o777, 0o755);
+        let _ = std::fs::remove_dir_all(&root);
+    }
 
     fn unique_temp_path(tag: &str) -> std::path::PathBuf {
         let nanos = std::time::SystemTime::now()

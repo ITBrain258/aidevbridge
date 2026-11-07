@@ -648,8 +648,11 @@ async fn controlled_resolver_preserves_address_order_and_connects_fallback() {
     let second = listener.local_addr().unwrap();
     spec.hostname = "ordered-resolver.fixture.invalid".into();
     // Windows can take roughly two seconds to finish a refused loopback
-    // connect. This success/fallback case needs room for the real OS failure;
-    // the separate deadline cases retain their short injected budgets.
+    // connect; there the second address starts beside it after
+    // CONNECTION_ATTEMPT_DELAY and wins before the refusal arrives. Either
+    // way the attempts keep the resolver's order and the second address
+    // connects. A refusal that starts the next address at once is the
+    // separate injected case `a_failed_attempt_starts_the_next_address_at_once`.
     let control = ConnectControl::new(ConnectLimits {
         total: TEST_END,
         network: TEST_END,
@@ -965,4 +968,110 @@ async fn known_host_key_types_decide_which_key_the_server_presents() {
         assert_eq!(presented.lock().unwrap().as_deref(), Some(expected));
         let _ = timeout(TEST_END, server).await.unwrap();
     }
+}
+
+/// RFC 8305: Antwortet die erste Adresse nie (ein still verworfenes IPv6, eine
+/// VPN-Route), startet nach `CONNECTION_ATTEMPT_DELAY` die naechste daneben.
+/// Sie gewinnt, lange bevor das Netzbudget ablaeuft; frueher wartete die App
+/// das ganze Budget auf die erste.
+#[tokio::test]
+async fn a_silent_first_address_gets_the_next_one_beside_it_after_the_attempt_delay() {
+    let silent: SocketAddr = "[2001:db8::1]:22".parse().unwrap();
+    let (listener, mut spec) = listener().await;
+    let reachable = listener.local_addr().unwrap();
+    spec.hostname = "silent-first.fixture.invalid".into();
+    let control = ConnectControl::new(ConnectLimits {
+        total: TEST_END,
+        network: TEST_END,
+        ..limits()
+    });
+    let pool = BlockingPool::new(1, 1);
+    let attempted = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let seen = attempted.clone();
+    let started = tokio::time::Instant::now();
+    let stream = control
+        .wait_network(resolve_and_connect(
+            &spec,
+            &control,
+            &pool,
+            move |_, _| Ok(vec![silent, reachable]),
+            move |address| {
+                seen.lock().unwrap().push((address, started.elapsed()));
+                async move {
+                    if address == silent {
+                        std::future::pending::<()>().await;
+                    }
+                    TcpStream::connect(address).await
+                }
+            },
+        ))
+        .await
+        .unwrap()
+        .unwrap();
+    let elapsed = started.elapsed();
+    let attempted = attempted.lock().unwrap().clone();
+    assert_eq!(
+        attempted
+            .iter()
+            .map(|(address, _)| *address)
+            .collect::<Vec<_>>(),
+        vec![silent, reachable]
+    );
+    assert!(attempted[1].1 >= CONNECTION_ATTEMPT_DELAY, "{attempted:?}");
+    assert!(elapsed < Duration::from_secs(2), "{elapsed:?}");
+    assert_eq!(stream.peer_addr().unwrap(), reachable);
+    drop(stream);
+    let _ = timeout(TEST_END, listener.accept()).await.unwrap().unwrap();
+}
+
+/// Scheitert ein Versuch, kommt die naechste Adresse sofort dran, ohne den
+/// Vorsprung abzuwarten.
+#[tokio::test]
+async fn a_failed_attempt_starts_the_next_address_at_once() {
+    let (listener, mut spec) = listener().await;
+    let reachable = listener.local_addr().unwrap();
+    let refused: SocketAddr = "127.0.0.1:1".parse().unwrap();
+    spec.hostname = "failed-first.fixture.invalid".into();
+    let control = ConnectControl::new(ConnectLimits {
+        total: TEST_END,
+        network: TEST_END,
+        ..limits()
+    });
+    let pool = BlockingPool::new(1, 1);
+    // Gemessen ab dem ersten Versuch, nicht ab dem Start: der Resolver laeuft
+    // vorher in einem Worker, dessen Anlauf nicht zur Frist zaehlt.
+    let first_at = Arc::new(std::sync::Mutex::new(None));
+    let second_at = Arc::new(std::sync::Mutex::new(None));
+    let (first_seen, seen) = (first_at.clone(), second_at.clone());
+    let stream = control
+        .wait_network(resolve_and_connect(
+            &spec,
+            &control,
+            &pool,
+            move |_, _| Ok(vec![refused, reachable]),
+            move |address| {
+                let now = tokio::time::Instant::now();
+                if address == reachable {
+                    *seen.lock().unwrap() = Some(now);
+                } else {
+                    *first_seen.lock().unwrap() = Some(now);
+                }
+                async move {
+                    if address == refused {
+                        return Err(std::io::Error::from(std::io::ErrorKind::ConnectionRefused));
+                    }
+                    TcpStream::connect(address).await
+                }
+            },
+        ))
+        .await
+        .unwrap()
+        .unwrap();
+    let first_at = first_at.lock().unwrap().expect("first attempt");
+    let second_at = second_at.lock().unwrap().expect("second attempt");
+    let gap = second_at - first_at;
+    assert!(gap < CONNECTION_ATTEMPT_DELAY, "{gap:?}");
+    assert_eq!(stream.peer_addr().unwrap(), reachable);
+    drop(stream);
+    let _ = timeout(TEST_END, listener.accept()).await.unwrap().unwrap();
 }

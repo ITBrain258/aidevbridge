@@ -335,6 +335,23 @@ describe("keyboard: Browsertasten bleiben ausserhalb der App (Spec §8.1)", () =
     }
   });
 
+  // Unter macOS ist Option+Pfeil der Wortsprung im Textfeld; WKWebView kennt
+  // keine Browsertaste dafuer.
+  it.each([
+    ["Alt+ArrowLeft", { key: "ArrowLeft", altKey: true }],
+    ["Alt+ArrowRight", { key: "ArrowRight", altKey: true }],
+  ] as [string, KeyboardEventInit][])("%s bleibt unter macOS im Eingabefeld und ausserhalb unverhindert", (_name, init) => {
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue(
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)",
+    );
+    try {
+      expect(keydown(textField(), init).defaultPrevented).toBe(false);
+      expect(keydown(document.body, init).defaultPrevented).toBe(false);
+    } finally {
+      vi.restoreAllMocks();
+    }
+  });
+
   it("Ctrl+R im Terminal bleibt unverhindert: es ist die Rueckwaertssuche der Shell", () => {
     const event = keydown(terminalTarget(), { key: "r", ctrlKey: true });
 

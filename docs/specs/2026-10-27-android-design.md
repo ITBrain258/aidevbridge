@@ -516,3 +516,15 @@ Ein lokaler Bau außerhalb der Tauri-CLI braucht deren
 die Registrierung der Plugins über JNI scheitert, und die Release-APK schließt
 sich gleich nach dem Start, auch mit targetSdk 36. Die ersten Test-APKs vom
 05.11. hatten genau diesen Fehler.
+
+## Nachtrag vom 07.11.2026: Android System WebView ab 105
+
+Die App läuft weiter ab Android 7.0 (minSdk 24), braucht aber eine Android
+System WebView ab Version 105 (unter Android 7 bis 9 dient Chrome als
+Webansicht): Die Oberfläche nutzt CSS `:has()` und `:focus-visible` und das
+Attribut `inert`. `MainActivity` liest die Version beim Start über
+`WebViewCompat.getCurrentWebViewPackage` (androidx.webkit, schon
+Abhängigkeit) und zeigt darunter einen Dialog mit dem Weg in den Play Store;
+die App läuft danach weiter. Unter Android 7 bis 9 aktualisiert Google die
+Webansicht nicht mehr (Android 7 bis Version 119, Android 8 und 9 bis 138);
+`SECURITY.md` führt das als bekannte Grenze.

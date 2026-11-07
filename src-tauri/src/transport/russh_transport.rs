@@ -13,7 +13,10 @@ use russh::keys::PublicKeyBase64;
 use russh::{ChannelMsg, Sig};
 use std::future::Future;
 use std::net::{IpAddr, SocketAddr, ToSocketAddrs};
+use std::pin::Pin;
 use std::sync::{Arc, LazyLock};
+use std::task::Poll;
+use std::time::Duration;
 use tokio::net::TcpStream;
 use tokio::sync::{watch, Semaphore};
 mod owned_operations;
@@ -93,9 +96,18 @@ impl BlockingPool {
     }
 }
 
+/// RFC 8305 §5 (Happy Eyeballs): so lange hat ein Verbindungsversuch
+/// Vorsprung, bevor der zur naechsten Adresse daneben startet.
+const CONNECTION_ATTEMPT_DELAY: Duration = Duration::from_millis(250);
+
 /// DNS runs only in a retained-capacity worker; that closure never owns a TCP
-/// connector. Addresses keep std/Tokio's original order and sequential fallback.
-/// The caller includes this entire function in the single network budget.
+/// connector. Addresses keep std/Tokio's original order (RFC 6724, usually
+/// IPv6 first). A failed attempt starts the next address at once; one still
+/// pending after `CONNECTION_ATTEMPT_DELAY` gets the next address beside it
+/// (RFC 8305), so a silently dropped first address (broken IPv6, a VPN route)
+/// no longer spends the whole budget. The first stream wins and the other
+/// attempts are dropped. Every new attempt checks the budget first. The caller
+/// includes this entire function in the single network budget.
 async fn resolve_and_connect<R, C, CF>(
     spec: &HostSpec,
     control: &ConnectControl,
@@ -122,15 +134,57 @@ where
         )
         .await?
     };
-    let mut last_error = None;
-    for address in addresses {
-        control.check_network()?;
-        match connect(address).await {
-            Ok(stream) => return Ok(stream),
-            Err(error) => last_error = Some(error),
+    enum Attempt {
+        Done(usize, std::io::Result<TcpStream>),
+        Delay,
+    }
+    // Each attempt keeps the position of its address. The error reported at
+    // the end is the one of the last address, as with sequential attempts,
+    // not the one that happened to fail last: the local network check on
+    // Android reads it (`local_network::host_answered`).
+    let mut pending = addresses.into_iter().enumerate();
+    let mut running: Vec<(usize, Pin<Box<CF>>)> = Vec::new();
+    let mut last_error: Option<(usize, std::io::Error)> = None;
+    loop {
+        if running.is_empty() {
+            let Some((position, address)) = pending.next() else {
+                break;
+            };
+            control.check_network()?;
+            running.push((position, Box::pin(connect(address))));
+        }
+        let more = pending.len() > 0;
+        let delay = tokio::time::sleep(CONNECTION_ATTEMPT_DELAY);
+        tokio::pin!(delay);
+        let attempt = std::future::poll_fn(|cx| {
+            for (index, (_, future)) in running.iter_mut().enumerate() {
+                if let Poll::Ready(result) = future.as_mut().poll(cx) {
+                    return Poll::Ready(Attempt::Done(index, result));
+                }
+            }
+            if more && delay.as_mut().poll(cx).is_ready() {
+                return Poll::Ready(Attempt::Delay);
+            }
+            Poll::Pending
+        })
+        .await;
+        match attempt {
+            Attempt::Done(_, Ok(stream)) => return Ok(stream),
+            Attempt::Done(index, Err(error)) => {
+                let (position, future) = running.remove(index);
+                drop(future);
+                if last_error.as_ref().is_none_or(|(last, _)| position > *last) {
+                    last_error = Some((position, error));
+                }
+            }
+            Attempt::Delay => {}
+        }
+        if let Some((position, address)) = pending.next() {
+            control.check_network()?;
+            running.push((position, Box::pin(connect(address))));
         }
     }
-    Err(last_error.unwrap_or_else(|| {
+    Err(last_error.map(|(_, error)| error).unwrap_or_else(|| {
         std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
             "could not resolve to any address",
@@ -539,9 +593,14 @@ impl RusshTransport {
 ///
 /// Davor schaltet derselbe tmux-Aufruf die Statuszeile aus
 /// (`crate::tmux::HIDE_STATUS`).
+///
+/// `-u` sagt dem Client, dass das Terminal UTF-8 kann, wie bei den Abfragen.
+/// Die App schickt kein `LANG`; ohne UTF-8-Locale in einem
+/// nicht-interaktiven SSH-Befehl (schlanke Images, Alpine, BusyBox) zeigte
+/// tmux sonst jedes Nicht-ASCII-Zeichen als `_`, auch die Rahmen der Agenten.
 fn attach_command_line(socket: &OwnSocket, session: &str) -> String {
     let target = format!("={session}");
-    let mut argv = vec!["tmux"];
+    let mut argv = vec!["tmux", "-u"];
     argv.extend_from_slice(&socket.args());
     argv.extend_from_slice(&crate::tmux::HIDE_STATUS);
     argv.extend_from_slice(&["attach", "-t", &target]);
@@ -727,7 +786,10 @@ mod tests {
                 &OwnSocket::new("sock").unwrap(),
                 "zz_x"
             )),
-            vec!["tmux", "-L", "sock", "set", "-g", "status", "off", ";", "attach", "-t", "=zz_x"],
+            vec![
+                "tmux", "-u", "-L", "sock", "set", "-g", "status", "off", ";", "attach", "-t",
+                "=zz_x"
+            ],
             "ohne das `=` haengt sich tmux bei fehlendem `zz_x` an `zz_x2` an"
         );
     }

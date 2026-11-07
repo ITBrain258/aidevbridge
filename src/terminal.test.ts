@@ -923,7 +923,7 @@ describe("mountTerminal: jeder Fehlerpfad meldet seine Art (UX-Spec §6.9)", () 
 // Eingabe ueber `INPUT_CHUNK_BYTES` geht in Teilen der Reihe nach hinaus, nicht
 // als ein `send_input`: als ein Aufruf hielt eine grosse Einfuegung die Seite
 // rund 0,8 s je MB an (gemessen am 24.10., `docs/stand.md`).
-describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
+describe("mountTerminal: Eingabe geht der Reihe nach, grosse in Teilen", () => {
   /** Jeder `send_input` wartet, bis der Test ihn beantwortet. */
   function heldSends(): { bytes: () => number[][]; answer: (ok?: boolean) => Promise<void> } {
     const pending: Array<{ resolve: () => void; reject: (error: unknown) => void }> = [];
@@ -994,6 +994,58 @@ describe("mountTerminal: grosse Eingabe geht in Teilen der Reihe nach", () => {
     await flush();
 
     expect(sends.bytes()).toHaveLength(1);
+    expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "input", detail: "input timed out" });
+  });
+
+  // Zwei `send_input` gleichzeitig unterwegs koennten sich im Backend
+  // ueberholen; ein Enter vor den letzten Zeichen fuehrte einen anderen
+  // Befehl aus.
+  it("eine kleine Eingabe wartet auf die vorige, und was dazwischen getippt wird, geht gesammelt hinaus", async () => {
+    const sends = heldSends();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush(); // angehaengt: davor puffert die Kachel nur
+
+    hoisted.dataListener?.("l");
+    expect(sends.bytes()).toEqual([[108]]); // sofort, ohne Warten
+    hoisted.dataListener?.("s");
+    hoisted.dataListener?.("\r");
+    await flush();
+    expect(sends.bytes()).toEqual([[108]]);
+
+    await sends.answer();
+    expect(sends.bytes()).toEqual([[108], [115, 13]]);
+    await sends.answer();
+    hoisted.dataListener?.("x");
+    expect(sends.bytes()).toHaveLength(3);
+  });
+
+  it("gesammelt wird nur bis INPUT_CHUNK_BYTES", async () => {
+    const sends = heldSends();
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush(); // angehaengt: davor puffert die Kachel nur
+
+    hoisted.dataListener?.("a");
+    hoisted.dataListener?.("b".repeat(INPUT_CHUNK_BYTES - 1));
+    hoisted.dataListener?.("cd");
+    await sends.answer();
+    await sends.answer();
+    await sends.answer();
+
+    expect(sends.bytes().map((part) => part.length)).toEqual([1, INPUT_CHUNK_BYTES - 1, 2]);
+  });
+
+  it("scheitert ein Tastendruck, geht das danach Getippte trotzdem hinaus", async () => {
+    const sends = heldSends();
+    const onError = vi.fn();
+    mount(document.createElement("div"), "host-1", "sess-1", onError);
+    await flush(); // angehaengt: davor puffert die Kachel nur
+
+    hoisted.dataListener?.("a");
+    hoisted.dataListener?.("b");
+    await sends.answer(false);
+    await sends.answer();
+
+    expect(sends.bytes()).toEqual([[97], [98]]);
     expect(onError).toHaveBeenCalledExactlyOnceWith({ kind: "input", detail: "input timed out" });
   });
 });
@@ -1204,7 +1256,7 @@ describe("mountTerminal: Eingabe vor dem Anhaengen geht nicht verloren", () => {
   // xterm klammert eine Einfuegung nur bei eingeschaltetem Bracketed Paste,
   // und das meldet tmux erst mit seiner ersten Ausgabe. Gepuffert ginge
   // mehrzeiliger Text ungeklammert hinaus, und die Shell fuehrte jede Zeile aus.
-  it("verwirft eine native Einfuegung vor dem Anhaengen, bevor xterm sie sieht, und laesst sie danach durch", async () => {
+  it("verwirft eine native Einfuegung vor dem Anhaengen, bevor xterm sie sieht, und fuegt sie danach selbst ein", async () => {
     const io = holdOpenAndInput();
     const container = document.createElement("div");
     mount(container, "host-1", "sess-1");
@@ -1212,19 +1264,44 @@ describe("mountTerminal: Eingabe vor dem Anhaengen geht nicht verloren", () => {
     const textarea = hoisted.terminals[0].textarea!;
     const seenByXterm = vi.fn();
     textarea.addEventListener("paste", seenByXterm);
-    const paste = () => {
-      const event = new Event("paste", { bubbles: true, cancelable: true });
-      textarea.dispatchEvent(event);
-      return event;
-    };
 
-    expect(paste().defaultPrevented).toBe(true);
+    expect(nativePaste(textarea, "ls\n").defaultPrevented).toBe(true);
     expect(seenByXterm).not.toHaveBeenCalled();
+    expect(hoisted.pasteCalls).toEqual([]);
 
     io.open.resolve();
     await flush();
-    expect(paste().defaultPrevented).toBe(false);
-    expect(seenByXterm).toHaveBeenCalledOnce();
+    // Angehaengt: die Kachel fuegt selbst ein, xterms roher Weg bleibt zu.
+    expect(nativePaste(textarea, "ls\n").defaultPrevented).toBe(true);
+    expect(seenByXterm).not.toHaveBeenCalled();
+    expect(hoisted.pasteCalls).toEqual(["ls\n"]);
+  });
+
+  // Bracketed Paste schuetzt nur, solange der Text die Endmarke nicht selbst
+  // traegt: `ESC [201~` schloesse die Klammer, und der Rest liefe als
+  // getippte Eingabe. Beide Wege bereinigen.
+  it("entfernt Steuerzeichen aus nativer Einfuegung und aus dem Menue", async () => {
+    const tricky = "echo ok\u001b[201~echo injected\n";
+    clipboardReadText.mockResolvedValue(tricky);
+    const { xtermEl } = setupTile();
+    await flush();
+    const textarea = hoisted.terminals[0].textarea!;
+
+    nativePaste(textarea, tricky);
+    rightClick(xtermEl);
+    menuItem("Paste").click();
+    await flush();
+
+    expect(hoisted.pasteCalls).toEqual(["echo ok[201~echo injected\n", "echo ok[201~echo injected\n"]);
+  });
+
+  it("fuegt nichts ein, wenn nach dem Bereinigen nichts bleibt", async () => {
+    mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+
+    nativePaste(hoisted.terminals[0].textarea!, "\u001b\u0007");
+
+    expect(hoisted.pasteCalls).toEqual([]);
   });
 
   it("fuegt aus dem Menue erst nach dem Anhaengen ein", async () => {
@@ -3747,6 +3824,18 @@ function setupTile(extra: Partial<MountOptions> = {}) {
   return { container, xtermEl, onError, onCopied, handle };
 }
 
+/** Ein natives `paste` wie das von Chromium nach Strg+V: jsdom kennt weder
+ * `ClipboardEvent` mit Daten noch `DataTransfer`, also ein schlichtes Event
+ * mit `clipboardData.getData`. */
+function nativePaste(target: Element, text: string): Event {
+  const event = new Event("paste", { bubbles: true, cancelable: true });
+  Object.defineProperty(event, "clipboardData", {
+    value: { getData: (type: string) => (type === "text/plain" ? text : "") },
+  });
+  target.dispatchEvent(event);
+  return event;
+}
+
 function rightClick(target: Element, init: MouseEventInit = {}): MouseEvent {
   const event = new MouseEvent("contextmenu", {
     bubbles: true, cancelable: true, button: 2, clientX: 120, clientY: 60, ...init,
@@ -5302,6 +5391,18 @@ describe("mountTerminal: Suchleiste (UX-Spec §6.6)", () => {
     target.dispatchEvent(event);
     return event;
   }
+
+  // Der Lauscher fuer native Einfuegungen faengt nach dem Anhaengen jedes
+  // paste ab, ausser in der Suchleiste.
+  it("ein Einfuegen in die Suchleiste bleibt beim Browser und geht nicht ans Terminal", async () => {
+    const { input } = openSearch();
+    await flush(); // angehaengt
+
+    const event = nativePaste(input, "needle");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(hoisted.pasteCalls).toEqual([]);
+  });
 
   it("haengt die Leiste in den Kachelcontainer und gibt ihr die Texte aus MountOptions", () => {
     const { container, input } = openSearch();

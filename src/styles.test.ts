@@ -364,8 +364,16 @@ describe("Optische Mitte: getrimmte Beschriftungen zeigen ganze Zeichen (v2 §6.
   // Der getrimmte Kasten endet an der Grundlinie: was senkrecht beschneidet,
   // schneidet Unterlaengen und Klammern ab ("(accept)" liest sich "(accent)").
   it("kein getrimmtes Element beschneidet senkrecht", () => {
+    // Ausgenommen der Rueckfall fuer WebKit ohne `overflow: clip` (vor Safari
+    // 16): wo er greift, gibt es auch kein `text-box` (erst Safari 18.2 und
+    // Chromium 133), also keinen getrimmten Kasten.
+    const fallbackHead = "@supports not (overflow: clip) {";
+    const fallbackStart = code.indexOf(fallbackHead);
+    const fallbackEnd = fallbackStart + fallbackHead.length + atRuleBlock(fallbackHead).length;
     const offenders: string[] = [];
-    for (const [, list, body] of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const match of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const [, list, body] = match;
+      if (match.index > fallbackStart && match.index < fallbackEnd) continue;
       // `\w` nach `\s*`: sonst liesse das Zuruecksetzen ueber das Leerzeichen
       // `overflow-y: visible` als Treffer durch.
       const clips = /(?:^|[;\s])overflow\s*:\s*(?!visible\s*(?:;|$))\w/.test(body) ||
@@ -923,21 +931,46 @@ function blockRule(block: string, selector: string): string {
 }
 
 // Optik-Runde vom 24.10.: unter 260 px weicht der Host, die Pille zeigt nur
-// ihren Punkt, der Groessenchip nur die Groesse. jsdom wertet keine
-// Container-Abfrage aus; hier steht, dass es sie gibt und was sie tut.
+// ihren Punkt, der Groessenchip nur die Groesse. Die Klasse `tile--narrow`
+// setzt grid.ts aus der Kachelbreite; eine Container-Abfrage kennt WKWebView
+// erst ab Safari 16, die App laeuft ab macOS 12.4 (Safari 15.5).
+// `overflow: clip` kennt WebKit erst ab Safari 16; die App laeuft ab macOS
+// 12.4 (Safari 15.5). Jede Regel, die clip setzt, braucht dort `hidden`.
+describe("overflow: clip mit Rueckfall fuer WebKit vor Safari 16", () => {
+  /** Die Selektoren jeder Regel, die `overflow` oder `overflow-x` auf `clip`
+   * setzt, ohne die Bedingung von `@supports` selbst. */
+  function clippedSelectors(): string[] {
+    const found: string[] = [];
+    for (const match of code.matchAll(/(?<!\()overflow(?:-x)?:\s*clip\b/g)) {
+      const open = code.lastIndexOf("{", match.index);
+      const before = Math.max(code.lastIndexOf("}", open), code.lastIndexOf("{", open - 1));
+      found.push(...code.slice(before + 1, open).split(",").map((selector) => selector.trim()));
+    }
+    return found;
+  }
+
+  it("jede solche Regel bekommt unter @supports not (overflow: clip) overflow: hidden", () => {
+    const block = atRuleBlock("@supports not (overflow: clip) {");
+    const head = block.slice(0, block.indexOf("{"));
+    const covered = new Set(head.split(",").map((selector) => selector.trim()));
+    const clipped = clippedSelectors();
+    expect(clipped.length).toBeGreaterThanOrEqual(10);
+    for (const selector of clipped) expect(covered, selector).toContain(selector);
+    expect(block.slice(block.indexOf("{"))).toMatch(/overflow:\s*hidden/);
+  });
+});
+
 describe("schmaler Kachelkopf (Optik-Runde vom 24.10.)", () => {
-  it("die Kachel ist der Container, und unter 260 px weicht der Host", () => {
-    expect(ruleBody(".tile")).toMatch(/container:\s*tile\s*\/\s*inline-size/);
-    const block = atRuleBlock("@container tile (max-width: 259px) {");
-    expect(blockRule(block, ".tile-host")).toMatch(/display:\s*none/);
+  it("unter der Klasse tile--narrow weicht der Host, ohne Container-Abfrage", () => {
+    expect(ruleBody(".tile--narrow .tile-host")).toMatch(/display:\s*none/);
+    expect(code).not.toMatch(/@container|\bcontainer(-type|-name)?\s*:/);
   });
 
   it("Wort der Pille und Rest des Groessenchips bleiben fuer Bildschirmleser im Baum", () => {
-    const block = atRuleBlock("@container tile (max-width: 259px) {");
-    const rule = blockRule(block, ".tile-narrow-rest");
-    expect(block).toContain(".tile-head .st-word,");
+    const rule = ruleBody(".tile--narrow .tile-narrow-rest");
+    expect(code).toContain(".tile--narrow .tile-head .st-word,");
     // Spec 2026-10-25 §7: vom Kennzeichen tmux bleibt das Symbol.
-    expect(block).toContain(".tile-tmux-word,");
+    expect(code).toContain(".tile--narrow .tile-tmux-word,");
     expect(rule).toMatch(/position:\s*absolute/);
     expect(rule).toMatch(/clip:\s*rect\(0, 0, 0, 0\)/);
     expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden/);

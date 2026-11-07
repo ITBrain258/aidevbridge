@@ -18,7 +18,8 @@ spätere Update: ein Tag, sonst nichts.
 Alles hier liegt in `main`; seit 0.2.4 hängt die APK an jedem Release.
 
 - **Android-Projekt** unter `src-tauri/gen/android`: Ziel Android 17 (API 37),
-  ab Android 7.0, App-Icon, dunkles Theme, randlose Darstellung mit Platz für
+  ab Android 7.0 mit Android System WebView ab 105 (sonst ein Hinweis beim
+  Start mit Weg in den Play Store), App-Icon, dunkles Theme, randlose Darstellung mit Platz für
   Systemleisten und Tastatur, keine Cloud-Sicherung der Schlüssel,
   Berechtigungen Internet und ab Android 17 „Geräte in der Nähe“ für Hosts im
   lokalen Netz.
