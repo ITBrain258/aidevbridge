@@ -1,12 +1,12 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.2.7` vom 05.11.2026 (Tag `v0.2.7` auf dem Merge-Commit
-von PR #35); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.2.7 bringt russh 0.65.1, die Abhängigkeitsstufen vom 05.11. (Punkt 12),
-den nächsten Agent-Schlüssel nach einer verweigerten Signatur (PR #28),
-Hostschlüssel nach `known_hosts` geordnet (PR #30), Live-Tests in der CI
-(PR #29) und die Befunde der Prüfung vor dem Release (PR #35); Einzelheiten
-im [CHANGELOG](../CHANGELOG.md).
+**Stand:** Version `0.3.0` vom 07.11.2026 (Tag `v0.3.0` auf dem Merge-Commit
+von PR #43); beim Tag baut die CI alle Pakete und hängt sie an das Release.
+0.3.0 bringt die neuen Mindeststände macOS 12.4 und Android System WebView
+105 (Entscheidungen vom 07.11.), Android 17 als Ziel mit der Berechtigung
+fürs lokale Netz (PR #37, #39, #40), die Lizenzhinweise aus dem Scan aller
+Komponenten (PR #38, #41) und die Befunde des Reviews vom 07.11. (PR #42,
+Punkt 14); Einzelheiten im [CHANGELOG](../CHANGELOG.md).
 
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.).
 Frühere Releases und ihre Einzelheiten stehen im CHANGELOG, frühere Prüfungen
@@ -149,27 +149,25 @@ Build-Provenienz an ihnen hängen.
 | M3.1 Standard-Socket | nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md), mit 0.2.2 ausgeliefert und [abgenommen](messungen/messung-2026-10-25-m31-abnahme.md) |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert ([Beleg zu NSIS 3.13](release/windows-installer-nsis-3.13-2026-10-30.md)); `packages.yml` baut sie bei jedem Tag, installiert und startet jedes Paket auf einem frischen Runner und hängt sie an das Release |
 | macOS-Lieferung | nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md), seit 0.2.3: Universal-DMG, ad-hoc signiert, [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 390 Komponenten; Testinstallation auf Apple silicon und Intel |
-| Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: ab Android 7.0 (seit dem 07.11. mit Android System WebView ab 105), Ziel API 36, in `main` seit 06.11. API 37 mit der Berechtigung fürs lokale Netz (ausgeliefert ab dem nächsten Release); kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 485 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
+| Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: ab Android 7.0 (seit dem 07.11. mit Android System WebView ab 105), seit 0.3.0 Ziel API 37 mit der Berechtigung fürs lokale Netz (bis 0.2.7 API 36); kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 485 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
 | Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32, #34) und am 06.11. das Ziel-SDK 37 (PR #37); die offenen Stufen unter Punkt 12 |
 
 ## Letzte Prüfung
 
-Am 06.11.2026 vor dem nächsten Release, zweimal mit je drei bis vier
-voneinander unabhängigen Prüfungen, die nur lasen: nach PR #37 und #38 (ihre
-Befunde behebt PR #39) und danach auf `main` (`ae843c0`) für Code, CI und
-Release-Ablauf, Lizenzen und Sicherheitsmeldungen sowie Doku und Datenschutz
-(ihre Befunde behebt PR #40). Auf `ae843c0` waren CI,
-`android.yml` und `packages.yml` grün, ebenso die Release-Probeläufe beider
-Workflows auf demselben Baum, noch mit Version 0.2.7. Der CI-Job `licenses`
-meldete keine Abweichung und `check` grün für windows-x64 (393/210),
-macos-universal (390/204) und android-universal (485/231). Keine offene
-Meldung von Dependabot, `npm audit` oder für das eingebettete russh; neu
-eingeordnet ist Jackson 2.15.3 in der Android-App
-([`SECURITY.md`](../SECURITY.md)). Im Baum und in den Commits seit 0.2.7
-stehen keine Angaben zu Rechner, Konten oder Geräten. Die NDK-Belege für
-armv7 und x86_64 stammen noch von der ersten Android-Auswahl vom 28.10.
-(seitdem unverändert: NDK, Toolchain, `build.rs`; nach 0.2.7 auch
-`Cargo.lock`).
+Am 07.11.2026 vor 0.3.0: fünf voneinander unabhängige Prüfungen auf `main`
+(`59bea6a`), die nur lasen (Punkt 14), und nach den Korrekturen drei weitere
+auf dem Branch von PR #42 (Backend und Android, Frontend, Doku und Lizenzen),
+deren Befunde derselbe PR behebt. PR #42 lief in der CI grün, mit einem
+zweiten Lauf von `rust (macos)`: `socket_abort_probe.rs` hängt vom Runner
+ab. Der Einfügeschutz ist zusätzlich in der App gegen einen echten Host
+geprüft. Für 0.3.0 lokal (PR #43): `licenses:status` ohne Abweichung,
+`check` grün für windows-x64 (393/219), macos-universal (390/213) und
+android-universal (485/242), Clippy, 680 Rust-Tests, 2909 Vitest-Tests,
+156 Skripttests und `npm run build`. Die NDK-Belege bleiben die zuletzt
+aufgezeichneten (arm64 von 0.2.7, armv7 und x86_64 vom 28.10.; seitdem
+unverändert: NDK, Toolchain, `build.rs` und die nativen Abhängigkeiten).
+Nicht geprüft: der WebView-Hinweis an einem Gerät und die Mac-Abnahme
+(Punkt 9).
 
 Die letzte VM-Abnahme (`acceptance_vm`, 11 von 11) lief am 27.10. auf dem Stand
 `7b961cf` gegen einen lokalen Linux-Testhost.
@@ -231,7 +229,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    [Beleg](release/license-source-notices-2026-11-06-scan.json).
    Offen:
    - Die Installerabnahme (bestanden am 24.10. an 0.2.0) ist mit NSIS 3.13 neu
-     fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.2.7. Das
+     fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.3.0. Das
      Manifest jedes Laufs meldet `nsis_msi_payload`, `installer_terms_ui`,
      `installer_stub_notices`, `native_import_family_review` und
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie

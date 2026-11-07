@@ -35,7 +35,7 @@ release; older versions are not patched.
 
 | Version | Supported |
 | --- | --- |
-| Latest release (0.2.x) | Yes |
+| Latest release (0.3.x) | Yes |
 | Older releases | No |
 
 The app doesn't update itself. To hear about fixes, watch the repository's

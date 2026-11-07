@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-07
+
+Neue Mindeststaende (macOS 12.4 statt 11, unter Android eine Android System WebView ab 105), Android 17 als Ziel mit der Berechtigung fuer Hosts im lokalen Netz, eingefuegter Text ohne Steuerzeichen und die Befunde einer Pruefung vom 07.11.: Eine Kachel, die beim Oeffnen geschlossen wird, reisst die Steuerverbindung nicht mehr ab, Eingaben gehen der Reihe nach hinaus, und Hosts mit mehreren Adressen verbinden schneller. Dazu die Lizenzhinweise aus einem Scan aller Komponenten.
+
 ### Changed
 
 - macOS: Die App braucht macOS 12.4 oder neuer statt 11; darunter verweigert macOS den Start selbst (`LSMinimumSystemVersion`). Die Oberflaeche nutzt CSS `:has()` und `:focus-visible` und das Attribut `inert`, die das WebKit von macOS 11 nicht kennt: Dort fehlten Fokusringe und die Knoepfe der Sessions, und Dialoge sperrten den Hintergrund nicht. Unter macOS 11 und 12 kommt das WebKit einer App nur mit den Updates von macOS, ein neueres Safari aendert daran nichts. 0.2.7 ist damit die letzte Version fuer macOS 11. Der schmale Kachelkopf unter 260 px folgt jetzt der Breite, die das Raster setzt, statt einer Container-Abfrage, die erst Safari 16 kennt.
