@@ -361,6 +361,37 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Gebrauch mehr anlegen, prüft die
       [Handabnahme §11](abnahme-handarbeit.md#11-änderungen-aus-dem-code-review-vom-0311),
       Schritt 5.
+14. **Review vom 07.11.:** Fünf voneinander unabhängige Prüfungen, die nur
+    lasen (Rust-Backend, Sicherheit, Frontend, Aufbau und Release-Ablauf,
+    Plattformen), auf `main` (`59bea6a`). Die Fehler mit Wirkung für Nutzer
+    behebt der Branch `fix/review-wave-1` (CHANGELOG `[Unreleased]`). Offen:
+    - **Mindeststand der Webansicht:** Die Oberfläche nutzt CSS `:has()`,
+      `:focus-visible`, `@container` und `inert`, die WKWebView erst ab
+      Safari 15.4 bis 16 kennt; das Build-Ziel `safari14` und die Zusage
+      „macOS 11“ hält sie damit nicht ein. Eine neutrale Bewertung empfiehlt
+      macOS 12.4 als Mindeststand (das WebKit einer App kommt nur mit
+      Updates von macOS, nicht mit einem neueren Safari) und für Android 7.0
+      eine dokumentierte Android System WebView ab 105 mit Prüfung beim
+      Start. Die Entscheidung trifft der Maintainer.
+    - **Wildcards und systemweite `known_hosts`:** Hosts, die nur über ein
+      Muster (`*.example.com`) oder `/etc/ssh/ssh_known_hosts` bekannt sind,
+      fragt die App wie beim Erstkontakt. Am 07.11. vom Maintainer
+      zurückgestellt, weil zurückgesetzte Hosts sonst an der strengeren
+      Prüfung scheitern. Zuerst kommt ein Weg, den alten Eintrag eines Hosts
+      in der App zu entfernen.
+    - **CI und Release:** eigene Frist und Wiederholung für den apt-Schritt
+      (zweimal 25 min Hänger in `rust (ubuntu)`), keine Paketbauten bei
+      reinen Doku-PRs, die volle Lizenzprüfung auch bei geänderten eigenen
+      Quellen, ein Skript, das alle Versionsstellen eines Releases prüft und
+      setzt, CHANGELOG-Einträge je PR; dazu GitHub-Einstellungen
+      (ausgewählte Actions, CodeQL, Freigabe für `android-release`).
+    - **Aufbau:** ein typisierter IPC-Vertrag zwischen Rust und TS ohne neue
+      Abhängigkeit, `main.ts` in Controller mit Abbau zerlegen, Batch 9 (U3)
+      und ein gemeinsamer Fehlertyp der Commands.
+    - **Plattformen:** Strg+V und Strg+Klick auf dem Mac (mit der
+      Mac-Abnahme, Punkt 9), `IdentityAgent` für 1Password und Secretive,
+      Linux-Pakete (deb und rpm), Testhosts mit mehreren tmux-Versionen und
+      Shells.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

@@ -192,7 +192,12 @@ double-click with `set -g mouse on`); tmux drops OSC 52 from programs, as
 long as passthrough is off. With `on`, any program in the session, or text
 it prints, such as a file shown with `cat`, can replace your clipboard.
 Pasted into a shell without bracketed paste, such text can run commands you
-didn't intend (pastejacking).
+didn't intend (pastejacking). The app removes control characters from
+everything you paste (all C0 characters except tab, line feed and carriage
+return, plus DEL and the C1 range), so pasted text cannot end bracketed paste
+early with its own `ESC [201~` and have the rest run as typed input. Line
+breaks stay: in a shell or program without bracketed paste, each pasted line
+still runs as you paste it.
 
 Why it is accepted: the app follows your tmux configuration and version.
 Forcing `external` would take the built-in copy commands of the agents away

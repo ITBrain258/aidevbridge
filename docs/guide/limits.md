@@ -18,8 +18,10 @@
   sessions are listed but their status stays unknown, and sessions started
   later appear only after **Reload sessions**.
 - **macOS:** the shortcuts are those of Windows (Ctrl, Ctrl+Shift); ⌘C, ⌘V,
-  ⌘W and ⌘Q work through the app menu. Shortcuts with ⌘ and a check by hand
-  on a Mac (copy and paste, the local-network prompt, fonts) are still open.
+  ⌘W and ⌘Q work through the app menu. While a program uses the mouse (tmux
+  `mouse on`), Option+drag selects text, as Shift+drag does on Windows.
+  Shortcuts with ⌘ and a check by hand on a Mac (copy and paste, the
+  local-network prompt, fonts) are still open.
 - **Android:** the system stops the connections when the app has been in the
   background for a while; on return, hosts with a key reconnect by themselves.
   There is no ssh-agent on Android. On a phone the app shows one terminal at a
