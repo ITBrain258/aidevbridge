@@ -58,6 +58,7 @@ import {
 } from "./tile-layout";
 import { trackPointerDrag } from "./tile-drag";
 import { t } from "../i18n/t";
+import { isMacOS } from "../platform";
 import type { TranslationKey } from "../i18n/t";
 
 export interface GridOptions {
@@ -238,7 +239,7 @@ function terminalMenuTexts(): TerminalMenuTexts {
       copy: DEFAULT_KEYMAP["clipboard.copy"],
       paste: DEFAULT_KEYMAP["clipboard.paste"],
     },
-    mouseHint: t("terminalMenu.mouseHint"),
+    mouseHint: t(isMacOS() ? "terminalMenu.mouseHintMac" : "terminalMenu.mouseHint"),
   };
 }
 

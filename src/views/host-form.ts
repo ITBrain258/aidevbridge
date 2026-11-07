@@ -21,7 +21,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { t } from "../i18n/t";
-import { isAndroid } from "../platform";
+import { isAndroid, isMacOS } from "../platform";
 
 export type AuthChoice =
   | { kind: "key"; path: string; passphrase: string }
@@ -232,7 +232,9 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
 
   const authHint = document.createElement("p");
   authHint.className = "host-form-hint";
-  authHint.textContent = t(android ? "hostForm.auth.keyHintAndroid" : "hostForm.auth.keyHint");
+  authHint.textContent = t(
+    android ? "hostForm.auth.keyHintAndroid" : isMacOS() ? "hostForm.auth.keyHintMac" : "hostForm.auth.keyHint",
+  );
   form.appendChild(authHint);
 
   // Deaktivierter Platzhalter: NUR eingefuegt, wenn `applyPreselection()` unten

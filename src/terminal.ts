@@ -10,12 +10,13 @@ import { WebLinksAddon } from "@xterm/addon-web-links";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { fontSizeKeyChange, isAppChord, isPlainCtrlAppKey, matchAction } from "./keymap";
-import { clipboardKeyAction, decodeOsc52 } from "./terminal-clipboard";
+import { clipboardKeyAction, decodeOsc52, sanitizePaste } from "./terminal-clipboard";
 import { FitWithoutScrollbar } from "./terminal-fit";
 import type { OpenQueue } from "./terminal-open-queue";
 import { clampFontSize, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { currentTheme, themeParts, type AccentId, type BaseId, type ThemeId } from "./theme";
 import { isAndroid } from "./platform";
+import { randomId } from "./random-id";
 import { consumeModifiers, takeKeySequence, type TouchKeyId } from "./touch-keys";
 import { attachTouchScroll, type TouchOrigin } from "./touch-scroll";
 import { openTerminalMenu, type TerminalMenuItem, type TerminalMenuTexts } from "./views/terminal-menu";
@@ -46,6 +47,27 @@ const WHEEL_UNITS_PER_STEP = 100;
 /** Groesser geht Eingabe in Teilen dieser Groesse hinaus, der Reihe nach
  * (`enqueueInput` unten). */
 export const INPUT_CHUNK_BYTES = 64 * 1024;
+
+/** Ein Aufruf von `send_input`, der noch wartet. `burst` teilen alle Teile
+ * einer grossen Eingabe: scheitert einer, entfallen die uebrigen. */
+interface InputJob {
+  parts: Uint8Array[];
+  size: number;
+  burst: { failed: boolean };
+  mergeable: boolean;
+}
+
+/** Die Teile hintereinander in einem Feld der Laenge `size`. */
+function joinBytes(parts: readonly Uint8Array[], size: number): Uint8Array {
+  if (parts.length === 1) return parts[0];
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const part of parts) {
+    bytes.set(part, offset);
+    offset += part.length;
+  }
+  return bytes;
+}
 
 export interface TerminalHandle {
   dispose(): void;
@@ -380,6 +402,10 @@ export function mountTerminal(
   const term = new Terminal({
     allowProposedApi: true,
     scrollback: 5000,
+    // Markieren trotz Mausmodus des Programms (tmux `mouse on`): unter
+    // Windows mit Umschalt+Ziehen, unter macOS nur mit Option+Ziehen und nur
+    // mit dieser Option. Ausserhalb von macOS wirkt sie nicht.
+    macOptionClickForcesSelection: true,
     // Terminal-Ausgabe ist angreiferbeeinflussbar
     // (Repo-Inhalte, Werkzeug-Output, Spec §8.3). Ohne eigenen `linkHandler`
     // faellt xterm.js bei OSC-8-Hyperlinks auf `defaultActivate` zurueck,
@@ -602,19 +628,26 @@ export function mountTerminal(
     writeToClipboard(selection, true);
   }
 
+  /** Jede Einfuegung geht hier hinaus, die aus dem Menue wie die der Tasten:
+   * ohne Steuerzeichen (`sanitizePaste`), dann per `term.paste`, das bei
+   * eingeschaltetem Bracketed Paste klammert. Leer nicht: bei Bracketed Paste
+   * schickte `term.paste("")` trotzdem die Klammern ans Programm. Vor dem
+   * Anhaengen auch nicht, aus dem Grund beim `paste`-Lauscher unter
+   * `term.onData`. */
+  function pasteText(text: string): void {
+    if (disposed || !attached) return;
+    const clean = sanitizePaste(text);
+    if (clean !== "") term.paste(clean);
+  }
+
   // UX-Spec §6.3: Einfuegen aus dem Menue und dem Rechtsklick liest die
   // Zwischenablage selbst (`readText`; das Leserecht gibt der Fensteraufbau,
-  // UX-Spec §8.5) und fuegt per `term.paste` ein -- xterm klammert dann wie
-  // beim nativen Einfuegen per Bracketed Paste. Die Tasten lesen nie, dort
-  // fuegt Chromium selbst ein (siehe unten).
+  // UX-Spec §8.5). Die Tasten lesen nie, dort liefert Chromium den Text im
+  // `paste`-Ereignis (siehe den Lauscher unter `term.onData`).
   function pasteFromClipboard(): void {
     void navigator.clipboard.readText().then(
       (text) => {
-        // Leer nicht: bei Bracketed Paste schickte `term.paste("")` trotzdem
-        // die Klammern ans Programm. Vor dem Anhaengen auch nicht, aus dem
-        // Grund beim `paste`-Lauscher unter `term.onData`.
-        if (disposed || text === "" || !attached) return;
-        term.paste(text);
+        pasteText(text);
       },
       (error: unknown) => {
         // Wie beim Kopieren: kein Hinweis fuer eine entsorgte Kachel.
@@ -646,10 +679,10 @@ export function mountTerminal(
 
   // Die eigentliche Grenze (Spec §7.4, UX-Spec §6.1). Zuerst die
   // Zwischenablage: Kopieren bekommt `preventDefault` und `false`; Einfuegen
-  // nur `false`, OHNE `preventDefault` -- dann fuegt Chromium selbst in xterms
-  // Textfeld ein, und xterms eigener `paste`-Lauscher klammert per Bracketed
-  // Paste. Das braucht kein Leserecht, anders als
-  // `navigator.clipboard.readText()`.
+  // nur `false`, OHNE `preventDefault` -- dann loest Chromium selbst ein
+  // `paste`-Ereignis mit dem Text aus, und der Lauscher unter `term.onData`
+  // fuegt ihn bereinigt ein (`pasteText`). Das braucht kein Leserecht, anders
+  // als `navigator.clipboard.readText()`.
   //
   // Danach die App-Akkorde: xterm.js bekommt fuer jeden Ctrl+Shift-Akkord
   // `false` (nicht verarbeiten, nicht als Terminal-Eingabe interpretieren),
@@ -1031,7 +1064,7 @@ export function mountTerminal(
   // geschuetzt -- etwa "DevTools auf und zu" direkt
   // nach dem Verbinden, auf einer frisch angehaengten Session mit vollem
   // Scrollback.
-  const openId = crypto.randomUUID();
+  const openId = randomId();
   let lastSentCols = term.cols;
   let lastSentRows = term.rows;
   let attached = false;
@@ -1045,11 +1078,19 @@ export function mountTerminal(
   // das Backend selbst bediente die anderen Kanaele weiter. Deshalb geht
   // Eingabe ueber `INPUT_CHUNK_BYTES` in Teilen hinaus, je Terminal der Reihe
   // nach: der naechste Teil erst, wenn der vorige angekommen ist, dazwischen
-  // kommt die Seite zum Zug. Was waehrenddessen getippt wird, reiht sich
-  // dahinter ein. Scheitert ein Teil -- etwa an der Frist des Backends, weil
-  // das Programm stdin nicht liest --, entfaellt der Rest dieser Eingabe, mit
-  // einer Meldung statt einer je Teil.
-  let inputTail: Promise<void> | null = null;
+  // kommt die Seite zum Zug. Scheitert ein Teil -- etwa an der Frist des
+  // Backends, weil das Programm stdin nicht liest --, entfaellt der Rest
+  // dieser Eingabe, mit einer Meldung statt einer je Teil.
+  //
+  // Auch jede kleine Eingabe wartet, bis die vorige angekommen ist: Tauri
+  // fuehrt jeden `send_input` als eigene Aufgabe aus, und zwei gleichzeitig
+  // unterwegs koennten sich vor dem Schreiben ins PTY ueberholen -- ein Enter
+  // vor den letzten Zeichen fuehrte einen anderen Befehl aus. Ist nichts
+  // unterwegs, geht ein Tastendruck sofort hinaus. Was waehrenddessen getippt
+  // wird, sammelt der letzte wartende Auftrag und schickt es als ein Aufruf,
+  // bis `INPUT_CHUNK_BYTES`.
+  const inputQueue: InputJob[] = [];
+  let inputRunning = false;
 
   /** Eingabe, die vor dem Anhaengen ankommt: Tastendruecke und die Antworten,
    * die xterm selbst erzeugt (auf DA-, XTVERSION- oder OSC-10/11-Anfragen, die
@@ -1083,41 +1124,51 @@ export function mountTerminal(
     );
   }
 
-  /** Schickt Eingabe ab, die ein angehaengter Kanal annimmt. `forceChain`
-   * schickt sie auch klein ueber die Kette: was danach getippt wird, wartet
-   * dann, bis sie angekommen ist. */
-  function enqueueInput(encoded: Uint8Array, forceChain: boolean): void {
-    const burst = { failed: false };
-    // Der gewoehnliche Tastendruck: sofort.
-    if (!forceChain && inputTail === null && encoded.length <= INPUT_CHUNK_BYTES) {
-      void sendInput(encoded, burst);
-      return;
+  /** Reiht Eingabe ein, die ein angehaengter Kanal annimmt. Eine kleine
+   * Eingabe haengt sich an den letzten wartenden Auftrag, solange beide
+   * gesammelt werden duerfen und zusammen hineinpassen. `whole` haelt eine
+   * Eingabe fuer sich: der Puffer vor dem Anhaengen und jede Eingabe ueber
+   * `INPUT_CHUNK_BYTES` sammeln nichts Spaeteres ein, damit ihr Scheitern
+   * nicht auch das danach Getippte verwirft. */
+  function enqueueInput(encoded: Uint8Array, whole: boolean): void {
+    if (encoded.length === 0) return;
+    const mergeable = !whole && encoded.length <= INPUT_CHUNK_BYTES;
+    const last = inputQueue[inputQueue.length - 1];
+    if (mergeable && last?.mergeable && last.size + encoded.length <= INPUT_CHUNK_BYTES) {
+      last.parts.push(encoded);
+      last.size += encoded.length;
+    } else {
+      const burst = { failed: false };
+      for (let offset = 0; offset < encoded.length; offset += INPUT_CHUNK_BYTES) {
+        const part = encoded.subarray(offset, offset + INPUT_CHUNK_BYTES);
+        inputQueue.push({ parts: [part], size: part.length, burst, mergeable });
+      }
     }
-    for (let offset = 0; offset < encoded.length; offset += INPUT_CHUNK_BYTES) {
-      const part = encoded.subarray(offset, offset + INPUT_CHUNK_BYTES);
-      const tail = (inputTail ?? Promise.resolve()).then(() => sendInput(part, burst));
-      inputTail = tail;
-      void tail.then(() => {
-        if (inputTail === tail) inputTail = null;
-      });
+    if (!inputRunning) void drainInput();
+  }
+
+  /** Schickt die Auftraege der Reihe nach, jeden erst nach der Antwort auf
+   * den vorigen. Der erste geht noch im Aufruf von `enqueueInput` hinaus. */
+  async function drainInput(): Promise<void> {
+    inputRunning = true;
+    try {
+      for (let job = inputQueue.shift(); job !== undefined; job = inputQueue.shift()) {
+        await sendInput(joinBytes(job.parts, job.size), job.burst);
+      }
+    } finally {
+      inputRunning = false;
     }
   }
 
-  /** Nach dem Anhaengen: der Puffer geht als eine Eingabe hinaus, ueber die
-   * Kette, damit spaetere Tastendruecke sich dahinter einreihen. Danach puffert
-   * nichts mehr. Ist die Eingabe gesperrt oder der Kanal schon zu, wird er
-   * verworfen. */
+  /** Nach dem Anhaengen: der Puffer geht als eine Eingabe hinaus, in der
+   * Warteschlange, damit spaetere Tastendruecke sich dahinter einreihen.
+   * Danach puffert nichts mehr. Ist die Eingabe gesperrt oder der Kanal schon
+   * zu, wird er verworfen. */
   function flushPendingInput(): void {
     const parts = pendingInput ?? [];
     pendingInput = null;
     if (parts.length === 0 || inputLockedByCaller || channelClosed) return;
-    const bytes = new Uint8Array(parts.reduce((sum, part) => sum + part.length, 0));
-    let offset = 0;
-    for (const part of parts) {
-      bytes.set(part, offset);
-      offset += part.length;
-    }
-    enqueueInput(bytes, true);
+    enqueueInput(joinBytes(parts, parts.reduce((sum, part) => sum + part.length, 0)), true);
   }
 
   // Jede Eingabe kommt hier an, auch `term.paste` und xterms eigene Antworten
@@ -1134,18 +1185,24 @@ export function mountTerminal(
     enqueueInput(encoded, false);
   });
 
+  // Die native Einfuegung der Tasten: der Lauscher faengt sie in der
+  // Capture-Phase ab, bevor xterms eigener `paste`-Lauscher sie roh
+  // einfuegte, und fuegt sie bereinigt ein (`pasteText`). Die Suchleiste
+  // behaelt ihr eigenes Einfuegen.
+  //
   // Vor dem Anhaengen verwirft die Kachel jede Einfuegung, statt sie zu
   // puffern. xterm klammert eine Einfuegung nur, wenn das Programm Bracketed
   // Paste eingeschaltet hat, und das erfaehrt eine frische Kachel erst mit der
   // ersten Ausgabe von tmux. Gepuffert ginge mehrzeiliger Text ungeklammert
   // hinaus, und die Shell fuehrte jede Zeile einzeln aus. Die Einfuegung aus
-  // dem Menue prueft dasselbe in `pasteFromClipboard`.
+  // dem Menue prueft dasselbe in `pasteText`.
   el.addEventListener(
     "paste",
     (event) => {
-      if (attached || inSearchOverlay(event)) return;
+      if (inSearchOverlay(event)) return;
       event.preventDefault();
       event.stopPropagation();
+      pasteText((event as ClipboardEvent).clipboardData?.getData("text/plain") ?? "");
     },
     { capture: true, signal },
   );

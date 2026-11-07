@@ -49,6 +49,7 @@
   "terminalMenu.moveEarlier": "Move to previous position",
   "terminalMenu.moveLater": "Move to next position",
   "terminalMenu.mouseHint": "Shift+drag selects text while a program uses the mouse",
+  "terminalMenu.mouseHintMac": "Option+drag selects text while a program uses the mouse",
 
   "firstRun.heading": "Connect to a new host",
   "firstRun.welcome.tagline": "Your coding agents in tmux, on your machines. Nothing gets installed on the host.",
@@ -101,6 +102,7 @@
   "hostForm.auth.password": "Password",
   "hostForm.auth.chooseFile": "Choose file…",
   "hostForm.auth.keyHint": "Found in %USERPROFILE%\\.ssh — only the .pub files are read to build this list.",
+  "hostForm.auth.keyHintMac": "Found in ~/.ssh — only the .pub files are read to build this list.",
   "hostForm.auth.keyHintAndroid": "Keys stored in this app. Import a private key file, or generate a new key and add its public key to ~/.ssh/authorized_keys on the host.",
   "hostForm.auth.generate": "Generate new key…",
   "hostForm.auth.importFailed": "Could not import the key: {message}",
@@ -284,6 +286,7 @@
   "settings.terminal.rightClickMenu": "Menu",
   "settings.terminal.rightClickPaste": "Copy/Paste",
   "settings.terminal.mouseHint": "Shift+drag selects text while a program uses the mouse.",
+  "settings.terminal.mouseHintMac": "Option+drag selects text while a program uses the mouse.",
   "settings.accent": "Accent color",
   "settings.accent.turquoise": "Turquoise",
   "settings.accent.blue": "Blue",

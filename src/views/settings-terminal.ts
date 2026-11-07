@@ -7,6 +7,7 @@
 // das Laden beim Start). Was daraus folgt -- die Kacheln, settings.toml --,
 // erledigt main.ts fuer alle Schreiber gleich.
 import { t } from "../i18n/t";
+import { isMacOS } from "../platform";
 import type { TranslationKey } from "../i18n/t";
 import {
   DEFAULT_TERMINAL_FONT_SIZE,
@@ -127,7 +128,7 @@ export function mountTerminalSection(container: HTMLElement): { dispose(): void 
 
   const mouseHint = document.createElement("p");
   mouseHint.className = "settings-card-hint";
-  mouseHint.textContent = t("settings.terminal.mouseHint");
+  mouseHint.textContent = t(isMacOS() ? "settings.terminal.mouseHintMac" : "settings.terminal.mouseHint");
   clipboard.card.appendChild(mouseHint);
 
   root.append(text.card, clipboard.card);

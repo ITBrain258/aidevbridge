@@ -8,6 +8,7 @@
 // DOM ausser dem Ereignisziel und reicht jede Aktion an genau eine
 // Abhaengigkeit weiter.
 import { fontSizeKeyChange, isAppChord, isPlainCtrlAppKey, matchAction, type FontSizeChange } from "./keymap";
+import { isMacOS } from "./platform";
 
 /** Je Aktion ein Rueckruf in den Zustand von main.ts. */
 export interface KeyboardDeps {
@@ -110,7 +111,10 @@ function isBrowserKey(event: KeyboardEvent): boolean {
   // `isAppChord`).
   if (event.metaKey || event.getModifierState("AltGraph")) return false;
   if (event.altKey) {
-    // Zurueck und vor sind genau Alt+Pfeil.
+    // Zurueck und vor sind genau Alt+Pfeil, nur ausserhalb von macOS: dort ist
+    // Option+Pfeil der Wortsprung im Textfeld, und WKWebView kennt diese
+    // Browsertaste nicht.
+    if (isMacOS()) return false;
     return !event.ctrlKey && !event.shiftKey && (event.key === "ArrowLeft" || event.key === "ArrowRight");
   }
   // Mit Umschalt oder Feststelltaste kommt "R" statt "r".
