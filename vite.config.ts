@@ -4,8 +4,10 @@ import { execSync } from "node:child_process";
 const host = process.env.TAURI_DEV_HOST;
 
 // The browsers Vite 6 built for by default ("modules"). Vite 7 and 8 default
-// to "baseline-widely-available" (Safari 16 and newer), but the app still
-// supports macOS 11, whose WKWebView may be Safari 14 (macOS spec).
+// to "baseline-widely-available" (Safari 16 and newer). The app needs macOS
+// 12.4 (WebKit of Safari 15.5) and Android System WebView 105, so this target
+// lies below what it supports; raising it changes the helpers in the bundle
+// and with them the license evidence (THIRD_PARTY_LICENSES.md).
 const TARGET = ["es2020", "edge88", "firefox78", "chrome87", "safari14"];
 
 // Vite 8 drops every comment when it minifies, license notices included. The

@@ -765,8 +765,8 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 147325,
-        "sha256": "9c37635add6c53f37fda3da1a09027af6c168e6e1840750a8fb0c5f62ef7f698"
+        "bytes": 147336,
+        "sha256": "076d2cc6f347290327a641769fcdbf0a0c4edd805d0a99fc5268320c6f69aa60"
       },
       {
         "path": "src/terminal.ts",
@@ -800,8 +800,8 @@
       },
       {
         "path": "src/views/grid.ts",
-        "bytes": 108641,
-        "sha256": "4885c87f736a275aa7582dabcb139f593779018c67bd939c202124c2b8ec4e25"
+        "bytes": 108940,
+        "sha256": "42f3d7adc0204bf875516c7c12f4ceeb71ee783a7b8f3ee022b0ce9b9a2b4a5e"
       },
       {
         "path": "src/views/host-form.ts",
@@ -850,8 +850,8 @@
       },
       {
         "path": "vite.config.ts",
-        "bytes": 5308,
-        "sha256": "7b0a25932e7f158c0a2ac6e7ab28247a2819e23e0e2dc9e960fd9db4e61b6adf"
+        "bytes": 5462,
+        "sha256": "9b3c4a84b6a0ad0bcfbc7fdb66cc26b742468d378b2dc9069ea254ebdc17da15"
       }
     ],
     "trees": [
@@ -903,8 +903,8 @@
           },
           {
             "path": "src/random-id.ts",
-            "bytes": 916,
-            "sha256": "86dbb2b380338fa5e44c0aafa997b9eff3481fd0b178678463408dca5fc4f0d2"
+            "bytes": 934,
+            "sha256": "6189d2714e33a1265a7543c0fbff34b1e410b6eb39a8eb79059a4cd57049bbe1"
           },
           {
             "path": "src/state/app-state.ts",
@@ -948,8 +948,8 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 147325,
-            "sha256": "9c37635add6c53f37fda3da1a09027af6c168e6e1840750a8fb0c5f62ef7f698"
+            "bytes": 147336,
+            "sha256": "076d2cc6f347290327a641769fcdbf0a0c4edd805d0a99fc5268320c6f69aa60"
           },
           {
             "path": "src/terminal-clipboard.ts",
@@ -1023,8 +1023,8 @@
           },
           {
             "path": "src/views/grid.ts",
-            "bytes": 108641,
-            "sha256": "4885c87f736a275aa7582dabcb139f593779018c67bd939c202124c2b8ec4e25"
+            "bytes": 108940,
+            "sha256": "42f3d7adc0204bf875516c7c12f4ceeb71ee783a7b8f3ee022b0ce9b9a2b4a5e"
           },
           {
             "path": "src/views/host-form.ts",

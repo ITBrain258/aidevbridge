@@ -55,7 +55,7 @@ Rechner oder die Konten des Maintainers betrifft, liegt lokal unter
 Nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md):
 
 - **macOS kommt dazu:** ein Universal-DMG für Apple silicon und Intel,
-  macOS 11 und neuer.
+  macOS 11 und neuer (seit dem 07.11.: macOS 12.4, unten).
 - **Ad-hoc signiert:** Developer ID und Notarisierung sind im Workflow
   vorbereitet und greifen, sobald die Apple-Secrets im Repository liegen.
 - **Lizenzbeigaben gleichwertig:** eigene, gebundene macOS-Auswahl, aus der
@@ -122,6 +122,20 @@ Build-Provenienz an ihnen hängen.
 - **Upstream (U4):** Eigene russh-Änderungen dürfen bei russh angeboten
   werden, zuerst das Close-Verhalten. Issue oder Pull Request gehen erst
   hinaus, wenn der Maintainer den Entwurf gesehen hat.
+
+## Entscheidungen vom 07.11.2026
+
+- **Mindeststand der Webansicht:** macOS 12.4 statt 11 (WebKit von Safari
+  15.5), Android weiter ab 7.0 mit Android System WebView ab 105; die App
+  meldet eine ältere beim Start und bietet den Play Store an. Grund: Die
+  Oberfläche nutzt `:has()`, `:focus-visible` und `inert`, und das WebKit
+  einer App kommt nur mit Updates von macOS, nicht mit einem neueren Safari
+  (neutrale Bewertung vom 07.11.). Das Build-Ziel bleibt `safari14` und
+  `chrome87`; es höher zu setzen ändert die Helfer im Bundle und damit den
+  Lizenzbeleg, das kann ein eigener Pull Request tun. Die fehlenden
+  Sicherheitsupdates der Webansicht auf alten Systemen stehen in
+  [`SECURITY.md`](../SECURITY.md).
+- **Wildcards in `known_hosts`:** zurückgestellt (Punkt 14).
 
 ## Gebaut
 
@@ -365,14 +379,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     lasen (Rust-Backend, Sicherheit, Frontend, Aufbau und Release-Ablauf,
     Plattformen), auf `main` (`59bea6a`). Die Fehler mit Wirkung für Nutzer
     behebt der Branch `fix/review-wave-1` (CHANGELOG `[Unreleased]`). Offen:
-    - **Mindeststand der Webansicht:** Die Oberfläche nutzt CSS `:has()`,
-      `:focus-visible`, `@container` und `inert`, die WKWebView erst ab
-      Safari 15.4 bis 16 kennt; das Build-Ziel `safari14` und die Zusage
-      „macOS 11“ hält sie damit nicht ein. Eine neutrale Bewertung empfiehlt
-      macOS 12.4 als Mindeststand (das WebKit einer App kommt nur mit
-      Updates von macOS, nicht mit einem neueren Safari) und für Android 7.0
-      eine dokumentierte Android System WebView ab 105 mit Prüfung beim
-      Start. Die Entscheidung trifft der Maintainer.
+    - **Mindeststand der Webansicht:** entschieden am 07.11. (oben) und im
+      selben Branch umgesetzt. Offen: das Build-Ziel auf `safari15.5` und
+      `chrome105` heben, mit neuem Lizenzbeleg für die Helfer im Bundle; der
+      Hinweis auf eine alte WebView unter Android ist nur in der CI gebaut,
+      nicht am Gerät gesehen.
     - **Wildcards und systemweite `known_hosts`:** Hosts, die nur über ein
       Muster (`*.example.com`) oder `/etc/ssh/ssh_known_hosts` bekannt sind,
       fragt die App wie beim Erstkontakt. Am 07.11. vom Maintainer

@@ -18,7 +18,7 @@
       "app",
       "dmg"
     ],
-    "minimum_system_version": "11.0",
+    "minimum_system_version": "12.4",
     "meaning": "License text selection for the macOS application (one universal binary for Apple silicon and Intel) plus explicitly disclosed source/build families; not binary, app bundle or disk image acceptance.",
     "historical_evidence": "Derived on 2026-10-25 from docs/release/license-selection.windows-x64.json (selection aidevbridge-windows-x64-2026-10-20) by scripts/release-license-select-macos.mjs; docs/release/license-macos-universal-2026-10-25.json records the macOS evidence, every dropped and added component and every reworded reason. Shared decisions keep their Windows decision reports; their Windows binary evidence is not repeated for macOS."
   },
@@ -137,7 +137,7 @@
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
         "bytes": 135342,
-        "sha256": "26f75bf58ceaa80313621d924f880884752d79eab53f8ed2e1fef9f961ac9ea3"
+        "sha256": "9628d021d8a028b73e8814f65e736b609eb967a1f6ded71ae4057ff40c23d5f8"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -617,7 +617,7 @@
       {
         "path": "scripts/release-macos-artifacts.mjs",
         "bytes": 29422,
-        "sha256": "95a4744ea688838222e0d029c295457531410efef43514566ad2a230a0d5a331"
+        "sha256": "6c0d432743093ae9aa0ce331ca4d5c0373cef97fede47bba996a8caaeb9a8413"
       },
       {
         "path": "src-tauri/Cargo.toml",
@@ -642,7 +642,7 @@
       {
         "path": "src-tauri/tauri.release.macos.json",
         "bytes": 467,
-        "sha256": "ef38f65517c8ceda750136d7fb99525b9539d877ab33fbaa96da9cdca30c5990"
+        "sha256": "10e582149de8cc69555e8514f8abf6b5ba362c723e9b46e08f22d94e976b2924"
       },
       {
         "path": "src/globals.d.ts",
@@ -686,8 +686,8 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 147325,
-        "sha256": "9c37635add6c53f37fda3da1a09027af6c168e6e1840750a8fb0c5f62ef7f698"
+        "bytes": 147336,
+        "sha256": "076d2cc6f347290327a641769fcdbf0a0c4edd805d0a99fc5268320c6f69aa60"
       },
       {
         "path": "src/terminal.ts",
@@ -721,8 +721,8 @@
       },
       {
         "path": "src/views/grid.ts",
-        "bytes": 108641,
-        "sha256": "4885c87f736a275aa7582dabcb139f593779018c67bd939c202124c2b8ec4e25"
+        "bytes": 108940,
+        "sha256": "42f3d7adc0204bf875516c7c12f4ceeb71ee783a7b8f3ee022b0ce9b9a2b4a5e"
       },
       {
         "path": "src/views/host-form.ts",
@@ -771,8 +771,8 @@
       },
       {
         "path": "vite.config.ts",
-        "bytes": 5308,
-        "sha256": "7b0a25932e7f158c0a2ac6e7ab28247a2819e23e0e2dc9e960fd9db4e61b6adf"
+        "bytes": 5462,
+        "sha256": "9b3c4a84b6a0ad0bcfbc7fdb66cc26b742468d378b2dc9069ea254ebdc17da15"
       }
     ],
     "trees": [
@@ -824,8 +824,8 @@
           },
           {
             "path": "src/random-id.ts",
-            "bytes": 916,
-            "sha256": "86dbb2b380338fa5e44c0aafa997b9eff3481fd0b178678463408dca5fc4f0d2"
+            "bytes": 934,
+            "sha256": "6189d2714e33a1265a7543c0fbff34b1e410b6eb39a8eb79059a4cd57049bbe1"
           },
           {
             "path": "src/state/app-state.ts",
@@ -869,8 +869,8 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 147325,
-            "sha256": "9c37635add6c53f37fda3da1a09027af6c168e6e1840750a8fb0c5f62ef7f698"
+            "bytes": 147336,
+            "sha256": "076d2cc6f347290327a641769fcdbf0a0c4edd805d0a99fc5268320c6f69aa60"
           },
           {
             "path": "src/terminal-clipboard.ts",
@@ -944,8 +944,8 @@
           },
           {
             "path": "src/views/grid.ts",
-            "bytes": 108641,
-            "sha256": "4885c87f736a275aa7582dabcb139f593779018c67bd939c202124c2b8ec4e25"
+            "bytes": 108940,
+            "sha256": "42f3d7adc0204bf875516c7c12f4ceeb71ee783a7b8f3ee022b0ce9b9a2b4a5e"
           },
           {
             "path": "src/views/host-form.ts",
@@ -22622,7 +22622,7 @@
     {
       "id": "native:apple-system-libraries",
       "name": "macOS system libraries and frameworks",
-      "version": "provided by macOS 11 or newer",
+      "version": "provided by macOS 12.4 or newer",
       "declared_license": "Apple macOS terms",
       "selected_license": null,
       "disposition": "exclude",

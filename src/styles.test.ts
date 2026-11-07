@@ -923,21 +923,20 @@ function blockRule(block: string, selector: string): string {
 }
 
 // Optik-Runde vom 24.10.: unter 260 px weicht der Host, die Pille zeigt nur
-// ihren Punkt, der Groessenchip nur die Groesse. jsdom wertet keine
-// Container-Abfrage aus; hier steht, dass es sie gibt und was sie tut.
+// ihren Punkt, der Groessenchip nur die Groesse. Die Klasse `tile--narrow`
+// setzt grid.ts aus der Kachelbreite; eine Container-Abfrage kennt WKWebView
+// erst ab Safari 16, die App laeuft ab macOS 12.4 (Safari 15.5).
 describe("schmaler Kachelkopf (Optik-Runde vom 24.10.)", () => {
-  it("die Kachel ist der Container, und unter 260 px weicht der Host", () => {
-    expect(ruleBody(".tile")).toMatch(/container:\s*tile\s*\/\s*inline-size/);
-    const block = atRuleBlock("@container tile (max-width: 259px) {");
-    expect(blockRule(block, ".tile-host")).toMatch(/display:\s*none/);
+  it("unter der Klasse tile--narrow weicht der Host, ohne Container-Abfrage", () => {
+    expect(ruleBody(".tile--narrow .tile-host")).toMatch(/display:\s*none/);
+    expect(code).not.toMatch(/@container|\bcontainer(-type|-name)?\s*:/);
   });
 
   it("Wort der Pille und Rest des Groessenchips bleiben fuer Bildschirmleser im Baum", () => {
-    const block = atRuleBlock("@container tile (max-width: 259px) {");
-    const rule = blockRule(block, ".tile-narrow-rest");
-    expect(block).toContain(".tile-head .st-word,");
+    const rule = ruleBody(".tile--narrow .tile-narrow-rest");
+    expect(code).toContain(".tile--narrow .tile-head .st-word,");
     // Spec 2026-10-25 §7: vom Kennzeichen tmux bleibt das Symbol.
-    expect(block).toContain(".tile-tmux-word,");
+    expect(code).toContain(".tile--narrow .tile-tmux-word,");
     expect(rule).toMatch(/position:\s*absolute/);
     expect(rule).toMatch(/clip:\s*rect\(0, 0, 0, 0\)/);
     expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden/);

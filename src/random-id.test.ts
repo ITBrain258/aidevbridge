@@ -14,7 +14,8 @@ describe("randomId", () => {
     expect(randomId()).toBe("10000000-0000-4000-8000-000000000001");
   });
 
-  // macOS 11 mit Safari 14: kein `randomUUID`, aber `getRandomValues`.
+  // Eine Webansicht vor Safari 15.4 oder Chrome 92: kein `randomUUID`, aber
+  // `getRandomValues`.
   describe("ohne crypto.randomUUID", () => {
     /** Ein `crypto` ohne `randomUUID`, dessen Zufall jedes Byte auf `fill`
      * setzt. */

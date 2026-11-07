@@ -16,4 +16,6 @@ Kein Konto, keine Cloud, keine Analyse, keine Werbung. Die App spricht nur mit d
 <b>Open Source</b>
 aidevbridge ist freie Software unter der MIT- oder Apache-2.0-Lizenz. Dieselbe App läuft unter Windows und macOS. Quellcode, Fehlermeldungen und Releases: https://github.com/ITBrain258/aidevbridge
 
+Braucht eine aktuelle Android System WebView (Version 105 oder neuer).
+
 Das Projekt ist in früher Entwicklung; Probleme bitte als Issue auf GitHub melden.

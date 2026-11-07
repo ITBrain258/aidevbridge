@@ -2291,9 +2291,6 @@ kbd {
   /* Spec 2026-10-19 §4.3: absolut im Raster; `width`/`height` inline schliessen
      den Rahmen ein, sonst ragte jede Kachel 2 px in die Luecke. */
   position: absolute;
-  /* Fuer den schmalen Kopf (`@container tile` unten). Die Breite steht inline,
-     die Eindaemmung der Breite aendert also nichts an der Lage. */
-  container: tile / inline-size;
   box-sizing: border-box;
   flex-direction: column;
   min-width: 0;
@@ -2611,24 +2608,25 @@ kbd {
    Host nichts. Dann weicht der Host ganz, die Pille zeigt nur ihren Punkt
    (ihr Wort steht im Tooltip, grid.ts) und der Groessenchip nur die Groesse in
    Warnfarbe. Wort und "narrow" bleiben fuer Bildschirmleser im Baum, mit der
-   Klemm-Technik von `.ab-visually-hidden`. */
-@container tile (max-width: 259px) {
-  .tile-host {
-    display: none;
-  }
+   Klemm-Technik von `.ab-visually-hidden`. Die Klasse setzt `grid.ts` aus der
+   Breite, die es ohnehin inline setzt (`NARROW_TILE_WIDTH`): eine
+   Container-Abfrage kennt WKWebView erst ab Safari 16, die App laeuft ab
+   macOS 12.4 (Safari 15.5). */
+.tile--narrow .tile-host {
+  display: none;
+}
 
-  /* Spec 2026-10-25 §7: vom Kennzeichen bleibt das Symbol. */
-  .tile-head .st-word,
-  .tile-tmux-word,
-  .tile-narrow-rest {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-  }
+/* Spec 2026-10-25 §7: vom Kennzeichen bleibt das Symbol. */
+.tile--narrow .tile-head .st-word,
+.tile--narrow .tile-tmux-word,
+.tile--narrow .tile-narrow-rest {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 /* Abnahme B4: schrumpft, sobald Titel und Host nichts mehr hergeben -- dann

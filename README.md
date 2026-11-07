@@ -120,8 +120,8 @@ Get the [latest release](https://github.com/ITBrain258/aidevbridge/releases/late
 | Platform | File | Needs |
 | --- | --- | --- |
 | **Windows** | `…-windows-x64-setup.exe`, `.msi` or `.zip` | Windows 10 or 11, x64 |
-| **macOS** | `…-macos-universal.dmg` | macOS 11 or newer, Apple silicon or Intel |
-| **Android** | `…-android.apk` | Android 7.0 or newer |
+| **macOS** | `…-macos-universal.dmg` | macOS 12.4 or newer, Apple silicon or Intel |
+| **Android** | `…-android.apk` | Android 7.0 or newer, Android System WebView 105 or newer |
 
 There are no packages for Linux desktops or iOS.
 

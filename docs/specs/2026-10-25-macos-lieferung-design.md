@@ -197,3 +197,17 @@ mit Visual Studio 2026), statt `macos-latest` `macos-26` (Apple silicon),
 statt `ubuntu-latest` `ubuntu-24.04`; `macos-15-intel` bleibt. Das sind die
 Images, auf die die `*-latest`-Namen am 05.11. zeigten, auch beim Release von
 0.2.6. Abschnitt 5 gilt mit diesen Namen.
+
+## Nachtrag vom 07.11.2026: macOS 12.4 als Mindeststand
+
+Die App braucht macOS 12.4 statt 11 (`minimumSystemVersion` in
+`tauri.release.macos.json`, `MINIMUM_SYSTEM` in
+`scripts/release-macos-artifacts.mjs`, `LSMinimumSystemVersion` im
+`Info.plist`, `minimum_system_version` der macOS-Lizenzauswahl). Die
+Oberfläche nutzt CSS `:has()` und `:focus-visible` und das Attribut `inert`,
+die WebKit erst mit Safari 15.4 und 15.5 kennt; macOS 12.4 bringt dieses
+WebKit mit. Eine App nutzt das WebKit des Systems, das nur mit Updates von
+macOS neu kommt, nicht mit einem neueren Safari: Unter macOS 11 bleibt es auf
+dem Stand von Safari 14.1. Die Container-Abfrage des schmalen Kachelkopfs
+(Safari 16) ist durch eine Klasse ersetzt, die das Raster aus der Breite
+setzt. Die Abschnitte 4 und 7 gelten mit 12.4 statt 11.0.

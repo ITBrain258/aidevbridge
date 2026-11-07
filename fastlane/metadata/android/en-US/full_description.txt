@@ -16,4 +16,6 @@ No account, no cloud, no analytics, no ads. The app talks only to the hosts you 
 <b>Open source</b>
 aidevbridge is free software under the MIT or Apache 2.0 license. The same app runs on Windows and macOS. Source code, issues and releases: https://github.com/ITBrain258/aidevbridge
 
+Needs a current Android System WebView (version 105 or newer).
+
 The project is in early development; please report problems as an issue on GitHub.

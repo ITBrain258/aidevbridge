@@ -449,6 +449,24 @@ A repository ruleset ("Release tags v*") lets only an admin create, move or
 delete such a tag, so a workflow or a token without admin rights cannot get
 code signed by tagging it.
 
+### The system web view on systems without updates
+
+The window is drawn by the web view of the system: WebView2 on Windows, the
+WebKit of macOS, Android System WebView (or Chrome) on Android. The app ships
+none of them and gets their security fixes only through the system. macOS
+renews its WebKit only with its own updates, not with a newer Safari; Apple
+no longer ships security updates for macOS 12 and 13. On Android 7 to 9
+Google no longer updates the web view (Android 7 stops at version 119,
+Android 8 and 9 at 138). The app needs macOS 12.4 and Android System WebView
+105, so it runs on such systems, but a flaw in their web view stays open
+there.
+
+Why it is accepted: the app loads no web pages. It shows its own interface
+from the app bundle, the CSP allows no outside scripts, and the output of
+your hosts reaches the screen as text through xterm.js. Requiring the
+versions the vendors still support would lock out working systems. If you
+can, keep the system and its web view up to date.
+
 ### Several windows at the same time
 
 You can start aidevbridge more than once; each start opens its own window,

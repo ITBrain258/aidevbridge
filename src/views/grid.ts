@@ -61,6 +61,11 @@ import { t } from "../i18n/t";
 import { isMacOS } from "../platform";
 import type { TranslationKey } from "../i18n/t";
 
+/** Unter dieser Breite in px zeigt der Kachelkopf nur das Noetigste
+ * (`.tile--narrow` in styles.css): der Host weicht, Pille und Groessenchip
+ * behalten ihr Zeichen. */
+export const NARROW_TILE_WIDTH = 260;
+
 export interface GridOptions {
   /** Ein Fehler eines Terminals: `text` ist der Satz fuer seine Art (UX-Spec
    * §6.9, §10), `detail` der Rohtext der Ursache fuer "Copy details". */
@@ -1794,6 +1799,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
       style.top = `${rect.y}px`;
       style.width = `${rect.width}px`;
       style.height = `${rect.height}px`;
+      view.refs.root.classList.toggle("tile--narrow", rect.width < NARROW_TILE_WIDTH);
       view.rect = rect;
     });
     for (const [id, view] of views) {

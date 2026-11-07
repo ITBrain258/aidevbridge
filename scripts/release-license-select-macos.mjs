@@ -359,7 +359,7 @@ export function deriveSelection(root, { metadata = macosMetadata(root), roles = 
     });
   });
   components.push(
-    { id: 'native:apple-system-libraries', name: 'macOS system libraries and frameworks', version: 'provided by macOS 11 or newer', declared_license: 'Apple macOS terms', selected_license: null, disposition: 'exclude', documents: [], reason: 'libSystem (including the unwinder std links against), Foundation, AppKit, WebKit, CoreFoundation, CoreGraphics and the other frameworks are part of macOS and are loaded from the system at run time. No Apple library bytes are copied into the .app or the DMG. The objc2 bindings derived from Apple SDK headers are mapped separately.', decision_basis: [REPORT], source_urls: [] },
+    { id: 'native:apple-system-libraries', name: 'macOS system libraries and frameworks', version: 'provided by macOS 12.4 or newer', declared_license: 'Apple macOS terms', selected_license: null, disposition: 'exclude', documents: [], reason: 'libSystem (including the unwinder std links against), Foundation, AppKit, WebKit, CoreFoundation, CoreGraphics and the other frameworks are part of macOS and are loaded from the system at run time. No Apple library bytes are copied into the .app or the DMG. The objc2 bindings derived from Apple SDK headers are mapped separately.', decision_basis: [REPORT], source_urls: [] },
     { id: 'installer:macos-dmg', name: 'DMG disk image', version: 'Tauri CLI 2.12.4 bundle_dmg.sh with hdiutil', declared_license: null, selected_license: null, disposition: 'exclude', documents: [], reason: 'The image holds the .app, a link to /Applications and at most the volume icon made from the app\'s own icon and file-system metadata macOS writes itself (.DS_Store, .fseventsd, .Trashes); scripts/release-macos-artifacts.mjs refuses any other entry. hdiutil and the Tauri bundler script only build the image; no third-party installer code, graphics or license agreement is delivered.', decision_basis: [REPORT, 'scripts/release-macos-artifacts.mjs'], source_urls: [] },
   );
   ensure(new Set(components.map(c => c.id)).size === components.length, 'Duplicate component');
@@ -462,7 +462,7 @@ function selection(derived, root, pending) {
     selection_id: `aidevbridge-macos-universal-${DATE}`,
     scope: {
       target: 'universal-apple-darwin', cargo_targets: TARGETS, build_host: BUILD_HOST, default_features: true, cargo_features: ['tauri/custom-protocol'], rust_toolchain: TOOLCHAIN, product_version: derived.pkgVersion,
-      bundle_targets: ['app', 'dmg'], minimum_system_version: '11.0',
+      bundle_targets: ['app', 'dmg'], minimum_system_version: '12.4',
       meaning: 'License text selection for the macOS application (one universal binary for Apple silicon and Intel) plus explicitly disclosed source/build families; not binary, app bundle or disk image acceptance.',
       historical_evidence: `Derived on ${DATE} from ${WINDOWS} (selection ${windows.selection_id}) by scripts/release-license-select-macos.mjs; ${REPORT} records the macOS evidence, every dropped and added component and every reworded reason. Shared decisions keep their Windows decision reports; their Windows binary evidence is not repeated for macOS.`,
     },

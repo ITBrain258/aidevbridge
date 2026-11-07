@@ -1,10 +1,10 @@
 // Zufallskennungen im Format einer UUID v4 (RFC 9562 §5.4).
 
 /** Eine neue UUID v4 in Kleinbuchstaben. `crypto.randomUUID` gibt es erst
- * ab Safari 15.4 und Chrome 92 und nur in einem sicheren Kontext; die App
- * unterstuetzt macOS 11, dessen WKWebView noch Safari 14 sein kann
- * (`vite.config.ts`). Fehlt es, entsteht dieselbe Form aus
- * `crypto.getRandomValues`, das es ueberall gibt. */
+ * ab Safari 15.4 und Chrome 92 und nur in einem sicheren Kontext. Fehlt es,
+ * entsteht dieselbe Form aus `crypto.getRandomValues`, das es ueberall gibt;
+ * eine Webansicht unter dem Mindeststand (macOS 12.4, Android System WebView
+ * 105) oeffnet so trotzdem Terminals. */
 export function randomId(): string {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
   const bytes = crypto.getRandomValues(new Uint8Array(16));
