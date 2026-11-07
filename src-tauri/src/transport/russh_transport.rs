@@ -138,22 +138,26 @@ where
         Done(usize, std::io::Result<TcpStream>),
         Delay,
     }
-    let mut pending = addresses.into_iter();
-    let mut running: Vec<Pin<Box<CF>>> = Vec::new();
-    let mut last_error = None;
+    // Each attempt keeps the position of its address. The error reported at
+    // the end is the one of the last address, as with sequential attempts,
+    // not the one that happened to fail last: the local network check on
+    // Android reads it (`local_network::host_answered`).
+    let mut pending = addresses.into_iter().enumerate();
+    let mut running: Vec<(usize, Pin<Box<CF>>)> = Vec::new();
+    let mut last_error: Option<(usize, std::io::Error)> = None;
     loop {
         if running.is_empty() {
-            let Some(address) = pending.next() else {
+            let Some((position, address)) = pending.next() else {
                 break;
             };
             control.check_network()?;
-            running.push(Box::pin(connect(address)));
+            running.push((position, Box::pin(connect(address))));
         }
         let more = pending.len() > 0;
         let delay = tokio::time::sleep(CONNECTION_ATTEMPT_DELAY);
         tokio::pin!(delay);
         let attempt = std::future::poll_fn(|cx| {
-            for (index, future) in running.iter_mut().enumerate() {
+            for (index, (_, future)) in running.iter_mut().enumerate() {
                 if let Poll::Ready(result) = future.as_mut().poll(cx) {
                     return Poll::Ready(Attempt::Done(index, result));
                 }
@@ -167,17 +171,20 @@ where
         match attempt {
             Attempt::Done(_, Ok(stream)) => return Ok(stream),
             Attempt::Done(index, Err(error)) => {
-                drop(running.remove(index));
-                last_error = Some(error);
+                let (position, future) = running.remove(index);
+                drop(future);
+                if last_error.as_ref().is_none_or(|(last, _)| position > *last) {
+                    last_error = Some((position, error));
+                }
             }
             Attempt::Delay => {}
         }
-        if let Some(address) = pending.next() {
+        if let Some((position, address)) = pending.next() {
             control.check_network()?;
-            running.push(Box::pin(connect(address)));
+            running.push((position, Box::pin(connect(address))));
         }
     }
-    Err(last_error.unwrap_or_else(|| {
+    Err(last_error.map(|(_, error)| error).unwrap_or_else(|| {
         std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
             "could not resolve to any address",

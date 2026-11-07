@@ -57,9 +57,10 @@ onto **Applications**.
   stay unreachable.
 - **Tested by machine so far.** The macOS app has passed an automated
   installation and start test, not yet a test by hand on a Mac.
-- The window is drawn by WebKit, which is part of macOS: only macOS updates
-  renew it, a newer Safari does not. That is why the app needs macOS 12.4; on
-  macOS 11 parts of the window and the dialogs do not work. The license texts are
+- The window is drawn by WebKit, which is part of macOS. On macOS 11 and 12
+  only macOS updates renew it, a newer Safari does not. That is why the app
+  needs macOS 12.4; on macOS 11 parts of the window and the dialogs do not
+  work. The license texts are
   inside the app (`aidevbridge.app/Contents/Resources/licenses/index.html`). To
   remove the app, move it to the Trash.
 

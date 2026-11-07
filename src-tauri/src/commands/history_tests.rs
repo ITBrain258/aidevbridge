@@ -455,6 +455,12 @@ async fn closing_while_the_capture_opens_its_channel_keeps_the_control_connectio
     assert!(fixture.control_commands().is_empty());
     assert!(sink.events().is_empty());
     assert!(sink.lost().is_empty());
+    // Die Steuerverbindung traegt danach weitere Befehle.
+    let host = state.ready_host(HOST).expect("the host stays connected");
+    host.command(tokio::time::Instant::now() + Duration::from_secs(5))
+        .exec_with_deadline("later-command", Duration::from_secs(5))
+        .await
+        .expect("a later control command runs");
     // Ein Wechsel nach Degraded meldete sich hier als Steuerereignis.
     let controls = control_events(&fixture);
     assert!(controls.is_empty(), "{controls:?}");

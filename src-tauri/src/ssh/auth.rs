@@ -1216,12 +1216,18 @@ sJWR7W+cGvJ/vLsw==
             "'Agent nicht erreichbar' und 'Agent ohne Identitaeten' duerfen nicht dieselbe \
              Meldung liefern"
         );
+        // Unter Windows der Dienst, sonst der Socket aus `SSH_AUTH_SOCK`.
+        let hint = if cfg!(windows) {
+            "start-service"
+        } else {
+            "ssh_auth_sock"
+        };
         assert!(
             unreachable
                 .user_message()
                 .to_ascii_lowercase()
-                .contains("start-service"),
-            "'Agent nicht erreichbar' muss zum Dienst-Neustart raten: {}",
+                .contains(hint),
+            "'Agent nicht erreichbar' muss den Weg zum Agent nennen ({hint}): {}",
             unreachable.user_message()
         );
         assert!(

@@ -3920,8 +3920,9 @@ pub async fn list_sessions_impl(
 }
 
 /// Liest den eigenen Socket und, wenn verlangt, den Standard-Socket; den
-/// eigenen zuerst, beide mit derselben Frist. Ein fehlender Host scheitert
-/// ganz, ein Fehler eines Sockets nur fuer diesen.
+/// eigenen zuerst, beide mit derselben Frist. Ein fehlender Host und ein
+/// gescheiterter Befehl `tmux -V` scheitern ganz, ein Fehler eines Sockets
+/// nur fuer diesen.
 pub async fn list_sockets_impl(
     state: &Arc<AppState>,
     host_id: String,

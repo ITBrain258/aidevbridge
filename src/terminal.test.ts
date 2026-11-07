@@ -5392,6 +5392,18 @@ describe("mountTerminal: Suchleiste (UX-Spec §6.6)", () => {
     return event;
   }
 
+  // Der Lauscher fuer native Einfuegungen faengt nach dem Anhaengen jedes
+  // paste ab, ausser in der Suchleiste.
+  it("ein Einfuegen in die Suchleiste bleibt beim Browser und geht nicht ans Terminal", async () => {
+    const { input } = openSearch();
+    await flush(); // angehaengt
+
+    const event = nativePaste(input, "needle");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(hoisted.pasteCalls).toEqual([]);
+  });
+
   it("haengt die Leiste in den Kachelcontainer und gibt ihr die Texte aus MountOptions", () => {
     const { container, input } = openSearch();
 

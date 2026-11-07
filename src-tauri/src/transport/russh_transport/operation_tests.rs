@@ -1019,6 +1019,9 @@ async fn operation_cancelled_exec_open_accepts_late_ack_only_to_close_without_su
             held.accept().await;
             observed(&seen.closes, 1).await;
             assert_eq!(seen.execs.load(Ordering::SeqCst), 0);
+            // Ein Abbruch kaeme spaetestens nach CLEANUP (2 s): erst danach ist
+            // sicher, dass der Spaetpfad die Verbindung stehen laesst.
+            sleep(Duration::from_millis(2300)).await;
             assert!(transport.is_usable());
         })
         .await;
@@ -1571,7 +1574,8 @@ async fn operation_control_open_failure_preserves_independent_terminal_io_and_re
                 .check(move |control, seen, mut delayed| async move {
                     // Eine Frist, die ein gesendetes Open beendet, opfert die
                     // Steuerverbindung, wie bisher.
-                    let budget = OperationControl::new(Duration::from_millis(300));
+                    // Lang genug, dass das Open sicher beim Server ankommt.
+                    let budget = OperationControl::new(Duration::from_millis(1500));
                     let query = control.exec_controlled("control-read", budget.clone());
                     tokio::pin!(query);
                     let held = tokio::select! {

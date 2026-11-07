@@ -364,8 +364,16 @@ describe("Optische Mitte: getrimmte Beschriftungen zeigen ganze Zeichen (v2 §6.
   // Der getrimmte Kasten endet an der Grundlinie: was senkrecht beschneidet,
   // schneidet Unterlaengen und Klammern ab ("(accept)" liest sich "(accent)").
   it("kein getrimmtes Element beschneidet senkrecht", () => {
+    // Ausgenommen der Rueckfall fuer WebKit ohne `overflow: clip` (vor Safari
+    // 16): wo er greift, gibt es auch kein `text-box` (erst Safari 18.2 und
+    // Chromium 133), also keinen getrimmten Kasten.
+    const fallbackHead = "@supports not (overflow: clip) {";
+    const fallbackStart = code.indexOf(fallbackHead);
+    const fallbackEnd = fallbackStart + fallbackHead.length + atRuleBlock(fallbackHead).length;
     const offenders: string[] = [];
-    for (const [, list, body] of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const match of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const [, list, body] = match;
+      if (match.index > fallbackStart && match.index < fallbackEnd) continue;
       // `\w` nach `\s*`: sonst liesse das Zuruecksetzen ueber das Leerzeichen
       // `overflow-y: visible` als Treffer durch.
       const clips = /(?:^|[;\s])overflow\s*:\s*(?!visible\s*(?:;|$))\w/.test(body) ||
@@ -926,6 +934,32 @@ function blockRule(block: string, selector: string): string {
 // ihren Punkt, der Groessenchip nur die Groesse. Die Klasse `tile--narrow`
 // setzt grid.ts aus der Kachelbreite; eine Container-Abfrage kennt WKWebView
 // erst ab Safari 16, die App laeuft ab macOS 12.4 (Safari 15.5).
+// `overflow: clip` kennt WebKit erst ab Safari 16; die App laeuft ab macOS
+// 12.4 (Safari 15.5). Jede Regel, die clip setzt, braucht dort `hidden`.
+describe("overflow: clip mit Rueckfall fuer WebKit vor Safari 16", () => {
+  /** Die Selektoren jeder Regel, die `overflow` oder `overflow-x` auf `clip`
+   * setzt, ohne die Bedingung von `@supports` selbst. */
+  function clippedSelectors(): string[] {
+    const found: string[] = [];
+    for (const match of code.matchAll(/(?<!\()overflow(?:-x)?:\s*clip\b/g)) {
+      const open = code.lastIndexOf("{", match.index);
+      const before = Math.max(code.lastIndexOf("}", open), code.lastIndexOf("{", open - 1));
+      found.push(...code.slice(before + 1, open).split(",").map((selector) => selector.trim()));
+    }
+    return found;
+  }
+
+  it("jede solche Regel bekommt unter @supports not (overflow: clip) overflow: hidden", () => {
+    const block = atRuleBlock("@supports not (overflow: clip) {");
+    const head = block.slice(0, block.indexOf("{"));
+    const covered = new Set(head.split(",").map((selector) => selector.trim()));
+    const clipped = clippedSelectors();
+    expect(clipped.length).toBeGreaterThanOrEqual(10);
+    for (const selector of clipped) expect(covered, selector).toContain(selector);
+    expect(block.slice(block.indexOf("{"))).toMatch(/overflow:\s*hidden/);
+  });
+});
+
 describe("schmaler Kachelkopf (Optik-Runde vom 24.10.)", () => {
   it("unter der Klasse tile--narrow weicht der Host, ohne Container-Abfrage", () => {
     expect(ruleBody(".tile--narrow .tile-host")).toMatch(/display:\s*none/);

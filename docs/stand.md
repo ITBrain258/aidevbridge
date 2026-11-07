@@ -129,8 +129,8 @@ Build-Provenienz an ihnen hängen.
   15.5), Android weiter ab 7.0 mit Android System WebView ab 105; die App
   meldet eine ältere beim Start und bietet den Play Store an. Grund: Die
   Oberfläche nutzt `:has()`, `:focus-visible` und `inert`, und das WebKit
-  einer App kommt nur mit Updates von macOS, nicht mit einem neueren Safari
-  (neutrale Bewertung vom 07.11.). Das Build-Ziel bleibt `safari14` und
+  einer App kommt unter macOS 11 und 12 nur mit Updates von macOS, nicht mit
+  einem neueren Safari (Review vom 07.11., Punkt 14). Das Build-Ziel bleibt `safari14` und
   `chrome87`; es höher zu setzen ändert die Helfer im Bundle und damit den
   Lizenzbeleg, das kann ein eigener Pull Request tun. Die fehlenden
   Sicherheitsupdates der Webansicht auf alten Systemen stehen in
@@ -149,7 +149,7 @@ Build-Provenienz an ihnen hängen.
 | M3.1 Standard-Socket | nach der [Spec vom 25.10.](specs/2026-10-25-standard-socket-design.md), mit 0.2.2 ausgeliefert und [abgenommen](messungen/messung-2026-10-25-m31-abnahme.md) |
 | Windows-Lieferung | `npm run build:windows` baut MSI, NSIS und ZIP mit Lizenzbeigaben, unsigniert ([Beleg zu NSIS 3.13](release/windows-installer-nsis-3.13-2026-10-30.md)); `packages.yml` baut sie bei jedem Tag, installiert und startet jedes Paket auf einem frischen Runner und hängt sie an das Release |
 | macOS-Lieferung | nach der [Spec vom 25.10.](specs/2026-10-25-macos-lieferung-design.md), seit 0.2.3: Universal-DMG, ad-hoc signiert, [macOS-Lizenzauswahl](release/license-selection.macos-universal.json) mit 390 Komponenten; Testinstallation auf Apple silicon und Intel |
-| Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: ab Android 7.0, Ziel API 36, in `main` seit 06.11. API 37 mit der Berechtigung fürs lokale Netz (ausgeliefert ab dem nächsten Release); kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 485 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
+| Android | nach der [Spec vom 27.10.](specs/2026-10-27-android-design.md), seit 0.2.4: ab Android 7.0 (seit dem 07.11. mit Android System WebView ab 105), Ziel API 36, in `main` seit 06.11. API 37 mit der Berechtigung fürs lokale Netz (ausgeliefert ab dem nächsten Release); kompakte Ansicht und Touch-Leiste, `android.yml` mit Signatur im eigenen Job, eigene [Lizenzauswahl](release/license-selection.android-universal.json) mit 485 Komponenten; eine Abnahme nach [Plan](plans/2026-10-27-android.md) steht aus |
 | Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32, #34) und am 06.11. das Ziel-SDK 37 (PR #37); die offenen Stufen unter Punkt 12 |
 
 ## Letzte Prüfung
@@ -378,7 +378,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
 14. **Review vom 07.11.:** Fünf voneinander unabhängige Prüfungen, die nur
     lasen (Rust-Backend, Sicherheit, Frontend, Aufbau und Release-Ablauf,
     Plattformen), auf `main` (`59bea6a`). Die Fehler mit Wirkung für Nutzer
-    behebt der Branch `fix/review-wave-1` (CHANGELOG `[Unreleased]`). Offen:
+    behebt PR #42 (CHANGELOG `[Unreleased]`). Offen:
     - **Mindeststand der Webansicht:** entschieden am 07.11. (oben) und im
       selben Branch umgesetzt. Offen: das Build-Ziel auf `safari15.5` und
       `chrome105` heben, mit neuem Lizenzbeleg für die Helfer im Bundle; der

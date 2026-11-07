@@ -4299,6 +4299,18 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   .tile-btn .icon-box, .tile-copied .icon-box, .sb-btn .icon-box, .st .icon-box, .btn--danger::before { position: relative; top: 1px; }
 }
 
+/* `overflow: clip` kennt WebKit erst ab Safari 16; unter macOS 12.4 und 12.5
+   (WebKit von Safari 15.5) ist die Deklaration ungueltig, und die gekuerzten
+   Beschriftungen liefen ohne Auslassungspunkte in Zaehler und Nachbarkacheln.
+   Dort beschneidet `hidden`. Senkrecht kostet das nichts: ohne `text-box`
+   (siehe oben) ist der Textkasten nicht getrimmt, Unterlaengen liegen darin. */
+@supports not (overflow: clip) {
+  .first-run-suggestion-alias, .first-run-suggestion-detail, .row-label, .row-lane-reason,
+  .tile-head, .tile-chip-text, .tile-title, .tile-host, .tile-lock, .tile-lock-message {
+    overflow: hidden;
+  }
+}
+
 /* Kleinschrift (v2 §6.1): fuer 10 und 11 px "Segoe UI Variable Small" voran. */
 .row-meta, .row-state-word, .row-session-count, .state-pill, .st, .tile-host, .tile-tmux, .tmux-mark, .tile-lock-chip, .tile-quiet, .tile-copied, .tile-narrow,
 .sb-lane-title, .row-lane-time, .row-lane-reason, .row-lane-more,

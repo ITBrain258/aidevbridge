@@ -628,8 +628,11 @@ export function mountTerminal(
     writeToClipboard(selection, true);
   }
 
-  /** Jede Einfuegung geht hier hinaus, die aus dem Menue wie die der Tasten:
-   * ohne Steuerzeichen (`sanitizePaste`), dann per `term.paste`, das bei
+  /** Jede Einfuegung aus der Zwischenablage geht hier hinaus, die aus dem
+   * Menue wie die der Tasten und des Systemmenues. Nicht hier: Text, den eine
+   * Eingabemethode selbst einsetzt (etwa der Zwischenablage-Vorschlag einer
+   * Android-Tastatur); er kommt als getippte Eingabe ueber `term.onData`.
+   * Hier: ohne Steuerzeichen (`sanitizePaste`), dann per `term.paste`, das bei
    * eingeschaltetem Bracketed Paste klammert. Leer nicht: bei Bracketed Paste
    * schickte `term.paste("")` trotzdem die Klammern ans Programm. Vor dem
    * Anhaengen auch nicht, aus dem Grund beim `paste`-Lauscher unter

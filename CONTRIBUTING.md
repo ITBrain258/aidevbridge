@@ -16,7 +16,8 @@ issues and pull requests as time allows; there is no response deadline.
 
 ## Build and test
 
-You need Windows 10 or 11 (x64) or macOS 12.4 or newer, the Rust toolchain
+You need Windows 10 or 11 (x64) or macOS 13.5 or newer (for Node.js 24; the
+app itself runs from macOS 12.4), the Rust toolchain
 from `rust-toolchain.toml` (installed by `rustup` on first use), Node.js
 24.15 or newer (not 25) and, on Windows, the Microsoft C++ Build Tools (MSVC) and the
 WebView2 Runtime, on macOS the Xcode Command Line Tools; see the

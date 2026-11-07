@@ -648,8 +648,11 @@ async fn controlled_resolver_preserves_address_order_and_connects_fallback() {
     let second = listener.local_addr().unwrap();
     spec.hostname = "ordered-resolver.fixture.invalid".into();
     // Windows can take roughly two seconds to finish a refused loopback
-    // connect. This success/fallback case needs room for the real OS failure;
-    // the separate deadline cases retain their short injected budgets.
+    // connect; there the second address starts beside it after
+    // CONNECTION_ATTEMPT_DELAY and wins before the refusal arrives. Either
+    // way the attempts keep the resolver's order and the second address
+    // connects. A refusal that starts the next address at once is the
+    // separate injected case `a_failed_attempt_starts_the_next_address_at_once`.
     let control = ConnectControl::new(ConnectLimits {
         total: TEST_END,
         network: TEST_END,
@@ -1035,9 +1038,11 @@ async fn a_failed_attempt_starts_the_next_address_at_once() {
         ..limits()
     });
     let pool = BlockingPool::new(1, 1);
-    let started = tokio::time::Instant::now();
+    // Gemessen ab dem ersten Versuch, nicht ab dem Start: der Resolver laeuft
+    // vorher in einem Worker, dessen Anlauf nicht zur Frist zaehlt.
+    let first_at = Arc::new(std::sync::Mutex::new(None));
     let second_at = Arc::new(std::sync::Mutex::new(None));
-    let seen = second_at.clone();
+    let (first_seen, seen) = (first_at.clone(), second_at.clone());
     let stream = control
         .wait_network(resolve_and_connect(
             &spec,
@@ -1045,8 +1050,11 @@ async fn a_failed_attempt_starts_the_next_address_at_once() {
             &pool,
             move |_, _| Ok(vec![refused, reachable]),
             move |address| {
+                let now = tokio::time::Instant::now();
                 if address == reachable {
-                    *seen.lock().unwrap() = Some(started.elapsed());
+                    *seen.lock().unwrap() = Some(now);
+                } else {
+                    *first_seen.lock().unwrap() = Some(now);
                 }
                 async move {
                     if address == refused {
@@ -1059,8 +1067,10 @@ async fn a_failed_attempt_starts_the_next_address_at_once() {
         .await
         .unwrap()
         .unwrap();
+    let first_at = first_at.lock().unwrap().expect("first attempt");
     let second_at = second_at.lock().unwrap().expect("second attempt");
-    assert!(second_at < CONNECTION_ATTEMPT_DELAY, "{second_at:?}");
+    let gap = second_at - first_at;
+    assert!(gap < CONNECTION_ATTEMPT_DELAY, "{gap:?}");
     assert_eq!(stream.peer_addr().unwrap(), reachable);
     drop(stream);
     let _ = timeout(TEST_END, listener.accept()).await.unwrap().unwrap();

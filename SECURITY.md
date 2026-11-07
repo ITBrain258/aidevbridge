@@ -197,7 +197,9 @@ everything you paste (all C0 characters except tab, line feed and carriage
 return, plus DEL and the C1 range), so pasted text cannot end bracketed paste
 early with its own `ESC [201~` and have the rest run as typed input. Line
 breaks stay: in a shell or program without bracketed paste, each pasted line
-still runs as you paste it.
+still runs as you paste it. On Android, text that a keyboard app inserts
+from its own clipboard (such as a clipboard suggestion of the keyboard)
+arrives as typed input and is not filtered; the system menu's **Paste** is.
 
 Why it is accepted: the app follows your tmux configuration and version.
 Forcing `external` would take the built-in copy commands of the agents away
@@ -453,9 +455,9 @@ code signed by tagging it.
 
 The window is drawn by the web view of the system: WebView2 on Windows, the
 WebKit of macOS, Android System WebView (or Chrome) on Android. The app ships
-none of them and gets their security fixes only through the system. macOS
-renews its WebKit only with its own updates, not with a newer Safari; Apple
-no longer ships security updates for macOS 12 and 13. On Android 7 to 9
+none of them and gets their security fixes only through the system. On
+macOS 11 and 12, WebKit is renewed only with macOS updates, not with a newer
+Safari; Apple no longer ships security updates for macOS 12 and 13. On Android 7 to 9
 Google no longer updates the web view (Android 7 stops at version 119,
 Android 8 and 9 at 138). The app needs macOS 12.4 and Android System WebView
 105, so it runs on such systems, but a flaw in their web view stays open

@@ -629,6 +629,17 @@ describe("mountSidebar: Eingabefeld der Hinweisleiste uebersteht ein Neuzeichnen
     el.remove();
   });
 
+  it("Enter waehrend einer Komposition der Eingabemethode versucht nichts", () => {
+    const { el, h } = failedPasswordHost();
+    const input = passwordField(el);
+    typeInto(input, "geheim");
+
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", isComposing: true, bubbles: true, cancelable: true }));
+
+    expect(h.onConnectHost).not.toHaveBeenCalled();
+    el.remove();
+  });
+
   it("haelt den Wert nicht ueber den Versuch hinaus", () => {
     const { el, s } = failedPasswordHost();
     typeInto(passwordField(el), "geheim");
