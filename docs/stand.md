@@ -122,6 +122,8 @@ Build-Provenienz an ihnen hängen.
 - **Upstream (U4):** Eigene russh-Änderungen dürfen bei russh angeboten
   werden, zuerst das Close-Verhalten. Issue oder Pull Request gehen erst
   hinaus, wenn der Maintainer den Entwurf gesehen hat.
+- **Gehashte Einträge in `known_hosts` schreiben:** zurückgestellt
+  (Punkt 13).
 
 ## Entscheidungen vom 07.11.2026
 
@@ -360,12 +362,16 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       ein lokales Close) wartet auf das OK des Maintainers.
 13. **Review vom 03.11., zurückgestellt:**
     - **Gehashte Einträge in `known_hosts` schreiben** bei `HashKnownHosts
-      yes`: braucht die Auswertung von `ssh_config` mit `Host` und `Match`
-      und HMAC-SHA1 mit Zufallssalz. Empfehlung vom 05.11.: zurückgestellt
-      lassen, weil unter Windows und macOS kaum jemand `HashKnownHosts`
-      setzt; die [Grenzen-Anleitung](guide/limits.md) nennt den
-      Klartext-Eintrag und `ssh-keygen -H`. Gehashte Einträge lesen kann die
-      App.
+      yes`: am 05.11. vom Maintainer zurückgestellt. Die App schreibt einen
+      bestätigten Host im Klartext, liest gehashte Einträge aber; die
+      [Grenzen-Anleitung](guide/limits.md) nennt `ssh-keygen -H`. Gründe:
+      Unter Windows und macOS setzt kaum jemand die Option, `settings.toml`
+      führt dieselben Hosts ohnehin im Klartext, und genau ginge es nur mit
+      einer Auswertung der `ssh_config` wie bei OpenSSH (`Host`, `Match`,
+      `Include`). Empfehlung vom 08.11., falls das Thema mit den
+      Linux-Paketen oder `IdentityAgent` (Punkt 14) wiederkommt: gehasht
+      schreiben, wenn die Datei schon gehashte Einträge hat, ohne eigene
+      Einstellung. Die ausführliche Abwägung steht im geschlossenen PR #36.
     - **Ablageorte unter macOS:** Nach einem Start ohne Verbindung liegen
       unter `~/Library` nur `WebKit/<id>/WebsiteData` und `Caches/<id>/WebKit`,
       wie `PRIVACY.md` sagt (gemessen am 05.11. auf Apple silicon und Intel,
