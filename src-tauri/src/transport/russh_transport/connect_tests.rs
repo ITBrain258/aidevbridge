@@ -1096,6 +1096,9 @@ async fn the_error_of_the_last_address_wins_when_all_addresses_fail() {
     let pool = BlockingPool::new(1, 1);
     let order = Arc::new(std::sync::Mutex::new(Vec::new()));
     let seen = order.clone();
+    // Die erste Adresse scheitert erst, wenn die zweite gescheitert ist; die
+    // Reihenfolge haengt so nicht vom Takt des Rechners ab.
+    let refused = Arc::new(Notify::new());
     let error = control
         .wait_network(resolve_and_connect(
             &spec,
@@ -1104,11 +1107,13 @@ async fn the_error_of_the_last_address_wins_when_all_addresses_fail() {
             move |_, _| Ok(vec![silent, refusing]),
             move |address| {
                 let seen = seen.clone();
+                let refused = refused.clone();
                 async move {
                     let kind = if address == silent {
-                        tokio::time::sleep(CONNECTION_ATTEMPT_DELAY * 3).await;
+                        refused.notified().await;
                         std::io::ErrorKind::TimedOut
                     } else {
+                        refused.notify_one();
                         std::io::ErrorKind::ConnectionRefused
                     };
                     seen.lock().unwrap().push(address);

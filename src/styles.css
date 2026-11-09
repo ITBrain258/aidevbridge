@@ -913,7 +913,7 @@ textarea,
    deshalb gleich mit den `--ab-*`-Tokens statt mit den Literalwerten, die
    die aelteren, generischen `label`/`input`/`button`-Regeln weiter unten
    trugen (die stammen von vor dem Designsystem) -- jene sind
-   nachtraeglich ebenfalls auf Tokens umgestellt, siehe dortigen Kommentar. */
+   nachtraeglich ebenfalls auf Tokens umgestellt. */
 .host-form-view form {
   display: flex;
   flex-direction: column;
@@ -1385,8 +1385,7 @@ textarea,
 
 /* Fehlgeschlagen: ein DREIECK -- andere Geometrie, nicht nur andere Farbe,
    damit der Zustand auch ohne Farbwahrnehmung von den Quadraten oben
-   unterscheidbar bleibt (Aufgabentext: "deliberately a different
-   geometry"). */
+   unterscheidbar bleibt. */
 .ind-fail {
   width: 0;
   height: 0;
@@ -2146,7 +2145,7 @@ kbd {
 }
 
 /* ===== Knopfsystem (Spec 11.2) =============================================
-   EINE Grundform, vier Rollen als Zusatzklasse -- die Aufgaben 11 bis 13
+   EINE Grundform, vier Rollen als Zusatzklasse -- die uebrigen Ansichten
    benutzen dieselben Klassen mit. Die generische `button:disabled`-Regel
    weiter unten daempft nur noch Cursor und Textfarbe, keine Deckkraft mehr --
    `.btn:disabled` braucht deshalb keine eigene Deckkraft mehr, um das zu
@@ -3060,9 +3059,8 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
 /* TOFU-Rueckfrage -- `#host-key-prompt-root` liegt
    ausserhalb von `#app` (siehe index.html), damit sie ueber JEDER Ansicht
    erscheinen kann. `position: fixed` deckt das gesamte Fenster ab
-   (Modal-Charakter): die Rueckfrage blockiert die Verbindung tatsaechlich
-   (Eigenschaft 2 des TOFU-Nachtrags), das Ueberlagern macht das auch
-   visuell unmissverstaendlich. Dasselbe Muster traegt `#dialog-root`
+   (Modal-Charakter): die Rueckfrage blockiert die Verbindung tatsaechlich,
+   das Ueberlagern macht das auch visuell unmissverstaendlich. Dasselbe Muster traegt `#dialog-root`
    (Add/Edit host, neue Session) -- geteilt bleibt alles
    AUSSER der Ebene, siehe die Stapelleiter oben. */
 #host-key-prompt-root:not(:empty),

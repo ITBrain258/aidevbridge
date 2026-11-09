@@ -21,7 +21,7 @@ import { describe, expect, it } from "vitest";
 
 const UMLAUT = /[äöüÄÖÜß]/;
 const HISTORY_MARKER =
-  /Shell-Task|\bTask \d+|Fix-?[Rr]unde|Gutachten|Paket \d+|Review-Befund|Aufgabe \d+|Review[- ]Runde|Gesamtreview|Abschlussreview|Nachtrag [A-C]\b/;
+  /Shell-Task|\bTask \d+|Fix-?[Rr]unde|Gutachten|Paket \d+|Review-Befund|Aufgaben? \d+|Aufgabentext|Review[- ]Runde|Gesamtreview|Abschlussreview|Nachtrag [A-C]\b/;
 /** Oeffentlicher Spec-Verweis, der vor der Markerpruefung herausfaellt. */
 const SPEC_FINDING = /Befund \d+ der Bewertung/g;
 
@@ -95,6 +95,8 @@ describe("Kommentarhygiene der Produktionsquellen", () => {
     ["// Zusage aus Paket 1", 'Marker "Paket 1"'],
     [" * Review-Befund M-1", 'Marker "Review-Befund"'],
     ["/* von #app (Aufgabe 19) */", 'Marker "Aufgabe 19"'],
+    ["/* die Aufgaben 11 bis 13 */", 'Marker "Aufgaben 11"'],
+    ['/* (Aufgabentext: "x") */', 'Marker "Aufgabentext"'],
     ["/* Review Runde 1, Befund 2 */", 'Marker "Review Runde"'],
     ["// Gesamtreview M0", 'Marker "Gesamtreview"'],
     ["// Abschlussreview, Important 1", 'Marker "Abschlussreview"'],

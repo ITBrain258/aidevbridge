@@ -83,6 +83,13 @@ fn parse_with_home(text: &str, home: Option<&Path>) -> Vec<SshConfigHost> {
         }
         let (key, value) = split_keyword(line);
         let value = strip_comment(value);
+        // Ohne Wert (etwa `HostName # x`) verwirft OpenSSH die ganze Datei
+        // ("missing argument"); hier zaehlt die Zeile nicht, damit kein leerer
+        // Name oder Benutzer in einen Vorschlag gelangt. `Host` und `Match`
+        // ohne Argument beenden wie bisher den Block.
+        if value.is_empty() && !matches!(key.to_ascii_lowercase().as_str(), "host" | "match") {
+            continue;
+        }
 
         match key.to_ascii_lowercase().as_str() {
             "host" => {
@@ -425,6 +432,10 @@ Host "#quoted" web#1
         assert_eq!(hosts[0].port, Some(2222));
         assert_eq!(hosts[1].identity_file.as_deref(), Some(r"C:\keys #2\id"));
         assert_eq!(hosts[2].identity_file.as_deref(), Some(r"C:\keys #2\id"));
+        // Bleibt nach dem Kommentar kein Wert, zaehlt die Zeile nicht.
+        let hosts = parse("Host a\n  HostName # x\n  User #\n  HostName h\n");
+        assert_eq!(hosts[0].hostname.as_deref(), Some("h"));
+        assert_eq!(hosts[0].user, None);
         assert_eq!(strip_comment("# all of it"), "");
         assert_eq!(strip_comment("a#b c"), "a#b c");
     }
