@@ -1,1 +1,1 @@
-Bleibt der Dialog „Geräte in der Nähe“ lange offen, fragt die App nicht mehr ein zweites Mal, und das automatische Neuverbinden bricht deshalb nicht mehr ab. Ein vorgemerktes Strg oder Alt der Touch-Leiste verändert keinen eingefügten Text mehr. Hostvorschläge aus ~/.ssh/config ignorieren Kommentare am Zeilenende.
+Bleibt der Dialog „Geräte in der Nähe“ lange offen, fragt die App nicht mehr ein zweites Mal, und das automatische Neuverbinden bricht deshalb nicht mehr ab. Ein vorgemerktes Strg oder Alt der Touch-Leiste verändert keinen eingefügten Text mehr.

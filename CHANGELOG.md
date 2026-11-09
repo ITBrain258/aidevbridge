@@ -8,7 +8,7 @@ dem Namen agentbridge.
 
 ## [0.3.1] - 2026-11-09
 
-Befunde einer Pruefung vom 09.11.: Unter Android fragt die App nicht mehr ein zweites Mal nach "Geraete in der Naehe", solange der Dialog offen ist, und ein vorgemerktes Strg der Touch-Leiste veraendert keinen eingefuegten Text mehr; Hostvorschlaege aus `~/.ssh/config` schneiden Kommentare am Zeilenende ab. Dazu robustere Downloads in der CI, eine Pruefung der Play-Notiz vor dem Release und die Einordnung von `rsa` 0.10.0.
+Befunde einer Pruefung vom 09.11.: Unter Android fragt die App nicht mehr ein zweites Mal nach "Geraete in der Naehe", solange der Dialog offen ist, und ein vorgemerktes Strg oder Alt der Touch-Leiste veraendert keinen eingefuegten Text mehr; Hostvorschlaege aus `~/.ssh/config` schneiden Kommentare am Zeilenende ab. Dazu robustere Downloads in der CI, eine Pruefung der Play-Notiz vor dem Release und die Einordnung von `rsa` 0.10.0.
 
 ### Changed
 
