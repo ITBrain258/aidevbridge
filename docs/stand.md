@@ -1,12 +1,16 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.0` vom 07.11.2026 (Tag `v0.3.0` auf dem Merge-Commit
-von PR #43); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.0 bringt die neuen Mindeststände macOS 12.4 und Android System WebView
-105 (Entscheidungen vom 07.11.), Android 17 als Ziel mit der Berechtigung
-fürs lokale Netz (PR #37, #39, #40), die Lizenzhinweise aus dem Scan aller
-Komponenten (PR #38, #39, #41) und die Befunde des Reviews vom 07.11. (PR #42,
-Punkt 14); Einzelheiten im [CHANGELOG](../CHANGELOG.md).
+**Stand:** Version `0.3.1` vom 09.11.2026 (Tag `v0.3.1` auf dem Merge-Commit
+von PR #46); beim Tag baut die CI alle Pakete und hängt sie an das Release.
+0.3.1 bringt die Befunde der Prüfung vom 09.11. (PR #45, „Letzte Prüfung“):
+Unter Android fragt die App nicht mehr ein zweites Mal nach „Geräte in der
+Nähe“, solange der Dialog offen ist, ein vorgemerktes Strg der Touch-Leiste
+verändert keinen eingefügten Text mehr, und die Hostvorschläge aus
+`~/.ssh/config` schneiden Kommentare am Zeilenende ab; dazu robustere
+Downloads in der CI. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
+Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
+Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
+[CHANGELOG](../CHANGELOG.md).
 
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.).
 Frühere Releases und ihre Einzelheiten stehen im CHANGELOG, frühere Prüfungen
