@@ -1255,8 +1255,8 @@
           },
           {
             "path": "src-tauri/src/local_network.rs",
-            "bytes": 28108,
-            "sha256": "545dc4181749b2748a4b0297d278c31b3e50dcc2e8bd68fda8a16df04660f7d4"
+            "bytes": 28134,
+            "sha256": "6e965c2cfbf3db6fe4b873390d86ba8e53da3b03aec4be7895ca67f6f2e4e474"
           },
           {
             "path": "src-tauri/src/main.rs",

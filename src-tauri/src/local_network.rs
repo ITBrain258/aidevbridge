@@ -189,11 +189,12 @@ struct Asking {
 /// Systemdialog und liefert dessen Antwort; er laeuft weiter, auch wenn
 /// niemand mehr wartet. Jeder Aufbau wartet hier hoechstens `answer_wait`,
 /// gezaehlt ab seinem Eintritt, an der Sperre und auf den Dialog zusammen;
-/// dazu kommt die Abfrage des Stands jedes Aufbaus, der vor ihm die Sperre
-/// haelt (`check`, unter Android hoechstens 5 s). Wer waehrend des Wartens
-/// eines anderen beginnt, wartet so nur den Rest, auch wenn er danach selbst
-/// den Dialog oeffnet. Solange der Dialog offen ist, geht jeder Aufbau, sobald
-/// er die Sperre hat, ohne Antwort weiter, wie ohne diese Abfrage. Ein zweites Warten unter der Sperre stapelte sich sonst auf
+/// dazu kommen die Abfrage des Stands jedes Aufbaus, der vor ihm die Sperre
+/// haelt, und seine eigene (`check`, unter Android je hoechstens 5 s). Wer
+/// waehrend des Wartens eines anderen beginnt, wartet so nur den Rest, auch
+/// wenn er danach selbst den Dialog oeffnet. Solange der Dialog offen ist,
+/// geht jeder Aufbau, sobald er die Sperre hat, ohne Antwort weiter, wie ohne
+/// diese Abfrage. Ein zweites Warten unter der Sperre stapelte sich sonst auf
 /// das erste und verbrauchte die Frist des Versuchs (240 s), der dann als
 /// abgebrochen endete.
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]

@@ -160,7 +160,7 @@ Am 09.11.2026 nach 0.3.0: fünf voneinander unabhängige Prüfungen auf `main`
 (`121ca5e`), die nur lasen (Release und CI, Abhängigkeiten und Meldungen,
 Doku und Datenschutz, Backend und Frontend der Änderungen seit 0.2.7). Ihre
 Befunde behebt PR #45 (CHANGELOG `[Unreleased]`), bis auf `rsa` 0.10.0
-(Punkt 12). Sieben weitere neutrale Prüfungen des Branches in drei Runden
+(Punkt 12). Neun weitere neutrale Prüfungen des Branches in vier Runden
 fanden unter anderem, dass Wartezeiten auf den Dialog fürs lokale Netz die
 Frist des Versuchs verbrauchen konnten, eine Frist der Anfrage, die den
 ursprünglichen Fehler zurückbrachte, und eine Gradle-Einstellung ohne
