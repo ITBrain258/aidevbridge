@@ -81,8 +81,9 @@
   passthrough sequence (see
   [SECURITY.md](../../SECURITY.md#clipboard-writes-from-programs-when-tmux-passes-them-on)).
 - **`known_hosts`:** the app reads and writes `~/.ssh/known_hosts` only; a
-  host known only from the system-wide `/etc/ssh/ssh_known_hosts` gets the
-  first-contact prompt. Plain and hashed host entries (`|1|…`, as written by
+  host known only from the system-wide file (`/etc/ssh/ssh_known_hosts`,
+  on Windows `%ProgramData%\ssh\ssh_known_hosts`) gets the first-contact
+  prompt. Plain and hashed host entries (`|1|…`, as written by
   `HashKnownHosts yes` or `ssh-keygen -H`) are matched alike: a different key
   of the same type behind a hashed entry is refused as a changed key. As in
   OpenSSH, the key types a host already has in `known_hosts` come first when

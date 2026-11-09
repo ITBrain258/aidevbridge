@@ -52,8 +52,8 @@ jobs:
               exit 0
             fi
             echo "::warning::apt try $attempt failed or ran out of time"
-            sudo dpkg --configure -a || true
-            sleep 10
+            timeout -k 15 120 sudo dpkg --configure -a || true
+            if [ "$attempt" -lt 3 ]; then sleep 10; fi
           done
           exit 1
       # The live tests (CONTRIBUTING.md) run against an SSH server on the

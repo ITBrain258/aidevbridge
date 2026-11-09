@@ -236,8 +236,10 @@ reason; the audit workflow (`.github/workflows/audit.yml`) ignores it, while
 a local `cargo audit` still reports it. Where you can, use an ed25519 key.
 
 To resolve: move to `rsa` 0.10.0. Besides the exact pins on the release
-candidate in `src-tauri/Cargo.toml` and in the vendored russh 0.65.1, two
-more pins of the vendored russh stand in the way: `ssh-key` 0.7.0-rc.11
+candidate in `src-tauri/Cargo.toml` and in the vendored russh 0.65.1, the
+app's own `rsa` line asks for the feature `sha2`, which 0.10.0 dropped,
+and PKCS#1 v1.5 signatures now need the feature `pkcs1v15`. Two more pins of
+the vendored russh stand in the way: `ssh-key` 0.7.0-rc.11
 asks for an `rsa` feature (`sha2`) that 0.10.0 dropped, so russh needs
 `ssh-key` 0.7.0-rc.12, and `pkcs1` 0.8.0-rc.4, while `rsa` 0.10.0 needs
 `pkcs1` 0.8.0. The move therefore changes the patched russh. It comes with a

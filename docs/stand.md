@@ -325,9 +325,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       verlassen, nicht beendet. `prepare` bemerkt auch kein Abbrechen des
       Versuchs; ein abgebrochener Versuch kann noch einen Dialog öffnen.
     - Ein Dialog, der länger als 120 s offen bleibt, gilt für den wartenden
-      Aufbau als unbeantwortet. Seit 0.3.1 fragt ein weiterer Host dann nicht
-      neu, sondern wartet auf denselben Dialog (Prüfung vom 09.11.); am Gerät
-      nicht nachgestellt.
+      Aufbau als unbeantwortet. Seit 0.3.1 fragt kein weiterer Host neu,
+      solange der Dialog offen ist, und geht ohne Antwort weiter (Prüfung vom
+      09.11.); am Gerät nicht nachgestellt.
 12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
     gebunden ist. Erledigt bis zum 06.11.: Tauri 2.12, Tauri-CLI 2.12.4 mit
@@ -354,10 +354,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       braucht einen eigenen Pull Request; kein Workflow prüft bisher die
       Android-Bibliotheken auf Meldungen (etwa `app/gradle.lockfile` gegen
       OSV in `audit.yml`).
-    - **`rsa` 0.10.0** (08.11.) behebt RUSTSEC-2023-0071. Ausser den Pins
-      auf die Vorabversion (App und vendortes russh) stehen zwei weitere Pins
-      von russh 0.65.1 im Weg: `ssh-key` 0.7.0-rc.11 verlangt das Feature
-      `sha2`, das `rsa` 0.10.0 nicht mehr hat (passend ist `ssh-key`
+    - **`rsa` 0.10.0** (08.11.) behebt RUSTSEC-2023-0071. Außer den Pins
+      auf die Vorabversion (App und vendortes russh) steht die eigene Zeile
+      der App im Weg (Feature `sha2` entfällt, PKCS#1 v1.5 braucht das neue
+      Feature `pkcs1v15`), dazu zwei weitere Pins von russh 0.65.1: `ssh-key`
+      0.7.0-rc.11 verlangt ebenfalls `sha2` (passend ist `ssh-key`
       0.7.0-rc.12 vom 09.11.), und `pkcs1` 0.8.0-rc.4, `rsa` 0.10.0 braucht
       0.8.0. Ob russh dafür Code ändern muss, ist ungeprüft. Der Wechsel kommt
       mit einer russh-Version, die diese Versionen nimmt, oder als eigenes
