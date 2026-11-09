@@ -51,10 +51,10 @@ pub struct SshConfigHost {
 ///   einen ersten Wert, den dieser Parser nicht verwenden kann (ein `Port`,
 ///   der keine Zahl ist, ein `~/`-Pfad ohne bekanntes Heimatverzeichnis):
 ///   Der Vorschlag bekommt das Feld leer, ein spaeterer Wert fuellt es nicht.
-///   Eine Zeile ganz ohne Wert (etwa `HostName # x`) ist kein erster Wert.
 ///   Auch OpenSSH nimmt keinen spaeteren Wert; es loest etwa einen
 ///   Dienstnamen wie `ssh` als Port selbst auf oder bricht mit einem Fehler
-///   ab.
+///   ab. Eine Zeile ganz ohne Wert (etwa `HostName # x`) ist dagegen kein
+///   erster Wert.
 ///
 /// Schluesselwort-Zeilen, die vor dem ersten `Host` stehen, werden verworfen:
 /// In der echten `ssh_config` gelten sie als globale Defaults fuer alle
@@ -86,7 +86,7 @@ fn parse_with_home(text: &str, home: Option<&Path>) -> Vec<SshConfigHost> {
         }
         let (key, value) = split_keyword(line);
         let value = strip_comment(value);
-        // Ohne Wert (etwa `HostName # x`) verwirft OpenSSH die ganze Datei
+        // Ohne Wert (etwa `HostName # x`) bricht OpenSSH mit einem Fehler ab
         // ("missing argument"); hier zaehlt die Zeile nicht, damit kein leerer
         // Name oder Benutzer in einen Vorschlag gelangt. `Host` und `Match`
         // ohne Argument beenden wie bisher den Block.

@@ -167,8 +167,8 @@ ursprünglichen Fehler zurückbrachte, und eine Gradle-Einstellung ohne
 Wirkung; behoben im selben PR. Lokal für PR #45: `licenses:status` ohne
 Abweichung, `check` grün für windows-x64 (393/219), macos-universal
 (390/213) und android-universal (485/242), Clippy für Windows und
-`aarch64-linux-android`, 691 Rust-Bibliothekstests und die
-Integrationstests (767), 2919 Vitest-Tests, 158 Skripttests und
+`aarch64-linux-android`, 691 Rust-Bibliothekstests, mit den
+Integrationstests 767, 2919 Vitest-Tests, 158 Skripttests und
 `npm run build`. Die NDK-Belege bleiben die von 0.3.0
 (arm64 von 0.2.7, armv7 und x86_64 vom 28.10.). Nicht geprüft: die
 Android-Änderungen und der WebView-Hinweis an einem Gerät und die

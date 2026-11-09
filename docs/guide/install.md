@@ -57,8 +57,8 @@ onto **Applications**.
   stay unreachable.
 - **Tested by machine so far.** The macOS app has passed an automated
   installation and start test, not yet a test by hand on a Mac.
-- The window is drawn by WebKit, which is part of macOS. On macOS 11 and 12
-  only macOS updates renew it, a newer Safari does not. The app needs the
+- The window is drawn by WebKit, which is part of macOS. On macOS 12 only
+  macOS updates renew it, a newer Safari does not. The app needs the
   WebKit of macOS 12.4 or newer, and macOS doesn't start it on older versions;
   0.2.7 is the last version for macOS 11. The license texts are
   inside the app (`aidevbridge.app/Contents/Resources/licenses/index.html`). To
