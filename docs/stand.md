@@ -1,12 +1,16 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.0` vom 07.11.2026 (Tag `v0.3.0` auf dem Merge-Commit
-von PR #43); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.0 bringt die neuen Mindeststände macOS 12.4 und Android System WebView
-105 (Entscheidungen vom 07.11.), Android 17 als Ziel mit der Berechtigung
-fürs lokale Netz (PR #37, #39, #40), die Lizenzhinweise aus dem Scan aller
-Komponenten (PR #38, #39, #41) und die Befunde des Reviews vom 07.11. (PR #42,
-Punkt 14); Einzelheiten im [CHANGELOG](../CHANGELOG.md).
+**Stand:** Version `0.3.1` vom 09.11.2026 (Tag `v0.3.1` auf dem Merge-Commit
+von PR #46); beim Tag baut die CI alle Pakete und hängt sie an das Release.
+0.3.1 bringt die Befunde der Prüfung vom 09.11. (PR #45, „Letzte Prüfung“):
+Unter Android fragt die App nicht mehr ein zweites Mal nach „Geräte in der
+Nähe“, solange der Dialog offen ist, ein vorgemerktes Strg oder Alt der
+Touch-Leiste verändert keinen eingefügten Text mehr, und die Hostvorschläge aus
+`~/.ssh/config` schneiden Kommentare am Zeilenende ab; dazu robustere
+Downloads in der CI. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
+Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
+Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
+[CHANGELOG](../CHANGELOG.md).
 
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.).
 Frühere Releases und ihre Einzelheiten stehen im CHANGELOG, frühere Prüfungen
@@ -159,7 +163,7 @@ Build-Provenienz an ihnen hängen.
 Am 09.11.2026 nach 0.3.0: fünf voneinander unabhängige Prüfungen auf `main`
 (`121ca5e`), die nur lasen (Release und CI, Abhängigkeiten und Meldungen,
 Doku und Datenschutz, Backend und Frontend der Änderungen seit 0.2.7). Ihre
-Befunde behebt PR #45 (CHANGELOG `[Unreleased]`), bis auf `rsa` 0.10.0
+Befunde behebt PR #45 (CHANGELOG `[0.3.1]`), bis auf `rsa` 0.10.0
 (Punkt 12). Neun weitere neutrale Prüfungen des Branches in vier Runden
 fanden unter anderem, dass Wartezeiten auf den Dialog fürs lokale Netz die
 Frist des Versuchs verbrauchen konnten, eine Frist der Anfrage, die den
@@ -236,7 +240,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    [Beleg](release/license-source-notices-2026-11-06-scan.json).
    Offen:
    - Die Installerabnahme (bestanden am 24.10. an 0.2.0) ist mit NSIS 3.13 neu
-     fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.3.0. Das
+     fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.3.1. Das
      Manifest jedes Laufs meldet `nsis_msi_payload`, `installer_terms_ui`,
      `installer_stub_notices`, `native_import_family_review` und
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie

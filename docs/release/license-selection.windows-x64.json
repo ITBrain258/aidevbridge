@@ -8,7 +8,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.3.0",
+    "product_version": "0.3.1",
     "installer_webview2_mode": "downloadBootstrapper",
     "installer_webview2_silent": true,
     "meaning": "License text selection for the application plus explicitly disclosed source/build families; not binary or installer acceptance.",
@@ -56,7 +56,7 @@
       {
         "path": "Cargo.lock",
         "bytes": 146461,
-        "sha256": "6646164c22b88488d84d024dea1bf4026d3e9308dbdcc634590b4374743d63b5"
+        "sha256": "cf0feac7604b5181c86dc64bb4683f7925d13388991cd61e8f8dc8e5e60dc0ba"
       },
       {
         "path": "Cargo.toml",
@@ -666,12 +666,12 @@
       {
         "path": "package-lock.json",
         "bytes": 65465,
-        "sha256": "0624019959e2a436ac18271cf41b4295f289063ab9dad0f91b248ba2ef61ef35"
+        "sha256": "8fb9905a941d0843570348f63cf0cb4f5bd9114d11199137cb0e7d45484b3361"
       },
       {
         "path": "package.json",
         "bytes": 1805,
-        "sha256": "de71ce2a6ada095ddb313745f40d98e9f1e369b4bcaecdc3078752707a0c5c85"
+        "sha256": "40fa08e5fdb54d12ee8867793d05f38159c69f0a2bebc89f2770e46b570fb4a0"
       },
       {
         "path": "rust-toolchain.toml",
@@ -706,7 +706,7 @@
       {
         "path": "src-tauri/Cargo.toml",
         "bytes": 5844,
-        "sha256": "c3f6eb578f35dd3cb74e531924360692e11d80fcf5d11d1d5aae8634752edf62"
+        "sha256": "5f65540edb184ffb07883f0978e34358ea68edfb3f0818f6ca0068de631db1a5"
       },
       {
         "path": "src-tauri/build.rs",
@@ -716,7 +716,7 @@
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1510,
-        "sha256": "fd51d9e430fe1550e02d362feb5969c8b2b030095a301cec9e5fa2ff8ec8ae78"
+        "sha256": "f1c4be58f084140eb11cf1b17523d73ec1f11fb74bef2eba50731a2729b77710"
       },
       {
         "path": "src-tauri/tauri.release.windows.json",
@@ -2221,11 +2221,11 @@
         "declared_license": "Unlicense OR MIT"
       },
       {
-        "package": "aidevbridge@0.3.0",
+        "package": "aidevbridge@0.3.1",
         "source": null,
         "manifest": {
           "bytes": 5844,
-          "sha256": "c3f6eb578f35dd3cb74e531924360692e11d80fcf5d11d1d5aae8634752edf62"
+          "sha256": "5f65540edb184ffb07883f0978e34358ea68edfb3f0818f6ca0068de631db1a5"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5490,25 +5490,25 @@
         "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
       },
       {
-        "package": "aidevbridge@0.3.0",
+        "package": "aidevbridge@0.3.1",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.3.0",
+        "package": "aidevbridge@0.3.1",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.3.0",
+        "package": "aidevbridge@0.3.1",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.3.0",
+        "package": "aidevbridge@0.3.1",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11581,9 +11581,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.3.0",
+      "id": "cargo:aidevbridge@0.3.1",
       "name": "aidevbridge",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",
