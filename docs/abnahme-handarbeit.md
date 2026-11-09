@@ -719,9 +719,9 @@ müsste.
 5. **Ablageorte unter macOS**, sobald ein Mac bereitsteht. `PRIVACY.md`
    sagt „The app stores nothing anywhere else“; für macOS ist das nur nach
    einem Start ohne Verbindung gemessen, in der CI auf Apple silicon und Intel
-   (05.11., PR #31), nicht mit Verbindungen und Gebrauch. Auf einem Mac ohne frühere Installation (oder nach dem Löschen
-   der Ordner aus `PRIVACY.md`) das DMG des Pull Requests (Vorschau von
-   `packages.yml`) installieren, die App zum ersten Mal starten, einen Host
+   (05.11., PR #31), nicht mit Verbindungen und Gebrauch. Auf einem Mac ohne
+   frühere Installation (oder nach dem Löschen der Ordner aus `PRIVACY.md`)
+   das DMG des Pull Requests (Vorschau von `packages.yml`) installieren, die App zum ersten Mal starten, einen Host
    anlegen, ein Terminal öffnen, das Fenster verschieben und die App
    beenden. Dann `ls -d ~/Library/*/io.github.itbrain258.aidevbridge*`
    ausführen und dabei ausdrücklich

@@ -160,14 +160,16 @@ Am 09.11.2026 nach 0.3.0: fünf voneinander unabhängige Prüfungen auf `main`
 (`121ca5e`), die nur lasen (Release und CI, Abhängigkeiten und Meldungen,
 Doku und Datenschutz, Backend und Frontend der Änderungen seit 0.2.7). Ihre
 Befunde behebt PR #45 (CHANGELOG `[Unreleased]`), bis auf `rsa` 0.10.0
-(Punkt 12). Drei weitere neutrale Prüfungen des Branches fanden unter
-anderem, dass ein zweites Warten auf den Dialog fürs lokale Netz die Frist
-des Versuchs verbrauchen konnte, und eine Gradle-Einstellung ohne Wirkung;
-behoben im selben PR. Lokal für PR #45: `licenses:status` ohne Abweichung,
-`check` grün für windows-x64 (393/219), macos-universal (390/213) und
-android-universal (485/242), Clippy für Windows und `aarch64-linux-android`,
-689 Rust-Bibliothekstests und die Integrationstests, 2919 Vitest-Tests,
-158 Skripttests und `npm run build`. Die NDK-Belege bleiben die von 0.3.0
+(Punkt 12). Sieben weitere neutrale Prüfungen des Branches in drei Runden
+fanden unter anderem, dass Wartezeiten auf den Dialog fürs lokale Netz die
+Frist des Versuchs verbrauchen konnten, eine Frist der Anfrage, die den
+ursprünglichen Fehler zurückbrachte, und eine Gradle-Einstellung ohne
+Wirkung; behoben im selben PR. Lokal für PR #45: `licenses:status` ohne
+Abweichung, `check` grün für windows-x64 (393/219), macos-universal
+(390/213) und android-universal (485/242), Clippy für Windows und
+`aarch64-linux-android`, 691 Rust-Bibliothekstests und die
+Integrationstests (767), 2919 Vitest-Tests, 158 Skripttests und
+`npm run build`. Die NDK-Belege bleiben die von 0.3.0
 (arm64 von 0.2.7, armv7 und x86_64 vom 28.10.). Nicht geprüft: die
 Android-Änderungen und der WebView-Hinweis an einem Gerät und die
 Mac-Abnahme (Punkt 9). Die Prüfung vor 0.3.0 vom 07.11. steht in der
@@ -409,8 +411,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       in der App zu entfernen.
     - **CI und Release:** keine Paketbauten bei reinen Doku-PRs (Frist und
       Wiederholung für den apt-Schritt kamen mit der Prüfung vom 09.11.), die
-      volle Lizenzprüfung auch bei geänderten eigenen Quellen, ein Skript, das alle Versionsstellen eines Releases prüft und
-      setzt, CHANGELOG-Einträge je PR; dazu GitHub-Einstellungen
+      volle Lizenzprüfung auch bei geänderten eigenen Quellen, ein Skript, das
+      alle Versionsstellen eines Releases prüft und setzt, CHANGELOG-Einträge je PR; dazu GitHub-Einstellungen
       (ausgewählte Actions, CodeQL, Freigabe für `android-release`).
     - **Aufbau:** ein typisierter IPC-Vertrag zwischen Rust und TS ohne neue
       Abhängigkeit, `main.ts` in Controller mit Abbau zerlegen, Batch 9 (U3)

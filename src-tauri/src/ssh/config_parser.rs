@@ -35,7 +35,9 @@ pub struct SshConfigHost {
 /// - Ein `#` am Anfang eines Worts ausserhalb doppelter Anfuehrungszeichen
 ///   beginnt einen Kommentar bis zum Zeilenende, wie bei OpenSSH:
 ///   `Host web # prod` ergibt nur `web`, `HostName h # lab` den Namen `h`. Ein
-///   `#` mitten im Wort bleibt stehen (`web#1`).
+///   `#` mitten im Wort bleibt stehen (`web#1`). Als Anfuehrungszeichen gilt
+///   hier nur das doppelte, OpenSSH kennt auch das einfache. Bleibt nach dem
+///   Kommentar kein Wert, zaehlt die Zeile nicht.
 /// - Eine `Host`-Zeile kann mehrere Muster tragen (Anfuehrungszeichen
 ///   gruppieren). Jedes konkrete Muster wird ein eigener Vorschlag; Muster
 ///   mit `*` oder `?` und negierte Muster (`!x`) benennen keinen Zielrechner
@@ -49,6 +51,7 @@ pub struct SshConfigHost {
 ///   einen ersten Wert, den dieser Parser nicht verwenden kann (ein `Port`,
 ///   der keine Zahl ist, ein `~/`-Pfad ohne bekanntes Heimatverzeichnis):
 ///   Der Vorschlag bekommt das Feld leer, ein spaeterer Wert fuellt es nicht.
+///   Eine Zeile ganz ohne Wert (etwa `HostName # x`) ist kein erster Wert.
 ///   Auch OpenSSH nimmt keinen spaeteren Wert; es loest etwa einen
 ///   Dienstnamen wie `ssh` als Port selbst auf oder bricht mit einem Fehler
 ///   ab.
@@ -147,7 +150,8 @@ fn parse_with_home(text: &str, home: Option<&Path>) -> Vec<SshConfigHost> {
 /// Welche Felder im aktuellen Block schon einen Wert hatten. Ein Feld zaehlt
 /// ab seinem ersten Schluesselwort als gesehen, auch wenn der Wert
 /// unbrauchbar war und das Feld deshalb leer blieb: Sonst fuellte ein
-/// spaeterer Wert es, und der erste gaelte nicht mehr.
+/// spaeterer Wert es, und der erste gaelte nicht mehr. Eine Zeile ohne Wert
+/// erreicht `Seen` nicht.
 #[derive(Default)]
 struct Seen {
     hostname: bool,

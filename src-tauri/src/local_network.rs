@@ -171,7 +171,8 @@ struct Asking {
     last_denial: Option<Instant>,
     /// Die Antwort auf den Dialog, der gerade offen ist. Sie bleibt hier, bis
     /// sie kommt oder die Anfrage ohne Antwort endet, auch wenn niemand mehr
-    /// auf sie wartet (Wartezeit vorbei oder Aufbau abgebrochen). Solange fragt
+    /// auf sie wartet (Wartezeit vorbei, oder die Zukunft des Aufbaus wird
+    /// verworfen; `connect_host` tut das heute nicht). Solange fragt
     /// kein Aufbau neu: Eine zweite Anfrage, waehrend der Dialog offen ist,
     /// beantwortet Android sofort und leer, also als Ablehnung, und dem ersten
     /// Dialog fehlte danach der Rueckruf (Review vom 09.11.; am Geraet nicht
@@ -186,11 +187,12 @@ struct Asking {
 /// Tauri, damit die Tests ihn auf jedem System pruefen. `check` liest nur den
 /// Stand (`None`: kein Stand, etwa ein Fehler im Plugin). `request` zeigt den
 /// Systemdialog und liefert dessen Antwort; er laeuft weiter, auch wenn
-/// niemand mehr wartet. Nur der Aufbau, der den Dialog oeffnet, wartet auf
-/// ihn, hoechstens `answer_wait`. Aufbauten, die waehrenddessen beginnen,
-/// warten an der Sperre hoechstens den Rest dieser Zeit; danach geht jeder
-/// Aufbau, solange der Dialog offen ist, sofort ohne Antwort weiter, wie ohne
-/// diese Abfrage. Ein zweites Warten unter der Sperre stapelte sich sonst auf
+/// niemand mehr wartet. Jeder Aufbau wartet hier hoechstens `answer_wait`,
+/// gezaehlt ab seinem Eintritt, an der Sperre und auf den Dialog zusammen:
+/// Wer waehrend des Wartens eines anderen beginnt, wartet hoechstens den Rest,
+/// auch wenn er danach selbst den Dialog oeffnet. Solange der Dialog offen
+/// ist, geht jeder weitere Aufbau sofort ohne Antwort weiter, wie ohne diese
+/// Abfrage. Ein zweites Warten unter der Sperre stapelte sich sonst auf
 /// das erste und verbrauchte die Frist des Versuchs (240 s), der dann als
 /// abgebrochen endete.
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
@@ -205,6 +207,7 @@ where
     F: Future<Output = Option<bool>>,
     Q: FnOnce() -> oneshot::Receiver<Option<bool>>,
 {
+    let started = Instant::now();
     let mut asking = asking.lock().await;
     // Waehrend des Wartens kann ein anderer Aufbau die Erlaubnis geholt
     // haben.
@@ -233,7 +236,8 @@ where
         }
     }
     let answer = asking.pending.insert(request());
-    let Ok(answer) = tokio::time::timeout(answer_wait, answer).await else {
+    let rest = answer_wait.saturating_sub(started.elapsed());
+    let Ok(answer) = tokio::time::timeout(rest, answer).await else {
         return Gate::Open;
     };
     asking.pending = None;
@@ -595,6 +599,29 @@ mod tests {
         );
         assert_eq!((first, second), (Gate::Open, Gate::Open));
         assert_eq!(start.elapsed(), WAIT);
+    }
+
+    // Pruefung der dritten Runde: Endete die Anfrage des ersten Aufbaus kurz
+    // vor seiner Wartezeit ohne Antwort, wartete der naechste als neuer
+    // Oeffner noch einmal die volle Zeit, ueber die Frist des Versuchs hinaus.
+    #[tokio::test(start_paused = true)]
+    async fn a_queued_attempt_that_opens_the_next_dialog_waits_only_the_rest() {
+        let asking = tokio::sync::Mutex::new(Asking::default());
+        let (lost, first) = oneshot::channel();
+        tokio::spawn(async move {
+            tokio::time::sleep(WAIT - Duration::from_secs(1)).await;
+            lost.send(None).unwrap();
+        });
+        let (_dialog, second) = oneshot::channel();
+        let start = tokio::time::Instant::now();
+
+        let (one, two) = tokio::join!(
+            ask_with(&asking, missing, || first, WAIT),
+            ask_with(&asking, missing, || second, WAIT),
+        );
+        assert_eq!((one, two), (Gate::Open, Gate::Open));
+        assert_eq!(start.elapsed(), WAIT);
+        assert!(asking.lock().await.pending.is_some());
     }
 
     #[tokio::test(start_paused = true)]

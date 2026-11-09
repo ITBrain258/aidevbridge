@@ -66,10 +66,11 @@ records with a registry source and never matches advisories against a path
 dependency such as the vendored russh in `vendor/russh`; a third job runs
 `scripts/check-vendored-advisories.mjs` for those, against GitHub's advisory
 database and the upstream repository's own advisories
-([SECURITY.md](SECURITY.md)). The `cargo audit` job ignores RUSTSEC-2023-0071 (`rsa`): its fix,
-`rsa` 0.10.0, needs newer `ssh-key` and `pkcs1` versions than the vendored
-russh pins. SECURITY.md explains why the app accepts it until then, and
-also lists the warnings `cargo audit` prints without failing.
+([SECURITY.md](SECURITY.md)). The `cargo audit` job ignores
+RUSTSEC-2023-0071 (`rsa`): moving to its fix, `rsa` 0.10.0, needs newer
+`ssh-key` and `pkcs1` pins in the vendored russh and a changed `rsa` line
+in the app. SECURITY.md explains why the app accepts it until then, and also
+lists the warnings `cargo audit` prints without failing.
 
 `.github/workflows/vendored.yml` runs whenever `vendor/russh`, `Cargo.lock`,
 `Cargo.toml`, `src-tauri/Cargo.toml` or `rust-toolchain.toml` change, and when
