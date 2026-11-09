@@ -640,7 +640,18 @@ export function mountTerminal(
   function pasteText(text: string): void {
     if (disposed || !attached) return;
     const clean = sanitizePaste(text);
-    if (clean !== "") term.paste(clean);
+    if (clean === "") return;
+    // `term.paste` meldet die Einfuegung synchron ueber `term.onData`; dort
+    // gilt ein vorgemerktes Strg oder Alt der Touch-Leiste nicht fuer sie,
+    // sonst machte es aus dem ersten Zeichen des bereinigten Texts ein
+    // Steuerzeichen (aus "m" ein Enter). Der Merker bleibt fuer die naechste
+    // Taste.
+    pasting = true;
+    try {
+      term.paste(clean);
+    } finally {
+      pasting = false;
+    }
   }
 
   // UX-Spec §6.3: Einfuegen aus dem Menue und dem Rechtsklick liest die
@@ -1071,6 +1082,8 @@ export function mountTerminal(
   let lastSentCols = term.cols;
   let lastSentRows = term.rows;
   let attached = false;
+  /** Waehrend `pasteText` an `term.paste` uebergibt (siehe dort). */
+  let pasting = false;
 
   // Eingabe geht roh ans PTY -- keine Interpretation im Frontend.
   //
@@ -1178,9 +1191,10 @@ export function mountTerminal(
   // auf Anfragen des Programms. Ein vorgemerktes Strg oder Alt der
   // Touch-Leiste (Spec 2026-10-27 §5.2) gilt fuer die naechste getippte
   // Eingabe; ohne Merker, also immer auf dem Desktop, bleibt sie unveraendert.
+  // Eine Einfuegung (`pasting`, siehe `pasteText`) nimmt ihn nie.
   term.onData((data) => {
     if (disposed || channelClosed) return;
-    const encoded = new TextEncoder().encode(consumeModifiers(data));
+    const encoded = new TextEncoder().encode(pasting ? data : consumeModifiers(data));
     if (!attached) {
       pendingInput?.push(encoded);
       return;
