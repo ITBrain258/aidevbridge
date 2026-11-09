@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-09
+
+Befunde einer Pruefung vom 09.11.: Unter Android fragt die App nicht mehr ein zweites Mal nach "Geraete in der Naehe", solange der Dialog offen ist, und ein vorgemerktes Strg der Touch-Leiste veraendert keinen eingefuegten Text mehr; Hostvorschlaege aus `~/.ssh/config` schneiden Kommentare am Zeilenende ab. Dazu robustere Downloads in der CI, eine Pruefung der Play-Notiz vor dem Release und die Einordnung von `rsa` 0.10.0.
+
 ### Changed
 
 - CI: Der apt-Schritt in `rust (ubuntu)` hat je Versuch eine eigene Frist und bis zu drei Versuche; zweimal hing er rund 25 Minuten, bis der Job an seine Grenze kam. Der Gradle-Wrapper wartet beim Download von Gradle 60 s statt 10 s und versucht es dreimal nach, Gradle selbst versucht einen gescheiterten Download einer Abhaengigkeit fuenfmal ab 2 s statt dreimal ab 1 s. Zweimal war der Android-Bau an der Frist des Wrappers und an Antworten 429 und 504 hinter Maven Central gescheitert.

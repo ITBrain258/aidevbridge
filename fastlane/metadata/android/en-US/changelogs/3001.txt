@@ -1,0 +1,1 @@
+If the Nearby devices dialog stays open for a long time, the app no longer asks a second time, and automatic reconnecting no longer stops because of it. A latched Ctrl or Alt of the touch bar no longer changes pasted text. Host suggestions from ~/.ssh/config ignore comments at the end of a line.
