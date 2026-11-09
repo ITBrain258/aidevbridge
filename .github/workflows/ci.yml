@@ -47,8 +47,8 @@ jobs:
           set -uo pipefail
           apt_opts=(-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30)
           for attempt in 1 2 3; do
-            if timeout 120 sudo apt-get "${apt_opts[@]}" update &&
-              timeout 240 sudo apt-get "${apt_opts[@]}" install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf openssh-server tmux; then
+            if timeout -k 15 120 sudo apt-get "${apt_opts[@]}" update &&
+              timeout -k 15 240 sudo apt-get "${apt_opts[@]}" install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf openssh-server tmux; then
               exit 0
             fi
             echo "::warning::apt try $attempt failed or ran out of time"

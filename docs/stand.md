@@ -156,20 +156,22 @@ Build-Provenienz an ihnen hängen.
 
 ## Letzte Prüfung
 
-Am 07.11.2026 vor 0.3.0: fünf voneinander unabhängige Prüfungen auf `main`
-(`59bea6a`), die nur lasen (Punkt 14), und nach den Korrekturen drei weitere
-auf dem Branch von PR #42 (Backend und Android, Frontend, Doku und Lizenzen),
-deren Befunde derselbe PR behebt. PR #42 lief in der CI grün, mit einem
-zweiten Lauf von `rust (macos)`: `socket_abort_probe.rs` hängt vom Runner
-ab. Der Einfügeschutz ist zusätzlich in der App gegen einen echten Host
-geprüft. Für 0.3.0 lokal (PR #43): `licenses:status` ohne Abweichung,
+Am 09.11.2026 nach 0.3.0: fünf voneinander unabhängige Prüfungen auf `main`
+(`121ca5e`), die nur lasen (Release und CI, Abhängigkeiten und Meldungen,
+Doku und Datenschutz, Backend und Frontend der Änderungen seit 0.2.7). Ihre
+Befunde behebt PR #45 (CHANGELOG `[Unreleased]`), bis auf `rsa` 0.10.0
+(Punkt 12). Drei weitere neutrale Prüfungen des Branches fanden unter
+anderem, dass ein zweites Warten auf den Dialog fürs lokale Netz die Frist
+des Versuchs verbrauchen konnte, und eine Gradle-Einstellung ohne Wirkung;
+behoben im selben PR. Lokal für PR #45: `licenses:status` ohne Abweichung,
 `check` grün für windows-x64 (393/219), macos-universal (390/213) und
-android-universal (485/242), Clippy, 680 Rust-Tests, 2909 Vitest-Tests,
-156 Skripttests und `npm run build`. Die NDK-Belege bleiben die zuletzt
-aufgezeichneten (arm64 von 0.2.7, armv7 und x86_64 vom 28.10.; seitdem
-unverändert: NDK, Toolchain, `build.rs` und die nativen Abhängigkeiten).
-Nicht geprüft: der WebView-Hinweis an einem Gerät und die Mac-Abnahme
-(Punkt 9).
+android-universal (485/242), Clippy für Windows und `aarch64-linux-android`,
+689 Rust-Bibliothekstests und die Integrationstests, 2919 Vitest-Tests,
+158 Skripttests und `npm run build`. Die NDK-Belege bleiben die von 0.3.0
+(arm64 von 0.2.7, armv7 und x86_64 vom 28.10.). Nicht geprüft: die
+Android-Änderungen und der WebView-Hinweis an einem Gerät und die
+Mac-Abnahme (Punkt 9). Die Prüfung vor 0.3.0 vom 07.11. steht in der
+Git-Historie dieser Datei.
 
 Die letzte VM-Abnahme (`acceptance_vm`, 11 von 11) lief am 27.10. auf dem Stand
 `7b961cf` gegen einen lokalen Linux-Testhost.
@@ -352,12 +354,15 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       braucht einen eigenen Pull Request; kein Workflow prüft bisher die
       Android-Bibliotheken auf Meldungen (etwa `app/gradle.lockfile` gegen
       OSV in `audit.yml`).
-    - **`rsa` 0.10.0** (08.11.) behebt RUSTSEC-2023-0071, braucht aber
-      `ssh-key` 0.7.0-rc.12 und `pkcs1` 0.8.0, die die Schnittstelle ändern.
-      Das vendorte russh 0.65.1 pinnt `ssh-key` 0.7.0-rc.11 und `pkcs1`
-      0.8.0-rc.4. Der Wechsel kommt mit einer russh-Version, die sie nimmt,
-      oder als eigenes Update der Kopie; bis dahin ignoriert `audit.yml` die
-      Meldung weiter ([`SECURITY.md`](../SECURITY.md)).
+    - **`rsa` 0.10.0** (08.11.) behebt RUSTSEC-2023-0071. Ausser den Pins
+      auf die Vorabversion (App und vendortes russh) stehen zwei weitere Pins
+      von russh 0.65.1 im Weg: `ssh-key` 0.7.0-rc.11 verlangt das Feature
+      `sha2`, das `rsa` 0.10.0 nicht mehr hat (passend ist `ssh-key`
+      0.7.0-rc.12 vom 09.11.), und `pkcs1` 0.8.0-rc.4, `rsa` 0.10.0 braucht
+      0.8.0. Ob russh dafür Code ändern muss, ist ungeprüft. Der Wechsel kommt
+      mit einer russh-Version, die diese Versionen nimmt, oder als eigenes
+      Update der Kopie; bis dahin ignoriert `audit.yml` die Meldung weiter
+      ([`SECURITY.md`](../SECURITY.md)).
     - **Rust 1.99:** erst, wenn ein Crate sie verlangt. Die Stellen, die die
       Version nennen, gleicht `scripts/rust-toolchain.test.mjs` mit
       `rust-toolchain.toml` ab, die Belege der Standardbibliothek nicht.

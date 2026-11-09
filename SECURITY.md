@@ -235,11 +235,14 @@ precisely timed operations the attack needs. We accept the advisory for that
 reason; the audit workflow (`.github/workflows/audit.yml`) ignores it, while
 a local `cargo audit` still reports it. Where you can, use an ed25519 key.
 
-To resolve: move to `rsa` 0.10.0. It can't be taken on its own: it needs
-`ssh-key` 0.7.0-rc.12 and `pkcs1` 0.8.0, while the vendored russh 0.65.1
-pins `ssh-key` 0.7.0-rc.11 and `pkcs1` 0.8.0-rc.4, which work only with the
-release candidate. The move therefore comes with a russh release that takes
-these versions, or as an update of the vendored copy of its own.
+To resolve: move to `rsa` 0.10.0. Besides the exact pins on the release
+candidate in `src-tauri/Cargo.toml` and in the vendored russh 0.65.1, two
+more pins of the vendored russh stand in the way: `ssh-key` 0.7.0-rc.11
+asks for an `rsa` feature (`sha2`) that 0.10.0 dropped, so russh needs
+`ssh-key` 0.7.0-rc.12, and `pkcs1` 0.8.0-rc.4, while `rsa` 0.10.0 needs
+`pkcs1` 0.8.0. The move therefore changes the patched russh. It comes with a
+russh release that takes these versions, or as an update of the vendored
+copy of its own.
 
 ### Known advisories for the vendored russh and expected audit warnings
 

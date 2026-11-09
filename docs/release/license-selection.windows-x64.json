@@ -765,8 +765,8 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 147123,
-        "sha256": "c2a8a2c3f02f8f7ef3a9de53101bf6fa8decac347a0d4ff9b13fcc88200a9c8a"
+        "bytes": 147004,
+        "sha256": "5b9f14f23f5a071b5caa5e8d74407435f51e92d9f175ccbfd4be3ae3b2e1f11e"
       },
       {
         "path": "src/terminal.ts",
@@ -948,8 +948,8 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 147123,
-            "sha256": "c2a8a2c3f02f8f7ef3a9de53101bf6fa8decac347a0d4ff9b13fcc88200a9c8a"
+            "bytes": 147004,
+            "sha256": "5b9f14f23f5a071b5caa5e8d74407435f51e92d9f175ccbfd4be3ae3b2e1f11e"
           },
           {
             "path": "src/terminal-clipboard.ts",
@@ -1224,8 +1224,8 @@
           },
           {
             "path": "src-tauri/src/local_network.rs",
-            "bytes": 23127,
-            "sha256": "7f42db013c1351d15d7ba2abaf8b18fc187064d826ba6809211ffa8a820df50f"
+            "bytes": 25506,
+            "sha256": "14fafa7292645a4a6a1ef31de3d81602eb469dc35be1973bcef978fb2ab49fb1"
           },
           {
             "path": "src-tauri/src/main.rs",
@@ -1269,8 +1269,8 @@
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
-            "bytes": 19725,
-            "sha256": "006e4327f7841d85a6800c665b34790caa824c35f79334d09c1608d6ae205032"
+            "bytes": 20394,
+            "sha256": "3192998ee1465e96c8e815feb2011d653aa5882b294cab08b1fbfc59553be6dd"
           },
           {
             "path": "src-tauri/src/ssh/key_files.rs",
@@ -1394,8 +1394,8 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 39786,
-            "sha256": "0004a926208eadc3050524b82326335094818cf8fe3a1175d0667101ed2dd889"
+            "bytes": 40031,
+            "sha256": "a206a9c908e8819dabebe515ba2d59eb828083cbc7073ae3ed2350062590e89e"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",

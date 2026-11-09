@@ -381,8 +381,8 @@ oder eine andere Spur, die du dort wählst.
    versionCode = Major × 1.000.000 + Minor × 1.000 + Patch (0.2.8 → 2008,
    0.3.0 → 3000; höchstens 500 Zeichen). Fehlt die Datei, scheitert
    `scripts/store-changelog.test.mjs` (Job `scripts`, Pflicht vor dem Merge);
-   ein Tag ohne sie ließe `android.yml` mit einer Warnung `default.txt`
-   nehmen, und Play zeigte „Erste Android-Version“.
+   lädt ein Tag ohne sie zu Google Play hoch, nimmt `android.yml` mit einer
+   Warnung `default.txt`, und Play zeigt „Erste Android-Version“.
 4. **Probelauf ohne Tag**, vor jedem Tag: auf dem Release-Branch **Actions →
    Android → Run workflow → release ✓** und ebenso **Packages → release ✓**. Das
    baut alles wie ein Release und prüft die Lizenztexte und die Produktversion
