@@ -5,7 +5,7 @@ von PR #43); beim Tag baut die CI alle Pakete und hängt sie an das Release.
 0.3.0 bringt die neuen Mindeststände macOS 12.4 und Android System WebView
 105 (Entscheidungen vom 07.11.), Android 17 als Ziel mit der Berechtigung
 fürs lokale Netz (PR #37, #39, #40), die Lizenzhinweise aus dem Scan aller
-Komponenten (PR #38, #41) und die Befunde des Reviews vom 07.11. (PR #42,
+Komponenten (PR #38, #39, #41) und die Befunde des Reviews vom 07.11. (PR #42,
 Punkt 14); Einzelheiten im [CHANGELOG](../CHANGELOG.md).
 
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.).
@@ -201,7 +201,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    (in der Git-Historie): die übrige Windows-Politur nach S3.2
    (Protokolldatei, globaler Diagnosetext), ein neues Logozeichen für den
    Erststart (bisher „a“; geparkt auf `feat/new-logo`), RUSTSEC-2023-0071 zu
-   `rsa` (eingeordnet in [`SECURITY.md`](../SECURITY.md)) mit einer echten
+   `rsa` (eingeordnet in [`SECURITY.md`](../SECURITY.md); behoben in `rsa`
+   0.10.0, der Wechsel wartet auf russh, Punkt 12) mit einer echten
    RSA-Abnahme, Signatur der Pakete und winget. Zur Protokolldatei (Review vom
    03.11.): Die App schreibt kein Protokoll, Fehlerdetails gehen verloren. Sie
    braucht neue Abhängigkeiten mit Lizenzprüfung, eine Regel, die Hostnamen
@@ -297,16 +298,14 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Trenner; die Session startet im Ordner ohne das `;`. Einschleusen lässt
       sich nichts. Möglicher Weg: `\;` im Argument von `-c`, nach einer
       Messung auf tmux 3.0a, 3.3a, 3.4 und 3.6.
-    - In `src/styles.css` stehen noch private Verlaufsmarker in Kommentaren
-      (mindestens 29 Zeilen wie „Shell-Task 11“ oder „Fixrunde 2“).
-    - Die Vorschläge aus `~/.ssh/config` schneiden einen Kommentar am
-      Zeilenende nicht ab: `Host web # prod` ergibt `web`, `#` und `prod`.
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne Eile:
     der geschlossene Test mit 12 Testern über 14 Tage (startet bald; bis
     dahin gibt es die App nur als APK auf GitHub), die Datenschutz-URL
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
-    selbst hoch ([Anleitung](android-veroeffentlichung.md)). Am Gerät zu
+    selbst hoch ([Anleitung](android-veroeffentlichung.md)). Das signierte
+    App Bundle von 0.3.0 liegt nur als Artefakt `android-signed` des Laufs
+    42386731631 vor, bis zum 05.02.2027. Am Gerät zu
     klären (Review vom 03.11.): ob Android den WebView im Hintergrund so
     anhält, dass die Acks länger als 30 s ausbleiben; dann schließt
     `STALL_TIMEOUT` die Terminals, und die Kacheln hängen sich nach der
@@ -323,8 +322,10 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       außerhalb des begrenzten Pools der Verbindungen und wird nach 10 s nur
       verlassen, nicht beendet. `prepare` bemerkt auch kein Abbrechen des
       Versuchs; ein abgebrochener Versuch kann noch einen Dialog öffnen.
-    - Ein Dialog, der 120 s offen bleibt, gilt als unbeantwortet; ein
-      weiterer Host fragt dann, während er noch offen ist.
+    - Ein Dialog, der länger als 120 s offen bleibt, gilt für den wartenden
+      Aufbau als unbeantwortet. Seit 0.3.1 fragt ein weiterer Host dann nicht
+      neu, sondern wartet auf denselben Dialog (Prüfung vom 09.11.); am Gerät
+      nicht nachgestellt.
 12. **Abhängigkeiten, weitere Stufen:** jede als eigener Pull Request, weil
     jede in der Herkunft der Release-Bauten oder in den Lizenzbelegen
     gebunden ist. Erledigt bis zum 06.11.: Tauri 2.12, Tauri-CLI 2.12.4 mit
@@ -351,6 +352,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       braucht einen eigenen Pull Request; kein Workflow prüft bisher die
       Android-Bibliotheken auf Meldungen (etwa `app/gradle.lockfile` gegen
       OSV in `audit.yml`).
+    - **`rsa` 0.10.0** (08.11.) behebt RUSTSEC-2023-0071, braucht aber
+      `ssh-key` 0.7.0-rc.12 und `pkcs1` 0.8.0, die die Schnittstelle ändern.
+      Das vendorte russh 0.65.1 pinnt `ssh-key` 0.7.0-rc.11 und `pkcs1`
+      0.8.0-rc.4. Der Wechsel kommt mit einer russh-Version, die sie nimmt,
+      oder als eigenes Update der Kopie; bis dahin ignoriert `audit.yml` die
+      Meldung weiter ([`SECURITY.md`](../SECURITY.md)).
     - **Rust 1.99:** erst, wenn ein Crate sie verlangt. Die Stellen, die die
       Version nennen, gleicht `scripts/rust-toolchain.test.mjs` mit
       `rust-toolchain.toml` ab, die Belege der Standardbibliothek nicht.
@@ -382,9 +389,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
 14. **Review vom 07.11.:** Fünf voneinander unabhängige Prüfungen, die nur
     lasen (Rust-Backend, Sicherheit, Frontend, Aufbau und Release-Ablauf,
     Plattformen), auf `main` (`59bea6a`). Die Fehler mit Wirkung für Nutzer
-    behebt PR #42 (CHANGELOG `[Unreleased]`). Offen:
-    - **Mindeststand der Webansicht:** entschieden am 07.11. (oben) und im
-      selben Branch umgesetzt. Offen: das Build-Ziel auf `safari15.5` und
+    behebt PR #42 (CHANGELOG `[0.3.0]`). Offen:
+    - **Mindeststand der Webansicht:** entschieden am 07.11. (oben) und mit
+      PR #42 in 0.3.0 umgesetzt. Offen: das Build-Ziel auf `safari15.5` und
       `chrome105` heben, mit neuem Lizenzbeleg für die Helfer im Bundle; der
       Hinweis auf eine alte WebView unter Android ist nur in der CI gebaut,
       nicht am Gerät gesehen.
@@ -394,10 +401,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       zurückgestellt, weil zurückgesetzte Hosts sonst an der strengeren
       Prüfung scheitern. Zuerst kommt ein Weg, den alten Eintrag eines Hosts
       in der App zu entfernen.
-    - **CI und Release:** eigene Frist und Wiederholung für den apt-Schritt
-      (zweimal 25 min Hänger in `rust (ubuntu)`), keine Paketbauten bei
-      reinen Doku-PRs, die volle Lizenzprüfung auch bei geänderten eigenen
-      Quellen, ein Skript, das alle Versionsstellen eines Releases prüft und
+    - **CI und Release:** keine Paketbauten bei reinen Doku-PRs (Frist und
+      Wiederholung für den apt-Schritt kamen mit der Prüfung vom 09.11.), die
+      volle Lizenzprüfung auch bei geänderten eigenen Quellen, ein Skript, das alle Versionsstellen eines Releases prüft und
       setzt, CHANGELOG-Einträge je PR; dazu GitHub-Einstellungen
       (ausgewählte Actions, CodeQL, Freigabe für `android-release`).
     - **Aufbau:** ein typisierter IPC-Vertrag zwischen Rust und TS ohne neue
@@ -439,7 +445,7 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
 - Tests gegen echte Hosts nur mit eigenem Testsocket, nie mit produktiven
   Sessions ([CONTRIBUTING](../CONTRIBUTING.md#live-tests-against-a-test-host)).
 - Jede weitergegebene Kopie trägt die Lizenzhinweise (Punkt 6).
-- Das Tor sind die lokalen Prüfungen aus dem
+- Das Tor sind die lokalen Prüfungen aus der
   [Build-Anleitung](guide/building.md#tests); `.github/workflows/ci.yml` führt sie bei
   jedem Push und Pull Request aus.
 

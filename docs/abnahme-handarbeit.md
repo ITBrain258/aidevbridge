@@ -717,9 +717,9 @@ müsste.
    Vorlage für Pull Requests gilt erst aus `main`: Ein neuer Pull Request
    nach dem Merge bekommt sie als Beschreibung.
 5. **Ablageorte unter macOS**, sobald ein Mac bereitsteht. `PRIVACY.md`
-   endet mit „The app stores nothing anywhere else“; für macOS stützt sich
-   das auf `SECURITY.md` und `guide/data.md` und ist an keinem echten Mac
-   gemessen. Auf einem Mac ohne frühere Installation (oder nach dem Löschen
+   sagt „The app stores nothing anywhere else“; für macOS ist das nur nach
+   einem Start ohne Verbindung gemessen, in der CI auf Apple silicon und Intel
+   (05.11., PR #31), nicht mit Verbindungen und Gebrauch. Auf einem Mac ohne frühere Installation (oder nach dem Löschen
    der Ordner aus `PRIVACY.md`) das DMG des Pull Requests (Vorschau von
    `packages.yml`) installieren, die App zum ersten Mal starten, einen Host
    anlegen, ein Terminal öffnen, das Fenster verschieben und die App

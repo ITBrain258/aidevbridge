@@ -6,6 +6,18 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- CI: Der apt-Schritt in `rust (ubuntu)` hat je Versuch eine eigene Frist und bis zu drei Versuche; zweimal hing er rund 25 Minuten, bis der Job an seine Grenze kam. Der Gradle-Wrapper wartet beim Download von Gradle 60 s statt 10 s und versucht es dreimal nach, Gradle selbst wiederholt einen gescheiterten Download einer Abhaengigkeit fuenfmal ab 2 s statt dreimal ab 125 ms. Zweimal war der Android-Bau an einer Zeitueberschreitung oder einem 504 von Maven Central und dem Plugin-Portal gescheitert.
+- Release: `scripts/store-changelog.test.mjs` verlangt fuer die Version in `package.json` die Notiz `changelogs/<versionCode>.txt` jeder Sprache des Store-Eintrags, nicht leer und hoechstens 500 Zeichen; ohne sie zeigte Google Play "Erste Android-Version". `android.yml` warnt bei einem Tag ohne sie. Die Release-Schritte in `CONTRIBUTING.md` starten vor dem Tag auch den Audit-Lauf.
+- Doku: `SECURITY.md` nennt `rsa` 0.10.0 vom 08.11. als erste Version, die RUSTSEC-2023-0071 behebt, und warum die App sie noch nicht nimmt: Sie braucht `ssh-key` 0.7.0-rc.12 und `pkcs1` 0.8.0, das vendorte russh 0.65.1 pinnt die Vorgaenger. Die Installationsanleitung sagt, dass macOS die App unter 12.4 nicht startet; die Grenzen-Anleitung nennt die nicht gelesene systemweite `/etc/ssh/ssh_known_hosts` und Broadcast-Adressen als lokales Netz; die Vorlage fuer Fehlerberichte fragt unter Android nach der Version der Webansicht. Die Kommentare in `src/styles.css` tragen keine Verweise auf private Arbeitsschritte mehr, und `src/source-hygiene.test.ts` prueft auch CSS.
+
+### Fixed
+
+- Android: Ein auf der Touch-Leiste vorgemerktes Strg oder Alt galt auch fuer eine Einfuegung und machte aus ihrem ersten Zeichen, schon nach dem Entfernen der Steuerzeichen, ein Steuerzeichen, etwa aus "m" ein Enter, wenn das Programm kein Bracketed Paste nutzt. Jetzt gilt es nur fuer die naechste Taste.
+- Android: Blieb der Dialog fuer "Geraete in der Naehe" laenger als 120 s offen, fragte der naechste Host erneut. Eine zweite Anfrage bei offenem Dialog beantwortet Android sofort und leer; die App nahm das als Ablehnung, nannte sie als Grund des Fehlers und verband nicht mehr neu, auch nach "Erlauben". Jetzt wartet jeder weitere Host auf den offenen Dialog.
+- Hostvorschlaege aus `~/.ssh/config`: Ein `#` am Anfang eines Worts beginnt wie bei OpenSSH einen Kommentar bis zum Zeilenende. Bisher ergab `Host web # prod` drei Vorschlaege (`web`, `#`, `prod`) und `HostName h # lab` den Namen `h # lab`.
+
 ## [0.3.0] - 2026-11-07
 
 Neue Mindeststaende (macOS 12.4 statt 11, unter Android eine Android System WebView ab 105), Android 17 als Ziel mit der Berechtigung fuer Hosts im lokalen Netz, eingefuegter Text ohne Steuerzeichen und die Befunde einer Pruefung vom 07.11.: Eine Kachel, die beim Oeffnen geschlossen wird, reisst die Steuerverbindung nicht mehr ab, Eingaben gehen der Reihe nach hinaus, und Hosts mit mehreren Adressen verbinden schneller. Dazu die Lizenzhinweise aus einem Scan aller Komponenten.

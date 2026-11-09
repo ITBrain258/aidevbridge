@@ -222,8 +222,10 @@ configuration and version.
 ### Known advisory: RUSTSEC-2023-0071 (`rsa`)
 
 `cargo audit` reports RUSTSEC-2023-0071 ("Marvin Attack") for the `rsa`
-crate; no fixed version exists. The attack recovers an RSA private key by
-precisely timing many decryptions or signatures made with it.
+crate. The attack recovers an RSA private key by precisely timing many
+decryptions or signatures made with it. `rsa` 0.10.0 of 8 November 2026 is
+the first fixed version; aidevbridge still carries the release candidate
+0.10.0-rc.18.
 
 aidevbridge uses `rsa` only to sign the SSH login with your own RSA key file,
 on your machine and with blinding, and, through russh, to verify RSA host
@@ -233,7 +235,11 @@ precisely timed operations the attack needs. We accept the advisory for that
 reason; the audit workflow (`.github/workflows/audit.yml`) ignores it, while
 a local `cargo audit` still reports it. Where you can, use an ed25519 key.
 
-To resolve: update `rsa` as soon as a fixed release exists.
+To resolve: move to `rsa` 0.10.0. It can't be taken on its own: it needs
+`ssh-key` 0.7.0-rc.12 and `pkcs1` 0.8.0, while the vendored russh 0.65.1
+pins `ssh-key` 0.7.0-rc.11 and `pkcs1` 0.8.0-rc.4, which work only with the
+release candidate. The move therefore comes with a russh release that takes
+these versions, or as an update of the vendored copy of its own.
 
 ### Known advisories for the vendored russh and expected audit warnings
 
@@ -456,8 +462,9 @@ code signed by tagging it.
 The window is drawn by the web view of the system: WebView2 on Windows, the
 WebKit of macOS, Android System WebView (or Chrome) on Android. The app ships
 none of them and gets their security fixes only through the system. On
-macOS 11 and 12, WebKit is renewed only with macOS updates, not with a newer
-Safari; Apple no longer ships security updates for macOS 12 and 13. On Android 7 to 9
+macOS 12, WebKit is renewed only with macOS updates, not with a newer
+Safari, and Apple brings security fixes only to recent macOS versions:
+macOS 12 and 13 get none any more. On Android 7 to 9
 Google no longer updates the web view (Android 7 stops at version 119,
 Android 8 and 9 at 138). The app needs macOS 12.4 and Android System WebView
 105, so it runs on such systems, but a flaw in their web view stays open
