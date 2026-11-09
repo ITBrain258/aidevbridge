@@ -61,8 +61,8 @@
     "files": [
       {
         "path": ".github/workflows/android.yml",
-        "bytes": 21748,
-        "sha256": "eb041b0ae2521386aea1405fb4acf7fd3961eb9dc01633aab71fdb43f0c42aac"
+        "bytes": 22075,
+        "sha256": "89a04e16b06fe019492ff47a5dc1d23ab89b347f3c58ab8d048aea8077b26a47"
       },
       {
         "path": "Cargo.lock",
@@ -741,8 +741,8 @@
       },
       {
         "path": "src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties",
-        "bytes": 319,
-        "sha256": "07b0833a317e8d26fb006439a62da4f22cfe04f7bd7add85cfbb27cd6156c731"
+        "bytes": 525,
+        "sha256": "f96c04b0bed4539a69fccdcee91bf6a91ac453fc374514b81903dcb3854b7331"
       },
       {
         "path": "src-tauri/gen/android/settings.gradle",
@@ -796,13 +796,13 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 147969,
-        "sha256": "8993834411397276336196e95fe33ebba9b9e80008f221d1988ec232d9153b88"
+        "bytes": 147123,
+        "sha256": "c2a8a2c3f02f8f7ef3a9de53101bf6fa8decac347a0d4ff9b13fcc88200a9c8a"
       },
       {
         "path": "src/terminal.ts",
-        "bytes": 79156,
-        "sha256": "4d57432f6ae86dc533922d3d0409ba238a07b6947d3c6ec5f4c597b6e35d59e0"
+        "bytes": 79739,
+        "sha256": "0167b6851699c2c902c36ce52c8bbf4101818953e9fa11c9d23e6c183bce0d49"
       },
       {
         "path": "src/theme.ts",
@@ -979,8 +979,8 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 147969,
-            "sha256": "8993834411397276336196e95fe33ebba9b9e80008f221d1988ec232d9153b88"
+            "bytes": 147123,
+            "sha256": "c2a8a2c3f02f8f7ef3a9de53101bf6fa8decac347a0d4ff9b13fcc88200a9c8a"
           },
           {
             "path": "src/terminal-clipboard.ts",
@@ -1004,8 +1004,8 @@
           },
           {
             "path": "src/terminal.ts",
-            "bytes": 79156,
-            "sha256": "4d57432f6ae86dc533922d3d0409ba238a07b6947d3c6ec5f4c597b6e35d59e0"
+            "bytes": 79739,
+            "sha256": "0167b6851699c2c902c36ce52c8bbf4101818953e9fa11c9d23e6c183bce0d49"
           },
           {
             "path": "src/theme.ts",
@@ -1205,8 +1205,8 @@
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
-            "bytes": 29627,
-            "sha256": "8d841bf39ae9f7354ff3505c67b88dbdb9eea6573c142a8e3c0552ddec99d563"
+            "bytes": 30120,
+            "sha256": "9937e2f6218690f2a5786ce0be7ab2e3a26fe98a4b45e9948469c7c67fae56de"
           },
           {
             "path": "src-tauri/src/commands/history_tests.rs",
@@ -1255,8 +1255,8 @@
           },
           {
             "path": "src-tauri/src/local_network.rs",
-            "bytes": 15709,
-            "sha256": "29a045b5e47712eee0d5d3e6a00fcdee3ed87ede5da7e4f6d19d258afa222da4"
+            "bytes": 23127,
+            "sha256": "7f42db013c1351d15d7ba2abaf8b18fc187064d826ba6809211ffa8a820df50f"
           },
           {
             "path": "src-tauri/src/main.rs",
@@ -1300,8 +1300,8 @@
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
-            "bytes": 17920,
-            "sha256": "4bc31414dae7441215cd55d4afb3d77307bf991109b5f65fd1f50616eb6e4aad"
+            "bytes": 19725,
+            "sha256": "006e4327f7841d85a6800c665b34790caa824c35f79334d09c1608d6ae205032"
           },
           {
             "path": "src-tauri/src/ssh/key_files.rs",
@@ -1425,8 +1425,8 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 37698,
-            "sha256": "4ddb38dde3cc477cf11b7bebe0f39598a2733e45209bb1126f5c386efe60aa59"
+            "bytes": 39786,
+            "sha256": "0004a926208eadc3050524b82326335094818cf8fe3a1175d0667101ed2dd889"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
