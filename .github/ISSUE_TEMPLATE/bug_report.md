@@ -21,6 +21,7 @@ the line here. It looks like: aidevbridge <version> (<commit>)
 
 - Installation: setup EXE / MSI / ZIP / macOS DMG / Android APK / Google Play / built from source
 - OS and version (Windows/macOS/Android):
+- On Android, the version of Android System WebView (Settings → Apps; on Android 7 to 9 of Chrome):
 - Host: Linux distribution and `tmux -V`
 - Agent and version, if relevant (for example `claude --version`):
 - SSH authentication: key file / ssh-agent / password (no secrets)

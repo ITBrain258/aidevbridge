@@ -32,6 +32,12 @@ pub struct SshConfigHost {
 ///   ein umschliessendes Paar doppelter Anfuehrungszeichen. Backslashes werden
 ///   NICHT als Escape gelesen, damit Windows-Pfade wie
 ///   `"C:\Users\Max Muster\.ssh\id_ed25519"` unveraendert bleiben.
+/// - Ein `#` am Anfang eines Worts ausserhalb doppelter Anfuehrungszeichen
+///   beginnt einen Kommentar bis zum Zeilenende, wie bei OpenSSH:
+///   `Host web # prod` ergibt nur `web`, `HostName h # lab` den Namen `h`. Ein
+///   `#` mitten im Wort bleibt stehen (`web#1`). Als Anfuehrungszeichen gilt
+///   hier nur das doppelte, OpenSSH kennt auch das einfache. Bleibt nach dem
+///   Kommentar kein Wert, zaehlt die Zeile nicht.
 /// - Eine `Host`-Zeile kann mehrere Muster tragen (Anfuehrungszeichen
 ///   gruppieren). Jedes konkrete Muster wird ein eigener Vorschlag; Muster
 ///   mit `*` oder `?` und negierte Muster (`!x`) benennen keinen Zielrechner
@@ -47,7 +53,8 @@ pub struct SshConfigHost {
 ///   Der Vorschlag bekommt das Feld leer, ein spaeterer Wert fuellt es nicht.
 ///   Auch OpenSSH nimmt keinen spaeteren Wert; es loest etwa einen
 ///   Dienstnamen wie `ssh` als Port selbst auf oder bricht mit einem Fehler
-///   ab.
+///   ab. Eine Zeile ganz ohne Wert (etwa `HostName # x`) ist dagegen kein
+///   erster Wert.
 ///
 /// Schluesselwort-Zeilen, die vor dem ersten `Host` stehen, werden verworfen:
 /// In der echten `ssh_config` gelten sie als globale Defaults fuer alle
@@ -78,6 +85,14 @@ fn parse_with_home(text: &str, home: Option<&Path>) -> Vec<SshConfigHost> {
             continue;
         }
         let (key, value) = split_keyword(line);
+        let value = strip_comment(value);
+        // Ohne Wert (etwa `HostName # x`) bricht OpenSSH mit einem Fehler ab
+        // ("missing argument"); hier zaehlt die Zeile nicht, damit kein leerer
+        // Name oder Benutzer in einen Vorschlag gelangt. `Host` und `Match`
+        // ohne Argument beenden wie bisher den Block.
+        if value.is_empty() && !matches!(key.to_ascii_lowercase().as_str(), "host" | "match") {
+            continue;
+        }
 
         match key.to_ascii_lowercase().as_str() {
             "host" => {
@@ -135,7 +150,8 @@ fn parse_with_home(text: &str, home: Option<&Path>) -> Vec<SshConfigHost> {
 /// Welche Felder im aktuellen Block schon einen Wert hatten. Ein Feld zaehlt
 /// ab seinem ersten Schluesselwort als gesehen, auch wenn der Wert
 /// unbrauchbar war und das Feld deshalb leer blieb: Sonst fuellte ein
-/// spaeterer Wert es, und der erste gaelte nicht mehr.
+/// spaeterer Wert es, und der erste gaelte nicht mehr. Eine Zeile ohne Wert
+/// erreicht `Seen` nicht.
 #[derive(Default)]
 struct Seen {
     hostname: bool,
@@ -161,6 +177,24 @@ fn split_keyword(line: &str) -> (&str, &str) {
     let rest = rest.trim_start();
     let rest = rest.strip_prefix('=').unwrap_or(rest).trim_start();
     (key, rest)
+}
+
+/// Schneidet einen Kommentar am Zeilenende ab: ab einem `#`, das ausserhalb
+/// doppelter Anfuehrungszeichen ein Wort beginnt (am Anfang des Werts oder
+/// nach Leerraum). Bis 0.3.0 wurden `#` und die Woerter danach zu weiteren
+/// Aliasen oder Teil des Werts.
+fn strip_comment(value: &str) -> &str {
+    let mut quoted = false;
+    let mut word_start = true;
+    for (index, c) in value.char_indices() {
+        match c {
+            '#' if !quoted && word_start => return value[..index].trim_end(),
+            '"' => quoted = !quoted,
+            _ => {}
+        }
+        word_start = c.is_whitespace() && !quoted;
+    }
+    value
 }
 
 /// Entfernt ein umschliessendes Paar doppelter Anfuehrungszeichen. Bewusst
@@ -382,6 +416,32 @@ Host jump
             assert_eq!(h.hostname.as_deref(), Some("h"), "Alias {}", h.alias);
             assert_eq!(h.user.as_deref(), Some("u"), "Alias {}", h.alias);
         }
+    }
+
+    #[test]
+    fn a_comment_at_the_end_of_a_line_is_dropped() {
+        let hosts = parse(
+            r##"Host web # prod servers
+  HostName 192.0.2.30 # lab
+  User u #x
+  Port 2222 # ssh
+Host "#quoted" web#1
+  IdentityFile "C:\keys #2\id" # key
+"##,
+        );
+        let aliases: Vec<&str> = hosts.iter().map(|h| h.alias.as_str()).collect();
+        assert_eq!(aliases, ["web", "#quoted", "web#1"]);
+        assert_eq!(hosts[0].hostname.as_deref(), Some("192.0.2.30"));
+        assert_eq!(hosts[0].user.as_deref(), Some("u"));
+        assert_eq!(hosts[0].port, Some(2222));
+        assert_eq!(hosts[1].identity_file.as_deref(), Some(r"C:\keys #2\id"));
+        assert_eq!(hosts[2].identity_file.as_deref(), Some(r"C:\keys #2\id"));
+        // Bleibt nach dem Kommentar kein Wert, zaehlt die Zeile nicht.
+        let hosts = parse("Host a\n  HostName # x\n  User #\n  HostName h\n");
+        assert_eq!(hosts[0].hostname.as_deref(), Some("h"));
+        assert_eq!(hosts[0].user, None);
+        assert_eq!(strip_comment("# all of it"), "");
+        assert_eq!(strip_comment("a#b c"), "a#b c");
     }
 
     #[test]

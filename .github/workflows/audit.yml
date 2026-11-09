@@ -31,8 +31,10 @@ jobs:
       # cargo-audit baut mit --locked auf dieser Toolchain.
       - uses: dtolnay/rust-toolchain@59a558e8c538bf4a23bbffa19e5a278b703f2920 # 1.97.1
       - run: cargo install cargo-audit --locked --version 0.22.2
-      # RUSTSEC-2023-0071 (rsa, Marvin) hat keine behobene Version; SECURITY.md
-      # begruendet, warum die App das hinnimmt. Die Ausnahme steht als Flag
+      # RUSTSEC-2023-0071 (rsa, Marvin): behoben erst in rsa 0.10.0; der
+      # Wechsel braucht neuere Pins von rsa, ssh-key und pkcs1 im vendorten russh
+      # 0.65.1 und eine geaenderte rsa-Zeile der App. SECURITY.md begruendet,
+      # warum die App das bis dahin hinnimmt. Die Ausnahme steht als Flag
       # hier und nicht in .cargo/audit.toml, damit ein lokales `cargo audit`
       # sie weiter meldet. Nur Sicherheitsluecken lassen den Lauf scheitern,
       # Warnungen (unsound, unmaintained, yanked) nicht.

@@ -105,6 +105,9 @@ const hoisted = vi.hoisted(() => {
     /** Der an `term.onData` uebergebene Rueckruf (siehe `input()` im Mock). */
     dataListener: undefined as ((data: string) => void) | undefined,
     pasteCalls: [] as string[],
+    /** Wie das echte xterm: `paste` meldet den Text synchron ueber `onData`.
+     * Aus, ausser ein Test schaltet es ein (Ruecksetzen in `beforeEach`). */
+    pasteEmitsData: false,
     focusCalls: 0,
     searchCalls: [] as Array<{ type: "next" | "prev"; term: string }>,
     /** Die Optionen (`caseSensitive`, `decorations`) je Suche, in derselben
@@ -259,6 +262,7 @@ vi.mock("@xterm/xterm", () => {
     };
     paste(data: string): void {
       hoisted.pasteCalls.push(data);
+      if (hoisted.pasteEmitsData) hoisted.dataListener?.(data);
     }
     focus(): void {
       hoisted.focusCalls += 1;
@@ -467,6 +471,7 @@ beforeEach(() => {
   hoisted.oscHandlers.clear();
   hoisted.dataListener = undefined;
   hoisted.pasteCalls.length = 0;
+  hoisted.pasteEmitsData = false;
   hoisted.focusCalls = 0;
   hoisted.searchCalls.length = 0;
   hoisted.searchOptions.length = 0;
@@ -3182,6 +3187,24 @@ describe("mountTerminal: Touch-Leiste (Spec 2026-10-27 §5.2)", () => {
     await flush();
 
     expect(sentBytes()).toEqual([[0x03], [0x63]]);
+  });
+
+  // Befund vom 09.11.: `term.paste` meldet die Einfuegung synchron ueber
+  // `term.onData`. Ein vorgemerktes Strg machte dort aus dem ersten Zeichen
+  // des bereinigten Texts ein Steuerzeichen, aus "m" ein Enter.
+  it("wendet ein vorgemerktes Strg nicht auf eine Einfuegung an und behaelt es fuer die naechste Taste", async () => {
+    hoisted.pasteEmitsData = true;
+    const handle = mount(document.createElement("div"), "host-1", "sess-1");
+    await flush();
+    const textarea = hoisted.terminals[0].textarea!;
+
+    handle.sendTouchKey("ctrl");
+    nativePaste(textarea, "make\n");
+    hoisted.dataListener?.("c");
+    await flush();
+
+    expect(hoisted.pasteCalls).toEqual(["make\n"]);
+    expect(sentBytes()).toEqual([Array.from(new TextEncoder().encode("make\n")), [0x03]]);
   });
 
   it("schickt nach dem Entsorgen nichts mehr", async () => {

@@ -26,8 +26,15 @@
 //! Auf dem Desktop und vor Android 17 ist `prepare` ohne Wirkung.
 
 use std::collections::BTreeSet;
+use std::future::Future;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::sync::{Mutex, PoisonError};
+use std::time::Duration;
+
+use tokio::sync::oneshot;
+// Die Uhr von Tokio, damit die Tests mit angehaltener Zeit auch das Ende von
+// `RECENT_DENIAL` pruefen.
+use tokio::time::Instant;
 
 use crate::commands::ConnectError;
 
@@ -143,11 +150,105 @@ pub fn note_reached(hostname: &str, port: u16) {
 }
 
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
-fn was_reached(hostname: &str, port: u16) -> bool {
+pub(crate) fn was_reached(hostname: &str, port: u16) -> bool {
     REACHED
         .lock()
         .unwrap_or_else(PoisonError::into_inner)
         .contains(&reached_key(hostname, port))
+}
+
+/// Wer waehrend eines Dialogs gewartet hat und kurz nach einer Ablehnung
+/// drankommt, fragt nicht noch einmal: Die Hosts eines Starts bekaemen sonst
+/// einen Dialog nach dem anderen.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+const RECENT_DENIAL: Duration = Duration::from_secs(10);
+
+/// Stand der Abfrage unter Android, ein Dialog zur Zeit (`android::LocalNetwork`).
+#[derive(Default)]
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+struct Asking {
+    /// Zeitpunkt der letzten Ablehnung.
+    last_denial: Option<Instant>,
+    /// Die Antwort auf den Dialog, der gerade offen ist. Sie bleibt hier, bis
+    /// sie kommt oder die Anfrage ohne Antwort endet, auch wenn niemand mehr
+    /// auf sie wartet (Wartezeit vorbei, oder die Zukunft des Aufbaus wird
+    /// verworfen; `connect_host` tut das heute nicht). Solange fragt
+    /// kein Aufbau neu: Eine zweite Anfrage, waehrend der Dialog offen ist,
+    /// beantwortet Android sofort und leer, also als Ablehnung, und dem ersten
+    /// Dialog fehlte danach der Rueckruf (Review vom 09.11.; am Geraet nicht
+    /// nachgestellt). Darum hat die Anfrage auch keine eigene Frist: Ein Dialog,
+    /// der laenger offen bleibt, braechte sonst denselben Fehler zurueck. Ginge
+    /// ihre Antwort verloren, gaebe es bis zum Ende der App keinen Dialog mehr;
+    /// die Aufbauten liefen dann wie ohne diese Abfrage.
+    pending: Option<oneshot::Receiver<Option<bool>>>,
+}
+
+/// Der Teil von `prepare` unter Android, der nach der Berechtigung fragt, ohne
+/// Tauri, damit die Tests ihn auf jedem System pruefen. `check` liest nur den
+/// Stand (`None`: kein Stand, etwa ein Fehler im Plugin). `request` zeigt den
+/// Systemdialog und liefert dessen Antwort; er laeuft weiter, auch wenn
+/// niemand mehr wartet. Jeder Aufbau wartet hier hoechstens `answer_wait`,
+/// gezaehlt ab seinem Eintritt, an der Sperre und auf den Dialog zusammen;
+/// dazu kommen die Abfrage des Stands jedes Aufbaus, der vor ihm die Sperre
+/// haelt, und seine eigene (`check`, unter Android je hoechstens 5 s). Wer
+/// waehrend des Wartens eines anderen beginnt, wartet so nur den Rest, auch
+/// wenn er danach selbst den Dialog oeffnet. Solange der Dialog offen ist,
+/// geht jeder Aufbau, sobald er die Sperre hat, ohne Antwort weiter, wie ohne
+/// diese Abfrage. Ein zweites Warten unter der Sperre stapelte sich sonst auf
+/// das erste und verbrauchte die Frist des Versuchs (240 s), der dann als
+/// abgebrochen endete.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+async fn ask_with<C, F, Q>(
+    asking: &tokio::sync::Mutex<Asking>,
+    check: C,
+    request: Q,
+    answer_wait: Duration,
+) -> Gate
+where
+    C: Fn() -> F,
+    F: Future<Output = Option<bool>>,
+    Q: FnOnce() -> oneshot::Receiver<Option<bool>>,
+{
+    let started = Instant::now();
+    let mut asking = asking.lock().await;
+    // Waehrend des Wartens kann ein anderer Aufbau die Erlaubnis geholt
+    // haben.
+    if check().await != Some(false) {
+        return Gate::Open;
+    }
+    if asking
+        .last_denial
+        .is_some_and(|denied| denied.elapsed() < RECENT_DENIAL)
+    {
+        return Gate::Denied;
+    }
+    if let Some(pending) = asking.pending.as_mut() {
+        match pending.try_recv() {
+            Err(oneshot::error::TryRecvError::Empty) => return Gate::Open,
+            // Die Ablehnung kam, als niemand wartete: Sie gilt, ohne gleich
+            // den naechsten Dialog zu zeigen.
+            Ok(Some(false)) => {
+                asking.pending = None;
+                asking.last_denial = Some(Instant::now());
+                return Gate::Denied;
+            }
+            // Erlaubnis (die `check` widerspricht), Fehler im Plugin oder
+            // verlorene Anfrage: neu fragen.
+            Ok(_) | Err(oneshot::error::TryRecvError::Closed) => asking.pending = None,
+        }
+    }
+    let answer = asking.pending.insert(request());
+    let rest = answer_wait.saturating_sub(started.elapsed());
+    let Ok(answer) = tokio::time::timeout(rest, answer).await else {
+        return Gate::Open;
+    };
+    asking.pending = None;
+    if matches!(answer, Ok(Some(false))) {
+        asking.last_denial = Some(Instant::now());
+        Gate::Denied
+    } else {
+        Gate::Open
+    }
 }
 
 /// Vor dem Verbindungsaufbau: fragt nach der Berechtigung, wenn sie fehlt und
@@ -174,12 +275,12 @@ pub use android::init;
 #[cfg(target_os = "android")]
 mod android {
     use std::net::{IpAddr, ToSocketAddrs};
-    use std::time::{Duration, Instant};
+    use std::time::Duration;
 
     use tauri::plugin::{Builder, PluginHandle, TauriPlugin};
     use tauri::{AppHandle, Manager, Runtime};
 
-    use super::{is_local_address, is_local_name, was_reached, Gate};
+    use super::{ask_with, is_local_address, is_local_name, was_reached, Asking, Gate};
 
     /// Die Kotlin-Klasse `LocalNetworkPlugin` in `gen/android`.
     struct LocalNetwork<R: Runtime> {
@@ -187,8 +288,8 @@ mod android {
         /// Ein Dialog zur Zeit: Tauris `PluginManager` haelt nur einen
         /// Rueckruf fuer Berechtigungsantworten, ein zweiter Dialog nahm dem
         /// ersten die Antwort weg. Beim Start verbindet die App aber mehrere
-        /// Hosts zugleich. Der Wert ist der Zeitpunkt der letzten Ablehnung.
-        asking: tokio::sync::Mutex<Option<Instant>>,
+        /// Hosts zugleich.
+        asking: tokio::sync::Mutex<Asking>,
     }
 
     #[derive(serde::Deserialize)]
@@ -198,16 +299,17 @@ mod android {
 
     /// So lange wartet der Aufbau auf die Antwort im Systemdialog. Kommt
     /// keine (der Dialog blieb so lange offen), geht er ohne Antwort weiter,
-    /// wie ohne diese Abfrage.
+    /// wie ohne diese Abfrage; der Dialog bleibt die offene Anfrage
+    /// (`Asking::pending`).
     const ANSWER_WAIT: Duration = Duration::from_secs(120);
+    /// Die Abfrage des Stands zeigt keinen Dialog und antwortet sofort; haengt
+    /// sie, haelt sie den Aufbau nicht lange auf (unter der Sperre auch die
+    /// anderen).
+    const CHECK_WAIT: Duration = Duration::from_secs(5);
     /// Die Namensaufloesung nur fuer die Frage, ob das Ziel lokal ist. Sie
     /// laeuft nur, solange die Berechtigung fehlt; DNS selbst sperrt Android
     /// nicht.
     const RESOLVE_WAIT: Duration = Duration::from_secs(10);
-    /// Wer waehrend eines Dialogs gewartet hat und kurz nach einer Ablehnung
-    /// drankommt, fragt nicht noch einmal: Die Hosts eines Starts bekaemen
-    /// sonst einen Dialog nach dem anderen.
-    const RECENT_DENIAL: Duration = Duration::from_secs(10);
 
     pub fn init<R: Runtime>() -> TauriPlugin<R> {
         Builder::new("local-network")
@@ -218,17 +320,17 @@ mod android {
                 )?;
                 app.manage(LocalNetwork {
                     handle,
-                    asking: tokio::sync::Mutex::new(None),
+                    asking: tokio::sync::Mutex::new(Asking::default()),
                 });
                 Ok(())
             })
             .build()
     }
 
-    async fn ask<R: Runtime>(handle: &PluginHandle<R>, command: &str) -> Option<bool> {
+    async fn check<R: Runtime>(handle: &PluginHandle<R>) -> Option<bool> {
         match tokio::time::timeout(
-            ANSWER_WAIT,
-            handle.run_mobile_plugin_async::<Access>(command, ()),
+            CHECK_WAIT,
+            handle.run_mobile_plugin_async::<Access>("checkLocalNetwork", ()),
         )
         .await
         {
@@ -248,28 +350,33 @@ mod android {
         }
         // Ein Fehler im Plugin zaehlt wie eine Erlaubnis: Dann entscheidet
         // das System, wie ohne diese Abfrage.
-        if ask(&plugin.handle, "checkLocalNetwork").await != Some(false) {
+        if check(&plugin.handle).await != Some(false) {
             return Gate::Open;
         }
         if !targets_local_network(hostname, port).await {
             return Gate::Open;
         }
-        let mut last_denial = plugin.asking.lock().await;
-        // Waehrend des Wartens kann ein anderer Aufbau die Erlaubnis geholt
-        // haben.
-        if ask(&plugin.handle, "checkLocalNetwork").await != Some(false) {
-            return Gate::Open;
-        }
-        if last_denial.is_some_and(|denied| denied.elapsed() < RECENT_DENIAL) {
-            return Gate::Denied;
-        }
-        match ask(&plugin.handle, "requestLocalNetwork").await {
-            Some(false) => {
-                *last_denial = Some(Instant::now());
-                Gate::Denied
-            }
-            _ => Gate::Open,
-        }
+        ask_with(
+            &plugin.asking,
+            || check(&plugin.handle),
+            || {
+                // In einer eigenen Aufgabe, damit die Antwort ankommt, auch
+                // wenn dieser Aufbau nicht mehr wartet (`Asking::pending`).
+                let (sender, answer) = tokio::sync::oneshot::channel();
+                let handle = plugin.handle.clone();
+                tauri::async_runtime::spawn(async move {
+                    let granted = handle
+                        .run_mobile_plugin_async::<Access>("requestLocalNetwork", ())
+                        .await
+                        .ok()
+                        .map(|access| access.granted);
+                    let _ = sender.send(granted);
+                });
+                answer
+            },
+            ANSWER_WAIT,
+        )
+        .await
     }
 
     async fn targets_local_network(hostname: &str, port: u16) -> bool {
@@ -432,5 +539,214 @@ mod tests {
         assert!(was_reached("reached-host.example", 2222));
         assert!(!was_reached("reached-host.example", 22));
         assert!(!was_reached("other-host.example", 2222));
+    }
+
+    // Review vom 09.11.: Blieb der Systemdialog laenger offen, als ein Aufbau
+    // wartet, fragte der naechste Aufbau neu. Android beantwortet eine zweite
+    // Anfrage bei offenem Dialog sofort und leer, also als Ablehnung, und das
+    // Neuverbinden hielt an. Jetzt fragt niemand neu, solange er offen ist,
+    // und nur der Aufbau, der ihn oeffnete, wartet auf ihn.
+    const WAIT: Duration = Duration::from_secs(120);
+
+    async fn missing() -> Option<bool> {
+        Some(false)
+    }
+
+    fn no_request() -> oneshot::Receiver<Option<bool>> {
+        panic!("a second request while the dialog is open");
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn attempts_during_an_open_dialog_go_on_at_once_without_a_request() {
+        let asking = tokio::sync::Mutex::new(Asking::default());
+        let (dialog, answer) = oneshot::channel();
+
+        assert_eq!(
+            ask_with(&asking, missing, || answer, WAIT).await,
+            Gate::Open
+        );
+        assert!(asking.lock().await.pending.is_some());
+
+        let start = tokio::time::Instant::now();
+        assert_eq!(
+            ask_with(&asking, missing, no_request, WAIT).await,
+            Gate::Open
+        );
+        assert_eq!(start.elapsed(), Duration::ZERO);
+        assert!(asking.lock().await.pending.is_some());
+
+        // Die spaete Ablehnung gilt, ohne einen weiteren Dialog.
+        dialog.send(Some(false)).unwrap();
+        assert_eq!(
+            ask_with(&asking, missing, no_request, WAIT).await,
+            Gate::Denied
+        );
+        let state = asking.lock().await;
+        assert!(state.pending.is_none());
+        assert!(state.last_denial.is_some());
+    }
+
+    // Befund der Pruefung des Branches: Wartete der zweite Aufbau unter der
+    // Sperre noch einmal, stapelten sich die Wartezeiten ueber die Frist des
+    // Versuchs (240 s).
+    #[tokio::test(start_paused = true)]
+    async fn the_waits_of_concurrent_attempts_do_not_add_up() {
+        let asking = tokio::sync::Mutex::new(Asking::default());
+        let (_dialog, answer) = oneshot::channel();
+        let start = tokio::time::Instant::now();
+
+        let (first, second) = tokio::join!(
+            ask_with(&asking, missing, || answer, WAIT),
+            ask_with(&asking, missing, no_request, WAIT),
+        );
+        assert_eq!((first, second), (Gate::Open, Gate::Open));
+        assert_eq!(start.elapsed(), WAIT);
+    }
+
+    // Pruefung der dritten Runde: Endete die Anfrage des ersten Aufbaus kurz
+    // vor seiner Wartezeit ohne Antwort, wartete der naechste als neuer
+    // Oeffner noch einmal die volle Zeit, ueber die Frist des Versuchs hinaus.
+    #[tokio::test(start_paused = true)]
+    async fn a_queued_attempt_that_opens_the_next_dialog_waits_only_the_rest() {
+        let asking = tokio::sync::Mutex::new(Asking::default());
+        let (lost, first) = oneshot::channel();
+        tokio::spawn(async move {
+            tokio::time::sleep(WAIT - Duration::from_secs(1)).await;
+            lost.send(None).unwrap();
+        });
+        let (_dialog, second) = oneshot::channel();
+        let start = tokio::time::Instant::now();
+
+        let (one, two) = tokio::join!(
+            ask_with(&asking, missing, || first, WAIT),
+            ask_with(&asking, missing, || second, WAIT),
+        );
+        assert_eq!((one, two), (Gate::Open, Gate::Open));
+        assert_eq!(start.elapsed(), WAIT);
+        assert!(asking.lock().await.pending.is_some());
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn a_cancelled_attempt_keeps_the_open_dialog() {
+        let asking = tokio::sync::Mutex::new(Asking::default());
+        let (_dialog, answer) = oneshot::channel();
+
+        let cancelled = tokio::time::timeout(
+            Duration::from_secs(5),
+            ask_with(&asking, missing, || answer, WAIT),
+        )
+        .await;
+        assert!(cancelled.is_err());
+        assert!(asking.lock().await.pending.is_some());
+        assert_eq!(
+            ask_with(&asking, missing, no_request, WAIT).await,
+            Gate::Open
+        );
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn a_late_grant_a_plugin_error_or_a_lost_request_leads_to_a_new_request() {
+        for outcome in [Some(Some(true)), Some(None), None] {
+            let asking = tokio::sync::Mutex::new(Asking::default());
+            let (dialog, answer) = oneshot::channel();
+            assert_eq!(
+                ask_with(&asking, missing, || answer, WAIT).await,
+                Gate::Open
+            );
+            match outcome {
+                Some(late) => dialog.send(late).unwrap(),
+                None => drop(dialog),
+            }
+
+            let (again, second) = oneshot::channel();
+            again.send(Some(false)).unwrap();
+            let requested = std::cell::Cell::new(false);
+            let gate = ask_with(
+                &asking,
+                missing,
+                || {
+                    requested.set(true);
+                    second
+                },
+                WAIT,
+            )
+            .await;
+            assert!(requested.get(), "{outcome:?}");
+            assert_eq!(gate, Gate::Denied, "{outcome:?}");
+        }
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn a_denial_answers_the_next_attempts_for_a_moment_without_a_dialog() {
+        let asking = tokio::sync::Mutex::new(Asking::default());
+        let (dialog, answer) = oneshot::channel();
+        dialog.send(Some(false)).unwrap();
+        assert_eq!(
+            ask_with(&asking, missing, || answer, WAIT).await,
+            Gate::Denied
+        );
+        assert_eq!(
+            ask_with(&asking, missing, no_request, WAIT).await,
+            Gate::Denied
+        );
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn after_a_recent_denial_the_next_attempt_asks_again() {
+        let asking = tokio::sync::Mutex::new(Asking::default());
+        let (dialog, answer) = oneshot::channel();
+        dialog.send(Some(false)).unwrap();
+        assert_eq!(
+            ask_with(&asking, missing, || answer, WAIT).await,
+            Gate::Denied
+        );
+
+        tokio::time::advance(RECENT_DENIAL).await;
+        let (again, second) = oneshot::channel();
+        again.send(Some(true)).unwrap();
+        let requested = std::cell::Cell::new(false);
+        let gate = ask_with(
+            &asking,
+            missing,
+            || {
+                requested.set(true);
+                second
+            },
+            WAIT,
+        )
+        .await;
+        assert!(requested.get());
+        assert_eq!(gate, Gate::Open);
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn a_grant_a_plugin_error_or_a_lost_request_lets_the_attempt_go_on() {
+        for outcome in [Some(Some(true)), Some(None), None] {
+            let asking = tokio::sync::Mutex::new(Asking::default());
+            let (dialog, answer) = oneshot::channel();
+            match outcome {
+                Some(granted) => dialog.send(granted).unwrap(),
+                None => drop(dialog),
+            }
+            assert_eq!(
+                ask_with(&asking, missing, || answer, WAIT).await,
+                Gate::Open,
+                "{outcome:?}"
+            );
+            let state = asking.lock().await;
+            assert!(
+                state.pending.is_none() && state.last_denial.is_none(),
+                "{outcome:?}"
+            );
+        }
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn a_permission_granted_meanwhile_needs_no_dialog() {
+        let asking = tokio::sync::Mutex::new(Asking::default());
+        for state in [Some(true), None] {
+            let gate = ask_with(&asking, || async move { state }, no_request, WAIT).await;
+            assert_eq!(gate, Gate::Open, "{state:?}");
+        }
     }
 }

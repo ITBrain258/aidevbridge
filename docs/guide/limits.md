@@ -27,9 +27,9 @@
   There is no ssh-agent on Android. On a phone the app shows one terminal at a
   time. A Google Play version will follow after a closed test.
 - **Android 17 and the local network:** the app asks for **Nearby devices** only
-  for hosts it recognizes as local: private IPv4 and IPv6 addresses, link-local
-  and multicast addresses, names ending in `.local` and names that resolve to
-  such an address. Tailscale addresses (`100.64.0.0/10`, `fd7a:115c:a1e0::/48`)
+  for hosts it recognizes as local: private IPv4 and IPv6 addresses,
+  link-local, multicast and broadcast addresses, names ending in `.local` and
+  names that resolve to such an address. Tailscale addresses (`100.64.0.0/10`, `fd7a:115c:a1e0::/48`)
   and loopback don't count. A host on your Wi-Fi with a public IPv6 address gets
   no prompt; until you allow Nearby devices in Android's settings, connecting to
   it times out. If you declined and a connection to a local host fails before the
@@ -80,7 +80,10 @@
   any tmux before 3.3, even with `external`, by wrapping OSC 52 in tmux's
   passthrough sequence (see
   [SECURITY.md](../../SECURITY.md#clipboard-writes-from-programs-when-tmux-passes-them-on)).
-- **`known_hosts`:** plain and hashed host entries (`|1|…`, as written by
+- **`known_hosts`:** the app reads and writes `~/.ssh/known_hosts` only; a
+  host known only from the system-wide file (`/etc/ssh/ssh_known_hosts`,
+  on Windows `%ProgramData%\ssh\ssh_known_hosts`) gets the first-contact
+  prompt. Plain and hashed host entries (`|1|…`, as written by
   `HashKnownHosts yes` or `ssh-keygen -H`) are matched alike: a different key
   of the same type behind a hashed entry is refused as a changed key. As in
   OpenSSH, the key types a host already has in `known_hosts` come first when

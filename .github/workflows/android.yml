@@ -401,6 +401,11 @@ jobs:
             for file in "$dir/changelogs/$code.txt" "$dir/changelogs/default.txt"; do
               if [ -f "$file" ]; then cp "$file" "whatsnew/whatsnew-$locale"; break; fi
             done
+            # scripts/store-changelog.test.mjs requires the file of the
+            # current version; this warns about a tag made without it.
+            if [ ! -f "$dir/changelogs/$code.txt" ]; then
+              echo "::warning::No changelogs/$code.txt for $locale: Google Play shows changelogs/default.txt."
+            fi
           done
           echo "versionCode $code, notes: $(ls whatsnew | tr '\n' ' ')" >> "$GITHUB_STEP_SUMMARY"
       - uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5

@@ -314,9 +314,8 @@ textarea,
    interaktiven Element -- steht bewusst VOR jeder Komponentenregel (die
    Spezifikation selbst verlangt genau diese Reihenfolge). Ersetzt vormals
    lokale Kopien (etwa in Host-Formular, Sitzungsdialog und Seitenleiste),
-   die nur deshalb lokal standen, weil diese globale Fassung erst mit
-   Shell-Task 11 ("main.ts verdrahten") kommen sollte -- siehe deren
-   jeweilige, jetzt entfernte Kommentare. Ohne `.ab-seg-item`
+   die nur deshalb lokal standen, weil diese globale Fassung erst mit dem
+   Verdrahten in `main.ts` kam. Ohne `.ab-seg-item`
    (keine Klasse dieser Anwendung heisst so) und ohne `border-radius:
    inherit`, das einem fokussierten Knopf den Radius seines Elternelements
    gab (UX-Spec §11). Eine EINZIGE Ausnahme lebt weiter unten bei
@@ -328,7 +327,7 @@ textarea,
   outline-offset: 2px;
 }
 
-/* Shell-Task 11 (Spec §4.2/§11.2): `#app` ist das Zwei-Spalten-Grundgeruest
+/* Spec §4.2/§11.2: `#app` ist das Zwei-Spalten-Grundgeruest
    aus dem Mockup (`.app`-Regel dort) -- `#sidebar`/`#grid` fuellen ihre
    Grid-Zelle jeweils ueber das Standard-`stretch`-Verhalten von CSS Grid,
    ohne eigene Hoehenregeln noetig zu haben. Die Breite der Seitenleiste ist
@@ -355,7 +354,7 @@ textarea,
    `.sidebar` (box-shadow: --ab-shadow-card, Spec 7.1) an allen vier Seiten
    beschneiden, denn der Schatten muss ausserhalb der Randbox malen koennen.
    Stattdessen halten `min-width: 0` die Spalte und `min-height: 0` die Zeile
-   von `#app` (Aufgabe 19, Fixrunde 3): ohne Letzteres wuchs die Zeile mit dem
+   von `#app`: ohne Letzteres wuchs die Zeile mit dem
    Inhalt der Liste, `#app { overflow: hidden }` schnitt den Rest ab, und
    `.sb-list` rollte nie. Darunter traegt die Kette schon: `.sidebar` nimmt mit
    `height: 100%` die gestreckte Hoehe, `.sb-list` fuellt als Flex-Kind den
@@ -377,7 +376,7 @@ textarea,
   min-height: 0;
 }
 
-/* Task 12 (`sidebar.toggle`, Ctrl+Shift+B): blendet die Seitenleiste
+/* `sidebar.toggle` (Ctrl+Shift+B) blendet die Seitenleiste
    VOLLSTAENDIG aus. `#sidebar { display: none }` nimmt sie aus dem Boxbaum
    und damit aus dem Raster; `#grid` ist danach das einzige Rasterelement und
    wird per Auto-Platzierung in die ERSTE Spalte gelegt. Darum bleibt hier
@@ -595,10 +594,10 @@ textarea,
 
 /* Erststart (Spec 9): im Raster ein Panel mit zentrierter 440-px-Spalte;
    im "Add host"-Dialog (`--compact`) ohne Panel und ohne Marke/Fusszeile.
-   Ersetzt den Aufbau aus Task 13 (eine Ueberschrift plus gestapelte
+   Ersetzt einen frueheren Aufbau (eine Ueberschrift plus gestapelte
    Abschnitte): die Ueberschrift `.first-run-heading` gibt es nicht mehr --
    im Willkommen traegt der Name sie, im Dialog der Dialogkopf (Spec 13.4).
-   Nachtrag B, Punkt 1 gilt unveraendert weiter: die Regeln hier treffen
+   Weiter gilt: die Regeln hier treffen
    ausschliesslich Elemente, die `first-run.ts` SELBST erzeugt -- bewusst
    KEINE `.first-run-view label`/`input`/`select`-Regel: das eingebettete
    `host-form.ts` (`.first-run-host-form`) traegt seine eigene, bereits
@@ -691,7 +690,7 @@ textarea,
 
 /* Abschnittslabel nach Designsystem §3.2 (`--ab-fs-xs`, 600,
    Grossbuchstaben, `letter-spacing`).
-   Nachtrag C (Befund 6): hier stand zuvor "dieselbe Vorgabe wie
+   Hier stand zuvor "dieselbe Vorgabe wie
    `.sb-head h1`" -- das stimmt NICHT, jene Regel setzt `--ab-fs-sm`. Die
    Gemeinsamkeit ist die Rolle (Abschnittslabel), nicht die Schriftgroesse;
    diese Regel folgt §3.2, `.sb-head h1` weicht eine Stufe nach oben ab. */
@@ -718,7 +717,7 @@ textarea,
   display: none;
 }
 
-/* Gesamtreview M0 (Befund 3): `display` steht nur in der
+/* `display` steht nur in der
    `:not([hidden])`-Regel, dasselbe Muster wie `.tile-lock` oben --
    `first-run.ts` schaltet diese Liste per `hidden`-Attribut (Erfolgspfad in
    `connect()` und `goBack()`), sonst schlaegt die Autorenregel hier die
@@ -910,12 +909,11 @@ textarea,
   align-self: flex-start;
 }
 
-/* Shell-Task 8: Anmeldungsmenue (`src/views/host-form.ts`). Neue Klasse,
+/* Anmeldungsmenue (`src/views/host-form.ts`). Neue Klasse,
    deshalb gleich mit den `--ab-*`-Tokens statt mit den Literalwerten, die
    die aelteren, generischen `label`/`input`/`button`-Regeln weiter unten
-   trugen (die stammen von vor dem Designsystem, Shell-Task 1) -- jene sind
-   mit Shell-Task 11 nachtraeglich ebenfalls auf Tokens umgestellt, siehe
-   dortigen Kommentar. */
+   trugen (die stammen von vor dem Designsystem) -- jene sind
+   nachtraeglich ebenfalls auf Tokens umgestellt. */
 .host-form-view form {
   display: flex;
   flex-direction: column;
@@ -979,7 +977,7 @@ textarea,
   line-height: var(--ab-lh-sm);
 }
 
-/* Shell-Task 9b: Sitzungsdialog (`src/views/session-dialog.ts`). Kein
+/* Sitzungsdialog (`src/views/session-dialog.ts`). Kein
    Mockup deckt diesen Dialog ab (er fiel ohne eigene Aufgabe durch das
    Raster, siehe Kopfkommentar der Datei) -- Aufbau daher an
    `.host-form-view` oben angelehnt, deshalb dieselbe Token-Basis statt
@@ -1013,10 +1011,10 @@ textarea,
   line-height: var(--ab-lh-sm);
 }
 
-/* Shell-Task 9: Seitenleiste (`src/views/sidebar.ts`). Struktur und
+/* Seitenleiste (`src/views/sidebar.ts`). Struktur und
    Klassennamen aus
    docs/specs/2026-07-27-agent-management-shell-mockup.html
-   uebernommen (Aufgabentext: "Vorlage fuer Aufbau und Klassen") --
+   uebernommen (als Vorlage fuer Aufbau und Klassen) --
    Variablenwerte hier gegen die echten `--ab-*`-Tokens oben in dieser
    Datei aufgeloest statt gegen die Kopie im Mockup-<style>-Block. */
 .sidebar {
@@ -1387,8 +1385,7 @@ textarea,
 
 /* Fehlgeschlagen: ein DREIECK -- andere Geometrie, nicht nur andere Farbe,
    damit der Zustand auch ohne Farbwahrnehmung von den Quadraten oben
-   unterscheidbar bleibt (Aufgabentext: "deliberately a different
-   geometry"). */
+   unterscheidbar bleibt. */
 .ind-fail {
   width: 0;
   height: 0;
@@ -1405,7 +1402,7 @@ textarea,
   border-bottom: 8px solid var(--ab-danger);
 }
 
-/* Eingabe gesperrt (Nachtrag B, Punkt 3, Designsystem §8.4): dasselbe
+/* Eingabe gesperrt (Designsystem §8.4): dasselbe
    Dreieck wie `.ind-fail`, andere Farbe -- "fehlgeschlagen" und "Eingabe
    gesperrt" teilen bewusst die Geometrie (beides ist ein Warnsignal, keine
    Erfolgsmeldung), die Randfarbe traegt den Unterschied. 5px/8px aus
@@ -1567,8 +1564,8 @@ textarea,
   transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
 }
 
-/* Nur ein bedienbarer Knopf reagiert auf den Zeiger (Aufgabe 19, Fixrunde
-   3). Als blosses `:hover` (0,2,0) schlug die Regel `button:disabled` (0,1,1):
+/* Nur ein bedienbarer Knopf reagiert auf den Zeiger.
+   Als blosses `:hover` (0,2,0) schlug die Regel `button:disabled` (0,1,1):
    ein deaktiviertes "New session" oder "Reload sessions" hellte beim Zeigen
    auf und bekam die Hover-Flaeche. */
 .host-action-btn:not(:disabled):hover {
@@ -1703,7 +1700,7 @@ textarea,
   overflow-wrap: anywhere;
 }
 
-/* Sessionzeile (Spec 7.4, Nachtrag Task 16): die Zeile bleibt immer volle
+/* Sessionzeile (Spec 7.4): die Zeile bleibt immer volle
    Breite; die zwei Aktionen liegen als Icon-Knoepfe rechts IN der Zeile und
    erscheinen nur bei Auswahl, Fokus oder Hover -- per visibility, damit
    nichts springt. Sie ueberlagern dann das Zustandswort. Bis dahin war die
@@ -1747,7 +1744,7 @@ textarea,
   visibility: visible;
 }
 
-/* Review Runde 1, Befund 2 (gering): ohne Aktionsknoepfe (getrennter Host,
+/* Ohne Aktionsknoepfe (getrennter Host,
    geschlossene Session) blieb `.session-acts` leer, aber diese drei Regeln
    versteckten `.row-meta` trotzdem -- Hover ueber einer solchen Zeile loeschte
    das Zustandswort ("Closed"), ohne etwas an seiner Stelle zu zeigen.
@@ -1759,7 +1756,7 @@ textarea,
   visibility: hidden;
 }
 
-/* Review Runde 1, Befund 1 (wichtig): `.session-acts` ist absolut gesetzt und
+/* `.session-acts` ist absolut gesetzt und
    nimmt `.row-label` deshalb keine Breite weg -- die Ellipse des Namens wurde
    bisher nur gegen `.row-meta` berechnet. Das Zustandswort-Feld haelt hier den
    Platz der zwei 26-px-Knoepfe frei, damit der Sessionname vor ihnen endet
@@ -1824,8 +1821,8 @@ textarea,
   margin-top: var(--ab-space-2);
 }
 
-/* Keine eigene Regel mehr fuer `.host-confirm-btn`/`-danger` (Aufraeumpunkt
-   Aufgabe 14, Abschlussreview Aufgabe 13): seit die Knoepfe additiv das
+/* Keine eigene Regel mehr fuer `.host-confirm-btn`/`-danger`:
+   seit die Knoepfe additiv das
    Knopfsystem tragen (`btn btn--secondary btn--row` bzw.
    `btn btn--danger btn--row`, `sidebar.ts`), ueberschreiben dessen Regeln
    jede Deklaration hier unbedingt -- gleiche Spezifitaet, spaeter in der
@@ -1856,7 +1853,7 @@ textarea,
 .host-notice .credential-field {
   color: var(--ab-text-secondary);
 }
-/* Passphrase-Feld in der Hinweisleiste (Abschlussreview, Important 1) --
+/* Passphrase-Feld in der Hinweisleiste --
    erscheint nur bei einem fehlgeschlagenen Host mit gespeichertem
    Schluesselpfad, siehe `sidebar.ts`s `buildHostNotice`. Label ueber dem
    Feld statt daneben: die Seitenleiste ist schmal, eine zweispaltige Zeile
@@ -1896,8 +1893,8 @@ textarea,
   margin-top: var(--ab-space-2);
 }
 /* `<button>`, nicht `<a>` wie im Mockup -- siehe Kopfkommentar von
-   `sidebar.ts`. Keine eigene Regel mehr fuer die Grundform (Aufraeumpunkt
-   Aufgabe 14): `.host-notice-link` traegt additiv das Knopfsystem
+   `sidebar.ts`. Keine eigene Regel mehr fuer die Grundform:
+   `.host-notice-link` traegt additiv das Knopfsystem
    (`btn btn--secondary btn--row` bzw. `btn btn--text btn--row`,
    `sidebar.ts`), dessen Regeln jede Deklaration hier unbedingt ueberschrieben
    haetten -- der Klassenname bleibt am Element stehen (Vertrag der Tests),
@@ -2014,7 +2011,7 @@ textarea,
   border: 0;
 }
 
-/* Shell-Task 10: Kachelraster (`src/views/grid.ts`). Aufbau und Klassennamen
+/* Kachelraster (`src/views/grid.ts`). Aufbau und Klassennamen
    aus
    docs/specs/2026-07-27-agent-management-shell-mockup.html
    uebernommen, Werte gegen die echten `--ab-*`-Tokens oben aufgeloest --
@@ -2100,7 +2097,7 @@ kbd {
   width: 100%;
 }
 
-/* 600 statt 440 px seit Task 16, Punkt D: die fuenf Tastenhinweise passen
+/* 600 statt 440 px: die fuenf Tastenhinweise passen
    damit in EINE Reihe, statt in eine zweite umzubrechen. */
 .grid-empty-card {
   flex: none;
@@ -2148,7 +2145,7 @@ kbd {
 }
 
 /* ===== Knopfsystem (Spec 11.2) =============================================
-   EINE Grundform, vier Rollen als Zusatzklasse -- die Aufgaben 11 bis 13
+   EINE Grundform, vier Rollen als Zusatzklasse -- die uebrigen Ansichten
    benutzen dieselben Klassen mit. Die generische `button:disabled`-Regel
    weiter unten daempft nur noch Cursor und Textfarbe, keine Deckkraft mehr --
    `.btn:disabled` braucht deshalb keine eigene Deckkraft mehr, um das zu
@@ -2260,7 +2257,7 @@ kbd {
   line-height: var(--ab-lh-xs);
 }
 
-/* Die zwei Sessionaktionen (Nachtrag Task 16, Punkt A): quadratisch,
+/* Die zwei Sessionaktionen: quadratisch,
    26x26 -- so hoch wie die Sessionzeile, damit sie in ihr aufgehen. Der
    Platz steht HIER und nicht bei `.session-acts` weiter oben: `padding: 0`
    muss `.btn--text`/`.btn--row` schlagen, und die haben dieselbe
@@ -2363,7 +2360,7 @@ kbd {
   background-color: var(--ab-bg-active);
 }
 
-/* Nachtrag B, Punkt 3 (Designsystem §8.3, "Kanaltrennung"): der Kopf gehoert
+/* Designsystem §8.3 ("Kanaltrennung"): der Kopf gehoert
    AUSSCHLIESSLICH dem Zustand, die Kontur (oben) AUSSCHLIESSLICH dem Fokus --
    ein gesperrter Zustand faerbt den Kopf deshalb IMMER um, auch wenn dieselbe
    Kachel zugleich fokussiert ist. Gleiche Spezifitaet wie
@@ -2754,7 +2751,7 @@ kbd {
    nicht kennt, der Abstand sitzt deshalb als Aussenabstand am Container.
 
    2 statt der in Spec 8.3 genannten 4 px: die Messung am Fenster (2026-09-07,
-   Tor 17.1) ergab im Vollbild 233 gegenüber 237 Spalten, also vier statt der
+   Tor 17.1) ergab im Vollbild 233 gegenueber 237 Spalten, also vier statt der
    erlaubten drei. Spec 8.5 schreibt fuer diesen Fall genau diese Kuerzung vor
    ("zuerst Innen 4 -> 2, dann Luecke 8 -> 6"), und das Spaltenbudget ist nach
    Spec 19 nicht verhandelbar. Die Ecke des Terminals liegt damit bei (2, 2)
@@ -3059,13 +3056,12 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
    verstreut; jede Fundstelle verweist hierher.
    ====================================================================== */
 
-/* TOFU-Rueckfrage (Task 13, Nachtrag) -- `#host-key-prompt-root` liegt
+/* TOFU-Rueckfrage -- `#host-key-prompt-root` liegt
    ausserhalb von `#app` (siehe index.html), damit sie ueber JEDER Ansicht
    erscheinen kann. `position: fixed` deckt das gesamte Fenster ab
-   (Modal-Charakter): die Rueckfrage blockiert die Verbindung tatsaechlich
-   (Eigenschaft 2 des TOFU-Nachtrags), das Ueberlagern macht das auch
-   visuell unmissverstaendlich. Dasselbe Muster traegt `#dialog-root`
-   (Shell-Task 11: Add/Edit host, neue Session) -- geteilt bleibt alles
+   (Modal-Charakter): die Rueckfrage blockiert die Verbindung tatsaechlich,
+   das Ueberlagern macht das auch visuell unmissverstaendlich. Dasselbe Muster traegt `#dialog-root`
+   (Add/Edit host, neue Session) -- geteilt bleibt alles
    AUSSER der Ebene, siehe die Stapelleiter oben. */
 #host-key-prompt-root:not(:empty),
 #dialog-root:not(:empty) {
@@ -3327,7 +3323,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   margin-top: var(--ab-space-6);
 }
 
-/* Globaler Fehlerhinweis (Shell-Task 11: `main.ts::mountGlobalErrorBanner`)
+/* Globaler Fehlerhinweis (`main.ts::mountGlobalErrorBanner`)
    fuer `GridOptions.onTerminalError` und fehlgeschlagene
    `create_session`-Aufrufe -- beide sind nicht kachel- oder host-spezifisch
    adressierbar. */
@@ -3361,8 +3357,8 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   line-height: var(--ab-lh-sm);
   box-shadow: var(--ab-shadow-card);
 }
-/* Nachtrag A (zweiter Fund, selbe Ursache wie
-   `.host-key-persist-failure-banner` weiter unten): `hidden` ist eine
+/* Dieselbe Ursache wie bei
+   `.host-key-persist-failure-banner` weiter unten: `hidden` ist eine
    User-Agent-Regel, `display: flex` in der Basisregel oben eine
    Autoren-Regel -- Autoren-Herkunft gewinnt gegen UA-Herkunft IMMER, auch
    bei niedrigerer Spezifitaet. Ungated haette dieser Banner denselben Fehler
@@ -3382,7 +3378,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   color: var(--ab-text-primary);
 }
 
-/* Persistenzfehler-Hinweis (`host-key-prompt.ts`, Review-Befund 3) --
+/* Persistenzfehler-Hinweis (`host-key-prompt.ts`) --
    frueher komplett inline gesetzt, inklusive zweier
    hardkodierter Farben (#c0392b/#ffffff) von vor dem Designsystem und eines
    inline `display: flex`, das `hidden` unwirksam machte: eine Autoren-Regel
@@ -3431,8 +3427,8 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
    `.ab-row` und `.row-label` der Seitenleiste (dieselbe Bauform: Dreieck,
    Beschriftung, Zusatz rechts) statt eigener Werte. Das Dreieck NICHT: die
    einzige weitere `.chev`-Regel dieser Datei ist `.row-host .chev` und damit
-   auf die Hostzeile eingeschraenkt (Review Runde 2: der Kommentar behauptete
-   hier vorher eine Vererbung, die es nicht gibt). Seine Groesse kommt seit
+   auf die Hostzeile eingeschraenkt; eine Vererbung, wie sie hier frueher
+   stand, gibt es nicht. Seine Groesse kommt seit
    UI v2 aus `.icon-box` -- dasselbe wie an der Hostzeile --, `.dir-row .chev`
    weiter unten setzt deshalb nur noch die Farbe. Sonst steht hier nur, was
    der Baum eigenverantwortlich traegt: die Einrueckung je Ebene und die
@@ -3467,8 +3463,8 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
       Kaestchen schon immer; Chromium malt eine Checkbox mit vom Autor
       gesetzter Flaeche/Rahmen nicht mehr nativ, sondern als leeres
       Rechteck.
-   2. `.session-dialog-view input` (Shell-Task 9b) -- erst seit der
-      Verzeichnisauswahl-Task 4 im Spiel, weil der Baum seitdem INNERHALB
+   2. `.session-dialog-view input` -- erst seit der
+      Verzeichnisauswahl im Spiel, weil der Baum seitdem INNERHALB
       dieser Ansicht haengt. Sie stellt zusaetzlich `height` auf die
       Bedienelementhoehe und macht daraus ein breites Feld.
 
@@ -3490,7 +3486,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
    `color-scheme: dark` auf `:root` bereits dunkel -- dieselbe Zeile, die
    die nativen `<select>`-Popups dunkel haelt.
 
-   KEINE Zusicherung dazu, und das ist gemessen statt vermutet (Fixrunde 2):
+   KEINE Zusicherung dazu, und das ist gemessen statt vermutet:
    jsdom gibt `revert` woertlich zurueck (`border` als "revert revert
    revert"), loest `var()` nicht auf -- und kaskadiert am NACHBARFELD
    zwischen genau diesen beiden Urheberregeln falsch: `input[name=cwd]`
@@ -3498,7 +3494,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
    spezifischeren Dialogregel. Ein gruener Test haette hier nur behauptet,
    jsdom sei einverstanden. Gehoert in die Sichtpruefung.
 
-   NACHTRAG UI v2 (Aufgabe 13): BEIDE Urheber erreichen das Kaestchen nicht
+   Seit UI v2: BEIDE Urheber erreichen das Kaestchen nicht
    mehr -- die generische Basis nimmt Kaestchen und Radioknoepfe per `:not()`
    ausdruecklich aus, und `.session-dialog-view input` gibt es nicht mehr
    (die Felder kommen jetzt alle aus jener Basis). Diese Ruecknahme bleibt
@@ -4220,7 +4216,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   color: var(--ab-text-muted);
 }
 
-/* ===== Seitenleiste v2, Teil 1 (Aufgabe 8): neue Elemente ===== */
+/* ===== Seitenleiste v2: neue Elemente ===== */
 .sb-version {
   padding-top: var(--ab-space-4);
   font-size: var(--ab-fs-xs);
@@ -4252,7 +4248,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   font-weight: var(--ab-fw-bold);
 }
 
-/* Innenabstand 6 statt 8 px seit Task 16, Punkt B: jedes Pixel, das die
+/* Innenabstand 6 statt 8 px: jedes Pixel, das die
    Pille nicht braucht, gehoert dem Hostnamen daneben. */
 .state-pill {
   display: inline-flex;

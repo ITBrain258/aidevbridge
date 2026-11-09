@@ -36,11 +36,27 @@ jobs:
       - uses: dtolnay/rust-toolchain@59a558e8c538bf4a23bbffa19e5a278b703f2920 # 1.97.1
         with:
           components: clippy, rustfmt
+      # Usually 25 to 45 s. Twice apt hung here for about 25 min and the job
+      # ran into its limit (CHANGELOG, after 0.3.0): each try now has its own
+      # limit, apt gives up on a stalled mirror after 30 s and retries a
+      # download itself, and a failed or hung try runs again, twice at most.
+      # Even three tries that each run out every limit end within the step.
       - name: Install Linux dependencies for Tauri
         if: matrix.name == 'ubuntu'
+        timeout-minutes: 20
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf openssh-server tmux
+          set -uo pipefail
+          apt_opts=(-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30)
+          for attempt in 1 2 3; do
+            if timeout -k 15 90 sudo apt-get "${apt_opts[@]}" update &&
+              timeout -k 15 180 sudo apt-get "${apt_opts[@]}" install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf openssh-server tmux; then
+              exit 0
+            fi
+            echo "::warning::apt try $attempt failed or ran out of time"
+            timeout -k 15 60 sudo dpkg --configure -a || true
+            if [ "$attempt" -lt 3 ]; then sleep 10; fi
+          done
+          exit 1
       # The live tests (CONTRIBUTING.md) run against an SSH server on the
       # runner itself, with a key made for this run and a tmux socket of its
       # own; the other runners skip them.

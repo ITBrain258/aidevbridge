@@ -66,9 +66,11 @@ records with a registry source and never matches advisories against a path
 dependency such as the vendored russh in `vendor/russh`; a third job runs
 `scripts/check-vendored-advisories.mjs` for those, against GitHub's advisory
 database and the upstream repository's own advisories
-([SECURITY.md](SECURITY.md)). The `cargo audit` job ignores RUSTSEC-2023-0071 (`rsa`), which has no
-fixed version; SECURITY.md explains why the app accepts it, and also lists
-the warnings `cargo audit` prints without failing.
+([SECURITY.md](SECURITY.md)). The `cargo audit` job ignores
+RUSTSEC-2023-0071 (`rsa`): moving to its fix, `rsa` 0.10.0, needs newer
+`rsa`, `ssh-key` and `pkcs1` pins in the vendored russh and a changed
+`rsa` line in the app. SECURITY.md explains why the app accepts it until then, and also
+lists the warnings `cargo audit` prints without failing.
 
 `.github/workflows/vendored.yml` runs whenever `vendor/russh`, `Cargo.lock`,
 `Cargo.toml`, `src-tauri/Cargo.toml` or `rust-toolchain.toml` change, and when
@@ -168,7 +170,8 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
 
 1. `npm run bump <version>`, a CHANGELOG entry, the store text
    `fastlane/metadata/android/{de-DE,en-US}/changelogs/<versionCode>.txt`
-   (without it Google Play shows `default.txt`, "first Android version") and the
+   (without it Google Play shows `default.txt`, "first Android version", and
+   `scripts/store-changelog.test.mjs` fails) and the
    header of `docs/stand.md`; for a new minor version also the supported
    versions in `SECURITY.md`. If the interface changed, render the pictures
    again ([Images](docs/guide/building.md#images)) in the same pull request.
@@ -187,7 +190,9 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    head of the release pull request: they make the release builds without
    publishing them. The required checks only warn about own files that are not
    rebound and don't check the product version in the selections; these runs
-   are the last check before the tag. From then on, merge nothing that changes a
+   are the last check before the tag. Start the audit workflow by hand as well
+   (**Audit → Run workflow**): its weekly run may be days old, and it must be
+   green. From then on, merge nothing that changes a
    bound file, such as `android.yml` or an Actions update from Dependabot,
    until the tag is pushed.
 4. Check that `package.json` on the merge commit carries the new version, then
@@ -207,7 +212,9 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
 
 The user interface, the README, the guides under `docs/guide/` and the files
 for contributors are in English. The changelog, the other project documents
-under `docs/` and code comments are in German; code comments write ä, ö, ü and ß as ae, oe, ue and ss.
+under `docs/` and code comments are in German. Code comments, also in CSS
+(`src/source-hygiene.test.ts` checks `src/`), and the changelog write ä, ö,
+ü and ß as ae, oe, ue and ss.
 Identifiers are English. You may write issues and pull requests in English or
 German.
 

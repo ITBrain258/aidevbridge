@@ -6,7 +6,8 @@
 // Repositorys nirgends nachschlagen kann. Oeffentliche Verweise bleiben
 // erlaubt, ausdruecklich auch "Befund N der Bewertung 2026-09-04", die die
 // MVP-Spec zitiert. Das Wort "Befund" allein ist ausserdem ein Fachwort der
-// Vorabpruefung. Testdateien sind ausgenommen.
+// Vorabpruefung. Geprueft werden die TypeScript- und CSS-Dateien unter `src/`;
+// Testdateien sind ausgenommen.
 
 // `node:fs`/`node:path`/`process` sind Node-Globals ohne Typdeklaration in
 // diesem browserorientierten Projekt -- dasselbe Muster wie in
@@ -19,7 +20,8 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 const UMLAUT = /[äöüÄÖÜß]/;
-const HISTORY_MARKER = /Shell-Task|\bTask \d+|Fix-?[Rr]unde|Gutachten|Paket \d+|Review-Befund/;
+const HISTORY_MARKER =
+  /Shell-Task|\bTask \d+|Fix-?[Rr]unde|Gutachten|Paket \d+|Review-Befund|Aufgaben? \d+|Aufgabentext|Review[- ]Runde|Gesamtreview|Abschlussreview|Nachtrag [A-C]\b/;
 /** Oeffentlicher Spec-Verweis, der vor der Markerpruefung herausfaellt. */
 const SPEC_FINDING = /Befund \d+ der Bewertung/g;
 
@@ -49,6 +51,16 @@ function comments(fileName: string, text: string): Array<{ line: number; text: s
   return found.sort((a, b) => a.line - b.line);
 }
 
+/** Die Kommentare einer CSS-Datei mit ihrer Zeile. CSS kennt nur
+ * Blockkommentare; die Datei traegt keine Strings mit deren Zeichen, darum
+ * genuegt ein Muster. */
+function cssComments(text: string): Array<{ line: number; text: string }> {
+  return Array.from(text.matchAll(/\/\*[\s\S]*?\*\//g), (match) => ({
+    line: text.slice(0, match.index).split("\n").length,
+    text: match[0],
+  }));
+}
+
 /** Was an einem Kommentar zu beanstanden ist, mit der Zeile innerhalb des
  * Kommentars (0 fuer die erste). */
 function problems(comment: string): Array<{ offset: number; text: string }> {
@@ -68,7 +80,7 @@ function productionSources(): Array<{ file: string; text: string }> {
   // @ts-expect-error 'process' ist ein Node-Global, siehe Kommentar oben
   const root: string = path.resolve(process.cwd(), "src");
   return (readdirSync(root, { recursive: true }) as string[])
-    .filter((file) => file.endsWith(".ts") && !file.endsWith(".test.ts"))
+    .filter((file) => (file.endsWith(".ts") && !file.endsWith(".test.ts")) || file.endsWith(".css"))
     .sort()
     .map((file) => ({ file, text: readFileSync(path.join(root, file), "utf-8") as string }));
 }
@@ -82,6 +94,13 @@ describe("Kommentarhygiene der Produktionsquellen", () => {
     ["// Gutachten zu diesem Schritt", 'Marker "Gutachten"'],
     ["// Zusage aus Paket 1", 'Marker "Paket 1"'],
     [" * Review-Befund M-1", 'Marker "Review-Befund"'],
+    ["/* von #app (Aufgabe 19) */", 'Marker "Aufgabe 19"'],
+    ["/* die Aufgaben 11 bis 13 */", 'Marker "Aufgaben 11"'],
+    ['/* (Aufgabentext: "x") */', 'Marker "Aufgabentext"'],
+    ["/* Review Runde 1, Befund 2 */", 'Marker "Review Runde"'],
+    ["// Gesamtreview M0", 'Marker "Gesamtreview"'],
+    ["// Abschlussreview, Important 1", 'Marker "Abschlussreview"'],
+    ["/* Nachtrag B, Punkt 3 */", 'Marker "Nachtrag B"'],
     ["// ein bloßes String(error)", 'Umlaut "ß"'],
     ["// Schnellöffnen", 'Umlaut "ö"'],
   ])("beanstandet %s", (comment, expected) => {
@@ -101,6 +120,14 @@ describe("Kommentarhygiene der Produktionsquellen", () => {
     expect(problems("/** Kopf\n * Paket 2 */")).toEqual([{ offset: 1, text: 'Marker "Paket 2"' }]);
   });
 
+  it("findet die Kommentare einer CSS-Datei mit ihrer Zeile", () => {
+    const text = ".a { color: red; } /* Task 1 */\n.b {\n  /* zwei\n     Zeilen */\n}\n";
+    expect(cssComments(text)).toEqual([
+      { line: 1, text: "/* Task 1 */" },
+      { line: 3, text: "/* zwei\n     Zeilen */" },
+    ]);
+  });
+
   it("findet Kommentare hinter Code, aber nicht in Strings", () => {
     const text = 'const a = "// Task 1"; // Schnellöffnen\nconst b = /\\/\\/ Paket 2/;\n';
     expect(comments("probe.ts", text)).toEqual([{ line: 1, text: "// Schnellöffnen" }]);
@@ -110,11 +137,13 @@ describe("Kommentarhygiene der Produktionsquellen", () => {
 
   it("findet die Produktionsquellen", () => {
     expect(sources.map((source) => source.file)).toContain("main.ts");
+    expect(sources.map((source) => source.file)).toContain("styles.css");
     expect(sources.some((source) => source.file.endsWith(".test.ts"))).toBe(false);
   });
 
   it.each(sources)("$file", ({ file, text }) => {
-    const found = comments(file, text).flatMap((comment) =>
+    const all = file.endsWith(".css") ? cssComments(text) : comments(file, text);
+    const found = all.flatMap((comment) =>
       problems(comment.text).map((problem) => `${file}:${comment.line + problem.offset}: ${problem.text}`),
     );
     expect(found).toEqual([]);
