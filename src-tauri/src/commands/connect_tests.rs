@@ -655,6 +655,9 @@ async fn a_denied_local_network_keeps_errors_after_the_host_key_arrived() {
         error.message,
         "The host key wasn't confirmed in time, so aidevbridge didn't connect."
     );
+    // Der Host war erreicht: Fuer ihn fragt `prepare` bis zum Ende der App
+    // nicht mehr.
+    assert!(crate::local_network::was_reached("127.0.0.1", server.port));
 }
 
 /// Kommt die Verbindung gar nicht zustande, nennt die Meldung bei
@@ -687,6 +690,11 @@ async fn a_denied_local_network_explains_a_host_that_was_not_reached() {
     .unwrap_err();
     assert_eq!(error.code, crate::local_network::DENIED_CODE);
     assert_eq!(error.message, crate::local_network::DENIED_MESSAGE);
+    // Nicht erreicht: Der naechste Versuch fragt wieder nach der Berechtigung.
+    assert!(!crate::local_network::was_reached(
+        "aidevbridge-unreachable.invalid",
+        22
+    ));
 }
 
 /// Weist der Host den TCP-Aufbau ab, hat er geantwortet: Der Weg war offen,
@@ -719,6 +727,7 @@ async fn a_denied_local_network_keeps_a_refused_connection() {
     .unwrap_err();
     assert_eq!(error.code, "host_unreachable");
     assert_ne!(error.message, crate::local_network::DENIED_MESSAGE);
+    assert!(crate::local_network::was_reached("127.0.0.1", port));
 }
 
 /// Stand die TCP-Verbindung und brach der Host sie vor dem Hostschluessel
@@ -755,6 +764,7 @@ async fn a_denied_local_network_keeps_a_connection_the_host_closed() {
     server.abort();
     assert_ne!(error.code, crate::local_network::DENIED_CODE);
     assert_ne!(error.message, crate::local_network::DENIED_MESSAGE);
+    assert!(crate::local_network::was_reached("127.0.0.1", port));
 }
 
 /// Bestaetigt jede Rueckfrage sofort, wie ein Nutzer, der dem Schluessel

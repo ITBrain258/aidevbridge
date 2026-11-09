@@ -1075,3 +1075,55 @@ async fn a_failed_attempt_starts_the_next_address_at_once() {
     drop(stream);
     let _ = timeout(TEST_END, listener.accept()).await.unwrap().unwrap();
 }
+
+/// Scheitern alle Adressen, gilt der Fehler der letzten Adresse in der
+/// Reihenfolge des Resolvers, nicht der, der zuletzt kam: Die Pruefung fuers
+/// lokale Netz unter Android liest ihn (`local_network::host_answered`). Hier
+/// laeuft die erste Adresse ins Leere und scheitert erst nach der zweiten, die
+/// der Host abweist (Review vom 09.11.).
+#[tokio::test]
+async fn the_error_of_the_last_address_wins_when_all_addresses_fail() {
+    let (listener, mut spec) = listener().await;
+    drop(listener);
+    spec.hostname = "both-fail.fixture.invalid".into();
+    let silent: SocketAddr = "192.0.2.1:22".parse().unwrap();
+    let refusing: SocketAddr = "192.0.2.2:22".parse().unwrap();
+    let control = ConnectControl::new(ConnectLimits {
+        total: TEST_END,
+        network: TEST_END,
+        ..limits()
+    });
+    let pool = BlockingPool::new(1, 1);
+    let order = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let seen = order.clone();
+    let error = control
+        .wait_network(resolve_and_connect(
+            &spec,
+            &control,
+            &pool,
+            move |_, _| Ok(vec![silent, refusing]),
+            move |address| {
+                let seen = seen.clone();
+                async move {
+                    let kind = if address == silent {
+                        tokio::time::sleep(CONNECTION_ATTEMPT_DELAY * 3).await;
+                        std::io::ErrorKind::TimedOut
+                    } else {
+                        std::io::ErrorKind::ConnectionRefused
+                    };
+                    seen.lock().unwrap().push(address);
+                    Err::<TcpStream, _>(std::io::Error::from(kind))
+                }
+            },
+        ))
+        .await
+        .unwrap()
+        .unwrap_err();
+    assert_eq!(*order.lock().unwrap(), vec![refusing, silent]);
+    let kind = error
+        .chain()
+        .find_map(|cause| cause.downcast_ref::<std::io::Error>())
+        .map(std::io::Error::kind);
+    assert_eq!(kind, Some(std::io::ErrorKind::ConnectionRefused));
+    assert!(crate::local_network::host_answered(&error));
+}
