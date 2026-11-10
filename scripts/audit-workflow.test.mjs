@@ -11,7 +11,8 @@ import { compareVersions } from './check-vendored-advisories.mjs';
 // deckt spaeter nichts oder das Falsche. Dieser Test bindet jede Ausnahme an
 // ihren Grund in Cargo.lock: Sie darf nur stehen, solange das betroffene Paket
 // dort in einer betroffenen Version eingetragen ist. Er liest beide Dateien nur
-// als Text, ohne TOML- oder YAML-Bibliothek. CRLF zaehlt wie LF.
+// als Text, ohne TOML- oder YAML-Bibliothek. CRLF zaehlt wie LF, ein mit `\`
+// ueber mehrere Zeilen fortgesetzter Befehl wie eine Zeile.
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const WORKFLOW = '.github/workflows/audit.yml';
@@ -35,6 +36,29 @@ const lines = text => text.replaceAll('\r\n', '\n').split('\n');
 /** @param {string} line */
 const stripComment = line => (/^((?:[^#"']|"[^"]*"|'[^']*')*)/.exec(line) ?? ['', ''])[1];
 
+// Die Zeilen ohne Kommentare. Eine Zeile, die mit `\` endet, setzt die Shell
+// in der naechsten fort; beide zaehlen hier als eine. Sonst verloere ein
+// umbrochener Befehl die Flags seiner Folgezeilen. Ein `\` in einem Kommentar
+// setzt nichts fort.
+/**
+ * @param {string} text
+ * @returns {string[]}
+ */
+function logicalLines(text) {
+  /** @type {string[]} */
+  const joined = [];
+  let open = false;
+  for (const raw of lines(text)) {
+    const line = stripComment(raw);
+    const continues = raw.endsWith('\\') && line.endsWith('\\');
+    const part = continues ? line.slice(0, -1).trimEnd() : line;
+    if (open) joined[joined.length - 1] += ` ${part.trim()}`;
+    else joined.push(part);
+    open = continues;
+  }
+  return joined;
+}
+
 // Die eine Zeile `cargo audit ...` des Workflows: ihre Ausnahmen (--ignore)
 // und was sie scheitern laesst (--deny). `cargo install cargo-audit` und die
 // Kommentare, die den Befehl nennen, zaehlen nicht.
@@ -43,7 +67,7 @@ const stripComment = line => (/^((?:[^#"']|"[^"]*"|'[^']*')*)/.exec(line) ?? [''
  * @returns {{ ignored: string[], denied: string[], errors: string[] }}
  */
 function auditCommand(text) {
-  const commands = lines(text).map(stripComment).filter(line => /\bcargo audit\b/.test(line));
+  const commands = logicalLines(text).filter(line => /\bcargo audit\b/.test(line));
   if (commands.length !== 1) {
     return { ignored: [], denied: [], errors: [`${WORKFLOW}: expected exactly 1 "cargo audit" line, found ${commands.length}`] };
   }
@@ -120,22 +144,28 @@ test('every advisory that audit.yml ignores still has its reason in Cargo.lock',
 
 // npm: die Laufzeitpakete bei jeder Meldung, dazu alle Pakete ab der Stufe
 // high, denn die Entwicklungspakete (Vite, rolldown, @tauri-apps/cli) bauen,
-// was ausgeliefert wird. Beide ohne Installation, nur aus package-lock.json.
-test('audit.yml audits the runtime packages at every level and all packages from high on', () => {
-  const commands = lines(read(WORKFLOW)).map(stripComment).filter(line => /\bnpm audit\b/.test(line)).map(line => line.trim().split(/\s+/));
-  assert.equal(commands.length, 2, `expected two "npm audit" lines in ${WORKFLOW}`);
-  for (const words of commands) assert.ok(words.includes('--package-lock-only'), words.join(' '));
+// was ausgeliefert wird. Beide ohne Installation, nur aus package-lock.json:
+// An --package-lock-only sind die beiden Zeilen zu erkennen. Ein weiterer
+// Aufruf wie `npm audit signatures` prueft etwas anderes und zaehlt nicht.
+/** @param {string} text */
+function assertNpmAudits(text) {
+  const commands = logicalLines(text).filter(line => /\bnpm audit\b/.test(line)).map(line => line.trim().split(/\s+/)).filter(words => words.includes('--package-lock-only'));
+  assert.equal(commands.length, 2, `expected two "npm audit --package-lock-only" lines in ${WORKFLOW}`);
   const runtime = commands.filter(words => words.includes('--omit=dev')), all = commands.filter(words => !words.some(word => word.startsWith('--omit')));
-  assert.equal(runtime.length, 1);
+  assert.equal(runtime.length, 1, 'expected one audit of the runtime packages (--omit=dev)');
   assert.ok(!runtime[0].some(word => word.startsWith('--audit-level')), 'every advisory for a runtime package must fail the audit');
-  assert.equal(all.length, 1);
+  assert.equal(all.length, 1, 'expected one audit of all packages');
   assert.ok(all[0].includes('--audit-level=high'), 'the audit of all packages fails from high on');
+}
+
+test('audit.yml audits the runtime packages at every level and all packages from high on', () => {
+  assertNpmAudits(read(WORKFLOW));
 });
 
 // Die Selbsttests zeigen mit synthetischem Text, dass der Abgleich beisst.
 const workflow = (command ='cargo audit --deny unsound --ignore RUSTSEC-2023-0071 --ignore RUSTSEC-2024-0429') =>
   `name: Audit\njobs:\n  rust:\n    steps:\n      - run: cargo install cargo-audit --locked --version 0.22.2\n      # RUSTSEC-2023-0071: ein lokales \`cargo audit\` meldet sie weiter.\n      - run: ${command}\n`;
-const lock = ({ rsa = ['0.10.0-rc.18'], glib = ['0.18.5'] } = {}) => [
+const lock =({ rsa = ['0.10.0-rc.18'], glib = ['0.18.5'] } = {}) => [
   '# This file is automatically @generated by Cargo.\nversion = 4\n',
   '[[package]]\nname = "aidevbridge"\nversion = "0.3.1"\ndependencies = [\n "rsa",\n]\n',
   ...rsa.map(version => `[[package]]\nname = "rsa"\nversion = "${version}"\nsource = "registry+https://github.com/rust-lang/crates.io-index"\n`),
@@ -151,6 +181,24 @@ test('the check passes while every ignored advisory still affects Cargo.lock, wi
   assert.deepEqual(deviations(workflow('cargo audit --ignore=RUSTSEC-2024-0429 -D warnings --ignore RUSTSEC-2023-0071'), lock(), REASONS), []);
   // Eine betroffene Version genuegt, wenn zwei nebeneinander stehen.
   assert.deepEqual(deviations(workflow(), lock({ glib: ['0.18.5', '0.21.0'] }), REASONS), []);
+});
+
+test('a cargo audit line continued with a backslash keeps the flags of its following lines', () => {
+  const continued = '|\n          cargo audit --deny unsound \\\n            --ignore RUSTSEC-2023-0071 \\\n            --ignore RUSTSEC-2024-0429';
+  for (const eol of ['\n', '\r\n']) {
+    assert.deepEqual(deviations(workflow(continued).replaceAll('\n', eol), lock().replaceAll('\n', eol), REASONS), []);
+  }
+  assert.deepEqual(auditCommand(workflow(continued)), { ignored: ['RUSTSEC-2023-0071', 'RUSTSEC-2024-0429'], denied: ['unsound'], errors: [] });
+  // Eine Ausnahme ohne Grund in einer Folgezeile faellt auf, ein fehlendes
+  // --deny ebenso.
+  assert.deepEqual(deviations(workflow(`${continued} \\\n            --ignore RUSTSEC-2026-9999`), lock(), REASONS), [
+    `${WORKFLOW}: --ignore RUSTSEC-2026-9999 has no reason in ${SELF}`,
+  ]);
+  assert.deepEqual(deviations(workflow('|\n          cargo audit --ignore RUSTSEC-2023-0071 \\\n            --ignore RUSTSEC-2024-0429'), lock(), REASONS), [
+    `${WORKFLOW}: cargo audit lacks --deny unsound, so a new unsound notice would pass as a warning`,
+  ]);
+  // Ein `\` in einem Kommentar setzt nichts fort: Die naechste Zeile ist ein eigener Befehl.
+  assert.deepEqual(logicalLines('a \\\n  b\nc # d \\\ne').map(line => line.trim()), ['a b', 'c', 'e']);
 });
 
 test('the check reports an ignore whose package is fixed or gone', () => {
@@ -186,4 +234,24 @@ test('the check reports a cargo audit line that lets unsound notices pass, or no
   assert.deepEqual(deviations(workflow('cargo deny check'), lock(), REASONS), [
     `${WORKFLOW}: expected exactly 1 "cargo audit" line, found 0`,
   ]);
+});
+
+/** @param {string[]} commands */
+const npmWorkflow = (...commands) => `name: Audit\njobs:\n  npm:\n    steps:\n${commands.map(command => `      - run: ${command}\n`).join('')}`;
+const RUNTIME = 'npm audit --package-lock-only --omit=dev', ALL = 'npm audit --package-lock-only --audit-level=high';
+
+test('the npm check finds its two lines next to another npm audit call and on continued lines', () => {
+  for (const eol of ['\n', '\r\n']) {
+    assertNpmAudits(npmWorkflow(RUNTIME, ALL).replaceAll('\n', eol));
+    assertNpmAudits(npmWorkflow(RUNTIME, 'npm audit signatures', ALL).replaceAll('\n', eol));
+    assertNpmAudits(npmWorkflow(RUNTIME, '|\n          npm audit --package-lock-only \\\n            --audit-level=high').replaceAll('\n', eol));
+  }
+  // Ohne --package-lock-only ist es keine der beiden Zeilen mehr.
+  assert.throws(() => assertNpmAudits(npmWorkflow('npm audit --omit=dev', ALL)), /expected two "npm audit --package-lock-only" lines/);
+  assert.throws(() => assertNpmAudits(npmWorkflow(RUNTIME, 'npm audit signatures')), /expected two "npm audit --package-lock-only" lines/);
+  assert.throws(() => assertNpmAudits(npmWorkflow(RUNTIME, ALL, 'npm audit --package-lock-only --audit-level=critical')), /expected two "npm audit --package-lock-only" lines/);
+  assert.throws(() => assertNpmAudits(npmWorkflow(`${RUNTIME} --audit-level=high`, ALL)), /every advisory for a runtime package must fail the audit/);
+  assert.throws(() => assertNpmAudits(npmWorkflow(RUNTIME, 'npm audit --package-lock-only')), /the audit of all packages fails from high on/);
+  // Die Stufe steht in der Folgezeile: Auch dort muss sie high sein.
+  assert.throws(() => assertNpmAudits(npmWorkflow(RUNTIME, '|\n          npm audit --package-lock-only \\\n            --audit-level=low')), /the audit of all packages fails from high on/);
 });

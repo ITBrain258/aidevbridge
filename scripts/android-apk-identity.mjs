@@ -10,7 +10,7 @@
 // von Tauri, android-version.mjs).
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { versionCode } from './android-version.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -51,7 +51,12 @@ export function identityProblems(output, { version, packageName = PACKAGE_NAME }
   return problems;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+// Als Programm gestartet? Verglichen werden die echten Pfade: Ueber einen Pfad
+// mit Symlink oder Junction gestartet, nennt import.meta.url den echten Pfad
+// und process.argv[1] den angegebenen. Ein Vergleich der beiden Texte
+// uebersprange dann die Pruefung ohne Ausgabe und mit Exit 0, und der Build-Job
+// hielte die APK fuer geprueft.
+if (process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url))) {
   try {
     const [file, ...rest] = process.argv.slice(2);
     if (!file || rest.length > 0) throw new Error('Usage: node scripts/android-apk-identity.mjs <output of "aapt2 dump badging <apk>">');

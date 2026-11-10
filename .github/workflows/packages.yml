@@ -512,7 +512,14 @@ jobs:
             if [ "${#upload[@]}" -gt 0 ]; then
               gh release upload "$tag" "${upload[@]}"
             fi
-            gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md"
+            # gh sends make_latest only with --latest, and the API gives that
+            # field a default of true without saying what an update of a
+            # published release does without it. So the edit names what the
+            # release has now: the mark stays where it is, also in a repeated
+            # run for a still incomplete release or in a run for an older tag,
+            # and only the step after the upload decides about setting it.
+            if [ "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name 2> /dev/null || true)" = "$tag" ]; then keep=--latest; else keep=--latest=false; fi
+            gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md" "$keep"
           else
             node scripts/release-notes.mjs "$version" "${args[@]}" > "$RUNNER_TEMP/notes.md"
             # Not as the latest release: the next step decides that.

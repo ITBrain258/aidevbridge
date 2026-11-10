@@ -381,7 +381,13 @@ jobs:
             jq -r '.body // ""' "$RUNNER_TEMP/release.json" > "$RUNNER_TEMP/body.md"
             node scripts/release-notes.mjs "$version" --body "$RUNNER_TEMP/body.md" --android signed/android-manifest.json > "$RUNNER_TEMP/notes.md"
             if [ "$UPLOAD" = true ]; then gh release upload "$tag" "$apk"; fi
-            gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md"
+            # As in packages.yml: gh sends make_latest only with --latest, and
+            # the API does not say what an update of a published release does
+            # without it. So the edit names what the release has now: the mark
+            # stays where it is, and only the step after the upload decides
+            # about setting it.
+            if [ "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name 2> /dev/null || true)" = "$tag" ]; then keep=--latest; else keep=--latest=false; fi
+            gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md" "$keep"
           else
             node scripts/release-notes.mjs "$version" --android signed/android-manifest.json > "$RUNNER_TEMP/notes.md"
             # Not as the latest release: the next step decides that.

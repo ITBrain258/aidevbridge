@@ -17,8 +17,9 @@
 // ihn im geholten Graphen; liegt er nicht dort, kommt er in der vollstaendigen
 // Geschichte von main nicht vor. Der Test spielt beides an flachen Klonen durch.
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -65,7 +66,12 @@ export function defaultRemote(env) {
   return env.GITHUB_SERVER_URL && env.GITHUB_REPOSITORY ? `${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}.git` : 'origin';
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+// Als Programm gestartet? Verglichen werden die echten Pfade: Ueber einen Pfad
+// mit Symlink oder Junction gestartet, nennt import.meta.url den echten Pfad
+// und process.argv[1] den angegebenen. Ein Vergleich der beiden Texte
+// uebersprange dann die Pruefung ohne Ausgabe und mit Exit 0, und der Workflow
+// hielte sie fuer bestanden.
+if (process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url))) {
   try {
     const usage = 'Usage: node scripts/release-on-main.mjs [--remote <URL or remote name>] [--branch <name>]';
     const args = process.argv.slice(2);

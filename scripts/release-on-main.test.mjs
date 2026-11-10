@@ -1,11 +1,13 @@
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { commitOnMain, defaultRemote } from './release-on-main.mjs';
+
+const SCRIPT = fileURLToPath(new URL('./release-on-main.mjs', import.meta.url));
 
 // Die Pruefung laeuft im Workflow in einem flachen Checkout (ein Commit, wie
 // actions/checkout ihn holt) gegen das Repository auf GitHub. Hier steht an
@@ -147,4 +149,55 @@ test('in a workflow main is fetched from the repository of the run, elsewhere fr
   assert.equal(defaultRemote({ GITHUB_SERVER_URL: 'https://github.com', GITHUB_REPOSITORY: 'ITBrain258/aidevbridge' }), 'https://github.com/ITBrain258/aidevbridge.git');
   assert.equal(defaultRemote({}), 'origin');
   assert.equal(defaultRemote({ GITHUB_REPOSITORY: 'ITBrain258/aidevbridge' }), 'origin');
+});
+
+// Das Programm, wie die Workflows es starten: `node scripts/release-on-main.mjs`
+// in dem Checkout, den es prueft. Hier liegt eine Kopie des Skripts in einem
+// Checkout der Fixture; `through` startet sie ueber diesen anderen Pfad zum
+// selben Ordner. Ohne PUBLISH_TAG, damit die Meldung den Commit nennt.
+/** @param {string} dir @param {string} remote @param {string} [through] */
+function program(dir, remote, through = dir) {
+  fs.mkdirSync(path.join(dir, 'scripts'), { recursive: true });
+  fs.copyFileSync(SCRIPT, path.join(dir, 'scripts', 'release-on-main.mjs'));
+  const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => name.toUpperCase() !== 'PUBLISH_TAG'));
+  return spawnSync(process.execPath, [path.join(through, 'scripts', 'release-on-main.mjs'), '--remote', remote], { env, encoding: 'utf8', windowsHide: true });
+}
+
+test('the program passes a commit on main and fails for one that is not', () => {
+  const { remote, sha, checkout } = shared;
+  const passed = program(checkout('B'), remote);
+  assert.equal(passed.stderr, '');
+  assert.equal(passed.stdout, `Commit ${sha.B} is on main (main is at ${sha.D}).\n`);
+  assert.equal(passed.status, 0);
+  const refused = program(checkout('X'), remote);
+  assert.match(refused.stdout, new RegExp(`^::error::Commit ${sha.X} is not on main \\(main is at ${sha.D}\\)\\. `));
+  assert.equal(refused.status, 1);
+  const unknown = program(checkout('D'), pathToFileURL(path.join(shared.base, 'no-such-repository')).href);
+  assert.match(unknown.stdout, /^::error::Could not check whether the commit to publish is on main: Could not fetch main from /);
+  assert.equal(unknown.status, 1);
+});
+
+// Ueber einen Pfad mit einem Verweis gestartet (unter Windows eine Junction,
+// sonst ein Symlink), nennt import.meta.url den echten Pfad und
+// process.argv[1] den angegebenen. Erkennt sich das Skript daran nicht als das
+// gestartete Programm, tut es nichts und endet mit 0, und der Workflow hielte
+// die Pruefung fuer bestanden. Der Verweis zeigt auf einen Checkout der
+// Fixture, nie auf dieses Repository.
+test('the program also checks when it is started through a linked directory', t => {
+  const { base, remote, sha, checkout } = shared;
+  const outside = checkout('X'), inside = checkout('B');
+  const links = [outside, inside].map(dir => path.join(base, `link-to-${path.basename(dir)}`));
+  try {
+    fs.symlinkSync(outside, links[0], 'junction');
+    fs.symlinkSync(inside, links[1], 'junction');
+  } catch (error) {
+    t.skip(`could not create a directory link under ${base}: ${/** @type {Error} */ (error).message}`);
+    return;
+  }
+  const refused = program(outside, remote, links[0]);
+  assert.match(refused.stdout, new RegExp(`^::error::Commit ${sha.X} is not on main \\(main is at ${sha.D}\\)\\. `));
+  assert.equal(refused.status, 1);
+  const passed = program(inside, remote, links[1]);
+  assert.equal(passed.stdout, `Commit ${sha.B} is on main (main is at ${sha.D}).\n`);
+  assert.equal(passed.status, 0);
 });

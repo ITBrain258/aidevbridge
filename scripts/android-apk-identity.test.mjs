@@ -102,3 +102,38 @@ test('the program accepts the badging of the current version and refuses any oth
   assert.match(missing.stderr, /^android-apk-identity: /);
   assert.equal(spawnSync(process.execPath, [SCRIPT], { encoding: 'utf8' }).status, 1);
 });
+
+// Ueber einen Pfad mit einem Verweis gestartet (unter Windows eine Junction,
+// sonst ein Symlink), nennt import.meta.url den echten Pfad und
+// process.argv[1] den angegebenen. Erkennt sich das Skript daran nicht als das
+// gestartete Programm, tut es nichts und endet mit 0, und der Build-Job hielte
+// die APK fuer geprueft. Der Verweis zeigt auf eine Kopie des Skripts mit
+// package.json in einem temporaeren Ordner, nie auf dieses Repository.
+test('the program also checks when it is started through a linked directory', t => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'apk-identity-link-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const real = path.join(dir, 'real'), link = path.join(dir, 'link');
+  fs.mkdirSync(path.join(real, 'scripts'), { recursive: true });
+  for (const file of ['package.json', 'scripts/android-apk-identity.mjs', 'scripts/android-version.mjs']) {
+    fs.copyFileSync(path.join(ROOT, ...file.split('/')), path.join(real, ...file.split('/')));
+  }
+  try {
+    fs.symlinkSync(real, link, 'junction');
+  } catch (error) {
+    t.skip(`could not create a directory link under ${dir}: ${/** @type {Error} */ (error).message}`);
+    return;
+  }
+  const { version } = JSON.parse(read('package.json'));
+  const file = path.join(dir, 'badging.txt');
+  /** @param {string} text */
+  const run = text => {
+    fs.writeFileSync(file, text);
+    return spawnSync(process.execPath, [path.join(link, 'scripts', 'android-apk-identity.mjs'), file], { encoding: 'utf8' });
+  };
+  const fallback = run(badging({ code: '1', version: '1.0' }));
+  assert.match(fallback.stdout, /^::error::.*fallback of build\.gradle\.kts/m);
+  assert.equal(fallback.status, 1);
+  const good = run(badging({ code: String(versionCode(version)), version }));
+  assert.equal(good.stdout, `The built APK is ${PACKAGE_NAME}, versionName ${version}, versionCode ${versionCode(version)}, as package.json has it.\n`);
+  assert.equal(good.status, 0);
+});
