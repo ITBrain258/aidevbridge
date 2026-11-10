@@ -4,6 +4,7 @@
   "host.announce.connected": "Connected to {host}.",
   "host.announce.reconnecting": "Connection to {host} lost. Reconnecting…",
   "host.announce.lost": "Connection to {host} lost. Reconnect to continue.",
+  "host.announce.failed": "Connection to {host} failed. {message}",
 
   "compact.sessions": "Sessions",
   "compact.sessions.show": "Show hosts and sessions",

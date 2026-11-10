@@ -50,7 +50,7 @@ import { focusableElements, mountDialogShell } from "./views/dialog";
 import { mountSidebar } from "./views/sidebar";
 import { mountSidebarResize } from "./views/sidebar-resize";
 import { mountGrid, type GridHandle } from "./views/grid";
-import { connectErrorText, mountFirstRun, type FirstRunHandle } from "./views/first-run";
+import { mountFirstRun, type FirstRunHandle } from "./views/first-run";
 import { mountHostForm, storedAuthChoice, type AuthChoice, type HostFormValue } from "./views/host-form";
 import {
   changesConnection,
@@ -271,6 +271,15 @@ export function main(): void {
   const announcedHosts = new Map<string, AnnouncedHost>();
   let hostAnnouncementPending = false;
 
+  /** Der Satz zu einem gescheiterten Aufbau. Er nennt den Host immer, wie die
+   * drei anderen Ansagen: die Region haengt nicht an der Hostzeile, und der
+   * Satz des Backends allein ("Host not reachable. …") sagte bei mehreren
+   * Hosts nicht, welcher gemeint ist. Ohne Meldung steht der Satz mit dem
+   * Host allein, ohne Leerzeichen danach. */
+  function hostFailedText(label: string, message: string): string {
+    return t("host.announce.failed", { host: label, message }).trim();
+  }
+
   /** Der Satz zum Wechsel dieses Hosts; `null`, wenn es nichts anzusagen gibt.
    * "Connecting…" und "Offline" gehoeren nicht dazu: beides loest der Nutzer
    * an dem Knopf aus, auf dem er gerade steht. */
@@ -288,7 +297,7 @@ export function main(): void {
     if (host.state !== "failed") return null;
     if (before.state === "connected") return t("host.announce.lost", { host: host.label });
     if (before.state === "failed" && !before.reconnecting) return null;
-    return connectErrorText(host.errorCode, host.label, host.error ?? "");
+    return hostFailedText(host.label, host.error ?? "");
   }
 
   /** Gleicht nach jeder Benachrichtigung ab, aber erst in einer Mikroaufgabe:
@@ -1743,8 +1752,12 @@ export function main(): void {
         state.setHostState(hostId, "failed", String(message ?? error), typeof code === "string" ? code : null);
         // Die Hostschluesselfrage dieses Aufbaus ist abgelaufen und still
         // verschwunden; ihren Satz traegt jetzt nur der Hinweis der
-        // Seitenleiste, und der ist kein Alert. Einmal ansagen.
-        if (expiredHostKeyPrompts.delete(endpoint) && code === "connect_timeout") announce(String(message ?? error));
+        // Seitenleiste, und der ist kein Alert. Einmal ansagen, mit demselben
+        // Wortlaut wie der Abgleich der Hostzustaende: er erkennt daran, dass
+        // der Satz schon gesagt ist.
+        if (expiredHostKeyPrompts.delete(endpoint) && code === "connect_timeout") {
+          announce(hostFailedText(host.label, String(message ?? error)));
+        }
         // UX-Spec §7.3: ein gescheiterter Aufbau oeffnet nichts, auch nicht
         // spaeter. Nur wenn der Host erst sein Geheimnis braucht (das Feld
         // steht dann in der Seitenleiste), oeffnet die Session nach dem Erfolg.

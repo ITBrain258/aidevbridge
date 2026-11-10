@@ -21,7 +21,7 @@
 import { readFileSync } from "node:fs";
 // @ts-expect-error 'node:path' ist ein Node-Global, siehe Kommentar oben
 import path from "node:path";
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Formwache fuer `list_sessions` und `poll_status`: main.ts nimmt nur die Formen
 // an, die Rust sendet (`commands::SessionListDto`, `commands::StatusPollsDto`,
@@ -373,12 +373,26 @@ function emitHostKeyRequest(payload: HostKeyRequestLike): void {
 // vitests jsdom-Umgebung). Ohne diese Wache verschwaende ein Wurf in einem
 // Klick- oder Tastenlauscher still im Banner, statt den Lauf rot zu faerben.
 // Sie sammelt jeden Fehler, der das Fenster erreicht, und `afterEach` verlangt
-// eine leere Liste; die Faelle, die das Banner selbst pruefen, leeren sie.
+// eine leere Liste; die Faelle, die das Banner selbst pruefen, nehmen genau
+// ihr eigenes Ereignis wieder heraus (`windowError`).
 const windowErrors: unknown[] = [];
+/** Was die Wache von einem `error`-Ereignis festhaelt. */
+function windowErrorValue(event: Event): unknown {
+  const { error, message } = event as ErrorEvent;
+  return error ?? message;
+}
 beforeAll(() => {
   window.addEventListener("error", (event) => {
-    windowErrors.push(event.error ?? event.message);
+    windowErrors.push(windowErrorValue(event));
   });
+});
+// Nach dem letzten Fall der Datei prueft kein `afterEach` mehr. Ein Fehler,
+// der das Fenster erst danach erreicht -- aus einer Aufgabe, die der letzte
+// Fall hinterlassen hat --, fiele sonst durch; darum laeuft vorher noch eine
+// Makroaufgabe.
+afterAll(async () => {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(windowErrors).toEqual([]);
 });
 
 beforeEach(() => {
@@ -4872,9 +4886,11 @@ describe("main: B4 -- die Meldungen nennen eine Handlung und behalten den Rohtex
     });
   }
 
+  /** Die hoeflichen Regionen, in denen `text` vorkommt -- auch als Teil eines
+   * laengeren Satzes: die Ansage stellt den Host davor. */
   function politeRegionsWith(text: string): HTMLElement[] {
     return Array.from(document.querySelectorAll<HTMLElement>('[aria-live="polite"]')).filter(
-      (region) => region.textContent === text,
+      (region) => region.textContent?.includes(text),
     );
   }
 
@@ -4903,9 +4919,11 @@ describe("main: B4 -- die Meldungen nennen eine Handlung und behalten den Rohtex
     expect(document.getElementById("host-key-prompt-root")!.textContent).toBe("");
     // Sichtbar genau einmal: im Hinweis der Seitenleiste.
     expect(hostRow("h1").parentElement!.querySelector(".host-notice-message")?.textContent).toBe(EXPIRED);
-    // Angesagt genau einmal: die hoefliche Live-Region ausserhalb von #app, kein Alert.
+    // Angesagt genau einmal, mit dem Host davor: die hoefliche Live-Region
+    // ausserhalb von #app, kein Alert.
     const live = politeRegionsWith(EXPIRED);
     expect(live).toHaveLength(1);
+    expect(live[0].textContent).toBe(`Connection to h1 failed. ${EXPIRED}`);
     expect(document.getElementById("app")!.contains(live[0])).toBe(false);
     expect(Array.from(document.querySelectorAll('[role="alert"]')).some((n) => n.textContent?.includes(EXPIRED))).toBe(false);
     // Ein spaeteres Neuzeichnen (hier das Aufklappen) leert die Ansage nicht --
@@ -9581,10 +9599,17 @@ describe("main: unerwartete Fehler erreichen den Nutzer", () => {
     window.dispatchEvent(event);
   }
   /** Ein `error`-Ereignis am Fenster. Die Faelle hier pruefen das Banner
-   * selbst; die Wache `windowErrors` soll sie nicht scheitern lassen. */
-  function windowError(init: ErrorEventInit): void {
-    window.dispatchEvent(new ErrorEvent("error", init));
-    windowErrors.length = 0;
+   * selbst; die Wache `windowErrors` soll an diesem einen Ereignis nicht
+   * scheitern. Heraus kommt deshalb genau der Eintrag, den dieser Aufruf
+   * hinterlassen hat: ein Fehler, der das Fenster im selben Fall auf anderem
+   * Weg erreicht hat, bleibt stehen und laesst den Fall scheitern. */
+  function windowError(source: ErrorEventInit | Event): void {
+    const event = source instanceof Event ? source : new ErrorEvent("error", source);
+    const before = windowErrors.length;
+    window.dispatchEvent(event);
+    const index = windowErrors.indexOf(windowErrorValue(event), before);
+    if (index === -1) throw new Error("the window error guard did not record the dispatched event");
+    windowErrors.splice(index, 1);
   }
   async function startWithHost(): Promise<void> {
     invokeMock.mockImplementation((command: string) => {
@@ -9680,13 +9705,30 @@ describe("main: unerwartete Fehler erreichen den Nutzer", () => {
     expect(bannerMessage()).toBe(UNEXPECTED);
   });
 
+  it("zeigt in einem Lauf hoechstens 20 verschiedene Fehler: der 21. holt das Banner nach Dismiss nicht zurueck", async () => {
+    await startWithHost();
+
+    // Jeder mit einem anderen Rohtext, wie ein Fehler, der einen Zaehler traegt.
+    for (let n = 1; n <= 20; n++) {
+      rejectUnhandled(new Error(`poll ${n} failed`));
+      expect(shownBanners(), `error ${n}`).toHaveLength(1);
+      bannerButton("Dismiss")!.click();
+      expect(shownBanners(), `error ${n} after Dismiss`).toEqual([]);
+    }
+
+    rejectUnhandled(new Error("poll 21 failed"));
+    expect(shownBanners()).toEqual([]);
+    windowError({ message: "Uncaught Error: poll 22 failed", error: new Error("poll 22 failed") });
+    expect(shownBanners()).toEqual([]);
+  });
+
   it("uebergeht Chromiums ResizeObserver-Meldung und 'Script error.' ohne Fehlerobjekt", async () => {
     await startWithHost();
 
     windowError({ message: "ResizeObserver loop completed with undelivered notifications." });
     windowError({ message: "ResizeObserver loop limit exceeded" });
     windowError({ message: "Script error." });
-    window.dispatchEvent(new Event("error"));
+    windowError(new Event("error"));
 
     expect(shownBanners()).toEqual([]);
 
@@ -9729,6 +9771,35 @@ describe("main: unerwartete Fehler erreichen den Nutzer", () => {
 
     expect(shownBanners()).toHaveLength(1);
     expect(bannerMessage()).toBe(UNEXPECTED);
+  });
+
+  describe("der Helfer windowError", () => {
+    it("nimmt nur sein eigenes Ereignis aus der Wache: ein Fehler, der das Fenster davor erreicht hat, bleibt stehen", async () => {
+      await startWithHost();
+      const earlier = new Error("reached the window on its own");
+      window.dispatchEvent(new ErrorEvent("error", { message: "Uncaught Error: reached the window on its own", error: earlier }));
+
+      windowError({ message: "Uncaught Error: dispatched by the case", error: new Error("dispatched by the case") });
+
+      // An diesem Eintrag liesse `afterEach` den Fall scheitern; hier wird er
+      // geprueft und herausgenommen.
+      const left = windowErrors.splice(0);
+      expect(left).toHaveLength(1);
+      expect(left[0]).toBe(earlier);
+    });
+
+    it("scheitert, wenn die Wache sein Ereignis nicht festgehalten hat, statt einen anderen Eintrag zu entfernen", async () => {
+      await startWithHost();
+      const earlier = new Error("reached the window on its own");
+      window.dispatchEvent(new ErrorEvent("error", { message: "Uncaught Error: reached the window on its own", error: earlier }));
+
+      // Kein `error`-Ereignis: die Wache sieht es nicht.
+      expect(() => windowError(new Event("not-an-error"))).toThrow("did not record the dispatched event");
+
+      const left = windowErrors.splice(0);
+      expect(left).toHaveLength(1);
+      expect(left[0]).toBe(earlier);
+    });
   });
 });
 
@@ -9777,6 +9848,37 @@ describe("main: Verbindungsausgaenge werden angesagt", () => {
     await flush();
   }
 
+  interface PendingConnect {
+    resolve: (value: unknown) => void;
+    reject: (error: unknown) => void;
+  }
+
+  /** Startet mit zwei gespeicherten Hosts, "h1" (10.0.0.1) und "h2"
+   * (10.0.0.2). Jedes `connect_host` bleibt offen, bis der Fall es ueber die
+   * Karte entscheidet: Schluessel ist der Hostname, es gilt der juengste
+   * Versuch. So fallen zwei Ausgaenge in denselben Zug. */
+  async function startWithTwoHosts(): Promise<Map<string, PendingConnect>> {
+    const connects = new Map<string, PendingConnect>();
+    let reservations = 0;
+    invokeMock.mockImplementation((command: string, rawArgs?: unknown) => {
+      if (command === "list_hosts") {
+        return Promise.resolve([hostEntry(), hostEntry({ id: "s2", label: "h2", hostname: "10.0.0.2" })]);
+      }
+      if (command === "list_ssh_keys") return Promise.resolve([]);
+      if (command === "begin_connect") return Promise.resolve(`r${++reservations}`);
+      if (command === "connect_host") {
+        const { hostname } = (rawArgs as { spec: { hostname: string } }).spec;
+        return new Promise((resolve, reject) => { connects.set(hostname, { resolve, reject }); });
+      }
+      if (command === "list_sessions") return Promise.resolve(sessionList(["s1"]));
+      if (command === "poll_status") return Promise.resolve(statusPolls(incompletePoll()));
+      return Promise.resolve(undefined);
+    });
+    main();
+    await flush();
+    return connects;
+  }
+
   it("sagt eine gelungene Verbindung einmal an: weder ein Poll noch ein Neuzeichnen wiederholt sie", async () => {
     await startWith({}, () => Promise.resolve("ok"));
     // Ein geladener Host ist getrennt; das ist kein Uebergang.
@@ -9796,22 +9898,85 @@ describe("main: Verbindungsausgaenge werden angesagt", () => {
     expect(liveRegion().textContent).toBe("");
   });
 
-  it("sagt einen gescheiterten Aufbau mit dem Satz des Backends an, jeden Versuch einmal; ohne eigenen Satz nennt er den Host", async () => {
+  it("sagt einen gescheiterten Aufbau mit dem Host und dem Satz des Backends an, jeden Versuch einmal", async () => {
     await startWith({}, (attempt) => Promise.reject(attempt < 3 ? NETWORK : { code: "other", message: "resolver crashed" }));
 
     hostActionButton("h1", "Connect").click();
     await flush();
-    expect(liveRegion().textContent).toBe(NETWORK.message);
+    expect(liveRegion().textContent).toBe(`Connection to h1 failed. ${NETWORK.message}`);
 
     // Derselbe Fehler noch einmal ist ein neuer Uebergang.
     forgetAnnouncement();
     hostRetryButton("h1").click();
     await flush();
-    expect(liveRegion().textContent).toBe(NETWORK.message);
+    expect(liveRegion().textContent).toBe(`Connection to h1 failed. ${NETWORK.message}`);
 
+    // Ein Fehler ohne eigenen Satz des Backends steht im selben Rahmen.
     hostRetryButton("h1").click();
     await flush();
-    expect(liveRegion().textContent).toBe("Couldn't connect to h1: resolver crashed");
+    expect(liveRegion().textContent).toBe("Connection to h1 failed. resolver crashed");
+  });
+
+  it("ohne Meldung des Backends bleibt der Satz mit dem Host, ohne Leerzeichen am Ende", async () => {
+    await startWith({}, () => Promise.reject({ code: "other", message: "" }));
+
+    hostActionButton("h1", "Connect").click();
+    await flush();
+
+    expect(hostIndicatorClass("h1")).toContain("ind-fail");
+    expect(liveRegion().textContent).toBe("Connection to h1 failed.");
+  });
+
+  // Die Region haengt nicht an der Hostzeile, und der Satz des Backends nennt
+  // den Host nicht: ohne den Namen stuende er zweimal da, und niemand wuesste,
+  // welcher Host gemeint ist.
+  it("scheitern zwei Hosts im selben Zug, nennt die Ansage jeden beim Namen", async () => {
+    const unreachable = { code: "host_unreachable", message: "Host not reachable. Check hostname, port and network." };
+    const connects = await startWithTwoHosts();
+    hostActionButton("h1", "Connect").click();
+    hostActionButton("h2", "Connect").click();
+    await flush();
+
+    connects.get("10.0.0.1")!.reject(unreachable);
+    connects.get("10.0.0.2")!.reject(unreachable);
+    await flush();
+
+    expect(hostIndicatorClass("h1")).toContain("ind-fail");
+    expect(hostIndicatorClass("h2")).toContain("ind-fail");
+    expect(liveRegion().textContent).toBe(
+      `Connection to h1 failed. ${unreachable.message} Connection to h2 failed. ${unreachable.message}`,
+    );
+  });
+
+  it("ein gescheiterter Host wird einmal angesagt: weder ein Neuzeichnen noch der Wechsel oder der Poll eines anderen Hosts wiederholt ihn", async () => {
+    const connects = await startWithTwoHosts();
+    hostActionButton("h1", "Connect").click();
+    await flush();
+    connects.get("10.0.0.1")!.reject(NETWORK);
+    await flush();
+    expect(liveRegion().textContent).toBe(`Connection to h1 failed. ${NETWORK.message}`);
+
+    // Das Aufklappen benachrichtigt, aendert am Stand des Hosts aber nichts.
+    forgetAnnouncement();
+    expandHost("h1");
+    await flush();
+    expect(hostIndicatorClass("h1")).toContain("ind-fail");
+    expect(liveRegion().textContent).toBe("");
+
+    // Der andere Host verbindet: angesagt wird nur er.
+    hostActionButton("h2", "Connect").click();
+    await flush();
+    connects.get("10.0.0.2")!.resolve("ok");
+    await flush();
+    expect(liveRegion().textContent).toBe("Connected to h2.");
+
+    forgetAnnouncement();
+    const pollsBefore = invokeMock.mock.calls.filter(([command]) => command === "poll_status").length;
+    await vi.advanceTimersByTimeAsync(6000);
+    await flush();
+    expect(invokeMock.mock.calls.filter(([command]) => command === "poll_status").length).toBeGreaterThan(pollsBefore);
+    expect(hostIndicatorClass("h1")).toContain("ind-fail");
+    expect(liveRegion().textContent).toBe("");
   });
 
   it("sagt den Verlust der Verbindung mit dem Neuverbinden an, die Versuche dazwischen nicht, und am Ende die neue Verbindung", async () => {
@@ -9839,7 +10004,7 @@ describe("main: Verbindungsausgaenge werden angesagt", () => {
     expect(liveRegion().textContent).toBe("Connected to h1.");
   });
 
-  it("endet das Neuverbinden ohne Verbindung, sagt es den Grund an", async () => {
+  it("endet das Neuverbinden ohne Verbindung, sagt es den Host und den Grund an", async () => {
     const rejected = { code: "auth_rejected", message: "The host rejected the key." };
     await startWith({ auth_kind: "key", key_path: "C:/keys/id_ed25519" }, (attempt) =>
       attempt === 1 ? Promise.resolve("ok") : Promise.reject(rejected),
@@ -9854,7 +10019,7 @@ describe("main: Verbindungsausgaenge werden angesagt", () => {
     await flush();
 
     expect(hostIndicatorClass("h1")).toContain("ind-fail");
-    expect(liveRegion().textContent).toBe(rejected.message);
+    expect(liveRegion().textContent).toBe(`Connection to h1 failed. ${rejected.message}`);
   });
 
   it("ein Host, der nicht selbst neu verbindet, sagt den Verlust mit dem naechsten Schritt an", async () => {
@@ -9873,7 +10038,7 @@ describe("main: Verbindungsausgaenge werden angesagt", () => {
     await startWith({ auth_kind: "password" }, () => Promise.resolve("ok"));
     hostActionButton("h1", "Connect").click();
     await flush();
-    expect(liveRegion().textContent).toBe("Password required. Enter it below and retry.");
+    expect(liveRegion().textContent).toBe("Connection to h1 failed. Password required. Enter it below and retry.");
 
     const password = hostRow("h1").parentElement!.querySelector<HTMLInputElement>(".host-notice input[name=password]")!;
     password.value = "host-password";
@@ -9889,8 +10054,9 @@ describe("main: Verbindungsausgaenge werden angesagt", () => {
   });
 
   // Den Satz einer abgelaufenen Hostschluesselfrage sagt `connectHost` selbst
-  // an (siehe oben, "sagt ihn einmal an"); der Abgleich der Hostzustaende
-  // schreibt denselben Satz nicht ein zweites Mal in die Region.
+  // an (siehe oben, "sagt ihn einmal an"), mit dem Host davor wie jeden
+  // gescheiterten Aufbau; der Abgleich der Hostzustaende schreibt denselben
+  // Satz nicht ein zweites Mal in die Region.
   it("schreibt den Satz einer abgelaufenen Hostschluesselfrage genau einmal in die Region", async () => {
     const expired = "The host key wasn't confirmed in time, so aidevbridge didn't connect.";
     let failConnect!: (error: unknown) => void;
@@ -9911,7 +10077,7 @@ describe("main: Verbindungsausgaenge werden angesagt", () => {
     await flush();
     observer.disconnect();
 
-    expect(liveRegion().textContent).toBe(expired);
+    expect(liveRegion().textContent).toBe(`Connection to h1 failed. ${expired}`);
     expect(writes).toBe(1);
   });
 

@@ -63,9 +63,8 @@ interface PreflightReportPayload {
 
 /** UX-Spec §10: jeder `ConnectError`-Code ausser `other` traegt schon die
  * Nutzermeldung des Backends, die steht allein. Nur `other` -- und ein Fehler
- * ganz ohne Code, etwa eine abgelehnte Reservierung -- nennt davor den Host.
- * Auch `main.ts` sagt einen gescheiterten Aufbau mit diesem Satz an. */
-export function connectErrorText(code: unknown, host: string, message: string): string {
+ * ganz ohne Code, etwa eine abgelehnte Reservierung -- nennt davor den Host. */
+function connectErrorText(code: unknown, host: string, message: string): string {
   return typeof code === "string" && code !== "other" ? message : t("connect.error", { host, message });
 }
 
