@@ -10,8 +10,10 @@
 //! garantiert (Spec A1). `validate` lehnt deshalb eine solche Belegung ab --
 //! sie wird nicht bloss gemeldet und trotzdem akzeptiert.
 //!
-//! Jede Belegung ist frei konfigurierbar (Spec §12.1, `[keymap]` in
-//! `settings.toml`); dieses Modul ist bewusst unabhaengig vom
+//! Die Spec sieht frei konfigurierbare Belegungen vor (§12.1, `[keymap]` in
+//! `settings.toml`). Gebaut ist davon nur diese Pruefung: Die App liest noch
+//! kein `[keymap]`, und das Modul hat bisher keinen Aufrufer; die geltenden
+//! Kuerzel stehen in `src/keymap.ts`. Es ist bewusst unabhaengig vom
 //! Einstellungsmodul (`settings.rs`) -- es validiert eine beliebige
 //! `HashMap<Aktion, Belegung>`, unabhaengig davon, woher sie stammt.
 

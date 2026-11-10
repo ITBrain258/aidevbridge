@@ -391,8 +391,9 @@ oder eine andere Spur, die du dort wählst.
 5. Release-Branch per Pull Request nach `main` führen. Bis zum Tag nichts
    mehr mergen, was eine gebundene Datei ändert, etwa `android.yml` oder ein
    Actions-Update von Dependabot. Dann prüfen, dass `package.json` auf dem
-   Merge-Commit die neue Version trägt, und auf `main` den Tag setzen. Tags
-   `v*` darf nur ein Admin anlegen (D1):
+   Merge-Commit die neue Version trägt, und auf `main` den Tag setzen: Beide
+   Workflows bauen ein Release nur aus einem Commit, der auf `main` liegt.
+   Tags `v*` darf nur ein Admin anlegen (D1):
 
    ```powershell
    git tag v0.3.0
@@ -402,7 +403,9 @@ oder eine andere Spur, die du dort wählst.
 6. Automatisch: `packages.yml` baut Windows und macOS, `android.yml` baut,
    signiert, hängt `aidevbridge-0.3.0-android.apk` ans Release und lädt das
    AAB in die Play-Spur. Mit `-RequireApproval` (D1) wartet der Android-Lauf
-   dabei auf deine Freigabe.
+   dabei auf deine Freigabe. Die Marke „Latest“ bekommt das Release erst,
+   wenn die APK und die Desktop-Pakete daran hängen; bis dahin zeigt
+   `/releases/latest` auf das vorige.
 7. In der Play Console den Release hochstufen (wenn nicht direkt
    `production`).
 
@@ -426,6 +429,8 @@ neue Patch-Version.
 | Play: „Version code … has already been used“ | Version erhöhen (E1). |
 | Play: „Only releases with status draft may be created on draft app“ | `PLAY_RELEASE_STATUS` = `draft` (D3). |
 | Play: „The caller does not have permission“ | Dienstkonto in der Play Console nicht eingeladen oder ohne Recht für die App (D2 Schritt 4); nach dem Einladen kann es bis zu einem Tag dauern. |
+| Build-Job eines Tags: „… is not on main“ | Der Tag zeigt auf einen Commit, der nicht auf `main` liegt. Den Tag auf den Merge-Commit des Release-Pull-Requests setzen (E5). |
+| Build-Job: „The built APK is not aidevbridge …“ | Paketname, versionName oder versionCode der gebauten APK passen nicht zu `package.json`. versionCode 1 und versionName 1.0 heißen, dass `tauri.properties` beim Bau fehlte. |
 | Job `sign`: „Secret … is missing“ | D1 ausführen. |
 | Job `sign` eines Laufs von Hand: „… is not allowed to deploy to android-release“ | Das Environment gilt nur für Tags; „Use workflow from“ auf den Tag stellen (E). |
 | Build-Job eines Tags: „release-licenses: Input changed or missing“ | Die Lizenzauswahl ist nicht neu gebunden (E2). Der Tag selbst lässt sich nicht reparieren: neu binden, neue Patch-Version. |

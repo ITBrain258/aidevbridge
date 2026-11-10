@@ -39,8 +39,9 @@ The welcome page suggests the hosts from your `~/.ssh/config`
 (`%USERPROFILE%\.ssh\config` on Windows). On the first connection the app shows
 the fingerprint of the host key. Compare it with the host, for example with
 `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`, and choose **Trust and
-continue**. The app then checks tmux, `base64` and the tmux socket directory on
-the host.
+continue**. The question waits 60 seconds for your answer, so look up the
+fingerprint on the host before you connect. The app then checks tmux, `base64`
+and the tmux socket directory on the host.
 
 ## Which sessions the app shows
 

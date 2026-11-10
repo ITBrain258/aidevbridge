@@ -36,7 +36,7 @@ profile:
   storage holds only the color theme.
 
 Passwords and key passphrases are never written to storage. They stay in
-memory for as long as a connection needs them.
+memory only while a connection is being made.
 
 On Android, the app's storage is excluded from Google's cloud backup and from
 the transfer to a new device, so your keys and hosts do not leave the device

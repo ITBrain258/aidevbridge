@@ -91,7 +91,12 @@
   presents that key and connects without a question, even if it also has an
   ed25519 key (for RSA with `rsa-sha2-256` or `rsa-sha2-512`; `ssh-rsa` with
   SHA-1 stays the last resort). If that known key has changed, the app
-  refuses it as a changed key, as OpenSSH does. A host
+  refuses it as a changed key, as OpenSSH does. A key of a type that
+  `known_hosts` does not list for the host is treated differently: the app
+  asks as on a first contact and names the key type the host is already
+  trusted with, where OpenSSH refuses
+  ([accepted for now](../../SECURITY.md#a-known-host-that-presents-a-key-of-another-type-gets-the-first-contact-question));
+  reject it unless you changed the server's keys. A host
   key you confirm on first contact is added as a plain entry with the host
   name in clear text, also when you use `HashKnownHosts yes`;
   `ssh-keygen -H` hashes the file afterwards (it keeps the old file with
