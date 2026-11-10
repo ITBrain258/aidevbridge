@@ -55,6 +55,9 @@ function setup(options: { compact?: boolean; sessions?: string[]; noHost?: boole
 
 afterEach(() => {
   document.body.replaceChildren();
+  // Die Faelle entsorgen ihre Ansicht nicht; die Klasse an <html> bliebe sonst
+  // fuer den naechsten stehen.
+  document.documentElement.classList.remove("compact");
 });
 
 describe("kompakte Ansicht (Spec 2026-10-27 §5.1)", () => {
@@ -156,5 +159,26 @@ describe("kompakte Ansicht (Spec 2026-10-27 §5.1)", () => {
     shell.dispose();
     expect(app.querySelector("#compact-bar")).toBeNull();
     expect(app.className).toBe("");
+  });
+
+  // Dialoge, die Rueckfrage zum Hostschluessel und das globale Banner liegen
+  // ausserhalb von #app; ihre Regeln fuer schmale Bildschirme haengen an <html>.
+  it("traegt die Klasse compact auch an <html>, genau solange die Ansicht kompakt ist", () => {
+    const { media, shell } = setup();
+    const html = document.documentElement;
+    expect(html.classList.contains("compact")).toBe(true);
+
+    media.set(false);
+    expect(html.classList.contains("compact")).toBe(false);
+    media.set(true);
+    expect(html.classList.contains("compact")).toBe(true);
+
+    shell.dispose();
+    expect(html.classList.contains("compact")).toBe(false);
+  });
+
+  it("laesst <html> in der breiten Ansicht ohne die Klasse", () => {
+    setup({ compact: false });
+    expect(document.documentElement.classList.contains("compact")).toBe(false);
   });
 });

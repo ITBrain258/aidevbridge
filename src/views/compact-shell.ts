@@ -27,7 +27,10 @@ import { t } from "../i18n/t";
 export const COMPACT_QUERY = "(max-width: 720px), (max-device-height: 500px)";
 
 export interface CompactShellOptions {
-  /** `#app`: traegt die Klassen `compact` und `compact-sessions-open`. */
+  /** `#app`: traegt die Klassen `compact` und `compact-sessions-open`. Die
+   * Klasse `compact` steht zugleich an `<html>`: Dialoge, die Rueckfrage zum
+   * Hostschluessel und das globale Banner liegen ausserhalb von `#app`, und
+   * ihre Regeln fuer schmale Bildschirme brauchen einen Vorfahren. */
   app: HTMLElement;
   state: AppState;
   /** Zahl der wartenden Sessions, wie sie der Fenstertitel zaehlt. */
@@ -149,6 +152,7 @@ export function mountCompactShell(opts: CompactShellOptions): CompactShellHandle
     const isCompact = compact();
     const showSessions = sessionsShown();
     app.classList.toggle("compact", isCompact);
+    app.ownerDocument.documentElement.classList.toggle("compact", isCompact);
     app.classList.toggle("compact-sessions-open", showSessions);
     toggle.setAttribute("aria-expanded", String(showSessions));
     toggle.title = showSessions ? t("compact.sessions.hide") : t("compact.sessions.show");
@@ -203,6 +207,7 @@ export function mountCompactShell(opts: CompactShellOptions): CompactShellHandle
       releaseBack();
       bar.remove();
       app.classList.remove("compact", "compact-sessions-open");
+      app.ownerDocument.documentElement.classList.remove("compact");
     },
   };
 }

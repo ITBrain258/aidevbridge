@@ -672,6 +672,22 @@ describe("Werkzeugleiste, Kacheln, Knopfsystem -- Nachbesserung Runde 1 (Spec 8,
     );
   });
 
+  // Als blosses `:hover` (0,2,0) standen die drei Regeln nach `.btn:disabled`
+  // (0,2,0) und gewannen: ein deaktiviertes "Back", "Reject" oder "Copy
+  // diagnostics" hellte beim Zeigen auf und bekam die Hover-Flaeche.
+  it("deaktivierte Sekundaer-, Gefahr- und Textknoepfe reagieren nicht auf Hover", () => {
+    const secondary = ruleBody(".btn--secondary:not(:disabled):hover");
+    expect(secondary).toMatch(/background-color:\s*var\(--ab-bg-hover\);/);
+    expect(secondary).toMatch(/color:\s*var\(--ab-text-primary\);/);
+    expect(ruleBody(".btn--danger:not(:disabled):hover")).toMatch(/background-color:\s*var\(--ab-danger-bg\);/);
+    expect(ruleBody(".btn--text:not(:disabled):hover")).toMatch(/color:\s*var\(--ab-text-primary\);/);
+    expect(code).not.toMatch(/\n\.btn--(secondary|danger|text):hover\b/);
+    // Der Primaerknopf ist ueber die Reihenfolge geschuetzt: `:disabled` steht
+    // nach `:hover`, bei gleicher Spezifitaet.
+    expect(css.indexOf("\n.btn--primary:disabled {")).toBeGreaterThan(css.indexOf("\n.btn--primary:hover {"));
+    expect(css.indexOf("\n.btn--primary:hover {")).toBeGreaterThan(0);
+  });
+
   it("#grid und .tile-grid-view beschneiden den Kartenschatten und die Fokuskontur nicht mehr", () => {
     for (const s of ["#grid", ".tile-grid-view"]) {
       expect(ruleBody(s)).not.toMatch(/overflow:/);
@@ -765,6 +781,102 @@ describe("Sperrleiste in schmalen Kacheln (Abnahme B5)", () => {
     expect(message).toMatch(/overflow-y:\s*visible;/);
     expect(message).toMatch(/text-overflow:\s*ellipsis;/);
     expect(message).toMatch(/white-space:\s*nowrap;/);
+  });
+});
+
+// Auf dem Telefon (360 px breit, am gerenderten Fenster gemessen) blieben den
+// Einstellungen neben 200 px Navigation 128 px fuers Panel, das globale Banner
+// schrumpfte auf 212 px, und die Sessionaktionen erschienen ohne Hover nur an
+// der Zeile der fokussierten Kachel. Der Abschnitt gibt beidem und den
+// Trefferflaechen ihre Form fuer die kompakte Ansicht; der Desktop sieht davon
+// nichts.
+describe("Kompakte Ansicht: Trefferflaechen, Dialoge und Banner", () => {
+  /** Der Abschnitt der Datei, ohne Kommentare. Erst im Fall gelesen: fehlt
+   * er, scheitern diese Faelle und nicht das Einsammeln der ganzen Datei. */
+  function section(): string {
+    const start = css.indexOf("/* ===== Kompakte Ansicht: Trefferflaechen, Dialoge und Banner");
+    const end = css.indexOf("/* Auf Android rollt ein Zug mit dem Finger", start);
+    if (start < 0 || end < 0) throw new Error("Abschnitt der kompakten Ansicht fehlt");
+    return css.slice(start, end).replace(/\/\*[\s\S]*?\*\//g, "");
+  }
+
+  it("jede Regel des Abschnitts greift nur unter #app.compact oder html.compact", () => {
+    const selectors = Array.from(section().matchAll(/([^{}]+)\{/g), (match) => match[1].trim()).filter(
+      (selector) => !selector.startsWith("@media"),
+    );
+    expect(selectors.length).toBeGreaterThan(10);
+    for (const selector of selectors.flatMap((list) => list.split(","))) {
+      expect(selector.trim(), selector).toMatch(/^(#app\.compact|html\.compact) /);
+    }
+    // Die Klasse steht in der ganzen Datei nur an diesen beiden Vorfahren.
+    expect(code.match(/[^\s{},]*\.compact\b(?!-)/g)?.every((hit) => hit === "#app.compact" || hit === "html.compact")).toBe(true);
+  });
+
+  it("die Einstellungen stapeln Navigation und Panel, nur kompakt und nur schmal", () => {
+    expect(section()).toMatch(
+      /@media \(max-width: 720px\) \{\s*html\.compact \.settings-view \{\s*grid-template-columns:\s*minmax\(0, 1fr\);\s*grid-template-rows:\s*auto minmax\(0, 1fr\);\s*\}/,
+    );
+    expect(section()).toMatch(/html\.compact \.settings-nav \{\s*flex-direction:\s*row;\s*flex-wrap:\s*wrap;/);
+    // Ohne die Klasse bleiben die zwei Spalten.
+    expect(ruleBody(".settings-view")).toMatch(/grid-template-columns:\s*200px minmax\(0, 1fr\)/);
+    expect(ruleBody(".settings-nav")).toMatch(/flex-direction:\s*column;/);
+  });
+
+  it("das Banner reicht kompakt von Rand zu Rand, der Satz bekommt die erste Zeile", () => {
+    const banner = ruleBody("html.compact .global-error-banner");
+    expect(banner).toMatch(/left:\s*var\(--ab-space-4\);/);
+    expect(banner).toMatch(/right:\s*var\(--ab-space-4\);/);
+    expect(banner).toMatch(/transform:\s*none;/);
+    expect(banner).toMatch(/flex-wrap:\s*wrap;/);
+    // `display` bleibt allein bei `:not([hidden])`, sonst stuende es leer da.
+    expect(banner).not.toMatch(/display\s*:/);
+    expect(ruleBody("html.compact .global-error-banner > span")).toMatch(/flex:\s*1 1 100%;/);
+    const base = ruleBody(".global-error-banner");
+    expect(base).toMatch(/left:\s*50%;/);
+    expect(base).toMatch(/transform:\s*translateX\(-50%\);/);
+    expect(base).toMatch(/max-width:\s*480px;/);
+  });
+
+  it("Sessionaktionen stehen kompakt immer in der Zeile, hinter dem Zustandswort", () => {
+    const row = ruleBody("#app.compact .sb-session-row");
+    expect(row).toMatch(/display:\s*flex;/);
+    // Die Rueckfrage vor dem Beenden (volle Breite) bricht darunter um.
+    expect(row).toMatch(/flex-wrap:\s*wrap;/);
+    const acts = ruleBody("#app.compact .sb-session-row .session-acts");
+    expect(acts).toMatch(/position:\s*static;/);
+    expect(acts).toMatch(/visibility:\s*visible;/);
+    const meta = ruleBody("#app.compact .sb-session-row .row-meta");
+    expect(meta).toMatch(/visibility:\s*visible;/);
+    expect(meta).toMatch(/min-width:\s*0;/);
+  });
+
+  it("Trefferflaechen: 40 px in Schublade, Kopfleiste, Dialogkopf, Einstellungen und Banner; der Kachelkopf waechst nicht", () => {
+    expect(tokenBlock(":root")["--ab-touch-target"]).toBe("40px");
+    const drawer = ruleBody("#app.compact .sidebar");
+    expect(drawer).toMatch(/--ab-row-h-session:\s*var\(--ab-touch-target\);/);
+    expect(drawer).toMatch(/--ab-row-btn-h:\s*var\(--ab-touch-target\);/);
+    expect(drawer).toMatch(/--ab-row-h-host:\s*var\(--ab-compact-bar-h\);/);
+    for (const selector of ["#app.compact .sb-head-btn", "html.compact .dialog-close-btn"]) {
+      expect(ruleBody(selector), selector).toMatch(/width:\s*var\(--ab-touch-target\);/);
+      expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-touch-target\);/);
+    }
+    for (const selector of [
+      "#app.compact .compact-bar-toggle",
+      "html.compact .settings-tab",
+      "html.compact .global-error-banner .btn--row",
+    ]) {
+      expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-touch-target\);/);
+    }
+    const tileButton = ruleBody("#app.compact .tile-btn");
+    expect(tileButton).toMatch(/min-width:\s*var\(--ab-touch-target\);/);
+    expect(tileButton).toMatch(/height:\s*var\(--ab-tile-head-h\);/);
+    // Die Masse fuer den Zeiger bleiben, wie sie sind.
+    expect(tokenBlock(":root")["--ab-row-h-session"]).toBe("26px");
+    expect(tokenBlock(":root")["--ab-row-btn-h"]).toBe("26px");
+    expect(tokenBlock(":root")["--ab-row-h-host"]).toBe("32px");
+    expect(ruleBody(".tile-btn")).toMatch(/height:\s*22px;/);
+    expect(ruleBody(".sb-head-btn")).toMatch(/width:\s*26px;/);
+    expect(ruleBody(".dialog-close-btn")).toMatch(/width:\s*26px;/);
   });
 });
 
@@ -1065,5 +1177,22 @@ describe("Barrierefreiheit und Optik (UX-Spec §11)", () => {
       const outside = code.replace(block(), "");
       expect(outside).not.toMatch(/\b(Highlight|HighlightText|CanvasText|Canvas|ButtonText|ButtonFace|ButtonBorder|GrayText|LinkText|FieldText|SelectedItem|SelectedItemText|AccentColor|AccentColorText)\b/);
     });
+  });
+});
+
+describe("Fehlerstreifen ueber der Ansicht", () => {
+  // `--ab-danger-bg` ist durchscheinend, und der Streifen liegt ueber
+  // Kachelkopf und Terminaltext: Ohne deckenden Grund darunter steht die
+  // Schrift der Ansicht in der Meldung.
+  it("ist deckend: der Kartenton liegt unter der Gefahrentoenung", () => {
+    const base = ruleBody(".global-error-banner");
+    expect(base).toMatch(/background-color:\s*var\(--ab-bg-card\);/);
+    expect(base).toMatch(/background-image:\s*linear-gradient\(var\(--ab-danger-bg\), var\(--ab-danger-bg\)\);/);
+  });
+
+  it("die neutrale Form traegt keine Gefahrentoenung", () => {
+    const neutral = ruleBody(".global-error-banner--neutral");
+    expect(neutral).toMatch(/background-color:\s*var\(--ab-bg-card\);/);
+    expect(neutral).toMatch(/background-image:\s*none;/);
   });
 });
