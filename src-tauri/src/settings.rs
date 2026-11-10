@@ -760,7 +760,7 @@ pub fn copy_legacy_settings(legacy_dir: &Path, new_dir: &Path) -> anyhow::Result
             return Err(error).with_context(|| format!("could not read {}", source.display()));
         }
     }
-    std::fs::create_dir_all(new_dir)
+    create_private_dir_all(new_dir)
         .with_context(|| format!("could not create {}", new_dir.display()))?;
     let copied = replace_durably(
         &target,
@@ -957,20 +957,21 @@ fn file_text(s: &Settings, path: &Path) -> anyhow::Result<String> {
 /// Legt fehlende Ordner an, unter Unix nur fuer den Nutzer (0700): Die Datei
 /// nennt Hosts, Konten und Schluesselpfade. Bestehende Ordner behalten ihre
 /// Rechte.
+fn create_private_dir_all(dir: &Path) -> std::io::Result<()> {
+    let mut builder = std::fs::DirBuilder::new();
+    builder.recursive(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::DirBuilderExt;
+        builder.mode(0o700);
+    }
+    builder.create(dir)
+}
+
 fn create_parent_dir(path: &Path) -> anyhow::Result<()> {
     match path.parent() {
-        Some(parent) if !parent.as_os_str().is_empty() => {
-            let mut builder = std::fs::DirBuilder::new();
-            builder.recursive(true);
-            #[cfg(unix)]
-            {
-                use std::os::unix::fs::DirBuilderExt;
-                builder.mode(0o700);
-            }
-            builder
-                .create(parent)
-                .with_context(|| format!("could not create {}", parent.display()))
-        }
+        Some(parent) if !parent.as_os_str().is_empty() => create_private_dir_all(parent)
+            .with_context(|| format!("could not create {}", parent.display())),
         _ => Ok(()),
     }
 }

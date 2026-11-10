@@ -506,7 +506,7 @@ fn load_key(path: &Path, passphrase: Option<&str>) -> Result<PrivateKey, AuthErr
 fn read_key_file(path: &Path) -> Result<Zeroizing<String>, AuthError> {
     use crate::ssh::key_files::MAX_KEY_FILE_BYTES;
     let unreadable = |error: std::io::Error| AuthError::KeyUnreadable(error.to_string());
-    if !std::fs::metadata(path).map_err(unreadable)?.is_file() {
+    if names_device(path) || !std::fs::metadata(path).map_err(unreadable)?.is_file() {
         return Err(AuthError::KeyUnreadable("not a regular file".into()));
     }
     let mut source = Zeroizing::new(String::with_capacity(MAX_KEY_FILE_BYTES + 1));
@@ -522,6 +522,32 @@ fn read_key_file(path: &Path) -> Result<Zeroizing<String>, AuthError> {
         ));
     }
     Ok(source)
+}
+
+/// Nennt der Pfad unter Windows ein Geraet oder eine benannte Pipe
+/// (`\\.\pipe\...`, `\\?\pipe\...`, `\\server\pipe\...`)? Dort haelt
+/// `FileType::is_file()` alles fuer eine Datei, was weder Ordner noch
+/// Verknuepfung ist, und das Lesen einer stillen Pipe kaeme nie zurueck. Eine
+/// Schluesseldatei liegt auf einem Laufwerk oder einer Freigabe. Unter Unix
+/// erkennt `is_file()` Geraete und FIFOs selbst.
+#[cfg(windows)]
+fn names_device(path: &Path) -> bool {
+    use std::path::{Component, Prefix};
+    match path.components().next() {
+        Some(Component::Prefix(prefix)) => match prefix.kind() {
+            Prefix::DeviceNS(_) | Prefix::Verbatim(_) => true,
+            Prefix::UNC(_, share) | Prefix::VerbatimUNC(_, share) => {
+                share.eq_ignore_ascii_case("pipe")
+            }
+            Prefix::Disk(_) | Prefix::VerbatimDisk(_) => false,
+        },
+        _ => false,
+    }
+}
+
+#[cfg(not(windows))]
+fn names_device(_path: &Path) -> bool {
+    false
 }
 
 pub(crate) fn prepare_auth(method: &AuthMethod) -> Result<PreparedAuth, AuthError> {
@@ -759,6 +785,41 @@ mod tests {
             prepare_auth_pair_owned(too_large.method(None)),
             Err(AuthError::KeyUnreadable(_))
         ));
+    }
+
+    /// Unter Windows haelt `is_file()` eine benannte Pipe fuer eine Datei; ihr
+    /// Lesen kaeme nie zurueck. Solche Pfade lehnt die App ab, ohne sie
+    /// anzufassen.
+    #[cfg(windows)]
+    #[test]
+    fn a_windows_device_or_pipe_path_is_not_a_key_file() {
+        for path in [
+            r"\\.\pipe\openssh-ssh-agent",
+            r"\\.\COM1",
+            r"\\?\pipe\aidevbridge-no-such-pipe",
+            r"\\server\pipe\name",
+            r"\\server\PIPE\name",
+        ] {
+            assert!(names_device(Path::new(path)), "{path}");
+            match read_key_file(Path::new(path)) {
+                Err(AuthError::KeyUnreadable(reason)) => {
+                    assert!(reason.contains("regular file"), "{path}: {reason}")
+                }
+                other => panic!(
+                    "falsches Ergebnis fuer {path}: {:?}",
+                    other.map(|source| source.len())
+                ),
+            }
+        }
+        for path in [
+            r"C:\Users\U\.ssh\id_ed25519",
+            r"\\?\C:\Users\U\.ssh\id_ed25519",
+            r"\\server\share\keys\id_ed25519",
+            r"\\?\UNC\server\share\id_ed25519",
+            r"relative\id_ed25519",
+        ] {
+            assert!(!names_device(Path::new(path)), "{path}");
+        }
     }
 
     #[test]

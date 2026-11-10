@@ -193,8 +193,11 @@ continue**; if you did not change the server's keys, choose **Reject**.
 Why it is accepted for now: the question is never skipped and says which key
 type the host was trusted with, and the app asks a server for the key types
 it already knows first, so a server that still has its known key does not
-get there. The app is still under development, and the stricter rule is
-planned.
+get there. One exception: a host known only by its RSA key, whose server can
+sign with that key only as `ssh-rsa` (SHA-1) and also has a key of another
+type, gets the question although nothing changed, because `ssh-rsa` stays
+the last resort. The app is still under development, and the stricter rule
+is planned.
 
 To resolve: refuse such a key as a changed key, as OpenSSH does.
 
@@ -256,11 +259,13 @@ keys, which needs no private key. It never decrypts. The app signs only
 while it logs in: once for each of the two SSH connections it opens to a
 host, and again when it reconnects or repairs one of them. A host with a key
 file without passphrase is reconnected automatically after a lost
-connection, a few attempts in a row, so a server you are connected to can
-ask for further signatures by dropping the connection. That stays at a few
-signatures per minute, far from the many precisely timed operations the
-attack needs. We accept the advisory for that
-reason; the audit workflow (`.github/workflows/audit.yml`) ignores it, while
+connection, and a lost control connection is repaired after about two
+seconds, each time with one signature. A server you are connected to can
+therefore ask for further signatures by dropping a connection: at most one
+every few seconds, for as long as the app stays connected to it. The defence
+against the attack is the blinding, which the app applies to every signature
+with fresh randomness; the limited rate only adds to it. We accept the
+advisory for that reason; the audit workflow (`.github/workflows/audit.yml`) ignores it, while
 a local `cargo audit` still reports it. Where you can, use an ed25519 key.
 
 To resolve: move to `rsa` 0.10.0. Besides the exact pins on the release

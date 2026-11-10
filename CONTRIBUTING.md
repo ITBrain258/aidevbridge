@@ -30,18 +30,26 @@ npm run tauri -- dev
 
 An app started this way uses your real `settings.toml` and, on your hosts,
 the app's real tmux socket `agentbridge`, like the installed app. To keep a
-development instance away from the sessions you work in, set these two
-variables before you start it:
+development instance away from the sessions you work in, start it with these
+two variables set:
 
 ```sh
-AIDEVBRIDGE_SETTINGS_DIR=/absolute/path/to/an/empty/folder
-AIDEVBRIDGE_TMUX_SOCKET=abdev_yourname
+AIDEVBRIDGE_SETTINGS_DIR=/absolute/path/to/an/empty/folder AIDEVBRIDGE_TMUX_SOCKET=abdev_yourname \
+  npm run tauri -- dev
+```
+
+```powershell
+$env:AIDEVBRIDGE_SETTINGS_DIR = 'C:\absolute\path\to\an\empty\folder'
+$env:AIDEVBRIDGE_TMUX_SOCKET = 'abdev_yourname'
+npm run tauri -- dev
 ```
 
 Only debug builds read them, a release build ignores both. The folder must be
 an absolute path, and the socket name has 1 to 48 characters from `A-Z`,
-`a-z`, `0-9`, `_` and `-`. A value the app cannot use is an error: it never
-falls back to the real folder or socket.
+`a-z`, `0-9`, `_` and `-` and is neither `default` nor `agentbridge`. A
+variable that is set to a value the app cannot use is an error: it never
+falls back to the real folder or socket. A variable that is not set at all
+means the real one.
 
 Before you open a pull request, all of these must pass:
 
