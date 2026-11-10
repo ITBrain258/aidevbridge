@@ -55,7 +55,10 @@ const hoisted = vi.hoisted(() => {
     webglShouldThrow: false,
     /** Der WebGL-Addon des Mocks: die an `onContextLoss` angemeldeten Rueckrufe
      * und wie oft jemand ihn entsorgt hat (Spec 2026-10-19 §8.2). */
-    webgl: { lossListeners: [] as Array<() => void>, disposeCalls: 0 },
+    webgl: { lossListeners: [] as Array<() => void>, disposeCalls: 0, created: 0 },
+    /** Was die Probe auf WebGL2 sieht (`webgl2Available`): ob ein Canvas den
+     * Kontext hergibt, und wie oft ein Probekontext wieder freigegeben wurde. */
+    webgl2: { available: true, probeLosses: 0 },
     // Veraenderlich (nicht als feste Klassenfelder), damit Tests fuer
     // Befund 1 (Resize-Wachhund) zwischen "Groesse hat sich wirklich
     // geaendert" und "Resize-Event ohne Groessenaenderung" unterscheiden
@@ -289,6 +292,7 @@ vi.mock("@xterm/addon-fit", () => {
 vi.mock("@xterm/addon-webgl", () => {
   class WebglAddon {
     constructor() {
+      hoisted.webgl.created += 1;
       if (hoisted.webglShouldThrow) {
         throw new Error("WebGL2 not supported in this environment");
       }
@@ -458,6 +462,18 @@ beforeEach(() => {
   hoisted.webglShouldThrow = false;
   hoisted.webgl.lossListeners.length = 0;
   hoisted.webgl.disposeCalls = 0;
+  hoisted.webgl.created = 0;
+  hoisted.webgl2 = { available: true, probeLosses: 0 };
+  // jsdom hat kein WebGL. Die Probe von `terminal.ts` sieht hier ein Canvas,
+  // das "webgl2" hergibt, solange ein Test es nicht abstellt; Canvas, denen
+  // ein Test selbst ein `getContext` gibt, behalten ihres.
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(((type: string) =>
+    type === "webgl2" && hoisted.webgl2.available
+      ? {
+          getExtension: (name: string) =>
+            name === "WEBGL_lose_context" ? { loseContext: () => (hoisted.webgl2.probeLosses += 1) } : null,
+        }
+      : null) as unknown as HTMLCanvasElement["getContext"]);
   hoisted.size = { cols: 80, rows: 24 };
   hoisted.fitCalls = 0;
   hoisted.customKeyEventHandler = undefined;
@@ -3225,6 +3241,29 @@ describe("mountTerminal: WebGL-Fallback", () => {
     expect(() =>
       mount(document.createElement("div"), "host-1", "sess-1"),
     ).not.toThrow();
+  });
+
+  // Der echte Addon scheitert ohne WebGL2 nicht beim Laden, sondern erst in
+  // `term.open()`, und xterm wirft das ueber `setTimeout` weiter: Der Fehler
+  // stuende im Banner, obwohl das Terminal mit dem DOM-Renderer laeuft.
+  it("laedt den WebGL-Addon gar nicht, wenn das WebView kein WebGL2 hergibt", () => {
+    hoisted.webgl2.available = false;
+    mount(document.createElement("div"), "host-1", "sess-1");
+    expect(hoisted.webgl.created).toBe(0);
+    expect(hoisted.webgl.lossListeners).toHaveLength(0);
+  });
+
+  it("laedt ihn mit WebGL2 und gibt den Probekontext sofort wieder frei", () => {
+    mount(document.createElement("div"), "host-1", "sess-1");
+    expect(hoisted.webgl.created).toBe(1);
+    expect(hoisted.webgl2.probeLosses).toBe(1);
+  });
+
+  it("fragt je Terminal neu: WebGL kann im Betrieb wegfallen", () => {
+    mount(document.createElement("div"), "host-1", "sess-1");
+    hoisted.webgl2.available = false;
+    mount(document.createElement("div"), "host-1", "sess-2");
+    expect(hoisted.webgl.created).toBe(1);
   });
 });
 
