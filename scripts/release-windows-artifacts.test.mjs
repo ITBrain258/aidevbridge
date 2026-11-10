@@ -7,7 +7,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { safeRelative, toRtf, crc32, createZip, readZip, verifyZip, fileTree, verifyTree, sourceSnapshot, releaseContract, claimRun, releaseLock, beforeBuild, beforeBundle, finishArtifacts, verifyRelease, verifyTools, command, BUNDLER_DOWNLOADS, CLI_VERSION, DOWNLOAD_SOURCE } from './release-windows-artifacts.mjs';
+import { safeRelative, toRtf, crc32, createZip, readZip, verifyZip, fileTree, verifyTree, sourceSnapshot, releaseContract, claimRun, releaseLock, beforeBuild, beforeBundle, finishArtifacts, verifyRelease, verifyTools, matchesPins, command, BUNDLER_DOWNLOADS, CLI_VERSION, DOWNLOAD_SOURCE } from './release-windows-artifacts.mjs';
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -226,6 +226,32 @@ test('bundler verification rejects altered downloaded bytes against source-pinne
   const f = fixture(t), claimed = begin(f);
   const tools = { tauri_cli: CLI_VERSION, source: DOWNLOAD_SOURCE, downloads: BUNDLER_DOWNLOADS.map(item => { const p = `${claimed.run.relative}/downloads/${item.name}`, bytes = Buffer.from('wrong archive'); f.write(p, bytes); return { ...item, path: p, ...record(bytes) }; }) };
   assert.throws(() => verifyTools(f.root, claimed.run, tools), /Pinned bundler archive/);
+});
+
+test('every bundler download carries a SHA-256 pin besides the pin of the Tauri bundler', () => {
+  for (const item of BUNDLER_DOWNLOADS) {
+    assert.match(item.sha256, /^[a-f0-9]{64}$/, item.name);
+    if (item.algorithm === 'sha256') assert.equal(item.sha256, item.hash, item.name);
+  }
+  // The two inputs the bundler pins by SHA-1 only.
+  assert.deepEqual(BUNDLER_DOWNLOADS.filter(item => item.algorithm !== 'sha256').map(item => item.name), ['nsis-3.13.zip', 'nsis_tauri_utils.dll']);
+  // The repository's record of the NSIS update names both hashes of the archive.
+  const nsis = BUNDLER_DOWNLOADS.find(item => item.name === 'nsis-3.13.zip');
+  const evidence = fs.readFileSync(path.join(repository, 'docs/release/windows-installer-nsis-3.13-2026-10-30.md'), 'utf8');
+  assert.ok(evidence.includes(`\`${nsis.hash}\` | \`${nsis.sha256}\``), 'the SHA-256 pin of nsis-3.13.zip is not the one measured in docs/release');
+});
+
+test('downloaded bundler bytes must match both pins', () => {
+  const bytes = Buffer.from('pinned archive'), other = Buffer.from('other archive');
+  const sha1 = value => crypto.createHash('sha1').update(value).digest('hex');
+  const item = { name: 'tool.zip', algorithm: 'sha1', hash: sha1(bytes), sha256: sha(bytes) };
+  assert.equal(matchesPins(item, bytes), true);
+  assert.equal(matchesPins(item, other), false);
+  // The SHA-1 of the bundler alone is not enough, and neither is the SHA-256 alone.
+  assert.equal(matchesPins({ ...item, sha256: sha(other) }, bytes), false);
+  assert.equal(matchesPins({ ...item, hash: sha1(other) }, bytes), false);
+  assert.throws(() => matchesPins({ ...item, sha256: undefined }, bytes), /without a SHA-256 pin: tool\.zip/);
+  assert.throws(() => matchesPins({ ...item, sha256: item.hash }, bytes), /without a SHA-256 pin/);
 });
 
 test('delivery traversal rejects a Windows junction', { skip: process.platform !== 'win32' }, t => {

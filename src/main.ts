@@ -27,6 +27,7 @@ import {
   socketOf,
   type Host,
   type HostSettings,
+  type HostState,
   type OpenResult,
   type Session,
   type SessionListError,
@@ -246,12 +247,93 @@ export function main(): void {
    * bleibt stehen, bis die naechste sie ersetzt -- sonst leerte sie schon das
    * naechste Neuzeichnen, bevor Hilfstechnik sie vorgelesen hat. */
   let liveShowsWaiting = false;
+  /** Zaehlt die Ansagen von `announce`; daran erkennt der Abgleich der
+   * Hostzustaende unten, ob sein Satz in diesem Durchlauf schon gesagt ist. */
+  let announcements = 0;
 
   /** Sagt einen Satz ueber dieselbe hoefliche Live-Region an. */
   function announce(text: string): void {
     attentionLive.textContent = text;
     liveShowsWaiting = false;
+    announcements += 1;
   }
+
+  // Verbunden, gescheitert, Verbindung verloren: die Seitenleiste zeigt das
+  // nur -- ihr Hinweis ist kein Alert, weil sie bei jeder Aenderung neu
+  // zeichnet --, angesagt wird es deshalb hier, einmal je Uebergang.
+  // Verglichen wird der Stand jedes Hosts mit dem zuletzt gesehenen; ein Poll
+  // oder ein Neuzeichnen aendert ihn nicht und sagt darum nichts an.
+  interface AnnouncedHost {
+    state: HostState;
+    /** Lief die Reihe des Neuverbindens (§5.4)? */
+    reconnecting: boolean;
+  }
+  const announcedHosts = new Map<string, AnnouncedHost>();
+  let hostAnnouncementPending = false;
+
+  /** Der Satz zu einem gescheiterten Aufbau. Er nennt den Host immer, wie die
+   * drei anderen Ansagen: die Region haengt nicht an der Hostzeile, und der
+   * Satz des Backends allein ("Host not reachable. …") sagte bei mehreren
+   * Hosts nicht, welcher gemeint ist. Ohne Meldung steht der Satz mit dem
+   * Host allein, ohne Leerzeichen danach. */
+  function hostFailedText(label: string, message: string): string {
+    return t("host.announce.failed", { host: label, message }).trim();
+  }
+
+  /** Der Satz zum Wechsel dieses Hosts; `null`, wenn es nichts anzusagen gibt.
+   * "Connecting…" und "Offline" gehoeren nicht dazu: beides loest der Nutzer
+   * an dem Knopf aus, auf dem er gerade steht. */
+  function hostTransitionText(host: Host, before: AnnouncedHost, reconnecting: boolean): string | null {
+    if (host.state === "connected") {
+      return before.state === "connected" ? null : t("host.announce.connected", { host: host.label });
+    }
+    // Die Reihe sagt ihren Beginn an, wenn sie auf eine lebende Verbindung
+    // folgt, und danach ihr Ende; die Versuche dazwischen nicht.
+    if (reconnecting) {
+      return !before.reconnecting && before.state === "connected"
+        ? t("host.announce.reconnecting", { host: host.label })
+        : null;
+    }
+    if (host.state !== "failed") return null;
+    if (before.state === "connected") return t("host.announce.lost", { host: host.label });
+    if (before.state === "failed" && !before.reconnecting) return null;
+    return hostFailedText(host.label, host.error ?? "");
+  }
+
+  /** Gleicht nach jeder Benachrichtigung ab, aber erst in einer Mikroaufgabe:
+   * ein Wechsel besteht oft aus mehreren Schritten in einem Zug (der Verlust
+   * setzt erst "failed" und startet dann die Reihe; "Retry" beendet die Reihe
+   * und setzt "connecting"). Angesagt wird, wo der Host danach steht. */
+  function scheduleHostAnnouncements(): void {
+    if (hostAnnouncementPending) return;
+    hostAnnouncementPending = true;
+    const announcedBefore = announcements;
+    queueMicrotask(() => {
+      hostAnnouncementPending = false;
+      const texts: string[] = [];
+      const present = new Set<string>();
+      for (const host of state.hosts) {
+        present.add(host.id);
+        const before = announcedHosts.get(host.id);
+        const reconnecting = state.isHostReconnecting(host.id);
+        announcedHosts.set(host.id, { state: host.state, reconnecting });
+        // Ein neuer Host hat keinen Uebergang: nach dem Laden ist er getrennt,
+        // und aus "Add host" kommt er verbunden, was dessen Ansicht schon sagt.
+        const text = before ? hostTransitionText(host, before, reconnecting) : null;
+        if (text !== null) texts.push(text);
+      }
+      for (const hostId of [...announcedHosts.keys()]) {
+        if (!present.has(hostId)) announcedHosts.delete(hostId);
+      }
+      if (texts.length === 0) return;
+      const text = texts.join(" ");
+      // Den Satz hat in diesem Durchlauf schon jemand gesagt: `connectHost`
+      // den einer abgelaufenen Hostschluesselfrage.
+      if (announcements !== announcedBefore && attentionLive.textContent === text) return;
+      announce(text);
+    });
+  }
+  state.subscribe(scheduleHostAnnouncements);
 
   /** Der Titel, der zuletzt an das native Fenster ging; `null`, solange keiner
    * sicher steht. Jede Benachrichtigung von AppState laeuft hier durch, ein
@@ -507,8 +589,10 @@ export function main(): void {
   function markTerminalTransportLost(host: Host): void {
     // Ohne Terminalverbindung keine Selbstreparatur der Steuerung (§5.3).
     cancelSelfRepair(host.id);
+    // Mit dem Socket der Session: ohne ihn traefe die Sperre einer offenen
+    // Session des Standard-Sockets ihre Namensvetterin auf dem eigenen.
     for (const session of host.sessions) {
-      if (session.open) state.lockInput(host.id, session.name);
+      if (session.open) state.lockInput(host.id, session.name, socketOf(session));
     }
     state.setHostState(host.id, "failed", t("terminal.transportLost"));
     // UX-Spec §5.4: Hosts mit Schluessel oder ssh-agent verbindet die App
@@ -881,6 +965,7 @@ export function main(): void {
       beforeConnect: () => connectionListenersReady,
       onRuntimeOwnershipChange: trackRuntimeOwnership,
       onHostReady: handleHostReady,
+      onHostSaved: handleHostSaved,
     });
   }
 
@@ -926,6 +1011,17 @@ export function main(): void {
     closeDialog();
     void refreshSessions(entry.id);
     scheduleStatusPoll(entry.id);
+  }
+
+  /** Ein Host ist gespeichert, aber die Ansicht, die ihn verbunden hatte, war
+   * schon entsorgt, als `add_host` antwortete (`FirstRunOptions.onHostSaved`):
+   * die Verbindung ist freigegeben. Er erscheint deshalb wie nach einem
+   * Neustart -- gespeichert und getrennt, mit dem Raster statt des Erststarts
+   * daneben. Ein Lauf, der schon abgebaut ist, nimmt ihn nicht mehr auf. */
+  function handleHostSaved(entry: HostEntry): void {
+    if (backgroundStopped) return;
+    state.upsertHost(hostFromEntry(entry));
+    ensureGridMounted();
   }
 
   /** List errors describe inventory freshness, never terminal transport health. */
@@ -1656,8 +1752,12 @@ export function main(): void {
         state.setHostState(hostId, "failed", String(message ?? error), typeof code === "string" ? code : null);
         // Die Hostschluesselfrage dieses Aufbaus ist abgelaufen und still
         // verschwunden; ihren Satz traegt jetzt nur der Hinweis der
-        // Seitenleiste, und der ist kein Alert. Einmal ansagen.
-        if (expiredHostKeyPrompts.delete(endpoint) && code === "connect_timeout") announce(String(message ?? error));
+        // Seitenleiste, und der ist kein Alert. Einmal ansagen, mit demselben
+        // Wortlaut wie der Abgleich der Hostzustaende: er erkennt daran, dass
+        // der Satz schon gesagt ist.
+        if (expiredHostKeyPrompts.delete(endpoint) && code === "connect_timeout") {
+          announce(hostFailedText(host.label, String(message ?? error)));
+        }
         // UX-Spec §7.3: ein gescheiterter Aufbau oeffnet nichts, auch nicht
         // spaeter. Nur wenn der Host erst sein Geheimnis braucht (das Feld
         // steht dann in der Seitenleiste), oeffnet die Session nach dem Erfolg.
@@ -1919,9 +2019,12 @@ export function main(): void {
         recentDirs: dirs?.recent ?? [],
         // Der Stand, den diese Anwendung KENNT -- mehr kann sie nicht
         // anbieten, und der Dialog sagt in seinem Kommentar auch, dass das
-        // best effort ist. Verbindlich prueft das Backend. Auch der
-        // Namensvorschlag meidet genau diese Namen.
-        existingSessions: host.sessions.map((s) => s.name),
+        // best effort ist. Verbindlich prueft das Backend. Vergeben sind nur
+        // die Namen des eigenen Sockets: dort entsteht die neue Session (Spec
+        // 2026-10-25 §2), und ein Name, den es nur auf tmux' Standard-Socket
+        // gibt, ist dort frei. Der Namensvorschlag meidet weiter beide Listen.
+        existingSessions: host.sessions.filter((s) => socketOf(s) === "app").map((s) => s.name),
+        otherSessions: host.sessions.filter((s) => socketOf(s) === "default").map((s) => s.name),
         onSubmit: (cwd, name) => {
           // Das Zurueckschreiben des Verzeichnisses ist Sache des Aufrufers
           // (`session-dialog.ts`s eigener Kopfkommentar), und zwar erst nach
@@ -2183,6 +2286,7 @@ export function main(): void {
       // entfallen hier -- der Dialogkopf traegt den Titel bereits.
       mountFirstRun(container, {
         onHostReady: handleHostReady,
+        onHostSaved: handleHostSaved,
         compact: true,
         beforeConnect: () => connectionListenersReady,
       onRuntimeOwnershipChange: trackRuntimeOwnership,
@@ -2843,8 +2947,74 @@ export function main(): void {
     touchKeys = mountTouchKeysBar(elements.app, (key) => gridHandle?.sendTouchKey(key));
   }
 
+  // --- Fehler, die niemand gefangen hat ----------------------------------
+  //
+  // Eine abgelehnte Zusage ohne `catch` oder ein Wurf in einem Rueckruf steht
+  // sonst nur in einer Konsole, die niemand offen hat; die Oberflaeche bleibt
+  // stehen, ohne zu sagen, warum. Beides zeigt das globale Banner, mit dem
+  // Rohtext hinter "Copy details".
+  /** Rohtexte der schon gezeigten Fehler: derselbe erscheint in einem Lauf
+   * einmal. Sonst holte ein Fehler, der mit jedem Poll wiederkommt, das
+   * Banner nach jedem "Dismiss" zurueck. */
+  const reportedUnexpectedErrors = new Set<string>();
+  /** So viele verschiedene Fehler zeigt ein Lauf hoechstens. Traegt jeder
+   * einen anderen Rohtext (einen Zaehler, eine Uhrzeit), greift die Menge
+   * oben nicht, und das Banner kaeme ohne Ende wieder. */
+  const UNEXPECTED_ERROR_LIMIT = 20;
+
+  function unexpectedErrorDetails(error: unknown): string {
+    if (error instanceof Error) {
+      // Chromium beginnt `stack` mit Name und Meldung, WebKit laesst sie weg.
+      const head = String(error);
+      const stack = error.stack ?? "";
+      return stack === "" || stack.startsWith(head) ? stack || head : `${head}\n${stack}`;
+    }
+    // Die Fehler des Backends sind Objekte wie `{ code, message }`.
+    if (typeof error === "object" && error !== null) return JSON.stringify(error) ?? String(error);
+    return String(error);
+  }
+
+  /** Zeigt einen unerwarteten Fehler im Banner. Wirft selbst nie: ein Wurf
+   * hier kaeme als neuer Fehler bei denselben Lauschern an. */
+  function reportUnexpectedError(error: unknown): void {
+    try {
+      let details = "";
+      try {
+        details = unexpectedErrorDetails(error);
+      } catch {
+        // Ein Wert, der sich nicht beschreiben laesst: das Banner ohne Rohtext.
+      }
+      if (reportedUnexpectedErrors.has(details) || reportedUnexpectedErrors.size >= UNEXPECTED_ERROR_LIMIT) return;
+      reportedUnexpectedErrors.add(details);
+      showGlobalError(t("app.unexpectedError"), details === "" ? undefined : details);
+    } catch {
+      // Siehe oben: nichts zu tun, was nicht wieder werfen koennte.
+    }
+  }
+
+  function onUnhandledRejection(event: PromiseRejectionEvent): void {
+    reportUnexpectedError(event.reason);
+  }
+
+  function onWindowError(event: ErrorEvent): void {
+    try {
+      const message = typeof event.message === "string" ? event.message : "";
+      // Chromium meldet so, dass ein ResizeObserver in einem Durchlauf nicht
+      // fertig wurde; er holt die Beobachtung im naechsten nach. Kein Fehler.
+      if (message.startsWith("ResizeObserver loop")) return;
+      // Ohne Fehlerobjekt: "Script error." aus einem fremden Ursprung, ueber
+      // den der Browser nichts verraet -- es gaebe nichts zu zeigen.
+      if (event.error == null && (message === "" || message.startsWith("Script error"))) return;
+      reportUnexpectedError(event.error ?? message);
+    } catch {
+      // Wie `reportUnexpectedError`: der Lauscher wirft nie.
+    }
+  }
+
   window.addEventListener("focus", onWindowFocus);
   window.addEventListener("online", onOnline);
+  window.addEventListener("unhandledrejection", onUnhandledRejection);
+  window.addEventListener("error", onWindowError);
   stopBackgroundWork = () => {
     backgroundStopped = true;
     compactShell?.dispose();
@@ -2857,6 +3027,8 @@ export function main(): void {
     workspaceSync.dispose();
     window.removeEventListener("focus", onWindowFocus);
     window.removeEventListener("online", onOnline);
+    window.removeEventListener("unhandledrejection", onUnhandledRejection);
+    window.removeEventListener("error", onWindowError);
     for (const hostId of [...pollTimers.keys()]) stopStatusPoll(hostId);
     for (const hostId of [...selfRepairs.keys()]) cancelSelfRepair(hostId);
     hostReconnects.dispose();
@@ -2866,7 +3038,22 @@ export function main(): void {
     gridHandle?.dispose();
   };
 
-  void bootstrap();
+  void bootstrap().catch(reportBootstrapFailure);
+
+  /** Ein Start, der nach seinem ersten `await` scheitert -- etwa weil
+   * `list_hosts` etwas Unerwartetes liefert --, endete sonst als abgelehnte
+   * Zusage, die niemand liest: `startApp` faengt nur, was `main()` synchron
+   * wirft. Steht rechts noch weder Raster noch Erststart, sind die Hosts
+   * nicht geladen, und die leere Seitenleiste taeuschte einen frischen Zustand
+   * vor (`showHostsLoadError`): das ist ein Startfehler wie jeder fruehere.
+   * Danach laeuft die Oberflaeche, und das Banner genuegt. */
+  function reportBootstrapFailure(error: unknown): void {
+    // Ein abgebauter Lauf (nur in Tests) fasst das Dokument des naechsten
+    // nicht an; sein Fehler bleibt unbehandelt und damit im Testlauf sichtbar.
+    if (backgroundStopped) throw error;
+    if (gridHandle === null && firstRunInGridHandle === null) reportFatalStartupError(error);
+    else reportUnexpectedError(error);
+  }
 
   /** Entscheidet beim Start zwischen Erststart (null Hosts) und dem Raster
    * (mindestens einer) -- die Seitenleiste ist in BEIDEN Faellen bereits

@@ -22,6 +22,25 @@ CLAUDE.local.md
 *.keystore
 *.p12
 
+# Ebenso das Signaturmaterial von Apple: der API-Schluessel fuer die
+# Notarisierung (AuthKey_<id>.p8, packages.yml schreibt ihn nur nach
+# $RUNNER_TEMP), Zertifikate und Bereitstellungsprofile.
+*.p8
+*.cer
+*.mobileprovision
+*.provisionprofile
+
+# Schluesseldatei des Dienstkontos fuer Google Play
+# (scripts/android-github-secrets.ps1 -PlayServiceAccountJson): unter dem
+# Namen aus dem Beispiel dort und unter den ueblichen Namen. Die Muster
+# treffen keine JSON-Datei des Repositorys. Den Namen, den die Google Cloud
+# Console beim Herunterladen vergibt (<Projekt>-<zwoelf Hex-Zeichen>.json),
+# deckt bewusst kein Muster ab: Es traefe auch kuenftige Belegdateien.
+*-play.json
+*service-account*.json
+*service_account*.json
+play-store-credentials.json
+
 # Nur lokal: Angaben zu Rechner und Konten gehoeren nicht ins oeffentliche
 # Repository (docs/stand.md, Entscheidung vom 31.10.2026).
 docs/lokal/

@@ -156,9 +156,10 @@ export function sections({ version, windows, macos, android }) {
 }
 
 // The release text: the current one, or for a release the workflow creates a
-// line with the changelog of its tag; then the platform parts.
+// line with the changelog of its tag; then the platform parts. The changelog
+// is German by project decision, and the line tells the English reader so.
 export function releaseBody({ version, body, parts }) {
-  let text = body ?? `aidevbridge ${version}. All changes: [CHANGELOG](${REPOSITORY}/blob/v${version}/CHANGELOG.md).\n`;
+  let text = body ?? `aidevbridge ${version}. All changes are in the [CHANGELOG](${REPOSITORY}/blob/v${version}/CHANGELOG.md), which is written in German.\n`;
   for (const [platform, section] of parts) text = mergeSection(text, platform, section);
   return text;
 }

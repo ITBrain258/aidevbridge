@@ -415,18 +415,23 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     }
   }
 
-  function addKeyOption(key: SshKeyDto): void {
+  /** Beschriftet die Option eines Schluessels aus `list_ssh_keys`. */
+  function describeKeyOption(option: HTMLOptionElement, key: SshKeyDto): void {
+    option.title = key.path;
+    option.textContent = key.comment
+      ? `${key.file_name} — ${key.key_type} · ${key.comment}`
+      : `${key.file_name} — ${key.key_type}`;
+  }
+
+  function addKeyOption(key: SshKeyDto, before: HTMLOptionElement = separatorOption): void {
     const value = `${KEY_VALUE_PREFIX}${key.path}`;
     // Ein eben erzeugter Schluessel kann schon im Menue stehen, wenn die Liste
     // erst danach ankommt.
     if (Array.from(authSelect.options).some((option) => option.value === value)) return;
     const option = document.createElement("option");
     option.value = value;
-    option.title = key.path;
-    option.textContent = key.comment
-      ? `${key.file_name} — ${key.key_type} · ${key.comment}`
-      : `${key.file_name} — ${key.key_type}`;
-    authSelect.insertBefore(option, separatorOption);
+    describeKeyOption(option, key);
+    authSelect.insertBefore(option, before);
   }
 
   /** Liefert den `<option>`-Wert fuer `path` und legt ihn an, falls er noch
@@ -463,6 +468,9 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   /** Hat der Nutzer im Menue gewaehlt, bevor `list_ssh_keys` antwortete? Dann
    * ueberschreibt die Vorauswahl seine Wahl nicht mehr. */
   let userChose = false;
+  /** Die Option eines mitgegebenen Schluessels (`initial.auth`), die schon vor
+   * der Antwort von `list_ssh_keys` im Menue steht; sonst `null`. */
+  let presetKeyOption: HTMLOptionElement | null = null;
 
   // Vorauswahl (Spec §9.2): eine `initial.auth`-Angabe (siehe Modulkommentar
   // oben -- der Konsum von `identity_file`) gewinnt VOR der
@@ -519,8 +527,32 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     }
     if (disposed) return;
     discoveredKeys = keys;
-    for (const key of keys) addKeyOption(key);
+    // Die Option der mitgegebenen Anmeldeart steht seit dem Mounten im Menue
+    // (`presetKeyOption`). Sie bleibt, wo sie ist -- so bleibt sie gewaehlt --,
+    // und das Menue sieht danach aus, als waere die Liste zuerst gekommen:
+    // die gefundenen Schluessel in ihrer Reihenfolge und mit ihrer
+    // Beschriftung, ein Schluessel ausserhalb der Liste dahinter.
+    let before = presetKeyOption ?? separatorOption;
+    for (const key of keys) {
+      if (presetKeyOption !== null && presetKeyOption.value === `${KEY_VALUE_PREFIX}${key.path}`) {
+        describeKeyOption(presetKeyOption, key);
+        before = separatorOption;
+      } else {
+        addKeyOption(key, before);
+      }
+    }
     if (!userChose) applyPreselection();
+  }
+
+  // Eine mitgegebene Anmeldeart gilt ab dem Mounten, nicht erst mit der
+  // Antwort von `list_ssh_keys`: bis dahin stuende das Menue auf seinem ersten
+  // Eintrag (ssh-agent), und ein Absenden in dieser Zeit ersetzte beim
+  // Bearbeiten den gespeicherten Schluessel still durch ssh-agent.
+  if (initialAuth) {
+    applyPreselection();
+    if (initialAuth.kind === "key") {
+      presetKeyOption = Array.from(authSelect.options).find((option) => option.value === authSelect.value) ?? null;
+    }
   }
   void loadKeys();
 

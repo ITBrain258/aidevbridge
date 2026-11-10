@@ -17,5 +17,5 @@ Changed behaviour comes with a test that fails without the change.
 ### Checklist
 
 - [ ] One topic; commit messages in English as `type(scope): summary`
-- [ ] New or changed interface text is in `src/i18n/en.json`
+- [ ] New or changed interface text is in `src/i18n/en.json` (backend messages are English literals in Rust)
 - [ ] If a dependency changed (lockfiles, `vendor/`, `docs/release/`): its license review is part of this pull request (CI job `licenses`, see CONTRIBUTING.md)

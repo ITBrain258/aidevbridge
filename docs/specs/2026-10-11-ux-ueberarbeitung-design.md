@@ -173,6 +173,23 @@ und Befehl:
   Fehlers, ohne Debug-Formatierung (V-07). „Copy diagnostics“ gibt es auch im
   Steuerhinweis.
 
+**Nachtrag vom 10.11.2026, Frist beim Kanalöffnen:** Läuft die Frist eines
+Befehls ab, während sein Kanal geöffnet wird, bekommt der Aufrufer seinen
+Fehler sofort, die Steuerverbindung bleibt aber zunächst stehen. Kommt die
+Antwort auf das Öffnen binnen 2 s danach, schließt der Transport den späten
+Kanal, wie er es seit 0.3.0 nach einem abgebrochenen Befehl tut. Erst wenn sie
+auch dann ausbleibt, oder wenn sich der späte Kanal binnen weiterer 2 s nicht
+schließen lässt, bricht er die Verbindung ab. Ein toter Pfad fällt so weiter
+auf, 2 s später als bisher. Die Meldung beim Wechsel auf `Degraded` nennt
+weiter Phase und Grund der Frist („open, timeout“), auch wenn das Ende dann
+erst der Wächter oder ein unbeteiligter Befehl bemerkt. Grund: Die Lesungen
+von Panetiteln und Elternprozessen haben Fristen von 0,5 bis 1 s (§5.2); ein
+kurzer Hänger im Netz,
+etwa ein WLAN-Wechsel oder ein verlorenes Paket im Mobilfunk, kostete sonst die
+Steuerverbindung und bei Passwort-Hosts eine neue Anmeldung. Der Abbruch beim
+Kanalöffnen aus §14 (V-06) ist damit entschärft, die Lebendprobe per SSH-Ping
+bleibt offen.
+
 ### 5.2 Statusabfrage
 
 Gesamtfrist bleibt 5 s (`STATUS_POLL_TIMEOUT`). Die verzichtbaren Lesungen

@@ -6,7 +6,9 @@ name: Android
 # the APK to the GitHub release of that tag and, once the Play secret exists,
 # uploads the App Bundle to Google Play. A manual run with "release" builds
 # the release the same way, signs and publishes nothing: the test before a
-# tag.
+# tag. A run that publishes builds only a commit that is on main, and the
+# release becomes the "Latest" one only when it also has the desktop packages
+# of packages.yml.
 #
 # The build job has no secrets: it runs npm, the Gradle plugins and every
 # build script and proc macro of the Rust tree. The signing key only reaches
@@ -80,6 +82,15 @@ jobs:
             echo "::error::Tag $PUBLISH_TAG does not match package.json version $version"
             exit 1
           fi
+      # A tag can point at any commit, also at the head of a branch that was
+      # never merged, while main only takes pull requests with green checks.
+      # So a run that can publish builds only a commit of main: the script
+      # fetches main (the repository is public, it needs no token) and asks
+      # git whether the checked-out commit is main or one of its ancestors.
+      # The sign job, which holds the key, only runs after this job.
+      - name: The commit to publish is on main
+        if: env.PUBLISH_TAG != ''
+        run: node scripts/release-on-main.mjs
       # Gradle 9.6 and the Android Gradle plugin 9.3 run on Java 21.
       - name: Android SDK, NDK and Java 21
         run: |
@@ -126,6 +137,21 @@ jobs:
           else
             npm run tauri -- android build --ci --apk --target aarch64
           fi
+      # File names, release text and store listing take the version from
+      # package.json and the tag; the APK takes it from the tauri.properties
+      # that the Tauri CLI generates, and build.gradle.kts falls back to
+      # versionCode 1 and versionName "1.0" without a word when that file is
+      # missing. So the built APK itself is asked, with aapt2 from the SDK's
+      # build tools: package name, versionName and versionCode must be those
+      # of package.json (the versionCode as Tauri derives it). Here and not in
+      # the sign job, which runs nothing but the signing tools; a preview is
+      # checked the same way.
+      - name: Check the identity of the built APK
+        run: |
+          set -euo pipefail
+          apk=src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+          "$ANDROID_HOME/build-tools/$BUILD_TOOLS/aapt2" dump badging "$apk" > "$RUNNER_TEMP/badging.txt"
+          node scripts/android-apk-identity.mjs "$RUNNER_TEMP/badging.txt" | tee -a "$GITHUB_STEP_SUMMARY"
       # Every prepared file must be in the APK and in the App Bundle (from
       # which Google Play builds what it delivers) with its bytes. Android's
       # packaging skips assets whose names start with a dot, which leaves out
@@ -355,12 +381,47 @@ jobs:
             jq -r '.body // ""' "$RUNNER_TEMP/release.json" > "$RUNNER_TEMP/body.md"
             node scripts/release-notes.mjs "$version" --body "$RUNNER_TEMP/body.md" --android signed/android-manifest.json > "$RUNNER_TEMP/notes.md"
             if [ "$UPLOAD" = true ]; then gh release upload "$tag" "$apk"; fi
-            gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md"
+            # As in packages.yml: gh sends make_latest only with --latest, and
+            # the API does not say what an update of a published release does
+            # without it. So the edit names what the release has now: the mark
+            # stays where it is, and only the step after the upload decides
+            # about setting it.
+            if [ "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name 2> /dev/null || true)" = "$tag" ]; then keep=--latest; else keep=--latest=false; fi
+            gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md" "$keep"
           else
             node scripts/release-notes.mjs "$version" --android signed/android-manifest.json > "$RUNNER_TEMP/notes.md"
-            gh release create "$tag" "$apk" --verify-tag --title "aidevbridge $version" --notes-file "$RUNNER_TEMP/notes.md"
+            # Not as the latest release: the next step decides that.
+            gh release create "$tag" "$apk" --verify-tag --latest=false --title "aidevbridge $version" --notes-file "$RUNNER_TEMP/notes.md"
           fi
           echo "Attached $(basename "$apk") to $tag" >> "$GITHUB_STEP_SUMMARY"
+      # As in packages.yml: the release is created with --latest=false, so
+      # that /releases/latest never offers the APK without the desktop
+      # packages or the other way round. After its own upload each workflow
+      # asks whether the release now has every package of its version
+      # (scripts/release-latest.mjs names them and prints what is missing);
+      # the publish jobs share a concurrency group, so the second one sees the
+      # files of the first and sets the mark. The mark is never taken from a
+      # newer release.
+      - name: Check whether the release has every package
+        id: complete
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GH_REPO/releases/tags/$PUBLISH_TAG" > "$RUNNER_TEMP/release-now.json"
+          if ! gh api "repos/$GH_REPO/releases/latest" > "$RUNNER_TEMP/latest.json" 2> "$RUNNER_TEMP/latest.err"; then
+            grep -qF '(HTTP 404)' "$RUNNER_TEMP/latest.err" || { cat "$RUNNER_TEMP/latest.err" >&2; exit 1; }
+            echo '{}' > "$RUNNER_TEMP/latest.json"
+          fi
+          node scripts/release-latest.mjs "${PUBLISH_TAG#v}" --release "$RUNNER_TEMP/release-now.json" \
+            --latest "$RUNNER_TEMP/latest.json" --output "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Mark the release as the latest one
+        if: steps.complete.outputs.latest == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit "$PUBLISH_TAG" --latest
 
   play:
     name: Upload to Google Play

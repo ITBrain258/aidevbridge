@@ -100,6 +100,9 @@
   --ab-compact-bar-h:  44px;
   --ab-touch-key-h:    38px;
   --ab-touch-key-w:    42px;
+  /* Kleinste Trefferflaeche in der kompakten Ansicht; nur deren Regeln lesen
+     das Token. */
+  --ab-touch-target:   40px;
 
   /* --- Erhebung --- */
   --ab-shadow-card:  0 6px 18px rgba(0, 0, 0, 0.35);
@@ -526,6 +529,132 @@ textarea,
    dem Telefon nur mit einer Hardwaretastatur. */
 #app.compact .sb-lane-head kbd {
   display: none;
+}
+
+/* ===== Kompakte Ansicht: Trefferflaechen, Dialoge und Banner ==============
+   Was ausserhalb der Spalten von `#app` liegt oder fuer den Zeiger bemessen
+   ist, bekommt hier seine Form fuer das Telefon. Jede Regel dieses Abschnitts
+   beginnt mit `#app.compact` oder `html.compact` (`views/compact-shell.ts`
+   setzt beide Klassen zugleich, nur auf Android): ohne die Klasse greift
+   keine, der Desktop bleibt, wie er ist (Test in styles.test.ts).
+
+   Die Seitenleiste liest ihre Zeilen- und Knopfhoehen aus Token; in der
+   Schublade stehen sie auf der Trefferflaeche fuer einen Finger. Nur dort:
+   im Raster hingen an denselben Token die 32 px hohe Sperrleiste und die
+   Suchleiste der Kachel. */
+#app.compact .sidebar {
+  --ab-sb-head-h: calc(var(--ab-touch-target) + var(--ab-space-4));
+  --ab-row-h-host: var(--ab-compact-bar-h);
+  --ab-row-h-session: var(--ab-touch-target);
+  --ab-row-btn-h: var(--ab-touch-target);
+}
+
+#app.compact .sb-head-btn {
+  width: var(--ab-touch-target);
+  height: var(--ab-touch-target);
+}
+
+/* Der `⋯`-Knopf der Hostleiste ist kein Quadrat wie seine Icon-Nachbarn. */
+#app.compact .host-menu-btn {
+  min-width: var(--ab-touch-target);
+  justify-content: center;
+}
+
+#app.compact .compact-bar-toggle {
+  height: var(--ab-touch-target);
+}
+
+/* Ohne Zeiger gibt es kein Hover: die Sessionaktionen ("Close terminal",
+   "End session…") erschienen nur noch an der Zeile der fokussierten Kachel.
+   Hier stehen sie immer da, in der Zeile hinter dem Zustandswort statt
+   darueber -- die Schublade ist breit genug fuer beides. Die Rueckfrage vor
+   dem Beenden (volle Breite) bricht darunter um. */
+#app.compact .sb-session-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+#app.compact .sb-session-row .ab-row.row-session {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+}
+
+#app.compact .sb-session-row .session-acts {
+  position: static;
+  flex: none;
+  margin-right: var(--ab-space-2);
+  visibility: visible;
+}
+
+#app.compact .sb-session-row .row-meta {
+  min-width: 0;
+  visibility: visible;
+}
+
+/* Maximieren und Schliessen im Kachelkopf: so hoch wie der Kopf, so breit wie
+   die Trefferflaeche. Der Kopf selbst waechst nicht, das Terminal behaelt
+   seine Zeilen. */
+#app.compact .tile-btn {
+  min-width: var(--ab-touch-target);
+  height: var(--ab-tile-head-h);
+}
+
+html.compact .dialog-close-btn {
+  width: var(--ab-touch-target);
+  height: var(--ab-touch-target);
+}
+
+html.compact .settings-tab {
+  height: var(--ab-touch-target);
+}
+
+/* Die Einstellungen: neben 200 px Navigation blieben dem Panel auf einem
+   360 px breiten Telefon 128 px. Schmal stehen die Bereiche deshalb als
+   umbrechende Zeile ueber dem Panel. Nur schmal: quer ist auch ein Telefon
+   breit genug fuer beide Spalten (die kompakte Ansicht gilt dort wegen der
+   Hoehe). 720 px wie in `COMPACT_QUERY`. */
+@media (max-width: 720px) {
+  html.compact .settings-view {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  html.compact .settings-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: 0;
+    border-bottom: var(--ab-border-w) solid var(--ab-line);
+  }
+}
+
+/* Der Name der gewaehlten Akzentfarbe passt neben den sieben Feldern nicht in
+   die schmale Karte; dort bricht er darunter um. */
+html.compact .accent-row {
+  flex-wrap: wrap;
+}
+
+/* Das globale Banner: mittig mit `left: 50%` schrumpft ein Kasten ohne
+   Breite auf die halbe Fensterbreite, auf dem Telefon rund 180 px. Hier
+   reicht er von Rand zu Rand (hoechstens die 480 px der Grundregel, dann
+   mittig), der Satz bekommt die ganze erste Zeile, die Knoepfe stehen
+   darunter. */
+html.compact .global-error-banner {
+  right: var(--ab-space-4);
+  left: var(--ab-space-4);
+  margin: 0 auto;
+  transform: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+html.compact .global-error-banner > span {
+  flex: 1 1 100%;
+}
+
+html.compact .global-error-banner .btn--row {
+  height: var(--ab-touch-target);
 }
 
 /* Auf Android rollt ein Zug mit dem Finger das Terminal (`touch-scroll.ts`,
@@ -2197,7 +2326,13 @@ kbd {
   border-color: var(--ab-line-strong);
 }
 
-.btn--secondary:hover {
+/* Nur ein bedienbarer Knopf reagiert auf den Zeiger, wie bei
+   `.host-action-btn`: als blosses `:hover` hatten die drei Regeln hier
+   dieselbe Spezifitaet wie `.btn:disabled` (0,2,0) und standen danach -- ein
+   deaktiviertes "Back", "Reject" oder "Copy diagnostics" hellte beim Zeigen
+   auf und bekam die Hover-Flaeche. `.btn--primary` braucht das nicht: seine
+   `:disabled`-Regel steht nach seiner `:hover`-Regel. */
+.btn--secondary:not(:disabled):hover {
   background-color: var(--ab-bg-hover);
   color: var(--ab-text-primary);
   border-color: var(--ab-line-strong);
@@ -2208,7 +2343,7 @@ kbd {
   color: var(--ab-danger);
 }
 
-.btn--danger:hover {
+.btn--danger:not(:disabled):hover {
   background-color: var(--ab-danger-bg);
   border-color: var(--ab-danger);
 }
@@ -2245,7 +2380,7 @@ kbd {
   padding: 0 var(--ab-space-3);
 }
 
-.btn--text:hover {
+.btn--text:not(:disabled):hover {
   color: var(--ab-text-primary);
   border-color: transparent;
 }
@@ -3351,7 +3486,11 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
      selbst ab, der Kartenschatten hebt ihn von der Ansicht darunter. */
   border: 0;
   border-radius: var(--ab-radius-sm);
-  background-color: var(--ab-danger-bg);
+  /* Deckend unter der Toenung: `--ab-danger-bg` ist durchscheinend, und der
+     Streifen liegt ueber Kachelkopf und Terminaltext. Ohne den Kartenton
+     darunter stand die Schrift der Ansicht in der Meldung. */
+  background-color: var(--ab-bg-card);
+  background-image: linear-gradient(var(--ab-danger-bg), var(--ab-danger-bg));
   color: var(--ab-danger);
   font-size: var(--ab-fs-sm);
   line-height: var(--ab-lh-sm);
@@ -3375,6 +3514,8 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
 .global-error-banner--neutral {
   border: var(--ab-border-w) solid var(--ab-line);
   background-color: var(--ab-bg-card);
+  /* Die Toenung der Basisregel liegt als Bild ueber dem Kartenton. */
+  background-image: none;
   color: var(--ab-text-primary);
 }
 

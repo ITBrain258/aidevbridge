@@ -28,6 +28,29 @@ npm ci
 npm run tauri -- dev
 ```
 
+An app started this way uses your real `settings.toml` and, on your hosts,
+the app's real tmux socket `agentbridge`, like the installed app. To keep a
+development instance away from the sessions you work in, start it with these
+two variables set:
+
+```sh
+AIDEVBRIDGE_SETTINGS_DIR=/absolute/path/to/an/empty/folder AIDEVBRIDGE_TMUX_SOCKET=abdev_yourname \
+  npm run tauri -- dev
+```
+
+```powershell
+$env:AIDEVBRIDGE_SETTINGS_DIR = 'C:\absolute\path\to\an\empty\folder'
+$env:AIDEVBRIDGE_TMUX_SOCKET = 'abdev_yourname'
+npm run tauri -- dev
+```
+
+Only debug builds read them, a release build ignores both. The folder must be
+an absolute path, and the socket name has 1 to 48 characters from `A-Z`,
+`a-z`, `0-9`, `_` and `-` and is neither `default` nor `agentbridge`. A
+variable that is set to a value the app cannot use is an error: it never
+falls back to the real folder or socket. A variable that is not set at all
+means the real one.
+
 Before you open a pull request, all of these must pass:
 
 ```sh
@@ -56,9 +79,10 @@ Tauri" in `.github/workflows/ci.yml` installs; the frontend tests and the
 build need only Node.js. The CI runs `npm run test:scripts` on Windows only;
 some of these tests check Windows behaviour and are skipped elsewhere.
 
-`.github/workflows/audit.yml` checks `Cargo.lock` with `cargo audit` and the
-runtime packages in `package-lock.json` with `npm audit --omit=dev` against
-known security advisories: weekly, on every change of either lockfile or of
+`.github/workflows/audit.yml` checks `Cargo.lock` with `cargo audit` and
+`package-lock.json` with `npm audit` against known security advisories (the
+runtime packages at every severity, all packages, also the build tools, from
+`high` on): weekly, on every change of either lockfile or of
 `vendor/`, and when started by hand. It is not part of the checks above, which `ci.yml` runs
 (see [Tests](docs/guide/building.md#tests)), and a new advisory can turn it red without
 any change here. `cargo audit` checks only packages that `Cargo.lock`
@@ -66,11 +90,15 @@ records with a registry source and never matches advisories against a path
 dependency such as the vendored russh in `vendor/russh`; a third job runs
 `scripts/check-vendored-advisories.mjs` for those, against GitHub's advisory
 database and the upstream repository's own advisories
-([SECURITY.md](SECURITY.md)). The `cargo audit` job ignores
-RUSTSEC-2023-0071 (`rsa`): moving to its fix, `rsa` 0.10.0, needs newer
-`rsa`, `ssh-key` and `pkcs1` pins in the vendored russh and a changed
-`rsa` line in the app. SECURITY.md explains why the app accepts it until then, and also
-lists the warnings `cargo audit` prints without failing.
+([SECURITY.md](SECURITY.md)). The `cargo audit` job fails on vulnerabilities
+and on `unsound` notices and ignores two advisories. RUSTSEC-2023-0071
+(`rsa`): moving to its fix, `rsa` 0.10.0, needs newer `rsa`, `ssh-key` and
+`pkcs1` pins in the vendored russh and a changed `rsa` line in the app.
+RUSTSEC-2024-0429 (`glib`): no shipped package contains it. SECURITY.md
+explains both and lists the `unmaintained` and `yanked` warnings `cargo audit`
+prints without failing. `scripts/audit-workflow.test.mjs` fails when an
+ignored advisory has lost its reason in `Cargo.lock`, so that an ignore goes
+with the update that fixes it.
 
 `.github/workflows/vendored.yml` runs whenever `vendor/russh`, `Cargo.lock`,
 `Cargo.toml`, `src-tauri/Cargo.toml` or `rust-toolchain.toml` change, and when
@@ -141,7 +169,8 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
   `fix(sidebar): keep focus on the host bar after a reload`.
 - Say in the description what you changed, why, and how you tested it. Review
   aims for one round.
-- All text of the user interface lives in `src/i18n/en.json`.
+- All text of the frontend lives in `src/i18n/en.json`. Messages that come
+  from the backend are English literals in the Rust sources.
 - The three release license selections
   (`docs/release/license-selection.*.json`) bind the app's sources by hash. For
   a change to your own code you do not need to update them; the maintainer
@@ -196,12 +225,22 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    bound file, such as `android.yml` or an Actions update from Dependabot,
    until the tag is pushed.
 4. Check that `package.json` on the merge commit carries the new version, then
-   push the tag `v<version>`. Only an administrator can create tags `v*`. The
+   push the tag `v<version>` on that merge commit: both workflows refuse to
+   build a release from a commit that is not on `main`. Only an administrator
+   can create tags `v*`. The
    packages workflow builds MSI, setup EXE, ZIP and the disk image, installs and
    starts each one, and attaches them to the release of the tag, creating it if
    needed; the Android workflow signs and attaches the APK. Do not use a draft,
-   which the workflows cannot find. A manual run naming the tag attaches only the
-   files the release still lacks. A published file is never replaced by different
+   which the workflows cannot find, and do not create the release by hand, which
+   GitHub would mark as the latest one at once: the workflows create it without
+   that mark, and the one that attaches last sets it when all six files are there
+   (setup EXE, MSI, ZIP, the disk image with its `.sha256` file, the APK). Until
+   then `/releases/latest` stays on the previous release. If a release goes out
+   without one platform on purpose, set the mark with
+   `gh release edit v<version> --latest`. A manual run naming the tag attaches only the
+   files the release still lacks; for a tag older than 0.3.2, start it on the tag
+   itself (**Use workflow from**), because those tags lack scripts the workflows
+   of `main` call. A published file is never replaced by different
    content: a platform whose files are all attached stays as it is, and if a
    platform is only partly attached, an attached file whose digest differs from
    the new build, or that has no digest, stops the run before anything is attached.

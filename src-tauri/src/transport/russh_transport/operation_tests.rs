@@ -1057,6 +1057,74 @@ async fn operation_cancelled_exec_open_without_late_ack_aborts_transport_after_c
         .await;
 }
 
+/// Eine Frist, die waehrend des Kanaloeffnens ablaeuft (ein kurzer Haenger im
+/// Netz unter einer Lesung mit einer Sekunde), meldet sich sofort und laesst
+/// die Steuerverbindung stehen: Der Actor schliesst den spaeten Kanal wie nach
+/// einem Abbruch.
+#[tokio::test]
+async fn operation_timed_out_exec_open_accepts_late_ack_only_to_close_without_submission() {
+    Peer::new(Scenario::HoldOpen)
+        .await
+        .check(move |transport, seen, mut delayed| async move {
+            // Lang genug, dass das Open sicher beim Server ankommt.
+            let control = OperationControl::new(Duration::from_millis(1500));
+            let mut query =
+                Box::pin(transport.exec_controlled("must-not-be-submitted", control.clone()));
+            let held = tokio::select! {
+                result = &mut query => panic!("unexpected result before open reply: {result:?}"),
+                reply = delayed.recv() => reply.unwrap(),
+            };
+            let error = exec_error(query.await);
+            assert_eq!(
+                (error.phase, error.reason, error.submission),
+                (
+                    ExecPhase::Open,
+                    ExecReason::Timeout,
+                    Submission::NotSubmitted
+                )
+            );
+            assert!(transport.is_usable());
+            held.accept().await;
+            observed(&seen.closes, 1).await;
+            assert_eq!(seen.execs.load(Ordering::SeqCst), 0);
+            // Ein Abbruch kaeme spaetestens nach CLEANUP (2 s): erst danach ist
+            // sicher, dass der Spaetpfad die Verbindung stehen laesst.
+            sleep(Duration::from_millis(2300)).await;
+            assert!(transport.is_usable());
+        })
+        .await;
+}
+
+/// Bleibt die Antwort auf das Open auch `CLEANUP` nach der Frist aus, ist die
+/// Kanalnummer verloren; erst dann opfert der Actor die Steuerverbindung. So
+/// faellt ein toter Pfad weiter auf, nur `CLEANUP` spaeter.
+#[tokio::test]
+async fn operation_timed_out_exec_open_without_late_ack_aborts_transport_after_cleanup() {
+    Peer::new(Scenario::HoldOpen)
+        .await
+        .check(move |transport, seen, mut delayed| async move {
+            let control = OperationControl::new(Duration::from_millis(1500));
+            let mut query =
+                Box::pin(transport.exec_controlled("must-not-be-submitted", control.clone()));
+            let held = tokio::select! {
+                result = &mut query => panic!("unexpected result before open reply: {result:?}"),
+                reply = delayed.recv() => reply.unwrap(),
+            };
+            assert_eq!(exec_error(query.await).reason, ExecReason::Timeout);
+            let timed_out = Instant::now();
+            assert!(transport.is_usable());
+            timeout(END, transport.closed()).await.unwrap();
+            // Knapp unter CLEANUP: Der Actor und der Aufrufer sehen die Frist
+            // nicht im selben Augenblick.
+            assert!(timed_out.elapsed() >= Duration::from_millis(1900));
+            assert!(!transport.is_usable());
+            assert_eq!(seen.execs.load(Ordering::SeqCst), 0);
+            assert_peer_ended_before_fixture_cleanup(&seen).await;
+            drop(held); // only after observing the product's transport abort
+        })
+        .await;
+}
+
 #[tokio::test]
 async fn operation_cancelled_pty_open_accepts_late_ack_only_to_close_without_requests() {
     for drop_caller in [false, true] {
@@ -1572,8 +1640,8 @@ async fn operation_control_open_failure_preserves_independent_terminal_io_and_re
             Peer::new(Scenario::HoldOpen)
                 .await
                 .check(move |control, seen, mut delayed| async move {
-                    // Eine Frist, die ein gesendetes Open beendet, opfert die
-                    // Steuerverbindung, wie bisher.
+                    // Ein gesendetes Open, dessen Antwort auch `CLEANUP` nach
+                    // der Frist ausbleibt, opfert die Steuerverbindung.
                     // Lang genug, dass das Open sicher beim Server ankommt.
                     let budget = OperationControl::new(Duration::from_millis(1500));
                     let query = control.exec_controlled("control-read", budget.clone());

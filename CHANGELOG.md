@@ -6,6 +6,32 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+Befunde einer Durchsicht vom 10.11.: Ein kurzer Haenger im Netz kostet nicht mehr die Steuerverbindung, die Telefonansicht passt Einstellungen, Fehlerstreifen und Trefferflaechen an, unerwartete Fehler erreichen den Nutzer, und Verbindungsausgaenge werden angesagt. Dazu Schranken im Release-Ablauf und im Audit.
+
+### Changed
+
+- Steuerverbindung: Laeuft die Frist eines Befehls ab, waehrend sein Kanal geoeffnet wird, bleibt die Steuerverbindung zunaechst stehen. Kommt die Antwort binnen 2 s danach, schliesst die App den spaeten Kanal; erst ohne Antwort bricht sie die Verbindung ab. Bisher kostete ein kurzer Haenger im Netz unter einer Lesung mit 0,5 bis 1 s Frist die Steuerverbindung und bei Passwort-Hosts eine neue Anmeldung (UX-Spec §5.1, Nachtrag vom 10.11.). Endet die Verbindung danach doch, nennt die Meldung weiter die Ursache ("open, timeout").
+- Android: Die kompakte Ansicht passt jetzt auch an, was ausserhalb der Spalten liegt. Die Einstellungen stellen ihre Bereiche als Zeile ueber das Panel (bisher blieben ihm auf 360 px Breite 128 px), der Fehlerstreifen reicht von Rand zu Rand, die Sessionaktionen "Close terminal" und "End session" stehen immer in der Zeile (ohne Zeiger gab es sie nur an der Zeile der fokussierten Kachel), und Zeilen und Knoepfe der Schublade, das Kreuz der Dialoge und die Reiter der Einstellungen sind 40 px hoch. Gerendert geprueft bei 360 x 800 und quer, nicht an einem Geraet.
+- Bildschirmleser: Verbunden, gescheitert und Verbindung verloren werden ueber die bestehende Live-Region angesagt, einmal je Wechsel. Der Inhalt des Terminals bleibt fuer Bildschirmleser unsichtbar (`stand.md`, Punkt 15).
+- Release: Ein Release wird nur aus einem Commit gebaut, der auf `main` liegt (`scripts/release-on-main.mjs`), und bekommt die Marke "Latest" erst, wenn alle sechs Dateien daran haengen (`scripts/release-latest.mjs`); bisher zeigte `/releases/latest` minutenlang nur die APK oder nur die Desktop-Pakete. Der Android-Bau prueft Paketname, versionName und versionCode der gebauten APK (`scripts/android-apk-identity.mjs`). Der Releasetext sagt, dass das Changelog deutsch ist. NSIS-Archiv und -Plugin sind zusaetzlich per SHA-256 gebunden, und die Release-Bauten lehnen weitere geerbte Variablen ab, die Compiler oder Profil aendern.
+- Audit: `cargo audit` scheitert auch an Meldungen der Art unsound (die zu `glib`, das in keinem ausgelieferten Paket steckt, ist ausgenommen), ein zweiter `npm audit` prueft ab der Stufe high auch die Entwicklungspakete, und `scripts/audit-workflow.test.mjs` scheitert, wenn eine Ausnahme ihren Grund in `Cargo.lock` verloren hat. `scripts/vendored-russh.test.mjs` gleicht `vendor/russh` mit `UPSTREAM-SHA256SUMS` ab. Dependabot fasst die Action-Updates einer Woche in einem Pull Request zusammen; `.gitignore` deckt Signaturmaterial von Apple und den Schluessel eines Play-Dienstkontos ab.
+- Doku: `SECURITY.md` nennt als vorerst hingenommene Grenze, dass ein bekannter Host mit einem Schluessel anderen Typs die Rueckfrage des Erstkontakts bekommt (OpenSSH lehnt ab; Kommentar und Grenzen-Anleitung behaupteten Gleichheit), und beschreibt genauer, wann die App mit einem RSA-Schluessel signiert. `CONTRIBUTING.md` nennt die zwei Variablen, die eine Entwicklungsinstanz von den echten Einstellungen und dem echten Socket trennen; die Host-Anleitung nennt die 60 s der Fingerabdruck-Frage.
+
+### Fixed
+
+- Unerwartete Fehler: Ein Start, der nach dem Laden der Hosts scheiterte, eine abgelehnte Zusage ohne Behandlung oder ein Wurf in einem Rueckruf liessen die Oberflaeche ohne Meldung stehen. Jetzt zeigt die App die Startfehler-Box oder den Fehlerstreifen, jeden Rohtext einmal je Lauf. Wo das WebView kein WebGL2 hergibt, laedt das Terminal den WebGL-Renderer gar nicht erst; sein Scheitern beim Oeffnen stuende sonst bei jedem Start als ein solcher Fehler da.
+- Fehlerstreifen: Sein Grund war durchscheinend, die Schrift von Kachelkopf und Terminal stand in der Meldung. Er ist jetzt deckend.
+- "New session" lehnte einen Namen ab, den es nur auf tmux' Standard-Socket gibt, obwohl die Session auf dem eigenen Socket der App entsteht.
+- Verlor ein Host die Terminalverbindung, sperrte die App eine offene Session des Standard-Sockets ueber den Namen und traf eine gleichnamige geschlossene auf dem eigenen Socket.
+- Host bearbeiten: Wer einen Host mit Schluesseldatei speicherte, bevor die Schluesselliste da war, ersetzte den gespeicherten Schluessel still durch ssh-agent.
+- "Add host": Ein Host, der gespeichert wurde, waehrend der Dialog schloss, erschien erst nach einem Neustart. Eine gescheiterte Pruefung liess "Running checks" stehen, und ein Vorschlag ohne `User` wurde unter seinem Hostnamen statt unter seinem Alias gespeichert.
+- Neue Session: Die spaete Antwort mit dem Heimatverzeichnis ueberschrieb einen Ordner, der inzwischen im Baum gewaehlt war.
+- Tastatur: Kuerzel und Escape wirkten hinter der Frage zum Hostschluessel; Escape schloss einen Dialog auch waehrend einer IME-Komposition.
+- Einstellungen: Ein Schalter, der zurueckgestellt wurde, waehrend sein Schreiben noch lief, blieb in der Datei auf dem ersten Wert. Deaktivierte Knoepfe hellten beim Zeigen auf.
+- Schluesseldatei: Die App liest als Schluesseldatei nur noch eine regulaere Datei bis 64 KiB. Ein `IdentityFile` aus `~/.ssh/config`, das ein Geraet oder eine sehr grosse Datei nennt, fuellte bisher den Speicher oder hielt die Vorbereitung an. Unter Windows gilt das auch fuer den Pfad einer benannten Pipe (`\\.\pipe\...`).
+- Einstellungen unter Unix: `settings.toml` und ein fehlender Ordner werden nur fuer den Nutzer angelegt (0600, 0700), bisher mit den Standardrechten. Das betrifft vor allem einen Bau aus den Quellen unter Linux.
+- Android: Der Kommentar eines in der App erzeugten Schluessels darf keine Steuerzeichen enthalten; er steht woertlich in der Zeile fuer `authorized_keys`.
+
 ## [0.3.1] - 2026-11-09
 
 Befunde einer Pruefung vom 09.11.: Unter Android fragt die App nicht mehr ein zweites Mal nach "Geraete in der Naehe", solange der Dialog offen ist, und ein vorgemerktes Strg oder Alt der Touch-Leiste veraendert keinen eingefuegten Text mehr; Hostvorschlaege aus `~/.ssh/config` schneiden Kommentare am Zeilenende ab. Dazu robustere Downloads in der CI, eine Pruefung der Play-Notiz vor dem Release und die Einordnung von `rsa` 0.10.0.

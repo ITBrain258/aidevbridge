@@ -86,9 +86,9 @@ test('the Android part comes after the desktop parts and only from a signed buil
   assert.equal(releaseBody({ version: '0.3.0', body: merged, parts: sections({ version: '0.3.0', windows: windowsManifest }) }), merged);
 });
 
-test('a release the workflow creates links the changelog of its tag; an existing text is kept', () => {
+test('a release the workflow creates links the changelog of its tag and says it is German; an existing text is kept', () => {
   const parts = sections({ version: '0.3.0', windows: windowsManifest, macos: macosManifest });
   const created = releaseBody({ version: '0.3.0', parts });
-  assert.equal(created, `aidevbridge 0.3.0. All changes: [CHANGELOG](https://github.com/ITBrain258/aidevbridge/blob/v0.3.0/CHANGELOG.md).\n\n${win()}\n\n${mac()}\n`);
+  assert.equal(created, `aidevbridge 0.3.0. All changes are in the [CHANGELOG](https://github.com/ITBrain258/aidevbridge/blob/v0.3.0/CHANGELOG.md), which is written in German.\n\n${win()}\n\n${mac()}\n`);
   assert.equal(releaseBody({ version: '0.3.0', body: 'Hand-written.\n', parts: [parts[0]] }), `Hand-written.\n\n${win()}\n`);
 });

@@ -175,6 +175,32 @@ check again on a rekey, so the app can be adapted to it.
 To resolve: a change in russh that compares the host key on a rekey,
 upstream or as a local patch of `vendor/russh`.
 
+### A known host that presents a key of another type gets the first-contact question
+
+`known_hosts` can list a host with a key of one type, for example ed25519.
+If the server then presents a key of a type the file does not list for that
+host, for example ECDSA, aidevbridge does not refuse it as a changed key: it
+asks as on a first contact, with one more sentence that names the key type
+the host is already trusted with and tells you to reject unless you changed
+the server. A different key of a type the file does list is refused without
+a question. OpenSSH refuses in both cases.
+
+What it means: someone who can intercept the connection can offer only a key
+type that the file does not list for the host, and so gets the question
+instead of the refusal. The connection still needs your **Trust and
+continue**; if you did not change the server's keys, choose **Reject**.
+
+Why it is accepted for now: the question is never skipped and says which key
+type the host was trusted with, and the app asks a server for the key types
+it already knows first, so a server that still has its known key does not
+get there. One exception: a host known only by its RSA key, whose server can
+sign with that key only as `ssh-rsa` (SHA-1) and also has a key of another
+type, gets the question although nothing changed, because `ssh-rsa` stays
+the last resort. The app is still under development, and the stricter rule
+is planned.
+
+To resolve: refuse such a key as a changed key, as OpenSSH does.
+
 ### Clipboard writes from programs when tmux passes them on
 
 Programs in a terminal can set the clipboard with the escape sequence
@@ -229,10 +255,17 @@ the first fixed version; aidevbridge still carries the release candidate
 
 aidevbridge uses `rsa` only to sign the SSH login with your own RSA key file,
 on your machine and with blinding, and, through russh, to verify RSA host
-keys, which needs no private key. It never decrypts. The app signs once per
-login and only when you connect, so a server can't collect the many
-precisely timed operations the attack needs. We accept the advisory for that
-reason; the audit workflow (`.github/workflows/audit.yml`) ignores it, while
+keys, which needs no private key. It never decrypts. The app signs only
+while it logs in: once for each of the two SSH connections it opens to a
+host, and again when it reconnects or repairs one of them. A host with a key
+file without passphrase is reconnected automatically after a lost
+connection, and a lost control connection is repaired after about two
+seconds, each time with one signature. A server you are connected to can
+therefore ask for further signatures by dropping a connection: at most one
+every few seconds, for as long as the app stays connected to it. The defence
+against the attack is the blinding, which the app applies to every signature
+with fresh randomness; the limited rate only adds to it. We accept the
+advisory for that reason; the audit workflow (`.github/workflows/audit.yml`) ignores it, while
 a local `cargo audit` still reports it. Where you can, use an ed25519 key.
 
 To resolve: move to `rsa` 0.10.0. Besides the exact pins on the release
@@ -309,8 +342,10 @@ kept unchanged with it; no build reads it. aidevbridge builds with the
 0.7.10, ctutils 0.4.7 and tokio 1.54.1 and doesn't contain
 `crossbeam-epoch`.
 
-`cargo audit` on the root `Cargo.lock` also prints these warnings, which
-don't fail the audit workflow:
+`cargo audit` on the root `Cargo.lock` also reports these notices. The audit
+workflow fails on any `unsound` notice and ignores the one for `glib` by
+flag, until `glib` is 0.20 or newer or gone from `Cargo.lock`;
+`unmaintained` and `yanked` notices are warnings and don't fail it:
 
 - `glib` 0.18 (RUSTSEC-2024-0429,
   [GHSA-wrw7-89jp-8q8g](https://github.com/advisories/GHSA-wrw7-89jp-8q8g)):

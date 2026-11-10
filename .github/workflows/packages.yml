@@ -7,7 +7,9 @@ name: Packages
 # release builds for Windows (setup EXE, MSI, ZIP) and macOS (universal DMG),
 # which need the bound license selections. On a tag, or a manual run naming
 # one, the packages go to the GitHub release of that tag; the release is
-# created if there is none yet.
+# created if there is none yet. Such a run builds only a commit that is on
+# main, and the release becomes the "Latest" one only when it also has the APK
+# of android.yml.
 on:
   push:
     branches: [main]
@@ -74,6 +76,15 @@ jobs:
             echo "::error::Tag $PUBLISH_TAG does not match package.json version $version"
             exit 1
           fi
+      # A tag can point at any commit, also at the head of a branch that was
+      # never merged, while main only takes pull requests with green checks.
+      # So a run that can publish builds only a commit of main: the script
+      # fetches main (the repository is public, it needs no token) and asks
+      # git whether the checked-out commit is main or one of its ancestors.
+      # Before the build, which gets the Apple signing secrets.
+      - name: The commit to publish is on main
+        if: env.PUBLISH_TAG != ''
+        run: node scripts/release-on-main.mjs
       - name: Build and check the disk image
         env:
           # Developer ID signing and notarization only for a published build and
@@ -274,6 +285,10 @@ jobs:
         run: |
           $version = node -p "require('./package.json').version"
           if ($env:PUBLISH_TAG -ne "v$version") { throw "Tag $env:PUBLISH_TAG does not match package.json version $version" }
+      # As in the macOS job: only a commit of main is built for a release.
+      - name: The commit to publish is on main
+        if: env.PUBLISH_TAG != ''
+        run: node scripts/release-on-main.mjs
       - name: Build and check MSI, setup EXE and ZIP
         run: npm run build:windows
       - name: Collect the packages
@@ -497,13 +512,52 @@ jobs:
             if [ "${#upload[@]}" -gt 0 ]; then
               gh release upload "$tag" "${upload[@]}"
             fi
-            gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md"
+            # gh sends make_latest only with --latest, and the API gives that
+            # field a default of true without saying what an update of a
+            # published release does without it. So the edit names what the
+            # release has now: the mark stays where it is, also in a repeated
+            # run for a still incomplete release or in a run for an older tag,
+            # and only the step after the upload decides about setting it.
+            if [ "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name 2> /dev/null || true)" = "$tag" ]; then keep=--latest; else keep=--latest=false; fi
+            gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md" "$keep"
           else
             node scripts/release-notes.mjs "$version" "${args[@]}" > "$RUNNER_TEMP/notes.md"
-            gh release create "$tag" "${upload[@]}" --verify-tag --title "aidevbridge $version" --notes-file "$RUNNER_TEMP/notes.md"
+            # Not as the latest release: the next step decides that.
+            gh release create "$tag" "${upload[@]}" --verify-tag --latest=false --title "aidevbridge $version" --notes-file "$RUNNER_TEMP/notes.md"
           fi
           printf 'Attached to %s:\n' "$tag" >> "$GITHUB_STEP_SUMMARY"
           for f in "${upload[@]}"; do echo "- $(basename "$f")" >> "$GITHUB_STEP_SUMMARY"; done
+      # GitHub would mark the release as "Latest" the moment the first of the
+      # two workflows creates it, and the download link of the README points
+      # at /releases/latest: for minutes, or until a failed workflow is
+      # repaired, it would offer only the APK or only the desktop packages. So
+      # the release is created with --latest=false, and each workflow asks
+      # after its own upload whether the release now has every package of its
+      # version (scripts/release-latest.mjs names them and prints what is
+      # missing). The publish jobs of both workflows share a concurrency
+      # group, so the second one sees the files of the first and sets the
+      # mark; a repeated run sets a mark that is still missing. The mark is
+      # never taken from a newer release.
+      - name: Check whether the release has every package
+        id: complete
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GH_REPO/releases/tags/$PUBLISH_TAG" > "$RUNNER_TEMP/release-now.json"
+          if ! gh api "repos/$GH_REPO/releases/latest" > "$RUNNER_TEMP/latest.json" 2> "$RUNNER_TEMP/latest.err"; then
+            grep -qF '(HTTP 404)' "$RUNNER_TEMP/latest.err" || { cat "$RUNNER_TEMP/latest.err" >&2; exit 1; }
+            echo '{}' > "$RUNNER_TEMP/latest.json"
+          fi
+          node scripts/release-latest.mjs "${PUBLISH_TAG#v}" --release "$RUNNER_TEMP/release-now.json" \
+            --latest "$RUNNER_TEMP/latest.json" --output "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Mark the release as the latest one
+        if: steps.complete.outputs.latest == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit "$PUBLISH_TAG" --latest
       # Runs after the upload, and also after a failed one, which may have
       # attached part of the files already: the warning appears whenever this
       # run put or tried to put files without provenance on the release.

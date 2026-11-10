@@ -160,24 +160,28 @@ Build-Provenienz an ihnen hängen.
 
 ## Letzte Prüfung
 
-Am 09.11.2026 nach 0.3.0: fünf voneinander unabhängige Prüfungen auf `main`
-(`121ca5e`), die nur lasen (Release und CI, Abhängigkeiten und Meldungen,
-Doku und Datenschutz, Backend und Frontend der Änderungen seit 0.2.7). Ihre
-Befunde behebt PR #45 (CHANGELOG `[0.3.1]`), bis auf `rsa` 0.10.0
-(Punkt 12). Neun weitere neutrale Prüfungen des Branches in vier Runden
-fanden unter anderem, dass Wartezeiten auf den Dialog fürs lokale Netz die
-Frist des Versuchs verbrauchen konnten, eine Frist der Anfrage, die den
-ursprünglichen Fehler zurückbrachte, und eine Gradle-Einstellung ohne
-Wirkung; behoben im selben PR. Lokal für PR #45: `licenses:status` ohne
-Abweichung, `check` grün für windows-x64 (393/219), macos-universal
-(390/213) und android-universal (485/242), Clippy für Windows und
-`aarch64-linux-android`, 691 Rust-Bibliothekstests, mit den
-Integrationstests 767, 2919 Vitest-Tests, 158 Skripttests und
-`npm run build`. Die NDK-Belege bleiben die von 0.3.0
-(arm64 von 0.2.7, armv7 und x86_64 vom 28.10.). Nicht geprüft: die
-Android-Änderungen und der WebView-Hinweis an einem Gerät und die
-Mac-Abnahme (Punkt 9). Die Prüfung vor 0.3.0 vom 07.11. steht in der
-Git-Historie dieser Datei.
+Am 10.11.2026 nach 0.3.1: fünf voneinander unabhängige Prüfungen auf `main`
+(`4c61495`), die nur lasen (Rust-Backend, Sicherheit, Frontend, CI und
+Release, Doku und Datenschutz), dazu alle lokalen Prüfungen und der Zustand
+auf GitHub. Kein kritischer oder hoher Befund. Was sich lohnte, behebt
+PR #47 (CHANGELOG `[Unreleased]`): Eine Frist beim Kanalöffnen kostet nicht
+mehr sofort die Steuerverbindung, die Telefonansicht passt Einstellungen,
+Fehlerstreifen und Trefferflächen an, unerwartete Fehler erreichen den Nutzer,
+Verbindungsausgänge werden angesagt, und Release-Ablauf und Audit haben neue
+Schranken. Drei weitere neutrale Prüfungen lasen den Branch gegen und fanden
+unter anderem, dass der neue Fehlerfang auf Geräten ohne WebGL2 bei jedem
+Start anschlug, dass die Meldung zum Ende der Steuerverbindung ihre Ursache
+verlor und dass der Test der Release-Schranken sieben davon entfernen ließ;
+behoben im selben PR. Was offen bleibt, steht unter Punkt 15. Lokal für
+PR #47: `licenses:status` ohne Abweichung, `check` grün für windows-x64
+(393/219), macos-universal (390/213) und android-universal (485/242), Clippy
+für Windows und `aarch64-linux-android`, 699 Rust-Bibliothekstests, mit den
+Integrationstests 775, 2979 Vitest-Tests, 215 Skripttests und
+`npm run build`. Nicht geprüft: die Telefonansicht an einem Gerät (nur
+gerendert, 360 × 800 und quer), die Schritte der Release-Workflows, die erst
+ein Tag ausführt (Schranke „auf `main`“, Marke „Latest“), und die
+Mac-Abnahme (Punkt 9). Die NDK-Belege bleiben die von 0.3.0. Die Prüfung vom
+09.11. steht in der Git-Historie dieser Datei.
 
 Die letzte VM-Abnahme (`acceptance_vm`, 11 von 11) lief am 27.10. auf dem Stand
 `7b961cf` gegen einen lokalen Linux-Testhost.
@@ -270,8 +274,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    echt wartenden Claude-Session, ob die Windows-Animationseffekte aus sind.
    Verdacht aus dem Review vom 03.11., nicht nachgestellt: Die Seitenleiste
    baut bei jeder Änderung ihres Zustands neu auf; kommt eine solche Änderung
-   während eines Drucks, kann Chromium den Klick verlieren. Zu klären, bevor
-   sich am Aufbau der Seitenleiste etwas ändert. Bekannte Fehler:
+   während eines Drucks, kann Chromium den Klick verlieren. Die Durchsicht vom
+   10.11. leitet das aus dem Aufbau ab (`list.replaceChildren()` bei jeder
+   Benachrichtigung, auch bei einem Fokuswechsel der Kacheln); nachgestellt
+   ist es weiter nicht. Zu klären, bevor sich am Aufbau der Seitenleiste etwas
+   ändert. Bekannte Fehler:
    - Beim Start mit Kacheln mehrerer Hosts ändert ein Host, der erst nach der
      Frist von 5 s gelistet wird, die Größe der übrigen Kacheln; Codex
      verliert dabei seinen Verlauf.
@@ -425,6 +432,58 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Mac-Abnahme, Punkt 9), `IdentityAgent` für 1Password und Secretive,
       Linux-Pakete (deb und rpm), Testhosts mit mehreren tmux-Versionen und
       Shells.
+15. **Durchsicht vom 10.11.:** Fünf voneinander unabhängige Prüfungen, die nur
+    lasen, auf `main` (`4c61495`); PR #47 behebt, was sich lohnte (oben).
+    Offen:
+    - **Hostschlüssel anderen Typs:** Ist ein Host mit einem Schlüssel eines
+      Typs bekannt und bietet der Server nur einen anderen Typ an, fragt die
+      App wie beim Erstkontakt, mit einem Hinweissatz; OpenSSH lehnt das als
+      geänderten Schlüssel ab (`check_hostkeys_by_key_or_type`). Jemand im
+      Netz kommt so an der harten Ablehnung vorbei zur Rückfrage. Am 10.11.
+      vom Maintainer zurückgestellt, solange die App in Entwicklung ist;
+      als Grenze in [`SECURITY.md`](../SECURITY.md). Dazu gehören: Wartende
+      Rückfragen erscheinen sofort mit aktiven Knöpfen (ein Doppelklick
+      bestätigt die nächste ungelesen), und die Entscheidung liest
+      `known_hosts` vom Beginn des Aufbaus, nicht erneut vor dem Anhängen.
+    - **Sessionliste:** `observe_sessions` braucht 2N+3 Befehle nacheinander
+      unter einer Frist von 15 s (`tmux/client.rs`); bei 20 Sessions und
+      100 ms Laufzeit je Richtung reicht sie nicht. Ein gemeinsamer Aufruf
+      ändert die gemessene Folge und braucht eine Messung auf tmux 3.0, 3.3a,
+      3.4 und 3.6.
+    - **Backend, klein:** Zweite Verbindung und Reparatur lösen den Hostnamen
+      neu auf (Round-Robin-DNS kann sie auf zwei Rechner führen); eine Zeile,
+      die `.bashrc` oder `.zshenv` ohne Terminal ausgibt, bricht die
+      strenge Rahmung der tmux-Abfragen; `close_terminal` kann sein
+      `open_terminal` überholen (Verdacht, enges Fenster); eine vergiftete
+      Sperre der Register lässt jeden späteren Befehl scheitern; die Aufnahme
+      von Auflösung und Schlüsselvorbereitung scheitert sofort, statt kurz zu
+      warten. Ein `[profile.release]` fehlt weiter: Ein Überlauf ist nicht
+      belegt, und eine Änderung beträfe jede Release-EXE samt Laufzeitbeleg.
+    - **Release:** Die Windows-Pakete hängen an den macOS-Jobs (`publish`
+      braucht alle vier); kein Starttest der APK in einem Emulator;
+      `release-manifest.json` liegt nur 90 Tage als Artefakt vor, nicht am
+      Release; das Play-Geheimnis käme in dasselbe Environment wie der
+      Signaturschlüssel (vor dem Hinterlegen trennen, wie U2 für Apple); die
+      Node-Version ist nur auf `24` gepinnt. Die neuen Schritte (Schranke
+      „auf `main`“, Marke „Latest“) laufen zum ersten Mal beim nächsten Tag;
+      danach prüfen, dass das Release die Marke trägt.
+    - **Frontend:** Der Inhalt des Terminals ist für Bildschirmleser
+      unsichtbar; `screenReaderMode` von xterm.js braucht eine Einstellung
+      samt Feld in `settings.toml`. `main()` baut beim Abbau nicht alles
+      ab (Seitenleiste, Dialoghülle, Rückfrage; betrifft die Tests). In der
+      Telefonansicht bleiben Eingabefelder und Dialogknöpfe 32 px hoch. Die
+      Bilder für README und Store sind neu zu rendern (Schublade der
+      Telefonansicht; `hero.png` zeigt 0.2.5), mit dem nächsten Release nach
+      `CONTRIBUTING.md`.
+    - **Doku:** Eine englische Kurzfassung je Release fehlt (das CHANGELOG ist
+      deutsch; der Play-Text taugt dafür nicht, er ist für Android-Nutzer
+      geschrieben). Zu entscheiden ist, wo sie steht. Android-Bau und
+      Lizenzroutine sind nur deutsch beschrieben. Die Regel zur
+      Kommentarsprache beschreibt den Stand nicht (Rust überwiegend deutsch,
+      Skripte und Workflows überwiegend englisch). Die Merge-Commits tragen
+      die private Mailadresse des Maintainers als Autor; die
+      GitHub-Einstellung „Keep my email addresses private“ beendet das für
+      künftige.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

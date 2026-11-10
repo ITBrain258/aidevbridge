@@ -683,7 +683,7 @@ async fn hung_exec_with_short_deadline_leaves_ready_and_emits_nothing() {
     let error = command.exec("hang").await.unwrap_err();
     let error = error.downcast_ref::<ExecError>().unwrap();
     // Read, nicht Open: Ein langsames Kanaloeffnen auf belasteter Maschine
-    // bricht den Transport ab und zeigt sich hier, nicht als Fehler in observe.
+    // zeigt sich hier als Frist der Phase Open.
     assert_eq!(
         (error.phase, error.reason),
         (ExecPhase::Read, ExecReason::Timeout)
@@ -751,6 +751,123 @@ async fn unusable_control_after_failure_sets_degraded() {
     );
     host.dispose().await;
     fixture.finish(2).await;
+}
+
+/// Eine Frist, die im Kanaloeffnen ablaeuft, laesst die Steuerverbindung
+/// stehen. Kommt die Antwort spaet, bleibt der Zustand Ready, es geht kein
+/// Ereignis hinaus, und der naechste Befehl laeuft.
+#[tokio::test]
+async fn open_timeout_with_a_late_answer_leaves_ready_and_emits_nothing() {
+    let fixture = Fixture::start(2, false, false, false).await;
+    let host = fixture.connect().await.unwrap();
+    host.start_monitor();
+    fixture.hold_control_opens();
+    // Lang genug, dass das Open sicher beim Server ankommt.
+    let command = host.command(Instant::now() + Duration::from_millis(1500));
+    let error = command.exec("fixture-control").await.unwrap_err();
+    let error = error.downcast_ref::<ExecError>().unwrap();
+    assert_eq!(
+        (error.phase, error.reason),
+        (ExecPhase::Open, ExecReason::Timeout)
+    );
+    assert_eq!(health(&host), ControlHealth::Ready);
+    fixture.wait_pending_control_opens(1).await;
+    fixture.release_control_opens().await;
+    // Ein Abbruch kaeme spaetestens 2 s nach der Frist (`CLEANUP`).
+    tokio::time::sleep(Duration::from_millis(2300)).await;
+    assert_eq!(health(&host), ControlHealth::Ready);
+    let events = control_events(&fixture);
+    assert!(events.is_empty(), "{events:?}");
+    let next = host.command(Instant::now() + COMMAND_TIMEOUT);
+    assert_eq!(next.exec("fixture-control").await.unwrap().code, 0);
+    let events = control_events(&fixture);
+    assert!(events.is_empty(), "{events:?}");
+    host.dispose().await;
+    fixture.finish(2).await;
+}
+
+/// Bleibt die Antwort auf das Open auch danach aus, bricht der Transport die
+/// Steuerverbindung erst 2 s nach der Frist ab. Das bemerkt nicht mehr der
+/// Befehl, sondern der Waechter; die Meldung nennt trotzdem die Ursache
+/// (V-07).
+#[tokio::test]
+async fn open_timeout_without_an_answer_degrades_later_and_names_the_cause() {
+    let fixture = Fixture::start(2, false, false, false).await;
+    let host = fixture.connect().await.unwrap();
+    host.start_monitor();
+    fixture.hold_control_opens();
+    let command = host.command(Instant::now() + Duration::from_millis(1500));
+    let error = command.exec("fixture-control").await.unwrap_err();
+    let error = error.downcast_ref::<ExecError>().unwrap();
+    assert_eq!(
+        (error.phase, error.reason),
+        (ExecPhase::Open, ExecReason::Timeout)
+    );
+    assert_eq!(health(&host), ControlHealth::Ready);
+    timeout(END, async {
+        while health(&host) != ControlHealth::Degraded {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .expect("the transport ends the control connection after the grace");
+    let events = control_events(&fixture);
+    assert_eq!(events.len(), 1, "{events:?}");
+    assert_eq!(events[0].state, ControlHealth::Degraded);
+    assert_eq!(
+        events[0].message.as_deref(),
+        Some("The control connection has ended (open, timeout).")
+    );
+    host.dispose().await;
+    fixture.finish(2).await;
+}
+
+/// Die Merkung einer Frist im Kanaloeffnen gilt nur kurz und nur einmal: Ein
+/// Ende lange danach hat eine andere Ursache.
+#[tokio::test(start_paused = true)]
+async fn the_open_timeout_cause_expires_and_is_used_once() {
+    let failed = |phase, reason| -> anyhow::Result<ExecResult> {
+        Err(ExecError {
+            phase,
+            reason,
+            submission: Submission::NotSubmitted,
+        }
+        .into())
+    };
+    assert!(is_open_timeout(&failed(
+        ExecPhase::Open,
+        ExecReason::Timeout
+    )));
+    assert!(!is_open_timeout(&failed(
+        ExecPhase::Read,
+        ExecReason::Timeout
+    )));
+    assert!(!is_open_timeout(&failed(
+        ExecPhase::Open,
+        ExecReason::Transport
+    )));
+    let mut state = State {
+        closing: false,
+        terminal_lost: false,
+        generation: 0,
+        health: ControlHealth::Ready,
+        control: None,
+        open_timed_out: None,
+        repair: None,
+        monitor: None,
+        pumps: tokio::task::JoinSet::new(),
+    };
+    assert_eq!(state.open_timeout_cause(), None);
+    state.open_timed_out = Some(Instant::now());
+    tokio::time::advance(Duration::from_secs(4)).await;
+    assert_eq!(
+        state.open_timeout_cause().as_deref(),
+        Some("The control connection has ended (open, timeout).")
+    );
+    assert_eq!(state.open_timeout_cause(), None);
+    state.open_timed_out = Some(Instant::now());
+    tokio::time::advance(OPEN_TIMEOUT_CAUSE + Duration::from_millis(1)).await;
+    assert_eq!(state.open_timeout_cause(), None);
 }
 
 #[test]

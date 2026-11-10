@@ -492,11 +492,62 @@ fn is_encrypted_pkcs8(source: &str) -> bool {
 /// buffer is zeroizing; the existing decoder still owns its own intermediate
 /// buffers, so this does not promise complete erasure of all decoder memory.
 fn load_key(path: &Path, passphrase: Option<&str>) -> Result<PrivateKey, AuthError> {
-    let mut source = Zeroizing::new(String::new());
-    std::fs::File::open(path)
-        .and_then(|mut file| file.read_to_string(&mut source))
-        .map_err(|e| AuthError::KeyUnreadable(e.to_string()))?;
+    let source = read_key_file(path)?;
     decode_key_source(&source, passphrase)
+}
+
+/// Liest eine Schluesseldatei: nur eine regulaere Datei und hoechstens
+/// `MAX_KEY_FILE_BYTES`, wie der Import unter Android. Der Pfad kommt aus den
+/// Einstellungen oder aus einem Vorschlag der `~/.ssh/config`; ein
+/// `IdentityFile /dev/zero` oder eine sehr grosse Datei fuellte sonst den
+/// Speicher, und ein Geraet oder eine Pipe hielte einen der wenigen Plaetze
+/// der Vorbereitung fest. Der Puffer ist vorab gross genug: Ein wachsender
+/// liesse beim Umkopieren Teile des Schluessels ungeloescht zurueck.
+fn read_key_file(path: &Path) -> Result<Zeroizing<String>, AuthError> {
+    use crate::ssh::key_files::MAX_KEY_FILE_BYTES;
+    let unreadable = |error: std::io::Error| AuthError::KeyUnreadable(error.to_string());
+    if names_device(path) || !std::fs::metadata(path).map_err(unreadable)?.is_file() {
+        return Err(AuthError::KeyUnreadable("not a regular file".into()));
+    }
+    let mut source = Zeroizing::new(String::with_capacity(MAX_KEY_FILE_BYTES + 1));
+    std::fs::File::open(path)
+        .and_then(|file| {
+            file.take(MAX_KEY_FILE_BYTES as u64 + 1)
+                .read_to_string(&mut source)
+        })
+        .map_err(unreadable)?;
+    if source.len() > MAX_KEY_FILE_BYTES {
+        return Err(AuthError::KeyUnreadable(
+            "larger than a key file can be".into(),
+        ));
+    }
+    Ok(source)
+}
+
+/// Nennt der Pfad unter Windows ein Geraet oder eine benannte Pipe
+/// (`\\.\pipe\...`, `\\?\pipe\...`, `\\server\pipe\...`)? Dort haelt
+/// `FileType::is_file()` alles fuer eine Datei, was weder Ordner noch
+/// Verknuepfung ist, und das Lesen einer stillen Pipe kaeme nie zurueck. Eine
+/// Schluesseldatei liegt auf einem Laufwerk oder einer Freigabe. Unter Unix
+/// erkennt `is_file()` Geraete und FIFOs selbst.
+#[cfg(windows)]
+fn names_device(path: &Path) -> bool {
+    use std::path::{Component, Prefix};
+    match path.components().next() {
+        Some(Component::Prefix(prefix)) => match prefix.kind() {
+            Prefix::DeviceNS(_) | Prefix::Verbatim(_) => true,
+            Prefix::UNC(_, share) | Prefix::VerbatimUNC(_, share) => {
+                share.eq_ignore_ascii_case("pipe")
+            }
+            Prefix::Disk(_) | Prefix::VerbatimDisk(_) => false,
+        },
+        _ => false,
+    }
+}
+
+#[cfg(not(windows))]
+fn names_device(_path: &Path) -> bool {
+    false
 }
 
 pub(crate) fn prepare_auth(method: &AuthMethod) -> Result<PreparedAuth, AuthError> {
@@ -703,6 +754,72 @@ mod tests {
             prepare_auth_pair_owned(fixture.method(Some("test"))),
             Err(AuthError::KeyUnreadable(_))
         ));
+    }
+
+    /// Der Pfad einer Schluesseldatei kommt auch aus einem Vorschlag der
+    /// `~/.ssh/config`. Gelesen wird nur eine regulaere Datei und nur bis zur
+    /// Grenze einer Schluesseldatei.
+    #[test]
+    fn key_file_read_is_bounded_and_takes_regular_files_only() {
+        use crate::ssh::key_files::MAX_KEY_FILE_BYTES;
+        let reason = |path: &Path| match read_key_file(path) {
+            Err(AuthError::KeyUnreadable(reason)) => reason,
+            other => panic!("falsches Ergebnis: {:?}", other.map(|source| source.len())),
+        };
+
+        let at_limit = AuthPairFixture::new(&"a".repeat(MAX_KEY_FILE_BYTES));
+        assert_eq!(
+            read_key_file(&at_limit.0).unwrap().len(),
+            MAX_KEY_FILE_BYTES
+        );
+        let too_large = AuthPairFixture::new(&"a".repeat(MAX_KEY_FILE_BYTES + 1));
+        assert!(reason(&too_large.0).contains("larger"));
+        assert!(reason(&std::env::temp_dir()).contains("regular file"));
+        let missing = std::env::temp_dir().join(format!(
+            "aidevbridge-auth-missing-key-{}.key",
+            rand::random::<u64>()
+        ));
+        assert!(reason(&missing).contains("os error"));
+        // Die Grenze gilt auch auf dem Weg der Anmeldung selbst.
+        assert!(matches!(
+            prepare_auth_pair_owned(too_large.method(None)),
+            Err(AuthError::KeyUnreadable(_))
+        ));
+    }
+
+    /// Unter Windows haelt `is_file()` eine benannte Pipe fuer eine Datei; ihr
+    /// Lesen kaeme nie zurueck. Solche Pfade lehnt die App ab, ohne sie
+    /// anzufassen.
+    #[cfg(windows)]
+    #[test]
+    fn a_windows_device_or_pipe_path_is_not_a_key_file() {
+        for path in [
+            r"\\.\pipe\openssh-ssh-agent",
+            r"\\.\COM1",
+            r"\\?\pipe\aidevbridge-no-such-pipe",
+            r"\\server\pipe\name",
+            r"\\server\PIPE\name",
+        ] {
+            assert!(names_device(Path::new(path)), "{path}");
+            match read_key_file(Path::new(path)) {
+                Err(AuthError::KeyUnreadable(reason)) => {
+                    assert!(reason.contains("regular file"), "{path}: {reason}")
+                }
+                other => panic!(
+                    "falsches Ergebnis fuer {path}: {:?}",
+                    other.map(|source| source.len())
+                ),
+            }
+        }
+        for path in [
+            r"C:\Users\U\.ssh\id_ed25519",
+            r"\\?\C:\Users\U\.ssh\id_ed25519",
+            r"\\server\share\keys\id_ed25519",
+            r"\\?\UNC\server\share\id_ed25519",
+            r"relative\id_ed25519",
+        ] {
+            assert!(!names_device(Path::new(path)), "{path}");
+        }
     }
 
     #[test]

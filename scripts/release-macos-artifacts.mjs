@@ -121,9 +121,22 @@ export function signingMode(env) {
   return { mode: 'developer-id', identity, notarize: true, notary: apiKey ? 'api-key' : 'apple-id' };
 }
 
+// Inherited variables that would change the compiler, its flags, the target,
+// the build profile, the SDK or the bundler; the build refuses them. Cargo
+// reads the compiler and its wrappers from RUSTC* and from CARGO_BUILD_RUSTC*,
+// flags from RUSTFLAGS, CARGO_ENCODED_RUSTFLAGS, CARGO_BUILD_RUSTFLAGS and
+// CARGO_TARGET_<triple>_RUSTFLAGS, and every profile setting (opt-level, lto,
+// debug, strip, ...) from CARGO_PROFILE_*; RUSTC_BOOTSTRAP lets a stable
+// compiler accept unstable features, which build scripts probe for. Harmless
+// ones pass, among them CARGO_HOME, CARGO_BUILD_JOBS, CARGO_TARGET_DIR,
+// CARGO_TERM_* and the CARGO_INCREMENTAL=0 that the toolchain action of the
+// workflows sets. The common part is the same as in
+// release-windows-artifacts.mjs and the tests compare the two; each script
+// keeps its own copy because its license selection binds it by hash.
+const BUILD_OVERRIDES = /^(RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|RUSTC_BOOTSTRAP|CARGO_BUILD_TARGET|CARGO_BUILD_RUSTFLAGS|CARGO_BUILD_RUSTC|CARGO_BUILD_RUSTC_WRAPPER|CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER|CARGO_PROFILE_.*|CARGO_TARGET_.*_(RUSTFLAGS|LINKER|RUNNER)|TAURI_CONFIG|TAURI_SIGNING_.*|TAURI_BUNDLER_.*|MACOSX_DEPLOYMENT_TARGET|SDKROOT)$/i;
 export function cleanBuildEnvironment(env) {
   for (const key of Object.keys(env)) {
-    if (/^(RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|CARGO_BUILD_TARGET|CARGO_BUILD_RUSTFLAGS|CARGO_TARGET_.*_(RUSTFLAGS|LINKER|RUNNER)|TAURI_CONFIG|TAURI_SIGNING_.*|TAURI_BUNDLER_.*|MACOSX_DEPLOYMENT_TARGET|SDKROOT)$/i.test(key) && env[key]) throw new Error(`Unsupported inherited build override: ${key}`);
+    if (BUILD_OVERRIDES.test(key) && env[key]) throw new Error(`Unsupported inherited build override: ${key}`);
   }
   // CI makes the Tauri DMG script skip its Finder styling (AppleScript), the same on every machine.
   return { ...env, RUSTUP_TOOLCHAIN: TOOLCHAIN, CI: 'true' };

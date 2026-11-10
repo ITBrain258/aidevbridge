@@ -87,6 +87,13 @@ export interface FirstRunOptions {
    * Einen solchen Host verbindet main.ts nach einem Transportverlust nicht
    * selbst neu (UX-Spec §5.4) -- und nur diese Ansicht weiss es. */
   onHostReady: (hostId: string, entry: HostEntry, usedSecret: boolean) => void;
+  /** Der Host ist in `settings.toml` gespeichert, aber die Ansicht wurde
+   * entsorgt, waehrend `add_host` lief (Escape, das Kreuz, ein anderer Host
+   * war schneller fertig). Die Verbindung hat `dispose()` da schon
+   * freigegeben, `onHostReady` kommt also nicht mehr -- der Aufrufer zeigt den
+   * Host als gespeichert und getrennt. Ohne diese Meldung saehe ihn bis zum
+   * naechsten Start niemand. */
+  onHostSaved?: (entry: HostEntry) => void;
   /** Spec 9.6: im "Add host"-Dialog ohne Logo, Name, Satz und Anforderungszeile. */
   compact?: boolean;
   /** Global TOFU listeners must be ready before any reservation/network work. */
@@ -468,7 +475,10 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
           // auf den ersten gefundenen `~/.ssh`-Schluessel oder den
           // deaktivierten Platzhalter zurueck, und der per `IdentityFile`
           // gemeinte Schluessel ist verloren.
-          const initial: Partial<HostFormValue> = { hostname: host.hostname ?? host.alias };
+          // Der Alias ist der Name des Hosts, wie auf dem direkten Weg
+          // (`valueFromSuggestion`); ohne ihn hiesse der gespeicherte Host
+          // wie sein Hostname.
+          const initial: Partial<HostFormValue> = { label: host.alias, hostname: host.hostname ?? host.alias };
           if (host.port) initial.port = host.port;
           if (host.identity_file) initial.auth = { kind: "key", path: host.identity_file, passphrase: "" };
           openForm(initial, "user");
@@ -850,6 +860,11 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     continueButton.hidden = true;
     preflightBlocked.hidden = true;
     preflightBlocked.textContent = "";
+    // Auch Liste und Ueberschrift: nach einem gescheiterten `run_preflight`
+    // stuenden sonst "Running checks…" und "Checking {alias}" ueber der
+    // Fehlermeldung, obwohl nichts mehr laeuft.
+    preflightList.replaceChildren();
+    preflightHeading.textContent = t("firstRun.preflight.heading");
   }
 
   function renderPreflight(report: PreflightReportPayload): void {
@@ -994,7 +1009,14 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
           show_default_socket: value.showDefaultSocket ?? true,
         },
       });
-      if (disposed || attempt !== attemptGeneration || connectedHostId !== handedOverHostId) return;
+      if (disposed || attempt !== attemptGeneration || connectedHostId !== handedOverHostId) {
+        // Gespeichert ist der Host trotzdem: `add_host` hat `settings.toml`
+        // geschrieben. Uebergeben laesst sich nichts mehr -- die Verbindung
+        // hat `releaseConnection()` beim Entsorgen geschlossen --, der
+        // Aufrufer erfaehrt deshalb nur den Eintrag.
+        options.onHostSaved?.(entry);
+        return;
+      }
       // Besitzuebergabe, und zwar GENAU HIER -- vor dem Rueckruf, und nur
       // auf dem Erfolgspfad: `onHostReady`
       // fuehrt in main.ts unmittelbar zu einem `dispose()` dieser Ansicht

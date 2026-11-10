@@ -31,6 +31,15 @@ pub(crate) const COMMAND_TIMEOUT: Duration = Duration::from_secs(15);
 /// damit haengende Pumpen auffallen.
 const MAX_PUMPS: usize = 16;
 
+/// So lange nach einer Frist im Kanaloeffnen gilt ein Ende der
+/// Steuerverbindung als deren Folge. Der Transport laesst die Verbindung nach
+/// einer solchen Frist zunaechst stehen, wartet 2 s auf die spaete Antwort und
+/// noch einmal so lange auf das Schliessen des spaeten Kanals
+/// (`owned_operations.rs`, `CLEANUP`); erst dann bricht er ab, und das sieht
+/// nicht mehr der Befehl, dessen Frist ablief, sondern der Waechter oder ein
+/// unbeteiligter Befehl. Die Meldung soll trotzdem die Ursache nennen (V-07).
+const OPEN_TIMEOUT_CAUSE: Duration = Duration::from_secs(5);
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ControlHealth {
@@ -81,9 +90,27 @@ struct State {
     generation: u64,
     health: ControlHealth,
     control: Option<Arc<RusshTransport>>,
+    /// Wann zuletzt die Frist eines Befehls im Kanaloeffnen ablief, waehrend
+    /// der Transport nutzbar blieb (`OPEN_TIMEOUT_CAUSE`).
+    open_timed_out: Option<Instant>,
     repair: Option<Repair>,
     monitor: Option<tokio::task::JoinHandle<()>>,
     pumps: tokio::task::JoinSet<()>,
+}
+
+impl State {
+    /// Die Meldung zu einem Ende der Steuerverbindung, das auf eine Frist im
+    /// Kanaloeffnen folgt; verbraucht die Merkung.
+    fn open_timeout_cause(&mut self) -> Option<String> {
+        let at = self.open_timed_out.take()?;
+        (at.elapsed() <= OPEN_TIMEOUT_CAUSE).then(|| {
+            format!(
+                "The control connection has ended ({}, {}).",
+                ExecPhase::Open.as_str(),
+                ExecReason::Timeout.as_str()
+            )
+        })
+    }
 }
 
 pub(crate) struct HostConnection {
@@ -140,6 +167,7 @@ impl HostConnection {
                     generation: 0,
                     health: ControlHealth::Ready,
                     control: Some(Arc::new(first)),
+                    open_timed_out: None,
                     repair: None,
                     monitor: None,
                     pumps: tokio::task::JoinSet::new(),
@@ -237,7 +265,10 @@ impl HostConnection {
         }
         state.control.take();
         state.health = ControlHealth::Degraded;
-        self.emit(&state, Some("The control connection has ended.".into()));
+        let message = state
+            .open_timeout_cause()
+            .unwrap_or_else(|| "The control connection has ended.".into());
+        self.emit(&state, Some(message));
         self.changed.send_replace(());
     }
 
@@ -316,9 +347,18 @@ impl HostConnection {
         if !usable {
             state.control.take();
             state.health = ControlHealth::Degraded;
-            message = Some(degraded_message(result));
+            // Nach einer Frist im Kanaloeffnen ist sie die Ursache, auch wenn
+            // erst ein spaeterer, unbeteiligter Befehl das Ende bemerkt.
+            message = Some(
+                state
+                    .open_timeout_cause()
+                    .unwrap_or_else(|| degraded_message(result)),
+            );
         } else if result.is_ok() {
             state.health = ControlHealth::Ready;
+            state.open_timed_out = None;
+        } else if is_open_timeout(result) {
+            state.open_timed_out = Some(Instant::now());
         }
         if state.health != previous {
             self.emit(&state, message);
@@ -462,6 +502,15 @@ impl Drop for HostConnection {
     }
 }
 
+/// Lief die Frist dieses Befehls ab, waehrend sein Kanal geoeffnet wurde?
+fn is_open_timeout(result: &anyhow::Result<ExecResult>) -> bool {
+    result
+        .as_ref()
+        .err()
+        .and_then(|error| error.downcast_ref::<ExecError>())
+        .is_some_and(|error| error.phase == ExecPhase::Open && error.reason == ExecReason::Timeout)
+}
+
 /// Meldung beim Wechsel auf Degraded: Phase und Grund des ausloesenden
 /// Fehlers als Woerter, nie als Debug-Ausgabe (V-07).
 fn degraded_message(result: &anyhow::Result<ExecResult>) -> String {
@@ -518,6 +567,7 @@ impl RepairAttempt {
         );
         self.control.with_active(|| {
             state.control = Some(transport);
+            state.open_timed_out = None;
             state.repair = None;
             state.health = ControlHealth::Ready;
             self.host.emit(&state, None);

@@ -31,12 +31,24 @@ const ensure = (condition, message) => { if (!condition) throw new Error(message
 const equal = (a, b, message) => ensure(JSON.stringify(a) === JSON.stringify(b), message);
 
 // Pinned to the installed CLI source commit. Archives are retained before extraction.
+// `algorithm` and `hash` are the pin of the Tauri bundler at that commit, which
+// names only a SHA-1 for the NSIS archive and its plugin. `sha256` is this
+// project's own pin of the same bytes and is enforced as well: for
+// nsis-3.13.zip the value measured in
+// docs/release/windows-installer-nsis-3.13-2026-10-30.md, for all three the
+// value the release builds of 0.3.0 and 0.3.1 recorded in their
+// release-manifest.json (bundler.downloads) after the bundler's pin matched.
 export const BUNDLER_DOWNLOADS = [
-  { name: 'wix314-binaries.zip', version: '3.14.1', url: 'https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip', algorithm: 'sha256', hash: '6ac824e1642d6f7277d0ed7ea09411a508f6116ba6fae0aa5f2c7daa2ff43d31', destination: 'WixTools314' },
-  { name: 'nsis-3.13.zip', version: '3.13', url: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip', algorithm: 'sha1', hash: 'db14f8af2ea346b786c6ae19343f61aaf5e09b8e', destination: 'NSIS', strip: 'nsis-3.13/' },
-  { name: 'nsis_tauri_utils.dll', version: '0.5.3', url: 'https://github.com/tauri-apps/nsis-tauri-utils/releases/download/nsis_tauri_utils-v0.5.3/nsis_tauri_utils.dll', algorithm: 'sha1', hash: '75197fee3c6a814fe035788d1c34ead39349b860', destination: 'NSIS/Plugins/x86-unicode/additional/nsis_tauri_utils.dll' },
+  { name: 'wix314-binaries.zip', version: '3.14.1', url: 'https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip', algorithm: 'sha256', hash: '6ac824e1642d6f7277d0ed7ea09411a508f6116ba6fae0aa5f2c7daa2ff43d31', sha256: '6ac824e1642d6f7277d0ed7ea09411a508f6116ba6fae0aa5f2c7daa2ff43d31', destination: 'WixTools314' },
+  { name: 'nsis-3.13.zip', version: '3.13', url: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip', algorithm: 'sha1', hash: 'db14f8af2ea346b786c6ae19343f61aaf5e09b8e', sha256: 'ba63dffc4410ee89193e1cb5a41989991bd77c61068da17e3156d136b7b0b3d8', destination: 'NSIS', strip: 'nsis-3.13/' },
+  { name: 'nsis_tauri_utils.dll', version: '0.5.3', url: 'https://github.com/tauri-apps/nsis-tauri-utils/releases/download/nsis_tauri_utils-v0.5.3/nsis_tauri_utils.dll', algorithm: 'sha1', hash: '75197fee3c6a814fe035788d1c34ead39349b860', sha256: '5ba143b5db4a87d32d6e7802e033330aae56cbceabe0d1e3ba41948385ad4709', destination: 'NSIS/Plugins/x86-unicode/additional/nsis_tauri_utils.dll' },
 ];
 export const DOWNLOAD_SOURCE = 'https://github.com/tauri-apps/tauri/tree/993038c49185307dfc895ab7657d77ca0d5ed7c7/crates/tauri-bundler/src/bundle/windows';
+// True only when the bytes match both pins of a bundler download.
+export function matchesPins(item, bytes) {
+  ensure(/^[a-f0-9]{64}$/.test(item.sha256 ?? ''), `Bundler download without a SHA-256 pin: ${item.name}`);
+  return crypto.createHash(item.algorithm).update(bytes).digest('hex') === item.hash && sha(bytes) === item.sha256;
+}
 
 export function safeRelative(value) {
   ensure(typeof value === 'string' && value.length && !/[\\:\x00-\x1f<>"|?*]/.test(value), `Unsafe relative path: ${value}`);
@@ -231,14 +243,27 @@ export function releaseContract(root, requireCli = true) {
   if (requireCli) ensure(readJson(root, 'node_modules/@tauri-apps/cli/package.json').version === CLI_VERSION, 'Bundler provenance requires the selected Tauri CLI');
   return { product: pkg.name, version: pkg.version, identifier: base.identifier, target: TARGET, rust_toolchain: TOOLCHAIN, default_features: true, cargo_features: ['tauri/custom-protocol'], configuration: { path: CONFIG, ...record(read(root, CONFIG)) }, license_selection: { path: SELECTION, ...record(read(root, SELECTION)) }, webview2: { type: 'downloadBootstrapper', silent: true }, signed: false };
 }
-function cleanBuildEnvironment() {
-  for (const key of Object.keys(process.env)) {
-    if (/^(RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|CARGO_BUILD_TARGET|CARGO_BUILD_RUSTFLAGS|CARGO_TARGET_.*_(RUSTFLAGS|LINKER|RUNNER)|TAURI_CONFIG|TAURI_SIGNING_.*|TAURI_BUNDLER_.*|STATIC_VCRUNTIME)$/i.test(key) && process.env[key]) throw new Error(`Unsupported inherited build override: ${key}`);
+// Inherited variables that would change the compiler, its flags, the target,
+// the build profile or the bundler; the release build refuses them. Cargo
+// reads the compiler and its wrappers from RUSTC* and from CARGO_BUILD_RUSTC*,
+// flags from RUSTFLAGS, CARGO_ENCODED_RUSTFLAGS, CARGO_BUILD_RUSTFLAGS and
+// CARGO_TARGET_<triple>_RUSTFLAGS, and every profile setting (opt-level, lto,
+// debug, strip, ...) from CARGO_PROFILE_*; RUSTC_BOOTSTRAP lets a stable
+// compiler accept unstable features, which build scripts probe for. Harmless
+// ones pass, among them CARGO_HOME, CARGO_BUILD_JOBS, CARGO_TARGET_DIR,
+// CARGO_TERM_* and the CARGO_INCREMENTAL=0 that the toolchain action of the
+// workflows sets. The common part is the same as in
+// release-macos-artifacts.mjs and the tests compare the two; each script
+// keeps its own copy because its license selection binds it by hash.
+const BUILD_OVERRIDES = /^(RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|RUSTC_BOOTSTRAP|CARGO_BUILD_TARGET|CARGO_BUILD_RUSTFLAGS|CARGO_BUILD_RUSTC|CARGO_BUILD_RUSTC_WRAPPER|CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER|CARGO_PROFILE_.*|CARGO_TARGET_.*_(RUSTFLAGS|LINKER|RUNNER)|TAURI_CONFIG|TAURI_SIGNING_.*|TAURI_BUNDLER_.*|STATIC_VCRUNTIME)$/i;
+export function cleanBuildEnvironment(env = process.env) {
+  for (const key of Object.keys(env)) {
+    if (BUILD_OVERRIDES.test(key) && env[key]) throw new Error(`Unsupported inherited build override: ${key}`);
   }
   // The static VC runtime comes from build.windows.staticVCRuntime in the
   // release configuration; tauri-build deprecates STATIC_VCRUNTIME, which
   // would override it, so an inherited one is refused above.
-  return { ...process.env, RUSTUP_TOOLCHAIN: TOOLCHAIN };
+  return { ...env, RUSTUP_TOOLCHAIN: TOOLCHAIN };
 }
 export function claimRun(root, source, contract, id = `${new Date().toISOString().replace(/[-:.]/g, '').replace('Z', '')}-${crypto.randomBytes(6).toString('hex')}`) {
   ensure(/^[A-Za-z0-9-]{1,80}$/.test(id), 'Invalid run id'); mkdir(root, 'out');
@@ -342,7 +367,7 @@ async function downloadTools(root, run) {
     const response = await fetch(item.url, { signal: AbortSignal.timeout(120000) }); ensure(response.ok && response.url.startsWith('https://'), `Download failed: ${item.name}`);
     const chunks = []; let size = 0;
     for await (const chunk of response.body) { size += chunk.length; ensure(size < 128 * 1024 * 1024, 'Bundler download size limit'); chunks.push(chunk); }
-    const bytes = Buffer.concat(chunks); ensure(crypto.createHash(item.algorithm).update(bytes).digest('hex') === item.hash, `Pinned bundler hash mismatch: ${item.name}`);
+    const bytes = Buffer.concat(chunks); ensure(matchesPins(item, bytes), `Pinned bundler hash mismatch: ${item.name}`);
     const local = `${run.relative}/downloads/${item.name}`; write(root, local, bytes);
     if (item.name.endsWith('.zip')) extractZip(root, `${tools}/${item.destination}`, readZip(bytes), item.strip ?? '');
     else write(root, `${tools}/${item.destination}`, bytes);
@@ -364,10 +389,12 @@ export function verifyTools(root, run, tools) {
   ensure(tools.tauri_cli === CLI_VERSION && tools.source === DOWNLOAD_SOURCE && tools.downloads.length === BUNDLER_DOWNLOADS.length, 'Bundler source contract changed');
   for (let i = 0; i < BUNDLER_DOWNLOADS.length; i++) {
     const expected = BUNDLER_DOWNLOADS[i], item = tools.downloads[i];
-    for (const key of Object.keys(expected)) ensure(item[key] === expected[key], `Bundler download contract changed: ${expected.name}`);
+    // sha256 is compared through the bytes below: the record must match the
+    // file, and the file both pins.
+    for (const key of Object.keys(expected)) if (key !== 'sha256') ensure(item[key] === expected[key], `Bundler download contract changed: ${expected.name}`);
     ensure(item.path === `${run.relative}/downloads/${expected.name}`, 'Bundler archive path changed');
     const bytes = read(root, item.path); verifyRecord(root, item.path, item);
-    ensure(crypto.createHash(expected.algorithm).update(bytes).digest('hex') === expected.hash, 'Pinned bundler archive no longer matches');
+    ensure(matchesPins(expected, bytes), 'Pinned bundler archive no longer matches');
   }
   verifyTree(root, `${run.relative}/cargo/.tauri`, tools.tool_files);
 }

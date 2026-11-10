@@ -259,9 +259,11 @@ pub fn lookup(
         };
         if host_matches {
             if line_key_type != key_type {
-                // Anderer Typ: zaehlt nicht als "diesen Schluessel gesehen".
-                // Wie OpenSSH: ein neuer Typ ist ein neuer Schluessel, keine
-                // MITM-Warnung (H8, Kritikrunde).
+                // Anderer Typ: zaehlt nicht als "diesen Schluessel gesehen";
+                // die Rueckfrage nennt dann den bekannten Typ
+                // (`key_types_for`). OpenSSH lehnt hier als geaenderten
+                // Schluessel ab (`check_hostkeys_by_key_or_type` in
+                // `hostfile.c`); die App fragt vorerst, siehe SECURITY.md.
                 continue;
             }
             saw_host = true;

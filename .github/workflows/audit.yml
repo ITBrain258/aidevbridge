@@ -36,9 +36,20 @@ jobs:
       # 0.65.1 und eine geaenderte rsa-Zeile der App. SECURITY.md begruendet,
       # warum die App das bis dahin hinnimmt. Die Ausnahme steht als Flag
       # hier und nicht in .cargo/audit.toml, damit ein lokales `cargo audit`
-      # sie weiter meldet. Nur Sicherheitsluecken lassen den Lauf scheitern,
-      # Warnungen (unsound, unmaintained, yanked) nicht.
-      - run: cargo audit --ignore RUSTSEC-2023-0071
+      # sie weiter meldet.
+      #
+      # Sicherheitsluecken lassen den Lauf scheitern, mit --deny unsound auch
+      # jede Meldung der Art unsound. RUSTSEC-2024-0429 (glib 0.18,
+      # VariantStrIter) ist davon ausgenommen: glib kommt nur ueber das
+      # GTK-Backend von Tauri fuer Linux herein und steckt in keinem Paket, das
+      # das Projekt ausliefert (SECURITY.md). Eine neue Meldung dieser Art
+      # faerbt den Lauf damit rot, statt als Warnung in einem gruenen Protokoll
+      # zu stehen. unmaintained und yanked bleiben Warnungen.
+      #
+      # scripts/audit-workflow.test.mjs bindet jede Ausnahme an ihren Grund in
+      # Cargo.lock: Sie darf nur stehen, solange das betroffene Paket in der
+      # betroffenen Version dort eingetragen ist.
+      - run: cargo audit --deny unsound --ignore RUSTSEC-2023-0071 --ignore RUSTSEC-2024-0429
   npm:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -50,6 +61,13 @@ jobs:
       # Nur die Laufzeitpakete aus package-lock.json, ohne Installation; jede
       # Meldung laesst den Lauf scheitern.
       - run: npm audit --package-lock-only --omit=dev
+      # Dazu alle Pakete, auch die Entwicklungspakete: Vite, rolldown und
+      # @tauri-apps/cli bauen das ausgelieferte Bundle und die Installer. Hier
+      # scheitert der Lauf erst ab der Stufe high, damit eine geringe Meldung zu
+      # einem Testwerkzeug ihn nicht rot faerbt. Auch wenn der Schritt davor
+      # scheitert, damit eine Meldung die andere nicht verdeckt.
+      - if: ${{ !cancelled() }}
+        run: npm audit --package-lock-only --audit-level=high
   vendored:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

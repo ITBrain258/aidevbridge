@@ -173,17 +173,11 @@ impl Operations {
                 Ok(Ok(result)) => result.map_err(anyhow::Error::from),
                 Ok(Err(_)) => Err(progress.lock().unwrap().error(ExecReason::Transport).into()),
                 Err(error) => {
-                    // A cancellation leaves a started Open to the actor, which
-                    // closes its late channel (`exec_actor`); a deadline ends
-                    // the connection as before.
-                    let current = *progress.lock().unwrap();
-                    if error == OperationError::Timeout
-                        && current.phase == ExecPhase::Open
-                        && current.open_started
-                    {
-                        self.core.abort();
-                    }
-                    Err(current.error(error.into()).into())
+                    // A started Open stays with the actor after a cancellation
+                    // and after a deadline alike: it closes the late channel
+                    // or, without an answer within `CLEANUP`, ends the
+                    // connection (`exec_actor`).
+                    Err(progress.lock().unwrap().error(error.into()).into())
                 }
             }
         }
@@ -417,13 +411,16 @@ async fn exec_actor(
                 let _ = reply.send(Err(error(ExecReason::Transport)));
                 return;
             }
-            Err(StepError::Operation(OperationError::Cancelled)) if started => {
-                // A cancelled caller (a tile closed while it opened) answers at
-                // once and keeps the connection: the late Open ACK, if it comes
-                // within `CLEANUP`, is closed like any other channel. Only an
-                // Open without any answer by then loses its channel ID, and
-                // only then is this control connection sacrificed.
-                let _ = reply.send(Err(error(ExecReason::Cancelled)));
+            Err(StepError::Operation(stopped)) if started => {
+                // A cancelled caller (a tile closed while it opened) and a
+                // deadline that ran out during the Open (a short stall of the
+                // network under a one-second read) answer at once and keep the
+                // connection: the late Open ACK, if it comes within `CLEANUP`,
+                // is closed like any other channel. Only an Open without any
+                // answer by then loses its channel ID, and only then is this
+                // control connection sacrificed. A dead path is still found
+                // this way, `CLEANUP` after the deadline.
+                let _ = reply.send(Err(error(stopped.into())));
                 let late = tokio::select! {
                     biased;
                     _ = core.stopped() => return,
@@ -444,9 +441,8 @@ async fn exec_actor(
                 return;
             }
             Err(e) => {
-                // A deadline that ends a possibly submitted Open loses its
-                // future channel ID. Only this control connection is
-                // sacrificed; PTY uses another owner.
+                // Either nothing was sent yet, or the transport itself ended
+                // under a started Open; that one cannot be closed any more.
                 if started {
                     core.abort();
                 }

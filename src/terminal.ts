@@ -347,6 +347,26 @@ export function releaseWebglContext(container: HTMLElement): void {
   gl?.getExtension("WEBGL_lose_context")?.loseContext();
 }
 
+/** Gibt dieses WebView WebGL2 her? Der WebGL-Addon wird vor `term.open()`
+ * geladen und aktiviert sich erst darin. Scheitert er dort ("WebGL2 not
+ * supported"), faengt das kein `try` beim Laden: xterm reicht den Wurf ueber
+ * `setTimeout` weiter, und er stuende als unerwarteter Fehler im Banner,
+ * obwohl das Terminal mit dem DOM-Renderer laeuft. Darum vorher fragen.
+ *
+ * Je Terminal neu gefragt, nicht gemerkt: Chromium schaltet WebGL nach
+ * Abstuerzen des GPU-Prozesses im Betrieb ab. Der Probekontext wird sofort
+ * freigegeben, er zaehlte sonst zu den hoechstens 16 (siehe oben). */
+export function webgl2Available(): boolean {
+  try {
+    const gl = document.createElement("canvas").getContext("webgl2");
+    if (!gl) return false;
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Mountet ein xterm.js-Terminal in `el` und verdrahtet es mit der Session
  * `session` auf Host `hostId`.
@@ -543,22 +563,26 @@ export function mountTerminal(
   const search = new SearchAddon();
   term.loadAddon(search);
 
-  try {
-    const webgl = new WebglAddon();
-    // Ein spaeter verlorener WebGL-Kontext (GPU-Reset, Treiberwechsel)
-    // darf nicht in einem toten Canvas enden -- xterm 6 hat keinen
-    // Canvas-Renderer mehr, also disposen wir den Addon und xterm faellt
-    // von selbst auf den DOM-Renderer zurueck.
-    //
-    // Nach `releaseWebglContext` beim Entsorgen kommt der Verlust noch einmal
-    // an; dann ist das Terminal schon fort, und es gibt nichts zu tauschen.
-    webgl.onContextLoss(() => {
-      if (!disposed) webgl.dispose();
-    });
-    term.loadAddon(webgl);
-  } catch {
-    // Kein WebGL verfuegbar: derselbe Fallback (DOM-Renderer). Das darf
-    // die Anwendung nicht zum Absturz bringen.
+  // Ohne WebGL2 gar nicht erst laden (`webgl2Available`): der Addon scheiterte
+  // erst in `term.open()` und damit an jedem `try` hier vorbei.
+  if (webgl2Available()) {
+    try {
+      const webgl = new WebglAddon();
+      // Ein spaeter verlorener WebGL-Kontext (GPU-Reset, Treiberwechsel)
+      // darf nicht in einem toten Canvas enden -- xterm 6 hat keinen
+      // Canvas-Renderer mehr, also disposen wir den Addon und xterm faellt
+      // von selbst auf den DOM-Renderer zurueck.
+      //
+      // Nach `releaseWebglContext` beim Entsorgen kommt der Verlust noch einmal
+      // an; dann ist das Terminal schon fort, und es gibt nichts zu tauschen.
+      webgl.onContextLoss(() => {
+        if (!disposed) webgl.dispose();
+      });
+      term.loadAddon(webgl);
+    } catch {
+      // Kein WebGL verfuegbar: derselbe Fallback (DOM-Renderer). Das darf
+      // die Anwendung nicht zum Absturz bringen.
+    }
   }
 
   term.open(el);

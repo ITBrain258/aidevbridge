@@ -6,7 +6,8 @@
 // This script reads each vendored version and asks two sources which
 // advisories cover it: GitHub's advisory database and the upstream
 // repository's own advisories, which can be days ahead of the database. It
-// fails when one covers the vendored version or when a source can't be read.
+// fails when one covers the vendored version, when a source can't be read or
+// when an accepted advisory no longer affects any vendored version.
 // GITHUB_TOKEN, when set, raises GitHub's rate limit.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -20,6 +21,8 @@ export const VENDORED = [{ crate: 'russh', manifest: 'vendor/russh/Cargo.toml', 
 // Advisories that affect a vendored version but not the app, with the reason
 // (as SECURITY.md gives it). They are listed but don't fail the check.
 // Empty since russh 0.65.1, which fixes the two accepted on 2026-11-03.
+// An entry that no longer affects any vendored version fails the check
+// (staleAccepted below), so that it is removed with the update that fixes it.
 export const ACCEPTED = {};
 
 // Splits "0.34.0-beta.1" into numbers and pre-release identifiers; a missing
@@ -86,6 +89,12 @@ export const affecting = (version, advisories) => advisories.filter(a => a.range
   try { return inRange(version, r); } catch (error) { throw new Error(`${a.id}: ${error.message}`); }
 }));
 
+// The accepted ids that affect none of the vendored versions any more: `hits`
+// are the advisories of every vendored crate that affect its version. Such an
+// acceptance is stale, for example after the update that fixed the advisory
+// or after the advisory was withdrawn or its range corrected.
+export const staleAccepted = (accepted, hits) => Object.keys(accepted).filter(id => !hits.some(a => a.id === id));
+
 export function vendoredVersion(root, manifest) {
   const text = fs.readFileSync(path.join(root, ...manifest.split('/')), 'utf8');
   const pkg = /^\[package\]\s*$([\s\S]*?)(?=^\[)/m.exec(text);
@@ -112,6 +121,7 @@ async function github(url) {
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
     let affected = 0;
+    const allHits = [];
     for (const { crate, manifest, repository } of VENDORED) {
       const version = vendoredVersion(ROOT, manifest);
       const [globalList, repositoryList] = await Promise.all([
@@ -123,7 +133,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
       console.log(`${crate} ${version} (${manifest}): ${advisories.length} advisories known, ${hits.length} affect this version`);
       for (const a of hits) console.log(`  ${a.id} (${a.severity}): ${a.summary} [${a.ranges.join('; ')}]${ACCEPTED[a.id] ? ` - accepted: ${ACCEPTED[a.id]}` : ''}`);
       affected += hits.filter(a => !ACCEPTED[a.id]).length;
+      allHits.push(...hits);
     }
-    if (affected > 0) process.exitCode = 1;
+    const stale = staleAccepted(ACCEPTED, allHits);
+    for (const id of stale) console.log(`${id} is accepted in ACCEPTED but affects no vendored version any more: remove it there (and its reason in SECURITY.md)`);
+    if (affected > 0 || stale.length > 0) process.exitCode = 1;
   } catch (error) { console.error(`check-vendored-advisories: ${error.message}`); process.exitCode = 1; }
 }

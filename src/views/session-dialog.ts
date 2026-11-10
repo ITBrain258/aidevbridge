@@ -57,7 +57,8 @@ export interface SessionDialogOptions {
   hostId: string;
   initialCwd: string;
   /** Die auf diesem Host BEKANNTEN Sessionnamen -- fuer die Duplikatpruefung
-   * im Formular.
+   * im Formular. Der Aufrufer nennt die des eigenen Sockets der App: dort
+   * entsteht die neue Session, und nur dort kann ihr Name vergeben sein.
    *
    * Ausdruecklich BEST EFFORT: es gibt keinen periodischen Poll, und ein
    * fremder tmux-Klient kann jederzeit gleichnamig anlegen. Die Pruefung
@@ -65,6 +66,11 @@ export interface SessionDialogOptions {
    * die Pruefung im Backend, die den strukturierten `duplicate`-Fehler
    * liefert. */
   existingSessions: string[];
+  /** Weitere bekannte Namen auf diesem Host, die den Namen NICHT vergeben:
+   * die Sessions auf tmux' Standard-Socket. Der Vorschlag meidet auch sie --
+   * zwei gleichnamige Zeilen in der Seitenleiste schlaegt er nicht vor --,
+   * getippt bleibt ein solcher Name erlaubt. */
+  otherSessions?: readonly string[];
   /** Die letzten Verzeichnisse dieses Hosts, neueste zuerst (UX-Spec §7.6).
    * Der Dialog zeigt hoechstens fuenf als Liste "Recent" ueber dem Baum; ohne
    * Eintrag fehlt sie. */
@@ -180,10 +186,10 @@ export function mountSessionDialog(el: HTMLElement, opts: SessionDialogOptions):
   cwdInput.required = true;
   cwdInput.autocomplete = "off";
   cwdInput.value = opts.initialCwd;
-  /** Hat der Nutzer das Feld selbst angefasst? Entscheidet unten, ob die
-   * spaet eintreffende Aufloesung des Heimatverzeichnisses noch eingetragen
-   * werden darf. Muss VOR dem Mounten des Baums stehen -- dessen
-   * `onInitialPath` liest es. */
+  /** Hat der Nutzer das Verzeichnis selbst bestimmt -- getippt oder im Baum
+   * gewaehlt? Entscheidet unten, ob die spaet eintreffende Aufloesung des
+   * Heimatverzeichnisses noch eingetragen werden darf. Muss VOR dem Mounten
+   * des Baums stehen -- dessen `onInitialPath` liest es. */
   let cwdEdited = false;
   cwdLabel.appendChild(cwdInput);
   form.appendChild(cwdLabel);
@@ -289,9 +295,10 @@ export function mountSessionDialog(el: HTMLElement, opts: SessionDialogOptions):
   // getippter Pfad -- traegt den Vorschlag ins Namensfeld, solange es leer
   // ist oder noch den letzten Vorschlag haelt. Das Oeffnen selbst waehlt
   // nichts: wer sofort absendet, bekommt einen erzeugten Namen.
-  // "Vergeben" heisst, was der Dialog kennt -- dieselbe Liste wie die
-  // Duplikatpruefung beim Absenden.
-  const taken = new Set(opts.existingSessions);
+  // "Vergeben" heisst, was der Dialog kennt -- die Liste der
+  // Duplikatpruefung beim Absenden und dazu die Namen des Standard-Sockets
+  // (`otherSessions`).
+  const taken = new Set([...opts.existingSessions, ...(opts.otherSessions ?? [])]);
   let lastSuggestion = "";
   function suggestFor(dir: string): void {
     if (nameInput.value !== "" && nameInput.value !== lastSuggestion) return;
@@ -321,16 +328,21 @@ export function mountSessionDialog(el: HTMLElement, opts: SessionDialogOptions):
     // blockierte "Anlegen".
     //
     // BEDINGT uebernommen, anders als `onSelect`: die Meldung trifft erst
-    // nach zwei SSH-Runden ein. Wer in dieser Zeit selbst getippt hat, hat
-    // entschieden, und seine Eingabe wegzuwischen waere die schlimmere
-    // Ueberraschung -- gerade weil hier ein Verzeichnis auf einem fremden
-    // Rechner drinsteht.
+    // nach zwei SSH-Runden ein. Wer in dieser Zeit selbst getippt oder im
+    // Baum gewaehlt hat, hat entschieden, und seine Wahl wegzuwischen waere
+    // die schlimmere Ueberraschung -- gerade weil hier ein Verzeichnis auf
+    // einem fremden Rechner drinsteht. Eine Wahl in "Recent" braucht die
+    // Wache nicht: `reveal` beendet den Start des Baums, die Meldung kommt
+    // dann gar nicht mehr.
     onInitialPath: (path) => {
       if (cwdEdited) return;
       cwdInput.value = path;
       clearFieldError();
     },
     onSelect: (path) => {
+      // Die Wurzelzeile steht schon vor der Antwort da; ein Klick dort (und
+      // von dort weiter hinab) ist eine Wahl wie eine Eingabe ins Feld.
+      cwdEdited = true;
       cwdInput.value = path;
       // Von Hand nachgezogen, weil eine Zuweisung an `.value` KEIN
       // `input`-Ereignis ausloest: ohne diese Zeile bliebe eine vorherige
@@ -353,9 +365,8 @@ export function mountSessionDialog(el: HTMLElement, opts: SessionDialogOptions):
   // Anzeige des Feldwerts, sondern ein zweiter Weg zu einem.
   cwdInput.addEventListener("input", () => {
     // Merkt sich, dass der Nutzer selbst Hand angelegt hat -- gelesen von
-    // `onInitialPath` oben. Bewusst nur hier gesetzt und nirgends
-    // zurueckgenommen: einmal getippt heisst getippt, auch wenn das Feld
-    // danach wieder leer ist.
+    // `onInitialPath` oben. Bewusst nirgends zurueckgenommen: einmal getippt
+    // heisst getippt, auch wenn das Feld danach wieder leer ist.
     cwdEdited = true;
     clearFieldError();
     // Jede Eingabe ist eine Wahl; der Ordnername ist das letzte Glied.

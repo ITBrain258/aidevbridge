@@ -120,6 +120,25 @@ describe("dialog: Escape und Fokusrueckgabe", () => {
     expect(document.activeElement).toBe(opener);
   });
 
+  // Escape bricht in einem Feld die laufende IME-Komposition ab; der Dialog
+  // samt Eingaben bleibt.
+  it("laesst ein Escape waehrend einer IME-Komposition beim Feld", () => {
+    const dispose = vi.fn();
+    const { field, build } = formContent(dispose);
+    shell.openDialog({ title: "New session" }, build);
+    field.focus();
+
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", isComposing: true, bubbles: true, cancelable: true }),
+    );
+
+    expect(shell.isDialogOpen()).toBe(true);
+    expect(dispose).not.toHaveBeenCalled();
+
+    press("Escape");
+    expect(shell.isDialogOpen()).toBe(false);
+  });
+
   it("gibt den Fokus an fallbackFocus, wenn der Oeffner beim Schliessen nicht mehr im Dokument steht", () => {
     const row = document.createElement("button");
     row.type = "button";
@@ -153,5 +172,31 @@ describe("dialog: Escape und Fokusrueckgabe", () => {
     expect(shell.isDialogOpen()).toBe(false);
     expect(disposeSecond).toHaveBeenCalledTimes(1);
     expect(disposeFirst).toHaveBeenCalledTimes(1);
+  });
+});
+
+// Die Tastenlauscher (`keyboard.ts`) fragen `isDialogOpen`, bevor ein Akkord
+// oder Escape hinter einer Ueberlagerung wirkt. Die TOFU-Rueckfrage liegt
+// ueber allem und zaehlt deshalb mit, auch ohne Ueberlagerung darunter.
+describe("dialog: die TOFU-Rueckfrage zaehlt als offener Dialog", () => {
+  it("isDialogOpen folgt der Rueckfrage, auch ohne Ueberlagerung", () => {
+    expect(shell.isDialogOpen()).toBe(false);
+
+    shell.setHostKeyPromptOpen(true);
+    expect(shell.isDialogOpen()).toBe(true);
+
+    shell.setHostKeyPromptOpen(false);
+    expect(shell.isDialogOpen()).toBe(false);
+  });
+
+  it("bleibt offen, solange die Ueberlagerung oder die Rueckfrage steht", () => {
+    shell.openDialog({ title: "Add host" }, formContent().build);
+    shell.setHostKeyPromptOpen(true);
+
+    shell.closeDialog();
+    expect(shell.isDialogOpen()).toBe(true);
+
+    shell.setHostKeyPromptOpen(false);
+    expect(shell.isDialogOpen()).toBe(false);
   });
 });
