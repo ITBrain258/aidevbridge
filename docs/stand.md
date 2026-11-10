@@ -1,13 +1,13 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.1` vom 09.11.2026 (Tag `v0.3.1` auf dem Merge-Commit
-von PR #46); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.1 bringt die Befunde der Prüfung vom 09.11. (PR #45, „Letzte Prüfung“):
-Unter Android fragt die App nicht mehr ein zweites Mal nach „Geräte in der
-Nähe“, solange der Dialog offen ist, ein vorgemerktes Strg oder Alt der
-Touch-Leiste verändert keinen eingefügten Text mehr, und die Hostvorschläge aus
-`~/.ssh/config` schneiden Kommentare am Zeilenende ab; dazu robustere
-Downloads in der CI. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
+**Stand:** Version `0.3.2` vom 10.11.2026 (Tag `v0.3.2` auf dem Merge-Commit
+von PR #48); beim Tag baut die CI alle Pakete und hängt sie an das Release.
+0.3.2 bringt die Befunde der Durchsicht vom 10.11. (PR #47, „Letzte Prüfung“):
+Ein kurzer Hänger im Netz kostet nicht mehr die Steuerverbindung, die
+Telefonansicht passt Einstellungen, Fehlerstreifen und Trefferflächen an,
+unerwartete Fehler erreichen den Nutzer, und Verbindungsausgänge werden
+angesagt; dazu Schranken im Release-Ablauf und eine englische Kurzfassung auf
+jeder Release-Seite. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
 Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
 Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
@@ -164,7 +164,7 @@ Am 10.11.2026 nach 0.3.1: fünf voneinander unabhängige Prüfungen auf `main`
 (`4c61495`), die nur lasen (Rust-Backend, Sicherheit, Frontend, CI und
 Release, Doku und Datenschutz), dazu alle lokalen Prüfungen und der Zustand
 auf GitHub. Kein kritischer oder hoher Befund. Was sich lohnte, behebt
-PR #47 (CHANGELOG `[Unreleased]`): Eine Frist beim Kanalöffnen kostet nicht
+PR #47 (CHANGELOG `[0.3.2]`): Eine Frist beim Kanalöffnen kostet nicht
 mehr sofort die Steuerverbindung, die Telefonansicht passt Einstellungen,
 Fehlerstreifen und Trefferflächen an, unerwartete Fehler erreichen den Nutzer,
 Verbindungsausgänge werden angesagt, und Release-Ablauf und Audit haben neue
@@ -244,7 +244,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    [Beleg](release/license-source-notices-2026-11-06-scan.json).
    Offen:
    - Die Installerabnahme (bestanden am 24.10. an 0.2.0) ist mit NSIS 3.13 neu
-     fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.3.1. Das
+     fällig: Der Maintainer prüft die Setup-EXE an den Paketen von 0.3.2. Das
      Manifest jedes Laufs meldet `nsis_msi_payload`, `installer_terms_ui`,
      `installer_stub_notices`, `native_import_family_review` und
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie
@@ -471,14 +471,14 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       unsichtbar; `screenReaderMode` von xterm.js braucht eine Einstellung
       samt Feld in `settings.toml`. `main()` baut beim Abbau nicht alles
       ab (Seitenleiste, Dialoghülle, Rückfrage; betrifft die Tests). In der
-      Telefonansicht bleiben Eingabefelder und Dialogknöpfe 32 px hoch. Die
-      Bilder für README und Store sind neu zu rendern (Schublade der
-      Telefonansicht; `hero.png` zeigt 0.2.5), mit dem nächsten Release nach
-      `CONTRIBUTING.md`.
-    - **Doku:** Eine englische Kurzfassung je Release fehlt (das CHANGELOG ist
-      deutsch; der Play-Text taugt dafür nicht, er ist für Android-Nutzer
-      geschrieben). Zu entscheiden ist, wo sie steht. Android-Bau und
-      Lizenzroutine sind nur deutsch beschrieben. Die Regel zur
+      Telefonansicht bleiben Eingabefelder und Dialogknöpfe 32 px hoch, und
+      am Gerät ist sie nicht angesehen. Die Bilder für README und Store sind
+      mit 0.3.2 neu gerendert.
+    - **Doku:** Seit 0.3.2 steht auf jeder Release-Seite eine englische
+      Kurzfassung (`docs/release/notes/<Version>.md`, Entscheidung des
+      Maintainers vom 10.11.); das CHANGELOG bleibt deutsch. Ob es auf Englisch
+      wechselt, ist offen. Android-Bau und Lizenzroutine sind nur deutsch
+      beschrieben. Die Regel zur
       Kommentarsprache beschreibt den Stand nicht (Rust überwiegend deutsch,
       Skripte und Workflows überwiegend englisch). Die Merge-Commits tragen
       die private Mailadresse des Maintainers als Autor; die

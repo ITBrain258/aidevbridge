@@ -2,11 +2,14 @@
 // The platform parts of a GitHub release text, made from the
 // release-manifest.json of each build. The release workflow writes every part
 // between its own markers, replaces an earlier part of the same platform and
-// leaves every other line of a hand-written text as it is.
+// leaves every other line of a hand-written text as it is. A release that the
+// workflow creates starts with the English summary of its version
+// (docs/release/notes/<version>.md) and the link to the changelog.
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REPOSITORY = 'https://github.com/ITBrain258/aidevbridge';
 const ensure = (condition, message) => { if (!condition) throw new Error(message); };
 export const markers = platform => [`<!-- aidevbridge:${platform}:start -->`, `<!-- aidevbridge:${platform}:end -->`];
@@ -155,11 +158,50 @@ export function sections({ version, windows, macos, android }) {
   return result;
 }
 
-// The release text: the current one, or for a release the workflow creates a
-// line with the changelog of its tag; then the platform parts. The changelog
-// is German by project decision, and the line tells the English reader so.
-export function releaseBody({ version, body, parts }) {
-  let text = body ?? `aidevbridge ${version}. All changes are in the [CHANGELOG](${REPOSITORY}/blob/v${version}/CHANGELOG.md), which is written in German.\n`;
+// Where the English summary of a release lives: one Markdown file per
+// version, written with the release pull request
+// (scripts/release-notes.test.mjs requires it for the version in package.json).
+export const NOTE_DIRECTORY = 'docs/release/notes';
+export const NOTE_LIMIT = 2000;
+
+// Why a summary cannot be used, or null. It is Markdown that goes into the
+// release text as it is, so it must not carry one of the section markers: the
+// workflow would take the text after it for a platform part and replace it.
+export function noteProblem(text) {
+  if (typeof text !== 'string' || !text.trim()) return 'it is empty';
+  if (text.includes('<!-- aidevbridge:')) return 'it contains a section marker of the release text';
+  if (text.trim().length > NOTE_LIMIT) return `it has more than ${NOTE_LIMIT} characters`;
+  if (/^#{1,2} /m.test(text)) return 'it has a heading of the first or second level, which belong to the release text';
+  return null;
+}
+
+// The summary of a version from this checkout, or null if there is none or
+// it cannot be used: a missing summary never stops a release, the text then
+// only links the changelog.
+export function releaseNote(root, version) {
+  try {
+    const text = fs.readFileSync(path.join(root, ...NOTE_DIRECTORY.split('/'), `${version}.md`), 'utf8').replace(/\r\n?/g, '\n').trim();
+    return noteProblem(text) ? null : text;
+  } catch { return null; }
+}
+
+// The first lines of a release text the workflow creates. The changelog is
+// German by project decision, so the English reader gets the summary of the
+// version under "What's new" and is told what language the full list is in.
+// Without a summary only that line remains.
+export function introduction({ version, note }) {
+  checkVersion(version);
+  const changelog = `[CHANGELOG](${REPOSITORY}/blob/v${version}/CHANGELOG.md)`;
+  if (!note || noteProblem(note)) return `aidevbridge ${version}. All changes are in the ${changelog}, which is written in German.\n`;
+  return `## What's new\n\n${note.replace(/\r\n?/g, '\n').trim()}\n\nAll changes are in the ${changelog}, which is written in German.\n`;
+}
+
+// The release text: the current one, or for a release the workflow creates
+// the introduction; then the platform parts. Whichever workflow creates the
+// release writes the introduction, and the other one keeps it with the rest of
+// the current text, so it stands there once.
+export function releaseBody({ version, body, parts, note }) {
+  let text = body ?? introduction({ version, note });
   for (const [platform, section] of parts) text = mergeSection(text, platform, section);
   return text;
 }
@@ -176,6 +218,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     ensure(version, usage);
     const manifest = file => file && JSON.parse(fs.readFileSync(file, 'utf8'));
     const parts = sections({ version, windows: manifest(options['--windows']), macos: manifest(options['--macos']), android: manifest(options['--android']) });
-    process.stdout.write(releaseBody({ version, body: options['--body'] && fs.readFileSync(options['--body'], 'utf8'), parts }));
+    // The summary is read from this checkout, and only for a release that is
+    // being created: an existing text is never given an introduction.
+    const note = options['--body'] ? null : releaseNote(ROOT, version);
+    if (!options['--body'] && !note) process.stderr.write(`::warning::No usable English summary for ${version} (${NOTE_DIRECTORY}/${version}.md): the release text only links the changelog.\n`);
+    process.stdout.write(releaseBody({ version, body: options['--body'] && fs.readFileSync(options['--body'], 'utf8'), parts, note }));
   } catch (error) { process.stderr.write(`release-notes: ${error.message}\n`); process.exitCode = 1; }
 }
