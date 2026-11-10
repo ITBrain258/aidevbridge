@@ -2133,8 +2133,9 @@ struct HistoryRequest {
 /// bleibt fuer die Veroeffentlichung. Ohne diese Pruefung liefe die Erfassung
 /// kurz vor Ablauf auf der Operation des Oeffnens selbst; ihr Ablauf liesse
 /// dann die Veroeffentlichung scheitern. Unberuehrt bleibt: Laeuft die eigene
-/// Frist schon beim Kanaloeffnen ab, bricht der Exec wie jeder befristete
-/// Befehl die Steuerverbindung ab (§5.1); das Terminal oeffnet trotzdem.
+/// Frist schon beim Kanaloeffnen ab und bleibt dessen Antwort auch 2 s danach
+/// aus, bricht der Exec wie jeder befristete Befehl die Steuerverbindung ab
+/// (§5.1 mit Nachtrag vom 10.11.); das Terminal oeffnet trotzdem.
 fn history_budget(remaining: Duration, timeout: Duration) -> Option<Duration> {
     (remaining > timeout.saturating_add(HISTORY_RESERVE)).then_some(timeout)
 }
@@ -4127,8 +4128,9 @@ pub async fn list_sessions(
 const STATUS_POLL_TIMEOUT: Duration = Duration::from_secs(5);
 
 // Verzichtbare Lesungen starten nur mit genug Restzeit: Laeuft eine Frist
-// mitten im Kanaloeffnen ab, bricht der Transport die Steuerverbindung ab
-// (`owned_operations.rs`, Phase Open).
+// mitten im Kanaloeffnen ab und bleibt dessen Antwort auch 2 s danach aus,
+// bricht der Transport die Steuerverbindung ab (`owned_operations.rs`,
+// Phase Open).
 const OPTIONAL_READ_MIN_REMAINING: Duration = Duration::from_millis(500);
 const CLAUDE_MIN_REMAINING: Duration = Duration::from_millis(1500);
 /// Bleibt nach `claude agents --json` fuer die Elternprozesse uebrig.

@@ -683,7 +683,7 @@ async fn hung_exec_with_short_deadline_leaves_ready_and_emits_nothing() {
     let error = command.exec("hang").await.unwrap_err();
     let error = error.downcast_ref::<ExecError>().unwrap();
     // Read, nicht Open: Ein langsames Kanaloeffnen auf belasteter Maschine
-    // bricht den Transport ab und zeigt sich hier, nicht als Fehler in observe.
+    // zeigt sich hier als Frist der Phase Open.
     assert_eq!(
         (error.phase, error.reason),
         (ExecPhase::Read, ExecReason::Timeout)
