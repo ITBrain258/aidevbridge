@@ -39,6 +39,11 @@ pub struct GeneratedKeyDto {
 /// muesste bei jeder Verbindung neu eingegeben werden. Der Name ist
 /// `aidevbridge_ed25519`, bei Bedarf mit Zaehler.
 pub fn generate_into(dir: &Path, comment: &str) -> Result<GeneratedKeyDto, String> {
+    // Der Kommentar steht woertlich in der Zeile fuer `authorized_keys`: Ein
+    // Zeilenumbruch darin ergaebe dort eine zweite Zeile.
+    if comment.chars().any(char::is_control) {
+        return Err("the key comment must not contain control characters".to_string());
+    }
     let mut key = PrivateKey::random(&mut rand::rng(), Algorithm::Ed25519)
         .map_err(|error| format!("could not generate a key: {error}"))?;
     key.set_comment(comment);
@@ -303,6 +308,16 @@ mod tests {
             assert!(import_into(&d, source).is_err());
         }
         assert!(import_into(&d, &vec![b'a'; MAX_KEY_FILE_BYTES + 1]).is_err());
+        assert!(!d.exists() || std::fs::read_dir(&d).unwrap().next().is_none());
+    }
+
+    /// Der Kommentar steht woertlich in der Zeile fuer `authorized_keys`.
+    #[test]
+    fn a_comment_with_a_line_break_is_refused_and_leaves_no_file() {
+        let d = tmpdir("comment");
+        for comment in ["a\nssh-ed25519 AAAA second", "a\rb", "a\u{0}b"] {
+            assert!(generate_into(&d, comment).is_err());
+        }
         assert!(!d.exists() || std::fs::read_dir(&d).unwrap().next().is_none());
     }
 }

@@ -492,11 +492,36 @@ fn is_encrypted_pkcs8(source: &str) -> bool {
 /// buffer is zeroizing; the existing decoder still owns its own intermediate
 /// buffers, so this does not promise complete erasure of all decoder memory.
 fn load_key(path: &Path, passphrase: Option<&str>) -> Result<PrivateKey, AuthError> {
-    let mut source = Zeroizing::new(String::new());
-    std::fs::File::open(path)
-        .and_then(|mut file| file.read_to_string(&mut source))
-        .map_err(|e| AuthError::KeyUnreadable(e.to_string()))?;
+    let source = read_key_file(path)?;
     decode_key_source(&source, passphrase)
+}
+
+/// Liest eine Schluesseldatei: nur eine regulaere Datei und hoechstens
+/// `MAX_KEY_FILE_BYTES`, wie der Import unter Android. Der Pfad kommt aus den
+/// Einstellungen oder aus einem Vorschlag der `~/.ssh/config`; ein
+/// `IdentityFile /dev/zero` oder eine sehr grosse Datei fuellte sonst den
+/// Speicher, und ein Geraet oder eine Pipe hielte einen der wenigen Plaetze
+/// der Vorbereitung fest. Der Puffer ist vorab gross genug: Ein wachsender
+/// liesse beim Umkopieren Teile des Schluessels ungeloescht zurueck.
+fn read_key_file(path: &Path) -> Result<Zeroizing<String>, AuthError> {
+    use crate::ssh::key_files::MAX_KEY_FILE_BYTES;
+    let unreadable = |error: std::io::Error| AuthError::KeyUnreadable(error.to_string());
+    if !std::fs::metadata(path).map_err(unreadable)?.is_file() {
+        return Err(AuthError::KeyUnreadable("not a regular file".into()));
+    }
+    let mut source = Zeroizing::new(String::with_capacity(MAX_KEY_FILE_BYTES + 1));
+    std::fs::File::open(path)
+        .and_then(|file| {
+            file.take(MAX_KEY_FILE_BYTES as u64 + 1)
+                .read_to_string(&mut source)
+        })
+        .map_err(unreadable)?;
+    if source.len() > MAX_KEY_FILE_BYTES {
+        return Err(AuthError::KeyUnreadable(
+            "larger than a key file can be".into(),
+        ));
+    }
+    Ok(source)
 }
 
 pub(crate) fn prepare_auth(method: &AuthMethod) -> Result<PreparedAuth, AuthError> {
@@ -701,6 +726,37 @@ mod tests {
         assert!(lifetime.upgrade().is_none());
         assert!(matches!(
             prepare_auth_pair_owned(fixture.method(Some("test"))),
+            Err(AuthError::KeyUnreadable(_))
+        ));
+    }
+
+    /// Der Pfad einer Schluesseldatei kommt auch aus einem Vorschlag der
+    /// `~/.ssh/config`. Gelesen wird nur eine regulaere Datei und nur bis zur
+    /// Grenze einer Schluesseldatei.
+    #[test]
+    fn key_file_read_is_bounded_and_takes_regular_files_only() {
+        use crate::ssh::key_files::MAX_KEY_FILE_BYTES;
+        let reason = |path: &Path| match read_key_file(path) {
+            Err(AuthError::KeyUnreadable(reason)) => reason,
+            other => panic!("falsches Ergebnis: {:?}", other.map(|source| source.len())),
+        };
+
+        let at_limit = AuthPairFixture::new(&"a".repeat(MAX_KEY_FILE_BYTES));
+        assert_eq!(
+            read_key_file(&at_limit.0).unwrap().len(),
+            MAX_KEY_FILE_BYTES
+        );
+        let too_large = AuthPairFixture::new(&"a".repeat(MAX_KEY_FILE_BYTES + 1));
+        assert!(reason(&too_large.0).contains("larger"));
+        assert!(reason(&std::env::temp_dir()).contains("regular file"));
+        let missing = std::env::temp_dir().join(format!(
+            "aidevbridge-auth-missing-key-{}.key",
+            rand::random::<u64>()
+        ));
+        assert!(reason(&missing).contains("os error"));
+        // Die Grenze gilt auch auf dem Weg der Anmeldung selbst.
+        assert!(matches!(
+            prepare_auth_pair_owned(too_large.method(None)),
             Err(AuthError::KeyUnreadable(_))
         ));
     }
