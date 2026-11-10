@@ -8,6 +8,7 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { EXPECTED_CONFIG, machoArchs, linkedLibraries, signingMode, cleanBuildEnvironment, releaseContract, artifactName, checkAppTree, sourceSnapshot, claimRun, releaseLock, beforeBuild, fileTree, CLI_VERSION } from './release-macos-artifacts.mjs';
+import { cleanBuildEnvironment as cleanWindowsBuildEnvironment } from './release-windows-artifacts.mjs';
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -78,6 +79,48 @@ test('Developer ID signing needs the certificate and notarization secrets, other
 test('inherited build overrides are refused; the build runs as CI on the pinned toolchain', () => {
   assert.deepEqual(cleanBuildEnvironment({ PATH: '/usr/bin', RUSTFLAGS: '' }), { PATH: '/usr/bin', RUSTFLAGS: '', RUSTUP_TOOLCHAIN: '1.97.1', CI: 'true' });
   for (const key of ['RUSTFLAGS', 'CARGO_TARGET_AARCH64_APPLE_DARWIN_LINKER', 'TAURI_CONFIG', 'MACOSX_DEPLOYMENT_TARGET', 'SDKROOT']) assert.throws(() => cleanBuildEnvironment({ [key]: 'x' }), new RegExp(key));
+});
+
+// Every way to hand cargo another compiler, other flags or another profile.
+const COMPILER_OVERRIDES = [
+  'RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_RUSTFLAGS', 'CARGO_TARGET_AARCH64_APPLE_DARWIN_RUSTFLAGS', 'CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS',
+  'RUSTC', 'RUSTC_WRAPPER', 'RUSTC_WORKSPACE_WRAPPER', 'RUSTC_BOOTSTRAP', 'CARGO_BUILD_RUSTC', 'CARGO_BUILD_RUSTC_WRAPPER', 'CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER',
+  'CARGO_PROFILE_RELEASE_OPT_LEVEL', 'CARGO_PROFILE_RELEASE_LTO', 'CARGO_PROFILE_RELEASE_DEBUG', 'CARGO_PROFILE_DEV_DEBUG', 'CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_OPT_LEVEL',
+  'CARGO_BUILD_TARGET', 'CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER', 'CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUNNER',
+];
+// What the runners and the workflows set, and what only says where and how
+// loudly cargo works; CARGO_TARGET_DIR is set by the build itself.
+const HARMLESS = {
+  CARGO_HOME: '/Users/runner/.cargo', CARGO_INCREMENTAL: '0', CARGO_TERM_COLOR: 'always', CARGO_TERM_PROGRESS_WHEN: 'never', CARGO_BUILD_JOBS: '4',
+  CARGO_TARGET_DIR: '/tmp/target', CARGO_REGISTRIES_CRATES_IO_PROTOCOL: 'sparse', CARGO_HTTP_MULTIPLEXING: 'false', CARGO_NET_RETRY: '5',
+  RUSTUP_HOME: '/Users/runner/.rustup', RUSTUP_PERMIT_COPY_RENAME: '1', RUSTDOCFLAGS: '-D warnings', RUST_BACKTRACE: '1',
+};
+
+test('every variable that changes the compiler, its flags or the profile is refused; harmless cargo variables pass', () => {
+  for (const key of COMPILER_OVERRIDES) {
+    assert.throws(() => cleanBuildEnvironment({ PATH: '/usr/bin', [key]: 'x' }), new RegExp(`Unsupported inherited build override: ${key}$`), key);
+    // An empty value sets nothing, and Windows spells names in any case.
+    assert.equal(cleanBuildEnvironment({ [key]: '' })[key], '', key);
+    assert.throws(() => cleanBuildEnvironment({ [key.toLowerCase()]: 'x' }), /Unsupported inherited build override/, key);
+  }
+  assert.deepEqual(cleanBuildEnvironment({ ...HARMLESS }), { ...HARMLESS, RUSTUP_TOOLCHAIN: '1.97.1', CI: 'true' });
+});
+
+test('the Windows and the macOS build refuse the same compiler and profile overrides', () => {
+  for (const key of COMPILER_OVERRIDES) {
+    assert.throws(() => cleanWindowsBuildEnvironment({ [key]: 'x' }), new RegExp(`Unsupported inherited build override: ${key}$`), key);
+    assert.equal(cleanWindowsBuildEnvironment({ [key]: '' })[key], '', key);
+  }
+  assert.deepEqual(cleanWindowsBuildEnvironment({ ...HARMLESS }), { ...HARMLESS, RUSTUP_TOOLCHAIN: '1.97.1' });
+  // Each platform adds its own: the deployment target and SDK of macOS, the
+  // deprecated runtime switch of tauri-build on Windows.
+  for (const key of ['TAURI_CONFIG', 'TAURI_SIGNING_PRIVATE_KEY', 'TAURI_BUNDLER_DMG_IGNORE_CI']) {
+    assert.throws(() => cleanBuildEnvironment({ [key]: 'x' }), new RegExp(key));
+    assert.throws(() => cleanWindowsBuildEnvironment({ [key]: 'x' }), new RegExp(key));
+  }
+  assert.throws(() => cleanWindowsBuildEnvironment({ STATIC_VCRUNTIME: 'false' }), /STATIC_VCRUNTIME/);
+  assert.equal(cleanBuildEnvironment({ STATIC_VCRUNTIME: 'false' }).STATIC_VCRUNTIME, 'false');
+  assert.equal(cleanWindowsBuildEnvironment({ SDKROOT: '/sdk' }).SDKROOT, '/sdk');
 });
 
 test('the contract binds versions and configuration; only release builds need the bound selection', t => {
