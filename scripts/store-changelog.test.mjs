@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { versionCode } from './android-version.mjs';
 
 // Google Play zeigt unter "Neuigkeiten" changelogs/<versionCode>.txt jeder
 // Sprache aus fastlane/metadata; fehlt die Datei, nimmt android.yml
@@ -10,28 +11,20 @@ import { fileURLToPath } from 'node:url';
 // lassen. Darum prueft dieser Test fuer die Version in package.json, dass
 // jede Sprache ihre Datei hat, nicht leer und hoechstens 500 Zeichen lang
 // (die Grenze von Google Play). versionCode wie Tauri und android.yml:
-// major * 1000000 + minor * 1000 + patch.
+// major * 1000000 + minor * 1000 + patch (android-version.mjs).
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const METADATA = path.join(ROOT, 'fastlane', 'metadata', 'android');
 const PLAY_LIMIT = 500;
 
-/**
- * @param {string} version
- * @returns {number}
- */
-export function versionCode(version) {
-  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(version);
-  if (!match) throw new Error(`Unreadable version: ${version}`);
-  const [major, minor, patch] = match.slice(1).map(Number);
-  return major * 1000000 + minor * 1000 + patch;
-}
-
 test('versionCode follows the Tauri formula', () => {
   assert.equal(versionCode('0.3.0'), 3000);
+  assert.equal(versionCode('0.3.1'), 3001);
   assert.equal(versionCode('0.2.7'), 2007);
   assert.equal(versionCode('1.0.12'), 1000012);
   assert.throws(() => versionCode('0.3'));
+  assert.throws(() => versionCode('v0.3.1'));
+  assert.throws(() => versionCode('0.3.1-rc.1'));
 });
 
 test('every store language has the changelog of the current version', () => {
