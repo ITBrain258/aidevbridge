@@ -139,6 +139,61 @@ describe("ui-settings-sync: entprellt schreiben", () => {
     }
   });
 
+  // `stored` aendert sich erst mit der Antwort: ohne das Abwarten gliche der
+  // zurueckgestellte Wert dem alten Stand, und die Datei behielte "an".
+  it("zurueck auf den gespeicherten Wert, waehrend das Schreiben noch laeuft, geht danach hinaus", async () => {
+    sync.applyStored({ copy_on_select: false });
+    let finishFirst!: () => void;
+    write.mockReturnValueOnce(new Promise<void>((resolve) => (finishFirst = resolve)));
+    sync.schedule("copy_on_select", true);
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+    expect(writes()).toEqual([{ copy_on_select: true }]);
+
+    sync.schedule("copy_on_select", false);
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+    // Hoechstens ein Schreiben zugleich.
+    expect(writes()).toEqual([{ copy_on_select: true }]);
+
+    finishFirst();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(writes()).toEqual([{ copy_on_select: true }, { copy_on_select: false }]);
+  });
+
+  it("hin und zurueck waehrend eines laufenden Schreibens schreibt danach nichts", async () => {
+    sync.applyStored({ copy_on_select: false });
+    let finishFirst!: () => void;
+    write.mockReturnValueOnce(new Promise<void>((resolve) => (finishFirst = resolve)));
+    sync.schedule("copy_on_select", true);
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+
+    sync.schedule("copy_on_select", false);
+    sync.schedule("copy_on_select", true);
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+    finishFirst();
+    await vi.advanceTimersByTimeAsync(0);
+
+    // Die Datei haelt "an" schon.
+    expect(writes()).toEqual([{ copy_on_select: true }]);
+  });
+
+  it("eine Aenderung waehrend eines laufenden Schreibens wartet ihre eigene Ruhezeit ab", async () => {
+    let finishFirst!: () => void;
+    write.mockReturnValueOnce(new Promise<void>((resolve) => (finishFirst = resolve)));
+    sync.schedule("sidebar_width", 300);
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+    sync.schedule("sidebar_width", 320);
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+    // Der Zeitgeber ist abgelaufen, das erste Schreiben laeuft noch; eine
+    // weitere Aenderung stellt ihn neu.
+    sync.schedule("sidebar_width", 340);
+    finishFirst();
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS - 1);
+    expect(writes()).toEqual([{ sidebar_width: 300 }]);
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(writes()).toEqual([{ sidebar_width: 300 }, { sidebar_width: 340 }]);
+  });
+
   it("dispose verwirft einen ausstehenden Schreibvorgang", async () => {
     sync.schedule("restore_workspace", false);
     sync.dispose();

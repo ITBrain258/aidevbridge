@@ -183,6 +183,107 @@ describe("mountHostForm", () => {
 });
 
 
+// Die mitgegebene Anmeldeart (`initial.auth`: der gespeicherte Host beim
+// Bearbeiten, die IdentityFile eines Vorschlags) gilt ab dem Mounten. Bis
+// `list_ssh_keys` antwortet, stuende das Menue sonst auf ssh-agent, und ein
+// Absenden in dieser Zeit ersetzte den gespeicherten Schluessel still.
+describe("mountHostForm: die mitgegebene Anmeldeart gilt vor der Schluesselliste", () => {
+  const RSA = "C:\\Users\\U\\.ssh\\id_rsa";
+
+  /** Mountet, waehrend `list_ssh_keys` noch aussteht; `answerKeys` liefert die
+   * Liste nach. */
+  function mountBeforeKeys(initial: Partial<HostFormValue>): Parts & { answerKeys: (keys?: typeof KEYS) => Promise<void> } {
+    let answer!: (keys: typeof KEYS) => void;
+    invokeMock.mockImplementation((cmd: string) =>
+      cmd === "list_ssh_keys" ? new Promise((resolve) => (answer = resolve)) : Promise.resolve(null),
+    );
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const onSubmit = vi.fn();
+    mountHostForm(el, { existing: [], initial, onSubmit, mode: "edit" });
+    return {
+      el,
+      auth: el.querySelector("select[name=auth]") as HTMLSelectElement,
+      form: el.querySelector("form") as HTMLFormElement,
+      onSubmit,
+      answerKeys: async (keys = KEYS) => {
+        answer(keys);
+        await Promise.resolve();
+        await Promise.resolve();
+      },
+    };
+  }
+
+  /** Die Schluesseleintraege des Menues: alles vor der Trennlinie. */
+  function keyOptions(auth: HTMLSelectElement): Array<{ value: string; text: string }> {
+    const options = Array.from(auth.options);
+    return options
+      .slice(0, options.findIndex((option) => option.disabled))
+      .map((option) => ({ value: option.value, text: option.textContent ?? "" }));
+  }
+
+  const SAVED = { label: "Build VM", hostname: "192.0.2.20", user: "m", port: 22 };
+
+  it("sendet den gespeicherten Schluessel, auch wenn die Schluesselliste noch aussteht", () => {
+    const { auth, form, onSubmit } = mountBeforeKeys({ ...SAVED, auth: { kind: "key", path: RSA, passphrase: "" } });
+
+    expect(auth.value).toBe(`key:${RSA}`);
+    submit(form);
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect((onSubmit.mock.calls[0][0] as HostFormValue).auth).toEqual({ kind: "key", path: RSA, passphrase: "" });
+  });
+
+  it("zeigt fuer einen Passwort-Host sofort das Passwortfeld und sendet Password", () => {
+    const { el, auth, form, onSubmit } = mountBeforeKeys({ ...SAVED, auth: { kind: "password", password: "" } });
+
+    expect(auth.value).toBe("password");
+    expect(el.querySelector("input[name=password]")).not.toBeNull();
+    submit(form);
+
+    expect((onSubmit.mock.calls[0][0] as HostFormValue).auth.kind).toBe("password");
+  });
+
+  // Das Menue sieht danach aus, als waere die Liste zuerst gekommen.
+  it("mit der Liste steht der vorgewaehlte Schluessel an ihrem Platz, mit ihrer Beschriftung, und bleibt gewaehlt", async () => {
+    const { auth, answerKeys } = mountBeforeKeys({ ...SAVED, auth: { kind: "key", path: RSA, passphrase: "" } });
+    await answerKeys();
+
+    expect(keyOptions(auth)).toEqual([
+      { value: "key:C:\\Users\\U\\.ssh\\id_ed25519", text: "id_ed25519 — ed25519 · u@win" },
+      { value: `key:${RSA}`, text: "id_rsa — rsa" },
+    ]);
+    expect(auth.value).toBe(`key:${RSA}`);
+  });
+
+  it("ein Schluessel ausserhalb der Liste steht hinter den gefundenen", async () => {
+    const outside = "D:\\keys\\deploy";
+    const { auth, answerKeys } = mountBeforeKeys({ ...SAVED, auth: { kind: "key", path: outside, passphrase: "" } });
+    await answerKeys();
+
+    expect(keyOptions(auth).map((option) => option.value)).toEqual([
+      "key:C:\\Users\\U\\.ssh\\id_ed25519",
+      `key:${RSA}`,
+      `key:${outside}`,
+    ]);
+    expect(keyOptions(auth)[2].text).toBe("deploy");
+    expect(auth.value).toBe(`key:${outside}`);
+  });
+
+  it("eine Wahl des Nutzers vor der Liste ueberschreibt die Liste nicht", async () => {
+    const { auth, answerKeys } = mountBeforeKeys({ ...SAVED, auth: { kind: "key", path: RSA, passphrase: "" } });
+    auth.value = "password";
+    auth.dispatchEvent(new Event("change"));
+    await answerKeys();
+
+    expect(auth.value).toBe("password");
+    expect(keyOptions(auth).map((option) => option.value)).toEqual([
+      "key:C:\\Users\\U\\.ssh\\id_ed25519",
+      `key:${RSA}`,
+    ]);
+  });
+});
+
 // UX-Spec §7.7 (Aufgabe 18): ein optionales Feld "Name" oben im Formular,
 // beim Anlegen wie beim Bearbeiten; im Bearbeiten-Modus heisst der Knopf "Save".
 describe("mountHostForm: Feld 'Name' (UX-Spec §7.7)", () => {

@@ -110,6 +110,8 @@ export function createUiSettingsSync(
   let stored: UiFieldsPatch = {};
   let pending: UiFieldsPatch = {};
   let timer: ReturnType<typeof setTimeout> | undefined;
+  /** Das laufende Schreiben; hoechstens eines zugleich. */
+  let writing: Promise<void> | null = null;
 
   function queue(patch: UiFieldsPatch): void {
     if (Object.keys(patch).length === 0) return;
@@ -125,11 +127,23 @@ export function createUiSettingsSync(
 
   function flush(): void {
     timer = undefined;
+    // Erst das laufende Schreiben abwarten, dann gegen sein Ergebnis
+    // vergleichen, wie der Schreiber des Arbeitsplatzes (`createWorkspaceWriter`):
+    // `stored` aendert sich erst mit der Antwort. Ein Feld, das waehrenddessen
+    // auf den alten Wert zurueckgeht, gliche sonst `stored` und ginge nie
+    // hinaus -- die Datei behielte den Wert des laufenden Schreibens. Hat
+    // inzwischen eine neue Aenderung den Zeitgeber gestellt, schreibt der.
+    if (writing !== null) {
+      void writing.then(() => {
+        if (timer === undefined) flush();
+      });
+      return;
+    }
     const patch: UiFieldsPatch = {};
     for (const field of FIELD_NAMES) copyIfUnsaved(patch, field);
     pending = {};
     if (Object.keys(patch).length === 0) return;
-    void write(patch).then(
+    const done = write(patch).then(
       () => {
         stored = { ...stored, ...patch };
       },
@@ -138,6 +152,10 @@ export function createUiSettingsSync(
         console.warn(`[settings] ui_settings write failed: ${String(error)}`);
       },
     );
+    writing = done;
+    void done.then(() => {
+      if (writing === done) writing = null;
+    });
   }
 
   function acceptStored<F extends UiField>(

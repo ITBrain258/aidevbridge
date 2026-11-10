@@ -369,10 +369,10 @@ export function mountHostKeyPrompt(
 
     // H8-Nachtrag: der Server bietet einen ANDEREN Schluesseltyp an als
     // den/die bereits in `known_hosts` hinterlegten -- `lookup` liefert
-    // dafuer `Unknown`, nicht `Mismatch` (wie OpenSSH: ein neuer Typ ist ein
-    // neuer Schluessel, keine MITM-Warnung), aber ein Nutzer sollte das
-    // trotzdem sehen koennen, statt einen voelligen Erstkontakt zu
-    // vermuten. Nur gezeigt, wenn die Liste tatsaechlich etwas enthaelt --
+    // dafuer `Unknown`, nicht `Mismatch` (OpenSSH lehnt hier als geaenderten
+    // Schluessel ab; die App fragt vorerst, siehe SECURITY.md), aber ein
+    // Nutzer sollte das trotzdem sehen koennen, statt einen voelligen
+    // Erstkontakt zu vermuten. Nur gezeigt, wenn die Liste tatsaechlich etwas enthaelt --
     // ein echter Erstkontakt (leere Liste) bekommt keinen irrefuehrenden
     // Hinweis auf einen Typ, den es nie gab.
     if (req.known_key_types.length > 0) {

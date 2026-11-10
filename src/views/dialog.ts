@@ -97,6 +97,9 @@ export interface DialogShell {
   openDialog(options: DialogOptions, build: (container: HTMLElement) => { dispose(): void }): DialogHandle;
   /** Schliesst die offene Ueberlagerung, gleich welche. */
   closeDialog(): void;
+  /** Steht eine Ueberlagerung oder eine TOFU-Rueckfrage offen? Beide legen
+   * `#app` still; die Tastenlauscher (`keyboard.ts`) fragen danach, damit
+   * kein Akkord und kein Escape dahinter wirkt. */
   isDialogOpen(): boolean;
   /** Meldet eine erscheinende oder verschwindende TOFU-Rueckfrage
    * (`mountHostKeyPrompt`s `onOpenChange`), siehe `hostKeyPromptOpen`. */
@@ -171,6 +174,9 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
     // einen benannten.
     if (hostKeyPromptOpen) return;
     if (event.key === "Escape") {
+      // Waehrend einer IME-Komposition bricht Escape die Komposition ab; es
+      // gehoert dem Feld, nicht dem Dialog (wie in `terminal-search.ts`).
+      if (event.isComposing) return;
       closeDialog();
       return;
     }
@@ -353,7 +359,11 @@ export function mountDialogShell(dialogRoot: HTMLElement, app: HTMLElement): Dia
   return {
     openDialog,
     closeDialog,
-    isDialogOpen: () => dialogHandle !== null,
+    // Auch die Rueckfrage zaehlt: sie liegt ueber allem und haelt `#app` wie
+    // eine Ueberlagerung fest. Ohne sie holte Escape hinter ihrem Scrim eine
+    // maximierte Kachel zurueck, und Strg+Umschalt+N oder P oeffneten Dialoge
+    // darunter.
+    isDialogOpen: () => dialogHandle !== null || hostKeyPromptOpen,
     setHostKeyPromptOpen,
   };
 }

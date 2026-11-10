@@ -100,6 +100,7 @@ interface DialogArgs {
   initialCwd?: string;
   hostId?: string;
   existingSessions?: string[];
+  otherSessions?: string[];
   recentDirs?: string[];
 }
 
@@ -122,6 +123,7 @@ function openDialog(args: DialogArgs = {}): Parts {
     hostId: args.hostId ?? "h1",
     initialCwd: args.initialCwd ?? "/tmp",
     existingSessions: args.existingSessions ?? [],
+    ...(args.otherSessions ? { otherSessions: args.otherSessions } : {}),
     recentDirs: args.recentDirs ?? [],
     onSubmit,
     onCancel,
@@ -627,6 +629,56 @@ describe("mountSessionDialog: leerer Startpfad", () => {
     expect(input.value).not.toBe(HOME);
   });
 
+  /** Haelt die Antwort auf das Heimatverzeichnis zurueck, bis der Fall sie
+   * freigibt; jede andere Anfrage antwortet sofort. */
+  function holdHomeAnswer(): () => void {
+    let answer: () => void = () => {};
+    invokeMock.mockImplementation((cmd: string, params?: Record<string, unknown>) => {
+      if (cmd !== "list_directories") return Promise.resolve(null);
+      const path = params?.path as string;
+      calls.push({ hostId: params?.hostId as string, path });
+      if (path === "") {
+        return new Promise((resolve) => {
+          answer = () => resolve({ path: HOME, entries: FS[HOME] });
+        });
+      }
+      return Promise.resolve({ path, entries: FS[path] ?? [] });
+    });
+    return () => answer();
+  }
+
+  // Die Wurzelzeile steht schon da, bevor der Baum das Heimatverzeichnis
+  // kennt. Wer von dort aus waehlt, hat entschieden wie mit einer Eingabe.
+  it("ueberschreibt eine Wahl im Baum nicht, die vor der Aufloesung kam", async () => {
+    const answerHome = holdHomeAnswer();
+    const { el } = openDialog({ initialCwd: "" });
+    selectInTree(el, "/");
+    await flush();
+    selectInTree(el, "/tmp");
+    expect(cwdInput(el).value).toBe("/tmp");
+
+    answerHome();
+    await flush();
+
+    expect(cwdInput(el).value).toBe("/tmp");
+    expect(cwdInput(el).value).not.toBe(HOME);
+  });
+
+  // Hier haelt der Baum selbst: `reveal` beendet seinen Start, die Meldung
+  // des Heimatverzeichnisses kommt dann nicht mehr.
+  it("ueberschreibt eine Wahl in 'Recent' nicht, die vor der Aufloesung kam", async () => {
+    const answerHome = holdHomeAnswer();
+    const { el } = openDialog({ initialCwd: "", recentDirs: ["/home/u/repo"] });
+    el.querySelector<HTMLButtonElement>(".session-dialog-recent button")!.click();
+    await flush();
+    expect(cwdInput(el).value).toBe("/home/u/repo");
+
+    answerHome();
+    await flush();
+
+    expect(cwdInput(el).value).toBe("/home/u/repo");
+  });
+
   it("meldet nichts, wenn ein Pfad vorgegeben war", async () => {
     // Der Feldwert IST dann schon der Startpfad -- eine Meldung darueber
     // waere bestenfalls wirkungslos und schlimmstenfalls ein zweiter
@@ -733,6 +785,21 @@ describe("mountSessionDialog: Namensvorschlag (UX-Spec §7.6)", () => {
     const { el } = await mountDialog({ initialCwd: "/home/u", existingSessions: ["repo"] });
     selectInTree(el, "/home/u/repo");
     expect(nameField(el).value).toBe("repo-2");
+  });
+
+  // Eine neue Session entsteht auf dem eigenen Socket der App. Ein Name, den
+  // es nur auf tmux' Standard-Socket gibt (`otherSessions`), ist dort frei:
+  // der Vorschlag weicht ihm aus, getippt geht er durch.
+  it("meidet im Vorschlag auch die Namen des Standard-Sockets, lehnt sie getippt aber nicht ab", async () => {
+    const { el, onSubmit } = await mountDialog({ initialCwd: "/home/u", existingSessions: ["api"], otherSessions: ["repo"] });
+    selectInTree(el, "/home/u/repo");
+    expect(nameField(el).value).toBe("repo-2");
+
+    nameField(el).value = "repo";
+    submit(el);
+
+    expect(alertText(el)).toBe("");
+    expect(onSubmit).toHaveBeenCalledWith("/home/u/repo", "repo");
   });
 
   it("leert ein Feld mit altem Vorschlag, wenn das neue Verzeichnis keinen Namen hergibt", async () => {

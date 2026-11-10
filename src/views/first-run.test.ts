@@ -1035,6 +1035,65 @@ describe("Erststart: Versuch, Preflight und Speicherbesitz", () => {
     expect(invokeMock.mock.calls.filter(([cmd]) => cmd === "disconnect_host")).toEqual([["disconnect_host", { hostId: "runtime_A" }]]);
   });
 
+  /** Mountet mit `onHostSaved`; `mount()` oben reicht es nicht durch. */
+  function mountWithSaved(): { container: HTMLElement; handle: FirstRunHandle; ready: ReturnType<typeof vi.fn>; savedHost: ReturnType<typeof vi.fn> } {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const ready = vi.fn();
+    const savedHost = vi.fn();
+    const handle = mountFirstRun(container, { onHostReady: ready, onHostSaved: savedHost });
+    activeHandles.push(handle);
+    return { container, handle, ready, savedHost };
+  }
+
+  // `add_host` hat settings.toml da schon geschrieben: ohne die Meldung saehe
+  // den Host bis zum naechsten Start niemand.
+  it("meldet einen Host, der waehrend des Dispose gespeichert wurde, als gespeichert -- ohne Verbindung", async () => {
+    const save = deferred<HostEntry>();
+    invokeMock.mockImplementation(scriptedInvoke({ begin_connect: Promise.resolve("runtime_A"), connect_host: Promise.resolve("runtime_A"), add_host: save.promise }));
+    const { container, handle, ready, savedHost } = mountWithSaved();
+    await flush();
+    await start(container, "a.example");
+    actions(container).next.click();
+    handle.dispose();
+    expect(savedHost).not.toHaveBeenCalled();
+
+    save.resolve(saved);
+    await flush();
+
+    expect(savedHost).toHaveBeenCalledExactlyOnceWith(saved);
+    expect(ready).not.toHaveBeenCalled();
+    expect(invokeMock.mock.calls.filter(([cmd]) => cmd === "disconnect_host")).toEqual([["disconnect_host", { hostId: "runtime_A" }]]);
+  });
+
+  it("meldet nichts, wenn das Speichern nach dem Dispose scheitert", async () => {
+    const save = deferred<HostEntry>();
+    invokeMock.mockImplementation(scriptedInvoke({ begin_connect: Promise.resolve("runtime_A"), connect_host: Promise.resolve("runtime_A"), add_host: save.promise }));
+    const { container, handle, ready, savedHost } = mountWithSaved();
+    await flush();
+    await start(container, "a.example");
+    actions(container).next.click();
+    handle.dispose();
+
+    save.reject("settings read-only");
+    await flush();
+
+    expect(savedHost).not.toHaveBeenCalled();
+    expect(ready).not.toHaveBeenCalled();
+  });
+
+  it("uebergibt ohne Dispose weiter ueber onHostReady und meldet nicht zusaetzlich", async () => {
+    invokeMock.mockImplementation(scriptedInvoke({ begin_connect: Promise.resolve("runtime_A"), connect_host: Promise.resolve("runtime_A"), add_host: Promise.resolve(saved) }));
+    const { container, ready, savedHost } = mountWithSaved();
+    await flush();
+    await start(container, "a.example");
+    actions(container).next.click();
+    await flush();
+
+    expect(ready).toHaveBeenCalledExactlyOnceWith("runtime_A", saved, false);
+    expect(savedHost).not.toHaveBeenCalled();
+  });
+
   it("gibt nach einem Speicherfehler Back und Retry frei und uebergibt beim Retry dieselbe Verbindung", async () => {
     const save = deferred<HostEntry>();
     const script = scriptedInvoke({ begin_connect: Promise.resolve("runtime_A"), connect_host: Promise.resolve("runtime_A") });
@@ -1169,6 +1228,29 @@ describe("UI v2 Erststart, Aufbau (Spec 9.2, 9.5, 9.6)", () => {
     expect(invokeMock.mock.calls.filter((c) => c[0] === "connect_host")).toHaveLength(0);
     expect((container.querySelector("input[name=hostname]") as HTMLInputElement).value).toBe("192.0.2.10");
     expect(document.activeElement).toBe(container.querySelector("input[name=user]"));
+  });
+
+  // Wie auf dem direkten Weg (`valueFromSuggestion`) ist der Alias der Name:
+  // ohne ihn hiesse der gespeicherte Host wie sein Hostname.
+  it("Vorschlag ohne user traegt seinen Alias als Namen ins Formular, und der Host wird unter ihm gespeichert", async () => {
+    const aliased = { alias: "build-box", hostname: "192.0.2.10", user: null, port: null, identity_file: null };
+    invokeMock.mockImplementation(scriptedInvoke({ suggest_hosts: Promise.resolve([aliased]) }));
+    const { container } = mount();
+    await flush();
+    container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    expect((container.querySelector("input[name=label]") as HTMLInputElement).value).toBe("build-box");
+
+    (container.querySelector("input[name=user]") as HTMLInputElement).value = "ops";
+    chooseAuth(container, "agent");
+    submitForm(container);
+    await flush();
+    Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Continue")!.click();
+    await flush();
+
+    const added = invokeMock.mock.calls.find(([command]) => command === "add_host")?.[1] as { entry: { label: string; hostname: string } };
+    expect(added.entry.label).toBe("build-box");
+    expect(added.entry.hostname).toBe("192.0.2.10");
   });
 
   it("die Detailzeile nennt bei einem Schluessel-Vorschlag den Dateinamen (Spec 9.2, Ruling 4)", async () => {
@@ -1521,6 +1603,20 @@ describe("UX-Spec §10: Texte beim Verbinden, Pruefen und Speichern", () => {
     expect(errorText(container)).toBe(
       "Connected, but the host check failed: preflight probe crashed. Go back and try again.",
     );
+  });
+
+  // Es laeuft nichts mehr: "Running checks…" und "Checking {alias}" ueber der
+  // Fehlermeldung behaupteten das Gegenteil.
+  it("eine gescheiterte Pruefung laesst weder die laufende Zeile noch die Ueberschrift mit dem Host stehen", async () => {
+    const container = await submitWith({ run_preflight: Promise.reject("preflight probe crashed") });
+    const section = container.querySelector<HTMLElement>(".first-run-preflight")!;
+
+    expect(section.querySelector(".first-run-preflight-list")!.childElementCount).toBe(0);
+    expect(section.textContent).not.toContain("Running checks…");
+    expect(section.querySelector("h3")?.textContent).toBe("Checking the host");
+    // Der Weg zurueck steht weiter da.
+    expect(section.hidden).toBe(false);
+    expect(Array.from(section.querySelectorAll("button")).find((b) => b.textContent === "Back")?.hidden).toBe(false);
   });
 
   it("ein gescheitertes Speichern zeigt den Satz des Backends ganz, ohne Verbindungstext", async () => {

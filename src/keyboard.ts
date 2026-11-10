@@ -41,7 +41,8 @@ export interface KeyboardDeps {
   changeFontSize(change: FontSizeChange): void;
   /** Escape: holt eine maximierte Kachel zurueck; `true`, wenn es eine gab. */
   restoreMaximized(): boolean;
-  /** Steht eine Dialog-Ueberlagerung offen? Dann gehoert ihr die Tastatur. */
+  /** Steht eine Dialog-Ueberlagerung oder die TOFU-Rueckfrage offen? Dann
+   * gehoert ihr die Tastatur. */
   isDialogOpen(): boolean;
 }
 
