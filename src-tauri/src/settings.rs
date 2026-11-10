@@ -954,10 +954,23 @@ fn file_text(s: &Settings, path: &Path) -> anyhow::Result<String> {
         .with_context(|| format!("could not serialize settings for {}", path.display()))
 }
 
+/// Legt fehlende Ordner an, unter Unix nur fuer den Nutzer (0700): Die Datei
+/// nennt Hosts, Konten und Schluesselpfade. Bestehende Ordner behalten ihre
+/// Rechte.
 fn create_parent_dir(path: &Path) -> anyhow::Result<()> {
     match path.parent() {
-        Some(parent) if !parent.as_os_str().is_empty() => std::fs::create_dir_all(parent)
-            .with_context(|| format!("could not create {}", parent.display())),
+        Some(parent) if !parent.as_os_str().is_empty() => {
+            let mut builder = std::fs::DirBuilder::new();
+            builder.recursive(true);
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::DirBuilderExt;
+                builder.mode(0o700);
+            }
+            builder
+                .create(parent)
+                .with_context(|| format!("could not create {}", parent.display()))
+        }
         _ => Ok(()),
     }
 }
@@ -1043,11 +1056,17 @@ fn create_temp_beside(path: &Path) -> anyhow::Result<(PathBuf, File)> {
         let mut tmp_name = name.to_os_string();
         tmp_name.push(format!(".{pid}.{counter}.tmp"));
         let tmp_path = path.with_file_name(tmp_name);
-        match OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&tmp_path)
+        let mut options = OpenOptions::new();
+        options.write(true).create_new(true);
+        // Unter Unix nur fuer den Nutzer (0600), wie die Schluesseldateien:
+        // Mit dem Umbenennen gelten diese Rechte fuer `settings.toml`, auch
+        // wenn eine aeltere Fassung offener angelegt war.
+        #[cfg(unix)]
         {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        match options.open(&tmp_path) {
             Ok(file) => return Ok((tmp_path, file)),
             Err(error)
                 if error.kind() == ErrorKind::AlreadyExists && taken < TEMP_NAME_ATTEMPTS =>
@@ -1435,6 +1454,28 @@ user = \"u\"
         assert!(!dir.exists());
         save_to(&path, &Settings::default()).unwrap();
         assert!(path.exists());
+        let _ = std::fs::remove_file(&path);
+        let _ = std::fs::remove_dir(&dir);
+    }
+
+    /// Die Datei nennt Hosts, Konten und Schluesselpfade: Unter Unix legt die
+    /// App sie und einen fehlenden Ordner nur fuer den Nutzer an. Andere
+    /// Konten des Rechners laesen sie sonst mit.
+    #[cfg(unix)]
+    #[test]
+    fn save_to_creates_file_and_missing_directory_for_the_owner_only() {
+        use std::os::unix::fs::PermissionsExt;
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let dir = std::env::temp_dir().join(format!("aidevbridge_test_settings_modes_{nanos}"));
+        let path = dir.join("settings.toml");
+        assert!(!dir.exists());
+        save_to(&path, &Settings::default()).unwrap();
+        let mode = |path: &Path| std::fs::metadata(path).unwrap().permissions().mode() & 0o777;
+        assert_eq!(mode(&dir), 0o700);
+        assert_eq!(mode(&path), 0o600);
         let _ = std::fs::remove_file(&path);
         let _ = std::fs::remove_dir(&dir);
     }
