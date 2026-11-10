@@ -200,7 +200,10 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
 1. `npm run bump <version>`, a CHANGELOG entry, the store text
    `fastlane/metadata/android/{de-DE,en-US}/changelogs/<versionCode>.txt`
    (without it Google Play shows `default.txt`, "first Android version", and
-   `scripts/store-changelog.test.mjs` fails) and the
+   `scripts/store-changelog.test.mjs` fails), the English summary of the
+   release `docs/release/notes/<version>.md` (the changelog is German; the
+   summary heads the GitHub release as "What's new", and
+   `scripts/release-notes.test.mjs` fails without it) and the
    header of `docs/stand.md`; for a new minor version also the supported
    versions in `SECURITY.md`. If the interface changed, render the pictures
    again ([Images](docs/guide/building.md#images)) in the same pull request.
@@ -232,7 +235,8 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    starts each one, and attaches them to the release of the tag, creating it if
    needed; the Android workflow signs and attaches the APK. Do not use a draft,
    which the workflows cannot find, and do not create the release by hand, which
-   GitHub would mark as the latest one at once: the workflows create it without
+   GitHub would mark as the latest one at once and which would get no "What's
+   new" paragraph: the workflows create it without
    that mark, and the one that attaches last sets it when all six files are there
    (setup EXE, MSI, ZIP, the disk image with its `.sha256` file, the APK). Until
    then `/releases/latest` stays on the previous release. If a release goes out

@@ -1,0 +1,1 @@
+The settings, the error message and the session actions now fit a phone screen, and buttons are easier to tap. A short network stall, such as a switch between Wi-Fi and mobile data, no longer drops the connection to a host. An unexpected error shows a message instead of an empty screen. Fixes for adding and editing hosts and for new sessions.
