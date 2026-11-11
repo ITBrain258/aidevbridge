@@ -14,7 +14,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.3.2",
+    "product_version": "0.3.3",
     "android_ndk": "29.0.14206865",
     "minimum_sdk": 24,
     "target_sdk": 37,
@@ -67,7 +67,7 @@
       {
         "path": "Cargo.lock",
         "bytes": 146461,
-        "sha256": "4d7026e510427131df56cde40d7efd9df600dc65f063c9c4abaf8ccbc8d16f60"
+        "sha256": "02c7ddc450995140e0db18df29406deb2d39fdab20f77a94a4f074685f9004a7"
       },
       {
         "path": "Cargo.toml",
@@ -97,7 +97,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 162841,
-        "sha256": "cfe8676f685164a9e8dc6a77670d2b9aaefa2e3f6c9ec2948f14d2a26d38cef5"
+        "sha256": "6b122ed2e6e045e28ac802e08cbe83c663fa61c2e63fc9306b0fd0fb9cdfe3d0"
       },
       {
         "path": "docs/release/license-crypto-bigint-notices-2026-11-05.json",
@@ -147,7 +147,7 @@
       {
         "path": "docs/release/license-inventory-2026-10-28-android.json",
         "bytes": 269045,
-        "sha256": "9cfed9233f7a6efd6abe398c9de2d397ad244fb721e0decce4bca4ab84e03c4e"
+        "sha256": "1a977fd5f922fc54a26c62269548f9f6ada63f25656a3e5839c909a79b0a9662"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -667,12 +667,12 @@
       {
         "path": "package-lock.json",
         "bytes": 65465,
-        "sha256": "fa3e8dd962c4c750218b1a2ab466f8f1b662e40b8943aa8f64c45be340ecfbc3"
+        "sha256": "4b913c9c4ff9edc6f3823e2414ad8488b86e860b7537cb48b21a5bcece6bf710"
       },
       {
         "path": "package.json",
         "bytes": 1805,
-        "sha256": "975be724b8c8f5f9a05f155ab593072f1d362944de328983ad50729886931d7b"
+        "sha256": "c7ee9fee29c5e482ad8275782d45fe63adcbcadf77336877fc4ccfb4474f823d"
       },
       {
         "path": "rust-toolchain.toml",
@@ -702,7 +702,7 @@
       {
         "path": "src-tauri/Cargo.toml",
         "bytes": 5844,
-        "sha256": "4670bd7b354a9247c78e0665d3b5729d1900d9cf0055a43aa597ca1ea42b812a"
+        "sha256": "c2d318b1d15fb419785369a35b8d53a14df257251939d0ac41d3a56321d05cec"
       },
       {
         "path": "src-tauri/build.rs",
@@ -752,7 +752,7 @@
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1510,
-        "sha256": "9330b008fb381202851dcd5b36a87b4e37e7aa9756dbd88405d5a87c0a4ab6fa"
+        "sha256": "94709a3b4fd2a791ccd9ab127b94ed6c135f84d1c74be3bf3122b593163b1208"
       },
       {
         "path": "src/globals.d.ts",
@@ -761,8 +761,8 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 19309,
-        "sha256": "35fb11691817104af4ba515386d25727e41b226adea51f7e0d19d4624d01075e"
+        "bytes": 19617,
+        "sha256": "ed62daa4032e6fce03365af55bc91085a27e8d383bbaa803e19d03a3979ec4df"
       },
       {
         "path": "src/icons.ts",
@@ -796,13 +796,13 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 151951,
-        "sha256": "f622863a96cc1b9d0a31293f1a3c1686eaa44dbcfb78eb3d91b1200fd69aa89e"
+        "bytes": 153102,
+        "sha256": "23f6965e76e471fb9b99b1b93e7a80449636a3425cc59f2df9c2973ff6ef99d8"
       },
       {
         "path": "src/terminal.ts",
-        "bytes": 80806,
-        "sha256": "443ec36a7e7c040386b31707c0bd950b1ba17d6034bc9228827d5cce54f3531b"
+        "bytes": 81640,
+        "sha256": "5b342dc77a7072a6a45bee3d8f90eece48bd66f098ec6f8f819f24e1754d9c8c"
       },
       {
         "path": "src/theme.ts",
@@ -871,8 +871,8 @@
       },
       {
         "path": "src/views/types.ts",
-        "bytes": 6563,
-        "sha256": "06dbef4a1c71003690a79579f713c55972924d726e72bfcec12f84f69cf9329b"
+        "bytes": 6676,
+        "sha256": "0fa6d1ac411a5694c7a7aa20dc767432267ef8ae72d1bd4ea8f3bc9d4fb92ee6"
       },
       {
         "path": "tsconfig.json",
@@ -899,8 +899,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 19309,
-            "sha256": "35fb11691817104af4ba515386d25727e41b226adea51f7e0d19d4624d01075e"
+            "bytes": 19617,
+            "sha256": "ed62daa4032e6fce03365af55bc91085a27e8d383bbaa803e19d03a3979ec4df"
           },
           {
             "path": "src/i18n/t.ts",
@@ -914,8 +914,8 @@
           },
           {
             "path": "src/keyboard.ts",
-            "bytes": 17238,
-            "sha256": "cb324e51fe793b02530cfa618f758d89adc59ad76ada6cd4d41f9c483692fd38"
+            "bytes": 17800,
+            "sha256": "9ed97d1e676b4d4d18b717f2be2121506d93d528be8da119196bbf9acea0fcee"
           },
           {
             "path": "src/keymap.ts",
@@ -969,8 +969,8 @@
           },
           {
             "path": "src/state/ui-settings-sync.ts",
-            "bytes": 8015,
-            "sha256": "131b71abc9e9224e4ee4f8251fd9c4500bfe609a9481c1baa9eff121d26297a9"
+            "bytes": 8200,
+            "sha256": "9fc878dce005467a18f88c5cd3c1f8f3e74d6c3a9d5fdd7daa0ce588326eacdf"
           },
           {
             "path": "src/state/workspace.ts",
@@ -979,8 +979,8 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 151951,
-            "sha256": "f622863a96cc1b9d0a31293f1a3c1686eaa44dbcfb78eb3d91b1200fd69aa89e"
+            "bytes": 153102,
+            "sha256": "23f6965e76e471fb9b99b1b93e7a80449636a3425cc59f2df9c2973ff6ef99d8"
           },
           {
             "path": "src/terminal-clipboard.ts",
@@ -999,13 +999,13 @@
           },
           {
             "path": "src/terminal-prefs.ts",
-            "bytes": 3182,
-            "sha256": "c038aa87b80d9d6c42ee16ea836dc91067bc01158d8992e5a00b4e9b683271e7"
+            "bytes": 3557,
+            "sha256": "8e0324fe9a8f37637c78b83d3f1128bd7d8b3a5f3c582ae7d7505ca0a31b3e55"
           },
           {
             "path": "src/terminal.ts",
-            "bytes": 80806,
-            "sha256": "443ec36a7e7c040386b31707c0bd950b1ba17d6034bc9228827d5cce54f3531b"
+            "bytes": 81640,
+            "sha256": "5b342dc77a7072a6a45bee3d8f90eece48bd66f098ec6f8f819f24e1754d9c8c"
           },
           {
             "path": "src/theme.ts",
@@ -1119,8 +1119,8 @@
           },
           {
             "path": "src/views/settings-terminal.ts",
-            "bytes": 6656,
-            "sha256": "c84a65a54f2886bd2aad56b8d5a51b4adc17136f2d76988cb4f710d9fc0f5083"
+            "bytes": 7258,
+            "sha256": "e390bd179c21df459ec318f6a1ddedf6ae1c12d97049fbc5db64a0ef01d0b5b9"
           },
           {
             "path": "src/views/shortcut-title.ts",
@@ -1184,8 +1184,8 @@
           },
           {
             "path": "src/views/types.ts",
-            "bytes": 6563,
-            "sha256": "06dbef4a1c71003690a79579f713c55972924d726e72bfcec12f84f69cf9329b"
+            "bytes": 6676,
+            "sha256": "0fa6d1ac411a5694c7a7aa20dc767432267ef8ae72d1bd4ea8f3bc9d4fb92ee6"
           },
           {
             "path": "src/views/waiting-lane.ts",
@@ -1200,8 +1200,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 186203,
-            "sha256": "d1d990e21bb1e0fc27755f3f58642b72ecba89b957cef070576352f8ee0b11c1"
+            "bytes": 186974,
+            "sha256": "80f29d7abfc4707241d8db8d8fa5a15d63c9fcae5bfdc9eb73a88a5fea0c64e7"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1220,8 +1220,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 114793,
-            "sha256": "7681e46f561f68a600da6a066db80b07e3132a08c796abc8c78aafd7270dac7a"
+            "bytes": 116834,
+            "sha256": "2fc8c83dfedbb6507d5a2720c781853edc57615616b232250d7ebe6144e23c9e"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -1290,8 +1290,8 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 123395,
-            "sha256": "300b66f12cb19b63d077b2ebd00f15ca33b7e01ad39148b47d2af288ec93a0c3"
+            "bytes": 123942,
+            "sha256": "dcd0a08ab7e292aff60de22bfd99ff3b24945454bed9dc7233273c4561f89779"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
@@ -1420,13 +1420,13 @@
           },
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
-            "bytes": 35187,
-            "sha256": "1eeff767a52b5c48047bb9993770c276eaa4b7bb92ff3b50382c0abd1ffc81b0"
+            "bytes": 36500,
+            "sha256": "5536c82081f42a86f8ff266c0152f63061747c51a51555408269c571fb6e3e3a"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
-            "bytes": 40031,
-            "sha256": "a206a9c908e8819dabebe515ba2d59eb828083cbc7073ae3ed2350062590e89e"
+            "bytes": 43131,
+            "sha256": "7a9284b58cad8f20345553cf8df5f0d0f2675ace3d3eeae279541ef0e5aeaf3b"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
@@ -2252,11 +2252,11 @@
         "declared_license": "Unlicense OR MIT"
       },
       {
-        "package": "aidevbridge@0.3.2",
+        "package": "aidevbridge@0.3.3",
         "source": null,
         "manifest": {
           "bytes": 5844,
-          "sha256": "4670bd7b354a9247c78e0665d3b5729d1900d9cf0055a43aa597ca1ea42b812a"
+          "sha256": "c2d318b1d15fb419785369a35b8d53a14df257251939d0ac41d3a56321d05cec"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5584,25 +5584,25 @@
         "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
       },
       {
-        "package": "aidevbridge@0.3.2",
+        "package": "aidevbridge@0.3.3",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.3.2",
+        "package": "aidevbridge@0.3.3",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.3.2",
+        "package": "aidevbridge@0.3.3",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.3.2",
+        "package": "aidevbridge@0.3.3",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11659,9 +11659,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.3.2",
+      "id": "cargo:aidevbridge@0.3.3",
       "name": "aidevbridge",
-      "version": "0.3.2",
+      "version": "0.3.3",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",
