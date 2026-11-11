@@ -218,9 +218,9 @@ Neue Belege nimmt sie aus der Datei eines Release-Laufs (Probelauf mit
 scheitert: Artefakt `android-native-evidence` herunterladen, dann
 `npm run licenses:derive -- --native-evidence <datei>`. Eine Datei, der ein
 ABI fehlt (ein Vorschau-Bau baut nur arm64), lehnt sie ab. Die gebundenen
-Belege für armv7 und x86_64 stammen vom 28.10., der für arm64 vom 05.11.; der
-Schritt in `android.yml` hat ihre Aussagen erstmals im Probelauf vom 11.11.
-gegen die Bauten der CI geprüft.
+Belege stammen aus dem Probelauf 43005268807 auf `4243ed2` (0.3.3). Ihr
+SHA-256 gehört zu diesem Bau, nicht zum ausgelieferten: Die Oberfläche in der
+Bibliothek trägt den Commit, und der Tag steht auf dem Merge-Commit.
 
 Beim Release kommt zur Version in der Windows-Auswahl (siehe oben) die
 Ableitung `npm run licenses:derive`: Erst sie trägt die Version in die
