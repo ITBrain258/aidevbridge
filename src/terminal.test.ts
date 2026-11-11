@@ -3092,6 +3092,23 @@ describe("mountTerminal: Screen reader support", () => {
     expect(hoisted.terminals[0].options.screenReaderMode).toBe(false);
     kept.dispose();
   });
+
+  // Ein Abonnent aus einem gescheiterten Bau warf beim naechsten Wechsel an
+  // `disposed` (noch nicht deklariert) und brach die Schleife der Abonnenten
+  // ab: spaetere Kacheln und die offenen Einstellungen erfuhren nichts.
+  it("ein Bau, der an term.open scheitert, hinterlaesst kein Abonnement", () => {
+    const kept = mount(document.createElement("div"), "host-1", "kept");
+    const open = vi.spyOn(Object.getPrototypeOf(hoisted.terminals[0]) as { open(parent: HTMLElement): void }, "open");
+    open.mockImplementationOnce(() => {
+      throw new Error("open failed");
+    });
+    expect(() => mount(document.createElement("div"), "host-1", "broken")).toThrow("open failed");
+    open.mockRestore();
+
+    expect(() => setTerminalPrefs({ screenReaderMode: true })).not.toThrow();
+    expect(hoisted.terminals[0].options.screenReaderMode).toBe(true);
+    kept.dispose();
+  });
 });
 
 // Spec 2026-10-27 §5.5: Wischen rollt das Terminal, nur auf Android. Die Geste

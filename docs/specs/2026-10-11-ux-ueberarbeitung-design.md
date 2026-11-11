@@ -798,8 +798,12 @@ programs print a lot.“ Gespeichert wird er als `screen_reader_mode` unter
 `[ui]` in `settings.toml` (fehlt das Feld, gilt aus; ältere Builds lesen die
 Datei weiter und lassen es beim nächsten Speichern weg, §9.2). Er gilt sofort
 für jede offene Kachel, ohne Neuanlage und ohne `fit()`. Standard aus, weil
-xterm.js mit dem Modus jede Ausgabe zusätzlich in den DOM schreibt. Mit einem
-echten Bildschirmleser ist das noch nicht geprüft.
+xterm.js mit dem Modus jede Ausgabe zusätzlich in den DOM schreibt. Mit dem
+Modus hält xterm.js eine Taste ohne Strg oder Alt nicht mehr selbst an; F5, F3,
+F7 und Umschalt+Tab sperrt die App im Terminal deshalb selbst (§8.1), damit F5
+die App nicht neu lädt und Umschalt+Tab den Fokus nicht wegnimmt. Das Programm
+bekommt die Tasten weiter. Mit einem echten Bildschirmleser ist das noch nicht
+geprüft.
 
 **Shortcuts:**
 

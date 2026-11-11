@@ -873,6 +873,16 @@ describe("Kompakte Ansicht: Trefferflaechen, Dialoge und Banner", () => {
       /--ab-control-h:\s*var\(--ab-touch-target\);/,
     );
     expect(tokenBlock(":root")["--ab-control-h"]).toBe("32px");
+    // Zeilenknoepfe, Stepper und Segmentwahl lesen ein anderes Token.
+    expect(
+      ruleBody(
+        "html.compact .dialog-panel .btn--row,\nhtml.compact .first-run-card .btn--row,\nhtml.compact .settings-stepper,\nhtml.compact .settings-seg",
+      ),
+    ).toMatch(/height:\s*var\(--ab-touch-target\);/);
+    expect(ruleBody("html.compact .settings-stepper-btn")).toMatch(/width:\s*var\(--ab-touch-target\);/);
+    for (const selector of [".btn--row", ".settings-stepper", ".settings-seg"]) {
+      expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-row-btn-h\);/);
+    }
     for (const selector of [".btn", "button", 'input:not([type="checkbox"]):not([type="radio"]), select']) {
       expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-control-h\);/);
     }

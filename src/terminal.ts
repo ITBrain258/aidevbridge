@@ -457,13 +457,6 @@ export function mountTerminal(
     cursorStyle: "block",
   });
 
-  // "Screen reader support" gilt sofort fuer jede offene Kachel, nicht erst
-  // fuer die naechste; ohne Neuanlage und ohne fit(). `dispose()` meldet ab.
-  const offScreenReaderPref = onTerminalPrefsChanged((prefs) => {
-    if (disposed || term.options.screenReaderMode === prefs.screenReaderMode) return;
-    term.options.screenReaderMode = prefs.screenReaderMode;
-  });
-
   // UX-Spec §6.5: geoeffnet wird nur mit Strg+Klick; ein Klick ohne Strg tut
   // nichts. Das gilt fuer beide Wege hierher: Links, die das WebLinks-Addon im
   // Text erkennt (unten geladen), und OSC-8-Links (`linkHandler` oben, mit der
@@ -1570,6 +1563,16 @@ export function mountTerminal(
     }, RESIZE_DEBOUNCE_MS);
   };
   window.addEventListener("resize", scheduleRefit);
+
+  // "Screen reader support" gilt sofort fuer jede offene Kachel, nicht erst
+  // fuer die naechste; ohne Neuanlage und ohne fit(). Erst hier, unmittelbar
+  // vor der Rueckgabe: scheitert der Bau vorher (etwa `term.open`), bliebe
+  // sonst ein Abonnent ohne Kachel stehen, der beim naechsten Wechsel an
+  // `disposed` wirft. `dispose()` meldet ab.
+  const offScreenReaderPref = onTerminalPrefsChanged((prefs) => {
+    if (disposed || term.options.screenReaderMode === prefs.screenReaderMode) return;
+    term.options.screenReaderMode = prefs.screenReaderMode;
+  });
 
   return {
     // Der Kachelcontroller darf Layoutwechsel,
