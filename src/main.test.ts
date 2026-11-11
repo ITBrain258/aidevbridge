@@ -5854,6 +5854,7 @@ function uiSettingsDto(overrides: Partial<UiSettingsDto> = {}): UiSettingsDto {
     right_click: "menu",
     restore_workspace: true,
     sidebar_width: 240,
+    screen_reader_mode: false,
     workspace: { layout: 1, tiles_version: 2, sidebar_collapsed: false, expanded: [], connected: [], tiles: [], dirs: {} },
     settings_path: STORED_SETTINGS_PATH,
     ...overrides,
@@ -5909,11 +5910,23 @@ describe("main: Einstellungen laden und entprellt schreiben (UX-Spec §9.2)", ()
   }
 
   it("uebernimmt die gespeicherten Terminal-Einstellungen und schreibt sie nicht zurueck", async () => {
-    stored = uiSettingsDto({ terminal_font_size: 16, copy_on_select: true, ctrl_cv_clipboard: false, right_click: "paste" });
+    stored = uiSettingsDto({
+      terminal_font_size: 16,
+      copy_on_select: true,
+      ctrl_cv_clipboard: false,
+      right_click: "paste",
+      screen_reader_mode: true,
+    });
     main();
     await flush();
 
-    expect(terminalPrefs()).toEqual({ fontSize: 16, copyOnSelect: true, ctrlCvClipboard: false, rightClick: "paste" });
+    expect(terminalPrefs()).toEqual({
+      fontSize: 16,
+      copyOnSelect: true,
+      ctrlCvClipboard: false,
+      rightClick: "paste",
+      screenReaderMode: true,
+    });
     await vi.advanceTimersByTimeAsync(1000);
     expect(settingsCalls()).toEqual([["ui_settings", { patch: null }]]);
   });

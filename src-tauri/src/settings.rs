@@ -146,6 +146,11 @@ pub struct UiSettings {
     /// 200..=480, sonst 240.
     #[serde(deserialize_with = "lenient_int")]
     pub sidebar_width: u16,
+    /// "Screen reader support": der Inhalt der Terminals fuer Bildschirmleser
+    /// (`screenReaderMode` von xterm.js). Standard aus; fehlt das Feld, gilt
+    /// aus. Aeltere Builds lesen die Datei weiter und lassen es beim naechsten
+    /// Speichern weg.
+    pub screen_reader_mode: bool,
 }
 
 fn default_theme() -> String {
@@ -162,6 +167,7 @@ impl Default for UiSettings {
             right_click: DEFAULT_RIGHT_CLICK.to_string(),
             restore_workspace: true,
             sidebar_width: DEFAULT_SIDEBAR_WIDTH,
+            screen_reader_mode: false,
         }
     }
 }
@@ -1772,6 +1778,7 @@ user = "u"
                 right_click: "paste".into(),
                 restore_workspace: false,
                 sidebar_width: 300,
+                screen_reader_mode: true,
             },
             workspace: Workspace {
                 layout: 4,
@@ -1931,6 +1938,10 @@ theme = "slate"
         assert_eq!(s.ui.terminal_font_size, 13);
         assert!(!s.ui.copy_on_select);
         assert!(s.ui.ctrl_cv_clipboard);
+        assert!(
+            !s.ui.screen_reader_mode,
+            "ohne das Feld bleibt der Bildschirmleser-Modus aus"
+        );
         assert_eq!(s.ui.right_click, "menu");
         assert!(s.ui.restore_workspace);
         assert_eq!(s.ui.sidebar_width, 240);
@@ -2008,6 +2019,7 @@ theme = "slate"
             "right_click = \"paste\"",
             "restore_workspace = false",
             "sidebar_width = 300",
+            "screen_reader_mode = true",
             "[workspace]",
             "layout = 4",
             "tiles_version = 2",

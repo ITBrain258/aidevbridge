@@ -25,31 +25,32 @@ describe("terminalPrefs", () => {
       copyOnSelect: false,
       rightClick: "menu",
       fontSize: 13,
+      screenReaderMode: false,
     });
     expect(terminalPrefs()).toEqual(DEFAULT_TERMINAL_PREFS);
   });
 
   it("uebernimmt einen Teilpatch und laesst die uebrigen Werte stehen", () => {
     setTerminalPrefs({ ctrlCvClipboard: false });
-    expect(terminalPrefs()).toEqual({ ctrlCvClipboard: false, copyOnSelect: false, rightClick: "menu", fontSize: 13 });
+    expect(terminalPrefs()).toEqual({ ctrlCvClipboard: false, copyOnSelect: false, rightClick: "menu", fontSize: 13, screenReaderMode: false });
 
     setTerminalPrefs({ rightClick: "paste", copyOnSelect: true });
-    expect(terminalPrefs()).toEqual({ ctrlCvClipboard: false, copyOnSelect: true, rightClick: "paste", fontSize: 13 });
+    expect(terminalPrefs()).toEqual({ ctrlCvClipboard: false, copyOnSelect: true, rightClick: "paste", fontSize: 13, screenReaderMode: false });
 
     setTerminalPrefs({ fontSize: 16 });
-    expect(terminalPrefs()).toEqual({ ctrlCvClipboard: false, copyOnSelect: true, rightClick: "paste", fontSize: 16 });
+    expect(terminalPrefs()).toEqual({ ctrlCvClipboard: false, copyOnSelect: true, rightClick: "paste", fontSize: 16, screenReaderMode: false });
   });
 
   it("veraendert die Standards nicht", () => {
     setTerminalPrefs({ ctrlCvClipboard: false, rightClick: "paste", fontSize: 18 });
-    expect(DEFAULT_TERMINAL_PREFS).toEqual({ ctrlCvClipboard: true, copyOnSelect: false, rightClick: "menu", fontSize: 13 });
+    expect(DEFAULT_TERMINAL_PREFS).toEqual({ ctrlCvClipboard: true, copyOnSelect: false, rightClick: "menu", fontSize: 13, screenReaderMode: false });
     expect(Object.isFrozen(DEFAULT_TERMINAL_PREFS)).toBe(true);
   });
 
   it("ein Feld mit undefined im Patch gilt als nicht gesetzt", () => {
     setTerminalPrefs({ ctrlCvClipboard: false, fontSize: 15 });
     setTerminalPrefs({ ctrlCvClipboard: undefined, copyOnSelect: true, fontSize: undefined });
-    expect(terminalPrefs()).toEqual({ ctrlCvClipboard: false, copyOnSelect: true, rightClick: "menu", fontSize: 15 });
+    expect(terminalPrefs()).toEqual({ ctrlCvClipboard: false, copyOnSelect: true, rightClick: "menu", fontSize: 15, screenReaderMode: false });
   });
 
   // `ui_settings` scheitert an einer Bruchzahl (Rust `u8`), und jeder Schreiber
@@ -97,11 +98,11 @@ describe("onTerminalPrefsChanged", () => {
 
     setTerminalPrefs({ copyOnSelect: true });
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(listener).toHaveBeenLastCalledWith({ ctrlCvClipboard: true, copyOnSelect: true, rightClick: "menu", fontSize: 13 });
+    expect(listener).toHaveBeenLastCalledWith({ ctrlCvClipboard: true, copyOnSelect: true, rightClick: "menu", fontSize: 13, screenReaderMode: false });
 
     setTerminalPrefs({ fontSize: 14 });
     expect(listener).toHaveBeenCalledTimes(2);
-    expect(listener).toHaveBeenLastCalledWith({ ctrlCvClipboard: true, copyOnSelect: true, rightClick: "menu", fontSize: 14 });
+    expect(listener).toHaveBeenLastCalledWith({ ctrlCvClipboard: true, copyOnSelect: true, rightClick: "menu", fontSize: 14, screenReaderMode: false });
 
     unsubscribe();
     setTerminalPrefs({ copyOnSelect: false });

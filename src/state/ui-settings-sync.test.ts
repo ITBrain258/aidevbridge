@@ -36,6 +36,7 @@ describe("ui-settings-sync: Laden", () => {
       right_click: "paste",
       restore_workspace: false,
       sidebar_width: 300,
+      screen_reader_mode: true,
     });
 
     expect(stored.fields).toEqual({
@@ -45,8 +46,15 @@ describe("ui-settings-sync: Laden", () => {
       right_click: "paste",
       restore_workspace: false,
       sidebar_width: 300,
+      screen_reader_mode: true,
     });
-    expect(stored.prefs).toEqual({ fontSize: 16, copyOnSelect: true, ctrlCvClipboard: false, rightClick: "paste" });
+    expect(stored.prefs).toEqual({
+      fontSize: 16,
+      copyOnSelect: true,
+      ctrlCvClipboard: false,
+      rightClick: "paste",
+      screenReaderMode: true,
+    });
   });
 
   it("prueft jedes Feld einzeln: Unbrauchbares bleibt weg, Zahlen kommen ganz und in Grenzen", () => {
@@ -76,6 +84,13 @@ describe("ui-settings-sync: entprellt schreiben", () => {
 
     await vi.advanceTimersByTimeAsync(1);
     expect(writes()).toEqual([{ terminal_font_size: 15 }]);
+  });
+
+  it("Screen reader support geht als screen_reader_mode hinaus", async () => {
+    sync.prefsChanged(prefs(), prefs({ screenReaderMode: true }));
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+
+    expect(writes()).toEqual([{ screen_reader_mode: true }]);
   });
 
   it("mehrere Felder binnen der Ruhezeit gehen zusammen hinaus", async () => {

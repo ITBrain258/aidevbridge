@@ -94,6 +94,8 @@ export interface UiSettingsDto {
   /** 200 bis 480, wie Rust klemmt; die Seitenleiste zeigt einen Wert unter 208
    * als 208 (`views/sidebar-resize.ts`). */
   sidebar_width: number;
+  /** "Screen reader support" (`screenReaderMode` von xterm.js), Standard aus. */
+  screen_reader_mode: boolean;
   workspace: WorkspaceDto;
   settings_path: string;
 }

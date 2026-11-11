@@ -3066,6 +3066,34 @@ describe("mountTerminal: Schriftgroesse (UX-Spec §6.7)", () => {
   });
 });
 
+// "Screen reader support" (Terminal-Einstellungen, Nachtrag vom 11.11.2026):
+// xterm.js' `screenReaderMode` beim Bau aus `terminal-prefs`, danach folgt
+// jede offene Kachel der Einstellung, bis sie entsorgt ist.
+describe("mountTerminal: Screen reader support", () => {
+  it("baut mit dem Stand der Einstellung, Standard aus", () => {
+    mount(document.createElement("div"), "host-1", "off");
+    setTerminalPrefs({ screenReaderMode: true });
+    mount(document.createElement("div"), "host-1", "on");
+
+    expect(hoisted.terminals[0].options.screenReaderMode).toBe(true);
+    expect(hoisted.terminals[1].options.screenReaderMode).toBe(true);
+  });
+
+  it("jede offene Kachel folgt der Einstellung, eine entsorgte nicht mehr", () => {
+    const kept = mount(document.createElement("div"), "host-1", "kept");
+    const gone = mount(document.createElement("div"), "host-1", "gone");
+    expect(hoisted.terminals.map((terminal) => terminal.options.screenReaderMode)).toEqual([false, false]);
+    gone.dispose();
+
+    setTerminalPrefs({ screenReaderMode: true });
+    expect(hoisted.terminals.map((terminal) => terminal.options.screenReaderMode)).toEqual([true, false]);
+
+    setTerminalPrefs({ screenReaderMode: false });
+    expect(hoisted.terminals[0].options.screenReaderMode).toBe(false);
+    kept.dispose();
+  });
+});
+
 // Spec 2026-10-27 §5.5: Wischen rollt das Terminal, nur auf Android. Die Geste
 // selbst (Schwelle, Reste, Auslauf) prueft `touch-scroll.test.ts`; hier geht
 // es darum, was eine gewischte Zeile bewirkt. Ohne Layout misst jsdom keine

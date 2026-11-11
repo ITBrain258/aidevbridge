@@ -16,6 +16,10 @@ export interface TerminalPrefs {
   rightClick: RightClickMode;
   /** "Font size" aller Terminals in px: ganzzahlig 10 bis 20 (Spec §6.7). */
   fontSize: number;
+  /** "Screen reader support": xterm.js legt den Text der Terminals fuer
+   * Bildschirmleser in den DOM (`screenReaderMode`). Standard aus, weil es
+   * bei viel Ausgabe Zeit kostet. */
+  screenReaderMode: boolean;
 }
 
 /** Spec §6.7 und `settings.rs`: Standard und Grenzen der Schriftgroesse. */
@@ -28,6 +32,7 @@ export const DEFAULT_TERMINAL_PREFS: Readonly<TerminalPrefs> = Object.freeze({
   copyOnSelect: false,
   rightClick: "menu",
   fontSize: DEFAULT_TERMINAL_FONT_SIZE,
+  screenReaderMode: false,
 });
 
 /** Haelt eine Schriftgroesse in den Grenzen 10 bis 20 und macht sie ganzzahlig:
@@ -56,12 +61,14 @@ export function setTerminalPrefs(patch: Partial<TerminalPrefs>): void {
     copyOnSelect: patch.copyOnSelect ?? current.copyOnSelect,
     rightClick: patch.rightClick ?? current.rightClick,
     fontSize: patch.fontSize === undefined ? current.fontSize : clampFontSize(patch.fontSize),
+    screenReaderMode: patch.screenReaderMode ?? current.screenReaderMode,
   };
   if (
     next.ctrlCvClipboard === current.ctrlCvClipboard &&
     next.copyOnSelect === current.copyOnSelect &&
     next.rightClick === current.rightClick &&
-    next.fontSize === current.fontSize
+    next.fontSize === current.fontSize &&
+    next.screenReaderMode === current.screenReaderMode
   ) {
     return;
   }

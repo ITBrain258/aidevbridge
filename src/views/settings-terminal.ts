@@ -1,6 +1,7 @@
 // Einstellungen, Bereich "Terminal" (UX-Spec §9.1): Karte "Text" mit der
-// Schriftgroesse (§6.7) und Karte "Clipboard" mit "Copy on select" (§6.4),
-// "Use Ctrl+C and Ctrl+V" (§6.1) und "Right click" (§6.3).
+// Schriftgroesse (§6.7), Karte "Clipboard" mit "Copy on select" (§6.4),
+// "Use Ctrl+C and Ctrl+V" (§6.1) und "Right click" (§6.3) und Karte
+// "Accessibility" mit "Screen reader support" (Nachtrag vom 11.11.2026).
 //
 // Der Bereich ist eine Ansicht auf `terminal-prefs`: er liest den Stand, schreibt
 // jede Aenderung dorthin und folgt Aenderungen von aussen (Strg+Mausrad, Tasten,
@@ -131,7 +132,19 @@ export function mountTerminalSection(container: HTMLElement): { dispose(): void 
   mouseHint.textContent = t(isMacOS() ? "settings.terminal.mouseHintMac" : "settings.terminal.mouseHint");
   clipboard.card.appendChild(mouseHint);
 
-  root.append(text.card, clipboard.card);
+  // --- Karte "Accessibility": der Text der Terminals fuer Bildschirmleser.
+  const accessibility = settingsCard(t("settings.terminal.accessibility"));
+  const screenReader = switchRow(
+    t("settings.terminal.screenReader"),
+    t("settings.terminal.screenReaderHint"),
+    initial.screenReaderMode,
+    (checked) => {
+      setTerminalPrefs({ screenReaderMode: checked });
+    },
+  );
+  accessibility.rows.appendChild(screenReader.row);
+
+  root.append(text.card, clipboard.card, accessibility.card);
 
   function show(prefs: Readonly<TerminalPrefs>): void {
     value.textContent = String(prefs.fontSize);
@@ -139,6 +152,7 @@ export function mountTerminalSection(container: HTMLElement): { dispose(): void 
     increase.setAttribute("aria-disabled", String(prefs.fontSize >= MAX_TERMINAL_FONT_SIZE));
     copyOnSelect.toggle.setChecked(prefs.copyOnSelect);
     ctrlCv.toggle.setChecked(prefs.ctrlCvClipboard);
+    screenReader.toggle.setChecked(prefs.screenReaderMode);
     for (const [mode, input] of radios) input.checked = prefs.rightClick === mode;
   }
   show(initial);

@@ -3418,6 +3418,7 @@ pub struct UiSettingsDto {
     pub right_click: String,
     pub restore_workspace: bool,
     pub sidebar_width: u16,
+    pub screen_reader_mode: bool,
     pub workspace: WorkspaceDto,
     /// Pfad der `settings.toml` fuer die Anzeige unter About.
     pub settings_path: String,
@@ -3434,6 +3435,7 @@ impl UiSettingsDto {
             right_click: ui.right_click.clone(),
             restore_workspace: ui.restore_workspace,
             sidebar_width: ui.sidebar_width,
+            screen_reader_mode: ui.screen_reader_mode,
             workspace: WorkspaceDto::from(&settings.workspace),
             settings_path: settings_path.display().to_string(),
         }
@@ -3456,6 +3458,7 @@ pub struct UiSettingsPatchDto {
     pub restore_workspace: Option<bool>,
     #[serde(deserialize_with = "settings::lenient_opt_int")]
     pub sidebar_width: Option<u16>,
+    pub screen_reader_mode: Option<bool>,
     pub workspace: Option<WorkspaceDto>,
 }
 
@@ -3484,6 +3487,9 @@ impl UiSettingsPatchDto {
         }
         if let Some(width) = self.sidebar_width {
             ui.sidebar_width = width;
+        }
+        if let Some(screen_reader_mode) = self.screen_reader_mode {
+            ui.screen_reader_mode = screen_reader_mode;
         }
         if let Some(workspace) = self.workspace {
             settings.workspace = workspace.into();
