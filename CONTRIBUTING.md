@@ -140,9 +140,12 @@ a disposable test host, never a machine with sessions you care about.
   tests"), with an ed25519 and an RSA key; the acceptance suite stays manual.
 - Run with `--no-fail-fast` and `--nocapture` and keep the output: skipped
   branches (RSA key, password, SSH agent) are only visible there.
-- Run with `--test-threads=4`: the key preparation admits eight jobs per
-  test process, and with the default thread count about twelve live
-  command tests fail at that admission.
+- Run with `--test-threads=4`: OpenSSH accepts ten connections at once that
+  have not logged in yet (`MaxStartups 10:30:100`) and drops the rest; with
+  the default thread count about nine live command tests fail there as "Host
+  not reachable" (seen on OpenSSH 10.2). The app's own limit of eight key
+  preparations and name resolutions at once waits up to 5 s for a place
+  since 0.3.3 and no longer fails these tests.
 
 ```sh
 AIDEVBRIDGE_TEST_HOST=<test host> AIDEVBRIDGE_TEST_USER=<account> \
