@@ -183,10 +183,11 @@ Release-Workflows, die erst ein Tag ausführt (Schranke „auf `main`“, Marke
 „Latest“), hielten beim Tag von 0.3.2. Die NDK-Belege bleiben die von 0.3.0. Die Prüfung vom
 09.11. steht in der Git-Historie dieser Datei.
 
-Der letzte Live-Lauf ging am 11.11. auf dem Stand `eb20251` (0.3.2) von
-Windows aus gegen eine Test-VM mit Ubuntu 26.04, OpenSSH 10.2 und tmux 3.6, auf
-eigenen Testsockets: alle 775 Rust-Tests grün, darunter
-`integration_default_socket` voll (sein Listentest braucht tmux 3.3a oder 3.6),
+Der letzte Live-Lauf ging am 11.11. auf dem Stand `84b0ca0` (Kopf des
+Release-PR von 0.3.3, derselbe Baum wie der Tag `v0.3.3`) von Windows aus
+gegen eine Test-VM mit Ubuntu 26.04, OpenSSH 10.2 und tmux 3.6, auf eigenen
+Testsockets: alle 779 Rust-Tests grün, darunter `integration_default_socket`
+voll (sein Listentest braucht tmux 3.3a oder 3.6),
 und die VM-Abnahme (`acceptance_vm`) 11 von 11. Übersprungen: der RSA-Zweig
 (kein `AIDEVBRIDGE_TEST_RSA_KEY`), der Passwortzweig (kein
 `AIDEVBRIDGE_VM_PASSWORD`) und der ssh-agent-Zweig (Dienst auf dem Rechner
@@ -335,8 +336,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
     selbst hoch ([Anleitung](android-veroeffentlichung.md)). Das signierte
-    App Bundle von 0.3.2 (versionCode 3002) liegt nur als Artefakt
-    `android-signed` des Laufs 42876523965 vor, bis zum 08.02.2027. Am Gerät zu
+    App Bundle von 0.3.3 (versionCode 3003) liegt nur als Artefakt
+    `android-signed` des Laufs 43010850481 vor, bis zum 09.02.2027. Am Gerät zu
     klären (Review vom 03.11.): ob Android den WebView im Hintergrund so
     anhält, dass die Acks länger als 30 s ausbleiben; dann schließt
     `STALL_TIMEOUT` die Terminals, und die Kacheln hängen sich nach der
