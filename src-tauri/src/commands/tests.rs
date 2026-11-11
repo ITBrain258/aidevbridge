@@ -3180,3 +3180,42 @@ async fn a_failed_version_command_fails_the_list_instead_of_reporting_unmeasured
     .unwrap();
     fixture.finish(2).await;
 }
+
+/// Eine Panik unter einer Registersperre vergiftet sie. Bisher scheiterte
+/// danach jeder Befehl mit `lock().unwrap()` bis zum Neustart, auch Trennen
+/// und Schliessen; jetzt arbeiten sie weiter (`registry`).
+#[tokio::test]
+async fn commands_keep_working_after_a_panic_poisoned_the_registries() {
+    let state = Arc::new(AppState::default());
+    let id = begin_connect_impl(&state).expect("a reservation");
+    for poison in [
+        |s: &AppState| {
+            let _hosts = s.hosts.lock().unwrap();
+            panic!("panic under the hosts lock");
+        },
+        |s: &AppState| {
+            let _terms = s.terminals.lock().unwrap();
+            panic!("panic under the terminals lock");
+        },
+        |s: &AppState| {
+            let _pending = s.pending_host_key.lock().unwrap();
+            panic!("panic under the pending host key lock");
+        },
+    ] {
+        let shared = state.clone();
+        assert!(std::thread::spawn(move || poison(&shared)).join().is_err());
+    }
+    assert!(state.hosts.is_poisoned());
+    assert!(state.terminals.is_poisoned());
+    assert!(state.pending_host_key.is_poisoned());
+
+    assert!(registry(&state.hosts).contains_key(&id));
+    close_terminal_impl(&state, id.clone(), "ab_x".into())
+        .await
+        .unwrap();
+    assert!(respond_host_key_impl(&state, 7, true).is_err());
+    disconnect_host_impl(&state, id.clone()).await.unwrap();
+    assert!(!registry(&state.hosts).contains_key(&id));
+    let again = begin_connect_impl(&state).expect("a new reservation after the panic");
+    assert!(registry(&state.hosts).contains_key(&again));
+}

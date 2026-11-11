@@ -195,6 +195,20 @@ impl Default for AppState {
     }
 }
 
+/// Sperrt eines der Register (`hosts`, `terminals`, `pending_host_key`), auch
+/// nach einer Panik unter dieser Sperre. Mit `lock().unwrap()` scheiterte
+/// danach jeder Befehl, der das Register braucht, bis zum Neustart der App,
+/// auch Trennen und Schliessen. Jede Aenderung unter diesen Sperren ist ein
+/// einzelnes Einfuegen, Entfernen oder Setzen ohne `await` (siehe die Felder
+/// oben); eine Panik dazwischen hinterlaesst schlimmstenfalls einen Eintrag,
+/// den der naechste Abbau oder Verbindungsversuch ersetzt. Wie
+/// `settings.rs` und `local_network.rs` mit ihren Sperren.
+fn registry<T>(mutex: &std::sync::Mutex<T>) -> std::sync::MutexGuard<'_, T> {
+    mutex
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
 impl AppState {
     /// Zustand der laufenden App (`lib.rs`): Socket aus
     /// `settings::app_socket()`, im Debug-Bau also ggf. aus
@@ -255,7 +269,7 @@ impl AppState {
     /// dem `Arc` also awaiten. Wer unter derselben Sperre noch mehr pruefen
     /// muss (etwa zusammen mit `terminals`), liest `hosts` direkt.
     fn ready_host(&self, host_id: &str) -> Option<Arc<HostConnection>> {
-        let hosts = self.hosts.lock().unwrap();
+        let hosts = registry(&self.hosts);
         hosts.get(host_id).and_then(HostSlot::ready)
     }
 
@@ -268,10 +282,7 @@ impl AppState {
     /// Nur fuer Tests/Diagnose: ob fuer `(host_id, session)` ein offener
     /// PTY-Kanal gefuehrt wird.
     pub async fn has_terminal(&self, host_id: &str, session: &str) -> bool {
-        self.terminals
-            .lock()
-            .unwrap()
-            .contains_key(&session_key(host_id, SocketKind::App, session))
+        registry(&self.terminals).contains_key(&session_key(host_id, SocketKind::App, session))
     }
 
     /// Registers the response channel awaited asynchronously by the policy.
@@ -282,7 +293,7 @@ impl AppState {
     ) -> (u64, oneshot::Receiver<bool>) {
         let id = self.next_request_id.fetch_add(1, Ordering::Relaxed);
         let (tx, rx) = oneshot::channel();
-        self.pending_host_key.lock().unwrap().insert(
+        registry(&self.pending_host_key).insert(
             id,
             PendingHostKey {
                 sender: tx,
@@ -299,7 +310,7 @@ impl AppState {
     /// findet den Eintrag nicht mehr und liefert einen Fehler, siehe
     /// `respond_host_key_impl`).
     fn forget_host_key_request(&self, id: u64) {
-        self.pending_host_key.lock().unwrap().remove(&id);
+        registry(&self.pending_host_key).remove(&id);
     }
 
     /// Von `respond_host_key_impl`: liefert `true`, wenn eine noch
@@ -310,20 +321,17 @@ impl AppState {
         // Erst binden (der `MutexGuard` faellt am `;` dieses Statements),
         // DANN erst `match` -- dasselbe Muster wie `disconnect_host_impl`
         // weiter unten: ein
-        // `match self.pending_host_key.lock().unwrap().remove(&id) { ... }`
+        // `match registry(&self.pending_host_key).remove(&id) { ... }`
         // liesse den Guard sonst als Scrutinee-Temporary bis zum Ende des
         // `match`-Ausdrucks leben (`clippy::significant_drop_in_scrutinee`,
         // in `lib.rs` dauerhaft aktiviert, schlaegt hier zu Recht an).
-        let control = self
-            .pending_host_key
-            .lock()
-            .unwrap()
+        let control = registry(&self.pending_host_key)
             .get(&id)
             .map(|p| p.control.clone());
         let Some(control) = control else { return false };
         control
             .with_active(|| {
-                let pending = self.pending_host_key.lock().unwrap().remove(&id);
+                let pending = registry(&self.pending_host_key).remove(&id);
                 pending.is_some_and(|pending| {
                     tokio::time::Instant::now() < pending.deadline
                         && pending.sender.send(accept).is_ok()
@@ -347,7 +355,7 @@ fn begin_connect_with_limits(
     let (expiry, ended) = oneshot::channel();
     let host_id;
     {
-        let mut hosts = state.hosts.lock().unwrap();
+        let mut hosts = registry(&state.hosts);
         if hosts
             .values()
             .filter(|slot| slot.control().is_some())
@@ -370,7 +378,7 @@ fn begin_connect_with_limits(
             _ = tokio::time::sleep_until(deadline) => {},
         }
         if let Some(state) = weak.upgrade() {
-            let mut hosts = state.hosts.lock().unwrap();
+            let mut hosts = registry(&state.hosts);
             if hosts
                 .get(&expired_id)
                 .is_some_and(|slot| slot.control().is_some())
@@ -398,7 +406,7 @@ struct ConnectAttempt {
 impl ConnectAttempt {
     fn take(state: &Arc<AppState>, host_id: String) -> Result<Self, ConnectError> {
         let control = {
-            let mut hosts = state.hosts.lock().unwrap();
+            let mut hosts = registry(&state.hosts);
             if !matches!(hosts.get(&host_id), Some(HostSlot::Pending { .. })) {
                 return Err(ConnectError {
                     code: "connect_cancelled",
@@ -427,7 +435,7 @@ impl ConnectAttempt {
     }
 
     fn publish(&mut self, transport: Arc<HostConnection>) -> Result<String, ConnectError> {
-        let mut hosts = self.state.hosts.lock().unwrap();
+        let mut hosts = registry(&self.state.hosts);
         if !matches!(hosts.get(&self.host_id), Some(HostSlot::Building { .. })) {
             return Err(connect_failure(
                 self.control
@@ -452,7 +460,7 @@ impl Drop for ConnectAttempt {
         if self.published {
             return;
         }
-        let mut hosts = self.state.hosts.lock().unwrap();
+        let mut hosts = registry(&self.state.hosts);
         self.control.cancel();
         hosts.remove(&self.host_id);
     }
@@ -550,8 +558,8 @@ impl TerminalAttempt {
         let generation = state.next_generation.fetch_add(1, Ordering::Relaxed);
         let control = OperationControl::new(COMMAND_TIMEOUT);
         {
-            let mut terms = state.terminals.lock().unwrap();
-            let hosts = state.hosts.lock().unwrap();
+            let mut terms = registry(&state.terminals);
+            let hosts = registry(&state.hosts);
             let current = hosts.get(host_id).and_then(HostSlot::ready);
             if !current.is_some_and(|current| Arc::ptr_eq(&current, host)) {
                 return Err("host disconnected during terminal setup".into());
@@ -591,7 +599,7 @@ impl TerminalAttempt {
 
 impl Drop for TerminalAttempt {
     fn drop(&mut self) {
-        let mut terms = self.state.terminals.lock().unwrap();
+        let mut terms = registry(&self.state.terminals);
         if terms
             .pending
             .get(&self.key)
@@ -2317,8 +2325,8 @@ async fn open_terminal_with_history<S: OutputSink>(
     // Register the pump and publish under the same gate used by invalidation.
     // A scheduled pump cannot emit before it finds this exact live entry.
     let publication = {
-        let mut terms = state.terminals.lock().unwrap();
-        let hosts = state.hosts.lock().unwrap();
+        let mut terms = registry(&state.terminals);
+        let hosts = registry(&state.hosts);
         let current = hosts.get(&host_id).and_then(HostSlot::ready);
         if current.is_some_and(|current| Arc::ptr_eq(&current, &host))
             && terms
@@ -2397,8 +2405,8 @@ impl<S: OutputSink> TerminalPump<S> {
             open = self.forward(bytes).await;
         }
         if let Some(state) = self.state.upgrade() {
-            let mut terms = state.terminals.lock().unwrap();
-            let hosts = state.hosts.lock().unwrap();
+            let mut terms = registry(&state.terminals);
+            let hosts = registry(&state.hosts);
             if owns_current_entry(
                 terms.get(&self.key).map(|entry| entry.generation),
                 self.generation,
@@ -2433,8 +2441,8 @@ impl<S: OutputSink> TerminalPump<S> {
         let Some(state) = self.state.upgrade() else {
             return false;
         };
-        let terms = state.terminals.lock().unwrap();
-        let hosts = state.hosts.lock().unwrap();
+        let terms = registry(&state.terminals);
+        let hosts = registry(&state.hosts);
         terms
             .get(&self.key)
             .is_some_and(|entry| entry.generation == self.generation)
@@ -2500,7 +2508,7 @@ pub async fn send_input_tagged_impl(
 ) -> Result<(), String> {
     let key = session_key(&host_id, socket, &session);
     let pty = {
-        let terms = state.terminals.lock().unwrap();
+        let terms = registry(&state.terminals);
         terms
             .get(&key)
             .filter(|entry| open_id.as_ref().is_none_or(|id| entry.open_id == *id))
@@ -2523,7 +2531,7 @@ pub async fn resize_terminal_tagged_impl(
 ) -> Result<(), String> {
     let key = session_key(&host_id, socket, &session);
     let pty = {
-        let terms = state.terminals.lock().unwrap();
+        let terms = registry(&state.terminals);
         terms
             .get(&key)
             .filter(|entry| open_id.as_ref().is_none_or(|id| entry.open_id == *id))
@@ -2558,7 +2566,7 @@ pub fn ack_output_tagged_impl(
     open_id: Option<String>,
 ) -> Result<(), String> {
     let key = session_key(&host_id, socket, &session);
-    let terms = state.terminals.lock().unwrap();
+    let terms = registry(&state.terminals);
     // Kein Eintrag: der Kanal wurde bereits abgebaut (Pumpe, close, disconnect).
     // Ein Ack, das aus dem write()-Callback des WebView nachlaeuft, ist dann
     // kein Fehler -- dieselbe Idempotenz wie disconnect_host_impl.
@@ -2590,11 +2598,7 @@ pub fn close_terminal_tagged_impl(
     open_id: Option<String>,
 ) -> Result<(), String> {
     let key = session_key(&host_id, socket, &session);
-    invalidate_terminal(
-        &mut state.terminals.lock().unwrap(),
-        &key,
-        open_id.as_deref(),
-    );
+    invalidate_terminal(&mut registry(&state.terminals), &key, open_id.as_deref());
     Ok(())
 }
 
@@ -2642,7 +2646,7 @@ pub async fn kill_session_impl(
     // VOR dem Toeten, siehe Doc-Kommentar. Dasselbe Muster wie
     // `close_terminal_impl` -- erst binden, damit der Guard am `;` faellt.
     let key = session_key(&host_id, socket, &session);
-    invalidate_terminal(&mut state.terminals.lock().unwrap(), &key, None);
+    invalidate_terminal(&mut registry(&state.terminals), &key, None);
 
     let transport = transport.command(deadline);
 
@@ -2748,7 +2752,7 @@ async fn kill_session_bound_and_verify(
 /// eine `RusshTransport`-Verbindung je wieder loszuwerden.
 pub async fn disconnect_host_impl(state: &Arc<AppState>, host_id: String) -> Result<(), String> {
     let slot = {
-        let mut hosts = state.hosts.lock().unwrap();
+        let mut hosts = registry(&state.hosts);
         let slot = hosts.remove(&host_id);
         if let Some(control) = slot.as_ref().and_then(HostSlot::control) {
             control.cancel();
@@ -2761,7 +2765,7 @@ pub async fn disconnect_host_impl(state: &Arc<AppState>, host_id: String) -> Res
     // Stop socket IO before waiting for channel cleanup. Pending connect
     // attempts and successful transports share the same removal point.
     {
-        let mut terms = state.terminals.lock().unwrap();
+        let mut terms = registry(&state.terminals);
         let keys: Vec<String> = terms
             .keys()
             .chain(terms.pending.keys())
