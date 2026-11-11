@@ -44,8 +44,11 @@ Die Version des eigenen Pakets steht in jeder Auswahl an acht Stellen:
 `scope.product_version`, Paketeintrag und Manifest, die Komponente
 `cargo:aidevbridge@…` mit ihrer `version` und die Dokumente unter
 `tests/fixtures/rsa-signing/`. In der Windows-Auswahl setzt `npm run bump`
-sie beim Release mit, in den beiden anderen `npm run licenses:derive`.
-`node scripts/release-version.mjs` zeigt, wo sie noch fehlt.
+sie beim Release mit, in den beiden anderen `npm run licenses:derive`. Bis
+dahin meldet das Werkzeug für macOS und Android das neue Paket unter
+`inputs.cargo_packages` als `added` und das alte als `missing`, unter
+`manual`; `rebind-own` lässt beides stehen.
+`node scripts/release-version.mjs` zeigt, wo die Version noch fehlt.
 
 `npm run bump` ändert beim Release auch die Versionszeile des eigenen Pakets
 in `Cargo.lock` und `package-lock.json`. Beide Dateien binden die Auswahlen
