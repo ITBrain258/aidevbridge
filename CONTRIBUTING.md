@@ -214,9 +214,9 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    that nothing else changed in them, then rebind them with
    `node scripts/release-license-rebind.mjs --write --third-party Cargo.lock package-lock.json`.
    Then run `npm run licenses:derive` for macOS and Android (it needs
-   `NDK_HOME`, and the NDK evidence of an ABI without a local build must be
-   restored), and confirm with `npm run licenses:status` and
-   `npm run licenses:check`.
+   `NDK_HOME` and keeps the bound evidence of the native libraries; the
+   Android workflow compares it with every build), and confirm with
+   `npm run licenses:status` and `npm run licenses:check`.
    [The license guide](docs/lizenzen-pflegen.md) (in German) describes every case.
 3. Start the packages and Android workflows by hand with **release** on, on the
    head of the release pull request: they make the release builds without

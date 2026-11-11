@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- Android-Lizenzauswahl: Jeder Lauf von `android.yml` liest nach dem Bau aus jeder gebauten `libaidevbridge_lib.so`, welche Bibliotheken sie braucht und ob libunwind und die CRT-Objekte des NDK darin stecken (`scripts/android-native-evidence.mjs`, Artefakt `android-native-evidence`), und scheitert, wenn das nicht mehr zu den gebundenen NDK-Belegen passt. `licenses:derive` liest dafuer keine lokale Bibliothek unter `target/` mehr, die bisher alte Werte oder `null` lieferte und von Hand zurueckgeholt werden musste: Es behaelt die gebundenen Belege oder nimmt mit `--native-evidence <Datei>` die eines Release-Laufs.
+
 ## [0.3.2] - 2026-11-10
 
 Befunde einer Durchsicht vom 10.11.: Ein kurzer Haenger im Netz kostet nicht mehr die Steuerverbindung, die Telefonansicht passt Einstellungen, Fehlerstreifen und Trefferflaechen an, unerwartete Fehler erreichen den Nutzer, und Verbindungsausgaenge werden angesagt. Dazu Schranken im Release-Ablauf und im Audit.

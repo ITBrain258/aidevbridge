@@ -220,6 +220,20 @@ test('android.yml asks the built APK for its identity in the build job, before a
   assert.deepEqual(stepsWith(jobs.get('sign')?.steps ?? [], 'node scripts/'), []);
 });
 
+test('android.yml records the evidence of every native library it builds, in the build job', () => {
+  const jobs = workflowJobs(read(`${WORKFLOWS}/android.yml`));
+  const build = jobs.get('build')?.steps ?? [];
+  const evidence = stepsWith(build, 'node scripts/android-native-evidence.mjs'), built = stepsWith(build, 'npm run tauri -- android build');
+  assert.equal(evidence.length, 1);
+  assert.ok(built.length === 1 && built[0].index < evidence[0].index, 'the evidence must follow the build');
+  // Ein Release baut drei ABIs; die Liste der Belege muss dieselben drei nennen.
+  const release = built[0].step.find(line => line.includes('--aab'));
+  assert.match(release ?? '', /--target aarch64 armv7 x86_64$/);
+  assert.ok(evidence[0].step.some(line => line.includes('targets=(aarch64-linux-android armv7-linux-androideabi x86_64-linux-android)')));
+  const upload = stepsWith(build, 'name: android-native-evidence');
+  assert.ok(upload.length === 1 && upload[0].index > evidence[0].index, 'the evidence file must leave the job as its own artifact');
+});
+
 test('every script a workflow runs exists', () => {
   const missing = [];
   let found = 0;

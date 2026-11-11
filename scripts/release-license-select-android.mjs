@@ -9,8 +9,10 @@
 // (src-tauri/gen/android/app/gradle.lockfile) has an explicit entry below.
 // Nothing is inferred from SPDX expressions and nothing is fetched: cargo runs
 // --offline, crate texts come from the registry cache, library texts from the
-// Gradle cache (after one Android build), NDK evidence from NDK_HOME, the rest
-// from docs/release/licenses. Without --write it only prints a summary.
+// Gradle cache (after one Android build), NDK evidence from NDK_HOME and the
+// evidence of the built libraries from a CI build (--native-evidence, see
+// builtLibraries), the rest from docs/release/licenses. Without --write it
+// only prints a summary.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -550,8 +552,10 @@ function ndkPrebuilt() {
 }
 const ndkTool = name => path.join(ndkPrebuilt(), 'bin', exe(name));
 
-// The NDK pieces in each target's libaidevbridge_lib.so and the NDK's own texts.
-function ndkEvidence(root) {
+// The NDK pieces in each target's libaidevbridge_lib.so and the NDK's own
+// texts. `libraries` holds the built_library record of each target (see
+// builtLibraries).
+function ndkEvidence(root, libraries) {
   const ndk = ndkRoot(), prebuilt = ndkPrebuilt();
   const notice = fs.readFileSync(path.join(ndk, 'NOTICE')), llvmNotice = fs.readFileSync(path.join(prebuilt, 'NOTICE'));
   ensure(notice.equals(readFile(root, NDK_NOTICE.path)), `${NDK_NOTICE.path} differs from the NDK's NOTICE`);
@@ -571,25 +575,73 @@ function ndkEvidence(root) {
       compiler_rt_builtins: file(builtins),
       crtbegin_so: file(path.join(crt, 'crtbegin_so.o')),
       crtend_so: file(path.join(crt, 'crtend_so.o')),
-      ...binaryEvidence(root, target),
+      built_library: libraries[target] ?? null,
     };
   }
   return { version: NDK_VERSION, notice: record(notice), llvm_notice: record(llvmNotice), clang: clang[0], targets };
 }
 
-// Read-only evidence from a built library, when one is present: the NEEDED
-// entries must be Android system libraries, and libunwind must be linked in.
-function binaryEvidence(root, target) {
-  const so = path.join(root, 'target', target, 'release', 'libaidevbridge_lib.so');
-  if (!fs.existsSync(so)) return { built_library: null };
-  const needed = [...run(root, ndkTool('llvm-readelf'), ['-d', so]).matchAll(/\(NEEDED\)\s+Shared library: \[([^\]]+)\]/g)].map(m => m[1]).sort();
-  for (const lib of needed) ensure(SYSTEM_LIBRARIES.includes(lib), `${target}: unexpected NEEDED ${lib}`);
-  const symbols = run(root, ndkTool('llvm-nm'), [so]);
-  return { built_library: { sha256: sha(fs.readFileSync(so)), needed, libunwind_linked: /\b__unw_init_local\b/.test(symbols), crt_linked: /\b__dso_handle\b/.test(symbols) } };
-}
-const SYSTEM_LIBRARIES = ['libandroid.so', 'libc.so', 'libdl.so', 'liblog.so', 'libm.so'];
+export const SYSTEM_LIBRARIES = ['libandroid.so', 'libc.so', 'libdl.so', 'liblog.so', 'libm.so'];
+// What a built_library record claims besides the digest of one build.
+export const LIBRARY_PROPERTIES = ['needed', 'libunwind_linked', 'crt_linked'];
 
-export function deriveSelection(root, { metadata = androidMetadata(root), roles = androidRoles(root, metadata), stdlib = stdlibEvidence(root), ndk = ndkEvidence(root), libraries = lockedLibraries(readFile(root, LOCKFILE).toString('utf8')) } = {}) {
+/**
+ * Evidence from a built libaidevbridge_lib.so, before Gradle strips its
+ * symbols: the NEEDED entries (`llvm-readelf -d`) must be Android system
+ * libraries, and the symbol table (`llvm-nm`) shows whether libunwind and the
+ * CRT objects are linked in.
+ * @param {Buffer} bytes
+ * @param {string} dynamicSection output of llvm-readelf -d
+ * @param {string} symbols output of llvm-nm
+ * @param {string} target
+ */
+export function libraryEvidence(bytes, dynamicSection, symbols, target) {
+  const needed = [...dynamicSection.matchAll(/\(NEEDED\)\s+Shared library: \[([^\]]+)\]/g)].map(m => m[1]).sort();
+  for (const lib of needed) ensure(SYSTEM_LIBRARIES.includes(lib), `${target}: unexpected NEEDED ${lib}`);
+  return { sha256: sha(bytes), needed, libunwind_linked: /\b__unw_init_local\b/.test(symbols), crt_linked: /\b__dso_handle\b/.test(symbols) };
+}
+
+/** The evidence of target/<target>/release/libaidevbridge_lib.so, read with the NDK's tools. */
+export function builtLibraryEvidence(root, target) {
+  const so = path.join(root, 'target', target, 'release', 'libaidevbridge_lib.so');
+  ensure(fs.existsSync(so), `${target}: ${path.relative(root, so)} is missing; build that target first`);
+  return libraryEvidence(fs.readFileSync(so), run(root, ndkTool('llvm-readelf'), ['-d', so]), run(root, ndkTool('llvm-nm'), [so]), target);
+}
+
+/** The built_library records of the committed report, by target. */
+export function committedLibraries(root) {
+  const targets = JSON.parse(readFile(root, REPORT).toString('utf8')).evidence?.ndk?.targets ?? {};
+  return Object.fromEntries(TARGETS.map(t => [t, targets[t]?.built_library ?? null]));
+}
+
+/**
+ * The built_library records for the report. The shipped libraries are built
+ * in CI, so a library under target/ on this computer is none of them; until
+ * 0.3.2 the derive read it there and recorded a stale local build or null.
+ * With an evidence file (the artifact android-native-evidence of a release
+ * build, written by scripts/android-native-evidence.mjs) the records come
+ * from that build, which must cover all three ABIs; without one the committed
+ * records stay as they are.
+ * @param {string} root
+ * @param {string | null} evidenceFile
+ */
+export function builtLibraries(root, evidenceFile = null) {
+  if (!evidenceFile) return { libraries: committedLibraries(root), source: `committed records of ${REPORT}` };
+  const evidence = JSON.parse(fs.readFileSync(evidenceFile, 'utf8'));
+  ensure(evidence.ndk === NDK_VERSION, `${evidenceFile}: NDK ${evidence.ndk}, expected ${NDK_VERSION}`);
+  const missing = TARGETS.filter(t => !evidence.targets?.[t]);
+  ensure(missing.length === 0, `${evidenceFile} lacks ${missing.join(', ')}: take the evidence of a release build, which builds all three ABIs`);
+  const libraries = {};
+  for (const target of TARGETS) {
+    const { sha256, needed, libunwind_linked, crt_linked } = evidence.targets[target];
+    ensure(/^[0-9a-f]{64}$/.test(sha256) && Array.isArray(needed) && typeof libunwind_linked === 'boolean' && typeof crt_linked === 'boolean', `${evidenceFile}: ${target} is not a built_library record`);
+    for (const lib of needed) ensure(SYSTEM_LIBRARIES.includes(lib), `${evidenceFile}: ${target}: unexpected NEEDED ${lib}`);
+    libraries[target] = { sha256, needed: [...needed].sort(), libunwind_linked, crt_linked };
+  }
+  return { libraries, source: `${evidenceFile} (commit ${evidence.commit})` };
+}
+
+export function deriveSelection(root, { metadata = androidMetadata(root), roles = androidRoles(root, metadata), stdlib = stdlibEvidence(root), ndk = ndkEvidence(root, committedLibraries(root)), libraries = lockedLibraries(readFile(root, LOCKFILE).toString('utf8')) } = {}) {
   const windows = JSON.parse(readFile(root, WINDOWS));
   const windowsInventoryTexts = JSON.parse(readFile(root, WINDOWS_INVENTORY)).candidate_texts_by_sha256;
   const pkgVersion = JSON.parse(readFile(root, 'package.json')).version;
@@ -949,14 +1001,15 @@ function selection(derived, root, pending) {
   };
 }
 
-export function write(root, { dryRun = false } = {}) {
-  const derived = deriveSelection(root);
+export function write(root, { dryRun = false, nativeEvidence = null } = {}) {
+  const built = builtLibraries(root, nativeEvidence);
+  const derived = deriveSelection(root, { ndk: ndkEvidence(root, built.libraries) });
   // The selection binds the bytes of INVENTORY and REPORT, so they are made first.
   const pending = new Map([[INVENTORY, encode(inventory(derived))], [REPORT, encode(report(derived, root))]]);
   pending.set(SELECTION, encode(selection(derived, root, pending)));
   const roles = {};
   for (const key of Object.keys(NEW_CRATES)) roles[key] = derived.roles.get(key)?.role;
-  const summary = { components: derived.components.length, documents: derived.documents.length, libraries: derived.libraries.length, added: derived.changes.added.length, dropped: derived.changes.dropped.length, replaced: derived.changes.replaced.length, role_changes: derived.changes.role.length, reworded: derived.changes.reason.length, new_texts: derived.newTexts.size, new_crate_roles: roles, written: [] };
+  const summary = { components: derived.components.length, documents: derived.documents.length, libraries: derived.libraries.length, added: derived.changes.added.length, dropped: derived.changes.dropped.length, replaced: derived.changes.replaced.length, role_changes: derived.changes.role.length, reworded: derived.changes.reason.length, new_texts: derived.newTexts.size, new_crate_roles: roles, native_libraries: built.source, written: [] };
   for (const [relative, bytes] of pending) {
     if (dryRun) continue;
     fs.writeFileSync(path.join(root, ...relative.split('/')), bytes);
@@ -968,8 +1021,12 @@ export function write(root, { dryRun = false } = {}) {
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
     const args = process.argv.slice(2);
-    ensure(args.every(a => a === '--write'), 'Usage: NDK_HOME=<ndk> node scripts/release-license-select-android.mjs [--write]');
+    const usage = 'Usage: NDK_HOME=<ndk> node scripts/release-license-select-android.mjs [--write] [--native-evidence <file>]';
+    const at = args.indexOf('--native-evidence');
+    const nativeEvidence = at >= 0 ? args[at + 1] : null;
+    ensure(at < 0 || (nativeEvidence && !nativeEvidence.startsWith('--')), usage);
+    ensure(args.every((a, i) => a === '--write' || i === at || (at >= 0 && i === at + 1)), usage);
     const root = fs.realpathSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'));
-    console.log(JSON.stringify(write(root, { dryRun: !args.includes('--write') }), null, 2));
+    console.log(JSON.stringify(write(root, { dryRun: !args.includes('--write'), nativeEvidence: nativeEvidence && path.resolve(nativeEvidence) }), null, 2));
   } catch (error) { console.error(`release-license-select-android: ${error.message}`); process.exitCode = 1; }
 }
