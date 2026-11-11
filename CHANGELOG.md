@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- Release: `npm run bump` setzt die Version des eigenen Pakets auch an ihren acht Stellen in der Windows-Lizenzauswahl; bisher geschah das von Hand. `scripts/release-version.mjs` listet jede Stelle, die die Version aus `package.json` noch nicht traegt (Versionsdateien, alle drei Auswahlen, Changelog, englische Kurzfassung, Store-Texte, Kopf von `docs/stand.md`, `SECURITY.md`), und sein Test laeuft bei jedem Push.
+
 ## [0.3.2] - 2026-11-10
 
 Befunde einer Durchsicht vom 10.11.: Ein kurzer Haenger im Netz kostet nicht mehr die Steuerverbindung, die Telefonansicht passt Einstellungen, Fehlerstreifen und Trefferflaechen an, unerwartete Fehler erreichen den Nutzer, und Verbindungsausgaenge werden angesagt. Dazu Schranken im Release-Ablauf und im Audit.
