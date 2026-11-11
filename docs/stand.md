@@ -472,10 +472,10 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       neu auf (Round-Robin-DNS kann sie auf zwei Rechner führen); eine Zeile,
       die `.bashrc` oder `.zshenv` ohne Terminal ausgibt, bricht die
       strenge Rahmung der tmux-Abfragen; `close_terminal` kann sein
-      `open_terminal` überholen (Verdacht, enges Fenster); eine vergiftete
-      Sperre der Register lässt jeden späteren Befehl scheitern; die Aufnahme
-      von Auflösung und Schlüsselvorbereitung scheitert sofort, statt kurz zu
-      warten. Ein `[profile.release]` fehlt weiter: Ein Überlauf ist nicht
+      `open_terminal` überholen (Verdacht, enges Fenster). Erledigt mit
+      0.3.3: die vergiftete Sperre der Register und die Aufnahme von Auflösung
+      und Schlüsselvorbereitung, die jetzt bis zu 5 s auf einen Platz wartet.
+      Ein `[profile.release]` fehlt weiter: Ein Überlauf ist nicht
       belegt, und eine Änderung beträfe jede Release-EXE samt Laufzeitbeleg.
     - **Release:** Die Windows-Pakete hängen an den macOS-Jobs (`publish`
       braucht alle vier); kein Starttest der APK in einem Emulator;
@@ -485,13 +485,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Node-Version ist nur auf `24` gepinnt. Die neuen Schritte (Schranke
       „auf `main`“, Marke „Latest“) liefen beim Tag von 0.3.2 zum ersten Mal
       und hielten; das Release trägt die Marke.
-    - **Frontend:** Der Inhalt des Terminals ist für Bildschirmleser
-      unsichtbar; `screenReaderMode` von xterm.js braucht eine Einstellung
-      samt Feld in `settings.toml`. `main()` baut beim Abbau nicht alles
-      ab (Seitenleiste, Dialoghülle, Rückfrage; betrifft die Tests). In der
-      Telefonansicht bleiben Eingabefelder und Dialogknöpfe 32 px hoch, und
-      am Gerät ist sie nicht angesehen. Die Bilder für README und Store sind
-      mit 0.3.2 neu gerendert.
+    - **Frontend:** `main()` baut beim Abbau nicht alles ab (Seitenleiste,
+      Dialoghülle, Rückfrage; betrifft die Tests). Seit 0.3.3 gibt es
+      „Screen reader support“ (mit einem echten Bildschirmleser nicht
+      geprüft), und in der Telefonansicht sind auch Felder und Knöpfe der
+      Dialoge 40 px hoch; am Gerät ist die Telefonansicht weiter nicht
+      angesehen.
     - **Doku:** Seit 0.3.2 steht auf jeder Release-Seite eine englische
       Kurzfassung (`docs/release/notes/<Version>.md`, Entscheidung des
       Maintainers vom 10.11.); das CHANGELOG bleibt deutsch. Ob es auf Englisch
