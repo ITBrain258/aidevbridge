@@ -36,14 +36,16 @@ Eigene Änderungen werden spätestens vor einem Release neu gebunden:
 `npm run licenses:check`, committen. Kopierter fremder Code in einer
 eigenen Datei ist Fremdcode und braucht eine eigene Entscheidung.
 
-Von Hand bleiben, das Werkzeug meldet sie unter `manual`:
+Von Hand bleiben, das Werkzeug meldet sie unter `manual`: ein gebundener
+Eingang, der fehlt, und eine Bauvariable unter `inputs.absent`, die
+aufgetaucht ist.
 
-- die Version des eigenen Pakets beim Release (sie steht in jeder Auswahl
-  an mehreren Stellen: `scope.product_version`, Paketeintrag und Manifest,
-  die Komponente `cargo:aidevbridge@…` und die Dokumente unter
-  `tests/fixtures/rsa-signing/`),
-- ein gebundener Eingang, der fehlt, und eine Bauvariable unter
-  `inputs.absent`, die aufgetaucht ist.
+Die Version des eigenen Pakets steht in jeder Auswahl an acht Stellen:
+`scope.product_version`, Paketeintrag und Manifest, die Komponente
+`cargo:aidevbridge@…` mit ihrer `version` und die Dokumente unter
+`tests/fixtures/rsa-signing/`. In der Windows-Auswahl setzt `npm run bump`
+sie beim Release mit, in den beiden anderen `npm run licenses:derive`.
+`node scripts/release-version.mjs` zeigt, wo sie noch fehlt.
 
 `npm run bump` ändert beim Release auch die Versionszeile des eigenen Pakets
 in `Cargo.lock` und `package-lock.json`. Beide Dateien binden die Auswahlen
