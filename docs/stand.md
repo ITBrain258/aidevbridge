@@ -178,13 +178,24 @@ PR #47: `licenses:status` ohne Abweichung, `check` grün für windows-x64
 für Windows und `aarch64-linux-android`, 699 Rust-Bibliothekstests, mit den
 Integrationstests 775, 2979 Vitest-Tests, 215 Skripttests und
 `npm run build`. Nicht geprüft: die Telefonansicht an einem Gerät (nur
-gerendert, 360 × 800 und quer), die Schritte der Release-Workflows, die erst
-ein Tag ausführt (Schranke „auf `main`“, Marke „Latest“), und die
-Mac-Abnahme (Punkt 9). Die NDK-Belege bleiben die von 0.3.0. Die Prüfung vom
+gerendert, 360 × 800 und quer) und die Mac-Abnahme (Punkt 9). Die Schritte der
+Release-Workflows, die erst ein Tag ausführt (Schranke „auf `main`“, Marke
+„Latest“), hielten beim Tag von 0.3.2. Die NDK-Belege bleiben die von 0.3.0. Die Prüfung vom
 09.11. steht in der Git-Historie dieser Datei.
 
-Die letzte VM-Abnahme (`acceptance_vm`, 11 von 11) lief am 27.10. auf dem Stand
-`7b961cf` gegen einen lokalen Linux-Testhost.
+Der letzte Live-Lauf ging am 11.11. auf dem Stand `eb20251` (0.3.2) von
+Windows aus gegen eine Test-VM mit Ubuntu 26.04, OpenSSH 10.2 und tmux 3.6, auf
+eigenen Testsockets: alle 775 Rust-Tests grün, darunter
+`integration_default_socket` voll (sein Listentest braucht tmux 3.3a oder 3.6),
+und die VM-Abnahme (`acceptance_vm`) 11 von 11. Übersprungen: der RSA-Zweig
+(kein `AIDEVBRIDGE_TEST_RSA_KEY`), der Passwortzweig (kein
+`AIDEVBRIDGE_VM_PASSWORD`) und der ssh-agent-Zweig (Dienst auf dem Rechner
+aus). Die zweite Test-VM mit tmux 3.3a war nicht erreichbar; beide VMs liefen
+zuletzt am 25.10. ([M3.1-Abnahme](messungen/messung-2026-10-25-m31-abnahme.md)).
+Kein Live-Test löst die Frist beim Kanalöffnen aus, die 0.3.2 geändert hat;
+den neuen Pfad prüfen nur die Unit-Tests. Den Passwortzweig prüfte zuletzt der
+Lauf vom 27.10. auf `7b961cf` gegen einen lokalen Linux-Testhost mit tmux 3.4
+(VM-Abnahme 11 von 11, nur der ssh-agent-Zweig übersprungen).
 
 ## Offene Punkte
 
@@ -304,7 +315,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     beider Auswahlen) und ein etwaiger Widerspruch zu U1, U2 und U5.
     `integration_default_socket.rs` braucht einen Testhost mit tmux 3.3a oder
     3.6 für seinen vollen Lauf (der CI-Runner hat tmux 3.4, dort meldet er
-    SKIP). Außerdem:
+    SKIP); auf 3.6 lief er zuletzt am 11.11., auf 3.3a am 25.10. (Letzte
+    Prüfung). Außerdem:
     - **`#` vor `[` im Startordner:** Die Regel verdoppelt jede Folge von `#`,
       außer direkt vor `[` (ab tmux 3.3a eine Stilmarke,
       [Messung](messungen/messung-2026-10-26-tmux-cwd-format.md)); der
@@ -319,8 +331,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
     selbst hoch ([Anleitung](android-veroeffentlichung.md)). Das signierte
-    App Bundle von 0.3.0 liegt nur als Artefakt `android-signed` des Laufs
-    42386731631 vor, bis zum 05.02.2027. Am Gerät zu
+    App Bundle von 0.3.2 (versionCode 3002) liegt nur als Artefakt
+    `android-signed` des Laufs 42876523965 vor, bis zum 08.02.2027. Am Gerät zu
     klären (Review vom 03.11.): ob Android den WebView im Hintergrund so
     anhält, dass die Acks länger als 30 s ausbleiben; dann schließt
     `STALL_TIMEOUT` die Terminals, und die Kacheln hängen sich nach der
@@ -465,8 +477,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Release; das Play-Geheimnis käme in dasselbe Environment wie der
       Signaturschlüssel (vor dem Hinterlegen trennen, wie U2 für Apple); die
       Node-Version ist nur auf `24` gepinnt. Die neuen Schritte (Schranke
-      „auf `main`“, Marke „Latest“) laufen zum ersten Mal beim nächsten Tag;
-      danach prüfen, dass das Release die Marke trägt.
+      „auf `main`“, Marke „Latest“) liefen beim Tag von 0.3.2 zum ersten Mal
+      und hielten; das Release trägt die Marke.
     - **Frontend:** Der Inhalt des Terminals ist für Bildschirmleser
       unsichtbar; `screenReaderMode` von xterm.js braucht eine Einstellung
       samt Feld in `settings.toml`. `main()` baut beim Abbau nicht alles
