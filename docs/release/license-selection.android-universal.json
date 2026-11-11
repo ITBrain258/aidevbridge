@@ -61,8 +61,8 @@
     "files": [
       {
         "path": ".github/workflows/android.yml",
-        "bytes": 26084,
-        "sha256": "3b90ad5491166a6ac1207af4d8e07fc9df42d4adab080ffae59cdcd21632ad15"
+        "bytes": 27222,
+        "sha256": "a8c4508951821be5f63d69740bb09868316dccf8a0babe5e23f7aaabcd1ff4fc"
       },
       {
         "path": "Cargo.lock",
@@ -686,8 +686,8 @@
       },
       {
         "path": "scripts/release-license-select-android.mjs",
-        "bytes": 87031,
-        "sha256": "8324d2b0d8a3569d0b49e4d30226773c05e928076f0e02bbe316eda7e910f39a"
+        "bytes": 90524,
+        "sha256": "e162546164772de731229ab9f29eb23913df64747b8995f5836bec46065a52c2"
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",

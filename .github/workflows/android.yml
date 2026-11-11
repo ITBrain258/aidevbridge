@@ -222,6 +222,26 @@ jobs:
           name: android-unsigned
           path: unsigned/
           if-no-files-found: error
+      # The Android license selection maps the NDK pieces that the linker
+      # copies into libaidevbridge_lib.so (libunwind, compiler-rt, the CRT
+      # objects), and the library may need only Android system libraries. The
+      # evidence is read from target/<triple>/release/, where the libraries
+      # keep their symbols (Gradle strips the copies it packs), and compared
+      # with the bound records. The artifact of a release build is what
+      # `npm run licenses:derive -- --native-evidence <file>` records.
+      - name: Evidence of the native libraries
+        run: |
+          set -euo pipefail
+          targets=(aarch64-linux-android)
+          if [ "$RELEASE" = true ]; then
+            targets=(aarch64-linux-android armv7-linux-androideabi x86_64-linux-android)
+          fi
+          node scripts/android-native-evidence.mjs --out native-evidence.json "${targets[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-native-evidence
+          path: native-evidence.json
+          if-no-files-found: error
 
   sign:
     name: Sign the release

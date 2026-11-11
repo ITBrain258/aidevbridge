@@ -260,10 +260,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
      `installer_stub_notices`, `native_import_family_review` und
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie
      nicht kennt.
-   - Die NDK-Belege für armv7 und x86_64 stammen vom 28.10.; `licenses:derive`
-     braucht für sie einen lokalen Bau aller drei ABIs, der hier am Speicher
-     scheitert. Ein Schritt im Release-Job von `android.yml`, der dieselben
-     Werte aus dem CI-Bau schreibt, ersetzte ihn.
+   - Die NDK-Belege stammen für armv7 und x86_64 vom 28.10., für arm64 vom
+     05.11. Seit dem 11.11. liest jeder Lauf von `android.yml` sie aus dem
+     eigenen Bau und scheitert, wenn sich eine Aussage geändert hat;
+     `licenses:derive` behält die gebundenen Belege und nimmt neue nur aus
+     der Datei eines Release-Laufs (`--native-evidence`,
+     [Anleitung](lizenzen-pflegen.md)). Aufgefrischt sind sie noch nicht.
    - Lokal gebaute Pakete bis 0.2.2 enthalten Pfade des Cargo-Registers mit
      dem Benutzernamen des Bauprofils; hingenommen, seit 0.2.3 baut die CI.
 7. **Echte Abnahmen:**

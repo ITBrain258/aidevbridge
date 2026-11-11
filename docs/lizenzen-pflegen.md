@@ -200,20 +200,34 @@ Android-Laufzeitvariante der Modul-Metadaten (`.module`), sonst
 Modul um, gehört in `MAVEN` ein `redirect` auf genau dieses Modul.
 
 Die NDK-Belege (`evidence.ndk.targets.<ziel>.built_library` in
-`license-android-universal-2026-10-28.json`) liest die Ableitung aus
-`target/<ziel>/release/libaidevbridge_lib.so`. Fehlt eine dieser
-Bibliotheken, setzt sie den Beleg auf `null`. Dann vorher alle drei Ziele
-bauen, oder den zuletzt aufgezeichneten Beleg übernehmen, wenn sich NDK und
-native Abhängigkeiten nicht geändert haben, und die Datei mit
-`--third-party` neu binden (so bei 0.2.6 und 0.2.7). Die Belege für armv7
-und x86_64 stammen noch von der ersten Android-Auswahl vom 28.10.; arm64
-wurde mit 0.2.5 und 0.2.7 neu aufgezeichnet.
+`license-android-universal-2026-10-28.json`) sagen je ABI, welche
+Bibliotheken `libaidevbridge_lib.so` braucht (nur Systembibliotheken von
+Android) und ob libunwind und die CRT-Objekte des NDK darin stecken; dazu der
+SHA-256 des Baus, an dem das gelesen wurde. Seit dem 11.11. liest sie jeder
+Lauf von `android.yml` nach dem Bau aus `target/<ziel>/release/`
+(`scripts/android-native-evidence.mjs`, Artefakt `android-native-evidence`),
+ein Release für alle drei ABIs, und scheitert, wenn eine dieser Aussagen nicht
+mehr zum gebundenen Beleg passt. Den SHA-256 vergleicht er nicht, er ändert
+sich mit jeder Version.
+
+Die Ableitung behält die gebundenen Belege, statt eine lokale Bibliothek unter
+`target/` zu lesen: Ausgeliefert werden die Bauten der CI, und ein lokaler Bau
+lieferte bis 0.3.2 alte Werte oder `null`, die von Hand zurückzuholen waren.
+Neue Belege nimmt sie aus der Datei eines Release-Laufs (Probelauf mit
+**release** oder Tag-Lauf), etwa wenn der Schritt in `android.yml`
+scheitert: Artefakt `android-native-evidence` herunterladen, dann
+`npm run licenses:derive -- --native-evidence <datei>`. Eine Datei, der ein
+ABI fehlt (ein Vorschau-Bau baut nur arm64), lehnt sie ab. Die gebundenen
+Belege für armv7 und x86_64 stammen vom 28.10., der für arm64 vom 05.11.; der
+Schritt in `android.yml` hat ihre Aussagen erstmals im Probelauf vom 11.11.
+gegen die Bauten der CI geprüft.
 
 Beim Release kommt zur Version in der Windows-Auswahl (siehe oben) die
 Ableitung `npm run licenses:derive`: Erst sie trägt die Version in die
 macOS- und Android-Auswahl und in ihre Belege und Inventare und schreibt den
-Bezug auf die Windows-Auswahl (`base_selection`) neu; geprüft wird das sonst
-nicht.
+Bezug auf die Windows-Auswahl (`base_selection`) neu. Die Version in allen
+drei Auswahlen prüft `scripts/release-version.test.mjs` bei jedem Push; den
+Bezug auf die Windows-Auswahl prüft kein Werkzeug.
 
 ## Tauri-CLI und Installer-Werkzeuge
 
