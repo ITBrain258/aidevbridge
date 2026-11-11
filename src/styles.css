@@ -610,6 +610,17 @@ html.compact .settings-tab {
   height: var(--ab-touch-target);
 }
 
+/* Felder und Knoepfe in Dialogen (auch Einstellungen und Rueckfrage zum
+   Hostschluessel) und auf der Karte des Erststarts: Feld-, Knopf- und
+   Zeilenregeln lesen ihre Hoehe aus `--ab-control-h`, hier steht es auf der
+   Trefferflaeche. Nur in diesen Behaeltern: im Raster haengen an den 32 px
+   Sperr- und Suchleiste der Kachel. Komponenten mit eigener Bauform (etwa
+   `.dialog-close-btn`) setzen ihre Hoehe selbst. */
+html.compact .dialog-panel,
+html.compact .first-run-card {
+  --ab-control-h: var(--ab-touch-target);
+}
+
 /* Die Einstellungen: neben 200 px Navigation blieben dem Panel auf einem
    360 px breiten Telefon 128 px. Schmal stehen die Bereiche deshalb als
    umbrechende Zeile ueber dem Panel. Nur schmal: quer ist auch ein Telefon

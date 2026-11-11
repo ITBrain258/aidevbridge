@@ -867,6 +867,15 @@ describe("Kompakte Ansicht: Trefferflaechen, Dialoge und Banner", () => {
     ]) {
       expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-touch-target\);/);
     }
+    // Felder und Knoepfe in Dialogen und auf dem Erststart: ueber das Token,
+    // das ihre Regeln lesen; im Raster bleibt es bei 32 px.
+    expect(ruleBody("html.compact .dialog-panel,\nhtml.compact .first-run-card")).toMatch(
+      /--ab-control-h:\s*var\(--ab-touch-target\);/,
+    );
+    expect(tokenBlock(":root")["--ab-control-h"]).toBe("32px");
+    for (const selector of [".btn", "button", 'input:not([type="checkbox"]):not([type="radio"]), select']) {
+      expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-control-h\);/);
+    }
     const tileButton = ruleBody("#app.compact .tile-btn");
     expect(tileButton).toMatch(/min-width:\s*var\(--ab-touch-target\);/);
     expect(tileButton).toMatch(/height:\s*var\(--ab-tile-head-h\);/);
