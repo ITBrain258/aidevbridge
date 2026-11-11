@@ -348,7 +348,7 @@ async fn a_session_ending_during_password_auth_is_a_connection_error() {
 }
 
 async fn late_key_worker(cancel: bool) {
-    let pool = Arc::new(BlockingPool::new(1, 1));
+    let pool = Arc::new(BlockingPool::new(1, 1).with_grace(ADMISSION_TEST_GRACE));
     let (listener, spec) = listener().await;
     let mut budget = limits();
     if !cancel {
@@ -463,7 +463,7 @@ async fn controlled_preparation_queue_wait_uses_reserved_total_deadline() {
 }
 
 async fn late_resolver(expected: ConnectError) {
-    let pool = Arc::new(BlockingPool::new(1, 1));
+    let pool = Arc::new(BlockingPool::new(1, 1).with_grace(ADMISSION_TEST_GRACE));
     let (listener, mut spec) = listener().await;
     let resolved = listener.local_addr().unwrap();
     spec.hostname = "stalled-resolver.fixture.invalid".into();
@@ -1131,4 +1131,88 @@ async fn the_error_of_the_last_address_wins_when_all_addresses_fail() {
         .map(std::io::Error::kind);
     assert_eq!(kind, Some(std::io::ErrorKind::ConnectionRefused));
     assert!(crate::local_network::host_answered(&error));
+}
+
+/// A full admission ends as busy after this grace in the tests that look at
+/// it; the product waits `ADMISSION_GRACE`.
+const ADMISSION_TEST_GRACE: Duration = Duration::from_millis(50);
+
+/// A job that finds every place taken waits for one instead of failing at
+/// once: the ninth of more than eight hosts connecting together got
+/// `PreparationBusy` or `NetworkCapacity` before.
+#[tokio::test]
+async fn a_full_admission_admits_a_job_whose_place_frees_within_the_grace() {
+    let pool = BlockingPool::new(1, 1);
+    let occupied = pool.admitted.clone().acquire_owned().await.unwrap();
+    let release = tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        drop(occupied);
+    });
+    let control = ConnectControl::new(limits());
+    let result = timeout(
+        TEST_END,
+        pool.run(
+            &control,
+            ConnectError::PreparationBusy,
+            ConnectError::PreparationFailed,
+            || Ok(7),
+        ),
+    )
+    .await
+    .unwrap();
+    assert_eq!(result.unwrap(), 7);
+    release.await.unwrap();
+    assert_eq!(pool.admitted.available_permits(), 1);
+}
+
+/// The grace ends with the attempt: a cancel while waiting for a place is a
+/// cancel, not busy, and the job never runs.
+#[tokio::test]
+async fn cancel_ends_the_wait_for_an_admitted_place() {
+    let pool = BlockingPool::new(1, 1);
+    let occupied = pool.admitted.clone().acquire_owned().await.unwrap();
+    let control = ConnectControl::new(limits());
+    let canceller = control.clone();
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        canceller.cancel();
+    });
+    let result = timeout(
+        TEST_END,
+        pool.run(
+            &control,
+            ConnectError::NetworkCapacity,
+            ConnectError::ResolverFailed,
+            || -> anyhow::Result<()> { panic!("a cancelled wait must not start the job") },
+        ),
+    )
+    .await
+    .unwrap();
+    assert!(
+        matches!(result, Err(error) if error.downcast_ref::<ConnectError>() == Some(&ConnectError::Cancelled))
+    );
+    drop(occupied);
+    assert_eq!(pool.admitted.available_permits(), 1);
+}
+
+/// Without a free place within the grace the job fails as before, with the
+/// pool's busy reason.
+#[tokio::test]
+async fn a_full_admission_fails_as_busy_after_the_grace() {
+    let pool = BlockingPool::new(1, 1).with_grace(ADMISSION_TEST_GRACE);
+    let occupied = pool.admitted.clone().acquire_owned().await.unwrap();
+    let started = tokio::time::Instant::now();
+    let result = pool
+        .run(
+            &ConnectControl::new(limits()),
+            ConnectError::PreparationBusy,
+            ConnectError::PreparationFailed,
+            || -> anyhow::Result<()> { panic!("a job without a place must not start") },
+        )
+        .await;
+    assert!(started.elapsed() >= ADMISSION_TEST_GRACE);
+    assert!(
+        matches!(result, Err(error) if error.downcast_ref::<ConnectError>() == Some(&ConnectError::PreparationBusy))
+    );
+    drop(occupied);
 }

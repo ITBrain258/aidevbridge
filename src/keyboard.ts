@@ -314,7 +314,16 @@ export function installKeyboard(deps: KeyboardDeps): () => void {
       event.preventDefault();
       return;
     }
-    if (inTerminal(event.target)) return;
+    if (inTerminal(event.target)) {
+      // Mit "Screen reader support" haelt xterm eine Taste ohne Strg oder Alt
+      // nicht mehr selbst an, damit der Bildschirmleser das Hilfstextfeld liest
+      // (`CoreBrowserTerminal._keyDown`). F5, F3 und F7 fielen dann zu WebView2
+      // durch -- F5 luede die App neu --, und Umschalt+Tab nahme dem Terminal
+      // den Fokus. xterm wertet `defaultPrevented` nicht aus: das Programm
+      // bekommt die Taste trotzdem.
+      if (BROWSER_FUNCTION_KEYS.has(event.key) || (event.key === "Tab" && event.shiftKey)) event.preventDefault();
+      return;
+    }
     if (isBrowserKey(event)) event.preventDefault();
   }
 

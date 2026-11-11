@@ -123,12 +123,12 @@ describe("settings-dialog: Rahmen mit senkrechten Tabs (Einstellungs-Spec §3, U
     expect(onRestoreWorkspaceChange).toHaveBeenCalledWith(true);
   });
 
-  it("Terminal zeigt die Karten Text und Clipboard", () => {
+  it("Terminal zeigt die Karten Text, Clipboard und Accessibility", () => {
     const { container } = mount();
     tab(container, "Terminal").click();
     expect(
       Array.from(panel(container).querySelectorAll(".settings-card-title"), (title) => title.textContent),
-    ).toEqual(["Text", "Clipboard"]);
+    ).toEqual(["Text", "Clipboard", "Accessibility"]);
   });
 
   it("eine uebergebene Belegung erreicht die Uebersicht", () => {

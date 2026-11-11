@@ -6,10 +6,20 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Added
+
+- Terminal: Neue Einstellung "Screen reader support" (Einstellungen, Terminal, Karte "Accessibility", aus). Sie legt den Text der Terminals fuer Bildschirmleser wie NVDA, Sprachausgabe, VoiceOver oder TalkBack in den DOM (`screenReaderMode` von xterm.js); bisher war der Inhalt fuer sie unsichtbar. Gespeichert als `screen_reader_mode` unter `[ui]` in `settings.toml`; sie gilt sofort fuer jede offene Kachel. Mit einem echten Bildschirmleser noch nicht geprueft.
+
 ### Changed
 
+- Android: In der kompakten Ansicht sind auch Eingabefelder, Auswahllisten und Knoepfe in Dialogen (Host, Session, Einstellungen, Rueckfrage zum Hostschluessel) und auf dem Erststart 40 px hoch statt 32 px, wie die uebrigen Trefferflaechen seit 0.3.2. Gerendert geprueft, nicht an einem Geraet.
 - Release: `npm run bump` setzt die Version des eigenen Pakets auch an ihren acht Stellen in der Windows-Lizenzauswahl; bisher geschah das von Hand. `scripts/release-version.mjs` listet jede Stelle, die die Version aus `package.json` noch nicht traegt (Versionsdateien, alle drei Auswahlen, Changelog, englische Kurzfassung, Store-Texte, Kopf von `docs/stand.md`, `SECURITY.md`), und sein Test laeuft bei jedem Push.
 - Android-Lizenzauswahl: Jeder Lauf von `android.yml` liest nach dem Bau aus jeder gebauten `libaidevbridge_lib.so`, welche Bibliotheken sie braucht und ob libunwind und die CRT-Objekte des NDK darin stecken (`scripts/android-native-evidence.mjs`, Artefakt `android-native-evidence`), und scheitert, wenn das nicht mehr zu den gebundenen NDK-Belegen passt. `licenses:derive` liest dafuer keine lokale Bibliothek unter `target/` mehr, die bisher alte Werte oder `null` lieferte und von Hand zurueckgeholt werden musste: Es behaelt die gebundenen Belege oder nimmt mit `--native-evidence <Datei>` die eines Release-Laufs.
+
+### Fixed
+
+- Verbinden: Mehr als acht Hosts, die zugleich verbinden (etwa ein wiederhergestellter Arbeitsplatz oder das Aufwachen aus dem Standby), scheiterten ab dem neunten sofort mit "Too many key preparations are already pending" oder "Too many hostname resolutions are already pending". Jetzt wartet ein Versuch bis zu 5 s auf einen der acht Plaetze; Abbrechen und die Fristen des Versuchs beenden das Warten.
+- Stabilitaet: Brach ein Befehl unter der Sperre eines der internen Register (Hosts, Terminals, offene Rueckfragen) mit einer Panik ab, scheiterte danach jeder weitere Befehl bis zum Neustart der App, auch Trennen und Schliessen. Die Register bleiben jetzt benutzbar.
 
 ## [0.3.2] - 2026-11-10
 

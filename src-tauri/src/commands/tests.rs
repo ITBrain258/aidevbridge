@@ -1665,6 +1665,7 @@ fn ui_settings_impl_reads_every_default_and_names_the_settings_file() {
             right_click: "menu".into(),
             restore_workspace: true,
             sidebar_width: 240,
+            screen_reader_mode: false,
             workspace: empty_workspace(),
             settings_path: path.display().to_string(),
         }
@@ -1688,6 +1689,7 @@ fn ui_settings_impl_patch_with_only_the_theme_changes_nothing_else() {
             right_click: Some("paste".into()),
             restore_workspace: Some(false),
             sidebar_width: Some(300),
+            screen_reader_mode: Some(true),
             workspace: Some(busy_workspace(&a.id, &b.id)),
         }),
     )
@@ -1698,6 +1700,7 @@ fn ui_settings_impl_patch_with_only_the_theme_changes_nothing_else() {
     assert_eq!(before.right_click, "paste");
     assert!(!before.restore_workspace);
     assert_eq!(before.sidebar_width, 300);
+    assert!(before.screen_reader_mode);
     assert_eq!(before.workspace, busy_workspace(&a.id, &b.id));
 
     let after = ui_settings_impl(&path, Some(theme_patch("turquoise-slate"))).unwrap();
@@ -1721,6 +1724,10 @@ fn ui_settings_impl_applies_each_patched_field_alone() {
     let patches = [
         UiSettingsPatchDto {
             terminal_font_size: Some(18),
+            ..Default::default()
+        },
+        UiSettingsPatchDto {
+            screen_reader_mode: Some(true),
             ..Default::default()
         },
         UiSettingsPatchDto {
@@ -1765,6 +1772,9 @@ fn ui_settings_impl_applies_each_patched_field_alone() {
         }
         if let Some(value) = patch.sidebar_width {
             expected.sidebar_width = value;
+        }
+        if let Some(value) = patch.screen_reader_mode {
+            expected.screen_reader_mode = value;
         }
         assert_eq!(got, expected);
     }
@@ -1953,6 +1963,7 @@ fn ui_settings_dto_serializes_with_the_snake_case_keys_the_frontend_mirrors() {
         right_click: "paste".into(),
         restore_workspace: false,
         sidebar_width: 300,
+        screen_reader_mode: true,
         workspace: WorkspaceDto {
             layout: 2,
             tiles_version: 2,
@@ -1974,6 +1985,7 @@ fn ui_settings_dto_serializes_with_the_snake_case_keys_the_frontend_mirrors() {
             "right_click": "paste",
             "restore_workspace": false,
             "sidebar_width": 300,
+            "screen_reader_mode": true,
             "workspace": {
                 "layout": 2,
                 "tiles_version": 2,
@@ -3179,4 +3191,43 @@ async fn a_failed_version_command_fails_the_list_instead_of_reporting_unmeasured
     .unwrap()
     .unwrap();
     fixture.finish(2).await;
+}
+
+/// Eine Panik unter einer Registersperre vergiftet sie. Bisher scheiterte
+/// danach jeder Befehl mit `lock().unwrap()` bis zum Neustart, auch Trennen
+/// und Schliessen; jetzt arbeiten sie weiter (`registry`).
+#[tokio::test]
+async fn commands_keep_working_after_a_panic_poisoned_the_registries() {
+    let state = Arc::new(AppState::default());
+    let id = begin_connect_impl(&state).expect("a reservation");
+    for poison in [
+        |s: &AppState| {
+            let _hosts = s.hosts.lock().unwrap();
+            panic!("panic under the hosts lock");
+        },
+        |s: &AppState| {
+            let _terms = s.terminals.lock().unwrap();
+            panic!("panic under the terminals lock");
+        },
+        |s: &AppState| {
+            let _pending = s.pending_host_key.lock().unwrap();
+            panic!("panic under the pending host key lock");
+        },
+    ] {
+        let shared = state.clone();
+        assert!(std::thread::spawn(move || poison(&shared)).join().is_err());
+    }
+    assert!(state.hosts.is_poisoned());
+    assert!(state.terminals.is_poisoned());
+    assert!(state.pending_host_key.is_poisoned());
+
+    assert!(registry(&state.hosts).contains_key(&id));
+    close_terminal_impl(&state, id.clone(), "ab_x".into())
+        .await
+        .unwrap();
+    assert!(respond_host_key_impl(&state, 7, true).is_err());
+    disconnect_host_impl(&state, id.clone()).await.unwrap();
+    assert!(!registry(&state.hosts).contains_key(&id));
+    let again = begin_connect_impl(&state).expect("a new reservation after the panic");
+    assert!(registry(&state.hosts).contains_key(&again));
 }

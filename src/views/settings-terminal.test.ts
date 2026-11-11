@@ -56,12 +56,12 @@ afterEach(() => {
 });
 
 describe("settings-terminal: Karten und Texte (UX-Spec §9.1)", () => {
-  it("zwei Karten: Text und Clipboard", () => {
+  it("drei Karten: Text, Clipboard und Accessibility", () => {
     const { container } = mount();
 
     expect(
       Array.from(container.querySelectorAll(".settings-card"), (card) => card.querySelector("h3.settings-card-title")?.textContent),
-    ).toEqual(["Text", "Clipboard"]);
+    ).toEqual(["Text", "Clipboard", "Accessibility"]);
   });
 
   it("Font size: Stepper mit Wert, benannten Knoepfen, Reset und Hinweis", () => {
@@ -97,6 +97,22 @@ describe("settings-terminal: Karten und Texte (UX-Spec §9.1)", () => {
     expect(cards[1].querySelector(".settings-card-hint")?.textContent).toBe(
       "Shift+drag selects text while a program uses the mouse.",
     );
+  });
+});
+
+describe("settings-terminal: Screen reader support", () => {
+  it("ein Schalter mit Hinweis, Standard aus; er schreibt terminal-prefs und folgt Aenderungen von aussen", () => {
+    const { container } = mount();
+    const toggle = switchNamed(container, "Screen reader support");
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    expect(referencedText(toggle, "aria-describedby")).toMatch(/^Lets screen readers such as NVDA/);
+
+    toggle.click();
+    expect(terminalPrefs().screenReaderMode).toBe(true);
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+
+    setTerminalPrefs({ screenReaderMode: false });
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
   });
 });
 

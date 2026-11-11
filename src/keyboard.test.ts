@@ -314,8 +314,38 @@ describe("keyboard: Browsertasten bleiben ausserhalb der App (Spec §8.1)", () =
     expect(keydown(textField(), init).defaultPrevented).toBe(true);
   });
 
-  it.each(BROWSER_KEYS)("%s gehoert im Terminal dem Programm und bleibt unverhindert", (_name, init) => {
-    expect(keydown(terminalTarget(), init).defaultPrevented).toBe(false);
+  // Strg- und Alt-Tasten haelt xterm im Terminal selbst an und schickt sie ans
+  // Programm (Strg+R ist die Rueckwaertssuche der Shell).
+  it.each(BROWSER_KEYS.filter(([, init]) => !/^F\d+$/.test(init.key!)))(
+    "%s gehoert im Terminal dem Programm und bleibt unverhindert",
+    (_name, init) => {
+      expect(keydown(terminalTarget(), init).defaultPrevented).toBe(false);
+    },
+  );
+
+  // Mit "Screen reader support" haelt xterm sie nicht mehr an; ohne Sperre
+  // luede F5 die App neu und Umschalt+Tab nahme dem Terminal den Fokus. Nur das
+  // Vorgabeverhalten: xterm wertet `defaultPrevented` nicht aus, und das
+  // Ereignis laeuft weiter zum Terminal.
+  it.each([
+    ["F5", { key: "F5" }],
+    ["Shift+F5", { key: "F5", shiftKey: true }],
+    ["F3", { key: "F3" }],
+    ["Shift+F3", { key: "F3", shiftKey: true }],
+    ["F7", { key: "F7" }],
+    ["Shift+Tab", { key: "Tab", shiftKey: true }],
+  ] as [string, KeyboardEventInit][])("%s ist auch im Terminal verhindert und erreicht es weiter", (_name, init) => {
+    const target = terminalTarget();
+    let reached = false;
+    target.addEventListener("keydown", () => {
+      reached = true;
+    });
+    expect(keydown(target, init).defaultPrevented).toBe(true);
+    expect(reached).toBe(true);
+  });
+
+  it("Tab ohne Umschalt bleibt im Terminal unberuehrt (xterm haelt es selbst an)", () => {
+    expect(keydown(terminalTarget(), { key: "Tab" }).defaultPrevented).toBe(false);
   });
 
   // xterm schickt eine Medientaste nicht ans Programm; ohne Sperre fiele sie zu

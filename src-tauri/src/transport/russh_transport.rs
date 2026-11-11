@@ -34,17 +34,33 @@ pub(crate) use owned_operations::SLOT_WAIT;
 struct BlockingPool {
     admitted: Arc<Semaphore>,
     workers: Arc<Semaphore>,
+    admission_grace: Duration,
 }
 
 static PREPARATION_POOL: LazyLock<BlockingPool> = LazyLock::new(|| BlockingPool::new(2, 8));
 static RESOLVER_POOL: LazyLock<BlockingPool> = LazyLock::new(|| BlockingPool::new(2, 8));
+
+/// How long a key preparation or name resolution waits for an admitted place
+/// before it fails as busy. Without it the ninth of more than eight hosts
+/// connecting at once (a restored workspace, a reconnect after standby)
+/// failed at once. Waiting holds no blocking thread, so the bound on queued
+/// and detached work stays; cancel and the attempt's budgets end the wait.
+const ADMISSION_GRACE: Duration = Duration::from_secs(5);
 
 impl BlockingPool {
     fn new(workers: usize, admitted: usize) -> Self {
         Self {
             admitted: Arc::new(Semaphore::new(admitted)),
             workers: Arc::new(Semaphore::new(workers)),
+            admission_grace: ADMISSION_GRACE,
         }
+    }
+
+    /// For tests that look at a full admission without waiting the full grace.
+    #[cfg(test)]
+    fn with_grace(mut self, grace: Duration) -> Self {
+        self.admission_grace = grace;
+        self
     }
 
     async fn prepare<P>(
@@ -77,11 +93,23 @@ impl BlockingPool {
         F: FnOnce() -> anyhow::Result<T> + Send + 'static,
     {
         control.with_active(|| ())?;
-        let admission = self
-            .admitted
-            .clone()
-            .try_acquire_owned()
-            .map_err(|_| busy)?;
+        let admission = match self.admitted.clone().try_acquire_owned() {
+            Ok(permit) => permit,
+            // Full: wait a little for a place. Cancel and the attempt's own
+            // budget end the wait with their reason, the grace with `busy`.
+            Err(_) => {
+                let waited = control
+                    .wait_total(tokio::time::timeout(
+                        self.admission_grace,
+                        self.admitted.clone().acquire_owned(),
+                    ))
+                    .await?;
+                match waited {
+                    Ok(Ok(permit)) => permit,
+                    Ok(Err(_)) | Err(_) => return Err(busy.into()),
+                }
+            }
+        };
         let worker = control
             .wait_total(self.workers.clone().acquire_owned())
             .await?

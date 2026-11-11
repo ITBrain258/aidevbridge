@@ -13,7 +13,7 @@ import { fontSizeKeyChange, isAppChord, isPlainCtrlAppKey, matchAction } from ".
 import { clipboardKeyAction, decodeOsc52, sanitizePaste } from "./terminal-clipboard";
 import { FitWithoutScrollbar } from "./terminal-fit";
 import type { OpenQueue } from "./terminal-open-queue";
-import { clampFontSize, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
+import { clampFontSize, onTerminalPrefsChanged, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { currentTheme, themeParts, type AccentId, type BaseId, type ThemeId } from "./theme";
 import { isAndroid } from "./platform";
 import { randomId } from "./random-id";
@@ -446,6 +446,9 @@ export function mountTerminal(
     // UX-Spec §6.7: die Schriftgroesse gilt fuer alle Terminals, auch fuer
     // eine Kachel, die erst nach der Aenderung aufgeht (Standard 13).
     fontSize: terminalPrefs().fontSize,
+    // "Screen reader support" (Terminal-Einstellungen): der Text des Terminals
+    // fuer Bildschirmleser. Aus, solange der Nutzer es nicht einschaltet.
+    screenReaderMode: terminalPrefs().screenReaderMode,
     lineHeight: 1.15,
     letterSpacing: 0,
     fontWeight: 400,
@@ -1561,6 +1564,16 @@ export function mountTerminal(
   };
   window.addEventListener("resize", scheduleRefit);
 
+  // "Screen reader support" gilt sofort fuer jede offene Kachel, nicht erst
+  // fuer die naechste; ohne Neuanlage und ohne fit(). Erst hier, unmittelbar
+  // vor der Rueckgabe: scheitert der Bau vorher (etwa `term.open`), bliebe
+  // sonst ein Abonnent ohne Kachel stehen, der beim naechsten Wechsel an
+  // `disposed` wirft. `dispose()` meldet ab.
+  const offScreenReaderPref = onTerminalPrefsChanged((prefs) => {
+    if (disposed || term.options.screenReaderMode === prefs.screenReaderMode) return;
+    term.options.screenReaderMode = prefs.screenReaderMode;
+  });
+
   return {
     // Der Kachelcontroller darf Layoutwechsel,
     // Maximieren und Seitenleisten-Ziehen NIE ueber einen eigenen zweiten
@@ -1622,6 +1635,7 @@ export function mountTerminal(
     },
     dispose() {
       disposed = true;
+      offScreenReaderPref();
       pendingInput = null;
       // Spec 2026-10-19 §8.1: noch nicht gesendet, verlaesst die Ansicht die
       // Schlange oder gibt ihren schon zugeteilten Platz sofort weiter; nach

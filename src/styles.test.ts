@@ -867,6 +867,25 @@ describe("Kompakte Ansicht: Trefferflaechen, Dialoge und Banner", () => {
     ]) {
       expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-touch-target\);/);
     }
+    // Felder und Knoepfe in Dialogen und auf dem Erststart: ueber das Token,
+    // das ihre Regeln lesen; im Raster bleibt es bei 32 px.
+    expect(ruleBody("html.compact .dialog-panel,\nhtml.compact .first-run-card")).toMatch(
+      /--ab-control-h:\s*var\(--ab-touch-target\);/,
+    );
+    expect(tokenBlock(":root")["--ab-control-h"]).toBe("32px");
+    // Zeilenknoepfe, Stepper und Segmentwahl lesen ein anderes Token.
+    expect(
+      ruleBody(
+        "html.compact .dialog-panel .btn--row,\nhtml.compact .first-run-card .btn--row,\nhtml.compact .settings-stepper,\nhtml.compact .settings-seg",
+      ),
+    ).toMatch(/height:\s*var\(--ab-touch-target\);/);
+    expect(ruleBody("html.compact .settings-stepper-btn")).toMatch(/width:\s*var\(--ab-touch-target\);/);
+    for (const selector of [".btn--row", ".settings-stepper", ".settings-seg"]) {
+      expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-row-btn-h\);/);
+    }
+    for (const selector of [".btn", "button", 'input:not([type="checkbox"]):not([type="radio"]), select']) {
+      expect(ruleBody(selector), selector).toMatch(/height:\s*var\(--ab-control-h\);/);
+    }
     const tileButton = ruleBody("#app.compact .tile-btn");
     expect(tileButton).toMatch(/min-width:\s*var\(--ab-touch-target\);/);
     expect(tileButton).toMatch(/height:\s*var\(--ab-tile-head-h\);/);

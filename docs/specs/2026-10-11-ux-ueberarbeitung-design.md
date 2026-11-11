@@ -788,6 +788,23 @@ Reihenfolge: General, Appearance, Terminal, Shortcuts, About.
   - „Right click“ als Segmentwahl „Menu“ / „Copy/Paste“ (Menu).
   - Hinweis: „Shift+drag selects text while a program uses the mouse.“
 
+**Nachtrag vom 11.11.2026, Bildschirmleser:** Der Inhalt der Terminals war für
+Bildschirmleser unsichtbar: xterm.js zeichnet in ein Canvas und legt den Text
+nur mit `screenReaderMode` in den DOM. Der Bereich Terminal bekommt deshalb
+eine dritte Karte „Accessibility“ mit dem Schalter „Screen reader support“
+(aus) und dem Hinweis „Lets screen readers such as NVDA, Narrator, VoiceOver
+or TalkBack read the text of the terminals. Slows the terminals down when
+programs print a lot.“ Gespeichert wird er als `screen_reader_mode` unter
+`[ui]` in `settings.toml` (fehlt das Feld, gilt aus; ältere Builds lesen die
+Datei weiter und lassen es beim nächsten Speichern weg, §9.2). Er gilt sofort
+für jede offene Kachel, ohne Neuanlage und ohne `fit()`. Standard aus, weil
+xterm.js mit dem Modus jede Ausgabe zusätzlich in den DOM schreibt. Mit dem
+Modus hält xterm.js eine Taste ohne Strg oder Alt nicht mehr selbst an; F5, F3,
+F7 und Umschalt+Tab sperrt die App im Terminal deshalb selbst (§8.1), damit F5
+die App nicht neu lädt und Umschalt+Tab den Fokus nicht wegnimmt. Das Programm
+bekommt die Tasten weiter. Mit einem echten Bildschirmleser ist das noch nicht
+geprüft.
+
 **Shortcuts:**
 
 - Neue Zeilen: Quick open, Open settings, Text size (`Ctrl+=` / `Ctrl+−` /
@@ -915,6 +932,8 @@ werden, nicht als Literal.
   `forced-color-adjust: none`.
 - **Live-Region:** Die Region für Wartende liegt außerhalb von `#app`, damit sie
   bei offenem Dialog (`inert`) weiter ansagt.
+- **Terminalinhalt:** seit dem 11.11.2026 über „Screen reader support“ in den
+  Einstellungen (§9.1, Nachtrag).
 - **Markieren:** `user-select: none` an der Oberfläche. `text` an Feldern, am
   Terminal, an Fehlertexten, am Fingerabdruck, an Pfaden und am
   Einstellungspfad.

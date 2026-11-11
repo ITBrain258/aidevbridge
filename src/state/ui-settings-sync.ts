@@ -26,7 +26,8 @@ export type UiField =
   | "ctrl_cv_clipboard"
   | "right_click"
   | "restore_workspace"
-  | "sidebar_width";
+  | "sidebar_width"
+  | "screen_reader_mode";
 
 /** Ein Teil der [ui]-Felder, wie `ui_settings` ihn als Patch annimmt. */
 export type UiFieldsPatch = { [F in UiField]?: UiSettingsDto[F] };
@@ -66,6 +67,10 @@ const FIELDS: { readonly [F in UiField]: FieldSpec<F> } = {
     pref: { read: (prefs) => prefs.rightClick, write: (value) => ({ rightClick: value }) },
   },
   restore_workspace: { accept: acceptBoolean },
+  screen_reader_mode: {
+    accept: acceptBoolean,
+    pref: { read: (prefs) => prefs.screenReaderMode, write: (value) => ({ screenReaderMode: value }) },
+  },
   // Nur ganzzahlig; die Grenzen der Anzeige (208 bis 480) haelt der Ziehgriff
   // (`views/sidebar-resize.ts`). Rust setzt alles ausserhalb von 200
   // bis 480 auf 240.
