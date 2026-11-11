@@ -207,8 +207,12 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    header of `docs/stand.md`; for a new minor version also the supported
    versions in `SECURITY.md`. If the interface changed, render the pictures
    again ([Images](docs/guide/building.md#images)) in the same pull request.
-2. Bring the three license selections up to date: set the version at its places
-   in the Windows selection by hand and run `npm run licenses:rebind-own`. The
+   `node scripts/release-version.mjs` lists every place that does not carry the
+   new version yet; `scripts/release-version.test.mjs` runs the same check on
+   every push, so it stays red until steps 1 and 2 are done.
+2. Bring the three license selections up to date: the bump has set the
+   version at its places in the Windows selection; run
+   `npm run licenses:rebind-own`. The
    bump also changes the version line of the own package in `Cargo.lock` and
    `package-lock.json`, which the selections bind as third-party files: check
    that nothing else changed in them, then rebind them with
@@ -220,9 +224,9 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    [The license guide](docs/lizenzen-pflegen.md) (in German) describes every case.
 3. Start the packages and Android workflows by hand with **release** on, on the
    head of the release pull request: they make the release builds without
-   publishing them. The required checks only warn about own files that are not
-   rebound and don't check the product version in the selections; these runs
-   are the last check before the tag. Start the audit workflow by hand as well
+   publishing them. The required checks compare the version places, but only
+   warn about own files that are not rebound; these runs are the last check
+   before the tag. Start the audit workflow by hand as well
    (**Audit → Run workflow**): its weekly run may be days old, and it must be
    green. From then on, merge nothing that changes a
    bound file, such as `android.yml` or an Actions update from Dependabot,

@@ -436,9 +436,13 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       in der App zu entfernen.
     - **CI und Release:** keine Paketbauten bei reinen Doku-PRs (Frist und
       Wiederholung für den apt-Schritt kamen mit der Prüfung vom 09.11.), die
-      volle Lizenzprüfung auch bei geänderten eigenen Quellen, ein Skript, das
-      alle Versionsstellen eines Releases prüft und setzt, CHANGELOG-Einträge je PR; dazu GitHub-Einstellungen
-      (ausgewählte Actions, CodeQL, Freigabe für `android-release`).
+      volle Lizenzprüfung auch bei geänderten eigenen Quellen,
+      CHANGELOG-Einträge je PR; dazu GitHub-Einstellungen (ausgewählte
+      Actions, CodeQL, Freigabe für `android-release`). Seit dem 11.11. setzt
+      `npm run bump` die Version auch in der Windows-Auswahl, und
+      `scripts/release-version.mjs` prüft bei jedem Push alle Versionsstellen
+      (Version, Auswahlen, CHANGELOG, Kurzfassung, Store-Texte, Kopf dieser
+      Datei, `SECURITY.md`).
     - **Aufbau:** ein typisierter IPC-Vertrag zwischen Rust und TS ohne neue
       Abhängigkeit, `main.ts` in Controller mit Abbau zerlegen, Batch 9 (U3)
       und ein gemeinsamer Fehlertyp der Commands.

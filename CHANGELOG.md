@@ -8,6 +8,7 @@ dem Namen agentbridge.
 
 ### Changed
 
+- Release: `npm run bump` setzt die Version des eigenen Pakets auch an ihren acht Stellen in der Windows-Lizenzauswahl; bisher geschah das von Hand. `scripts/release-version.mjs` listet jede Stelle, die die Version aus `package.json` noch nicht traegt (Versionsdateien, alle drei Auswahlen, Changelog, englische Kurzfassung, Store-Texte, Kopf von `docs/stand.md`, `SECURITY.md`), und sein Test laeuft bei jedem Push.
 - Android-Lizenzauswahl: Jeder Lauf von `android.yml` liest nach dem Bau aus jeder gebauten `libaidevbridge_lib.so`, welche Bibliotheken sie braucht und ob libunwind und die CRT-Objekte des NDK darin stecken (`scripts/android-native-evidence.mjs`, Artefakt `android-native-evidence`), und scheitert, wenn das nicht mehr zu den gebundenen NDK-Belegen passt. `licenses:derive` liest dafuer keine lokale Bibliothek unter `target/` mehr, die bisher alte Werte oder `null` lieferte und von Hand zurueckgeholt werden musste: Es behaelt die gebundenen Belege oder nimmt mit `--native-evidence <Datei>` die eines Release-Laufs.
 
 ## [0.3.2] - 2026-11-10

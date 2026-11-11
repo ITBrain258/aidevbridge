@@ -4,15 +4,20 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { setSelectionVersion, WINDOWS_SELECTION } from "./release-version.mjs";
 
 // Fuenf Dateien tragen die Version. npm schreibt die ersten beiden selbst,
 // cargo die letzte; die beiden in der Mitte ersetzt dieses Skript per Regex.
+// Dazu setzt es die Version des eigenen Pakets in der Windows-Lizenzauswahl
+// (acht Stellen, setSelectionVersion); macOS und Android leitet
+// `npm run licenses:derive` daraus ab. Was danach noch fehlt, listet
+// `node scripts/release-version.mjs`.
 const PACKAGE_JSON = "package.json";
 const PACKAGE_LOCK = "package-lock.json";
 const TAURI_CONF = "src-tauri/tauri.conf.json";
 const CARGO_TOML = "src-tauri/Cargo.toml";
 const CARGO_LOCK = "Cargo.lock";
-const FILES = [PACKAGE_JSON, PACKAGE_LOCK, TAURI_CONF, CARGO_TOML, CARGO_LOCK];
+const FILES = [PACKAGE_JSON, PACKAGE_LOCK, TAURI_CONF, CARGO_TOML, CARGO_LOCK, WINDOWS_SELECTION];
 
 const CONF_VERSION = /"version": "[^"]+"/;
 const CARGO_VERSION = /^version = "[^"]+"/m;
@@ -46,7 +51,7 @@ function main() {
     process.exit(1);
   }
 
-  // Schnappschuss ALLER fuenf Dateien vor dem ersten Schreibzugriff. Scheitert
+  // Schnappschuss ALLER sechs Dateien vor dem ersten Schreibzugriff. Scheitert
   // unten irgendein Schritt, kommt jede Datei auf diesen Stand zurueck; ein
   // halb gebumpter Baum entsteht so nicht, egal welcher Schritt bricht.
   const before = new Map(FILES.map((file) => [file, readFileSync(file, "utf8")]));
@@ -78,6 +83,18 @@ function main() {
     process.exit(1);
   }
 
+  // Die Windows-Auswahl steht auf der bisherigen Version aus package.json;
+  // setSelectionVersion bricht ab, wenn nicht oder wenn eine Stelle eine
+  // unbekannte Form hat. Hier nur rechnen, geschrieben wird unten.
+  const previous = JSON.parse(before.get(PACKAGE_JSON)).version;
+  let selection;
+  try {
+    selection = setSelectionVersion(before.get(WINDOWS_SELECTION), crateName, previous, version);
+  } catch (err) {
+    console.error(`${WINDOWS_SELECTION}: ${err.message}. Abgebrochen, nichts geschrieben.`);
+    process.exit(1);
+  }
+
   // 2. Dann schreiben, in Abhaengigkeitsreihenfolge: `cargo update` liest die
   //    Version aus Cargo.toml und traegt sie in Cargo.lock ein. Es muss also
   //    NACH der Ersetzung in Cargo.toml laufen, sonst bleibt Cargo.lock auf
@@ -92,13 +109,17 @@ function main() {
     if (!cargoLockHasVersion(readFileSync(CARGO_LOCK, "utf8"), crateName, version)) {
       throw new Error(`${CARGO_LOCK} traegt fuer ${crateName} nicht die Version ${version}`);
     }
+    writeFileSync(WINDOWS_SELECTION, selection);
   } catch (err) {
     restoreAll();
-    console.error(`Bump abgebrochen, alle fuenf Dateien zurueckgesetzt: ${err.message}`);
+    console.error(`Bump abgebrochen, alle sechs Dateien zurueckgesetzt: ${err.message}`);
     process.exit(1);
   }
 
-  console.log(`Version ${version} in fuenf Dateien gesetzt. Jetzt CHANGELOG.md ergaenzen und committen.`);
+  console.log(
+    `Version ${version} in fuenf Dateien und der Windows-Lizenzauswahl gesetzt. ` +
+      "Was noch fehlt, listet: node scripts/release-version.mjs",
+  );
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
