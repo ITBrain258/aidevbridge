@@ -246,9 +246,9 @@ AIDEVBRIDGE_TEST_HOST_KEY=<base64 key> AIDEVBRIDGE_TEST_SOCKET=abtest_20261020_r
    then `/releases/latest` stays on the previous release. If a release goes out
    without one platform on purpose, set the mark with
    `gh release edit v<version> --latest`. A manual run naming the tag attaches only the
-   files the release still lacks; for a tag older than 0.3.2, start it on the tag
+   files the release still lacks; for a tag up to 0.3.2, start it on the tag
    itself (**Use workflow from**), because those tags lack scripts the workflows
-   of `main` call. A published file is never replaced by different
+   of `main` call (0.3.2 lacks `scripts/android-native-evidence.mjs`). A published file is never replaced by different
    content: a platform whose files are all attached stays as it is, and if a
    platform is only partly attached, an attached file whose digest differs from
    the new build, or that has no digest, stops the run before anything is attached.

@@ -232,6 +232,12 @@ test('android.yml records the evidence of every native library it builds, in the
   assert.ok(evidence[0].step.some(line => line.includes('targets=(aarch64-linux-android armv7-linux-androideabi x86_64-linux-android)')));
   const upload = stepsWith(build, 'name: android-native-evidence');
   assert.ok(upload.length === 1 && upload[0].index > evidence[0].index, 'the evidence file must leave the job as its own artifact');
+  // Scheitert der Vergleich, braucht die Ableitung genau diese Datei: Das
+  // Hochladen laeuft auch dann, aber nur, wenn die Datei da ist.
+  assert.ok(
+    upload[0].step.some(line => line.trim() === "- if: ${{ !cancelled() && hashFiles('native-evidence.json') != '' }}"),
+    'the evidence file must be uploaded after a failed comparison too',
+  );
 });
 
 test('every script a workflow runs exists', () => {

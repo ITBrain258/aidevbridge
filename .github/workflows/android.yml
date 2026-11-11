@@ -237,7 +237,10 @@ jobs:
             targets=(aarch64-linux-android armv7-linux-androideabi x86_64-linux-android)
           fi
           node scripts/android-native-evidence.mjs --out native-evidence.json "${targets[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      # Also when the comparison failed: then this file is what the derive
+      # needs. The script writes it before it compares.
+      - if: ${{ !cancelled() && hashFiles('native-evidence.json') != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: android-native-evidence
           path: native-evidence.json
