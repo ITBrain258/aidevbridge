@@ -225,8 +225,9 @@ gegen die Bauten der CI geprüft.
 Beim Release kommt zur Version in der Windows-Auswahl (siehe oben) die
 Ableitung `npm run licenses:derive`: Erst sie trägt die Version in die
 macOS- und Android-Auswahl und in ihre Belege und Inventare und schreibt den
-Bezug auf die Windows-Auswahl (`base_selection`) neu; geprüft wird das sonst
-nicht.
+Bezug auf die Windows-Auswahl (`base_selection`) neu. Die Version in allen
+drei Auswahlen prüft `scripts/release-version.test.mjs` bei jedem Push; den
+Bezug auf die Windows-Auswahl prüft kein Werkzeug.
 
 ## Tauri-CLI und Installer-Werkzeuge
 
