@@ -1,0 +1,1 @@
+New setting "Screen reader support" (Settings, Terminal): screen readers such as TalkBack can read the text of the terminals. Text fields and buttons in dialogs are larger and easier to tap. When more than eight hosts connect at once, none of them fails right away any more. An internal error no longer leaves the app unusable until it is restarted.

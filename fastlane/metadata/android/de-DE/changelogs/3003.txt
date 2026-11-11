@@ -1,0 +1,1 @@
+Neue Einstellung „Screen reader support“ (Einstellungen, Terminal): Bildschirmleser wie TalkBack können den Text der Terminals vorlesen. Eingabefelder und Knöpfe in Dialogen sind größer und leichter zu treffen. Verbinden mehr als acht Hosts zugleich, scheitert keiner mehr sofort. Ein interner Fehler legt die App nicht mehr bis zum Neustart lahm.

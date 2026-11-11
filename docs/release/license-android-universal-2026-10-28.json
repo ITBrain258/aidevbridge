@@ -16,13 +16,13 @@
     "features": [
       "tauri/custom-protocol"
     ],
-    "product_version": "0.3.2"
+    "product_version": "0.3.3"
   },
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
     "bytes": 1069582,
-    "sha256": "94ef3e402bdc0d8fbcdfa7a55ce3586712e7040d6e698600d3cb276d39b2a7a4"
+    "sha256": "79756eaa7f623aae53d1c55c8fe8b231a9a68915448936563dd60d63a0fe8233"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the Android graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -237,7 +237,7 @@
             "sha256": "4a73856c6b87bfaa7b6fc5963796f21941f85f9bb3de36f688f70b5c5ceca44b"
           },
           "built_library": {
-            "sha256": "5e7e589cafbc57123f408d0832c07871bbddbd3dde7f1e2ae5751cb1f75979c1",
+            "sha256": "1110d7ed27943f0622a3ee498b93921d383a6a97cb00ade4e959c7b10d4e1058",
             "needed": [
               "libandroid.so",
               "libc.so",
@@ -271,7 +271,7 @@
             "sha256": "d161f2951569046a09fb534f80f7c532d583aab9228b5c9d2ccf6f8c8fd27ec3"
           },
           "built_library": {
-            "sha256": "2d9319495a180e16d76b48db9f7b4fd7ca0b26dd3279b29e824ba43015f00824",
+            "sha256": "7082318bb32a35b107179bf0665a6bb90a66d675f36b003816c7406f4c7f5af0",
             "needed": [
               "libandroid.so",
               "libc.so",
@@ -305,7 +305,7 @@
             "sha256": "793ea43b5c52399fdc7a4c7bbf04c02abaf59d2c34d0b630ece694110f6f3b2c"
           },
           "built_library": {
-            "sha256": "7acf71092a09732774fd1642f9c0514bc4ac388dc63f5737f18d5cd923ebabd7",
+            "sha256": "cd962e640c3e08b59a7aa13fec7ebf583c21832aeb26058aab1f7c9effd9a368",
             "needed": [
               "libandroid.so",
               "libc.so",

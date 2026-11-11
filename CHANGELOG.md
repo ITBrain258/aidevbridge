@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-11-11
+
+Bildschirmleser koennen den Inhalt der Terminals lesen, viele Hosts verbinden zugleich ohne Fehler, und Dialoge lassen sich auf dem Telefon leichter bedienen. Dazu Werkzeuge fuer die Versionsstellen und die NDK-Belege im Release-Ablauf.
+
 ### Added
 
 - Terminal: Neue Einstellung "Screen reader support" (Einstellungen, Terminal, Karte "Accessibility", aus). Sie legt den Text der Terminals fuer Bildschirmleser wie NVDA, Sprachausgabe, VoiceOver oder TalkBack in den DOM (`screenReaderMode` von xterm.js); bisher war der Inhalt fuer sie unsichtbar. Gespeichert als `screen_reader_mode` unter `[ui]` in `settings.toml`; sie gilt sofort fuer jede offene Kachel. Mit einem echten Bildschirmleser noch nicht geprueft.

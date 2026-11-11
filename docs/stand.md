@@ -1,13 +1,13 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.2` vom 10.11.2026 (Tag `v0.3.2` auf dem Merge-Commit
-von PR #48); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.2 bringt die Befunde der Durchsicht vom 10.11. (PR #47, „Letzte Prüfung“):
-Ein kurzer Hänger im Netz kostet nicht mehr die Steuerverbindung, die
-Telefonansicht passt Einstellungen, Fehlerstreifen und Trefferflächen an,
-unerwartete Fehler erreichen den Nutzer, und Verbindungsausgänge werden
-angesagt; dazu Schranken im Release-Ablauf und eine englische Kurzfassung auf
-jeder Release-Seite. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
+**Stand:** Version `0.3.3` vom 11.11.2026 (Tag `v0.3.3` auf dem Merge-Commit
+von PR #54); beim Tag baut die CI alle Pakete und hängt sie an das Release.
+0.3.3 bringt die Einstellung „Screen reader support“, eine Aufnahme, die bei
+mehr als acht gleichzeitigen Verbindungsaufbauten kurz wartet, statt sofort zu
+scheitern, Register, die eine Panik überstehen, und 40 px hohe Felder und
+Knöpfe in Dialogen der Telefonansicht (PR #53); dazu ein Skript für alle
+Versionsstellen eines Releases und NDK-Belege aus jedem Android-Bau der CI
+(PR #50 bis #52). Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
 Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
 Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
@@ -260,12 +260,14 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
      `installer_stub_notices`, `native_import_family_review` und
      `product_and_windows_acceptance` weiter als `pending`, weil ein Bau sie
      nicht kennt.
-   - Die NDK-Belege stammen für armv7 und x86_64 vom 28.10., für arm64 vom
-     05.11. Seit dem 11.11. liest jeder Lauf von `android.yml` sie aus dem
-     eigenen Bau und scheitert, wenn sich eine Aussage geändert hat;
-     `licenses:derive` behält die gebundenen Belege und nimmt neue nur aus
-     der Datei eines Release-Laufs (`--native-evidence`,
-     [Anleitung](lizenzen-pflegen.md)). Aufgefrischt sind sie noch nicht.
+   - Die NDK-Belege aller drei ABIs stammen aus dem Android-Probelauf
+     43005268807 auf `4243ed2` (Release-PR von 0.3.3). Ihr SHA-256 gehört zu
+     diesem Bau: Der Tag-Bau trägt in der Oberfläche einen anderen Commit und
+     hat deshalb einen anderen. Seit dem 11.11. liest jeder Lauf von
+     `android.yml` die Belege aus dem eigenen Bau und scheitert, wenn sich eine
+     Aussage geändert hat; `licenses:derive` behält die gebundenen Belege und
+     nimmt neue nur aus der Datei eines Release-Laufs (`--native-evidence`,
+     [Anleitung](lizenzen-pflegen.md)).
    - Lokal gebaute Pakete bis 0.2.2 enthalten Pfade des Cargo-Registers mit
      dem Benutzernamen des Bauprofils; hingenommen, seit 0.2.3 baut die CI.
 7. **Echte Abnahmen:**
