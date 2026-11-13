@@ -54,6 +54,17 @@ function terminalTarget(): HTMLElement {
   return document.querySelector<HTMLElement>(".xterm-helper-textarea")!;
 }
 
+/** Eine Zeile, die xterm mit "Screen reader support" anlegt: im `.xterm`-Teilbaum
+ * neben dem Hilfstextfeld, fokussierbar mit `tabIndex = -1` (xterm 6,
+ * `AccessibilityManager`). */
+function accessibilityRow(): HTMLElement {
+  document.body.innerHTML =
+    `<div class="xterm"><div class="xterm-accessibility"><div class="xterm-accessibility-tree">` +
+    `<div role="listitem" tabindex="-1">$ ls</div></div></div>` +
+    `<textarea class="xterm-helper-textarea"></textarea></div>`;
+  return document.querySelector<HTMLElement>('[role="listitem"]')!;
+}
+
 /** Ein `<input>` ausserhalb des Terminals, bereits im Dokument. */
 function textField(type = "text"): HTMLInputElement {
   const input = document.createElement("input");
@@ -346,6 +357,31 @@ describe("keyboard: Browsertasten bleiben ausserhalb der App (Spec §8.1)", () =
 
   it("Tab ohne Umschalt bleibt im Terminal unberuehrt (xterm haelt es selbst an)", () => {
     expect(keydown(terminalTarget(), { key: "Tab" }).defaultPrevented).toBe(false);
+  });
+
+  // Mit "Screen reader support" legt xterm Zeilen mit `tabIndex = -1` in den
+  // `.xterm`-Teilbaum; ein Bildschirmleser kann den Fokus darauf setzen. Dort
+  // nimmt xterm keine Taste an, ohne Sperre luede Strg+R die App neu.
+  it.each(BROWSER_KEYS)("%s ist auf einer Zeile des Bildschirmlesers verhindert", (_name, init) => {
+    expect(keydown(accessibilityRow(), init).defaultPrevented).toBe(true);
+  });
+
+  it.each(FREE_KEYS)("%s bleibt auf einer Zeile des Bildschirmlesers unverhindert", (_name, init) => {
+    expect(keydown(accessibilityRow(), init).defaultPrevented).toBe(false);
+  });
+
+  // Keine Taste erreicht von dort ein Programm; Umschalt+Tab darf den Fokus aus
+  // dem Terminal nehmen wie ueberall sonst.
+  it("Umschalt+Tab bleibt auf einer Zeile des Bildschirmlesers unverhindert", () => {
+    expect(keydown(accessibilityRow(), { key: "Tab", shiftKey: true }).defaultPrevented).toBe(false);
+  });
+
+  // Nur xterms eigenes Hilfstextfeld zaehlt als Eingabe des Terminals, kein
+  // anderes Textfeld, das zufaellig im `.xterm`-Teilbaum steht.
+  it("ein anderes Textfeld im Terminal gilt nicht als dessen Eingabe", () => {
+    document.body.innerHTML = `<div class="xterm"><textarea class="other"></textarea></div>`;
+    const area = document.querySelector<HTMLTextAreaElement>("textarea.other")!;
+    expect(keydown(area, { key: "r", ctrlKey: true }).defaultPrevented).toBe(true);
   });
 
   // xterm schickt eine Medientaste nicht ans Programm; ohne Sperre fiele sie zu
