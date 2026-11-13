@@ -741,6 +741,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * falsche zu bestaetigen. */
   let pendingRemoveHostId: string | null = null;
   const removalsInFlight = new Set<string>();
+  /** Entfernungen, die fertig wurden, waehrend ein Druck das Neuzeichnen
+   * aufschob (`requestRender`). Das naechste `render()` braucht sie noch fuer
+   * die Fokusrettung auf "Add" und leert die Menge danach. */
+  const removalsAwaitingRender = new Set<string>();
 
   /** Der Sessionschluessel, dessen "Beenden"-Rueckfrage gerade offen steht.
    * Hoechstens eine, aus demselben Grund wie oben. */
@@ -927,7 +931,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       render();
       if (!removalsInFlight.has(hostId)) {
         removalsInFlight.add(hostId);
-        const finish = () => { removalsInFlight.delete(hostId); };
+        const finish = () => {
+          removalsInFlight.delete(hostId);
+          if (renderPending) removalsAwaitingRender.add(hostId);
+        };
         void Promise.resolve(opts.onRemoveHost(hostId)).then(finish, finish);
       }
       // Persistence may finish later. Keep focus on the remaining host;
@@ -2225,8 +2232,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * dem Dokument, schickte Chromium gar keinen Klick -- weder an die alte noch
    * an die neue Zeile noch an die Liste --, und der Klick ginge still verloren
    * (gemessen am 13.11.2026 mit Edge 157). Auch dieselben Knoten neu
-   * einzuhaengen hilft nicht. Neuzeichnen aus den Lauschern einer Zeile selbst
-   * (Klick, Taste) ruft weiter `render()` direkt: dann ist der Klick schon da. */
+   * einzuhaengen hilft nicht. Wo ein Lauscher selbst `render()` ruft (Knoepfe
+   * der Rueckfragen, Hinweise), zeichnet er weiter sofort neu: dann ist der
+   * Klick schon da. Was ueber den Zustand oder die Spur geht (Auf- und
+   * Zuklappen eines Hosts, "+n more"), folgt nach einem Druck im naechsten
+   * Zeitgeber. */
   function requestRender(): void {
     if (disposed) return;
     if (frozenHostId === undefined) {
@@ -2520,7 +2530,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       if (usable) focusSessionAction(usable);
       else if (hostRow) hostRow.focus();
       else if (
-        focusedHostId && removalsInFlight.has(focusedHostId) &&
+        focusedHostId && (removalsInFlight.has(focusedHostId) || removalsAwaitingRender.has(focusedHostId)) &&
         !state.hosts.some((host) => host.id === focusedHostId)
       ) addButton.focus();
       // `inputToRestore` ist nur gesetzt, wenn `active` (dieselbe Quelle wie
@@ -2536,6 +2546,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
         }
       }
     }
+    // Die Fokusrettung oben hat sie gebraucht; danach zaehlt nur noch
+    // `removalsInFlight`.
+    removalsAwaitingRender.clear();
 
     // Das Menue ueberlebt das Neuzeichnen (§1.1), sein Knopf nicht --
     // `render()` baut ihn neu. Also nachmessen, `aria-expanded` am NEUEN

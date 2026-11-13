@@ -2389,7 +2389,7 @@ describe("mountSidebar: Remove mit Rueckfrage", () => {
       const { el } = mount(s);
       const bar = openConfirm(el, "vm-build");
       expect(bar.textContent).toContain(
-        "Sessions on the host keep running. Its saved host key is forgotten too, unless another saved host uses it.",
+        "Sessions on the host keep running. Its saved host key is forgotten too, also for other saved hosts with the same address.",
       );
     } finally {
       agent.mockRestore();
@@ -2524,6 +2524,41 @@ describe("mountSidebar: Remove mit Rueckfrage", () => {
     expect((document.activeElement as HTMLElement).dataset.hostId).toBe("h2");
     finishRemoval();
     await Promise.resolve();
+  });
+
+  // Gegenprobe vom 13.11.: Ein Druck in der Liste schiebt das Neuzeichnen auf.
+  // Endet das Entfernen waehrend des Drucks, braucht die Fokusrettung den Host
+  // noch, wenn das Neuzeichnen nachkommt -- sonst fiele der Fokus auf <body>.
+  it("rettet den Fokus auch, wenn das Entfernen waehrend eines Drucks endet", async () => {
+    vi.useFakeTimers();
+    try {
+      const s = new AppState();
+      s.upsertHost(host("h1"));
+      s.upsertHost(host("h2", ["b"]));
+      const h = handlers();
+      let finishRemoval!: () => void;
+      h.onRemoveHost = vi.fn(() => new Promise<void>((resolve) => { finishRemoval = resolve; }));
+      const { el } = mount(s, h);
+      const bar = openConfirm(el, "h1");
+      Array.from(bar.querySelectorAll("button")).find((b) => b.textContent === "Remove")!.click();
+      const focused = document.activeElement as HTMLElement;
+      expect(focused.closest(".sb-host-block")?.querySelector<HTMLElement>(".row-host")?.dataset.hostId).toBe("h1");
+
+      // Ein Tipp auf eine Zeile von h2: Der Fokus wandert erst mit dem Klick.
+      const row = el.querySelector<HTMLElement>('[data-session-key="h2/b"]')!;
+      row.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0, pointerType: "touch" }));
+      s.removeHost("h1");
+      finishRemoval();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      window.dispatchEvent(new PointerEvent("pointercancel", { bubbles: true, cancelable: true, button: 0, pointerType: "touch" }));
+      vi.advanceTimersByTime(600);
+      expect(el.querySelector('.row-host[data-host-id="h1"]')).toBeNull();
+      expect((document.activeElement as HTMLElement).classList.contains("sb-btn")).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("verwirft die Rueckfrage, wenn der Host anderweitig verschwindet", () => {
@@ -3114,9 +3149,13 @@ describe("mountSidebar: ein Druck in der Liste verschiebt die Zeilen nicht (Abna
     pointer("pointerdown", row);
     row.focus();
     s.setSessions("h2", ["b", "c"]);
+    // Die Liste selbst, nicht `el`: `dispose()` leert `el`, und ein
+    // spaetes Neuzeichnen baute in die abgehaengte Liste.
+    const list = el.querySelector(".sb-list")!;
+    const replace = vi.spyOn(list, "replaceChildren");
     handle.dispose();
     vi.advanceTimersByTime(5000);
-    expect(el.querySelector(".sb-list")).toBeNull();
+    expect(replace).not.toHaveBeenCalled();
   });
 
   // Nachtrag vom 24.10.: bei Touch und Stift liefert Chromium Fokuswechsel und

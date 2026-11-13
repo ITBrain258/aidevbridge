@@ -539,11 +539,13 @@ die erzeugten Schlüssel; oder der Host bekam einen anderen Namen.
 
 - **Entfernen vergisst den Schlüssel:** Entfernt der Nutzer einen Host, nimmt
   die App die Einträge, die sie selbst für dessen Namen und Port geschrieben
-  hat, aus `known_hosts` (`known_hosts::forget_host`). Nutzt ein anderer
-  gespeicherter Host denselben Namen und Port, bleibt der Eintrag. Wer den
-  Host wieder anlegt, bekommt die Rückfrage wie beim Erstkontakt mit dem
-  Fingerabdruck. Das sind dieselben zwei Schritte wie `ssh-keygen -R` und eine
-  neue Verbindung.
+  hat, aus `known_hosts` (`known_hosts::forget_host`). Wer den Host wieder
+  anlegt, bekommt die Rückfrage wie beim Erstkontakt mit dem Fingerabdruck. Das
+  sind dieselben zwei Schritte wie `ssh-keygen -R` und eine neue Verbindung.
+  Der Eintrag fällt auch, wenn ein anderer gespeicherter Host denselben Namen
+  und Port nutzt (etwa ein zweites Konto): Er sieht denselben Server und
+  denselben Schlüssel. Bliebe der Eintrag, führte der Weg aus der Meldung im
+  Kreis; so fragt der andere Host beim nächsten Verbinden einmal neu.
 - **Nur die eigenen Zeilen:** Es fallen nur Zeilen, deren Hostfeld genau ein
   wörtlicher Name ist, wie ihn `format_entry` schreibt. Kommentare,
   `@revoked`- und `@cert-authority`-Zeilen, Aliaslisten, gehashte Namen und

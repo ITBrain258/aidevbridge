@@ -164,15 +164,18 @@ Am 13.11.2026 nach 0.3.3: drei Prüfungen auf `main` (`9a6a03c`), die nur
 lasen: der Code seit der Durchsicht vom 10.11., der Aufbau der großen Dateien
 und die Tests. Danach bewertete je ein neutraler Agent jeden Fund; zwei stellten
 das Verhalten von Chromium in Edge 157 an einer Minimalseite nach. Kein hoher
-Befund. Was einen Effekt für Nutzer hat, behebt der Branch
-`fix/pre-release-0.3.4` (CHANGELOG `[Unreleased]`): Ein Klick in der
+Befund. Was einen Effekt für Nutzer hat, behebt PR #56 (CHANGELOG
+`[Unreleased]`): Ein Klick in der
 Seitenleiste geht nicht mehr verloren, wenn sie während des Drucks neu gebaut
 wird; mit „Screen reader support“ laden Browsertasten auf einer Zeile des
 Bildschirmlesers die App nicht mehr neu; und auf Android vergisst das Entfernen
-eines Hosts dessen Hostschlüssel. Was offen bleibt oder nicht übernommen wurde,
-steht unter Punkt 16. Lokal: `licenses:status` ohne Abweichung nach
+eines Hosts dessen Hostschlüssel. Eine neutrale Prüfung las den Branch gegen
+und fand, dass der Ausweg unter Android bei zwei gespeicherten Hosts mit
+derselben Adresse im Kreis führte und dass ein aufgeschobenes Neuzeichnen die
+Fokusrettung nach dem Entfernen verpassen konnte; behoben im selben PR. Was
+offen bleibt oder nicht übernommen wurde, steht unter Punkt 16. Lokal: `licenses:status` ohne Abweichung nach
 `rebind-own`, Clippy für Windows und `aarch64-linux-android`, 716
-Rust-Bibliothekstests, mit den Integrationstests 792, 3030 Vitest-Tests, 251
+Rust-Bibliothekstests, mit den Integrationstests 792, 3031 Vitest-Tests, 251
 Skripttests und `npm run build`. Nicht geprüft: der Klick-Verlust in der
 laufenden App (der Tipp in der Telefonansicht nur emuliert), die Tasten mit
 einem echten Bildschirmleser, das Vergessen des Schlüssels an einem

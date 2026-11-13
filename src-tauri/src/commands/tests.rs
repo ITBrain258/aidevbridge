@@ -2464,9 +2464,10 @@ fn removing_a_host_forgets_its_key_so_the_next_connection_asks_again() {
 }
 
 // Ein zweiter gespeicherter Host mit demselben Namen und Port (etwa ein
-// anderes Konto) nutzt denselben Eintrag; er fragte sonst ohne Grund neu.
+// anderes Konto) sieht denselben Server und denselben Schluessel. Bliebe der
+// Eintrag, fuehrte "remove the host ... add it again" im Kreis.
 #[test]
-fn removing_a_host_keeps_a_key_another_saved_host_still_uses() {
+fn removing_a_host_forgets_the_key_also_when_another_saved_host_uses_it() {
     let settings = unique_temp_settings_path("remove_shared");
     let kh = unique_temp_known_hosts("remove_shared");
     let a = add_host_impl(&settings, new_host_dto("build.example")).unwrap();
@@ -2478,20 +2479,22 @@ fn removing_a_host_keeps_a_key_another_saved_host_still_uses() {
         },
     )
     .unwrap();
-    let before = "build.example ssh-ed25519 AAAAshared\n";
-    std::fs::write(&kh, before).unwrap();
+    std::fs::write(&kh, "build.example ssh-ed25519 AAAAshared\n").unwrap();
 
     remove_host_forgetting_key(&settings, &a.id, Some(&kh)).unwrap();
 
-    assert_eq!(std::fs::read_to_string(&kh).unwrap(), before);
+    assert_eq!(std::fs::read_to_string(&kh).unwrap(), "");
     assert_eq!(list_hosts_impl(&settings).unwrap().len(), 1);
     let _ = std::fs::remove_file(&settings);
     let _ = std::fs::remove_file(&kh);
 }
 
+// Derselbe Name unter einem anderen Port ist ein anderer Eintrag
+// (`[host]:port`) und bleibt; ein unbekannter Host vergisst nichts.
 #[test]
-fn host_key_to_forget_is_per_name_and_port() {
+fn removing_a_host_forgets_only_its_own_port() {
     let settings = unique_temp_settings_path("forget_port");
+    let kh = unique_temp_known_hosts("forget_port");
     let a = add_host_impl(&settings, new_host_dto("192.0.2.82")).unwrap();
     add_host_impl(
         &settings,
@@ -2501,13 +2504,25 @@ fn host_key_to_forget_is_per_name_and_port() {
         },
     )
     .unwrap();
-    let hosts = settings::load_from(&settings).unwrap().hosts;
+    std::fs::write(
+        &kh,
+        "192.0.2.82 ssh-ed25519 AAAA22\n[192.0.2.82]:2222 ssh-ed25519 AAAA2222\n",
+    )
+    .unwrap();
+
+    remove_host_forgetting_key(&settings, "does-not-exist", Some(&kh)).unwrap();
     assert_eq!(
-        host_key_to_forget(&hosts, &a.id),
-        Some(("192.0.2.82".to_string(), 22))
+        std::fs::read_to_string(&kh).unwrap(),
+        "192.0.2.82 ssh-ed25519 AAAA22\n[192.0.2.82]:2222 ssh-ed25519 AAAA2222\n"
     );
-    assert_eq!(host_key_to_forget(&hosts, "does-not-exist"), None);
+
+    remove_host_forgetting_key(&settings, &a.id, Some(&kh)).unwrap();
+    assert_eq!(
+        std::fs::read_to_string(&kh).unwrap(),
+        "[192.0.2.82]:2222 ssh-ed25519 AAAA2222\n"
+    );
     let _ = std::fs::remove_file(&settings);
+    let _ = std::fs::remove_file(&kh);
 }
 
 // Scheitert das Vergessen, bleibt der Host gespeichert, und der Nutzer kann es

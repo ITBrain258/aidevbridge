@@ -2876,6 +2876,7 @@ describe("main: Tastatur (Task 12) -- die vier neuen Aktionen", () => {
     const xtermRoot = document.createElement("div");
     xtermRoot.className = "xterm";
     const helperTextarea = document.createElement("textarea");
+    helperTextarea.className = "xterm-helper-textarea";
     xtermRoot.appendChild(helperTextarea);
     document.body.appendChild(xtermRoot);
 
@@ -5663,6 +5664,7 @@ describe("main: Strg+, oeffnet die Einstellungen (UX-Spec §8.3)", () => {
     const xtermRoot = document.createElement("div");
     xtermRoot.className = "xterm";
     const helperTextarea = document.createElement("textarea");
+    helperTextarea.className = "xterm-helper-textarea";
     xtermRoot.appendChild(helperTextarea);
     document.getElementById("grid")!.appendChild(xtermRoot);
 
@@ -5721,6 +5723,7 @@ describe("main: Schnelloeffnen (UX-Spec §7.5)", () => {
     const xtermRoot = document.createElement("div");
     xtermRoot.className = "xterm";
     const helperTextarea = document.createElement("textarea");
+    helperTextarea.className = "xterm-helper-textarea";
     xtermRoot.appendChild(helperTextarea);
     document.getElementById("grid")!.appendChild(xtermRoot);
     pressKey(helperTextarea, CTRL_SHIFT_P);

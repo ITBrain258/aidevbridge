@@ -108,9 +108,10 @@ On Android (from 0.2.4, see `docs/specs/2026-10-27-android-design.md`, in German
 of this lives in the app's private storage, which other apps cannot
 read: `settings.toml` under `io.github.itbrain258.aidevbridge/` and
 `known_hosts` under `.ssh/`. On Android only, removing a host also removes
-the host key lines the app wrote for its name and port, unless another saved
-host uses them; the file is replaced atomically, and comments, `@revoked`
-lines, alias lists, hashed names and patterns stay untouched. Keys you
+the host key lines the app wrote for its name and port; other saved hosts
+with the same address then ask to confirm the key again. The file is replaced
+atomically, and comments, `@revoked` lines, alias lists, hashed names and
+patterns stay untouched. Keys you
 generate or import in the app are stored there too (`.ssh/aidevbridge_ed25519`, `.ssh/imported_<type>`, each
 with its `.pub`). The app excludes its storage from Google's cloud backup and
 from the transfer to a new device.

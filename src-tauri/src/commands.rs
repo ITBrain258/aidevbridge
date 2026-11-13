@@ -3609,24 +3609,18 @@ fn forget_host_key_path() -> Option<PathBuf> {
     }
 }
 
-/// Der Schluessel, den das Entfernen des Hosts `id` vergessen darf: Name und
-/// Port des Hosts, solange kein anderer gespeicherter Host denselben Eintrag
-/// in `known_hosts` nutzt (gleicher Name, ASCII-case-insensitiv wie
-/// `known_hosts::lookup`, und gleicher Port). Sonst fragte dessen naechste
-/// Verbindung ohne Grund wie beim Erstkontakt.
-fn host_key_to_forget(hosts: &[settings::HostEntry], id: &str) -> Option<(String, u16)> {
-    let removed = hosts.iter().find(|h| h.id == id)?;
-    let shared = hosts.iter().any(|h| {
-        h.id != id && h.port == removed.port && h.hostname.eq_ignore_ascii_case(&removed.hostname)
-    });
-    (!shared).then(|| (removed.hostname.clone(), removed.port))
-}
-
 /// `remove_host_impl` mit ausdruecklicher `known_hosts`; `None` laesst sie
 /// unberuehrt. Der Schluessel faellt VOR dem Host weg: scheitert das, bleibt
 /// der Host gespeichert, und der Nutzer kann es noch einmal versuchen. Faellt
 /// danach das Speichern aus, fragt die naechste Verbindung wie beim
 /// Erstkontakt -- die Seite, auf der nichts ungeprueft durchgeht.
+///
+/// Der Schluessel faellt auch dann, wenn ein anderer gespeicherter Host
+/// denselben Namen und Port nutzt (etwa ein zweites Konto): Er sieht denselben
+/// Server und denselben Schluessel. Bliebe der Eintrag dann stehen, fuehrte
+/// der Weg aus der Meldung zu einem geaenderten Schluessel ("remove the host
+/// ... add it again") im Kreis; so fragt der andere Host beim naechsten
+/// Verbinden einmal neu, mit Fingerabdruck.
 fn remove_host_forgetting_key(
     settings_path: &Path,
     id: &str,
@@ -3634,10 +3628,15 @@ fn remove_host_forgetting_key(
 ) -> Result<(), String> {
     if let Some(known_hosts) = known_hosts {
         let current = settings::load_from(settings_path).map_err(settings_error)?;
-        if let Some((hostname, port)) = host_key_to_forget(&current.hosts, id) {
-            known_hosts::forget_host(known_hosts, &hostname, port).map_err(|error| {
-                format!("Couldn't forget the saved host key of {hostname}: {error:#}")
-            })?;
+        if let Some(removed) = current.hosts.iter().find(|h| h.id == id) {
+            known_hosts::forget_host(known_hosts, &removed.hostname, removed.port).map_err(
+                |error| {
+                    format!(
+                        "Couldn't forget the saved host key of {}: {error:#}",
+                        removed.hostname
+                    )
+                },
+            )?;
         }
     }
     settings::update_at(settings_path, |current| {

@@ -44,8 +44,8 @@ The short version is in the [privacy policy](../../PRIVACY.md): aidevbridge coll
   apps cannot read: `settings.toml`, `known_hosts` and the keys you generate
   or import in the app. The app excludes this storage from Google's cloud
   backup and from the transfer to a new device. When you remove a host, the
-  app also forgets the host key it saved for that name and port, unless
-  another saved host uses the same name and port.
+  app also forgets the host key it saved for that name and port; other saved
+  hosts with the same address ask you to confirm the key again.
 - **Passwords and key passphrases are never stored.** The app asks again
   when it needs them.
 - Removing the app keeps `known_hosts` and `settings.toml`; only the
