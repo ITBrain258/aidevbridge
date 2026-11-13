@@ -6,6 +6,15 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- Android: Wer einen Host entfernt, laesst die App jetzt auch den Hostschluessel vergessen, den sie fuer dessen Namen und Port gespeichert hat, ausser ein anderer gespeicherter Host nutzt denselben Namen und Port. Bekam ein Server einen neuen Schluessel (neu aufgesetzt, VM neu angelegt), war er bisher unter seinem Namen nicht mehr erreichbar: Die Meldung verwies auf `ssh-keygen -R`, `known_hosts` liegt auf Android aber im privaten Speicher der App, und es blieb nur, die App-Daten samt erzeugter Schluessel zu loeschen. Jetzt fuehrt "Host entfernen und neu anlegen" zur Rueckfrage des Erstkontakts mit dem neuen Fingerabdruck; die Meldung und die Rueckfrage "Remove ...?" sagen das. Es fallen nur die Zeilen, die die App selbst schreibt; die Datei wird atomar ersetzt. Auf dem Desktop bleibt alles, wie es war: Dort haengt die App an die mit OpenSSH geteilte Datei nur an (Nachtrag vom 13.11. zur Android-Spec).
+
+### Fixed
+
+- Seitenleiste: Ein Klick auf eine Zeile ging verloren, wenn die Liste zwischen Druecken und Loslassen neu aufgebaut wurde, etwa weil sich gerade ein Agentstatus aenderte. Chromium schickt dann keinen Klick (gemessen mit Edge 157). Stand der Tastaturfokus in der Wartet-Spur, ging der erste Klick auf eine andere Zeile sogar jedes Mal verloren: Die Spur sortierte neu, sobald der Fokus sie verliess. Waehrend eines Drucks wartet das Neuzeichnen jetzt bis nach dem Klick, hoechstens 2 s.
+- Terminal: Mit "Screen reader support" kann ein Bildschirmleser den Fokus auf eine Zeile des Terminals setzen. Dort liess die App die Browsertasten durch: Strg+R lud die App neu, und alle Terminals und Verbindungen waren weg; Strg+P, F, S und Alt+Pfeil oeffneten Funktionen einer Webseite. Nur xterms Eingabefeld gibt diese Tasten noch an das Programm weiter.
+
 ## [0.3.3] - 2026-11-11
 
 Bildschirmleser koennen den Inhalt der Terminals lesen, viele Hosts verbinden zugleich ohne Fehler, und Dialoge lassen sich auf dem Telefon leichter bedienen. Dazu Werkzeuge fuer die Versionsstellen und die NDK-Belege im Release-Ablauf.
