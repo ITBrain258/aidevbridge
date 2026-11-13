@@ -1,1 +1,1 @@
-If a server gets a new host key, remove the host and add it again: the app forgets the old key and asks you to confirm the new one. Taps and clicks in the side list no longer get lost while it updates. With screen reader support on, browser keys no longer reload the app.
+If a server gets a new host key, remove the host and add it again: the app forgets the old key and asks you to confirm the new one. Taps and clicks in the side list no longer get lost while it updates.

@@ -166,7 +166,7 @@ lasen: der Code seit der Durchsicht vom 10.11., der Aufbau der großen Dateien
 und die Tests. Danach bewertete je ein neutraler Agent jeden Fund; zwei stellten
 das Verhalten von Chromium in Edge 157 an einer Minimalseite nach. Kein hoher
 Befund. Was einen Effekt für Nutzer hat, behebt PR #56 (CHANGELOG
-`[Unreleased]`): Ein Klick in der
+`[0.3.4]`): Ein Klick in der
 Seitenleiste geht nicht mehr verloren, wenn sie während des Drucks neu gebaut
 wird; mit „Screen reader support“ laden Browsertasten auf einer Zeile des
 Bildschirmlesers die App nicht mehr neu; und auf Android vergisst das Entfernen

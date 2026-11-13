@@ -1,1 +1,1 @@
-Bekommt ein Server einen neuen Hostschlüssel, den Host entfernen und neu anlegen: Die App vergisst den alten Schlüssel und fragt nach dem neuen. Klicks und Tipps in der Seitenleiste gehen nicht mehr verloren, während sie sich aktualisiert. Mit „Screen reader support“ laden Browsertasten die App nicht mehr neu.
+Bekommt ein Server einen neuen Hostschlüssel, den Host entfernen und neu anlegen: Die App vergisst den alten Schlüssel und fragt nach dem neuen. Antippen und Klicks in der Seitenleiste gehen nicht mehr verloren, während sie sich aktualisiert.
