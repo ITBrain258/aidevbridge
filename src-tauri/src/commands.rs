@@ -822,6 +822,27 @@ fn connect_failure(error: ConnectFailure) -> ConnectError {
     }
 }
 
+/// Die Meldung zu einem geaenderten Hostschluessel (`Mismatch`, UX-Spec §10).
+/// Auf Android gibt es kein `ssh-keygen` und keinen Zugriff auf die Datei; dort
+/// vergisst die App den Schluessel, wenn der Nutzer den Host entfernt
+/// (`remove_host_impl`), und die Meldung sagt genau das.
+fn changed_host_key_message(host: &str, android: bool) -> String {
+    if android {
+        format!(
+            "The host key of {host} has changed. Someone may be intercepting the connection \
+             — or the server was reinstalled. If you're sure, remove the host in aidevbridge, \
+             add it again and compare the new key's fingerprint before you trust it."
+        )
+    } else {
+        format!(
+            "The host key of {host} has changed. Someone may be intercepting the connection \
+             — or the server was reinstalled. If you're sure, remove its old entry from \
+             ~/.ssh/known_hosts, for example with ssh-keygen -R \"{host}\", and connect \
+             again."
+        )
+    }
+}
+
 /// Klassifiziert einen gescheiterten `connect_host`-Versuch in `ConnectError`
 /// (Spec §4.8) -- `message` ist die lesbare `String`-Fehlermeldung
 /// (siehe `connect_host_with_known_hosts`s duenne Huelle um
@@ -855,12 +876,7 @@ fn classify_connect_error(
         },
         Some(HostKeyDecision::Mismatch) => ConnectError {
             code: "host_key_rejected",
-            message: format!(
-                "The host key of {host} has changed. Someone may be intercepting the connection \
-                 — or the server was reinstalled. If you're sure, remove its old entry from \
-                 ~/.ssh/known_hosts, for example with ssh-keygen -R \"{host}\", and connect \
-                 again."
-            ),
+            message: changed_host_key_message(host, cfg!(target_os = "android")),
         },
         // `Known` (der Schluessel stand schon passend in `known_hosts`) und
         // `None` (die Verbindung scheiterte VOR jeder TOFU-Entscheidung, z. B.
@@ -3573,7 +3589,56 @@ pub async fn ui_settings(patch: Option<UiSettingsPatchDto>) -> Result<UiSettings
 ///
 /// `settings_path` explizit als Parameter (siehe `list_hosts_impl`s
 /// Kommentar zur selben Entscheidung).
+///
+/// Auf Android vergisst die App dabei auch den Hostschluessel
+/// (`forget_host_key_path`, Nachtrag vom 13.11.2026 zur Android-Spec).
 pub fn remove_host_impl(settings_path: &Path, id: &str) -> Result<(), String> {
+    remove_host_forgetting_key(settings_path, id, forget_host_key_path().as_deref())
+}
+
+/// Die `known_hosts`, deren Eintrag eines entfernten Hosts die App vergisst:
+/// nur auf Android. Dort liegt die Datei im privaten Speicher der App, niemand
+/// kommt mit `ssh-keygen -R` an sie heran, und ein Host mit neuem
+/// Serverschluessel bliebe sonst unerreichbar. Auf dem Desktop teilt sich die
+/// App die Datei mit OpenSSH und haengt nur an (`docs/guide/data.md`).
+fn forget_host_key_path() -> Option<PathBuf> {
+    if cfg!(target_os = "android") {
+        crate::paths::ssh_dir().map(|dir| dir.join("known_hosts"))
+    } else {
+        None
+    }
+}
+
+/// `remove_host_impl` mit ausdruecklicher `known_hosts`; `None` laesst sie
+/// unberuehrt. Der Schluessel faellt VOR dem Host weg: scheitert das, bleibt
+/// der Host gespeichert, und der Nutzer kann es noch einmal versuchen. Faellt
+/// danach das Speichern aus, fragt die naechste Verbindung wie beim
+/// Erstkontakt -- die Seite, auf der nichts ungeprueft durchgeht.
+///
+/// Der Schluessel faellt auch dann, wenn ein anderer gespeicherter Host
+/// denselben Namen und Port nutzt (etwa ein zweites Konto): Er sieht denselben
+/// Server und denselben Schluessel. Bliebe der Eintrag dann stehen, fuehrte
+/// der Weg aus der Meldung zu einem geaenderten Schluessel ("remove the host
+/// ... add it again") im Kreis; so fragt der andere Host beim naechsten
+/// Verbinden einmal neu, mit Fingerabdruck.
+fn remove_host_forgetting_key(
+    settings_path: &Path,
+    id: &str,
+    known_hosts: Option<&Path>,
+) -> Result<(), String> {
+    if let Some(known_hosts) = known_hosts {
+        let current = settings::load_from(settings_path).map_err(settings_error)?;
+        if let Some(removed) = current.hosts.iter().find(|h| h.id == id) {
+            known_hosts::forget_host(known_hosts, &removed.hostname, removed.port).map_err(
+                |error| {
+                    format!(
+                        "Couldn't forget the saved host key of {}: {error:#}",
+                        removed.hostname
+                    )
+                },
+            )?;
+        }
+    }
     settings::update_at(settings_path, |current| {
         current.hosts.retain(|h| h.id != id);
         // Verteidigung in der Tiefe: `update_at` verwirft die Eintraege

@@ -761,8 +761,8 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 19617,
-        "sha256": "ed62daa4032e6fce03365af55bc91085a27e8d383bbaa803e19d03a3979ec4df"
+        "bytes": 19781,
+        "sha256": "101fdb7ea9fed70d7e3fd896bdd01ae38e0b4988e3401c0bba9643cb64eb2dd3"
       },
       {
         "path": "src/icons.ts",
@@ -866,8 +866,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 125274,
-        "sha256": "4b89f7b8c27b184035780a1f01358be5f4aa476bb686a076511d216e6c315f9a"
+        "bytes": 128556,
+        "sha256": "03c7fd712848063e56a3b1b260f9180d35b00adb766cce1089e961e049d056f8"
       },
       {
         "path": "src/views/types.ts",
@@ -899,8 +899,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 19617,
-            "sha256": "ed62daa4032e6fce03365af55bc91085a27e8d383bbaa803e19d03a3979ec4df"
+            "bytes": 19781,
+            "sha256": "101fdb7ea9fed70d7e3fd896bdd01ae38e0b4988e3401c0bba9643cb64eb2dd3"
           },
           {
             "path": "src/i18n/t.ts",
@@ -914,8 +914,8 @@
           },
           {
             "path": "src/keyboard.ts",
-            "bytes": 17800,
-            "sha256": "9ed97d1e676b4d4d18b717f2be2121506d93d528be8da119196bbf9acea0fcee"
+            "bytes": 18663,
+            "sha256": "af385f5e1644dafc14caa18711ec12778cfb1fc3575d8028e07579293c65b07b"
           },
           {
             "path": "src/keymap.ts",
@@ -1134,8 +1134,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 125274,
-            "sha256": "4b89f7b8c27b184035780a1f01358be5f4aa476bb686a076511d216e6c315f9a"
+            "bytes": 128556,
+            "sha256": "03c7fd712848063e56a3b1b260f9180d35b00adb766cce1089e961e049d056f8"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -1200,8 +1200,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 186974,
-            "sha256": "80f29d7abfc4707241d8db8d8fa5a15d63c9fcae5bfdc9eb73a88a5fea0c64e7"
+            "bytes": 189983,
+            "sha256": "444b2992a8df8030293671840edc7f44fc74172d57ad5ea6b64646ac4285e8e1"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1220,8 +1220,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 116834,
-            "sha256": "2fc8c83dfedbb6507d5a2720c781853edc57615616b232250d7ebe6144e23c9e"
+            "bytes": 122164,
+            "sha256": "4ea753a398312067e4d4983eb702d31d70d07fdb05724e5f7073debfdb6df477"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -1290,8 +1290,8 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 123942,
-            "sha256": "dcd0a08ab7e292aff60de22bfd99ff3b24945454bed9dc7233273c4561f89779"
+            "bytes": 124031,
+            "sha256": "8833f1c488af7726d46634d6cad1ae48c7fa58d20829c627ad7f4dc880b20038"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
@@ -1315,8 +1315,8 @@
           },
           {
             "path": "src-tauri/src/ssh/known_hosts.rs",
-            "bytes": 54089,
-            "sha256": "8937b8b72ee8c748087ddb6c8310c7600c4e0f2e1124ece1c5865410ac16cb1c"
+            "bytes": 63464,
+            "sha256": "72783946ac8dcbe47753358af05c1a37ee79d26c53773006005f3cc023d0c5b2"
           },
           {
             "path": "src-tauri/src/ssh/mod.rs",

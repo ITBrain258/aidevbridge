@@ -189,6 +189,7 @@
 
   "sidebar.confirmRemove.question": "Remove {host}?",
   "sidebar.confirmRemove.note": "Sessions on the host keep running.",
+  "sidebar.confirmRemove.noteAndroid": "Sessions on the host keep running. Its saved host key is forgotten too, also for other saved hosts with the same address.",
   "sidebar.confirmRemove.cancel": "Cancel",
   "sidebar.confirmRemove.confirm": "Remove",
   "sidebar.confirmKill.question": "End session {name}?",

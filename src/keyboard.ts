@@ -57,6 +57,19 @@ function inTerminal(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest(".xterm") !== null;
 }
 
+/** Das Hilfstextfeld des Terminals: das einzige Element, an dem xterm Tasten
+ * annimmt und ans Programm schickt (`CoreBrowserTerminal`). Mit "Screen reader
+ * support" legt xterm im `.xterm`-Teilbaum zusaetzlich Zeilen an, die einen
+ * Fokus tragen koennen (`tabIndex = -1`; ein Bildschirmleser setzt ihn dorthin).
+ * Eine Taste auf einer solchen Zeile erreicht kein Programm; die
+ * Browsertasten bleiben dort deshalb gesperrt wie ausserhalb des Terminals,
+ * sonst luede Strg+R die App neu. */
+function isTerminalInput(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLTextAreaElement && target.classList.contains("xterm-helper-textarea") && inTerminal(target)
+  );
+}
+
 /** Ein Feld der Oberflaeche, in das getippt wird. Xterms Hilfstextfeld ist
  * ebenfalls ein `<textarea>`, gehoert aber zum Terminal (`inTerminal`). */
 function isTextField(target: EventTarget | null): boolean {
@@ -306,15 +319,17 @@ export function installKeyboard(deps: KeyboardDeps): () => void {
   // und Strg+P, Strg+F oder Strg+S oeffnen Dialoge einer Webseite. Verhindert wird
   // nur das Vorgabeverhalten; das Ereignis laeuft weiter.
   //
-  // Im Terminal (`.xterm`) schickt xterm die Funktions- und Strg-Tasten ans
-  // Programm: Strg+R ist dort die Rueckwaertssuche der Shell und darf nicht
-  // angehalten werden. Die Medientasten stehen davor, sie gelten auch dort.
+  // Im Hilfstextfeld des Terminals schickt xterm die Funktions- und Strg-Tasten
+  // ans Programm: Strg+R ist dort die Rueckwaertssuche der Shell und darf nicht
+  // angehalten werden. Die Medientasten stehen davor, sie gelten auch dort. Die
+  // Zeilen des Bildschirmlesers liegen zwar im Terminal, nehmen aber keine Taste
+  // an (`isTerminalInput`); dort gilt die Regel von ausserhalb.
   function onBrowserKeydown(event: KeyboardEvent): void {
     if (BROWSER_MEDIA_KEYS.has(event.key)) {
       event.preventDefault();
       return;
     }
-    if (inTerminal(event.target)) {
+    if (isTerminalInput(event.target)) {
       // Mit "Screen reader support" haelt xterm eine Taste ohne Strg oder Alt
       // nicht mehr selbst an, damit der Bildschirmleser das Hilfstextfeld liest
       // (`CoreBrowserTerminal._keyDown`). F5, F3 und F7 fielen dann zu WebView2

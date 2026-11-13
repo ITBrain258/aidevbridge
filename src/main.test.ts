@@ -2876,6 +2876,7 @@ describe("main: Tastatur (Task 12) -- die vier neuen Aktionen", () => {
     const xtermRoot = document.createElement("div");
     xtermRoot.className = "xterm";
     const helperTextarea = document.createElement("textarea");
+    helperTextarea.className = "xterm-helper-textarea";
     xtermRoot.appendChild(helperTextarea);
     document.body.appendChild(xtermRoot);
 
@@ -3080,10 +3081,12 @@ describe("main: Browsertasten und Tastenlauscher", () => {
 
   it("laesst Strg+R dem Terminal, dem Textfeld sein Menue und seine Strg+Umschalt-Tasten", async () => {
     await startWithoutHosts();
-    // Dieselbe `.xterm`-Nachbildung wie bei Strg+Umschalt+V oben.
+    // Dieselbe `.xterm`-Nachbildung wie bei Strg+Umschalt+V oben, mit der
+    // Klasse, an der `keyboard.ts` xterms Hilfstextfeld erkennt.
     const xtermRoot = document.createElement("div");
     xtermRoot.className = "xterm";
     const helperTextarea = document.createElement("textarea");
+    helperTextarea.className = "xterm-helper-textarea";
     xtermRoot.appendChild(helperTextarea);
     const field = document.createElement("input");
     document.body.append(xtermRoot, field);
@@ -5661,6 +5664,7 @@ describe("main: Strg+, oeffnet die Einstellungen (UX-Spec §8.3)", () => {
     const xtermRoot = document.createElement("div");
     xtermRoot.className = "xterm";
     const helperTextarea = document.createElement("textarea");
+    helperTextarea.className = "xterm-helper-textarea";
     xtermRoot.appendChild(helperTextarea);
     document.getElementById("grid")!.appendChild(xtermRoot);
 
@@ -5719,6 +5723,7 @@ describe("main: Schnelloeffnen (UX-Spec §7.5)", () => {
     const xtermRoot = document.createElement("div");
     xtermRoot.className = "xterm";
     const helperTextarea = document.createElement("textarea");
+    helperTextarea.className = "xterm-helper-textarea";
     xtermRoot.appendChild(helperTextarea);
     document.getElementById("grid")!.appendChild(xtermRoot);
     pressKey(helperTextarea, CTRL_SHIFT_P);

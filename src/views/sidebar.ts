@@ -8,7 +8,10 @@
 // `state.hosts` bleibt die einzige Quelle. Auch das Auf- und Zuklappen geht
 // ueber `AppState` (`setHostExpanded`): der Arbeitsplatz speichert die
 // aufgeklappten Hosts (UX-Spec §7.1), und das Neuzeichnen kommt aus derselben
-// Benachrichtigung wie bei jeder anderen Aenderung.
+// Benachrichtigung wie bei jeder anderen Aenderung. Waehrend eines Drucks in der
+// Liste wartet ein solches Neuzeichnen bis nach dem Klick (`requestRender`):
+// Chromium schickt keinen Klick, wenn das gedrueckte Element vor dem Loslassen
+// aus dem Dokument faellt.
 //
 // Aufbau und Klassennamen folgen
 // docs/specs/2026-07-27-agent-management-shell-mockup.html
@@ -32,6 +35,7 @@ import { agentStatusView, buildStatusPill } from "./status-pill";
 import { buildTileNumber } from "./tile-number";
 import { createWaitingLane, openOptions } from "./waiting-lane";
 import { t } from "../i18n/t";
+import { isAndroid } from "../platform";
 
 export interface SidebarOptions {
   /** `secret.passphrase`/`secret.password` sind gesetzt, wenn der Nutzer in
@@ -263,6 +267,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   list.className = "sb-list";
   root.appendChild(list);
 
+  /** Ein Neuzeichnen kam waehrend eines Drucks und wartet auf dessen Ende
+   * (`requestRender`). Hier oben, vor allem, was `render()` rufen kann. */
+  let renderPending = false;
+  let pendingRenderTimer: ReturnType<typeof window.setTimeout> | undefined;
+
   // Spec 2026-10-19 §7: die Wartet-Spur steht ueber den Hosts; `render()` holt
   // sie bei jedem Neuzeichnen aus `lane.build`.
   const lane = createWaitingLane(list, {
@@ -272,9 +281,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     onOpenSession: (hostId, name, options) => {
       if (!disposed) opts.onOpenSession(hostId, name, options);
     },
-    requestRender: () => {
-      if (!disposed) render();
-    },
+    // Ueber `requestRender`, nicht `render`: die Spur sortiert neu, sobald der
+    // Fokus sie verlaesst -- beim Druck auf eine andere Zeile also mitten im
+    // Druck, und der Klick ginge verloren.
+    requestRender: () => requestRender(),
   });
 
   // Der Fuss traegt NUR die Versionszeile -- Version und
@@ -731,6 +741,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * falsche zu bestaetigen. */
   let pendingRemoveHostId: string | null = null;
   const removalsInFlight = new Set<string>();
+  /** Entfernungen, die fertig wurden, waehrend ein Druck das Neuzeichnen
+   * aufschob (`requestRender`). Das naechste `render()` braucht sie noch fuer
+   * die Fokusrettung auf "Add" und leert die Menge danach. */
+  const removalsAwaitingRender = new Set<string>();
 
   /** Der Sessionschluessel, dessen "Beenden"-Rueckfrage gerade offen steht.
    * Hoechstens eine, aus demselben Grund wie oben. */
@@ -878,7 +892,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // -- am Umbruch aendert sich nichts.
     const note = document.createElement("span");
     note.id = noteId;
-    note.textContent = t("sidebar.confirmRemove.note");
+    // Auf Android vergisst das Entfernen auch den Hostschluessel
+    // (`commands::remove_host_impl`): nur so kommt ein Host mit neuem
+    // Serverschluessel wieder an die Rueckfrage, denn `known_hosts` liegt dort
+    // im privaten Speicher der App.
+    note.textContent = isAndroid() ? t("sidebar.confirmRemove.noteAndroid") : t("sidebar.confirmRemove.note");
     bar.appendChild(note);
     const describedBy = `${questionId} ${noteId}`;
 
@@ -913,7 +931,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       render();
       if (!removalsInFlight.has(hostId)) {
         removalsInFlight.add(hostId);
-        const finish = () => { removalsInFlight.delete(hostId); };
+        const finish = () => {
+          removalsInFlight.delete(hostId);
+          if (renderPending) removalsAwaitingRender.add(hostId);
+        };
         void Promise.resolve(opts.onRemoveHost(hostId)).then(finish, finish);
       }
       // Persistence may finish later. Keep focus on the remaining host;
@@ -2192,8 +2213,41 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       frozenHostId = undefined;
       heldHostId = null;
       list.classList.remove("sb-list--pressing");
-      if (!disposed) applyActiveHostClass();
+      if (disposed) return;
+      // Das Neuzeichnen, das waehrend des Drucks ankam, holt jetzt auf; es
+      // setzt die Markierung am Ende selbst.
+      if (renderPending) render();
+      else applyActiveHostClass();
     }, ms);
+  }
+
+  /** So lange wartet ein Neuzeichnen hoechstens auf das Ende eines Drucks. Ein
+   * Druck, dessen Loslassen nie ankommt, hielte die Liste sonst bis zum
+   * naechsten Klick irgendwo im Fenster auf dem alten Stand. */
+  const PENDING_RENDER_MAX_MS = 2000;
+
+  /** Neuzeichnen auf eine Benachrichtigung hin (`state.subscribe`, die
+   * Wartet-Spur). Waehrend eines Drucks in der Liste wartet es bis nach dessen
+   * Klick (`endPressAfter`): fiele die gedrueckte Zeile vor dem Loslassen aus
+   * dem Dokument, schickte Chromium gar keinen Klick -- weder an die alte noch
+   * an die neue Zeile noch an die Liste --, und der Klick ginge still verloren
+   * (gemessen am 13.11.2026 mit Edge 157). Auch dieselben Knoten neu
+   * einzuhaengen hilft nicht. Wo ein Lauscher selbst `render()` ruft (Knoepfe
+   * der Rueckfragen, Hinweise), zeichnet er weiter sofort neu: dann ist der
+   * Klick schon da. Was ueber den Zustand oder die Spur geht (Auf- und
+   * Zuklappen eines Hosts, "+n more"), folgt nach einem Druck im naechsten
+   * Zeitgeber. */
+  function requestRender(): void {
+    if (disposed) return;
+    if (frozenHostId === undefined) {
+      render();
+      return;
+    }
+    if (renderPending) return;
+    renderPending = true;
+    pendingRenderTimer = window.setTimeout(() => {
+      if (!disposed && renderPending) render();
+    }, PENDING_RENDER_MAX_MS);
   }
   window.addEventListener("pointerup", onPressEnd);
   window.addEventListener("pointercancel", onPressEnd);
@@ -2359,6 +2413,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * waere eine stille Fehlbedienungsquelle -- der Nutzer haette den Fokus auf
    * einem Element, das er nicht angesteuert hat, mit "Remove" in Reichweite. */
   function render(): void {
+    // Ein aufgeschobenes Neuzeichnen ist hiermit erledigt, gleich wer rendert.
+    renderPending = false;
+    window.clearTimeout(pendingRenderTimer);
     for (const [hostId, editor] of controlEditors) {
       const host = state.hosts.find((candidate) => candidate.id === hostId);
       const control = state.controlForHost(hostId);
@@ -2473,7 +2530,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       if (usable) focusSessionAction(usable);
       else if (hostRow) hostRow.focus();
       else if (
-        focusedHostId && removalsInFlight.has(focusedHostId) &&
+        focusedHostId && (removalsInFlight.has(focusedHostId) || removalsAwaitingRender.has(focusedHostId)) &&
         !state.hosts.some((host) => host.id === focusedHostId)
       ) addButton.focus();
       // `inputToRestore` ist nur gesetzt, wenn `active` (dieselbe Quelle wie
@@ -2489,6 +2546,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
         }
       }
     }
+    // Die Fokusrettung oben hat sie gebraucht; danach zaehlt nur noch
+    // `removalsInFlight`.
+    removalsAwaitingRender.clear();
 
     // Das Menue ueberlebt das Neuzeichnen (§1.1), sein Knopf nicht --
     // `render()` baut ihn neu. Also nachmessen, `aria-expanded` am NEUEN
@@ -2519,7 +2579,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     applyActiveHostClass();
   }
 
-  const unsubscribe = state.subscribe(render);
+  const unsubscribe = state.subscribe(requestRender);
   render();
 
   return {
@@ -2538,6 +2598,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       window.removeEventListener("click", onTapClick);
       list.removeEventListener("mousedown", onListMouseDown, true);
       window.clearTimeout(pressEndTimer);
+      window.clearTimeout(pendingRenderTimer);
       el.replaceChildren();
     },
     closeMenu() {

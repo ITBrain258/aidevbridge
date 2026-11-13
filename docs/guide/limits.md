@@ -103,7 +103,11 @@
   plain names as `known_hosts.old`, which you may want to delete). After
   a real key change, remove the old entry with `ssh-keygen -R <host>`
   (`ssh-keygen -R "[host]:port"` for another port; it finds hashed entries
-  too) and connect again; the error message names that command.
+  too) and connect again; the error message names that command. On Android,
+  where nobody can reach the file, remove the host in the app and add it
+  again: removing it forgets the key, also for other saved hosts with the
+  same address, and the next connection shows the first-contact prompt with
+  the new fingerprint.
   Wildcard and negated host patterns are not evaluated, and CA trust
   (`@cert-authority`) is not supported. A `@revoked` line with a wildcard,
   negated or hashed host field makes the app reject that key for every host

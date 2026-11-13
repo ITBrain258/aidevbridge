@@ -160,28 +160,26 @@ Build-Provenienz an ihnen hängen.
 
 ## Letzte Prüfung
 
-Am 10.11.2026 nach 0.3.1: fünf voneinander unabhängige Prüfungen auf `main`
-(`4c61495`), die nur lasen (Rust-Backend, Sicherheit, Frontend, CI und
-Release, Doku und Datenschutz), dazu alle lokalen Prüfungen und der Zustand
-auf GitHub. Kein kritischer oder hoher Befund. Was sich lohnte, behebt
-PR #47 (CHANGELOG `[0.3.2]`): Eine Frist beim Kanalöffnen kostet nicht
-mehr sofort die Steuerverbindung, die Telefonansicht passt Einstellungen,
-Fehlerstreifen und Trefferflächen an, unerwartete Fehler erreichen den Nutzer,
-Verbindungsausgänge werden angesagt, und Release-Ablauf und Audit haben neue
-Schranken. Drei weitere neutrale Prüfungen lasen den Branch gegen und fanden
-unter anderem, dass der neue Fehlerfang auf Geräten ohne WebGL2 bei jedem
-Start anschlug, dass die Meldung zum Ende der Steuerverbindung ihre Ursache
-verlor und dass der Test der Release-Schranken sieben davon entfernen ließ;
-behoben im selben PR. Was offen bleibt, steht unter Punkt 15. Lokal für
-PR #47: `licenses:status` ohne Abweichung, `check` grün für windows-x64
-(393/219), macos-universal (390/213) und android-universal (485/242), Clippy
-für Windows und `aarch64-linux-android`, 699 Rust-Bibliothekstests, mit den
-Integrationstests 775, 2979 Vitest-Tests, 215 Skripttests und
-`npm run build`. Nicht geprüft: die Telefonansicht an einem Gerät (nur
-gerendert, 360 × 800 und quer) und die Mac-Abnahme (Punkt 9). Die Schritte der
-Release-Workflows, die erst ein Tag ausführt (Schranke „auf `main`“, Marke
-„Latest“), hielten beim Tag von 0.3.2. Die NDK-Belege bleiben die von 0.3.0. Die Prüfung vom
-09.11. steht in der Git-Historie dieser Datei.
+Am 13.11.2026 nach 0.3.3: drei Prüfungen auf `main` (`9a6a03c`), die nur
+lasen: der Code seit der Durchsicht vom 10.11., der Aufbau der großen Dateien
+und die Tests. Danach bewertete je ein neutraler Agent jeden Fund; zwei stellten
+das Verhalten von Chromium in Edge 157 an einer Minimalseite nach. Kein hoher
+Befund. Was einen Effekt für Nutzer hat, behebt PR #56 (CHANGELOG
+`[Unreleased]`): Ein Klick in der
+Seitenleiste geht nicht mehr verloren, wenn sie während des Drucks neu gebaut
+wird; mit „Screen reader support“ laden Browsertasten auf einer Zeile des
+Bildschirmlesers die App nicht mehr neu; und auf Android vergisst das Entfernen
+eines Hosts dessen Hostschlüssel. Eine neutrale Prüfung las den Branch gegen
+und fand, dass der Ausweg unter Android bei zwei gespeicherten Hosts mit
+derselben Adresse im Kreis führte und dass ein aufgeschobenes Neuzeichnen die
+Fokusrettung nach dem Entfernen verpassen konnte; behoben im selben PR. Was
+offen bleibt oder nicht übernommen wurde, steht unter Punkt 16. Lokal: `licenses:status` ohne Abweichung nach
+`rebind-own`, Clippy für Windows und `aarch64-linux-android`, 716
+Rust-Bibliothekstests, mit den Integrationstests 792, 3031 Vitest-Tests, 251
+Skripttests und `npm run build`. Nicht geprüft: der Klick-Verlust in der
+laufenden App (der Tipp in der Telefonansicht nur emuliert), die Tasten mit
+einem echten Bildschirmleser, das Vergessen des Schlüssels an einem
+Android-Gerät. Die Durchsicht vom 10.11. steht in der Git-Historie dieser Datei.
 
 Der letzte Live-Lauf ging am 11.11. auf dem Stand `84b0ca0` (Kopf des
 Release-PR von 0.3.3, derselbe Baum wie der Tag `v0.3.3`) von Windows aus
@@ -288,13 +286,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    (Bewegung) folgt mit eigenem Plan. Am Fenster nicht angesehen: 150 %,
    zweiter Bildschirm (Spec §8.6), Ab- und Andocken, die Wartet-Spur mit einer
    echt wartenden Claude-Session, ob die Windows-Animationseffekte aus sind.
-   Verdacht aus dem Review vom 03.11., nicht nachgestellt: Die Seitenleiste
-   baut bei jeder Änderung ihres Zustands neu auf; kommt eine solche Änderung
-   während eines Drucks, kann Chromium den Klick verlieren. Die Durchsicht vom
-   10.11. leitet das aus dem Aufbau ab (`list.replaceChildren()` bei jeder
-   Benachrichtigung, auch bei einem Fokuswechsel der Kacheln); nachgestellt
-   ist es weiter nicht. Zu klären, bevor sich am Aufbau der Seitenleiste etwas
-   ändert. Bekannte Fehler:
+   Der Klick-Verlust der Seitenleiste (Verdacht aus dem Review vom 03.11.) ist
+   am 13.11. bestätigt und behoben: Fiel die gedrückte Zeile vor dem Loslassen
+   aus dem Dokument, schickte Chromium keinen Klick (Edge 157, Minimalseite).
+   Sicher traf es den ersten Klick nach einem Fokus in der Wartet-Spur. Seitdem
+   wartet ein Neuzeichnen während eines Drucks bis nach dem Klick, höchstens
+   2 s. In der laufenden App nicht nachgestellt. Bekannte Fehler:
    - Beim Start mit Kacheln mehrerer Hosts ändert ein Host, der erst nach der
      Frist von 5 s gelistet wird, die Größe der übrigen Kacheln; Codex
      verliert dabei seinen Verlauf.
@@ -436,7 +433,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       fragt die App wie beim Erstkontakt. Am 07.11. vom Maintainer
       zurückgestellt, weil zurückgesetzte Hosts sonst an der strengeren
       Prüfung scheitern. Zuerst kommt ein Weg, den alten Eintrag eines Hosts
-      in der App zu entfernen.
+      in der App zu entfernen. Auf Android vergisst seit dem 13.11. das
+      Entfernen eines Hosts dessen Schlüssel (Nachtrag der Android-Spec); für
+      den Desktop, wo die App die Datei mit OpenSSH teilt, fehlt der Weg weiter.
     - **CI und Release:** keine Paketbauten bei reinen Doku-PRs (Frist und
       Wiederholung für den apt-Schritt kamen mit der Prüfung vom 09.11.), die
       volle Lizenzprüfung auch bei geänderten eigenen Quellen,
@@ -504,6 +503,37 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       die private Mailadresse des Maintainers als Autor; die
       GitHub-Einstellung „Keep my email addresses private“ beendet das für
       künftige.
+16. **Durchsicht vom 13.11.:** drei Prüfungen auf `main` (`9a6a03c`), danach
+    je ein neutraler Agent je Fund (Letzte Prüfung). Offen:
+    - **Umschalt+F10 mit „Screen reader support“:** xterm schickt die Taste
+      ans Programm und hält sie nicht an; Chromium macht daraus zusätzlich
+      ein Kontextmenü, das je nach Einstellung kopiert, einfügt oder das
+      Terminalmenü öffnet. Ohne die Einstellung hält xterm die Taste an. Ob
+      sie Menütaste bleibt oder nur ans Programm geht, entscheidet der
+      Maintainer, am besten nach dem Test mit einem echten Bildschirmleser.
+    - **Innere Sperren:** Die Absicherung der Register aus 0.3.3 erreicht
+      `OperationControl`, `ConnectControl`, `HostConnection.state` und
+      `Core.stop_gate` nicht. Panikt etwas unter einer davon (nie
+      beobachtet), panikt das Aufräumen beim Abwickeln erneut, und die App
+      bricht ab. Vorschlag mit niedriger Priorität: der Helfer von
+      `registry()` für alle Sperren, die ein `Drop` erreicht (rund 45
+      Stellen); ungeprüft ist, ob `HostConnection.state` nach einer Panik
+      mitten in einer Änderung stimmig bliebe.
+    - **CI:** `tests/socket_abort_probe.rs` scheiterte unter macOS dreimal
+      (Lauf 40909348883 zweimal, 42359933034 einmal); jede Wiederholung
+      bestand. Nicht untersucht.
+    - **Aufbau und Tests:** Die Tests aus `settings.rs` können ohne Änderung
+      nach `settings/tests.rs`. Batch 9 (U3) wie geplant, nicht erweitert,
+      und erst direkt vor der nächsten Arbeit an Hosts oder Inventar. Vom
+      IPC-Vertrag (Punkt 14) lohnt vorerst nur ein Vertragstest, der die
+      Aufrufe des Frontends gegen die Rust-Quellen prüft. Der Abbau von
+      `main()` (Punkt 15) betrifft nur Tests. Nicht übernommen: ein
+      gemeinsames strenges Fake-Backend für die Tests und kürzere
+      Zeitkonstanten unter `cfg(test)`; beides kostet mehr, als es bringt.
+    - **Paketbauten bei Doku-PRs (Punkt 14):** wenn, dann nur für
+      `pull_request` und mit fester Liste; `docs/release/**`,
+      `THIRD_PARTY_LICENSES.md` und `fastlane/**` gehören nicht dazu, und
+      `android.yml` ist eine gebundene Eingabe der Android-Auswahl.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

@@ -93,8 +93,9 @@ Remove a host in the app, or delete all of the app's data:
   `~/Library/Application Support/io.github.itbrain258.aidevbridge`,
   `~/Library/WebKit/io.github.itbrain258.aidevbridge` and
   `~/Library/Caches/io.github.itbrain258.aidevbridge`.
-- **Host keys** (Windows and macOS): remove a host's key from `known_hosts`
-  with `ssh-keygen -R <host>`.
+- **Host keys:** on Windows and macOS, remove a host's key from
+  `known_hosts` with `ssh-keygen -R <host>`. On Android, removing the host
+  in the app also forgets its key.
 - If you used agentbridge before 0.2.0, its old folder `%APPDATA%\agentbridge`
   stays until you delete it.
 

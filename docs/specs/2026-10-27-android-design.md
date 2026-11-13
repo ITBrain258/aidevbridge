@@ -528,3 +528,38 @@ Abhängigkeit) und zeigt darunter einen Dialog mit dem Weg in den Play Store;
 die App läuft danach weiter. Unter Android 7 bis 9 aktualisiert Google die
 Webansicht nicht mehr (Android 7 bis Version 119, Android 8 und 9 bis 138);
 `SECURITY.md` führt das als bekannte Grenze.
+
+## Nachtrag vom 13.11.2026: Hostschlüssel beim Entfernen vergessen
+
+Auf Android liegt `known_hosts` im privaten Speicher der App. Bekam ein Server
+einen neuen Hostschlüssel (neu aufgesetzt, VM neu angelegt), lehnte die App
+die Verbindung ab und verwies auf `ssh-keygen -R`, das dort niemand ausführen
+kann. Ein Weg blieb nur über das Löschen der App-Daten, und das löscht auch
+die erzeugten Schlüssel; oder der Host bekam einen anderen Namen.
+
+- **Entfernen vergisst den Schlüssel:** Entfernt der Nutzer einen Host, nimmt
+  die App die Einträge, die sie selbst für dessen Namen und Port geschrieben
+  hat, aus `known_hosts` (`known_hosts::forget_host`). Wer den Host wieder
+  anlegt, bekommt die Rückfrage wie beim Erstkontakt mit dem Fingerabdruck. Das
+  sind dieselben zwei Schritte wie `ssh-keygen -R` und eine neue Verbindung.
+  Der Eintrag fällt auch, wenn ein anderer gespeicherter Host denselben Namen
+  und Port nutzt (etwa ein zweites Konto): Er sieht denselben Server und
+  denselben Schlüssel. Bliebe der Eintrag, führte der Weg aus der Meldung im
+  Kreis; so fragt der andere Host beim nächsten Verbinden einmal neu.
+- **Nur die eigenen Zeilen:** Es fallen nur Zeilen, deren Hostfeld genau ein
+  wörtlicher Name ist, wie ihn `format_entry` schreibt. Kommentare,
+  `@revoked`- und `@cert-authority`-Zeilen, Aliaslisten, gehashte Namen und
+  Muster bleiben Byte für Byte, Zeilenenden eingeschlossen.
+- **Schreiben:** Die Datei wird atomar ersetzt, mit demselben Ablauf wie
+  `settings.toml` (temporäre Datei, `sync_all`, `rename`), und nur, wenn sich
+  etwas ändert. Anhängen und Vergessen nehmen dieselbe Sperre im Prozess. Der
+  Schlüssel fällt vor dem Host weg: Scheitert das, bleibt der Host gespeichert.
+- **Texte:** Die Meldung zu einem geänderten Schlüssel nennt auf Android den
+  Weg in der App statt `ssh-keygen`; die Rückfrage „Remove …?“ sagt, dass der
+  Schlüssel mit vergessen wird.
+- **Kein Knopf an der Warnung:** Neben der Meldung, die auch einen Angriff
+  bedeuten kann, steht kein „Entfernen und neu verbinden“, und es gibt keinen
+  automatischen Neuaufbau.
+- **Desktop unverändert:** Dort teilt sich die App die Datei mit OpenSSH und
+  hängt nur an; ein eigener Weg zum Entfernen auf allen Plattformen bleibt
+  offen (`docs/stand.md` Punkt 14).

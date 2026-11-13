@@ -919,6 +919,10 @@ Rust-Texte:
 | Paarprüfung (`connection.rs:55`) | This server answered with a different host key than the open connection. For safety, the second connection was refused. |
 | neuere Datei (`settings.rs:186`) | Your settings were saved by a newer AgentBridge. Update AgentBridge to use them — the file was not changed. |
 
+Auf Android nennt die Meldung zum geänderten Hostschlüssel seit dem
+13.11.2026 den Weg in der App (Host entfernen und neu anlegen), siehe den
+Nachtrag vom 13.11.2026 der [Android-Spec](2026-10-27-android-design.md).
+
 Kürzel stehen in Texten als Platzhalter, die aus der aktiven Tabelle gefüllt
 werden, nicht als Literal.
 

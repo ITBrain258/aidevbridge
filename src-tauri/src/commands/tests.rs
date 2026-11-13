@@ -2420,6 +2420,153 @@ fn remove_host_impl_for_an_unknown_id_is_not_an_error() {
     let _ = std::fs::remove_file(&path);
 }
 
+// --- Hostschluessel vergessen (Android, Nachtrag vom 13.11.2026) ---------
+
+fn unique_temp_known_hosts(tag: &str) -> PathBuf {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    std::env::temp_dir().join(format!("aidevbridge_test_cmd_known_hosts_{tag}_{nanos}"))
+}
+
+// Auf dem Desktop teilt sich die App `known_hosts` mit OpenSSH und haengt nur
+// an: `remove_host_impl` beruehrt die Datei dort nie.
+#[test]
+#[cfg(not(target_os = "android"))]
+fn remove_host_impl_never_touches_known_hosts_on_the_desktop() {
+    assert_eq!(forget_host_key_path(), None);
+}
+
+#[test]
+fn removing_a_host_forgets_its_key_so_the_next_connection_asks_again() {
+    let settings = unique_temp_settings_path("remove_forget");
+    let kh = unique_temp_known_hosts("remove_forget");
+    let a = add_host_impl(&settings, new_host_dto("192.0.2.80")).unwrap();
+    add_host_impl(&settings, new_host_dto("192.0.2.81")).unwrap();
+    std::fs::write(
+        &kh,
+        "192.0.2.80 ssh-ed25519 AAAAold\n192.0.2.81 ssh-ed25519 AAAAother\n",
+    )
+    .unwrap();
+
+    remove_host_forgetting_key(&settings, &a.id, Some(&kh)).unwrap();
+
+    let text = std::fs::read_to_string(&kh).unwrap();
+    assert_eq!(text, "192.0.2.81 ssh-ed25519 AAAAother\n");
+    assert_eq!(
+        known_hosts::lookup(&text, "192.0.2.80", 22, "ssh-ed25519", "AAAAnew"),
+        HostKeyDecision::Unknown
+    );
+    assert_eq!(list_hosts_impl(&settings).unwrap().len(), 1);
+    let _ = std::fs::remove_file(&settings);
+    let _ = std::fs::remove_file(&kh);
+}
+
+// Ein zweiter gespeicherter Host mit demselben Namen und Port (etwa ein
+// anderes Konto) sieht denselben Server und denselben Schluessel. Bliebe der
+// Eintrag, fuehrte "remove the host ... add it again" im Kreis.
+#[test]
+fn removing_a_host_forgets_the_key_also_when_another_saved_host_uses_it() {
+    let settings = unique_temp_settings_path("remove_shared");
+    let kh = unique_temp_known_hosts("remove_shared");
+    let a = add_host_impl(&settings, new_host_dto("build.example")).unwrap();
+    add_host_impl(
+        &settings,
+        NewHostEntryDto {
+            user: "other".to_string(),
+            ..new_host_dto("BUILD.example")
+        },
+    )
+    .unwrap();
+    std::fs::write(&kh, "build.example ssh-ed25519 AAAAshared\n").unwrap();
+
+    remove_host_forgetting_key(&settings, &a.id, Some(&kh)).unwrap();
+
+    assert_eq!(std::fs::read_to_string(&kh).unwrap(), "");
+    assert_eq!(list_hosts_impl(&settings).unwrap().len(), 1);
+    let _ = std::fs::remove_file(&settings);
+    let _ = std::fs::remove_file(&kh);
+}
+
+// Derselbe Name unter einem anderen Port ist ein anderer Eintrag
+// (`[host]:port`) und bleibt; ein unbekannter Host vergisst nichts.
+#[test]
+fn removing_a_host_forgets_only_its_own_port() {
+    let settings = unique_temp_settings_path("forget_port");
+    let kh = unique_temp_known_hosts("forget_port");
+    let a = add_host_impl(&settings, new_host_dto("192.0.2.82")).unwrap();
+    add_host_impl(
+        &settings,
+        NewHostEntryDto {
+            port: 2222,
+            ..new_host_dto("192.0.2.82")
+        },
+    )
+    .unwrap();
+    std::fs::write(
+        &kh,
+        "192.0.2.82 ssh-ed25519 AAAA22\n[192.0.2.82]:2222 ssh-ed25519 AAAA2222\n",
+    )
+    .unwrap();
+
+    remove_host_forgetting_key(&settings, "does-not-exist", Some(&kh)).unwrap();
+    assert_eq!(
+        std::fs::read_to_string(&kh).unwrap(),
+        "192.0.2.82 ssh-ed25519 AAAA22\n[192.0.2.82]:2222 ssh-ed25519 AAAA2222\n"
+    );
+
+    remove_host_forgetting_key(&settings, &a.id, Some(&kh)).unwrap();
+    assert_eq!(
+        std::fs::read_to_string(&kh).unwrap(),
+        "[192.0.2.82]:2222 ssh-ed25519 AAAA2222\n"
+    );
+    let _ = std::fs::remove_file(&settings);
+    let _ = std::fs::remove_file(&kh);
+}
+
+// Scheitert das Vergessen, bleibt der Host gespeichert, und der Nutzer kann es
+// noch einmal versuchen.
+#[test]
+fn a_failure_to_forget_the_key_keeps_the_host() {
+    let settings = unique_temp_settings_path("remove_forget_fails");
+    let a = add_host_impl(&settings, new_host_dto("192.0.2.83")).unwrap();
+    // Ein Ordner an der Stelle der Datei laesst sich nicht als Text lesen.
+    let kh = unique_temp_known_hosts("remove_forget_fails");
+    std::fs::create_dir_all(&kh).unwrap();
+
+    let error = remove_host_forgetting_key(&settings, &a.id, Some(&kh)).unwrap_err();
+
+    assert!(
+        error.contains("Couldn't forget the saved host key of 192.0.2.83"),
+        "{error}"
+    );
+    assert_eq!(list_hosts_impl(&settings).unwrap().len(), 1);
+    let _ = std::fs::remove_file(&settings);
+    let _ = std::fs::remove_dir_all(&kh);
+}
+
+#[test]
+fn the_changed_key_message_names_the_way_out_of_each_platform() {
+    let desktop = changed_host_key_message("[192.0.2.84]:2222", false);
+    assert!(
+        desktop.contains("ssh-keygen -R \"[192.0.2.84]:2222\""),
+        "{desktop}"
+    );
+
+    let android = changed_host_key_message("[192.0.2.84]:2222", true);
+    assert!(
+        android.starts_with("The host key of [192.0.2.84]:2222 has changed."),
+        "{android}"
+    );
+    assert!(
+        android.contains("remove the host in aidevbridge, add it again"),
+        "{android}"
+    );
+    assert!(!android.contains("ssh-keygen"), "{android}");
+    assert!(!android.contains("known_hosts"), "{android}");
+}
+
 /// Deckt denselben Vertrag ab wie `settings::load_from_a_newer_version_
 /// file_propagates_the_error_instead_of_defaulting`, jetzt end-to-end
 /// ueber die Command-Huellen: eine `settings.toml` aus einer neueren
