@@ -35,6 +35,7 @@ import { agentStatusView, buildStatusPill } from "./status-pill";
 import { buildTileNumber } from "./tile-number";
 import { createWaitingLane, openOptions } from "./waiting-lane";
 import { t } from "../i18n/t";
+import { isAndroid } from "../platform";
 
 export interface SidebarOptions {
   /** `secret.passphrase`/`secret.password` sind gesetzt, wenn der Nutzer in
@@ -887,7 +888,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // -- am Umbruch aendert sich nichts.
     const note = document.createElement("span");
     note.id = noteId;
-    note.textContent = t("sidebar.confirmRemove.note");
+    // Auf Android vergisst das Entfernen auch den Hostschluessel
+    // (`commands::remove_host_impl`): nur so kommt ein Host mit neuem
+    // Serverschluessel wieder an die Rueckfrage, denn `known_hosts` liegt dort
+    // im privaten Speicher der App.
+    note.textContent = isAndroid() ? t("sidebar.confirmRemove.noteAndroid") : t("sidebar.confirmRemove.note");
     bar.appendChild(note);
     const describedBy = `${questionId} ${noteId}`;
 

@@ -66,6 +66,83 @@ pub(crate) fn is_acceptable_hostname(host: &str) -> bool {
             .any(|c| c.is_whitespace() || c.is_control() || NEVER_IN_A_HOSTNAME.contains(&c))
 }
 
+/// Reiht die Schreiber dieser Datei innerhalb des Prozesses: `append_entry`
+/// und `forget_host`. Ohne ihn ginge eine Zeile, die zwischen Lesen und
+/// Ersetzen in `forget_host` angehaengt wird, mit dem Ersetzen verloren.
+/// Andere Prozesse (OpenSSH, eine zweite Instanz) erfasst er nicht; darum
+/// vergisst die App Schluessel nur auf Android, wo allein sie die Datei kennt.
+static WRITERS: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+/// Der Mutex schuetzt keine Daten, nur die Reihenfolge; nach einer Panik
+/// bleibt er brauchbar.
+fn writers() -> std::sync::MutexGuard<'static, ()> {
+    WRITERS
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
+/// `known_hosts` ohne die Eintraege, die die App selbst fuer `host` und `port`
+/// schreibt (`format_entry`): Zeilen, deren Hostfeld genau ein woertlicher Name
+/// ist, gleich `host_token` (ASCII-case-insensitiv wie in `lookup`). Alles
+/// andere bleibt Byte fuer Byte stehen, Zeilenenden eingeschlossen:
+/// Kommentare, Markerzeilen (`@revoked`, `@cert-authority`), Aliaslisten,
+/// gehashte Namen und Muster. Die schreibt die App nie, und eine Sperre darf
+/// hier nicht verschwinden. Liefert den neuen Text und die Zahl der entfernten
+/// Zeilen.
+pub(crate) fn without_host(known_hosts: &str, host: &str, port: u16) -> (String, usize) {
+    let token = host_token(host, port);
+    let mut kept = String::with_capacity(known_hosts.len());
+    let mut removed = 0;
+    for line in known_hosts.split_inclusive('\n') {
+        let mut fields = line.split_whitespace();
+        let ours = fields
+            .next()
+            .is_some_and(|field| !field.contains(',') && field.eq_ignore_ascii_case(&token))
+            && fields.next().is_some()
+            && fields.next().is_some();
+        if ours {
+            removed += 1;
+        } else {
+            kept.push_str(line);
+        }
+    }
+    (kept, removed)
+}
+
+/// Vergisst die Schluessel, die die App fuer `host` und `port` in `path`
+/// eingetragen hat (`without_host`); die naechste Verbindung fragt dann wie
+/// beim Erstkontakt und zeigt den Fingerabdruck. Gerufen nur auf Android, wenn
+/// der Nutzer den Host entfernt (`commands::remove_host_impl`): dort liegt die
+/// Datei im privaten Speicher der App, und ohne diesen Weg bliebe ein Host
+/// nach einem neuen Serverschluessel unerreichbar. Auf dem Desktop teilt sich
+/// die App die Datei mit OpenSSH und haengt nur an (`append_entry`).
+///
+/// Ersetzt die Datei atomar und dauerhaft (`settings::replace_durably`), und
+/// nur, wenn sich etwas aendert. Eine fehlende Datei hat nichts zu vergessen.
+pub(crate) fn forget_host(path: &Path, host: &str, port: u16) -> anyhow::Result<usize> {
+    let _writers = writers();
+    let text = match std::fs::read_to_string(path) {
+        Ok(text) => text,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(0),
+        Err(error) => {
+            return Err(error).with_context(|| format!("could not read {}", path.display()))
+        }
+    };
+    let (kept, removed) = without_host(&text, host, port);
+    if removed == 0 {
+        return Ok(0);
+    }
+    crate::settings::replace_durably(
+        path,
+        |file, tmp_path| {
+            file.write_all(kept.as_bytes())
+                .with_context(|| format!("could not write {}", tmp_path.display()))
+        },
+        || Ok(true),
+    )?;
+    Ok(removed)
+}
+
 /// Haengt `line` an die Datei unter `path` an (TOFU, Spec §8.1). Erstellt
 /// Datei und Elternverzeichnis, falls sie noch nicht existieren.
 ///
@@ -88,6 +165,7 @@ pub(crate) fn is_acceptable_hostname(host: &str) -> bool {
 /// nach einer expliziten Nutzerzustimmung auf. Es gibt hier keinen Parameter,
 /// ueber den ein `Mismatch` versehentlich denselben Weg nehmen koennte.
 pub fn append_entry(path: &Path, line: &str) -> anyhow::Result<()> {
+    let _writers = writers();
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
             create_private_dir_all(parent)
@@ -1352,5 +1430,166 @@ mod tests {
             lookup(kh, "192.0.2.20", 22, "ssh-ed25519", "AAAAknown"),
             HostKeyDecision::Known
         );
+    }
+
+    // --- Vergessen (Android, Nachtrag vom 13.11.2026 zur Android-Spec) ---
+
+    #[test]
+    fn without_host_drops_only_the_apps_own_entries_for_that_host() {
+        let kh = "# kommentar 192.0.2.30\n\
+                  192.0.2.30 ssh-ed25519 AAAAold\n\
+                  192.0.2.31 ssh-ed25519 AAAAother\n\
+                  [192.0.2.30]:2222 ssh-ed25519 AAAAport\n\
+                  192.0.2.30 ecdsa-sha2-nistp256 AAAAecdsa\n";
+        let (kept, removed) = without_host(kh, "192.0.2.30", 22);
+        assert_eq!(removed, 2);
+        assert_eq!(
+            kept,
+            "# kommentar 192.0.2.30\n\
+             192.0.2.31 ssh-ed25519 AAAAother\n\
+             [192.0.2.30]:2222 ssh-ed25519 AAAAport\n"
+        );
+    }
+
+    #[test]
+    fn without_host_uses_the_port_form_and_ignores_case() {
+        let kh = "[Build.Example]:2222 ssh-ed25519 AAAAport\nbuild.example ssh-ed25519 AAAA22\n";
+        let (kept, removed) = without_host(kh, "build.example", 2222);
+        assert_eq!(removed, 1);
+        assert_eq!(kept, "build.example ssh-ed25519 AAAA22\n");
+    }
+
+    // Die App schreibt nie Aliaslisten, gehashte Namen, Muster oder Marker; eine
+    // Sperre (`@revoked`) darf beim Vergessen nicht verschwinden.
+    #[test]
+    fn without_host_keeps_lists_hashes_patterns_and_markers() {
+        let kh = "192.0.2.30,alias ssh-ed25519 AAAAlist\n\
+                  |1|c2FsdHNhbHRzYWx0c2FsdHNhbHQ=|aGFzaA== ssh-ed25519 AAAAhashed\n\
+                  192.0.2.* ssh-ed25519 AAAApattern\n\
+                  @revoked 192.0.2.30 ssh-ed25519 AAAArevoked\n\
+                  @cert-authority 192.0.2.30 ssh-ed25519 AAAAca\n\
+                  192.0.2.30\n";
+        let (kept, removed) = without_host(kh, "192.0.2.30", 22);
+        assert_eq!(removed, 0);
+        assert_eq!(kept, kh);
+    }
+
+    #[test]
+    fn without_host_keeps_crlf_and_a_missing_final_newline() {
+        let kh = "192.0.2.31 ssh-ed25519 AAAAa\r\n192.0.2.30 ssh-ed25519 AAAAold\r\n192.0.2.32 ssh-ed25519 AAAAb";
+        let (kept, removed) = without_host(kh, "192.0.2.30", 22);
+        assert_eq!(removed, 1);
+        assert_eq!(
+            kept,
+            "192.0.2.31 ssh-ed25519 AAAAa\r\n192.0.2.32 ssh-ed25519 AAAAb"
+        );
+
+        let (kept, removed) = without_host(
+            "192.0.2.31 ssh-ed25519 AAAAa\n192.0.2.30 ssh-ed25519 AAAAold",
+            "192.0.2.30",
+            22,
+        );
+        assert_eq!(removed, 1);
+        assert_eq!(kept, "192.0.2.31 ssh-ed25519 AAAAa\n");
+    }
+
+    #[test]
+    fn forget_host_turns_a_changed_key_into_a_first_contact() {
+        let path = unique_temp_path("forget");
+        append_entry(
+            &path,
+            &format_entry("192.0.2.30", 22, "ssh-ed25519", "AAAAold"),
+        )
+        .unwrap();
+        append_entry(
+            &path,
+            &format_entry("192.0.2.31", 22, "ssh-ed25519", "AAAAother"),
+        )
+        .unwrap();
+        let before = std::fs::read_to_string(&path).unwrap();
+        assert_eq!(
+            lookup(&before, "192.0.2.30", 22, "ssh-ed25519", "AAAAnew"),
+            HostKeyDecision::Mismatch
+        );
+
+        assert_eq!(forget_host(&path, "192.0.2.30", 22).unwrap(), 1);
+
+        let after = std::fs::read_to_string(&path).unwrap();
+        assert_eq!(after, "192.0.2.31 ssh-ed25519 AAAAother\n");
+        assert_eq!(
+            lookup(&after, "192.0.2.30", 22, "ssh-ed25519", "AAAAnew"),
+            HostKeyDecision::Unknown
+        );
+        // Danach haengt die Bestaetigung wie gewohnt an.
+        append_entry(
+            &path,
+            &format_entry("192.0.2.30", 22, "ssh-ed25519", "AAAAnew"),
+        )
+        .unwrap();
+        assert_eq!(
+            lookup(
+                &std::fs::read_to_string(&path).unwrap(),
+                "192.0.2.30",
+                22,
+                "ssh-ed25519",
+                "AAAAnew"
+            ),
+            HostKeyDecision::Known
+        );
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn forget_host_without_a_file_or_an_entry_changes_nothing() {
+        let missing = unique_temp_path("forget_missing");
+        assert_eq!(forget_host(&missing, "192.0.2.30", 22).unwrap(), 0);
+        assert!(!missing.exists());
+
+        let path = unique_temp_path("forget_none");
+        std::fs::write(&path, "192.0.2.31 ssh-ed25519 AAAAother").unwrap();
+        assert_eq!(forget_host(&path, "192.0.2.30", 22).unwrap(), 0);
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "192.0.2.31 ssh-ed25519 AAAAother"
+        );
+        let _ = std::fs::remove_file(&path);
+    }
+
+    // `append_entry` und `forget_host` nehmen denselben Mutex: keine Zeile, die
+    // waehrend des Vergessens angehaengt wird, geht mit dem Ersetzen verloren.
+    #[test]
+    fn appends_during_forgetting_are_never_lost() {
+        let path = unique_temp_path("forget_race");
+        let appender = {
+            let path = path.clone();
+            std::thread::spawn(move || {
+                for i in 0..50 {
+                    append_entry(
+                        &path,
+                        &format_entry(&format!("192.0.2.{}", 100 + i), 22, "ssh-ed25519", "AAAAk"),
+                    )
+                    .unwrap();
+                }
+            })
+        };
+        // Jede Runde traegt den Schluessel neu ein, damit jedes Vergessen die
+        // Datei wirklich ersetzt.
+        for _ in 0..50 {
+            append_entry(
+                &path,
+                &format_entry("192.0.2.30", 22, "ssh-ed25519", "AAAAold"),
+            )
+            .unwrap();
+            assert_eq!(forget_host(&path, "192.0.2.30", 22).unwrap(), 1);
+        }
+        appender.join().unwrap();
+        let text = std::fs::read_to_string(&path).unwrap();
+        for i in 0..50 {
+            assert!(
+                text.contains(&format!("192.0.2.{} ", 100 + i)),
+                "line {i} lost"
+            );
+        }
+        let _ = std::fs::remove_file(&path);
     }
 }

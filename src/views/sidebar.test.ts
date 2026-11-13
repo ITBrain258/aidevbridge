@@ -2374,6 +2374,26 @@ describe("mountSidebar: Remove mit Rueckfrage", () => {
     // Pflicht, nicht Zierde: "Remove" trennt die Verbindung und entfernt den
     // Eintrag, es beendet KEINE tmux-Session.
     expect(bar.textContent).toContain("Sessions on the host keep running.");
+    expect(bar.textContent).not.toContain("host key");
+  });
+
+  // Nachtrag vom 13.11.2026 zur Android-Spec: dort vergisst das Entfernen auch
+  // den Hostschluessel, und die Rueckfrage sagt es.
+  it("nennt auf Android, dass der Hostschluessel mit vergessen wird", () => {
+    const agent = vi
+      .spyOn(navigator, "userAgent", "get")
+      .mockReturnValue("Mozilla/5.0 (Linux; Android 16; Pixel 7; wv) AppleWebKit/537.36 Chrome/141.0.0.0 Mobile Safari/537.36");
+    try {
+      const s = new AppState();
+      s.upsertHost(host("vm-build"));
+      const { el } = mount(s);
+      const bar = openConfirm(el, "vm-build");
+      expect(bar.textContent).toContain(
+        "Sessions on the host keep running. Its saved host key is forgotten too, unless another saved host uses it.",
+      );
+    } finally {
+      agent.mockRestore();
+    }
   });
 
   it("setzt den Fokus auf Cancel", () => {

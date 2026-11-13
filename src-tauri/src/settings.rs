@@ -1004,7 +1004,9 @@ fn write_text(file: &mut File, tmp_path: &Path, text: &str) -> anyhow::Result<()
 /// NICHT atomar (unter Windows ohne `MOVEFILE_COPY_ALLOWED` sogar ein harter
 /// Fehler). Innerhalb desselben Dateisystems ersetzt `std::fs::rename` ein
 /// bestehendes Ziel unter Windows wie unter POSIX atomar bezueglich Lesern.
-fn replace_durably(
+///
+/// Auch `known_hosts::forget_host` ersetzt `known_hosts` auf Android so.
+pub(crate) fn replace_durably(
     path: &Path,
     fill: impl FnOnce(&mut File, &Path) -> anyhow::Result<()>,
     may_replace: impl FnOnce() -> anyhow::Result<bool>,
