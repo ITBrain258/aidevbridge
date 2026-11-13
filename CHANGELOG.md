@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-11-13
+
+Klicks in der Seitenleiste gehen nicht mehr verloren, Browsertasten bleiben mit Bildschirmleser gesperrt, und auf Android fuehrt nach einem neuen Serverschluessel ein Weg in der App zurueck zum Host.
+
 ### Changed
 
 - Android: Wer einen Host entfernt, laesst die App jetzt auch den Hostschluessel vergessen, den sie fuer dessen Namen und Port gespeichert hat; andere gespeicherte Hosts mit derselben Adresse fragen dann einmal neu. Bekam ein Server einen neuen Schluessel (neu aufgesetzt, VM neu angelegt), war er bisher unter seinem Namen nicht mehr erreichbar: Die Meldung verwies auf `ssh-keygen -R`, `known_hosts` liegt auf Android aber im privaten Speicher der App, und es blieb nur, die App-Daten samt erzeugter Schluessel zu loeschen. Jetzt fuehrt "Host entfernen und neu anlegen" zur Rueckfrage des Erstkontakts mit dem neuen Fingerabdruck; die Meldung und die Rueckfrage "Remove ...?" sagen das. Es fallen nur die Zeilen, die die App selbst schreibt; die Datei wird atomar ersetzt. Auf dem Desktop bleibt alles, wie es war: Dort haengt die App an die mit OpenSSH geteilte Datei nur an (Nachtrag vom 13.11. zur Android-Spec).

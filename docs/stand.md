@@ -1,13 +1,14 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.3` vom 11.11.2026 (Tag `v0.3.3` auf dem Merge-Commit
-von PR #54); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.3 bringt die Einstellung „Screen reader support“, eine Aufnahme, die bei
-mehr als acht gleichzeitigen Verbindungsaufbauten kurz wartet, statt sofort zu
-scheitern, Register, die eine Panik überstehen, und 40 px hohe Felder und
-Knöpfe in Dialogen der Telefonansicht (PR #53); dazu ein Skript für alle
-Versionsstellen eines Releases und NDK-Belege aus jedem Android-Bau der CI
-(PR #50 bis #52). Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
+**Stand:** Version `0.3.4` vom 13.11.2026 (Tag `v0.3.4` auf dem Merge-Commit
+des Release-PR); beim Tag baut die CI alle Pakete und hängt sie an das Release.
+0.3.4 bringt die Befunde der Durchsicht vom 13.11. (PR #56): Ein Klick in der
+Seitenleiste geht nicht mehr verloren, wenn sie während des Drucks neu gebaut
+wird, mit „Screen reader support“ laden Browsertasten auf einer Zeile des
+Bildschirmlesers die App nicht mehr neu, und auf Android vergisst das
+Entfernen eines Hosts dessen Hostschlüssel. 0.3.3 brachte die Einstellung
+„Screen reader support“ und die Aufnahme, die bei mehr als acht gleichzeitigen
+Verbindungsaufbauten kurz wartet. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
 Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
 Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
