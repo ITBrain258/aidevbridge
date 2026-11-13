@@ -1077,6 +1077,31 @@ describe("mountSidebar: Wartet-Spur (Spec 2026-10-19 §7)", () => {
     expect(h.onOpenSession).toHaveBeenLastCalledWith("h1", "a", { replace: true });
   });
 
+  // 13.11.2026: steht der Fokus in der Spur und der Zeiger ausserhalb, sortiert
+  // die Spur neu, sobald der Fokus sie verlaesst -- beim Druck auf eine andere
+  // Zeile also mitten im Druck. Die gedrueckte Zeile fiel aus dem Dokument, und
+  // Chromium schickte keinen Klick: der erste Klick ging jedes Mal verloren.
+  it("verlaesst der Fokus die Spur durch einen Druck auf eine Hostzeile, bleibt diese Zeile bis nach dem Klick", () => {
+    const { s, el, h, since } = waiting({ a: 20_000, b: 10_000 });
+    const laneRow = el.querySelector<HTMLElement>(".row-lane")!;
+    laneRow.focus();
+    expect(laneNames(el)).toEqual(["a", "b"]);
+    // Die Reihenfolge, die beim Verlassen neu sortiert wuerde, aendert sich.
+    since.set(waitingKey(s.hosts[0].sessions[1]), NOW - 90_000);
+
+    const hostRow = el.querySelector<HTMLElement>('.row-host[data-host-id="h1"]')!;
+    hostRow.dispatchEvent(new PointerEvent("pointerover", { bubbles: true }));
+    hostRow.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0 }));
+    hostRow.focus();
+    expect(hostRow.isConnected).toBe(true);
+    expect(laneNames(el)).toEqual(["a", "b"]);
+
+    window.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, button: 0 }));
+    vi.advanceTimersByTime(0);
+    expect(laneNames(el)).toEqual(["b", "a"]);
+    expect(h.onOpenSession).not.toHaveBeenCalled();
+  });
+
   it("eine offene Session zeigt ihre Kachelnummer", () => {
     const { s, el } = waiting({ a: 0, b: 0 });
     s.openSession("h1", "b");
@@ -2988,20 +3013,90 @@ describe("mountSidebar: ein Druck in der Liste verschiebt die Zeilen nicht (Abna
     expect(pressing(el)).toBe(false);
   });
 
-  it("auch eine Neuzeichnung waehrend des Drucks gibt den neu gebauten Bloecken die eingefrorene Markierung", () => {
-    const { el, s, row } = setup();
+  // 13.11.2026: Chromium schickt keinen Klick, wenn die gedrueckte Zeile vor dem
+  // Loslassen aus dem Dokument faellt -- weder an die alte noch an die neu
+  // gebaute Zeile noch an die Liste (gemessen mit Edge 157). Ein Neuzeichnen
+  // waehrend des Drucks wartet deshalb bis nach dem Klick. jsdom liefert den
+  // Klick nicht aus den Zeigerereignissen; der Test prueft, dass die gedrueckte
+  // Zeile im Dokument bleibt, bis der Klick durch ist.
+  it("ein Neuzeichnen waehrend des Drucks wartet bis nach dem Klick; die gedrueckte Zeile bleibt im Dokument", () => {
+    const { el, s, h, row } = setup();
     pointer("pointerdown", row);
     row.focus();
 
     s.setSessions("h2", ["b", "c"]);
-    // Neu gebaut, und der Fokus steht wieder auf der Zeile von h1.
-    expect(el.querySelector('[data-session-key="h2/c"]')).not.toBeNull();
-    expect((document.activeElement as HTMLElement | null)?.dataset.sessionKey).toBe("h1/a");
+    expect(row.isConnected).toBe(true);
+    expect(el.querySelector('[data-session-key="h2/c"]')).toBeNull();
     expect(marked(el)).toEqual(["h2"]);
 
     pointer("pointerup", window);
+    row.click();
+    expect(h.onOpenSession).toHaveBeenCalledOnce();
     vi.advanceTimersByTime(0);
+    // Jetzt holt die Liste auf, die Markierung mit ihr, und der Fokus steht
+    // wieder auf der Zeile von h1.
+    expect(el.querySelector('[data-session-key="h2/c"]')).not.toBeNull();
+    expect((document.activeElement as HTMLElement | null)?.dataset.sessionKey).toBe("h1/a");
     expect(marked(el)).toEqual(["h1"]);
+  });
+
+  it("ohne Druck zeichnet eine Benachrichtigung sofort neu", () => {
+    const { el, s } = setup();
+    s.setSessions("h2", ["b", "c"]);
+    expect(el.querySelector('[data-session-key="h2/c"]')).not.toBeNull();
+  });
+
+  // Ein Loslassen, das nie ankommt, hielte die Liste sonst auf dem alten Stand.
+  it("ein Druck haelt ein Neuzeichnen hoechstens zwei Sekunden auf", () => {
+    const { el, s, row } = setup();
+    pointer("pointerdown", row);
+    row.focus();
+    s.setSessions("h2", ["b", "c"]);
+    vi.advanceTimersByTime(1999);
+    expect(el.querySelector('[data-session-key="h2/c"]')).toBeNull();
+    vi.advanceTimersByTime(1);
+    expect(el.querySelector('[data-session-key="h2/c"]')).not.toBeNull();
+    // Der Druck selbst laeuft weiter: die Markierung bleibt bis zu seinem Ende.
+    expect(marked(el)).toEqual(["h2"]);
+  });
+
+  it("mehrere Benachrichtigungen waehrend eines Drucks zeichnen danach einmal neu", () => {
+    const { el, s, row } = setup();
+    pointer("pointerdown", row);
+    row.focus();
+    s.setSessions("h2", ["b", "c"]);
+    s.setSessions("h2", ["b", "c", "d"]);
+    const list = el.querySelector(".sb-list")!;
+    const replace = vi.spyOn(list, "replaceChildren");
+    pointer("pointerup", window);
+    vi.advanceTimersByTime(0);
+    expect(replace).toHaveBeenCalledOnce();
+    expect(el.querySelector('[data-session-key="h2/d"]')).not.toBeNull();
+  });
+
+  // Ein Tipp liefert Fokuswechsel und Klick erst nach dem `pointerup`; das
+  // Neuzeichnen wartet auch dann bis zum Klick.
+  it("bei einem Tipp wartet das Neuzeichnen bis zu dessen Klick", () => {
+    const { el, s, row } = setup();
+    row.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0, pointerType: "touch" }));
+    window.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, button: 0, pointerType: "touch" }));
+    row.focus();
+    s.setSessions("h2", ["b", "c"]);
+    vi.advanceTimersByTime(100);
+    expect(row.isConnected).toBe(true);
+    row.click();
+    vi.advanceTimersByTime(0);
+    expect(el.querySelector('[data-session-key="h2/c"]')).not.toBeNull();
+  });
+
+  it("nach dem Abbau zeichnet ein aufgeschobenes Neuzeichnen nichts mehr", () => {
+    const { el, s, handle, row } = setup();
+    pointer("pointerdown", row);
+    row.focus();
+    s.setSessions("h2", ["b", "c"]);
+    handle.dispose();
+    vi.advanceTimersByTime(5000);
+    expect(el.querySelector(".sb-list")).toBeNull();
   });
 
   // Nachtrag vom 24.10.: bei Touch und Stift liefert Chromium Fokuswechsel und
@@ -3210,14 +3305,16 @@ describe("mountSidebar: ein Druck in der Liste verschiebt die Zeilen nicht (Abna
     below.focus();
     expect(shownBars(el)).toEqual(before);
 
+    // Das Neuzeichnen wartet bis nach dem Klick: die gedrueckte Zeile bleibt.
     s.setSessions("h1", ["a", "a2"]);
-    expect(el.querySelector('[data-session-key="h1/a2"]')).not.toBeNull();
-    expect((document.activeElement as HTMLElement | null)?.dataset.sessionKey).toBe("h3/c");
+    expect(below.isConnected).toBe(true);
     expect(shownBars(el)).toEqual(before);
 
     pointer("pointerup", window);
-    el.querySelector<HTMLElement>('[data-session-key="h3/c"]')!.click();
+    below.click();
     vi.advanceTimersByTime(0);
+    expect(el.querySelector('[data-session-key="h1/a2"]')).not.toBeNull();
+    expect((document.activeElement as HTMLElement | null)?.dataset.sessionKey).toBe("h3/c");
     // Erst jetzt folgt alles dem Fokus: h3 ist markiert, h2 gibt seine Leiste ab.
     expect(marked(el)).toEqual(["h3"]);
     expect(shownBars(el)).toEqual(["h3"]);
