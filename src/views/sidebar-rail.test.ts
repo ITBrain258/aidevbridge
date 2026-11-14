@@ -271,6 +271,32 @@ describe("sidebar-rail: Zaehler der Wartenden", () => {
     s.setSessionRecords("h2", [{ name: "c", status: "busy" }], Date.now());
     expect(button.hidden).toBe(true);
   });
+
+  // Ein verborgener Knopf haelt keinen Fokus: er fiele sonst aus der Leiste.
+  it("verschwindet er mit dem Fokus, geht der Fokus auf den Ausklappknopf", () => {
+    const s = stateWithWaiting();
+    const { rail } = mount(s);
+    const button = waitingButton(rail);
+    button.focus();
+    expect(document.activeElement).toBe(button);
+
+    s.setSessionRecords("h1", [{ name: "a", status: "busy" }, { name: "b", status: "busy" }], Date.now());
+
+    expect(button.hidden).toBe(true);
+    expect(document.activeElement).toBe(rail.querySelector(".sb-rail-expand"));
+  });
+
+  it("verschwindet er ohne Fokus, bleibt der Fokus, wo er ist", () => {
+    const s = stateWithWaiting();
+    const { rail } = mount(s);
+    const first = hostButtons(rail)[0];
+    first.focus();
+
+    s.setSessionRecords("h1", [{ name: "a", status: "busy" }, { name: "b", status: "busy" }], Date.now());
+
+    expect(waitingButton(rail).hidden).toBe(true);
+    expect(document.activeElement).toBe(first);
+  });
 });
 
 describe("sidebar-rail: zeigen und verbergen", () => {
@@ -300,6 +326,15 @@ describe("sidebar-rail: zeigen und verbergen", () => {
     handle.setHidden(false);
     expect(handle.focusExpand()).toBe(true);
     expect(document.activeElement).toBe(expand);
+  });
+
+  it("contains kennt die Knoepfe der Leiste, nicht die der Seitenleiste", () => {
+    const { rail, sidebar, handle } = mount(new AppState());
+    expect(handle.contains(rail.querySelector(".sb-rail-expand"))).toBe(true);
+    expect(handle.contains(rail)).toBe(true);
+    expect(handle.contains(sidebar)).toBe(false);
+    expect(handle.contains(document.body)).toBe(false);
+    expect(handle.contains(null)).toBe(false);
   });
 
   it("dispose nimmt die Leiste aus dem Dokument und hoert auf zu hoeren", () => {

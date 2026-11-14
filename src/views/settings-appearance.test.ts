@@ -103,7 +103,7 @@ describe("settings-appearance (Farbwahl-Spec §6, Einstellungs-Spec §5)", () =>
     expect(toggle.getAttribute("aria-checked")).toBe("true");
     expect(card.textContent).toContain("Icon rail when collapsed");
     expect(card.textContent).toContain(
-      "Keeps a narrow strip with your hosts and their state when you collapse the sidebar. Off hides the sidebar completely; Ctrl+Shift+B brings it back.",
+      "Keeps a narrow strip with your hosts and their state when you collapse the sidebar. Off hides the sidebar completely and removes the collapse button; Ctrl+Shift+B hides the sidebar and brings it back.",
     );
   });
 

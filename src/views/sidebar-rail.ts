@@ -40,6 +40,9 @@ export interface SidebarRailHandle {
   /** Setzt den Fokus auf den Knopf zum Ausklappen. `false`, wenn die Leiste
    * nicht zu sehen ist: verborgen oder in der kompakten Ansicht. */
   focusExpand(): boolean;
+  /** Steht `node` in der Leiste? Fuer Aufrufer, die wissen muessen, ob der
+   * Fokus mit ihr verschwindet. */
+  contains(node: Node | null): boolean;
   dispose(): void;
 }
 
@@ -199,7 +202,8 @@ export function mountSidebarRail(after: HTMLElement, state: AppState, opts: Side
     return { button, avatar, shape, flag, text };
   }
 
-  function updateEntry(entry: HostEntry, host: Host, focusedHostId: string | null): void {
+  /** Meldet, wie viele Sessions dieses Hosts warten. */
+  function updateEntry(entry: HostEntry, host: Host, focusedHostId: string | null): number {
     setText(entry.avatar, hostInitials(host.label, host.hostname));
     // UX-Spec §5.4, wie die Hostzeile: verbindet die App selbst neu, steht
     // zwischen zwei Versuchen die Form von "Offline" statt des Dreiecks, und
@@ -229,6 +233,7 @@ export function mountSidebarRail(after: HTMLElement, state: AppState, opts: Side
     setAttr(entry.button, "title", name);
     // Der Host der fokussierten Kachel, wie die gewaehlte Session der Liste.
     setAttr(entry.button, "aria-current", host.id === focusedHostId ? "true" : null);
+    return waiting;
   }
 
   /** Der Host, dessen Session die fokussierte Kachel zeigt. Ueber die
@@ -261,6 +266,7 @@ export function mountSidebarRail(after: HTMLElement, state: AppState, opts: Side
     }
 
     const focusedHostId = hostOfFocusedTile();
+    let waiting = 0;
     let previous: Element | null = null;
     for (const host of state.hosts) {
       let entry = entries.get(host.id);
@@ -268,7 +274,7 @@ export function mountSidebarRail(after: HTMLElement, state: AppState, opts: Side
         entry = buildEntry(host.id);
         entries.set(host.id, entry);
       }
-      updateEntry(entry, host, focusedHostId);
+      waiting += updateEntry(entry, host, focusedHostId);
       // Nur umhaengen, wenn die Reihenfolge nicht stimmt: ein Knopf, der
       // schon richtig steht, bleibt im Dokument (siehe Kopfkommentar).
       const expected: Element | null = previous ? previous.nextElementSibling : hostsEl.firstElementChild;
@@ -276,7 +282,10 @@ export function mountSidebarRail(after: HTMLElement, state: AppState, opts: Side
       previous = entry.button;
     }
 
-    const waiting = waitingSessions(state.hosts, (h, s) => state.isSessionStatusCurrent(h.id, s.name, socketOf(s))).length;
+    // Der Zaehler ist die Summe der Hosts. Verschwindet er, waehrend der
+    // Fokus auf ihm steht, geht der Fokus auf den Knopf zum Ausklappen: ein
+    // verborgener Knopf haelt keinen, und er fiele sonst aus der Leiste.
+    if (waiting === 0 && document.activeElement === waitingButton) expandButton.focus();
     waitingButton.hidden = waiting === 0;
     if (waiting > 0) {
       const label = t("attention.waiting", { count: String(waiting) });
@@ -301,6 +310,9 @@ export function mountSidebarRail(after: HTMLElement, state: AppState, opts: Side
       // In der kompakten Ansicht nimmt das Stylesheet die Leiste heraus; ein
       // Knopf ohne Box nimmt keinen Fokus an.
       return document.activeElement === expandButton;
+    },
+    contains(node) {
+      return node !== null && root.contains(node);
     },
     dispose() {
       disposed = true;

@@ -572,12 +572,16 @@ export function main(): void {
    * und Schnelloeffnen rufen ohne Argument; die Marke im Fuss der Seitenleiste
    * nennt About. */
   function onOpenSettings(section?: SettingsSectionId): void {
+    // Aus der Symbolleiste geoeffnet? Dann kann der Oeffner beim Schliessen
+    // verborgen sein (siehe `dispose` unten). `sidebarRailHandle` steht weiter
+    // unten; gerufen wird erst nach dem Mount, aus einem Klick oder Tastendruck.
+    const fromRail = sidebarRailHandle.contains(document.activeElement);
     openDialog(
       { title: t("settings.title"), large: true },
-      (container) =>
+      (container) => {
         // Lesefunktionen statt Werte: jeder Bereich liest beim Mounten den
         // Stand von jetzt (siehe `SettingsDialogOptions`).
-        mountSettingsDialog(container, {
+        const settings = mountSettingsDialog(container, {
           currentTheme,
           unknownStoredTheme: () => unknownStoredTheme,
           onThemeChange: applyTheme,
@@ -588,8 +592,29 @@ export function main(): void {
           onSidebarRailChange,
           settingsPath: () => settingsPath,
           initialSection: section,
-        }),
+        });
+        return {
+          dispose() {
+            settings.dispose();
+            // Nach `dispose` gibt die Dialoghuelle den Fokus an den Oeffner
+            // zurueck. Kam der Dialog aus der Symbolleiste und hat der
+            // Schalter "Icon rail when collapsed" sie inzwischen verborgen,
+            // nimmt ihr Knopf ihn nicht an: dann in die fokussierte Kachel,
+            // statt ihn ins Leere fallen zu lassen.
+            if (fromRail) queueMicrotask(focusTileIfRailGone);
+          },
+        };
+      },
     );
+  }
+
+  function focusTileIfRailGone(): void {
+    // Die Symbolleiste steht noch: ihr Knopf hat den Fokus zurueckbekommen.
+    if (elements.app.classList.contains("sidebar-rail")) return;
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && sidebarRailHandle.contains(active)) active.blur();
+    else if (active !== null && active !== document.body) return;
+    if (!elements.app.inert) gridHandle?.focusActiveTile();
   }
 
   let firstRunInGridHandle: FirstRunHandle | null = null;
@@ -2513,8 +2538,11 @@ export function main(): void {
     }
     noteForeignOpen(hostId, wanted.name, wanted.socket, result);
     gridHandle?.revealTile(result.tileId);
+    // Seitenleiste und Symbolleiste zaehlen gleich: wer nach dem Klick auf die
+    // Session einklappt, hat den Fokus auf dem Ausklappknopf der Symbolleiste.
     const active = document.activeElement;
-    const focusFree = active === null || active === document.body || elements.sidebar.contains(active);
+    const focusFree = active === null || active === document.body ||
+      elements.sidebar.contains(active) || sidebarRailHandle.contains(active);
     if (focusFree && !elements.app.inert) gridHandle?.focusActiveTile();
   }
 
@@ -2596,6 +2624,10 @@ export function main(): void {
    * Tab-Reihenfolge; beide stehen nur hier. Meldet, ob sich die Rasterflaeche
    * geaendert hat. */
   function applySidebarRail(): boolean {
+    // Ohne Symbolleiste fuehrt nur die Tastatur zurueck; styles.css nimmt dann
+    // den Einklappknopf aus dem Fuss, damit kein Klick oder Tipp die
+    // Seitenleiste wegnimmt, den dieselbe Hand nicht zuruecknehmen kann.
+    elements.app.classList.toggle("sidebar-no-rail", !sidebarRail);
     const show = sidebarCollapsed && sidebarRail;
     if (elements.app.classList.contains("sidebar-rail") === show) return false;
     elements.app.classList.toggle("sidebar-rail", show);
@@ -2631,8 +2663,23 @@ export function main(): void {
     workspaceSync.changed();
   }
 
+  /** Strg+Umschalt+B und der Eintrag im Schnelloeffnen. Verschwindet dabei
+   * die Leiste, in der der Fokus stand, geht er auf ihr Gegenstueck, wie nach
+   * einem Klick auf die beiden Knoepfe: aus der Seitenleiste auf den
+   * Ausklappknopf der Symbolleiste (ohne sie in die fokussierte Kachel), aus
+   * der Symbolleiste auf den Einklappknopf. Sonst bliebe er auf einem
+   * verborgenen Element haengen, und kein Tastendruck kaeme mehr an. Stand er
+   * woanders, bleibt er dort. */
   function toggleSidebar(): void {
+    const active = document.activeElement;
+    const fromSidebar = elements.sidebar.contains(active);
+    const fromRail = sidebarRailHandle.contains(active);
     setSidebarCollapsed(!sidebarCollapsed);
+    if (fromSidebar && sidebarCollapsed) {
+      if (!sidebarRailHandle.focusExpand()) gridHandle?.focusActiveTile();
+    } else if (fromRail && !sidebarCollapsed) {
+      elements.sidebar.querySelector<HTMLElement>(".sb-collapse")?.focus();
+    }
   }
 
   function focusSidebar(): void {

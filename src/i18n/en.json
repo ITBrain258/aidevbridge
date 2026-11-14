@@ -149,7 +149,8 @@
   "sidebar.tmux.unsupported": "tmux sessions not shown: tmux {version} on this host is not supported.",
 
   "lane.label": "Waiting sessions",
-  "lane.heading": "Waiting · {count}",
+  "lane.heading": "Waiting for you",
+  "lane.shortcut": "Jump to the next waiting session",
   "lane.more": "+{count} more",
   "lane.less": "Show less",
   "lane.wait.now": "now",
@@ -301,7 +302,7 @@
   "settings.terminal.screenReaderHint": "Lets screen readers such as NVDA, Narrator, VoiceOver or TalkBack read the text of the terminals. Slows the terminals down when programs print a lot.",
   "settings.sidebar": "Sidebar",
   "settings.sidebar.rail": "Icon rail when collapsed",
-  "settings.sidebar.railHint": "Keeps a narrow strip with your hosts and their state when you collapse the sidebar. Off hides the sidebar completely; {shortcut} brings it back.",
+  "settings.sidebar.railHint": "Keeps a narrow strip with your hosts and their state when you collapse the sidebar. Off hides the sidebar completely and removes the collapse button; {shortcut} hides the sidebar and brings it back.",
   "rail.label": "Sidebar, collapsed",
   "rail.expand": "Expand sidebar",
   "rail.host": "{host}: {state}",

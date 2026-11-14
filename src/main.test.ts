@@ -6264,13 +6264,74 @@ describe("main: Symbolleiste und Fuss der Seitenleiste (Spec 2026-11-14)", () =>
     main();
     await flush();
 
-    collapseButton().click();
+    // Ohne Symbolleiste fuehrt nur die Tastatur zurueck: styles.css nimmt an
+    // dieser Klasse den Einklappknopf aus dem Fuss.
+    expect(app().classList.contains("sidebar-no-rail")).toBe(true);
+    chord("b");
 
     expect(classes()).toEqual(["sidebar-collapsed"]);
     expect(rail().hidden).toBe(true);
     expect(document.activeElement).not.toBe(expandButton());
     chord("b");
     expect(classes()).toEqual([]);
+  });
+
+  it("die Klasse fuer den fehlenden Einklappknopf folgt dem Schalter, auch bei ausgeklappter Seitenleiste", async () => {
+    main();
+    await flush();
+    expect(app().classList.contains("sidebar-no-rail")).toBe(false);
+
+    const toggle = railSwitch();
+    toggle.click();
+    expect(app().classList.contains("sidebar-no-rail")).toBe(true);
+    toggle.click();
+    expect(app().classList.contains("sidebar-no-rail")).toBe(false);
+  });
+
+  // Der Fokus stand in der Leiste, die das Kuerzel wegnimmt: er geht auf ihr
+  // Gegenstueck, wie nach einem Klick auf die beiden Knoepfe.
+  it("Strg+Umschalt+B nimmt den Fokus mit, wenn seine Leiste verschwindet", async () => {
+    main();
+    await flush();
+
+    collapseButton().focus();
+    chord("b");
+    expect(document.activeElement).toBe(expandButton());
+    chord("b");
+    expect(document.activeElement).toBe(collapseButton());
+
+    // Stand er woanders, bleibt er dort.
+    collapseButton().blur();
+    chord("b");
+    expect(document.activeElement).toBe(document.body);
+    chord("b");
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it("Einstellungen aus der Symbolleiste: der Fokus kehrt auf ihren Knopf zurueck, aber nicht auf einen verborgenen", async () => {
+    main();
+    await flush();
+    chord("b");
+    const settings = rail().querySelector<HTMLButtonElement>(".sb-rail-bottom > button")!;
+
+    settings.focus();
+    settings.click();
+    escape();
+    await flush();
+    expect(document.activeElement).toBe(settings);
+
+    // Der Schalter nimmt die Symbolleiste weg, waehrend der Dialog offen ist.
+    settings.click();
+    Array.from(document.querySelectorAll<HTMLButtonElement>('.dialog-panel [role="tab"]'))
+      .find((candidate) => candidate.textContent === "Appearance")!
+      .click();
+    document.querySelector<HTMLButtonElement>('.dialog-panel [role="tabpanel"] button[role="switch"]')!.click();
+    expect(rail().hidden).toBe(true);
+    escape();
+    await flush();
+
+    expect(document.querySelector(".dialog-panel")).toBeNull();
+    expect(rail().contains(document.activeElement)).toBe(false);
   });
 
   it("der Schalter unter Appearance wirkt sofort auf die eingeklappte Seitenleiste und schreibt nur sidebar_rail", async () => {

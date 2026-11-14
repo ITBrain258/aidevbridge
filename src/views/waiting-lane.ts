@@ -133,15 +133,10 @@ export function createWaitingLane(list: HTMLElement, opts: WaitingLaneOptions): 
     const position = tile ? state.tilePosition(tile.id) : null;
     row.title = t(tile ? "sidebar.session.hintOpen" : "sidebar.session.hintClosed");
 
+    // Ohne eigene Raute: jede Zeile der Spur wartet, und die Raute steht im
+    // Kopf der Karte (Spec vom 14.11.2026, Statusanzeige §4).
     const main = document.createElement("span");
     main.className = "row-lane-main";
-    const shapeBox = document.createElement("span");
-    shapeBox.className = "icon-box icon-box--sm";
-    shapeBox.setAttribute("aria-hidden", "true");
-    const shape = document.createElement("span");
-    shape.className = "ag ag-waiting";
-    shapeBox.appendChild(shape);
-    main.appendChild(shapeBox);
     const avatar = document.createElement("span");
     avatar.className = "sb-avatar";
     avatar.setAttribute("aria-hidden", "true");
@@ -227,10 +222,15 @@ export function createWaitingLane(list: HTMLElement, opts: WaitingLaneOptions): 
       headShape.appendChild(diamond);
       const title = document.createElement("span");
       title.className = "sb-lane-title";
-      title.textContent = t("lane.heading", { count: String(sessions.length) });
+      title.textContent = t("lane.heading");
+      // Die Zahl als eigene Marke (Spec vom 14.11.2026, Statusanzeige §4).
+      const count = document.createElement("span");
+      count.className = "sb-lane-count";
+      count.textContent = String(sessions.length);
       const shortcut = document.createElement("kbd");
       shortcut.textContent = DEFAULT_KEYMAP["session.nextWaiting"];
-      head.append(headShape, title, shortcut);
+      shortcut.title = t("lane.shortcut");
+      head.append(headShape, title, count, shortcut);
       lane.appendChild(head);
 
       const shown = expanded ? sessions : sessions.slice(0, LANE_VISIBLE_ROWS);

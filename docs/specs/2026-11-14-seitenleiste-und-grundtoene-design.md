@@ -23,7 +23,9 @@
 
 Rechts im Fuß der Seitenleiste steht ein Icon-Knopf (`panel-left-close`, Bauform `.sb-head-btn`, Klasse `.sb-collapse`) mit `aria-label` "Collapse sidebar" und dem Kürzel im `title`. Er ruft denselben Weg wie Strg+Umschalt+B (`setSidebarCollapsed`): Menü schließen, Ziehgriff verbergen, Terminals einmal anpassen, Arbeitsplatz speichern (`workspace.sidebar_collapsed`, UX-Spec §7.1).
 
-Der Knopf verschwindet mit der Seitenleiste. Der Fokus geht deshalb auf sein Gegenstück in der Symbolleiste; ohne Symbolleiste in die fokussierte Kachel, wie nach dem Kürzel aus einem Terminal.
+Der Knopf verschwindet mit der Seitenleiste. Der Fokus geht deshalb auf sein Gegenstück in der Symbolleiste; ohne Symbolleiste in die fokussierte Kachel, wie nach dem Kürzel aus einem Terminal. Dasselbe gilt für Strg+Umschalt+B, wenn der Fokus in der Leiste steht, die das Kürzel wegnimmt: aus der Seitenleiste geht er auf den Ausklappknopf der Symbolleiste, aus der Symbolleiste auf den Einklappknopf. Stand er woanders, etwa in einem Terminal, bleibt er dort.
+
+Der Knopf steht nur, solange die Symbolleiste eingeschaltet ist (§2.3). Ohne sie führt allein die Tastatur zurück, und ein Klick oder Tipp auf den Knopf nähme die Seitenleiste weg, ohne dass dieselbe Hand sie wiederbekäme, auf einem Tablet ohne Tastatur gar nicht mehr. `main.ts` setzt dafür `sidebar-no-rail` an `#app`, `styles.css` nimmt den Knopf heraus; Strg+Umschalt+B klappt weiter ein und aus.
 
 In der kompakten Ansicht (Android-Spec §5.1) ist die Seitenleiste eine Schublade mit eigenem Schalter in der Kopfleiste. Dort gibt es weder den Knopf noch die Symbolleiste.
 
@@ -45,7 +47,7 @@ Die Leiste zeigt an und führt zurück. Verbinden, Sessions, Hinweise und Menüs
 
 ### 2.3 Die Einstellung
 
-Bereich Appearance, neue Karte **Sidebar** unter den Farben, Schalter **Icon rail when collapsed** mit dem Hinweis "Keeps a narrow strip with your hosts and their state when you collapse the sidebar. Off hides the sidebar completely; Ctrl+Shift+B brings it back." Das Kürzel kommt aus der aktiven Belegung.
+Bereich Appearance, neue Karte **Sidebar** unter den Farben, Schalter **Icon rail when collapsed** mit dem Hinweis "Keeps a narrow strip with your hosts and their state when you collapse the sidebar. Off hides the sidebar completely and removes the collapse button; Ctrl+Shift+B hides the sidebar and brings it back." Das Kürzel kommt aus der aktiven Belegung.
 
 Gespeichert als `sidebar_rail` unter `[ui]` in `settings.toml`, Standard `true`, über den vorhandenen Patch von `ui_settings` und die Feldtabelle (`state/ui-settings-sync.ts`, UX-Spec §9.2). Eine Datei ohne das Feld liest als an; ein älterer Build liest die Datei weiter und lässt das Feld beim nächsten Speichern weg, wie bei jedem Feld unter `[ui]`. Der Schalter wirkt sofort, auch auf eine gerade eingeklappte Seitenleiste hinter dem Dialog.
 
@@ -115,7 +117,7 @@ Die Gruppe **Background** zeigt sechs Karten in drei Spalten, auf dem schmalen T
 
 - `sidebar.test.ts`: Fuß mit Marke und Einklappknopf; Marke ohne Commit, öffnet About; Namen, `title`, Fokusschlüssel; die Knöpfe überleben das Neuzeichnen; sechs Tab-Halte.
 - `sidebar-rail.test.ts`: Aufbau; je Host Kürzel, Form und Satz; Wartemarke und Zähler; `aria-current`; Neuverbinden; dieselben Knöpfe über Benachrichtigungen hinweg, auch wenn der erste Host wegfällt; verborgen zeichnet sie nicht mit; `focusExpand`; `dispose`.
-- `main.test.ts`: Einklappen und Ausklappen über Knöpfe und Kürzel mit Fokus; Klick auf einen Host; gespeichert eingeklappt; `sidebar_rail = false`; der Schalter wirkt sofort und schreibt nur sein Feld; Marke und Zahnrad öffnen den richtigen Bereich.
+- `main.test.ts`: Einklappen und Ausklappen über Knöpfe und Kürzel mit Fokus (auch: das Kürzel nimmt den Fokus mit, Einstellungen aus der Symbolleiste geben ihn nicht an einen verborgenen Knopf zurück, die Klasse `sidebar-no-rail`); Klick auf einen Host; gespeichert eingeklappt; `sidebar_rail = false`; der Schalter wirkt sofort und schreibt nur sein Feld; Marke und Zahnrad öffnen den richtigen Bereich.
 - `settings-dialog.test.ts`, `settings-appearance.test.ts`: `initialSection`; Karte Sidebar mit Schalter und Kürzel; sechs Grundtonkarten.
 - `ui-settings-sync.test.ts`, Rust (`settings.rs`, `commands/tests.rs`): `sidebar_rail` laden, prüfen, einzeln patchen, Standard an, Rundlauf durch die Datei.
 - `styles.test.ts`: Kontrast aller 42 Varianten; Spalten mit Symbolleiste und ihre Reihenfolge nach `sidebar-collapsed`; Maße der Leiste; Fuß und Marke; kompakte Ansicht ohne Knopf und Leiste; drei Spalten der Grundtonkarten.

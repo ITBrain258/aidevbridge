@@ -102,15 +102,23 @@ function contrast(a: Rgb, b: Rgb): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** Kontrast von `fg` auf `bg`, optional mit einer Tönung `tint` über `bg`. */
-function contrastOf(tokens: Record<string, string>, fg: string, bg: string, tint: string | null): number {
-  const base = parseColor(resolveVar(tokens, tokens[bg])).rgb;
-  const surface = tint ? over(resolveVar(tokens, tokens[tint]), base) : base;
+type Tint = string | readonly string[] | null;
+
+/** Die Tönungen in der Reihenfolge, in der sie übereinander liegen. */
+function tintLayers(tint: Tint): readonly string[] {
+  if (tint === null) return [];
+  return typeof tint === "string" ? [tint] : tint;
+}
+
+/** Kontrast von `fg` auf `bg`, optional mit einer oder mehreren Tönungen über `bg`. */
+function contrastOf(tokens: Record<string, string>, fg: string, bg: string, tint: Tint): number {
+  let surface = parseColor(resolveVar(tokens, tokens[bg])).rgb;
+  for (const layer of tintLayers(tint)) surface = over(resolveVar(tokens, tokens[layer]), surface);
   return contrast(over(resolveVar(tokens, tokens[fg]), surface), surface);
 }
 
 // [Vordergrund, Fläche, Tönung über der Fläche, Mindestkontrast] -- Spec 5.4.
-const CONTRAST_PAIRS: ReadonlyArray<readonly [string, string, string | null, number]> = [
+const CONTRAST_PAIRS: ReadonlyArray<readonly [string, string, Tint, number]> = [
   ["--ab-text-primary", "--ab-bg-panel", null, 4.5],
   ["--ab-text-primary", "--ab-bg-card", null, 4.5],
   ["--ab-text-primary", "--ab-bg-hover", null, 4.5],
@@ -122,15 +130,50 @@ const CONTRAST_PAIRS: ReadonlyArray<readonly [string, string, string | null, num
   ["--ab-text-muted", "--ab-bg-panel", null, 4.5],
   ["--ab-accent-ink", "--ab-accent", null, 4.5],
   ["--ab-accent", "--ab-bg-card", null, 4.5],
-  ["--ab-ok", "--ab-bg-card", "--ab-ok-bg", 4.5],
   ["--ab-warn", "--ab-bg-card", "--ab-warn-bg", 4.5],
   ["--ab-danger", "--ab-bg-card", "--ab-danger-bg", 4.5],
-  ["--ab-idle", "--ab-bg-card", "--ab-idle-bg", 4.5],
   // Statuspillen (M1.2) auch im fokussierten Kachelkopf.
   ["--ab-warn", "--ab-bg-active", "--ab-warn-bg", 4.5],
-  ["--ab-ok", "--ab-bg-active", "--ab-ok-bg", 4.5],
-  ["--ab-idle", "--ab-bg-active", "--ab-idle-bg", 4.5],
   ["--ab-danger", "--ab-bg-active", "--ab-danger-bg", 4.5],
+  // Ruhige Pillen (Spec vom 14.11.2026, Statusanzeige §3): das Wort auf dem
+  // Schleier `--ab-chip-bg` ueber jeder Flaeche, auf der eine Pille steht --
+  // Karte, Panel und Kachelkopf, Zeile unter dem Zeiger, fokussierter
+  // Kachelkopf. Das gedaempfte Wort hielte dort keine 4,5:1; es traegt
+  // deshalb keine Pille.
+  ["--ab-text-secondary", "--ab-bg-card", "--ab-chip-bg", 4.5],
+  ["--ab-text-secondary", "--ab-bg-panel", "--ab-chip-bg", 4.5],
+  ["--ab-text-secondary", "--ab-bg-hover", "--ab-chip-bg", 4.5],
+  ["--ab-text-secondary", "--ab-bg-active", "--ab-chip-bg", 4.5],
+  // Die Zeichen darin sind Grafik (3:1): der gruene Punkt von "Online", die
+  // blauen Punkte von "Busy", die graue Raute von "Idle" und der graue Ring
+  // von "Offline".
+  ["--ab-text-muted", "--ab-bg-card", "--ab-chip-bg", 3.0],
+  ["--ab-text-muted", "--ab-bg-panel", "--ab-chip-bg", 3.0],
+  ["--ab-text-muted", "--ab-bg-hover", "--ab-chip-bg", 3.0],
+  ["--ab-text-muted", "--ab-bg-active", "--ab-chip-bg", 3.0],
+  ["--ab-ok", "--ab-bg-card", "--ab-chip-bg", 3.0],
+  ["--ab-ok", "--ab-bg-hover", "--ab-chip-bg", 3.0],
+  // "Disconnect" an einem verbundenen Host (§2): das Wort in der Farbe von
+  // "Online" auf der Karte und auf der Flaeche unter dem Zeiger.
+  ["--ab-ok", "--ab-bg-card", null, 4.5],
+  ["--ab-ok", "--ab-bg-hover", null, 4.5],
+  ["--ab-busy", "--ab-bg-card", "--ab-chip-bg", 3.0],
+  ["--ab-busy", "--ab-bg-panel", "--ab-chip-bg", 3.0],
+  ["--ab-busy", "--ab-bg-hover", "--ab-chip-bg", 3.0],
+  ["--ab-busy", "--ab-bg-active", "--ab-chip-bg", 3.0],
+  // Die gewaehlte Zeile liegt in der Akzenttoenung, die Pille darueber. In
+  // der Seitenleiste zeigt sie dort nur ihr Zeichen (§3.4, Grafik 3:1) ...
+  ["--ab-busy", "--ab-bg-card", ["--ab-accent-soft", "--ab-chip-bg"], 3.0],
+  ["--ab-text-muted", "--ab-bg-card", ["--ab-accent-soft", "--ab-chip-bg"], 3.0],
+  ["--ab-text-secondary", "--ab-bg-card", ["--ab-accent-soft", "--ab-chip-bg"], 3.0],
+  ["--ab-warn", "--ab-bg-card", ["--ab-accent-soft", "--ab-warn-bg"], 3.0],
+  ["--ab-danger", "--ab-bg-card", ["--ab-accent-soft", "--ab-danger-bg"], 3.0],
+  // ... in der Schnellwahl (Panel) die ganze Pille mit ihrem Wort.
+  ["--ab-text-secondary", "--ab-bg-panel", ["--ab-accent-soft", "--ab-chip-bg"], 4.5],
+  ["--ab-warn", "--ab-bg-panel", ["--ab-accent-soft", "--ab-warn-bg"], 4.5],
+  ["--ab-danger", "--ab-bg-panel", ["--ab-accent-soft", "--ab-danger-bg"], 4.5],
+  // Wartet-Spur als Karte (§4): die Zahl auf der Marke in `--ab-warn`.
+  ["--ab-warn-ink", "--ab-warn", null, 4.5],
   ["--ab-text-secondary", "--ab-bg-active", null, 4.5],
   ["--ab-text-secondary", "--ab-bg-card", "--ab-danger-bg", 4.5],
   ["--ab-text-secondary", "--ab-bg-panel", "--ab-warn-bg", 4.5],
@@ -163,7 +206,7 @@ const variantTokens = (accent: string, base: string) => ({
 
 // Connecting trägt eigene, feste Token (Farbwahl-Spec §2.2): Pille in der
 // Hostzeile auf Karte und Panel.
-const CONNECTING_PAIRS: ReadonlyArray<readonly [string, string, string | null, number]> = [
+const CONNECTING_PAIRS: ReadonlyArray<readonly [string, string, Tint, number]> = [
   ["--ab-connecting", "--ab-bg-card", "--ab-connecting-bg", 4.5],
   ["--ab-connecting", "--ab-bg-panel", "--ab-connecting-bg", 4.5],
 ];
@@ -173,7 +216,7 @@ describe("Kontrast aller 42 Farbvarianten (Spec 5.4, Farbwahl §3, Spec 2026-11-
     for (const accent of ACCENT_IDS) {
       const tokens = variantTokens(accent, base);
       for (const [fg, bg, tint, min] of [...CONTRAST_PAIRS, ...CONNECTING_PAIRS]) {
-        it(`${accent}/${base}: ${fg} auf ${bg}${tint ? ` + ${tint}` : ""} ≥ ${min}`, () => {
+        it(`${accent}/${base}: ${[fg + " auf " + bg, ...tintLayers(tint)].join(" + ")} ≥ ${min}`, () => {
           expect(contrastOf(tokens, fg, bg, tint)).toBeGreaterThanOrEqual(min);
         });
       }
@@ -445,29 +488,20 @@ describe("Seitenleiste v2 (Spec 7)", () => {
     expect(row).toMatch(/height:\s*var\(--ab-row-h-host\)/);
     expect(ruleBody(".sb-list")).toMatch(/padding:\s*0;/);
   });
-  it("Hostaktionen sind nur am aktiven Host oder bei Fokus darin sichtbar, aber nicht hinter dem eigenen offenen Menue versteckt", () => {
-    // Bewusst .host-actions [aria-expanded="true"] statt des weiteren
-    // .sb-host-block [aria-expanded="true"]: .row-host traegt ein eigenes
-    // aria-expanded fuer den Aufklapp-Zustand der Sessionliste
-    // (buildHostBlock in views/sidebar.ts), das mit dem Menue nichts zu tun
-    // hat.
-    // `--held`: der Block, in dem beim Druck der Fokus stand (Abnahme B2).
-    expect(
-      ruleBody(
-        '.sb-host-block:not(.sb-host-block--active):not(.sb-host-block--held):not(:focus-within):not(:has(.host-actions [aria-expanded="true"])) .host-actions',
-      ),
-    ).toMatch(/display:\s*none/);
-  });
-  // Abnahme B2: waehrend eines Drucks in der Liste (`sidebar.ts` setzt die
-  // Klasse) zeigt der Fokus in einem Block dessen Leiste nicht -- sie schoebe
-  // die Zeilen vor dem Loslassen weg. Stehen bleiben der markierte Block, der
-  // beim Druck fokussierte (`--held`) und der mit offenem eigenem Menue.
-  it("waehrend eines Drucks in der Liste bleibt die Leiste eines nicht aktiven, nicht gehaltenen Hosts verborgen, auch mit Fokus darin", () => {
-    expect(
-      ruleBody(
-        '.sb-list--pressing .sb-host-block:not(.sb-host-block--active):not(.sb-host-block--held):not(:has(.host-actions [aria-expanded="true"])) .host-actions',
-      ),
-    ).toMatch(/display:\s*none/);
+  // Spec vom 14.11.2026 (Statusanzeige) §2: jede Hostkarte zeigt ihre
+  // Knopfleiste, auf- wie zugeklappt. Keine Regel darf sie verbergen -- auch
+  // nicht ueber die Markierung des aktiven Hosts oder waehrend eines Drucks,
+  // sonst rueckten die Zeilen wieder unter dem Zeiger weg.
+  it("keine Regel verbirgt die Knopfleiste eines Hosts", () => {
+    // Jede Regel, deren Selektor (oder ein Teil einer Selektorliste) auf
+    // `.host-actions` endet.
+    const hiding = [...code.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+      .filter((m) => m[1].split(",").some((part) => /\.host-actions$/.test(part.trim())))
+      .filter((m) => /display:\s*none|visibility:\s*hidden/.test(m[2]))
+      .map((m) => m[1].trim());
+    expect(hiding).toEqual([]);
+    // Die Markierungen aus `views/sidebar.ts` tragen keine Darstellung mehr.
+    expect(code).not.toMatch(/sb-host-block--active|sb-host-block--held|sb-list--pressing/);
   });
   it("Sessionzeile: 26 px, Einzug 34 px, Auswahl mit Akzent-Toenung", () => {
     const row = ruleBody(".row-session");
@@ -677,6 +711,11 @@ describe("Ziehgriff und Breite der Seitenleiste (UX-Spec §7.8)", () => {
   it("in der kompakten Ansicht gibt es weder Einklappknopf noch Symbolleiste, und es bleibt bei einer Spalte", () => {
     expect(ruleBody("#app.compact .sb-collapse,\n#app.compact .sb-rail")).toMatch(/display:\s*none;/);
     expect(ruleBody("#app.compact.sidebar-rail")).toMatch(/grid-template-columns:\s*1fr;/);
+  });
+  // Ohne Symbolleiste fuehrt nur die Tastatur zurueck: kein Knopf, der die
+  // Seitenleiste per Klick oder Tipp wegnimmt.
+  it("ohne Symbolleiste steht der Einklappknopf nicht im Fuss", () => {
+    expect(ruleBody("#app.sidebar-no-rail .sb-collapse")).toMatch(/display:\s*none;/);
   });
   // Spec 2026-11-14 §3: die Marke im Fuss.
   it("der Fuss ist eine Zeile hinter einer Haarlinie; die Marke ist ein Knopf ohne Rahmen in Zeilenhoehe", () => {
@@ -1296,5 +1335,143 @@ describe("Fehlerstreifen ueber der Ansicht", () => {
     const neutral = ruleBody(".global-error-banner--neutral");
     expect(neutral).toMatch(/background-color:\s*var\(--ab-bg-card\);/);
     expect(neutral).toMatch(/background-image:\s*none;/);
+  });
+});
+
+// Spec vom 14.11.2026 (Statusanzeige): laut ist nur, was den Nutzer braucht.
+describe("Statusanzeige (Spec vom 14.11.2026)", () => {
+  const root = () => tokenBlock(":root");
+
+  it("Gruen gehoert der Verbindung, Blau dem arbeitenden Agenten; die alten Token sind fort", () => {
+    expect(root()["--ab-busy"]).toBe("#93C5FD");
+    expect(root()["--ab-chip-bg"]).toMatch(/^rgba\(255, 255, 255, 0\.0\d+\)$/);
+    expect(code).not.toMatch(/--ab-idle\b|--ab-idle-bg|--ab-ok-bg/);
+    // Die Punkte von "Busy" sind blau, kein Agentenzeichen ist gruen.
+    expect(ruleBody(".ag-busy")).toMatch(/background-color:\s*var\(--ab-busy\);/);
+    expect(ruleBody(".ag-busy")).toMatch(/box-shadow:\s*-4px 0 0 var\(--ab-busy\), 4px 0 0 var\(--ab-busy\);/);
+    for (const shape of [".ag-waiting", ".ag-busy", ".ag-idle", ".ag-ended", ".ag-unknown"]) {
+      expect(ruleBody(shape), shape).not.toMatch(/--ab-ok\b/);
+    }
+    expect(ruleBody(".ind-on")).toMatch(/background-color:\s*var\(--ab-ok\);/);
+  });
+
+  it("getoent sind nur Waiting und Ended; Busy, Idle, Unknown und veraltet stehen auf dem Schleier", () => {
+    expect(code).toMatch(/\.st-waiting\s*\{\s*background-color:\s*var\(--ab-warn-bg\);\s*color:\s*var\(--ab-warn\);\s*\}/);
+    expect(code).toMatch(/\.st-ended\s*\{\s*background-color:\s*var\(--ab-danger-bg\);\s*color:\s*var\(--ab-danger\);\s*\}/);
+    expect(code).toMatch(
+      /\.st-busy,\s*\.st-idle,\s*\.st-unknown,\s*\.st-stale\s*\{\s*background-color:\s*var\(--ab-chip-bg\);\s*color:\s*var\(--ab-text-secondary\);\s*\}/,
+    );
+    // "Idle" tritt zurueck: Zeichen grau, Wort nicht halbfett -- aber nicht
+    // gedaempft, das hielte auf dem Schleier keine 4,5:1.
+    expect(code).toMatch(/\.st-idle\s*\{\s*font-weight:\s*var\(--ab-fw-regular\);\s*\}/);
+    expect(ruleBody(".ag-idle")).toMatch(/border:\s*1\.5px solid var\(--ab-text-muted\);/);
+  });
+
+  it("Hostpillen: Online und Offline ruhig, Connecting und Failed getoent", () => {
+    expect(code).toMatch(
+      /\.state-pill--connected\s*\{\s*background-color:\s*var\(--ab-chip-bg\);\s*color:\s*var\(--ab-text-secondary\);\s*\}/,
+    );
+    expect(code).toMatch(
+      /\.state-pill--disconnected\s*\{\s*background-color:\s*var\(--ab-chip-bg\);\s*color:\s*var\(--ab-text-secondary\);\s*font-weight:\s*var\(--ab-fw-regular\);\s*\}/,
+    );
+    expect(code).toMatch(/\.state-pill--disconnected \.ind-off\s*\{\s*border-color:\s*var\(--ab-text-muted\);\s*\}/);
+    expect(code).toMatch(
+      /\.state-pill--failed\s*\{\s*background-color:\s*var\(--ab-danger-bg\);\s*color:\s*var\(--ab-danger\);\s*\}/,
+    );
+  });
+
+  // Beide Regeln haben dieselbe Spezifitaet: stuende die graue vor der
+  // allgemeinen, zeichnete `currentColor` den Ring im Ton des Wortes.
+  it("der graue Ring von Offline steht nach der allgemeinen Ringregel der Pillen", () => {
+    const general = code.indexOf(".state-pill .ind-off {");
+    const grey = code.indexOf(".state-pill--disconnected .ind-off {");
+    expect(general).toBeGreaterThan(-1);
+    expect(grey).toBeGreaterThan(general);
+    expect(ruleBody(".state-pill .ind-off")).toMatch(/border-color:\s*currentColor;/);
+  });
+
+  // Vorher stand der Ring von "Offline" an jeder Session ohne Kachel.
+  it("eine Session ohne Kachel traegt einen kleinen Punkt, keinen Ring", () => {
+    // Ganz Rahmen, keine Flaeche: so bleibt er im Kontrastmodus sichtbar.
+    const closed = ruleBody(".ind-closed");
+    expect(closed).toMatch(/width:\s*0;/);
+    expect(closed).toMatch(/height:\s*0;/);
+    expect(closed).toMatch(/border:\s*var\(--ab-space-1\) solid var\(--ab-text-muted\);/);
+    expect(closed).toMatch(/border-radius:\s*50%;/);
+    expect(closed).not.toMatch(/background/);
+    expect(tokenBlock(":root")["--ab-space-1"]).toBe("2px");
+  });
+
+  it("die Zeile der fokussierten Kachel behaelt das Zeichen ihres Status neben den Knoepfen", () => {
+    const current = '.sb-session-row:has(.row-session[aria-current="true"]):has(.session-acts button)';
+    const meta = code.slice(code.lastIndexOf(`${current} .row-meta {`));
+    expect(meta.slice(0, meta.indexOf("}"))).toMatch(/visibility:\s*visible;/);
+    expect(meta.slice(0, meta.indexOf("}"))).toMatch(/padding-right:\s*calc\(var\(--ab-row-h-session\) \+ var\(--ab-space-1\)\);/);
+    expect(ruleBody(`${current.replace("button)", "button:nth-child(2))")} .row-meta`)).toMatch(
+      /padding-right:\s*calc\(2 \* var\(--ab-row-h-session\) \+ var\(--ab-space-2\)\);/,
+    );
+    // Das Wort bleibt fuer den Bildschirmleser, nur das Auge sieht es nicht.
+    const word = ruleBody(`${current} .st-word`);
+    expect(word).toMatch(/clip:\s*rect\(0, 0, 0, 0\);/);
+    expect(word).not.toMatch(/display:\s*none/);
+    // Unter dem Zeiger gehoert der Platz weiter ganz den Knoepfen.
+    expect(code).toMatch(/\.sb-session-row:hover:has\(\.session-acts button\) \.row-meta,[^{]*\{\s*visibility:\s*hidden;/);
+  });
+
+  // Kompakt stehen die Knoepfe hinter der Pille: sie behaelt ihr Wort.
+  it("in der kompakten Ansicht behaelt auch diese Zeile die ganze Pille", () => {
+    expect(ruleBody("#app.compact .sb-session-row .row-meta")).toMatch(/padding-right:\s*0;/);
+    const word = ruleBody("#app.compact .sb-session-row .st-word");
+    expect(word).toMatch(/position:\s*static;/);
+    expect(word).toMatch(/width:\s*auto;/);
+    expect(word).toMatch(/clip:\s*auto;/);
+    expect(ruleBody("#app.compact .sb-session-row .st")).toMatch(/padding:\s*0 var\(--ab-space-3\) 0 var\(--ab-space-1\);/);
+  });
+
+  it("die Wartet-Spur ist eine Karte mit getoentem Kopf", () => {
+    const lane = ruleBody(".sb-lane");
+    expect(lane).toMatch(/background-color:\s*var\(--ab-bg-card\);/);
+    expect(lane).toMatch(/border:\s*var\(--ab-border-w\) solid var\(--ab-line\);/);
+    expect(lane).toMatch(/border-radius:\s*var\(--ab-radius-md\);/);
+    // Ohne overflow: der Fokusring der Zeilen darf nicht beschnitten werden.
+    expect(lane).not.toMatch(/overflow/);
+    const head = ruleBody(".sb-lane-head");
+    expect(head).toMatch(/background-color:\s*var\(--ab-warn-bg\);/);
+    expect(head).toMatch(/color:\s*var\(--ab-warn\);/);
+    expect(head).not.toMatch(/text-transform/);
+    const count = ruleBody(".sb-lane-count");
+    expect(count).toMatch(/background-color:\s*var\(--ab-warn\);/);
+    expect(count).toMatch(/color:\s*var\(--ab-warn-ink\);/);
+    expect(count).toMatch(/font-variant-numeric:\s*tabular-nums;/);
+  });
+
+  // Bei schmaler Seitenleiste faellt das Kuerzel weg, nicht der Titel.
+  it("im Kopf der Spur bricht das Kuerzel um und wird abgeschnitten, Titel und Zahl bleiben", () => {
+    const head = ruleBody(".sb-lane-head");
+    expect(head).toMatch(/flex-wrap:\s*wrap;/);
+    expect(head).toMatch(/align-content:\s*flex-start;/);
+    expect(head).toMatch(/height:\s*var\(--ab-row-h-session\);/);
+    expect(head).toMatch(/overflow:\s*hidden;/);
+    expect(ruleBody(".sb-lane-head::before")).toMatch(/height:\s*var\(--ab-row-h-session\);/);
+    expect(ruleBody(".sb-lane-title")).toMatch(/white-space:\s*nowrap;/);
+    expect(ruleBody(".sb-lane-title")).toMatch(/flex:\s*none;/);
+    expect(ruleBody(".sb-lane-head kbd")).toMatch(/margin-left:\s*auto;/);
+  });
+
+  it("in der Knopfleiste ist nur der Umschalter gerahmt; verbunden leuchtet er in der Farbe von Online", () => {
+    expect(ruleBody(".host-icon-btn,\n.host-menu-btn")).toMatch(/border-color:\s*transparent;/);
+    const connected = ruleBody(".host-action-btn--connected");
+    expect(connected).toMatch(/border-color:\s*var\(--ab-ok\);/);
+    expect(connected).toMatch(/color:\s*var\(--ab-ok\);/);
+    // Unter dem Zeiger bleibt das Wort gruen und die Flaeche die aller
+    // Leistenknoepfe: kein gefuellter gruener Knopf, der Terminals schliesst.
+    const hover = ruleBody(".host-action-btn--connected:not(:disabled):hover");
+    expect(hover).toMatch(/color:\s*var\(--ab-ok\);/);
+    expect(hover).not.toMatch(/background/);
+    expect(ruleBody(".host-action-btn:not(:disabled):hover")).toMatch(/background-color:\s*var\(--ab-bg-hover\);/);
+    // Der Akzent traegt keinen Zustand (Farbwahl §2), und "Connect" ist ruhig.
+    const rules = [...code.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter((m) => m[1].includes(".host-action-btn"));
+    for (const [, selector, body] of rules) expect(body, selector.trim()).not.toMatch(/--ab-accent/);
+    expect(code).not.toMatch(/host-action-btn--connect\b(?!ed)/);
   });
 });

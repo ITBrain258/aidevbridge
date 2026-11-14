@@ -155,7 +155,7 @@ describe("settings-dialog: Rahmen mit senkrechten Tabs (Einstellungs-Spec §3, U
   it("der Hinweis des Schalters nennt das Kuerzel aus der uebergebenen Belegung", () => {
     const { container } = mount({ keymap: { ...DEFAULT_KEYMAP, "sidebar.toggle": "Ctrl+Alt+S" } });
     tab(container, "Appearance").click();
-    expect(panel(container).querySelector(".settings-row-hint")?.textContent).toContain("Ctrl+Alt+S brings it back.");
+    expect(panel(container).querySelector(".settings-row-hint")?.textContent).toContain("Ctrl+Alt+S hides the sidebar and brings it back.");
   });
 
   it("Appearance zeigt den Schalter nach einem Wechsel des Bereichs, wie er zuletzt gestellt wurde", () => {
