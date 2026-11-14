@@ -48,6 +48,7 @@ import { connectInOrder, createWorkspaceSync, withRecentDir } from "./state/work
 import { installKeyboard } from "./keyboard";
 import { focusableElements, mountDialogShell } from "./views/dialog";
 import { mountSidebar } from "./views/sidebar";
+import { mountSidebarRail } from "./views/sidebar-rail";
 import { mountSidebarResize } from "./views/sidebar-resize";
 import { mountGrid, type GridHandle } from "./views/grid";
 import { mountFirstRun, type FirstRunHandle } from "./views/first-run";
@@ -75,7 +76,7 @@ import { applyTheme, currentTheme, isThemeId, normalizeTheme, onThemeApplied, re
 import type { FontSizeChange } from "./keymap";
 import { DEFAULT_TERMINAL_FONT_SIZE, onTerminalPrefsChanged, setTerminalPrefs, terminalPrefs } from "./terminal-prefs";
 import { createUiSettingsSync } from "./state/ui-settings-sync";
-import { mountSettingsDialog } from "./views/settings-dialog";
+import { mountSettingsDialog, type SettingsSectionId } from "./views/settings-dialog";
 import { openQuickOpen, quickOpenItems, quickOpenLabels, type QuickOpenItem } from "./views/quick-open";
 import type { UiSettingsDto } from "./views/types";
 import { appVersionLine } from "./version";
@@ -424,6 +425,11 @@ export function main(): void {
   /** "Restore hosts and terminals" (`ui.restore_workspace`, UX-Spec §7.2, §9.1);
    * bis zur Antwort von `ui_settings` der Standard. */
   let restoreWorkspace = true;
+  /** "Icon rail when collapsed" (`ui.sidebar_rail`, Spec 2026-11-14 §2): die
+   * eingeklappte Seitenleiste laesst eine Symbolleiste stehen. Aus blendet sie
+   * ganz aus, wie vor der Symbolleiste. Bis zur Antwort von `ui_settings` der
+   * Standard. */
+  let sidebarRail = true;
   /** Pfad von settings.toml fuer About (UX-Spec §9.1), aus der ersten Antwort
    * von `ui_settings`; `null`, solange sie fehlt. */
   let settingsPath: string | null = null;
@@ -522,6 +528,12 @@ export function main(): void {
     if (typeof dto.settings_path === "string") settingsPath = dto.settings_path;
     const stored = uiSettingsSync.applyStored(dto);
     if (stored.fields.restore_workspace !== undefined) restoreWorkspace = stored.fields.restore_workspace;
+    // `applySidebarRail` steht weiter unten; gerufen wird wie bei der Breite
+    // erst nach dem `await` in `loadStoredSettings`, also nach dem Mount.
+    if (stored.fields.sidebar_rail !== undefined && stored.fields.sidebar_rail !== sidebarRail) {
+      sidebarRail = stored.fields.sidebar_rail;
+      if (applySidebarRail()) gridHandle?.refit();
+    }
     setTerminalPrefs(stored.prefs);
     // UX-Spec §7.8: die gespeicherte Breite gilt, sobald die Antwort da ist --
     // ohne `onCommit`, also ohne Schreiben, und nur, solange der Nutzer in
@@ -538,6 +550,14 @@ export function main(): void {
     uiSettingsSync.schedule("restore_workspace", value);
   }
 
+  function onSidebarRailChange(value: boolean): void {
+    sidebarRail = value;
+    uiSettingsSync.schedule("sidebar_rail", value);
+    // Bei eingeklappter Seitenleiste aendert sich die Rasterflaeche sofort,
+    // hinter dem offenen Dialog.
+    if (applySidebarRail()) gridHandle?.refit();
+  }
+
   function persistTheme(theme: ThemeId): void {
     void writeUiSettings({ theme })
       .then(() => {
@@ -548,7 +568,10 @@ export function main(): void {
       });
   }
 
-  function onOpenSettings(): void {
+  /** Oeffnet die Einstellungen, ohne Angabe auf dem ersten Bereich. Tastatur
+   * und Schnelloeffnen rufen ohne Argument; die Marke im Fuss der Seitenleiste
+   * nennt About. */
+  function onOpenSettings(section?: SettingsSectionId): void {
     openDialog(
       { title: t("settings.title"), large: true },
       (container) =>
@@ -561,7 +584,10 @@ export function main(): void {
           onPersist: persistTheme,
           restoreWorkspace: () => restoreWorkspace,
           onRestoreWorkspaceChange,
+          sidebarRail: () => sidebarRail,
+          onSidebarRailChange,
           settingsPath: () => settingsPath,
+          initialSection: section,
         }),
     );
   }
@@ -2564,9 +2590,23 @@ export function main(): void {
   // `setSidebarCollapsed` meldet jede Aenderung dem Arbeitsplatz.
   let sidebarCollapsed = false;
 
+  /** Zeigt die Symbolleiste genau dann, wenn die Seitenleiste eingeklappt
+   * ist und die Einstellung sie will (Spec 2026-11-14 §2). Die Klasse an
+   * `#app` gibt ihr die erste Spalte, `hidden` nimmt sie aus Boxbaum und
+   * Tab-Reihenfolge; beide stehen nur hier. Meldet, ob sich die Rasterflaeche
+   * geaendert hat. */
+  function applySidebarRail(): boolean {
+    const show = sidebarCollapsed && sidebarRail;
+    if (elements.app.classList.contains("sidebar-rail") === show) return false;
+    elements.app.classList.toggle("sidebar-rail", show);
+    sidebarRailHandle.setHidden(!show);
+    return true;
+  }
+
   function setSidebarCollapsed(collapsed: boolean): void {
     sidebarCollapsed = collapsed;
     elements.app.classList.toggle("sidebar-collapsed", collapsed);
+    applySidebarRail();
     // Die Seitenleiste kann das Einklappen nicht selbst bemerken: hier faellt
     // nur eine Klasse an `#app`, kein Zustandssignal. `display: none` nimmt
     // das Menue-DOM zwar mit, aber die Horcher an `document`/`window` blieben
@@ -2621,8 +2661,8 @@ export function main(): void {
     // Stehen dort noch keine Hosts, faengt die ganze Seitenleiste den Fokus:
     // ihr erster Tab-Halt ist nach UI v2 §7.2 der "Add host"-Knopf
     // (`.sb-btn`) im Kopf, der dort VOR dem Zahnrad steht -- also genau das
-    // gewuenschte Ziel. Der Fuss traegt nur die Versionszeile und damit
-    // keinen Tab-Halt.
+    // gewuenschte Ziel. Die Knoepfe im Fuss (Marke, Einklappen) folgen im
+    // Dokument erst nach Kopf und Liste.
     const list = elements.sidebar.querySelector<HTMLElement>(".sb-list");
     const target =
       (list && focusableElements(list).find((node) => node.closest(".sb-lane") === null)) ??
@@ -2913,7 +2953,34 @@ export function main(): void {
     onKillSession: killSession,
     onAddHost,
     onOpenSettings,
+    // Der Knopf verschwindet mit der Seitenleiste. Der Fokus geht auf sein
+    // Gegenstueck in der Symbolleiste; ohne sie in die fokussierte Kachel,
+    // wie nach dem Kuerzel aus einem Terminal.
+    onCollapse: () => {
+      setSidebarCollapsed(true);
+      if (!sidebarRailHandle.focusExpand()) gridHandle?.focusActiveTile();
+    },
     waitingSince: (key) => waitingSince.get(key),
+  });
+
+  // Spec 2026-11-14 §2: die Symbolleiste der eingeklappten Seitenleiste, als
+  // eigenes Kind von `#app` hinter `#sidebar`. Sie beginnt verborgen;
+  // `applySidebarRail` zeigt sie.
+  const sidebarRailHandle = mountSidebarRail(elements.sidebar, state, {
+    // Zurueck auf den Knopf, der wieder einklappt: wer mit der Tastatur
+    // umschaltet, bleibt an derselben Stelle.
+    onExpand: () => {
+      setSidebarCollapsed(false);
+      elements.sidebar.querySelector<HTMLElement>(".sb-collapse")?.focus();
+    },
+    onShowHost: (hostId) => {
+      setSidebarCollapsed(false);
+      Array.from(elements.sidebar.querySelectorAll<HTMLElement>(".row-host"))
+        .find((row) => row.dataset.hostId === hostId)
+        ?.focus();
+    },
+    onNextWaiting: openNextWaitingSession,
+    onOpenSettings,
   });
 
   // UX-Spec §7.8: der Ziehgriff am rechten Rand der Seitenleiste, hinter
@@ -3019,6 +3086,7 @@ export function main(): void {
     backgroundStopped = true;
     compactShell?.dispose();
     touchKeys?.dispose();
+    sidebarRailHandle.dispose();
     uninstallKeyboard();
     offTerminalPrefs();
     // Ein ausstehender Schreibvorgang gehoert diesem Lauf; in der App laeuft

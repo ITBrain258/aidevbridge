@@ -22,6 +22,7 @@ function handlers() {
     onOpenSession: vi.fn(), onCloseSession: vi.fn(), onKillSession: vi.fn(),
     onAddHost: vi.fn(),
     onOpenSettings: vi.fn(),
+    onCollapse: vi.fn(),
   };
 }
 
@@ -2136,23 +2137,25 @@ describe("mountSidebar: die Knopfleiste als zweiter Tabstopp", () => {
     return candidates.filter((c) => c.tabIndex !== -1 && !c.closest("[hidden]"));
   }
 
-  it("hat bei gesunden Hosts genau vier Haltestellen", () => {
+  it("hat bei gesunden Hosts genau sechs Haltestellen", () => {
     const s = new AppState();
     s.upsertHost(host("h1", ["a", "b"]));
     s.upsertHost(host("h2", ["c"]));
     s.openSession("h1", "a"); // erzeugt einen Schliessknopf, der -1 tragen muss
     const { el } = mount(s);
     const stops = tabStops(el);
-    expect(stops).toHaveLength(4);
+    expect(stops).toHaveLength(6);
     // Die Zahl allein ist blind dafuer, WELCHE Leiste den Halt traegt --
-    // eine Umsetzung, die ihn fest an den ersten Host haengt, zaehlt auch 4.
-    // Seit Aufgabe 8 steht der Add-Knopf im Kopf, VOR dem Zahnrad (UI v2
-    // §7.2) -- die zwei Kopfknoepfe sind damit die ersten beiden Halte. Der
-    // Knopf ist nur umgezogen, die Zahl bleibt darum 4.
+    // eine Umsetzung, die ihn fest an den ersten Host haengt, zaehlt genauso.
+    // Der Add-Knopf steht im Kopf, VOR dem Zahnrad (UI v2 §7.2) -- die zwei
+    // Kopfknoepfe sind die ersten beiden Halte. Hinter der Liste folgen die
+    // zwei Knoepfe im Fuss: Marke und Einklappen (Spec 2026-11-14 §2, §3).
     expect(stops[0].classList.contains("sb-btn")).toBe(true); // Kopf
     expect(stops[1].classList.contains("sb-head-btn")).toBe(true);
     expect(stops[2].classList.contains("ab-row")).toBe(true);
     expect(stops[3].closest(".host-actions")).not.toBeNull();
+    expect(stops[4].classList.contains("sb-brand")).toBe(true); // Fuss
+    expect(stops[5].classList.contains("sb-collapse")).toBe(true);
   });
 
   it("gibt den Halt der Leiste des Hosts, zu dem die aktuelle Zeile gehoert", () => {
@@ -2325,7 +2328,7 @@ describe("mountSidebar: die Knopfleiste als zweiter Tabstopp", () => {
     // `authKind === "agent"` (ein Host ohne gespeicherte Anmeldeart und ohne
     // `key_path` gilt als "agent", das trifft auch Passwort-Hosts von vor
     // Task 8).
-    expect(tabStops(el)).toHaveLength(4 + 3);
+    expect(tabStops(el)).toHaveLength(6 + 3);
   });
 
   it("zaehlt bei einem fehlgeschlagenen Schluesselhost das Passphrasenfeld mit", () => {
@@ -2339,14 +2342,14 @@ describe("mountSidebar: die Knopfleiste als zweiter Tabstopp", () => {
       authKind: "key",
     });
     const { el } = mount(s);
-    expect(tabStops(el)).toHaveLength(4 + 3);
+    expect(tabStops(el)).toHaveLength(6 + 3);
   });
 
   it("zaehlt nach einem Netzfehler nur Retry und Details", () => {
     const s = new AppState();
     s.upsertHost({ ...host("h1"), state: "failed", error: "SSH connection timed out.", errorCode: "connect_timeout" });
     const { el } = mount(s);
-    expect(tabStops(el)).toHaveLength(4 + 2);
+    expect(tabStops(el)).toHaveLength(6 + 2);
   });
 });
 
@@ -2753,7 +2756,7 @@ describe("mountSidebar: Diagnosetext beginnt mit Version und Commit", () => {
 // das Aussehen -- die Neuform der Regeln folgt in Aufgabe 9 und darf diese
 // Tests nicht beruehren.
 describe("UI v2: Kopf, Kuerzel, Pille, aktive Aktionsleiste (Spec 7)", () => {
-  it("der Add-Knopf steht im Kopf, behaelt Klasse und Fokusschluessel; der Fuss traegt nur die Version", () => {
+  it("der Add-Knopf steht im Kopf, behaelt Klasse und Fokusschluessel; der Fuss traegt Marke und Einklappknopf", () => {
     const s = new AppState();
     const { el } = mount(s);
     const add = el.querySelector<HTMLButtonElement>(".sb-head .sb-btn");
@@ -2764,6 +2767,67 @@ describe("UI v2: Kopf, Kuerzel, Pille, aktive Aktionsleiste (Spec 7)", () => {
     expect(el.querySelector(".sb-foot .sb-version")).not.toBeNull();
     const headChildren = Array.from(el.querySelector(".sb-head")!.children).map((c) => c.className);
     expect(headChildren).toEqual(["", "sb-btn", "sb-head-btn"]);
+    const footChildren = Array.from(el.querySelector(".sb-foot")!.children).map((c) => c.className);
+    expect(footChildren).toEqual(["sb-brand", "sb-head-btn sb-collapse"]);
+  });
+
+  // Spec 2026-11-14 §3: die Marke im Fuss.
+  it("die Marke zeigt Zeichen, Name und Version ohne Commit und oeffnet die Einstellungen auf About", () => {
+    const s = new AppState();
+    const { el, h } = mount(s);
+    const brand = el.querySelector<HTMLButtonElement>(".sb-foot button.sb-brand")!;
+    expect(Array.from(brand.children).map((c) => c.className)).toEqual(["sb-brand-mark", "sb-brand-name", "sb-version"]);
+    // Das Zeichen ist Schmuck; den Namen traegt der Text daneben.
+    expect(brand.querySelector(".sb-brand-mark")?.getAttribute("aria-hidden")).toBe("true");
+    expect(brand.querySelector(".sb-brand-mark svg")).not.toBeNull();
+    expect(brand.querySelector(".sb-brand-name")?.textContent).toBe("aidevbridge");
+    expect(brand.querySelector(".sb-version")?.textContent).toBe("0.0.0-test");
+    // Der Commit steht unter About und in "Copy diagnostics", hier nicht mehr.
+    expect(brand.textContent).not.toContain("(test)");
+    expect(brand.textContent).not.toBe(appVersionLine());
+    expect(brand.title).toBe("About aidevbridge");
+    expect(brand.getAttribute("aria-label")).toBe("About aidevbridge, version 0.0.0-test");
+    expect(brand.dataset.focusKey).toBe("foot::brand");
+
+    brand.click();
+    expect(h.onOpenSettings).toHaveBeenCalledTimes(1);
+    expect(h.onOpenSettings).toHaveBeenCalledWith("about");
+  });
+
+  it("das Zahnrad oeffnet die Einstellungen ohne Bereich", () => {
+    const s = new AppState();
+    const { el, h } = mount(s);
+    el.querySelector<HTMLButtonElement>(".sb-head .sb-head-btn")!.click();
+    expect(h.onOpenSettings).toHaveBeenCalledTimes(1);
+    expect(h.onOpenSettings.mock.calls[0]).toEqual([]);
+  });
+
+  // Spec 2026-11-14 §2: Einklappen mit der Maus.
+  it("der Einklappknopf nennt sich und sein Kuerzel und meldet den Klick", () => {
+    const s = new AppState();
+    const { el, h } = mount(s);
+    const collapse = el.querySelector<HTMLButtonElement>(".sb-foot button.sb-collapse")!;
+    expect(collapse.getAttribute("aria-label")).toBe("Collapse sidebar");
+    expect(collapse.title).toBe("Collapse sidebar (Ctrl+Shift+B)");
+    expect(collapse.querySelector("svg[aria-hidden='true']")).not.toBeNull();
+    expect(collapse.dataset.focusKey).toBe("foot::collapse");
+    collapse.click();
+    expect(h.onCollapse).toHaveBeenCalledTimes(1);
+  });
+
+  // Die Liste baut bei jeder Benachrichtigung neu; ein Knopf im Fuss, der
+  // dabei aus dem Dokument fiele, verloere Fokus und Klick.
+  it("die Knoepfe im Fuss ueberleben das Neuzeichnen der Liste", () => {
+    const s = new AppState();
+    const { el } = mount(s);
+    const brand = el.querySelector(".sb-brand");
+    const collapse = el.querySelector<HTMLButtonElement>(".sb-collapse")!;
+    collapse.focus();
+    s.upsertHost(host("h1", ["a"]));
+    s.setHostState("h1", "disconnected");
+    expect(el.querySelector(".sb-brand")).toBe(brand);
+    expect(el.querySelector(".sb-collapse")).toBe(collapse);
+    expect(document.activeElement).toBe(collapse);
   });
 
   it("zeigt ohne Hosts den Leerhinweis in der Liste", () => {

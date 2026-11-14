@@ -6,6 +6,15 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Added
+
+- Seitenleiste: Ein Knopf im Fuss klappt sie ein, derselbe Weg wie Strg+Umschalt+B. Eingeklappt bleibt eine schmale Symbolleiste stehen: oben die Zahl der wartenden Sessions (Klick springt zur naechsten), darunter je Host sein Kuerzel mit der Zustandsform und einer Raute, wenn dort eine Session wartet, unten Einstellungen, About und der Knopf zum Ausklappen. Ein Klick auf einen Host klappt die Seitenleiste aus und setzt den Fokus auf seine Zeile. Bisher verschwand die Seitenleiste ganz, und zurueck fuehrte nur das Kuerzel. Wer das behalten will, schaltet "Icon rail when collapsed" aus (Einstellungen, Appearance, Karte "Sidebar"); gespeichert als `sidebar_rail` unter `[ui]` in `settings.toml`, Standard an. Auf dem Telefon bleibt die Seitenleiste die Schublade der Kopfleiste (Spec vom 14.11.).
+- Darstellung: vier weitere Hintergruende neben Graphite und Slate: Midnight (neutral, fast schwarz), Mocha (warmes Braungrau), Plum (violett getoent) und Pine (gruen getoent). Mit den sieben Akzentfarben sind es 42 Kombinationen statt 14; die Kontraste jeder Kombination prueft derselbe Test wie bisher. Ein aelterer Build kennt die neuen Namen nicht und zeigt dafuer Tuerkis auf Graphit mit einem Hinweis.
+
+### Changed
+
+- Seitenleiste: Im Fuss steht statt der Zeile "aidevbridge 0.3.4 (Commit)" die Marke: das Prompt-Zeichen im gewaehlten Akzent, der Name und die Versionsnummer. Ein Klick oeffnet die Einstellungen auf About. Die Commit-Kennung steht weiter unter About und in "Copy diagnostics".
+
 ## [0.3.4] - 2026-11-14
 
 Klicks in der Seitenleiste gehen nicht mehr verloren, Browsertasten bleiben mit Bildschirmleser gesperrt, und auf Android fuehrt nach einem neuen Serverschluessel ein Weg in der App zurueck zum Host.

@@ -149,7 +149,7 @@ const CONTRAST_PAIRS: ReadonlyArray<readonly [string, string, string | null, num
 
 // Farbwahl (Spec 2026-09-14 §3): jede Variante ist `:root` + Grundtonblock +
 // Akzentblock. Die Standardblöcke tragen `:root` im Selektor.
-const BASE_IDS = ["graphite", "slate"] as const;
+const BASE_IDS = ["graphite", "slate", "midnight", "mocha", "plum", "pine"] as const;
 const ACCENT_IDS = ["turquoise", "blue", "violet", "pink", "red", "orange", "green"] as const;
 const baseBlock = (id: string) =>
   tokenBlock(id === "graphite" ? ':root, [data-base="graphite"]' : `[data-base="${id}"]`);
@@ -168,7 +168,7 @@ const CONNECTING_PAIRS: ReadonlyArray<readonly [string, string, string | null, n
   ["--ab-connecting", "--ab-bg-panel", "--ab-connecting-bg", 4.5],
 ];
 
-describe("Kontrast aller 14 Farbvarianten (Spec 5.4, Farbwahl §3)", () => {
+describe("Kontrast aller 42 Farbvarianten (Spec 5.4, Farbwahl §3, Spec 2026-11-14 §4)", () => {
   for (const base of BASE_IDS) {
     for (const accent of ACCENT_IDS) {
       const tokens = variantTokens(accent, base);
@@ -621,6 +621,89 @@ describe("Ziehgriff und Breite der Seitenleiste (UX-Spec §7.8)", () => {
     const rule = ruleBody("#app.sidebar-collapsed");
     expect(rule).toMatch(/grid-template-columns:\s*1fr;/);
     expect(rule).not.toMatch(/grid-template-columns:\s*0\s+1fr/);
+  });
+  // Spec 2026-11-14 §2: die Symbolleiste der eingeklappten Seitenleiste.
+  it("mit Symbolleiste bekommt #app zwei Spalten: die Leiste in ihrer Breite, das Raster den Rest", () => {
+    expect(tokenBlock(":root")["--ab-rail-w"]).toBe("46px");
+    expect(ruleBody("#app.sidebar-rail")).toMatch(/grid-template-columns:\s*var\(--ab-rail-w\) 1fr;/);
+    // Bei gleicher Spezifitaet gewinnt die spaetere Regel: die der
+    // Symbolleiste muss nach der einen Spalte von `sidebar-collapsed` stehen.
+    expect(css.indexOf("\n#app.sidebar-rail {")).toBeGreaterThan(css.indexOf("\n#app.sidebar-collapsed {"));
+    // Die Seitenleiste selbst bleibt eingeklappt aus dem Boxbaum.
+    expect(ruleBody("#app.sidebar-collapsed #sidebar")).toMatch(/display:\s*none;/);
+  });
+  it("die Symbolleiste ist eine Karte wie die Seitenleiste; ihre Hosts rollen ohne Balken", () => {
+    const rail = ruleBody(".sb-rail");
+    expect(rail).toMatch(/display:\s*flex;/);
+    expect(rail).toMatch(/flex-direction:\s*column;/);
+    expect(rail).toMatch(/min-height:\s*0;/);
+    expect(rail).toMatch(/background-color:\s*var\(--ab-bg-panel\);/);
+    expect(rail).toMatch(/border-radius:\s*var\(--ab-radius-lg\);/);
+    expect(rail).toMatch(/box-sizing:\s*border-box;/);
+    const hosts = ruleBody(".sb-rail-hosts");
+    expect(hosts).toMatch(/min-height:\s*0;/);
+    expect(hosts).toMatch(/overflow-y:\s*auto;/);
+    expect(hosts).toMatch(/scrollbar-width:\s*none;/);
+    // WebKit vor Safari 18.2 (macOS ab 12.4) kennt nur das Pseudoelement.
+    expect(ruleBody(".sb-rail-hosts::-webkit-scrollbar")).toMatch(/display:\s*none;/);
+  });
+  it("die Knoepfe der Symbolleiste sind 32 px im Quadrat ohne Rahmen; die Kontur liegt innen", () => {
+    const button = ruleBody(".sb-rail-btn,\n.sb-rail-host,\n.sb-rail-waiting");
+    expect(button).toMatch(/width:\s*32px;/);
+    expect(button).toMatch(/height:\s*32px;/);
+    expect(button).toMatch(/border:\s*0;/);
+    expect(button).toMatch(/position:\s*relative;/);
+    // 32 px Knopf + je 6 px Polster + je 1 px Rahmen = die Breite der Leiste.
+    expect(ruleBody(".sb-rail")).toMatch(/padding:\s*var\(--ab-space-3\);/);
+    expect(tokenBlock(":root")["--ab-space-3"]).toBe("6px");
+    expect(
+      ruleBody(".sb-rail-btn:focus-visible,\n.sb-rail-host:focus-visible,\n.sb-rail-waiting:focus-visible"),
+    ).toMatch(/outline-offset:\s*-2px;/);
+  });
+  it("Zustand und Wartemarke sitzen auf den rechten Ecken des Hostknopfs", () => {
+    const badge = ruleBody(".sb-rail-state,\n.sb-rail-flag");
+    expect(badge).toMatch(/position:\s*absolute;/);
+    expect(badge).toMatch(/right:\s*0;/);
+    expect(badge).toMatch(/width:\s*12px;/);
+    expect(badge).toMatch(/height:\s*12px;/);
+    // Die eigenen Regeln, nicht die gemeinsame darueber (`ruleBody` faende
+    // fuer `.sb-rail-flag` deren zweite Zeile).
+    expect(css).toMatch(/\n\.sb-rail-state \{\s*bottom:\s*0;\s*\}/);
+    expect(css).toMatch(/\n\.sb-rail-flag \{\s*top:\s*0;\s*\}/);
+  });
+  it("mit der Touch-Leiste reicht die Symbolleiste wie die Seitenleiste ueber beide Zeilen", () => {
+    expect(ruleBody("#app.has-touch-keys #sidebar,\n#app.has-touch-keys .sb-rail")).toMatch(/grid-row:\s*1 \/ -1;/);
+  });
+  it("in der kompakten Ansicht gibt es weder Einklappknopf noch Symbolleiste, und es bleibt bei einer Spalte", () => {
+    expect(ruleBody("#app.compact .sb-collapse,\n#app.compact .sb-rail")).toMatch(/display:\s*none;/);
+    expect(ruleBody("#app.compact.sidebar-rail")).toMatch(/grid-template-columns:\s*1fr;/);
+  });
+  // Spec 2026-11-14 §3: die Marke im Fuss.
+  it("der Fuss ist eine Zeile hinter einer Haarlinie; die Marke ist ein Knopf ohne Rahmen in Zeilenhoehe", () => {
+    const foot = ruleBody(".sb-foot");
+    expect(foot).toMatch(/display:\s*flex;/);
+    expect(foot).toMatch(/border-top:\s*var\(--ab-border-w\) solid var\(--ab-line\);/);
+    const brand = ruleBody(".sb-brand");
+    expect(brand).toMatch(/height:\s*var\(--ab-row-btn-h\);/);
+    expect(brand).toMatch(/border:\s*0;/);
+    expect(brand).toMatch(/min-width:\s*0;/);
+    // Der Name gibt zuerst nach, Zeichen und Version behalten ihre Breite.
+    const name = ruleBody(".sb-brand-name");
+    expect(name).toMatch(/min-width:\s*0;/);
+    expect(name).toMatch(/text-overflow:\s*ellipsis;/);
+    expect(ruleBody(".sb-brand-mark")).toMatch(/flex:\s*none;/);
+    expect(ruleBody(".sb-version")).toMatch(/flex:\s*none;/);
+  });
+  it("das Zeichen der Marke traegt den Akzent mit seiner Tinte", () => {
+    const mark = ruleBody(".sb-brand-mark");
+    expect(mark).toMatch(/background-color:\s*var\(--ab-accent\);/);
+    expect(mark).toMatch(/color:\s*var\(--ab-accent-ink\);/);
+    expect(mark).toMatch(/width:\s*18px;/);
+    expect(mark).toMatch(/height:\s*18px;/);
+  });
+  it("sechs Grundtonkarten stehen in drei gleich breiten Spalten, auf dem schmalen Telefon in zweien", () => {
+    expect(ruleBody(".base-cards")).toMatch(/grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/);
+    expect(css).toMatch(/html\.compact \.base-cards \{\s*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/);
   });
   it("Reload sessions ist ein quadratischer Zeilenknopf der Leiste", () => {
     const button = ruleBody(".host-icon-btn");
@@ -1172,10 +1255,10 @@ describe("Barrierefreiheit und Optik (UX-Spec §11)", () => {
     // Der Browser zeichnet auch den Fokusring hier in Highlight und durchgezogen.
     // Fokus und Auswahl koennen auf verschiedenen Zeilen stehen (Zeiger der
     // Liste gegen `aria-current`); die Auswahl ist deshalb gestrichelt.
-    it("Auswahl von Tab, Session, Schnelloeffnen-Zeile und Grundtonkarte als gestrichelte outline in Highlight", () => {
+    it("Auswahl von Tab, Session, Host der Symbolleiste, Schnelloeffnen-Zeile und Grundtonkarte als gestrichelte outline in Highlight", () => {
       const chosen = blockRule(
         block(),
-        ':where(.settings-tab[aria-selected="true"], .row-session[aria-current="true"], .quick-open-option[aria-selected="true"], .base-card:has(input:checked))',
+        ':where(.settings-tab[aria-selected="true"], .row-session[aria-current="true"], .sb-rail-host[aria-current="true"], .quick-open-option[aria-selected="true"], .base-card:has(input:checked))',
       );
       expect(chosen).toMatch(/outline:\s*var\(--ab-focus-w\) dashed Highlight;/);
       expect(chosen).toMatch(/outline-offset:\s*-2px;/);

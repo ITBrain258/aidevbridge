@@ -1,14 +1,24 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { mountAppearanceSection } from "./settings-appearance";
+import { DEFAULT_KEYMAP } from "../keymap";
 import { THEMES, type ThemeId } from "../theme";
 
-function mount(current: ThemeId = "turquoise", unknownStoredTheme: string | null = null) {
+function mount(current: ThemeId = "turquoise", unknownStoredTheme: string | null = null, sidebarRail = true) {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const onThemeChange = vi.fn();
   const onPersist = vi.fn();
-  const handle = mountAppearanceSection(container, { current, unknownStoredTheme, onThemeChange, onPersist });
-  return { container, handle, onThemeChange, onPersist };
+  const onSidebarRailChange = vi.fn();
+  const handle = mountAppearanceSection(container, {
+    current,
+    unknownStoredTheme,
+    onThemeChange,
+    onPersist,
+    sidebarRail,
+    onSidebarRailChange,
+    keymap: DEFAULT_KEYMAP,
+  });
+  return { container, handle, onThemeChange, onPersist, onSidebarRailChange };
 }
 
 function radios(container: HTMLElement, name: "accent" | "base"): HTMLInputElement[] {
@@ -31,10 +41,14 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+const BASE_IDS = ["graphite", "slate", "midnight", "mocha", "plum", "pine"];
+
 describe("settings-appearance (Farbwahl-Spec §6, Einstellungs-Spec §5)", () => {
-  it("zwei Karten mit sieben Akzenten und zwei Grundtoenen; die Legende ist der Kartentitel", () => {
+  it("zwei Farbkarten mit sieben Akzenten und sechs Grundtoenen; die Legende ist der Kartentitel", () => {
     const { container } = mount("red-slate");
-    expect(container.querySelector("h3")).toBeNull();
+    // Die Farbkarten tragen ihre Legende als Titel; eine Ueberschrift hat nur
+    // die Karte mit dem Schalter darunter.
+    expect(Array.from(container.querySelectorAll("h3"), (h) => h.textContent)).toEqual(["Sidebar"]);
     expect(
       Array.from(
         container.querySelectorAll(".settings-card > fieldset.settings-group > legend.settings-card-title"),
@@ -44,7 +58,7 @@ describe("settings-appearance (Farbwahl-Spec §6, Einstellungs-Spec §5)", () =>
     expect(radios(container, "accent").map((r) => r.value)).toEqual([
       "turquoise", "blue", "violet", "pink", "red", "orange", "green",
     ]);
-    expect(radios(container, "base").map((r) => r.value)).toEqual(["graphite", "slate"]);
+    expect(radios(container, "base").map((r) => r.value)).toEqual(BASE_IDS);
     expect(radios(container, "accent").filter((r) => r.checked).map((r) => r.value)).toEqual(["red"]);
     expect(radios(container, "base").filter((r) => r.checked).map((r) => r.value)).toEqual(["slate"]);
   });
@@ -66,12 +80,45 @@ describe("settings-appearance (Farbwahl-Spec §6, Einstellungs-Spec §5)", () =>
   it("die Grundtonkarten tragen Namen und ihren Grundton als data-base", () => {
     const { container } = mount();
     const cards = Array.from(container.querySelectorAll<HTMLElement>("label.base-card"));
-    expect(cards.map((c) => c.dataset.base)).toEqual(["graphite", "slate"]);
+    expect(cards.map((c) => c.dataset.base)).toEqual(BASE_IDS);
     expect(Array.from(container.querySelectorAll(".base-card-name"), (n) => n.textContent)).toEqual([
       "Graphite",
       "Slate",
+      "Midnight",
+      "Mocha",
+      "Plum",
+      "Pine",
     ]);
-    expect(container.querySelectorAll(".base-swatches[aria-hidden='true']")).toHaveLength(2);
+    expect(container.querySelectorAll(".base-swatches[aria-hidden='true']")).toHaveLength(6);
+  });
+
+  // Spec 2026-11-14 §2: der Schalter der Symbolleiste.
+  it("die Karte Sidebar steht unter den Farben und traegt den Schalter der Symbolleiste mit dem Kuerzel im Hinweis", () => {
+    const { container } = mount();
+    const cards = Array.from(container.querySelectorAll(".settings-appearance > .settings-card"));
+    expect(cards).toHaveLength(3);
+    const card = cards[2];
+    expect(card.querySelector(".settings-card-title")?.textContent).toBe("Sidebar");
+    const toggle = card.querySelector<HTMLButtonElement>('button[role="switch"]')!;
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    expect(card.textContent).toContain("Icon rail when collapsed");
+    expect(card.textContent).toContain(
+      "Keeps a narrow strip with your hosts and their state when you collapse the sidebar. Off hides the sidebar completely; Ctrl+Shift+B brings it back.",
+    );
+  });
+
+  it("der Schalter zeigt den gespeicherten Wert und meldet jedes Umschalten", () => {
+    const { container, onSidebarRailChange, onPersist } = mount("turquoise", null, false);
+    const toggle = container.querySelector<HTMLButtonElement>('.settings-card button[role="switch"]')!;
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    toggle.click();
+    expect(onSidebarRailChange).toHaveBeenCalledTimes(1);
+    expect(onSidebarRailChange).toHaveBeenLastCalledWith(true);
+    toggle.click();
+    expect(onSidebarRailChange).toHaveBeenLastCalledWith(false);
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    // Der Schalter schreibt kein Thema.
+    expect(onPersist).not.toHaveBeenCalled();
   });
 
   it("jeder Wechsel ruft onThemeChange sofort mit der Id aus beiden Gruppen", () => {
@@ -119,7 +166,8 @@ describe("settings-appearance (Farbwahl-Spec §6, Einstellungs-Spec §5)", () =>
     for (const current of THEMES) {
       const { container } = mount(current);
       const all = Array.from(container.querySelectorAll<HTMLInputElement>('input[type="radio"]'));
-      expect(all).toHaveLength(9);
+      // Sieben Akzente und sechs Grundtoene.
+      expect(all).toHaveLength(13);
       expect(new Set(all.map((r) => r.name))).toEqual(new Set(["accent", "base"]));
       expect(all.filter((r) => r.checked).map((r) => r.name).sort(), current).toEqual(["accent", "base"]);
       document.body.replaceChildren();

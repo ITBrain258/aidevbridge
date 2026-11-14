@@ -96,6 +96,9 @@ export interface UiSettingsDto {
   sidebar_width: number;
   /** "Screen reader support" (`screenReaderMode` von xterm.js), Standard aus. */
   screen_reader_mode: boolean;
+  /** "Icon rail when collapsed": die eingeklappte Seitenleiste laesst eine
+   * Symbolleiste stehen (Spec 2026-11-14 §2), Standard an. */
+  sidebar_rail: boolean;
   workspace: WorkspaceDto;
   settings_path: string;
 }

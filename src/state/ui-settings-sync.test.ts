@@ -37,6 +37,7 @@ describe("ui-settings-sync: Laden", () => {
       restore_workspace: false,
       sidebar_width: 300,
       screen_reader_mode: true,
+      sidebar_rail: false,
     });
 
     expect(stored.fields).toEqual({
@@ -47,6 +48,7 @@ describe("ui-settings-sync: Laden", () => {
       restore_workspace: false,
       sidebar_width: 300,
       screen_reader_mode: true,
+      sidebar_rail: false,
     });
     expect(stored.prefs).toEqual({
       fontSize: 16,
@@ -91,6 +93,23 @@ describe("ui-settings-sync: entprellt schreiben", () => {
     await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
 
     expect(writes()).toEqual([{ screen_reader_mode: true }]);
+  });
+
+  // Spec 2026-11-14 §2: kein Terminal-Feld, also ohne Gegenstueck in
+  // terminal-prefs; der Schalter meldet es direkt.
+  it("Icon rail when collapsed geht als sidebar_rail hinaus, ein gespeicherter Wert nicht noch einmal", async () => {
+    sync.schedule("sidebar_rail", false);
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+    expect(writes()).toEqual([{ sidebar_rail: false }]);
+
+    sync.schedule("sidebar_rail", false);
+    await vi.advanceTimersByTimeAsync(UI_SETTINGS_PERSIST_MS);
+    expect(writes()).toHaveLength(1);
+  });
+
+  it("ein sidebar_rail, das kein Wahrheitswert ist, bleibt beim Laden weg", () => {
+    expect(sync.applyStored({ sidebar_rail: "yes" as never }).fields.sidebar_rail).toBeUndefined();
+    expect(sync.applyStored({ sidebar_rail: true }).fields.sidebar_rail).toBe(true);
   });
 
   it("mehrere Felder binnen der Ruhezeit gehen zusammen hinaus", async () => {

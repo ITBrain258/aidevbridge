@@ -8,11 +8,13 @@ describe("icons (Spec 13.1)", () => {
   // Treffer (der naechste ist "chevron-down"), "case-sensitive" fuer "Aa".
   // 19 seit der kompakten Ansicht (Spec 2026-10-27 §5.1): "menu" oeffnet die
   // Seitenleiste.
-  it("kennt genau die 19 Namen", () => {
+  // 21 seit der Symbolleiste (Spec 2026-11-14 §2): "panel-left-close" klappt
+  // die Seitenleiste ein, "panel-left-open" wieder aus.
+  it("kennt genau die 21 Namen", () => {
     expect([...ICON_NAMES].sort()).toEqual([
       "case-sensitive", "check", "chevron-down", "chevron-right", "chevron-up", "copy",
-      "key-round", "lock", "maximize-2", "menu", "minimize-2", "plus", "refresh-cw", "search",
-      "settings", "terminal", "trash-2", "triangle-alert", "x",
+      "key-round", "lock", "maximize-2", "menu", "minimize-2", "panel-left-close", "panel-left-open",
+      "plus", "refresh-cw", "search", "settings", "terminal", "trash-2", "triangle-alert", "x",
     ]);
   });
 

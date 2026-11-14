@@ -28,8 +28,10 @@ import { computeMenuPosition } from "./menu-position";
 import { buildCredentialField, type CredentialField } from "./credential-field";
 import { mountHostForm, storedAuthChoice, type AuthChoice, type HostFormHandle } from "./host-form";
 import { hostInitials } from "./initials";
-import { appVersionLine } from "../version";
+import { appVersion, appVersionLine } from "../version";
 import { icon, type IconName } from "../icons";
+import { buildBrandMark } from "./brand-mark";
+import type { SettingsSectionId } from "./settings-dialog";
 import { titleWithShortcut } from "./shortcut-title";
 import { agentStatusView, buildStatusPill } from "./status-pill";
 import { buildTileNumber } from "./tile-number";
@@ -64,8 +66,12 @@ export interface SidebarOptions {
    * laesst. Diese Datei ruft ihn erst nach einer Rueckfrage. */
   onKillSession: (hostId: string, name: string, socket: SessionSocket) => void;
   onAddHost: () => void;
-  /** UI v2 §7.2: Zahnrad im Kopf oeffnet den Einstellungsdialog (main.ts). */
-  onOpenSettings: () => void;
+  /** UI v2 §7.2: Zahnrad im Kopf oeffnet den Einstellungsdialog (main.ts). Die
+   * Marke im Fuss oeffnet ihn auf About (Spec 2026-11-14 §3). */
+  onOpenSettings: (section?: SettingsSectionId) => void;
+  /** Der Knopf im Fuss klappt die Seitenleiste ein (Spec 2026-11-14 §2);
+   * main.ts fuehrt das ueber denselben Weg wie Strg+Umschalt+B. */
+  onCollapse: () => void;
   /** Spec 2026-10-19 §7: Beginn der Warte-Episode je `waitingKey` (main.ts
    * fuehrt sie); ohne Angabe zaehlt jede wartende Session als "now". */
   waitingSince?: (key: string) => number | undefined;
@@ -221,7 +227,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   head.appendChild(heading);
 
   // UI v2 §7.2: der Add-Knopf steht IM KOPF, zwischen
-  // Ueberschrift und Zahnrad -- der Fuss traegt nur die Versionszeile.
+  // Ueberschrift und Zahnrad -- der Fuss traegt die Marke.
   const addButton = document.createElement("button");
   addButton.type = "button";
   addButton.className = "sb-btn";
@@ -287,16 +293,46 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     requestRender: () => requestRender(),
   });
 
-  // Der Fuss traegt NUR die Versionszeile -- Version und
-  // Commit, still am Fuss der Seitenleiste, dieselbe Zeichenkette
-  // wie in `Copy diagnostics` oben und aus derselben Quelle
-  // (`appVersionLine()`). Der Stil kommt aus `.sb-version` in `styles.css`.
+  // Der Fuss traegt die Marke (Spec 2026-11-14 §3): Zeichen, Name und Version
+  // in EINEM Knopf, der die Einstellungen auf About oeffnet. Den Commit zeigt
+  // der Fuss nicht mehr; er steht unter About und weiter in jeder Zeile von
+  // "Copy diagnostics" (`appVersionLine()`). Der Knopf liegt ausserhalb von
+  // `list` und ueberlebt jedes Neuzeichnen.
   const foot = document.createElement("div");
   foot.className = "sb-foot";
-  const versionLine = document.createElement("div");
-  versionLine.className = "sb-version";
-  versionLine.textContent = appVersionLine();
-  foot.appendChild(versionLine);
+  const brand = document.createElement("button");
+  brand.type = "button";
+  brand.className = "sb-brand";
+  // Sichtbar stehen nur Name und Versionsnummer; was der Knopf tut, sagen
+  // `title` und `aria-label`.
+  brand.title = t("sidebar.about");
+  brand.setAttribute("aria-label", t("sidebar.aboutVersion", { version: appVersion() }));
+  brand.dataset.focusKey = focusKey("foot", "", "brand");
+  const brandName = document.createElement("span");
+  brandName.className = "sb-brand-name";
+  brandName.textContent = t("app.title");
+  const version = document.createElement("span");
+  version.className = "sb-version";
+  version.textContent = appVersion();
+  brand.append(buildBrandMark(), brandName, version);
+  brand.addEventListener("click", () => {
+    if (!disposed) opts.onOpenSettings("about");
+  });
+  // Einklappen mit der Maus (Spec 2026-11-14 §2), derselbe Weg wie das
+  // Kuerzel; zurueck fuehrt der Knopf der Symbolleiste. In der kompakten
+  // Ansicht ist die Seitenleiste eine Schublade mit eigenem Schalter in der
+  // Kopfleiste, der Knopf ist dort nicht zu sehen (styles.css).
+  const collapse = document.createElement("button");
+  collapse.type = "button";
+  collapse.className = "sb-head-btn sb-collapse";
+  collapse.title = titleWithShortcut(t("sidebar.collapse"), "sidebar.toggle");
+  collapse.setAttribute("aria-label", t("sidebar.collapse"));
+  collapse.dataset.focusKey = focusKey("foot", "", "collapse");
+  collapse.appendChild(icon("panel-left-close"));
+  collapse.addEventListener("click", () => {
+    if (!disposed) opts.onCollapse();
+  });
+  foot.append(brand, collapse);
 
   root.appendChild(foot);
 

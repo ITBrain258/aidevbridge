@@ -149,6 +149,7 @@ Build-Provenienz an ihnen hängen.
 | Bereich | Stand |
 | --- | --- |
 | M0 Fundament, UI v2 | abgeschlossen mit 0.1.1 und 0.1.2; Farbwahl (7 Akzente auf 2 Grundtönen) und Einstellungsdialog |
+| Seitenleiste und Grundtöne | nach der [Spec vom 14.11.](specs/2026-11-14-seitenleiste-und-grundtoene-design.md), noch nicht veröffentlicht: Einklappknopf und Symbolleiste der eingeklappten Seitenleiste mit der Einstellung `sidebar_rail`, Marke im Fuß ohne Commit, vier weitere Grundtöne (42 Varianten) |
 | Stabilität und Verbindung | Kontroll- und Terminalverbindung je Host, Fristen, Kontrollreparatur, Korrekturen an Hostschlüsseln, Erststart und Hostverwaltung, RSA-Blinding; Hostschlüssel-Algorithmen nach `known_hosts`, weitere Agent-Schlüssel nach einer verweigerten Signatur |
 | M1 Statuspunkt | Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel ([Messung](messungen/messung-2026-10-23-agentversionen.md)) |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Selbstheilung für Schlüssel- und Agent-Hosts; Arbeitsplatz, Schnellöffnen, ziehbare Seitenleiste; fünf Einstellungsbereiche |
@@ -277,8 +278,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
 7. **Echte Abnahmen:**
    - die [Handabnahme](abnahme-handarbeit.md) am Windows-Fenster: echte
      Tastatur, Rechtsklick, Skalierung 100 und 150 % am echten Bildschirm,
-     Standby und Netzwechsel, Bildschirmleser und die 14 Farbthemen;
-     dazu §10 und §11.
+     Standby und Netzwechsel, Bildschirmleser und die Farbthemen (42 seit
+     der Spec vom 14.11.); dazu §10 und §11.
    - die offenen Punkte des UI-v2-Tors
      ([Spec](specs/2026-09-05-ui-v2-design.md) §17): Dichte mit
      20 Sessions unter 4 Hosts, WebGL unter 10 Minuten Flutung, Skalierung
@@ -545,6 +546,17 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       `pull_request` und mit fester Liste; `docs/release/**`,
       `THIRD_PARTY_LICENSES.md` und `fastlane/**` gehören nicht dazu, und
       `android.yml` ist eine gebundene Eingabe der Android-Auswahl.
+17. **Seitenleiste und Grundtöne (Spec vom 14.11.):** gebaut, nur im
+    Headless-Browser gegen Beispieldaten angesehen. Offen:
+    - **Am Fenster:** die sechs Punkte aus §7 der Spec (Grundtöne bei
+      laufenden Kacheln, Symbolleiste bei Zustandswechseln, Skalierung,
+      Bildschirmleser, Android-Tablet, Kontrastdesign).
+    - **Mit dem nächsten Release:** README (Zeile zu den Themen: 6
+      Hintergründe, 42 Kombinationen; das Einklappen), die Bilder unter
+      `docs/images` und für den Store neu rendern, die Anleitungen unter
+      `guide/` auf Stellen zur Darstellung durchsehen.
+    - **Zurückgestellt (§6 der Spec):** helles Thema, Aktionen in der
+      Symbolleiste, weitere Darstellungsoptionen.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

@@ -1666,6 +1666,7 @@ fn ui_settings_impl_reads_every_default_and_names_the_settings_file() {
             restore_workspace: true,
             sidebar_width: 240,
             screen_reader_mode: false,
+            sidebar_rail: true,
             workspace: empty_workspace(),
             settings_path: path.display().to_string(),
         }
@@ -1690,6 +1691,7 @@ fn ui_settings_impl_patch_with_only_the_theme_changes_nothing_else() {
             restore_workspace: Some(false),
             sidebar_width: Some(300),
             screen_reader_mode: Some(true),
+            sidebar_rail: Some(false),
             workspace: Some(busy_workspace(&a.id, &b.id)),
         }),
     )
@@ -1701,6 +1703,7 @@ fn ui_settings_impl_patch_with_only_the_theme_changes_nothing_else() {
     assert!(!before.restore_workspace);
     assert_eq!(before.sidebar_width, 300);
     assert!(before.screen_reader_mode);
+    assert!(!before.sidebar_rail);
     assert_eq!(before.workspace, busy_workspace(&a.id, &b.id));
 
     let after = ui_settings_impl(&path, Some(theme_patch("turquoise-slate"))).unwrap();
@@ -1728,6 +1731,10 @@ fn ui_settings_impl_applies_each_patched_field_alone() {
         },
         UiSettingsPatchDto {
             screen_reader_mode: Some(true),
+            ..Default::default()
+        },
+        UiSettingsPatchDto {
+            sidebar_rail: Some(false),
             ..Default::default()
         },
         UiSettingsPatchDto {
@@ -1775,6 +1782,9 @@ fn ui_settings_impl_applies_each_patched_field_alone() {
         }
         if let Some(value) = patch.screen_reader_mode {
             expected.screen_reader_mode = value;
+        }
+        if let Some(value) = patch.sidebar_rail {
+            expected.sidebar_rail = value;
         }
         assert_eq!(got, expected);
     }
@@ -1964,6 +1974,7 @@ fn ui_settings_dto_serializes_with_the_snake_case_keys_the_frontend_mirrors() {
         restore_workspace: false,
         sidebar_width: 300,
         screen_reader_mode: true,
+        sidebar_rail: false,
         workspace: WorkspaceDto {
             layout: 2,
             tiles_version: 2,
@@ -1986,6 +1997,7 @@ fn ui_settings_dto_serializes_with_the_snake_case_keys_the_frontend_mirrors() {
             "restore_workspace": false,
             "sidebar_width": 300,
             "screen_reader_mode": true,
+            "sidebar_rail": false,
             "workspace": {
                 "layout": 2,
                 "tiles_version": 2,

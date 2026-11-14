@@ -1,12 +1,13 @@
 // GENERIERT von scripts/gen-icons.mjs aus lucide-static -- nicht von Hand aendern.
 // Lizenz: THIRD_PARTY_LICENSES.md (Lucide, ISC; aus Feather uebernommene Icons MIT).
-// UI-v2-Spec §13.1 plus Sichtpruefung 2026-09-07 (`trash-2`) plus die Suchleiste
-// (`chevron-up`, `case-sensitive`): 18 Icons,
+// UI-v2-Spec §13.1 plus Sichtpruefung 2026-09-07 (`trash-2`), die Suchleiste
+// (`chevron-up`, `case-sensitive`), die kompakte Ansicht (`menu`) und die
+// Seitenleiste (`panel-left-close`, `panel-left-open`): 21 Icons,
 // `icon(name, size)` liefert ein dekoratives SVG in currentColor mit
 // Strichstaerke 1,75. Jedes Icon steht neben Text oder traegt am umgebenden
 // Knopf `title` und `aria-label` (§13.2).
 
-export const ICON_NAMES = ["plus","settings","chevron-right","chevron-down","maximize-2","minimize-2","x","search","refresh-cw","copy","triangle-alert","check","terminal","key-round","lock","trash-2","chevron-up","case-sensitive","menu"] as const;
+export const ICON_NAMES = ["plus","settings","chevron-right","chevron-down","maximize-2","minimize-2","x","search","refresh-cw","copy","triangle-alert","check","terminal","key-round","lock","trash-2","chevron-up","case-sensitive","menu","panel-left-close","panel-left-open"] as const;
 export type IconName = (typeof ICON_NAMES)[number];
 
 const PATHS: Record<IconName, string> = {
@@ -29,6 +30,8 @@ const PATHS: Record<IconName, string> = {
   "chevron-up": "<path d=\"m18 15-6-6-6 6\" />",
   "case-sensitive": "<path d=\"m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16\" /><path d=\"M22 9v7\" /><path d=\"M3.304 13h6.392\" /><circle cx=\"18.5\" cy=\"12.5\" r=\"3.5\" />",
   "menu": "<path d=\"M4 5h16\" /><path d=\"M4 12h16\" /><path d=\"M4 19h16\" />",
+  "panel-left-close": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /><path d=\"M9 3v18\" /><path d=\"m16 15-3-3 3-3\" />",
+  "panel-left-open": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /><path d=\"M9 3v18\" /><path d=\"m14 9 3 3-3 3\" />",
 };
 
 export function icon(name: IconName, size = 16): SVGSVGElement {

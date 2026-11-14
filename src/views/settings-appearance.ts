@@ -1,7 +1,9 @@
 // Einstellungen, Bereich "Appearance" (Farbwahl-Spec §6, Einstellungs-Spec
-// §5): zwei Karten mit nativen Radiogruppen -- Akzent als sieben runde
-// Farbfelder, Grundton als zwei Karten. Native Radios, weil sie Pfeiltasten,
-// Home/End und "genau ein Tabstopp je Gruppe" ohne eigenes Roving liefern.
+// §5): Karten mit nativen Radiogruppen -- Akzent als sieben runde
+// Farbfelder, Grundton als sechs Karten (Spec 2026-11-14 §4) --, darunter die
+// Karte "Sidebar" mit dem Schalter der Symbolleiste (§2). Native Radios, weil
+// sie Pfeiltasten, Home/End und "genau ein Tabstopp je Gruppe" ohne eigenes
+// Roving liefern.
 // Jedes Feld zeigt seine Farbe ueber `data-accent` bzw. `data-base` am
 // eigenen Element (styles.css) -- keine zweite Kopie der Farbwerte. Die
 // Karte ist ein `div` UM das fieldset: ein fieldset mit eigenem Rahmen
@@ -9,7 +11,9 @@
 import { t } from "../i18n/t";
 import type { TranslationKey } from "../i18n/t";
 import { icon } from "../icons";
+import type { KeymapAction } from "../keymap";
 import { ACCENTS, BASES, themeIdOf, themeParts, type AccentId, type BaseId, type ThemeId } from "../theme";
+import { settingsCard, switchRow } from "./settings-rows";
 
 export interface AppearanceOptions {
   current: ThemeId;
@@ -19,6 +23,12 @@ export interface AppearanceOptions {
   onThemeChange: (theme: ThemeId) => void;
   /** Nach 150 ms Ruhe (Pfeilrunden schreiben nicht mehrfach), spaetestens bei dispose(). */
   onPersist: (theme: ThemeId) => void;
+  /** "Icon rail when collapsed" (`ui.sidebar_rail`), wie in settings.toml gespeichert. */
+  sidebarRail: boolean;
+  /** Bei jedem Umschalten, mit dem neuen Wert; main.ts schreibt entprellt. */
+  onSidebarRailChange: (value: boolean) => void;
+  /** Belegung fuer das Kuerzel im Hinweis des Schalters. */
+  keymap: Readonly<Record<KeymapAction, string>>;
 }
 
 const PERSIST_DEBOUNCE_MS = 150;
@@ -36,6 +46,10 @@ const ACCENT_LABEL: Record<AccentId, TranslationKey> = {
 const BASE_LABEL: Record<BaseId, TranslationKey> = {
   graphite: "settings.background.graphite",
   slate: "settings.background.slate",
+  midnight: "settings.background.midnight",
+  mocha: "settings.background.mocha",
+  plum: "settings.background.plum",
+  pine: "settings.background.pine",
 };
 
 function radio(name: string, value: string, checked: boolean): HTMLInputElement {
@@ -159,7 +173,18 @@ export function mountAppearanceSection(
   }
   baseCard.group.appendChild(cards);
 
-  root.append(accentCard.card, baseCard.card);
+  // Seitenleiste (Spec 2026-11-14 §2): was vom Einklappen stehen bleibt. Der
+  // Hinweis nennt das Kuerzel, das eine ganz ausgeblendete zurueckholt.
+  const sidebarCard = settingsCard(t("settings.sidebar"));
+  const rail = switchRow(
+    t("settings.sidebar.rail"),
+    t("settings.sidebar.railHint", { shortcut: opts.keymap["sidebar.toggle"] }),
+    opts.sidebarRail,
+    opts.onSidebarRailChange,
+  );
+  sidebarCard.rows.appendChild(rail.row);
+
+  root.append(accentCard.card, baseCard.card, sidebarCard.card);
 
   if (opts.unknownStoredTheme !== null) {
     const hint = document.createElement("p");

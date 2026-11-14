@@ -252,8 +252,11 @@ export const renderers = {
     await page.evaluate(clickByText(".settings-tab", "Appearance"));
     await page.waitFor(`document.querySelector('.settings-appearance') !== null`, "Darstellung");
     await sleep(200);
+    // Bis unter die Karte der Grundtoene (zwei Reihen seit der Spec vom
+    // 14.11.2026 §4); die Karte "Sidebar" darunter gehoert nicht ins Bild.
     const dialog = await page.rect(".settings-view");
-    await page.shot(join(images, "themes.png"), { ...dialog, height: 284 });
+    const backgrounds = await page.rect(".settings-appearance > .settings-card:nth-child(2)");
+    await page.shot(join(images, "themes.png"), { ...dialog, height: backgrounds.y + backgrounds.height - dialog.y + 12 });
     await page.close();
   },
 

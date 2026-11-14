@@ -6,7 +6,8 @@
 // Escape und Fokusrueckkehr erledigt die Huelle.
 //
 // Fuenf Bereiche in der Reihenfolge der UX-Spec §9.1: General, Appearance,
-// Terminal, Shortcuts, About. Der Dialog oeffnet auf dem ersten.
+// Terminal, Shortcuts, About. Der Dialog oeffnet auf dem ersten, ausser der
+// Aufrufer nennt einen (`initialSection`).
 import en from "../i18n/en.json";
 import type { TranslationKey } from "../i18n/t";
 import { DEFAULT_KEYMAP, type KeymapAction } from "../keymap";
@@ -35,19 +36,27 @@ export interface SettingsDialogOptions {
   /** "Restore hosts and terminals" (General). */
   restoreWorkspace: () => boolean;
   onRestoreWorkspaceChange: (value: boolean) => void;
+  /** "Icon rail when collapsed" (Appearance, Spec 2026-11-14 §2). */
+  sidebarRail: () => boolean;
+  onSidebarRailChange: (value: boolean) => void;
   /** Pfad von settings.toml fuer About; `null`, solange er unbekannt ist. */
   settingsPath: () => string | null;
   /** Belegung fuer die Uebersicht; ohne Angabe die Standardbelegung. Ein
    * spaeterer Editor fuer eigene Kuerzel reicht hier seine Tabelle durch. */
   keymap?: Readonly<Record<KeymapAction, string>>;
+  /** Der Bereich, auf dem der Dialog oeffnet; ohne Angabe der erste. Die Marke
+   * im Fuss der Seitenleiste oeffnet so auf About. */
+  initialSection?: SettingsSectionId;
 }
 
 export interface SettingsDialogHandle {
   dispose(): void;
 }
 
+export type SettingsSectionId = "general" | "appearance" | "terminal" | "shortcuts" | "about";
+
 interface SettingsSection {
-  id: "general" | "appearance" | "terminal" | "shortcuts" | "about";
+  id: SettingsSectionId;
   labelKey: TranslationKey;
   mount(container: HTMLElement, opts: SettingsDialogOptions): { dispose(): void };
 }
@@ -71,6 +80,9 @@ const SETTINGS_SECTIONS: readonly SettingsSection[] = [
         unknownStoredTheme: o.unknownStoredTheme(),
         onThemeChange: o.onThemeChange,
         onPersist: o.onPersist,
+        sidebarRail: o.sidebarRail(),
+        onSidebarRailChange: o.onSidebarRailChange,
+        keymap: o.keymap ?? DEFAULT_KEYMAP,
       }),
   },
   // Der Terminalbereich liest und schreibt `terminal-prefs` selbst; main.ts
@@ -157,7 +169,8 @@ export function mountSettingsDialog(
     tabs[next].focus();
   });
 
-  select(0);
+  // Ein unbekannter Bereich faellt auf den ersten.
+  select(Math.max(0, SETTINGS_SECTIONS.findIndex((section) => section.id === opts.initialSection)));
   root.append(nav, panel);
   container.appendChild(root);
 
