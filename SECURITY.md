@@ -111,9 +111,9 @@ read: `settings.toml` under `io.github.itbrain258.aidevbridge/` and
 the host key lines the app wrote for its name and port; other saved hosts
 with the same address then ask to confirm the key again. The file is replaced
 atomically, and comments, `@revoked` lines, alias lists, hashed names and
-patterns stay untouched. Keys you
-generate or import in the app are stored there too (`.ssh/aidevbridge_ed25519`, `.ssh/imported_<type>`, each
-with its `.pub`). The app excludes its storage from Google's cloud backup and
+patterns stay untouched. Keys you generate or import in the app are stored
+there too (`.ssh/aidevbridge_ed25519`, `.ssh/imported_<type>`, each with its
+`.pub`). The app excludes its storage from Google's cloud backup and
 from the transfer to a new device.
 
 The app writes no log files. It talks only SSH, to the hosts you add;

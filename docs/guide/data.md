@@ -48,7 +48,9 @@ The short version is in the [privacy policy](../../PRIVACY.md): aidevbridge coll
   hosts with the same address ask you to confirm the key again.
 - **Passwords and key passphrases are never stored.** The app asks again
   when it needs them.
-- Removing the app keeps `known_hosts` and `settings.toml`; only the
-  uninstaller of the setup EXE can delete the app data, and it asks first.
-  Delete the folders by hand if you no longer need them, and remove a host
-  key with `ssh-keygen -R <host>` (on Android, remove the host in the app).
+- On Windows and macOS, removing the app keeps `known_hosts` and
+  `settings.toml`; only the uninstaller of the setup EXE can delete the app
+  data, and it asks first. Delete the folders by hand if you no longer need
+  them, and remove a host key with `ssh-keygen -R <host>`. On Android,
+  uninstalling the app deletes all of it; to forget a single host key, remove
+  the host in the app.
