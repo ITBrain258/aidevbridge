@@ -1,14 +1,15 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.4` vom 14.11.2026 (Tag `v0.3.4` auf dem Merge-Commit
+**Stand:** Version `0.3.5` vom 14.11.2026 (Tag `v0.3.5` auf dem Merge-Commit
 des Release-PR); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.4 bringt die Befunde der Durchsicht vom 13.11. (PR #56): Ein Klick in der
-Seitenleiste geht nicht mehr verloren, wenn sie während des Drucks neu gebaut
-wird, mit „Screen reader support“ laden Browsertasten auf einer Zeile des
-Bildschirmlesers die App nicht mehr neu, und auf Android vergisst das
-Entfernen eines Hosts dessen Hostschlüssel. 0.3.3 brachte die Einstellung
-„Screen reader support“ und die Aufnahme, die bei mehr als acht gleichzeitigen
-Verbindungsaufbauten kurz wartet. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
+0.3.5 bringt die beiden Gestaltungsrunden vom 14.11. (PR #59): eine
+Knopfleiste an jedem Host, eine ruhigere Statusanzeige, die Wartet-Spur als
+Karte, die Symbolleiste der eingeklappten Seitenleiste und vier weitere
+Hintergründe. 0.3.4 brachte die Befunde der Durchsicht vom 13.11. (PR #56):
+Ein Klick in der Seitenleiste geht nicht mehr verloren, wenn sie während des
+Drucks neu gebaut wird, mit „Screen reader support“ laden Browsertasten auf
+einer Zeile des Bildschirmlesers die App nicht mehr neu, und auf Android
+vergisst das Entfernen eines Hosts dessen Hostschlüssel. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
 Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
 Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
@@ -149,8 +150,8 @@ Build-Provenienz an ihnen hängen.
 | Bereich | Stand |
 | --- | --- |
 | M0 Fundament, UI v2 | abgeschlossen mit 0.1.1 und 0.1.2; Farbwahl (7 Akzente auf 2 Grundtönen) und Einstellungsdialog |
-| Seitenleiste und Grundtöne | nach der [Spec vom 14.11.](specs/2026-11-14-seitenleiste-und-grundtoene-design.md), noch nicht veröffentlicht: Einklappknopf und Symbolleiste der eingeklappten Seitenleiste mit der Einstellung `sidebar_rail`, Marke im Fuß ohne Commit, vier weitere Grundtöne (42 Varianten) |
-| Statusanzeige und Knopfleiste | nach der [Spec vom 14.11.](specs/2026-11-14-statusanzeige-design.md), noch nicht veröffentlicht: Knopfleiste an jedem Host, ruhige Statuspillen (getönt nur Waiting, Ended, Failed; Busy blau, Idle grau), Wartet-Spur als Karte „Waiting for you“, Status-Zeichen an der Zeile der fokussierten Kachel |
+| Seitenleiste und Grundtöne | nach der [Spec vom 14.11.](specs/2026-11-14-seitenleiste-und-grundtoene-design.md), seit 0.3.5: Einklappknopf und Symbolleiste der eingeklappten Seitenleiste mit der Einstellung `sidebar_rail`, Marke im Fuß ohne Commit, vier weitere Grundtöne (42 Varianten) |
+| Statusanzeige und Knopfleiste | nach der [Spec vom 14.11.](specs/2026-11-14-statusanzeige-design.md), seit 0.3.5: Knopfleiste an jedem Host, ruhige Statuspillen (getönt nur Waiting, Ended, Failed; Busy blau, Idle grau), Wartet-Spur als Karte „Waiting for you“, Status-Zeichen an der Zeile der fokussierten Kachel |
 | Stabilität und Verbindung | Kontroll- und Terminalverbindung je Host, Fristen, Kontrollreparatur, Korrekturen an Hostschlüsseln, Erststart und Hostverwaltung, RSA-Blinding; Hostschlüssel-Algorithmen nach `known_hosts`, weitere Agent-Schlüssel nach einer verweigerten Signatur |
 | M1 Statuspunkt | Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel ([Messung](messungen/messung-2026-10-23-agentversionen.md)) |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Selbstheilung für Schlüssel- und Agent-Hosts; Arbeitsplatz, Schnellöffnen, ziehbare Seitenleiste; fünf Einstellungsbereiche |
@@ -162,6 +163,19 @@ Build-Provenienz an ihnen hängen.
 | Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32, #34) und am 06.11. das Ziel-SDK 37 (PR #37); die offenen Stufen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 14.11.2026 nach 0.3.4, vor PR #59 (CHANGELOG `[0.3.5]`): eine Durchsicht
+des Branches mit den beiden Gestaltungsrunden, die nur las. Neun Funde. Fünf
+mit Effekt für Nutzer behebt derselbe PR: Strg+Umschalt+B nimmt
+den Fokus mit, wenn die Leiste verschwindet, in der er stand; Einstellungen
+aus der Symbolleiste geben ihn nicht an einen verborgenen Knopf zurück; ohne
+Symbolleiste steht der Einklappknopf nicht im Fuß; der Zähler der
+Symbolleiste gibt den Fokus weiter, wenn er verschwindet; der graue Ring von
+„Offline“ gilt. Der Rest steht unter Punkt 18. Lokal: Clippy, 716
+Rust-Bibliothekstests, mit den Integrationstests 792, 4940 Vitest-Tests, 251
+Skripttests und `npm run build`. Nicht geprüft: das echte Fenster mit echten
+Hosts, ein Bildschirmleser, ein Kontrastdesign, ein Android-Tablet (Punkte 17
+und 18).
 
 Am 13.11.2026 nach 0.3.3: drei Prüfungen auf `main` (`9a6a03c`), die nur
 lasen: der Code seit der Durchsicht vom 10.11., der Aufbau der großen Dateien
@@ -547,28 +561,19 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       `pull_request` und mit fester Liste; `docs/release/**`,
       `THIRD_PARTY_LICENSES.md` und `fastlane/**` gehören nicht dazu, und
       `android.yml` ist eine gebundene Eingabe der Android-Auswahl.
-17. **Seitenleiste und Grundtöne (Spec vom 14.11.):** gebaut, nur im
-    Headless-Browser gegen Beispieldaten angesehen. Offen:
+17. **Seitenleiste und Grundtöne (Spec vom 14.11.):** ausgeliefert mit
+    0.3.5, nur im Headless-Browser gegen Beispieldaten angesehen. Offen:
     - **Am Fenster:** die sechs Punkte aus §7 der Spec (Grundtöne bei
       laufenden Kacheln, Symbolleiste bei Zustandswechseln, Skalierung,
       Bildschirmleser, Android-Tablet, Kontrastdesign).
-    - **Mit dem nächsten Release:** README (Zeile zu den Themen: 6
-      Hintergründe, 42 Kombinationen; das Einklappen), die Bilder unter
-      `docs/images` und für den Store neu rendern, die Anleitungen unter
-      `guide/` auf Stellen zur Darstellung durchsehen.
     - **Zurückgestellt (§6 der Spec):** helles Thema, Aktionen in der
       Symbolleiste, weitere Darstellungsoptionen.
-18. **Statusanzeige und Knopfleiste (Spec vom 14.11.):** gebaut, nur im
-    Headless-Browser gegen Beispieldaten angesehen. Offen:
+18. **Statusanzeige und Knopfleiste (Spec vom 14.11.):** ausgeliefert mit
+    0.3.5, nur im Headless-Browser gegen Beispieldaten angesehen. Offen:
     - **Am Fenster:** die sechs Punkte aus §8 der Spec (Knopfleisten bei
       mehreren aufgeklappten Hosts mit Maus und Tastatur, Zustandswechsel bei
       laufenden Agenten, Kopf der Wartet-Spur bei 208 bis 320 px, Skalierung,
       Kontrastdesign, Bildschirmleser).
-    - **Mit dem nächsten Release:** die Bilder unter `docs/images` und für
-      den Store neu rendern (sie zeigen die alte Statusanzeige), die
-      Anleitungen unter `guide/` auf Stellen zu Farben und Wartet-Spur
-      durchsehen. README und Anleitungen nennen die Zustände nur beim Wort;
-      die Wörter sind unverändert.
     - **Aufräumen in `sidebar.ts`:** Die Markierung des aktiven Hosts
       (`sb-host-block--active`, `--held`) und `sb-list--pressing`
       tragen keine Darstellung mehr. `frozenHostId` bleibt nötig als

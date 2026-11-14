@@ -14,7 +14,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.3.4",
+    "product_version": "0.3.5",
     "android_ndk": "29.0.14206865",
     "minimum_sdk": 24,
     "target_sdk": 37,
@@ -67,7 +67,7 @@
       {
         "path": "Cargo.lock",
         "bytes": 146461,
-        "sha256": "bbb263a70d7c8c3079abedde2a2ee37d60333d75e28e0f42dafbc0a1d659bfc7"
+        "sha256": "4a4fa73658d860bf0de2622c88c2568cd1e7f8bf0774c1ab81eed8722a346957"
       },
       {
         "path": "Cargo.toml",
@@ -97,7 +97,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 162841,
-        "sha256": "01c3f442ae026f83845685070910e85d0e52644dd205883da983ec999db1717f"
+        "sha256": "a8049c5345cac909551077b5334980900bf657dbb6142f34e151a22b31082050"
       },
       {
         "path": "docs/release/license-crypto-bigint-notices-2026-11-05.json",
@@ -147,7 +147,7 @@
       {
         "path": "docs/release/license-inventory-2026-10-28-android.json",
         "bytes": 269045,
-        "sha256": "78624df445d70fd746cb60dbfa8369885db740736d804df32256cc1fc4fd6b26"
+        "sha256": "eccf6a65a287367b7651effe8e298c8c64035508ce6c6544a30a2774202340c4"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -667,12 +667,12 @@
       {
         "path": "package-lock.json",
         "bytes": 65465,
-        "sha256": "dc134e1b202a18f24c329f3ff141425eab901030081462044138b7d8a8ee1ea9"
+        "sha256": "cdc3774de36da9739e19a3b050bf10902b402aa2251062419bd86abb927c5a44"
       },
       {
         "path": "package.json",
         "bytes": 1805,
-        "sha256": "a7e10aa86e40ccbae7a01d0c7d5dddf284ce591fd5bce2dea6fc2068e1ff54aa"
+        "sha256": "458fc57dfcb1784b3efb946b111be8581e069a3b092f27387b18b2a7e7a1a6de"
       },
       {
         "path": "rust-toolchain.toml",
@@ -681,8 +681,8 @@
       },
       {
         "path": "scripts/gen-icons.mjs",
-        "bytes": 2933,
-        "sha256": "27bb189a527c991c98bf155e3a98abfc925a9ffa3f8bc7f3017b471d0517882d"
+        "bytes": 3208,
+        "sha256": "3424456829ef6879ece22ce9f2fbc7a90b0dc8a1b74f11251e8de69fd5ebec26"
       },
       {
         "path": "scripts/release-license-select-android.mjs",
@@ -702,7 +702,7 @@
       {
         "path": "src-tauri/Cargo.toml",
         "bytes": 5844,
-        "sha256": "0a5020c5cbf0636cc4c63844560fbe26a56fd446d7092cfbe57438145b4e4774"
+        "sha256": "41c74c2403550c0f9be11ce2f48d74ebabe3fb46c085abd0d2943f84346bfdb9"
       },
       {
         "path": "src-tauri/build.rs",
@@ -752,7 +752,7 @@
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1510,
-        "sha256": "d6ec7431d446556e6b13f473be57b9af9abcb43a54e2108309694a677b5d44d6"
+        "sha256": "37527774cd7e549dcecefd48730c8a67242b15ffb7c2b3dc9633e8bcb2cdab89"
       },
       {
         "path": "src/globals.d.ts",
@@ -761,13 +761,13 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 19781,
-        "sha256": "101fdb7ea9fed70d7e3fd896bdd01ae38e0b4988e3401c0bba9643cb64eb2dd3"
+        "bytes": 20621,
+        "sha256": "4971474b35f52e7e9337211704058816277953538ba4b3dfc5c031d5af1ca8f9"
       },
       {
         "path": "src/icons.ts",
-        "bytes": 4033,
-        "sha256": "d7023c68a721efc7d94f7a2e53fc1d6ca936d3220ba915aba203e9da40b5d7a6"
+        "bytes": 4433,
+        "sha256": "e220e638968c17c4c3c5a9b34b6c1fed174f1429321cd53a28667a30d2aec622"
       },
       {
         "path": "src/keymap.ts",
@@ -776,8 +776,8 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 153539,
-        "sha256": "e4f5f92a0ec1e823a5ad118447ec52ec5ff16854db7c6de48b7ffe6a14d73cda"
+        "bytes": 159402,
+        "sha256": "94dbafc21aa5d14b67988189f1a8ecbd21e71e6980ee3c8e6af9f5597610f842"
       },
       {
         "path": "src/state/app-state.ts",
@@ -796,18 +796,18 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 153102,
-        "sha256": "23f6965e76e471fb9b99b1b93e7a80449636a3425cc59f2df9c2973ff6ef99d8"
+        "bytes": 167949,
+        "sha256": "6d4d95ee796a0661b2e963e5cda1da06f18cd0f19693e9df412396eb92bf8d67"
       },
       {
         "path": "src/terminal.ts",
-        "bytes": 81640,
-        "sha256": "5b342dc77a7072a6a45bee3d8f90eece48bd66f098ec6f8f819f24e1754d9c8c"
+        "bytes": 82725,
+        "sha256": "2c6d1f1a76807dba31a7bf57e0edb95283802db4b538f1868848784982545f0f"
       },
       {
         "path": "src/theme.ts",
-        "bytes": 3209,
-        "sha256": "23b23a3347307b98506d6cc2acc5ff0ba23112ce633f91775179274d1ca86e44"
+        "bytes": 3375,
+        "sha256": "ca41d82582cb0afeb539ddfc4ff5c4b1309855cb0a878f665f787341b543dc92"
       },
       {
         "path": "src/version.ts",
@@ -861,18 +861,18 @@
       },
       {
         "path": "src/views/settings-dialog.ts",
-        "bytes": 6255,
-        "sha256": "caa1ada80f65555b176455eef309a9cd129135a2c340c9687f3a5ebd9d95cc19"
+        "bytes": 6959,
+        "sha256": "ccf86cd748f1e894a8000cf92e5c3962434ed7dff29592d5299faecc198387dd"
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 128556,
-        "sha256": "03c7fd712848063e56a3b1b260f9180d35b00adb766cce1089e961e049d056f8"
+        "bytes": 130731,
+        "sha256": "57022a2a99a415c2ff49e571af742b5029be5669b4a589e1282bbb70140b53aa"
       },
       {
         "path": "src/views/types.ts",
-        "bytes": 6676,
-        "sha256": "0fa6d1ac411a5694c7a7aa20dc767432267ef8ae72d1bd4ea8f3bc9d4fb92ee6"
+        "bytes": 6841,
+        "sha256": "200d056199ae2b588ece0b0f545c73cb840223dc450d8ce0717e39db9b225d32"
       },
       {
         "path": "tsconfig.json",
@@ -899,8 +899,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 19781,
-            "sha256": "101fdb7ea9fed70d7e3fd896bdd01ae38e0b4988e3401c0bba9643cb64eb2dd3"
+            "bytes": 20621,
+            "sha256": "4971474b35f52e7e9337211704058816277953538ba4b3dfc5c031d5af1ca8f9"
           },
           {
             "path": "src/i18n/t.ts",
@@ -909,8 +909,8 @@
           },
           {
             "path": "src/icons.ts",
-            "bytes": 4033,
-            "sha256": "d7023c68a721efc7d94f7a2e53fc1d6ca936d3220ba915aba203e9da40b5d7a6"
+            "bytes": 4433,
+            "sha256": "e220e638968c17c4c3c5a9b34b6c1fed174f1429321cd53a28667a30d2aec622"
           },
           {
             "path": "src/keyboard.ts",
@@ -924,8 +924,8 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 153539,
-            "sha256": "e4f5f92a0ec1e823a5ad118447ec52ec5ff16854db7c6de48b7ffe6a14d73cda"
+            "bytes": 159402,
+            "sha256": "94dbafc21aa5d14b67988189f1a8ecbd21e71e6980ee3c8e6af9f5597610f842"
           },
           {
             "path": "src/platform.ts",
@@ -969,8 +969,8 @@
           },
           {
             "path": "src/state/ui-settings-sync.ts",
-            "bytes": 8200,
-            "sha256": "9fc878dce005467a18f88c5cd3c1f8f3e74d6c3a9d5fdd7daa0ce588326eacdf"
+            "bytes": 8262,
+            "sha256": "001679545b128ab738c4d547c854833a97d4a64931ec7f3d25f32096fcb183ca"
           },
           {
             "path": "src/state/workspace.ts",
@@ -979,8 +979,8 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 153102,
-            "sha256": "23f6965e76e471fb9b99b1b93e7a80449636a3425cc59f2df9c2973ff6ef99d8"
+            "bytes": 167949,
+            "sha256": "6d4d95ee796a0661b2e963e5cda1da06f18cd0f19693e9df412396eb92bf8d67"
           },
           {
             "path": "src/terminal-clipboard.ts",
@@ -1004,13 +1004,13 @@
           },
           {
             "path": "src/terminal.ts",
-            "bytes": 81640,
-            "sha256": "5b342dc77a7072a6a45bee3d8f90eece48bd66f098ec6f8f819f24e1754d9c8c"
+            "bytes": 82725,
+            "sha256": "2c6d1f1a76807dba31a7bf57e0edb95283802db4b538f1868848784982545f0f"
           },
           {
             "path": "src/theme.ts",
-            "bytes": 3209,
-            "sha256": "23b23a3347307b98506d6cc2acc5ff0ba23112ce633f91775179274d1ca86e44"
+            "bytes": 3375,
+            "sha256": "ca41d82582cb0afeb539ddfc4ff5c4b1309855cb0a878f665f787341b543dc92"
           },
           {
             "path": "src/touch-keys.ts",
@@ -1026,6 +1026,11 @@
             "path": "src/version.ts",
             "bytes": 569,
             "sha256": "e471a85cfc505fe8cd1b89472632662ce91ec7b13e526d273a3016728c6918f6"
+          },
+          {
+            "path": "src/views/brand-mark.ts",
+            "bytes": 528,
+            "sha256": "296d58218eed6d526ca68f6f2889ae108791b355b854e14cb887d584fa065a26"
           },
           {
             "path": "src/views/compact-shell.ts",
@@ -1094,13 +1099,13 @@
           },
           {
             "path": "src/views/settings-appearance.ts",
-            "bytes": 6709,
-            "sha256": "35266fceb58b81fde0fcafc53c9e87502e26705f81553080e28374ed79a46d1a"
+            "bytes": 7888,
+            "sha256": "ea4fee42ab242385ff19505339332dfd9a9c8e5fc6c2b5779312dda747578dc7"
           },
           {
             "path": "src/views/settings-dialog.ts",
-            "bytes": 6255,
-            "sha256": "caa1ada80f65555b176455eef309a9cd129135a2c340c9687f3a5ebd9d95cc19"
+            "bytes": 6959,
+            "sha256": "ccf86cd748f1e894a8000cf92e5c3962434ed7dff29592d5299faecc198387dd"
           },
           {
             "path": "src/views/settings-general.ts",
@@ -1128,14 +1133,19 @@
             "sha256": "2847785b07d346ac7ebe2755a62dc6791a82387008399205bcd239a2b5c11fd7"
           },
           {
+            "path": "src/views/sidebar-rail.ts",
+            "bytes": 13231,
+            "sha256": "ba65cb6f5e64f4189755a38581da50e8cceb769330bb42e0b6a6ddf153793c56"
+          },
+          {
             "path": "src/views/sidebar-resize.ts",
             "bytes": 7855,
             "sha256": "d4eb13c30ee06121de6320cf231a16ac5f07290458add9f35a6afd6c2663ff21"
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 128556,
-            "sha256": "03c7fd712848063e56a3b1b260f9180d35b00adb766cce1089e961e049d056f8"
+            "bytes": 130731,
+            "sha256": "57022a2a99a415c2ff49e571af742b5029be5669b4a589e1282bbb70140b53aa"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -1184,13 +1194,13 @@
           },
           {
             "path": "src/views/types.ts",
-            "bytes": 6676,
-            "sha256": "0fa6d1ac411a5694c7a7aa20dc767432267ef8ae72d1bd4ea8f3bc9d4fb92ee6"
+            "bytes": 6841,
+            "sha256": "200d056199ae2b588ece0b0f545c73cb840223dc450d8ce0717e39db9b225d32"
           },
           {
             "path": "src/views/waiting-lane.ts",
-            "bytes": 11818,
-            "sha256": "1d23aaaf3fcd9fd73f584bbd8ccea40ac2b7f4455f20ebc61bc9f70d0972cded"
+            "bytes": 11887,
+            "sha256": "2bc84ea9bb47f8d7cc852586d96bd472b477d90da231780438b54dd6ff0e989a"
           }
         ]
       },
@@ -1200,8 +1210,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 189983,
-            "sha256": "444b2992a8df8030293671840edc7f44fc74172d57ad5ea6b64646ac4285e8e1"
+            "bytes": 190200,
+            "sha256": "3af68c8434b1797485e5944f0748906effa0113e87166a4d1f4338e211e6fc3e"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1220,8 +1230,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 122164,
-            "sha256": "4ea753a398312067e4d4983eb702d31d70d07fdb05724e5f7073debfdb6df477"
+            "bytes": 122549,
+            "sha256": "cfd7b2468028900ccfd5e7c31eb47cc7bde756281704d8eb6beb8dd9fe354a34"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -1290,8 +1300,8 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 124031,
-            "sha256": "8833f1c488af7726d46634d6cad1ae48c7fa58d20829c627ad7f4dc880b20038"
+            "bytes": 124521,
+            "sha256": "8f692818c1b5bdd3307bd5d7654da0abce788073dfd4264b578d0c516112adf5"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
@@ -2252,11 +2262,11 @@
         "declared_license": "Unlicense OR MIT"
       },
       {
-        "package": "aidevbridge@0.3.4",
+        "package": "aidevbridge@0.3.5",
         "source": null,
         "manifest": {
           "bytes": 5844,
-          "sha256": "0a5020c5cbf0636cc4c63844560fbe26a56fd446d7092cfbe57438145b4e4774"
+          "sha256": "41c74c2403550c0f9be11ce2f48d74ebabe3fb46c085abd0d2943f84346bfdb9"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5584,25 +5594,25 @@
         "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
       },
       {
-        "package": "aidevbridge@0.3.4",
+        "package": "aidevbridge@0.3.5",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.3.4",
+        "package": "aidevbridge@0.3.5",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.3.4",
+        "package": "aidevbridge@0.3.5",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.3.4",
+        "package": "aidevbridge@0.3.5",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11659,9 +11669,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.3.4",
+      "id": "cargo:aidevbridge@0.3.5",
       "name": "aidevbridge",
-      "version": "0.3.4",
+      "version": "0.3.5",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",
