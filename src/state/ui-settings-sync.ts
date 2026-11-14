@@ -27,7 +27,8 @@ export type UiField =
   | "right_click"
   | "restore_workspace"
   | "sidebar_width"
-  | "screen_reader_mode";
+  | "screen_reader_mode"
+  | "sidebar_rail";
 
 /** Ein Teil der [ui]-Felder, wie `ui_settings` ihn als Patch annimmt. */
 export type UiFieldsPatch = { [F in UiField]?: UiSettingsDto[F] };
@@ -67,6 +68,7 @@ const FIELDS: { readonly [F in UiField]: FieldSpec<F> } = {
     pref: { read: (prefs) => prefs.rightClick, write: (value) => ({ rightClick: value }) },
   },
   restore_workspace: { accept: acceptBoolean },
+  sidebar_rail: { accept: acceptBoolean },
   screen_reader_mode: {
     accept: acceptBoolean,
     pref: { read: (prefs) => prefs.screenReaderMode, write: (value) => ({ screenReaderMode: value }) },

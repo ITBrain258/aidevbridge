@@ -1,12 +1,14 @@
 // Farbwahl (Spec `2026-09-14-farbwahl-design.md`, UI-v2-Spec §12.5): Akzent
-// x Grundton, 7 x 2 = 14 Varianten. Die Attribute `data-accent` und
+// x Grundton, seit der Spec vom 14.11.2026 (§4) 7 x 6 = 42 Varianten. Ein
+// Grundton heisst mit EINEM Wort ohne Bindestrich: `themeParts` trennt die
+// Id an ihm. Die Attribute `data-accent` und
 // `data-base` an <html> waehlen die Tokenbloecke in styles.css;
 // `localStorage["ab.theme"]` ist nur der Vorlauf fuer den ersten Anstrich --
 // die Wahrheit liegt in settings.toml (`ui_settings`, main.ts).
 
 export const ACCENTS = ["turquoise", "blue", "violet", "pink", "red", "orange", "green"] as const;
 export type AccentId = (typeof ACCENTS)[number];
-export const BASES = ["graphite", "slate"] as const;
+export const BASES = ["graphite", "slate", "midnight", "mocha", "plum", "pine"] as const;
 export type BaseId = (typeof BASES)[number];
 
 /** Die beiden Kombinationen aus UI v2 behalten ihre Namen -- auch beim

@@ -10,6 +10,7 @@ function mount(extra: Partial<SettingsDialogOptions> = {}) {
   const onThemeChange = vi.fn();
   const onPersist = vi.fn();
   const onRestoreWorkspaceChange = vi.fn();
+  const onSidebarRailChange = vi.fn();
   const handle = mountSettingsDialog(container, {
     currentTheme: () => "turquoise",
     unknownStoredTheme: () => null,
@@ -17,10 +18,12 @@ function mount(extra: Partial<SettingsDialogOptions> = {}) {
     onPersist,
     restoreWorkspace: () => true,
     onRestoreWorkspaceChange,
+    sidebarRail: () => true,
+    onSidebarRailChange,
     settingsPath: () => null,
     ...extra,
   });
-  return { container, handle, onPersist, onRestoreWorkspaceChange };
+  return { container, handle, onPersist, onRestoreWorkspaceChange, onSidebarRailChange };
 }
 
 const SECTIONS = ["General", "Appearance", "Terminal", "Shortcuts", "About"];
@@ -58,6 +61,20 @@ describe("settings-dialog: Rahmen mit senkrechten Tabs (Einstellungs-Spec §3, U
     expect(selected(container)).toEqual(only("General"));
     expect(tabs(container).map((t) => t.tabIndex)).toEqual([0, -1, -1, -1, -1]);
     expect(panel(container).querySelector(".settings-card-title")?.textContent).toBe("Startup");
+  });
+
+  // Spec 2026-11-14 §3: die Marke im Fuss der Seitenleiste oeffnet auf About.
+  it("ein genannter Bereich ist beim Oeffnen gewaehlt und gezeigt", () => {
+    const { container } = mount({ initialSection: "about", settingsPath: () => "C:\\settings.toml" });
+    expect(selected(container)).toEqual(only("About"));
+    expect(tabs(container).map((t) => t.tabIndex)).toEqual([-1, -1, -1, -1, 0]);
+    expect(panel(container).querySelector(".settings-card-title")?.textContent).toBe("aidevbridge");
+    expect(panel(container).querySelector(".settings-general")).toBeNull();
+  });
+
+  it("ein unbekannter Bereich faellt auf den ersten", () => {
+    const { container } = mount({ initialSection: "nope" as never });
+    expect(selected(container)).toEqual(only("General"));
   });
 
   it("Tabs und Panel sind verdrahtet", () => {
@@ -121,6 +138,41 @@ describe("settings-dialog: Rahmen mit senkrechten Tabs (Einstellungs-Spec §3, U
     toggle.click();
 
     expect(onRestoreWorkspaceChange).toHaveBeenCalledWith(true);
+  });
+
+  // Spec 2026-11-14 §2: der Schalter der Symbolleiste unter Appearance.
+  it("Appearance zeigt den gespeicherten Schalter der Symbolleiste und meldet eine Aenderung", () => {
+    const { container, onSidebarRailChange } = mount({ sidebarRail: () => false });
+    tab(container, "Appearance").click();
+    const toggle = panel(container).querySelector<HTMLButtonElement>('button[role="switch"]')!;
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+
+    toggle.click();
+
+    expect(onSidebarRailChange).toHaveBeenCalledWith(true);
+  });
+
+  it("der Hinweis des Schalters nennt das Kuerzel aus der uebergebenen Belegung", () => {
+    const { container } = mount({ keymap: { ...DEFAULT_KEYMAP, "sidebar.toggle": "Ctrl+Alt+S" } });
+    tab(container, "Appearance").click();
+    expect(panel(container).querySelector(".settings-row-hint")?.textContent).toContain("Ctrl+Alt+S hides the sidebar and brings it back.");
+  });
+
+  it("Appearance zeigt den Schalter nach einem Wechsel des Bereichs, wie er zuletzt gestellt wurde", () => {
+    let rail = true;
+    const { container } = mount({
+      sidebarRail: () => rail,
+      onSidebarRailChange: (value) => {
+        rail = value;
+      },
+    });
+    tab(container, "Appearance").click();
+    panel(container).querySelector<HTMLButtonElement>('button[role="switch"]')!.click();
+
+    tab(container, "Terminal").click();
+    tab(container, "Appearance").click();
+
+    expect(panel(container).querySelector('button[role="switch"]')!.getAttribute("aria-checked")).toBe("false");
   });
 
   it("Terminal zeigt die Karten Text, Clipboard und Accessibility", () => {

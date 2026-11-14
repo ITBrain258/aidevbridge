@@ -22,6 +22,7 @@ function handlers() {
     onOpenSession: vi.fn(), onCloseSession: vi.fn(), onKillSession: vi.fn(),
     onAddHost: vi.fn(),
     onOpenSettings: vi.fn(),
+    onCollapse: vi.fn(),
   };
 }
 
@@ -108,10 +109,13 @@ describe("mountSidebar", () => {
     const row = el.querySelector('[data-session-key="h1/a"]') as HTMLElement;
     expect(row.textContent).toContain("Not open");
     expect(row.textContent).not.toContain("Disconnected");
-    // Designsystem §8.4: hohles Quadrat, nicht Dreieck -- Geometrie, nicht
-    // nur Text (dieselbe Doppelung wie in den beiden Tests darueber).
+    // Designsystem §8.4: das Zeichen von "Not open", nicht das Dreieck --
+    // Geometrie, nicht nur Text (dieselbe Doppelung wie in den beiden Tests
+    // darueber). Seit der Spec vom 14.11.2026 (Statusanzeige) §3 ein eigener
+    // Punkt (`ind-closed`), nicht mehr der Ring von "Offline".
     expect(row.querySelector(".ind-warn")).toBeNull();
-    expect(row.querySelector(".ind-off")).not.toBeNull();
+    expect(row.querySelector(".ind-closed")).not.toBeNull();
+    expect(row.querySelector(".ind-off")).toBeNull();
   });
 
   it("meldet den host-qualifizierten Schluessel beim Klick auf eine Session", () => {
@@ -1030,15 +1034,38 @@ describe("mountSidebar: Wartet-Spur (Spec 2026-10-19 §7)", () => {
     return Array.from(el.querySelectorAll<HTMLElement>(".row-lane .row-lane-time")).map((time) => time.textContent ?? "");
   }
 
+  // Spec vom 14.11.2026 (Statusanzeige) §4: der Kopf sagt, auf wen gewartet
+  // wird, und traegt die Zahl als eigene Marke.
   it("steht nur, wenn jemand wartet, ganz oben; der Kopf nennt Zahl und Ctrl+Shift+A", () => {
     const s = new AppState();
-    s.upsertHost(host("h1", ["a"]));
+    s.upsertHost(host("h1", ["a", "b"]));
     const { el } = mount(s);
     expect(el.querySelector(".sb-lane")).toBeNull();
     s.setSessionRecords("h1", [{ name: "a", status: "waiting" }], Date.now());
     expect(el.querySelector(".sb-list")!.firstElementChild?.classList.contains("sb-lane")).toBe(true);
-    expect(el.querySelector(".sb-lane-title")?.textContent).toBe("Waiting · 1");
+    const head = el.querySelector<HTMLElement>(".sb-lane-head")!;
+    expect(Array.from(head.children).map((child) => child.className || child.tagName.toLowerCase())).toEqual([
+      "icon-box icon-box--sm",
+      "sb-lane-title",
+      "sb-lane-count",
+      "kbd",
+    ]);
+    expect(head.querySelector(".icon-box .ag.ag-waiting")).not.toBeNull();
+    expect(el.querySelector(".sb-lane-title")?.textContent).toBe("Waiting for you");
+    expect(el.querySelector(".sb-lane-count")?.textContent).toBe("1");
     expect(el.querySelector(".sb-lane-head kbd")?.textContent).toBe("Ctrl+Shift+A");
+    expect(el.querySelector<HTMLElement>(".sb-lane-head kbd")?.title).toBe("Jump to the next waiting session");
+
+    s.setSessionRecords("h1", [{ name: "a", status: "waiting" }, { name: "b", status: "waiting" }], Date.now());
+    expect(el.querySelector(".sb-lane-count")?.textContent).toBe("2");
+  });
+
+  // Jede Zeile der Spur wartet; die Raute steht einmal im Kopf.
+  it("eine Zeile der Spur beginnt mit dem Kuerzel des Hosts, ohne eigene Raute", () => {
+    const { el } = waiting({ a: 0 });
+    const main = el.querySelector<HTMLElement>(".row-lane .row-lane-main")!;
+    expect(main.firstElementChild?.className).toBe("sb-avatar");
+    expect(main.querySelector(".ag")).toBeNull();
   });
 
   it("die aelteste oben, mit Wartezeit now, 12m und 2h, je Minute neu", () => {
@@ -2136,23 +2163,25 @@ describe("mountSidebar: die Knopfleiste als zweiter Tabstopp", () => {
     return candidates.filter((c) => c.tabIndex !== -1 && !c.closest("[hidden]"));
   }
 
-  it("hat bei gesunden Hosts genau vier Haltestellen", () => {
+  it("hat bei gesunden Hosts genau sechs Haltestellen", () => {
     const s = new AppState();
     s.upsertHost(host("h1", ["a", "b"]));
     s.upsertHost(host("h2", ["c"]));
     s.openSession("h1", "a"); // erzeugt einen Schliessknopf, der -1 tragen muss
     const { el } = mount(s);
     const stops = tabStops(el);
-    expect(stops).toHaveLength(4);
+    expect(stops).toHaveLength(6);
     // Die Zahl allein ist blind dafuer, WELCHE Leiste den Halt traegt --
-    // eine Umsetzung, die ihn fest an den ersten Host haengt, zaehlt auch 4.
-    // Seit Aufgabe 8 steht der Add-Knopf im Kopf, VOR dem Zahnrad (UI v2
-    // §7.2) -- die zwei Kopfknoepfe sind damit die ersten beiden Halte. Der
-    // Knopf ist nur umgezogen, die Zahl bleibt darum 4.
+    // eine Umsetzung, die ihn fest an den ersten Host haengt, zaehlt genauso.
+    // Der Add-Knopf steht im Kopf, VOR dem Zahnrad (UI v2 §7.2) -- die zwei
+    // Kopfknoepfe sind die ersten beiden Halte. Hinter der Liste folgen die
+    // zwei Knoepfe im Fuss: Marke und Einklappen (Spec 2026-11-14 §2, §3).
     expect(stops[0].classList.contains("sb-btn")).toBe(true); // Kopf
     expect(stops[1].classList.contains("sb-head-btn")).toBe(true);
     expect(stops[2].classList.contains("ab-row")).toBe(true);
     expect(stops[3].closest(".host-actions")).not.toBeNull();
+    expect(stops[4].classList.contains("sb-brand")).toBe(true); // Fuss
+    expect(stops[5].classList.contains("sb-collapse")).toBe(true);
   });
 
   it("gibt den Halt der Leiste des Hosts, zu dem die aktuelle Zeile gehoert", () => {
@@ -2325,7 +2354,7 @@ describe("mountSidebar: die Knopfleiste als zweiter Tabstopp", () => {
     // `authKind === "agent"` (ein Host ohne gespeicherte Anmeldeart und ohne
     // `key_path` gilt als "agent", das trifft auch Passwort-Hosts von vor
     // Task 8).
-    expect(tabStops(el)).toHaveLength(4 + 3);
+    expect(tabStops(el)).toHaveLength(6 + 3);
   });
 
   it("zaehlt bei einem fehlgeschlagenen Schluesselhost das Passphrasenfeld mit", () => {
@@ -2339,14 +2368,14 @@ describe("mountSidebar: die Knopfleiste als zweiter Tabstopp", () => {
       authKind: "key",
     });
     const { el } = mount(s);
-    expect(tabStops(el)).toHaveLength(4 + 3);
+    expect(tabStops(el)).toHaveLength(6 + 3);
   });
 
   it("zaehlt nach einem Netzfehler nur Retry und Details", () => {
     const s = new AppState();
     s.upsertHost({ ...host("h1"), state: "failed", error: "SSH connection timed out.", errorCode: "connect_timeout" });
     const { el } = mount(s);
-    expect(tabStops(el)).toHaveLength(4 + 2);
+    expect(tabStops(el)).toHaveLength(6 + 2);
   });
 });
 
@@ -2753,7 +2782,7 @@ describe("mountSidebar: Diagnosetext beginnt mit Version und Commit", () => {
 // das Aussehen -- die Neuform der Regeln folgt in Aufgabe 9 und darf diese
 // Tests nicht beruehren.
 describe("UI v2: Kopf, Kuerzel, Pille, aktive Aktionsleiste (Spec 7)", () => {
-  it("der Add-Knopf steht im Kopf, behaelt Klasse und Fokusschluessel; der Fuss traegt nur die Version", () => {
+  it("der Add-Knopf steht im Kopf, behaelt Klasse und Fokusschluessel; der Fuss traegt Marke und Einklappknopf", () => {
     const s = new AppState();
     const { el } = mount(s);
     const add = el.querySelector<HTMLButtonElement>(".sb-head .sb-btn");
@@ -2764,6 +2793,67 @@ describe("UI v2: Kopf, Kuerzel, Pille, aktive Aktionsleiste (Spec 7)", () => {
     expect(el.querySelector(".sb-foot .sb-version")).not.toBeNull();
     const headChildren = Array.from(el.querySelector(".sb-head")!.children).map((c) => c.className);
     expect(headChildren).toEqual(["", "sb-btn", "sb-head-btn"]);
+    const footChildren = Array.from(el.querySelector(".sb-foot")!.children).map((c) => c.className);
+    expect(footChildren).toEqual(["sb-brand", "sb-head-btn sb-collapse"]);
+  });
+
+  // Spec 2026-11-14 §3: die Marke im Fuss.
+  it("die Marke zeigt Zeichen, Name und Version ohne Commit und oeffnet die Einstellungen auf About", () => {
+    const s = new AppState();
+    const { el, h } = mount(s);
+    const brand = el.querySelector<HTMLButtonElement>(".sb-foot button.sb-brand")!;
+    expect(Array.from(brand.children).map((c) => c.className)).toEqual(["sb-brand-mark", "sb-brand-name", "sb-version"]);
+    // Das Zeichen ist Schmuck; den Namen traegt der Text daneben.
+    expect(brand.querySelector(".sb-brand-mark")?.getAttribute("aria-hidden")).toBe("true");
+    expect(brand.querySelector(".sb-brand-mark svg")).not.toBeNull();
+    expect(brand.querySelector(".sb-brand-name")?.textContent).toBe("aidevbridge");
+    expect(brand.querySelector(".sb-version")?.textContent).toBe("0.0.0-test");
+    // Der Commit steht unter About und in "Copy diagnostics", hier nicht mehr.
+    expect(brand.textContent).not.toContain("(test)");
+    expect(brand.textContent).not.toBe(appVersionLine());
+    expect(brand.title).toBe("About aidevbridge");
+    expect(brand.getAttribute("aria-label")).toBe("About aidevbridge, version 0.0.0-test");
+    expect(brand.dataset.focusKey).toBe("foot::brand");
+
+    brand.click();
+    expect(h.onOpenSettings).toHaveBeenCalledTimes(1);
+    expect(h.onOpenSettings).toHaveBeenCalledWith("about");
+  });
+
+  it("das Zahnrad oeffnet die Einstellungen ohne Bereich", () => {
+    const s = new AppState();
+    const { el, h } = mount(s);
+    el.querySelector<HTMLButtonElement>(".sb-head .sb-head-btn")!.click();
+    expect(h.onOpenSettings).toHaveBeenCalledTimes(1);
+    expect(h.onOpenSettings.mock.calls[0]).toEqual([]);
+  });
+
+  // Spec 2026-11-14 §2: Einklappen mit der Maus.
+  it("der Einklappknopf nennt sich und sein Kuerzel und meldet den Klick", () => {
+    const s = new AppState();
+    const { el, h } = mount(s);
+    const collapse = el.querySelector<HTMLButtonElement>(".sb-foot button.sb-collapse")!;
+    expect(collapse.getAttribute("aria-label")).toBe("Collapse sidebar");
+    expect(collapse.title).toBe("Collapse sidebar (Ctrl+Shift+B)");
+    expect(collapse.querySelector("svg[aria-hidden='true']")).not.toBeNull();
+    expect(collapse.dataset.focusKey).toBe("foot::collapse");
+    collapse.click();
+    expect(h.onCollapse).toHaveBeenCalledTimes(1);
+  });
+
+  // Die Liste baut bei jeder Benachrichtigung neu; ein Knopf im Fuss, der
+  // dabei aus dem Dokument fiele, verloere Fokus und Klick.
+  it("die Knoepfe im Fuss ueberleben das Neuzeichnen der Liste", () => {
+    const s = new AppState();
+    const { el } = mount(s);
+    const brand = el.querySelector(".sb-brand");
+    const collapse = el.querySelector<HTMLButtonElement>(".sb-collapse")!;
+    collapse.focus();
+    s.upsertHost(host("h1", ["a"]));
+    s.setHostState("h1", "disconnected");
+    expect(el.querySelector(".sb-brand")).toBe(brand);
+    expect(el.querySelector(".sb-collapse")).toBe(collapse);
+    expect(document.activeElement).toBe(collapse);
   });
 
   it("zeigt ohne Hosts den Leerhinweis in der Liste", () => {
@@ -2835,7 +2925,7 @@ describe("UI v2: Kopf, Kuerzel, Pille, aktive Aktionsleiste (Spec 7)", () => {
     const children = Array.from(row.children);
     expect(children.map((c) => c.className.split(" ")[0])).toEqual(["ind-box", "row-label", "row-meta"]);
     expect(children[0].getAttribute("aria-hidden")).toBe("true");
-    expect(children[0].querySelector(".ind.ind-sm.ind-off")).not.toBeNull();
+    expect(children[0].querySelector(".ind.ind-closed")).not.toBeNull();
     expect(row.querySelector(".row-meta .row-state-word")?.textContent).toBe("Not open");
     // Without agent data the slot is not rendered and the channel word stays.
     expect(row.querySelector(".row-meta .st")).toBeNull();
@@ -2891,7 +2981,7 @@ describe("UI v2: Kopf, Kuerzel, Pille, aktive Aktionsleiste (Spec 7)", () => {
     expect(box("a").querySelector(".tile-number--focused")).toBeNull();
     expect(box("b").querySelector(".tile-number.tile-number--focused")?.textContent).toBe("2");
     expect(box("c").querySelector(".tile-number")).toBeNull();
-    expect(box("c").querySelector(".ind.ind-off")).not.toBeNull();
+    expect(box("c").querySelector(".ind.ind-closed")).not.toBeNull();
     // Das Wort bleibt wie heute.
     expect(el.querySelector('[data-session-key="h1/a"] .row-state-word')?.textContent).toBe("Open");
   });
@@ -2930,7 +3020,7 @@ describe("UI v2: Kopf, Kuerzel, Pille, aktive Aktionsleiste (Spec 7)", () => {
     // Die ids (a = 1, c = 3) sagen davon nichts.
     s.closeTile(s.tileForSession("h1/b")!.id);
     expect(chip("b")).toBeNull();
-    expect(el.querySelector('[data-session-key="h1/b"] .ind-box .ind.ind-off')).not.toBeNull();
+    expect(el.querySelector('[data-session-key="h1/b"] .ind-box .ind.ind-closed')).not.toBeNull();
     expect(["a", "c"].map((name) => chip(name)?.textContent)).toEqual(["2", "1"]);
   });
 
@@ -2997,15 +3087,142 @@ describe("UI v2: Kopf, Kuerzel, Pille, aktive Aktionsleiste (Spec 7)", () => {
     expect(handle.activeHostId()).toBe("h2");
     expect(marked()).toBe("h2");
   });
+
+  // Spec vom 14.11.2026 (Statusanzeige) §2: jede Hostkarte zeigt ihre
+  // Knopfleiste. Der Griff in die Leiste eines ANDEREN Hosts ist damit der
+  // gewoehnliche Mausweg und nicht mehr nur der Rueckweg aus einem Menue: der
+  // Host des Knopfs wird der aktive, der Tabstopp der Leisten zieht mit, und
+  // die Aktion trifft den Host, an dessen Karte sie steht.
+  it("ein Knopf in der Leiste eines anderen Hosts macht diesen Host aktiv und handelt an ihm", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1", ["a"]));
+    s.upsertHost(host("h2", ["b"]));
+    s.upsertHost(host("h3", []));
+    s.setHostState("h1", "connected");
+    s.setHostState("h2", "connected");
+    s.setHostState("h3", "disconnected");
+    s.setHostExpanded("h3", false);
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const h = handlers();
+    const handle = mountSidebar(el, s, h);
+    handles.push(handle);
+    const bar = (hostId: string) =>
+      el.querySelector<HTMLElement>(`.row-host[data-host-id="${hostId}"]`)!.closest(".sb-host-block")!
+        .querySelector<HTMLElement>(".host-actions")!;
+    const buttons = (hostId: string) => Array.from(bar(hostId).querySelectorAll<HTMLButtonElement>("button"));
+    const stops = (hostId: string) => buttons(hostId).filter((button) => button.tabIndex === 0);
+
+    // Jede Karte traegt ihre Leiste, auch die zugeklappte ohne Verbindung.
+    expect(el.querySelectorAll(".sb-host-block")).toHaveLength(3);
+    expect(el.querySelectorAll(".sb-host-block > .host-actions")).toHaveLength(3);
+    expect(buttons("h3")[0].textContent).toBe("Connect");
+    // "Disconnect" leuchtet am verbundenen Host, "Connect" ist ruhig.
+    expect(buttons("h3")[0].classList.contains("host-action-btn--connected")).toBe(false);
+    expect(buttons("h1")[0].textContent).toBe("Disconnect");
+    expect(buttons("h1")[0].classList.contains("host-action-btn--connected")).toBe(true);
+
+    // Der Zeiger der Liste steht auf der Sessionzeile von h1.
+    el.querySelector<HTMLElement>('.row-session[data-session-key="h1/a"]')!.focus();
+    expect(handle.activeHostId()).toBe("h1");
+    expect(stops("h1")).toHaveLength(1);
+    expect(stops("h2")).toHaveLength(0);
+
+    // Druck und Klick auf "New session" von h2, wie die Maus es tut.
+    const newSession = buttons("h2")[1];
+    newSession.focus();
+    newSession.click();
+
+    expect(h.onNewSession).toHaveBeenCalledTimes(1);
+    expect(h.onNewSession).toHaveBeenCalledWith("h2");
+    expect(handle.activeHostId()).toBe("h2");
+    expect(stops("h2")).toEqual([newSession]);
+    expect(stops("h1")).toHaveLength(0);
+    // Der Tabstopp der Liste ist die Hostzeile von h2.
+    expect(el.querySelector<HTMLElement>('.row-host[data-host-id="h2"]')!.tabIndex).toBe(0);
+    expect(el.querySelector<HTMLElement>('.row-session[data-session-key="h1/a"]')!.tabIndex).toBe(-1);
+
+    // Dasselbe an der zugeklappten Karte: "Connect" trifft h3.
+    buttons("h3")[0].focus();
+    buttons("h3")[0].click();
+    expect(h.onConnectHost).toHaveBeenCalledWith("h3");
+    expect(handle.activeHostId()).toBe("h3");
+  });
+
+  // Leuchtet der Umschalter, steht die Verbindung -- in genau dem Zustand, in
+  // dem die Pille den gruenen Punkt von "Online" zeigt. Waehrend des
+  // Verbindens heisst er schon "Disconnect" und leuchtet noch nicht.
+  it("der Umschalter leuchtet nur am verbundenen Host, nicht waehrend des Verbindens", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1", ["a"]));
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    handles.push(mountSidebar(el, s, handlers()));
+    // Neu abgefragt: jede Zustandsaenderung baut die Leiste neu.
+    const toggle = () => el.querySelector<HTMLButtonElement>(".sb-host-block > .host-actions button")!;
+    const glows = () => toggle().classList.contains("host-action-btn--connected");
+    const online = () => el.querySelector(".row-host .state-pill .ind-on") !== null;
+
+    for (const [state, word] of [
+      ["connecting", "Disconnect"],
+      ["connected", "Disconnect"],
+      ["failed", "Connect"],
+      ["disconnected", "Connect"],
+      ["connected", "Disconnect"],
+    ] as const) {
+      s.setHostState("h1", state);
+      expect(toggle().textContent, state).toBe(word);
+      expect(glows(), state).toBe(state === "connected");
+      expect(glows(), state).toBe(online());
+    }
+  });
+
+  // "Edit" und "Remove" duerfen nie auf den aktiven Host zurueckfallen: das
+  // Menue haengt jetzt an jeder Karte, auch an der nicht aktiven.
+  it("Edit und Remove im Menue eines nicht aktiven Hosts treffen diesen Host", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1", ["a"]));
+    s.upsertHost(host("h2", ["b"]));
+    s.setHostState("h1", "connected");
+    s.setHostState("h2", "connected");
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const h = handlers();
+    const handle = mountSidebar(el, s, h);
+    handles.push(handle);
+    const menuItem = (label: string) =>
+      Array.from(document.querySelectorAll<HTMLElement>('[role="menuitem"]')).find((item) => item.textContent === label)!;
+    const focusRowOfH1 = () => el.querySelector<HTMLElement>('.row-session[data-session-key="h1/a"]')!.focus();
+
+    focusRowOfH1();
+    expect(handle.activeHostId()).toBe("h1");
+    moreButton(el, "h2").click();
+    menuItem("Edit…").click();
+    expect(h.onEditHost).toHaveBeenCalledTimes(1);
+    expect(h.onEditHost).toHaveBeenCalledWith("h2");
+
+    focusRowOfH1();
+    expect(handle.activeHostId()).toBe("h1");
+    moreButton(el, "h2").click();
+    menuItem("Remove…").click();
+    const confirm = el.querySelector<HTMLElement>(".host-confirm-remove")!;
+    expect(confirm.closest(".sb-host-block")!.querySelector(".row-host")!.getAttribute("data-host-id")).toBe("h2");
+    Array.from(confirm.querySelectorAll("button")).find((button) => button.textContent === "Remove")!.click();
+    expect(h.onRemoveHost).toHaveBeenCalledTimes(1);
+    expect(h.onRemoveHost).toHaveBeenCalledWith("h2");
+  });
 });
 
-// Abnahme B2: die Zeile nimmt beim Druck den Fokus, `focusin` markierte ihren
-// Host sofort als aktiv, und dessen Knopfleiste schob die Zeilen um 38 px nach
-// unten, noch vor dem Loslassen. Der Klick ging dann an einen gemeinsamen
-// Vorfahren, und der erste Klick auf eine Zeile eines nicht aktiven Hosts war
-// verloren. Waehrend des Drucks bleibt deshalb die Markierung stehen; sie holt
-// nach dem Klick auf. jsdom fokussiert beim Druck nicht von selbst -- die Tests
-// tun, was der Browser tut, und rufen `focus()`.
+// Abnahme B2: die Zeile nimmt beim Druck den Fokus, und `focusin` markiert ihren
+// Host sofort als aktiv. Solange nur der aktive Host seine Knopfleiste zeigte,
+// schob das die Zeilen um 38 px nach unten, noch vor dem Loslassen, und der
+// erste Klick auf eine Zeile eines nicht aktiven Hosts war verloren. Waehrend
+// des Drucks bleibt deshalb die Markierung stehen; sie holt nach dem Klick auf.
+// Seit jede Karte ihre Leiste zeigt (Spec vom 14.11.2026, Statusanzeige §2),
+// verschiebt die Markierung nichts mehr; die Tests halten fest, dass sie und
+// das zurueckgehaltene Neuzeichnen sich weiter so verhalten. jsdom fokussiert
+// beim Druck nicht von selbst -- die Tests tun, was der Browser tut, und rufen
+// `focus()`.
 describe("mountSidebar: ein Druck in der Liste verschiebt die Zeilen nicht (Abnahme B2)", () => {
   function setup(): {
     el: HTMLElement;

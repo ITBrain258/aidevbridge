@@ -5858,6 +5858,7 @@ function uiSettingsDto(overrides: Partial<UiSettingsDto> = {}): UiSettingsDto {
     ctrl_cv_clipboard: true,
     right_click: "menu",
     restore_workspace: true,
+    sidebar_rail: true,
     sidebar_width: 240,
     screen_reader_mode: false,
     workspace: { layout: 1, tiles_version: 2, sidebar_collapsed: false, expanded: [], connected: [], tiles: [], dirs: {} },
@@ -6125,6 +6126,286 @@ describe("main: Einstellungen laden und entprellt schreiben (UX-Spec §9.2)", ()
 // Den Griff selbst (Klemmen, Tasten, Doppelklick) prueft
 // `views/sidebar-resize.test.ts`; hier geht es um die Verdrahtung: Token an
 // `#app`, ein `refit()` je abgeschlossener Aenderung, das Speichern.
+// Spec 2026-11-14 §2 und §3: der Einklappknopf im Fuss, die Symbolleiste der
+// eingeklappten Seitenleiste mit ihrer Einstellung, und die Marke im Fuss.
+describe("main: Symbolleiste und Fuss der Seitenleiste (Spec 2026-11-14)", () => {
+  let stored: UiSettingsDto;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    stored = uiSettingsDto();
+    const h1 = hostEntry({ id: "s-h1", label: "h1", hostname: "10.0.0.1" });
+    const h2 = hostEntry({ id: "s-h2", label: "h2", hostname: "10.0.0.2" });
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "list_hosts") return Promise.resolve([h1, h2]);
+      if (command === "list_ssh_keys" || command === "suggest_hosts") return Promise.resolve([]);
+      if (command === "ui_settings") return Promise.resolve(stored);
+      return Promise.resolve(undefined);
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
+  });
+
+  const app = () => document.getElementById("app")!;
+  const rail = () => document.querySelector<HTMLElement>("#app > .sb-rail")!;
+  const collapseButton = () => document.querySelector<HTMLButtonElement>("#sidebar .sb-collapse")!;
+  const expandButton = () => rail().querySelector<HTMLButtonElement>(".sb-rail-expand")!;
+  const railHosts = () => Array.from(rail().querySelectorAll<HTMLButtonElement>(".sb-rail-host"));
+  const classes = () => ["sidebar-collapsed", "sidebar-rail"].filter((name) => app().classList.contains(name));
+
+  function patches(): Array<Record<string, unknown>> {
+    return invokeMock.mock.calls
+      .filter(([command]) => command === "ui_settings")
+      .map(([, args]) => (args as { patch: Record<string, unknown> | null }).patch)
+      .filter((patch): patch is Record<string, unknown> => patch !== null);
+  }
+
+  function selectedSettingsTab(): string | undefined {
+    return document.querySelector('.dialog-panel [role="tab"][aria-selected="true"]')?.textContent ?? undefined;
+  }
+
+  function railSwitch(): HTMLButtonElement {
+    pressKey(document.body, { key: ",", code: "Comma", ctrlKey: true });
+    Array.from(document.querySelectorAll<HTMLButtonElement>('.dialog-panel [role="tab"]'))
+      .find((candidate) => candidate.textContent === "Appearance")!
+      .click();
+    return document.querySelector<HTMLButtonElement>('.dialog-panel [role="tabpanel"] button[role="switch"]')!;
+  }
+
+  it("die Symbolleiste haengt zwischen #sidebar und #grid und ist ausgeklappt verborgen", async () => {
+    main();
+    await flush();
+
+    const children = Array.from(app().children);
+    expect(children.indexOf(rail())).toBe(children.indexOf(document.getElementById("sidebar")!) + 1);
+    expect(children.indexOf(rail())).toBeLessThan(children.indexOf(document.getElementById("grid")!));
+    expect(rail().hidden).toBe(true);
+    expect(classes()).toEqual([]);
+  });
+
+  it("der Knopf im Fuss klappt ein: die Symbolleiste erscheint mit den Hosts, der Fokus geht auf ihr Ausklappen", async () => {
+    main();
+    await flush();
+
+    collapseButton().click();
+
+    expect(classes()).toEqual(["sidebar-collapsed", "sidebar-rail"]);
+    expect(rail().hidden).toBe(false);
+    expect(railHosts().map((button) => button.title)).toEqual(["h1: Offline", "h2: Offline"]);
+    expect(document.activeElement).toBe(expandButton());
+    // Derselbe Weg wie das Kuerzel: der Arbeitsplatz merkt sich das Einklappen.
+    await vi.advanceTimersByTimeAsync(500);
+    expect(patches().map((patch) => (patch.workspace as { sidebar_collapsed: boolean } | undefined)?.sidebar_collapsed)).toEqual([true]);
+  });
+
+  it("der Ausklappknopf fuehrt zurueck: die Leiste verschwindet, der Fokus steht auf dem Einklappknopf", async () => {
+    main();
+    await flush();
+    collapseButton().click();
+
+    expandButton().click();
+
+    expect(classes()).toEqual([]);
+    expect(rail().hidden).toBe(true);
+    expect(document.activeElement).toBe(collapseButton());
+  });
+
+  it("Strg+Umschalt+B zeigt und verbirgt die Symbolleiste wie die Knoepfe", async () => {
+    main();
+    await flush();
+
+    chord("b");
+    expect(classes()).toEqual(["sidebar-collapsed", "sidebar-rail"]);
+    expect(rail().hidden).toBe(false);
+    chord("b");
+    expect(classes()).toEqual([]);
+    expect(rail().hidden).toBe(true);
+  });
+
+  it("ein Host der Symbolleiste klappt aus und setzt den Fokus auf seine Zeile", async () => {
+    main();
+    await flush();
+    chord("b");
+
+    railHosts()[1].click();
+
+    expect(classes()).toEqual([]);
+    expect(rail().hidden).toBe(true);
+    expect(document.activeElement).toBe(hostRow("h2"));
+  });
+
+  it("Strg+Umschalt+E klappt aus und nimmt die Symbolleiste mit", async () => {
+    main();
+    await flush();
+    chord("b");
+
+    chord("e");
+
+    expect(classes()).toEqual([]);
+    expect(rail().hidden).toBe(true);
+    expect(document.getElementById("sidebar")!.contains(document.activeElement)).toBe(true);
+  });
+
+  it("eingeklappt gespeichert: nach dem Start steht die Symbolleiste", async () => {
+    stored = uiSettingsDto({ workspace: { ...uiSettingsDto().workspace, sidebar_collapsed: true } });
+    main();
+    await flush();
+
+    expect(classes()).toEqual(["sidebar-collapsed", "sidebar-rail"]);
+    expect(rail().hidden).toBe(false);
+    expect(railHosts()).toHaveLength(2);
+  });
+
+  it("mit sidebar_rail = false blendet das Einklappen die Seitenleiste ganz aus, wie vor der Symbolleiste", async () => {
+    stored = uiSettingsDto({ sidebar_rail: false });
+    main();
+    await flush();
+
+    // Ohne Symbolleiste fuehrt nur die Tastatur zurueck: styles.css nimmt an
+    // dieser Klasse den Einklappknopf aus dem Fuss.
+    expect(app().classList.contains("sidebar-no-rail")).toBe(true);
+    chord("b");
+
+    expect(classes()).toEqual(["sidebar-collapsed"]);
+    expect(rail().hidden).toBe(true);
+    expect(document.activeElement).not.toBe(expandButton());
+    chord("b");
+    expect(classes()).toEqual([]);
+  });
+
+  it("die Klasse fuer den fehlenden Einklappknopf folgt dem Schalter, auch bei ausgeklappter Seitenleiste", async () => {
+    main();
+    await flush();
+    expect(app().classList.contains("sidebar-no-rail")).toBe(false);
+
+    const toggle = railSwitch();
+    toggle.click();
+    expect(app().classList.contains("sidebar-no-rail")).toBe(true);
+    toggle.click();
+    expect(app().classList.contains("sidebar-no-rail")).toBe(false);
+  });
+
+  // Der Fokus stand in der Leiste, die das Kuerzel wegnimmt: er geht auf ihr
+  // Gegenstueck, wie nach einem Klick auf die beiden Knoepfe.
+  it("Strg+Umschalt+B nimmt den Fokus mit, wenn seine Leiste verschwindet", async () => {
+    main();
+    await flush();
+
+    collapseButton().focus();
+    chord("b");
+    expect(document.activeElement).toBe(expandButton());
+    chord("b");
+    expect(document.activeElement).toBe(collapseButton());
+
+    // Stand er woanders, bleibt er dort.
+    collapseButton().blur();
+    chord("b");
+    expect(document.activeElement).toBe(document.body);
+    chord("b");
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it("Einstellungen aus der Symbolleiste: der Fokus kehrt auf ihren Knopf zurueck, aber nicht auf einen verborgenen", async () => {
+    main();
+    await flush();
+    chord("b");
+    const settings = rail().querySelector<HTMLButtonElement>(".sb-rail-bottom > button")!;
+
+    settings.focus();
+    settings.click();
+    escape();
+    await flush();
+    expect(document.activeElement).toBe(settings);
+
+    // Der Schalter nimmt die Symbolleiste weg, waehrend der Dialog offen ist.
+    settings.click();
+    Array.from(document.querySelectorAll<HTMLButtonElement>('.dialog-panel [role="tab"]'))
+      .find((candidate) => candidate.textContent === "Appearance")!
+      .click();
+    document.querySelector<HTMLButtonElement>('.dialog-panel [role="tabpanel"] button[role="switch"]')!.click();
+    expect(rail().hidden).toBe(true);
+    escape();
+    await flush();
+
+    expect(document.querySelector(".dialog-panel")).toBeNull();
+    expect(rail().contains(document.activeElement)).toBe(false);
+  });
+
+  it("der Schalter unter Appearance wirkt sofort auf die eingeklappte Seitenleiste und schreibt nur sidebar_rail", async () => {
+    main();
+    await flush();
+    chord("b");
+    await vi.advanceTimersByTimeAsync(500);
+    const before = patches().length;
+
+    const toggle = railSwitch();
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    toggle.click();
+
+    expect(classes()).toEqual(["sidebar-collapsed"]);
+    expect(rail().hidden).toBe(true);
+    await vi.advanceTimersByTimeAsync(500);
+    expect(patches().slice(before)).toEqual([{ sidebar_rail: false }]);
+
+    toggle.click();
+    expect(classes()).toEqual(["sidebar-collapsed", "sidebar-rail"]);
+    expect(rail().hidden).toBe(false);
+    await vi.advanceTimersByTimeAsync(500);
+    expect(patches().slice(before)).toEqual([{ sidebar_rail: false }, { sidebar_rail: true }]);
+  });
+
+  it("der Schalter aendert an einer ausgeklappten Seitenleiste nichts Sichtbares", async () => {
+    main();
+    await flush();
+
+    railSwitch().click();
+
+    expect(classes()).toEqual([]);
+    expect(rail().hidden).toBe(true);
+    await vi.advanceTimersByTimeAsync(500);
+    expect(patches()).toEqual([{ sidebar_rail: false }]);
+  });
+
+  it("die Marke im Fuss oeffnet die Einstellungen auf About, das Zahnrad auf dem ersten Bereich", async () => {
+    main();
+    await flush();
+
+    document.querySelector<HTMLButtonElement>("#sidebar .sb-brand")!.click();
+    expect(selectedSettingsTab()).toBe("About");
+    escape();
+    expect(document.querySelector(".dialog-panel")).toBeNull();
+
+    document.querySelector<HTMLButtonElement>("#sidebar .sb-head .sb-head-btn")!.click();
+    expect(selectedSettingsTab()).toBe("General");
+  });
+
+  it("die Marke der Symbolleiste oeffnet About, ihr Zahnrad den ersten Bereich", async () => {
+    main();
+    await flush();
+    chord("b");
+    const [settings, brand] = Array.from(rail().querySelectorAll<HTMLButtonElement>(".sb-rail-bottom > button"));
+
+    brand.click();
+    expect(selectedSettingsTab()).toBe("About");
+    escape();
+
+    settings.click();
+    expect(selectedSettingsTab()).toBe("General");
+  });
+
+  it("ein neuer Lauf von main() laesst keine zweite Symbolleiste zurueck", async () => {
+    main();
+    await flush();
+    main();
+    await flush();
+
+    expect(document.querySelectorAll("#app > .sb-rail")).toHaveLength(1);
+  });
+});
+
 describe("main: Breite der Seitenleiste (UX-Spec §7.8)", () => {
   beforeEach(() => {
     vi.useFakeTimers();

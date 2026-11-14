@@ -291,6 +291,38 @@ const TERMINAL_BASES: Record<BaseId, BaseSurfaces> = {
     scrollbarSliderHoverBackground: "#94A0B4",
     scrollbarSliderActiveBackground: "#C6CFDD",
   },
+  midnight: {
+    background: "#0A0B0D",
+    cursorAccent: "#0A0B0D",
+    selectionInactiveBackground: "#232830",
+    scrollbarSliderBackground: "rgba(255, 255, 255, 0.34)",
+    scrollbarSliderHoverBackground: "#8E96A3",
+    scrollbarSliderActiveBackground: "#C5CBD4",
+  },
+  mocha: {
+    background: "#110F0D",
+    cursorAccent: "#110F0D",
+    selectionInactiveBackground: "#3A322C",
+    scrollbarSliderBackground: "rgba(255, 255, 255, 0.34)",
+    scrollbarSliderHoverBackground: "#A1968B",
+    scrollbarSliderActiveBackground: "#D4CCC3",
+  },
+  plum: {
+    background: "#100E14",
+    cursorAccent: "#100E14",
+    selectionInactiveBackground: "#302B3B",
+    scrollbarSliderBackground: "rgba(255, 255, 255, 0.34)",
+    scrollbarSliderHoverBackground: "#9B94AA",
+    scrollbarSliderActiveBackground: "#CFC9DA",
+  },
+  pine: {
+    background: "#0C110F",
+    cursorAccent: "#0C110F",
+    selectionInactiveBackground: "#28332F",
+    scrollbarSliderBackground: "rgba(255, 255, 255, 0.34)",
+    scrollbarSliderHoverBackground: "#8FA099",
+    scrollbarSliderActiveBackground: "#C4D0CA",
+  },
 };
 
 /** Je Akzent: der Cursor ist der Akzent, die Auswahl ist getoent -- bei Rot

@@ -4215,7 +4215,7 @@ describe("mountTerminal: rechte Maustaste (UX-Spec §6.3)", () => {
     const sidebar = mountSidebar(sidebarEl, state, {
       onConnectHost: vi.fn(), onDisconnectHost: vi.fn(), onEditHost: vi.fn(), onRemoveHost: vi.fn(),
       onReloadSessions: vi.fn(), onNewSession: vi.fn(), onOpenSession: vi.fn(), onCloseSession: vi.fn(),
-      onKillSession: vi.fn(), onAddHost: vi.fn(), onOpenSettings: vi.fn(),
+      onKillSession: vi.fn(), onAddHost: vi.fn(), onOpenSettings: vi.fn(), onCollapse: vi.fn(),
     });
     try {
       const { xtermEl } = setupTile();
@@ -5811,7 +5811,7 @@ describe("terminalTheme haengt an den Token aus styles.css (Spec 5.5)", () => {
    * Farbe -- verglichen wird ohne Leerraum. */
   const norm = (value: string): string => value.replace(/\s+/g, "");
 
-  // Farbwahl-Spec §5: jede der 14 Varianten ist `:root` + Grundton + Akzent
+  // Farbwahl-Spec §5: jede der 42 Varianten ist `:root` + Grundton + Akzent
   // (`--ab-scrollbar` und `--ab-scrollbar-hover` stehen nur in `:root`).
   const baseBlock = (id: BaseId) =>
     tokenBlock(id === "graphite" ? ':root, [data-base="graphite"]' : `[data-base="${id}"]`);

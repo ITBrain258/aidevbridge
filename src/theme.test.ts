@@ -11,9 +11,10 @@ afterEach(() => {
 });
 
 describe("Farbwahl: Ids (Spec 2026-09-14 §4)", () => {
-  it("14 Ids; die beiden UI-v2-Kombinationen heissen weiter turquoise und slate", () => {
-    expect(THEMES).toHaveLength(14);
-    expect(new Set(THEMES).size).toBe(14);
+  it("42 Ids aus 7 Akzenten und 6 Grundtoenen; die beiden UI-v2-Kombinationen heissen weiter turquoise und slate", () => {
+    expect(BASES).toEqual(["graphite", "slate", "midnight", "mocha", "plum", "pine"]);
+    expect(THEMES).toHaveLength(42);
+    expect(new Set(THEMES).size).toBe(42);
     expect(themeIdOf("turquoise", "graphite")).toBe("turquoise");
     expect(themeIdOf("blue", "slate")).toBe("slate");
     expect(themeIdOf("turquoise", "slate")).toBe("turquoise-slate");
@@ -33,6 +34,16 @@ describe("Farbwahl: Ids (Spec 2026-09-14 §4)", () => {
     expect(isThemeId("turquoise-graphite")).toBe(false);
     expect(isThemeId("blue-slate")).toBe(false);
     expect(isThemeId("violet-slate")).toBe(true);
+  });
+
+  // `themeParts` trennt die Id am Bindestrich: ein Grundton mit Bindestrich
+  // im Namen zerfiele dort.
+  it("jeder Grundton und jeder Akzent heisst mit einem Wort ohne Bindestrich", () => {
+    for (const id of [...ACCENTS, ...BASES]) expect(id, id).toMatch(/^[a-z]+$/);
+    expect(isThemeId("turquoise-midnight")).toBe(true);
+    expect(isThemeId("blue-mocha")).toBe(true);
+    expect(themeParts("green-pine")).toEqual({ accent: "green", base: "pine" });
+    expect(themeParts("pink-plum")).toEqual({ accent: "pink", base: "plum" });
   });
 });
 

@@ -3,7 +3,9 @@
 // (Sichtpruefung 2026-09-07 der UI-v2-Spec: "End session…" ist ein
 // Icon-Knopf in der Sessionzeile)
 // plus "chevron-up" und "case-sensitive" (UX-Spec §6.6: Suchleiste, vorheriger
-// Treffer und "Aa"); ein fehlendes SVG ist ein harter Fehler, kein leeres Icon.
+// Treffer und "Aa") plus "menu" (kompakte Ansicht) plus "panel-left-close" und
+// "panel-left-open" (Spec 2026-11-14 §2: Seitenleiste ein- und ausklappen);
+// ein fehlendes SVG ist ein harter Fehler, kein leeres Icon.
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,7 +13,7 @@ import { fileURLToPath } from "node:url";
 const NAMES = [
   "plus", "settings", "chevron-right", "chevron-down", "maximize-2", "minimize-2", "x",
   "search", "refresh-cw", "copy", "triangle-alert", "check", "terminal", "key-round", "lock",
-  "trash-2", "chevron-up", "case-sensitive", "menu",
+  "trash-2", "chevron-up", "case-sensitive", "menu", "panel-left-close", "panel-left-open",
 ];
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -33,8 +35,9 @@ const entries = NAMES.map((name) => `  "${name}": ${JSON.stringify(innerMarkup(n
 
 const out = `// GENERIERT von scripts/gen-icons.mjs aus lucide-static -- nicht von Hand aendern.
 // Lizenz: THIRD_PARTY_LICENSES.md (Lucide, ISC; aus Feather uebernommene Icons MIT).
-// UI-v2-Spec §13.1 plus Sichtpruefung 2026-09-07 (\`trash-2\`) plus die Suchleiste
-// (\`chevron-up\`, \`case-sensitive\`): 18 Icons,
+// UI-v2-Spec §13.1 plus Sichtpruefung 2026-09-07 (\`trash-2\`), die Suchleiste
+// (\`chevron-up\`, \`case-sensitive\`), die kompakte Ansicht (\`menu\`) und die
+// Seitenleiste (\`panel-left-close\`, \`panel-left-open\`): 21 Icons,
 // \`icon(name, size)\` liefert ein dekoratives SVG in currentColor mit
 // Strichstaerke 1,75. Jedes Icon steht neben Text oder traegt am umgebenden
 // Knopf \`title\` und \`aria-label\` (§13.2).

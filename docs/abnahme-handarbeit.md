@@ -41,7 +41,8 @@ Sitzungsablauf deckt `acceptance_vm.rs` ab.
 ## Wo das Ergebnis eingetragen wird
 
 Im Log am Ende: je Durchlauf eine Zeile mit Datum, Person und Build (Version
-und Commit aus der Seitenleiste), jeder Punkt mit bestanden oder abweichend.
+und Commit aus Einstellungen → About, „Copy version info“; die Marke im Fuß
+der Seitenleiste öffnet den Bereich), jeder Punkt mit bestanden oder abweichend.
 Ein Befund, der den Release blockiert, kommt zusätzlich unter „Offen bis zum
 Release“ in [`docs/stand.md`](stand.md).
 
@@ -49,8 +50,9 @@ Release“ in [`docs/stand.md`](stand.md).
 
 ## 1. Farben und Darstellung
 
-**Was zu tun ist:** Unter Einstellungen → Appearance beide Grundtöne (Graphit,
-Schiefer) und die sieben Akzente durchschalten. Die App hat nur dunkle
+**Was zu tun ist:** Unter Einstellungen → Appearance die sechs Grundtöne
+(Graphite, Slate, Midnight, Mocha, Plum, Pine) und die sieben Akzente
+durchschalten. Die App hat nur dunkle
 Varianten und folgt nicht dem Windows-Design. Je Variante Seitenleiste,
 Kachelraster, Terminaltext, Statuspillen, Suchtreffer (Ctrl+Shift+F), die
 TOFU-Rückfrage (provozieren wie in Punkt 7) und den Verbindungsverlust
@@ -61,7 +63,7 @@ Knöpfe, Pillen und Chips ansehen.
 
 **Was zu sehen sein muss:** Text ist auf jedem Grund lesbar. Terminalgrund und
 xterm-Palette passen zur Oberfläche, kein Element bleibt in einer anderen
-Variante hängen. Suchtreffer sind in allen 14 Varianten zu erkennen.
+Variante hängen. Suchtreffer sind in allen 42 Varianten zu erkennen.
 Gefahrknöpfe bleiben auch mit rotem Akzent erkennbar (Warnsymbol),
 „Connecting“ wirkt auch mit grünem Akzent nicht wie verbunden. Im
 Kontrastdesign ist der Fokus durchgezogen und die Auswahl (Tab, Session,
@@ -312,16 +314,26 @@ Einen Host mit wartender Session in der Seitenleiste zuklappen, bei 208 und
 240 px Breite. Zum Schluss einen Agent beenden und eine Pane schließen.
 
 **Was zu sehen sein muss:** Die Pille in Sessionzeile und Kachelkopf zeigt
-Busy, Waiting und Idle mit Form und Wort, der Tooltip nennt den Grund. Auf
+Busy, Waiting und Idle mit Form und Wort, der Tooltip nennt den Grund. Getönt
+ist nur „Waiting“ (und „Ended“); „Busy“ trägt blaue Punkte, „Idle“ eine graue
+Raute, beide auf neutraler Fläche. Die Zeile der fokussierten Kachel zeigt
+das Zeichen ihres Status links neben ihren Knöpfen. Auf
 tmux 3.6 öffnet die Session ohne Verzögerung, nimmt Eingaben an und zeigt
 einen Status statt „Unknown“. Nach dem Beenden des Agents steht „Unknown“,
 nach dem Ende der Pane „Ended“. Der Fenstertitel zählt die wartenden
 Sessions, beim ersten Warten blinkt die Taskleiste einmal, Ctrl+Shift+A
 springt hin. Der zugeklappte Host zeigt „1 waiting“ an der Stelle der
 Zustandspille, sein Name bleibt daneben lesbar. Die Sessionliste ändert sich
-dabei nicht von selbst. Oben in der Seitenleiste führt die Wartet-Spur die
+dabei nicht von selbst. Oben in der Seitenleiste führt die Wartet-Spur, eine
+Karte mit dem Kopf „Waiting for you“ und der Zahl der Wartenden, die
 wartenden Sessions, die älteste zuerst, mit Wartezeit und Grund; sie öffnet von
-selbst keine Kachel.
+selbst keine Kachel. Bei 208 px Breite fehlt im Kopf nur das Kürzel
+Ctrl+Shift+A, Titel und Zahl bleiben. Sind zwei Hosts aufgeklappt, zeigt
+jeder seine Knopfleiste, und „New session“, „Reload sessions“ und
+„Disconnect“ wirken am eigenen Host, ohne dass vorher eine seiner Zeilen
+angeklickt wurde. „Disconnect“ ist grün gerahmt und beschriftet, solange der
+Host „Online“ zeigt, und nur dann: während „Connecting…“ heißt der Knopf schon
+„Disconnect“, leuchtet aber nicht, und „Connect“ ist ein ruhiger Knopf.
 
 **Wo eintragen:** Spalte „Status“: Agent und Version, welche Zustände richtig
 ankamen.

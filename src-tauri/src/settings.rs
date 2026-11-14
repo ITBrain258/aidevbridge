@@ -151,6 +151,11 @@ pub struct UiSettings {
     /// aus. Aeltere Builds lesen die Datei weiter und lassen es beim naechsten
     /// Speichern weg.
     pub screen_reader_mode: bool,
+    /// "Icon rail when collapsed": die eingeklappte Seitenleiste laesst eine
+    /// Symbolleiste stehen. Standard an; fehlt das Feld, gilt an. Aeltere
+    /// Builds lesen die Datei weiter und lassen es beim naechsten Speichern
+    /// weg.
+    pub sidebar_rail: bool,
 }
 
 fn default_theme() -> String {
@@ -168,6 +173,7 @@ impl Default for UiSettings {
             restore_workspace: true,
             sidebar_width: DEFAULT_SIDEBAR_WIDTH,
             screen_reader_mode: false,
+            sidebar_rail: true,
         }
     }
 }
@@ -1781,6 +1787,7 @@ user = "u"
                 restore_workspace: false,
                 sidebar_width: 300,
                 screen_reader_mode: true,
+                sidebar_rail: false,
             },
             workspace: Workspace {
                 layout: 4,
@@ -1944,6 +1951,10 @@ theme = "slate"
             !s.ui.screen_reader_mode,
             "ohne das Feld bleibt der Bildschirmleser-Modus aus"
         );
+        assert!(
+            s.ui.sidebar_rail,
+            "ohne das Feld bleibt die Symbolleiste an"
+        );
         assert_eq!(s.ui.right_click, "menu");
         assert!(s.ui.restore_workspace);
         assert_eq!(s.ui.sidebar_width, 240);
@@ -2022,6 +2033,7 @@ theme = "slate"
             "restore_workspace = false",
             "sidebar_width = 300",
             "screen_reader_mode = true",
+            "sidebar_rail = false",
             "[workspace]",
             "layout = 4",
             "tiles_version = 2",

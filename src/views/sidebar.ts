@@ -28,8 +28,10 @@ import { computeMenuPosition } from "./menu-position";
 import { buildCredentialField, type CredentialField } from "./credential-field";
 import { mountHostForm, storedAuthChoice, type AuthChoice, type HostFormHandle } from "./host-form";
 import { hostInitials } from "./initials";
-import { appVersionLine } from "../version";
+import { appVersion, appVersionLine } from "../version";
 import { icon, type IconName } from "../icons";
+import { buildBrandMark } from "./brand-mark";
+import type { SettingsSectionId } from "./settings-dialog";
 import { titleWithShortcut } from "./shortcut-title";
 import { agentStatusView, buildStatusPill } from "./status-pill";
 import { buildTileNumber } from "./tile-number";
@@ -64,8 +66,12 @@ export interface SidebarOptions {
    * laesst. Diese Datei ruft ihn erst nach einer Rueckfrage. */
   onKillSession: (hostId: string, name: string, socket: SessionSocket) => void;
   onAddHost: () => void;
-  /** UI v2 §7.2: Zahnrad im Kopf oeffnet den Einstellungsdialog (main.ts). */
-  onOpenSettings: () => void;
+  /** UI v2 §7.2: Zahnrad im Kopf oeffnet den Einstellungsdialog (main.ts). Die
+   * Marke im Fuss oeffnet ihn auf About (Spec 2026-11-14 §3). */
+  onOpenSettings: (section?: SettingsSectionId) => void;
+  /** Der Knopf im Fuss klappt die Seitenleiste ein (Spec 2026-11-14 §2);
+   * main.ts fuehrt das ueber denselben Weg wie Strg+Umschalt+B. */
+  onCollapse: () => void;
   /** Spec 2026-10-19 §7: Beginn der Warte-Episode je `waitingKey` (main.ts
    * fuehrt sie); ohne Angabe zaehlt jede wartende Session als "now". */
   waitingSince?: (key: string) => number | undefined;
@@ -82,10 +88,12 @@ export interface SidebarHandle {
    * `main.ts` ruft das, wenn die Selbstreparatur an `authentication_required`
    * endet (UX-Spec §5.3: "das bisherige Formular erscheint"). */
   openControlRepair(hostId: string): void;
-  /** Der aktive Host der Seitenleiste -- derselbe, dessen Karte die
-   * Aktionsleiste zeigt (`sb-host-block--active`), oder `null` ohne Hosts.
-   * Nur waehrend eines Drucks in der Liste bleibt die Markierung bis nach dem
-   * Klick stehen; diese Antwort folgt dem Fokus sofort.
+  /** Der aktive Host der Seitenleiste -- derselbe, dessen Karte markiert ist
+   * (`sb-host-block--active`) und dessen Knopfleiste den Tabstopp traegt,
+   * oder `null` ohne Hosts. Sichtbar ist die Leiste an jedem Host (Spec vom
+   * 14.11.2026, Statusanzeige §2). Nur waehrend eines Drucks in der Liste
+   * bleibt die Markierung bis nach dem Klick stehen; diese Antwort folgt dem
+   * Fokus sofort.
    * Schritt 3 der Zielhost-Kette von Strg+Umschalt+N (UX-Spec §7.9). */
   activeHostId(): string | null;
 }
@@ -202,9 +210,12 @@ function sessionIndicator(session: Session, hostReconnecting = false): { cls: st
   if (session.inputLocked && !hostReconnecting) {
     return { cls: "ind ind-warn", label: t("sidebar.state.inputLocked") };
   }
+  // Nicht geoeffnet: ein eigenes Zeichen (`ind-closed`), nicht der Ring von
+  // "Offline" -- die Session laeuft auf einem verbundenen Host, sie hat nur
+  // keine Kachel (Spec vom 14.11.2026, Statusanzeige §3).
   return session.open
     ? { cls: "ind ind-sm ind-on", label: t("sidebar.state.sessionOpen") }
-    : { cls: "ind ind-sm ind-off", label: t("sidebar.state.sessionClosed") };
+    : { cls: "ind ind-closed", label: t("sidebar.state.sessionClosed") };
 }
 
 export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOptions): SidebarHandle {
@@ -221,7 +232,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   head.appendChild(heading);
 
   // UI v2 §7.2: der Add-Knopf steht IM KOPF, zwischen
-  // Ueberschrift und Zahnrad -- der Fuss traegt nur die Versionszeile.
+  // Ueberschrift und Zahnrad -- der Fuss traegt die Marke.
   const addButton = document.createElement("button");
   addButton.type = "button";
   addButton.className = "sb-btn";
@@ -287,16 +298,46 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     requestRender: () => requestRender(),
   });
 
-  // Der Fuss traegt NUR die Versionszeile -- Version und
-  // Commit, still am Fuss der Seitenleiste, dieselbe Zeichenkette
-  // wie in `Copy diagnostics` oben und aus derselben Quelle
-  // (`appVersionLine()`). Der Stil kommt aus `.sb-version` in `styles.css`.
+  // Der Fuss traegt die Marke (Spec 2026-11-14 §3): Zeichen, Name und Version
+  // in EINEM Knopf, der die Einstellungen auf About oeffnet. Den Commit zeigt
+  // der Fuss nicht mehr; er steht unter About und weiter in jeder Zeile von
+  // "Copy diagnostics" (`appVersionLine()`). Der Knopf liegt ausserhalb von
+  // `list` und ueberlebt jedes Neuzeichnen.
   const foot = document.createElement("div");
   foot.className = "sb-foot";
-  const versionLine = document.createElement("div");
-  versionLine.className = "sb-version";
-  versionLine.textContent = appVersionLine();
-  foot.appendChild(versionLine);
+  const brand = document.createElement("button");
+  brand.type = "button";
+  brand.className = "sb-brand";
+  // Sichtbar stehen nur Name und Versionsnummer; was der Knopf tut, sagen
+  // `title` und `aria-label`.
+  brand.title = t("sidebar.about");
+  brand.setAttribute("aria-label", t("sidebar.aboutVersion", { version: appVersion() }));
+  brand.dataset.focusKey = focusKey("foot", "", "brand");
+  const brandName = document.createElement("span");
+  brandName.className = "sb-brand-name";
+  brandName.textContent = t("app.title");
+  const version = document.createElement("span");
+  version.className = "sb-version";
+  version.textContent = appVersion();
+  brand.append(buildBrandMark(), brandName, version);
+  brand.addEventListener("click", () => {
+    if (!disposed) opts.onOpenSettings("about");
+  });
+  // Einklappen mit der Maus (Spec 2026-11-14 §2), derselbe Weg wie das
+  // Kuerzel; zurueck fuehrt der Knopf der Symbolleiste. In der kompakten
+  // Ansicht ist die Seitenleiste eine Schublade mit eigenem Schalter in der
+  // Kopfleiste, der Knopf ist dort nicht zu sehen (styles.css).
+  const collapse = document.createElement("button");
+  collapse.type = "button";
+  collapse.className = "sb-head-btn sb-collapse";
+  collapse.title = titleWithShortcut(t("sidebar.collapse"), "sidebar.toggle");
+  collapse.setAttribute("aria-label", t("sidebar.collapse"));
+  collapse.dataset.focusKey = focusKey("foot", "", "collapse");
+  collapse.appendChild(icon("panel-left-close"));
+  collapse.addEventListener("click", () => {
+    if (!disposed) opts.onCollapse();
+  });
+  foot.append(brand, collapse);
 
   root.appendChild(foot);
 
@@ -560,13 +601,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // zwischenzeitlich neu gebaut worden sein, `.focus()` auf dem alten
     // Knoten waere ein Nichts und der Fokus landete auf <body>.
     const button = moreButtonFor(hostId);
-    // ERST fokussieren, DANN das Attribut zuruecksetzen:
-    // `.sb-host-block:not(.sb-host-block--active):not(.sb-host-block--held):not(:focus-within):not(:has(.host-actions [aria-expanded="true"])) .host-actions`
-    // (styles.css) haelt die Knopfleiste eines nicht aktiven Hosts nur wegen des
-    // offenen Menues sichtbar. In der umgekehrten Reihenfolge waere der
-    // Knopf im Moment des `focus()` bereits `display: none` -- der Fokus
-    // landete auf <body>, statt dorthin zurueckzukehren, wo das Menue
-    // geoeffnet wurde.
+    // ERST fokussieren, DANN das Attribut zuruecksetzen. Die Knopfleiste steht
+    // an jedem Host (Spec vom 14.11.2026, Statusanzeige §2), der Knopf ist
+    // also in beiden Reihenfolgen fokussierbar; diese bleibt, damit der Fokus
+    // schon zurueck ist, wenn ein Bildschirmleser das zugeklappte Menue
+    // meldet.
     if (restoreFocus) button?.focus();
     button?.setAttribute("aria-expanded", "false");
   }
@@ -590,6 +629,12 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     button.textContent = connectedOrConnecting
       ? t("sidebar.action.disconnect")
       : t("sidebar.action.connect");
+    // Steht die Verbindung, traegt der Knopf Rand und Schrift in der Farbe
+    // von "Online" (Spec vom 14.11.2026, Statusanzeige §2): er leuchtet genau
+    // in dem Zustand, in dem `hostIndicator` den gruenen Punkt zeichnet.
+    // Waehrend des Verbindens heisst er schon "Disconnect", leuchtet aber
+    // noch nicht; "Connect" ist ein ruhiger Knopf.
+    if (host.state === "connected") button.classList.add("host-action-btn--connected");
     button.addEventListener("click", () => {
       if (disposed) return;
       if (connectedOrConnecting) opts.onDisconnectHost(host.id);
@@ -771,15 +816,14 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * durch keinen Test dieses Baums gedeckt, sondern durch die Sichtpruefung
    * am Fenster.
    *
-   * Dasselbe gilt fuer die Knopfleiste eines Hosts, nur strenger: sie ist per
-   * `display: none` verborgen, solange ihr Block weder aktiv noch
-   * `:focus-within` ist, und `render()` baut die Bloecke ohne die Aktiv-Klasse.
-   * Deshalb wird der Block ZUERST markiert. `applyActiveHostClass()` leitet die
-   * Markierung danach wieder ab (im `focusin`-Abgleich und am Ende von
-   * `render()`); steht der Fokus dann in dieser Leiste, ist ihr Host der
-   * aktive. Ueber die Hostzeile zu gehen wie bei der Sessionzeile hiesse, den
-   * Zeiger der Liste mitzuziehen -- er darf auf einer Sessionzeile stehen
-   * bleiben (siehe den `focusin`-Abgleich der Knopfleiste). */
+   * Die Knopfleiste eines Hosts ist immer sichtbar (Spec vom 14.11.2026,
+   * Statusanzeige §2) und braucht den Umweg nicht. Ihr Block wird trotzdem
+   * ZUERST markiert, damit die Markierung nicht einen Takt hinter dem Fokus
+   * liegt; `applyActiveHostClass()` leitet sie danach wieder ab (im
+   * `focusin`-Abgleich und am Ende von `render()`). Ueber die Hostzeile zu
+   * gehen wie bei der Sessionzeile hiesse, den Zeiger der Liste mitzuziehen
+   * -- er darf auf einer Sessionzeile stehen bleiben (siehe den
+   * `focusin`-Abgleich der Knopfleiste). */
   function focusSessionAction(node: HTMLElement): void {
     if (node.closest(".session-acts")) {
       node.closest(".sb-session-row")?.querySelector<HTMLElement>(".ab-row")?.focus();
@@ -2060,10 +2104,12 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     return focusInList ? owningHostId() : (hostOfFocusedTile() ?? owningHostId());
   }
 
-  /** Spec 7.3: Hostaktionen nur am aktiven Host -- deshalb ist auch ohne Fokus
-   * genau eine Leiste sichtbar (die Dichte-Rechnung in Spec 7.8 nimmt genau das
-   * an). Die Sichtbarkeit selbst regelt styles.css ueber diese Klasse plus
-   * `:focus-within`; die Roving-Logik bleibt unangetastet. */
+  /** Markiert den aktiven Host (Spec 7.3). Die Knopfleiste steht an jedem
+   * Host (Spec vom 14.11.2026, Statusanzeige §2): styles.css haengt an dieser
+   * Klasse keine Sichtbarkeit mehr, und die Dichte-Rechnung aus Spec 7.8 gilt
+   * mit einer Leiste je Host. Die Markierung bleibt als Zustand am Block
+   * (welcher Host den Tabstopp der Leiste haelt); die Roving-Logik ist
+   * unveraendert. */
   function applyActiveHostClass(): void {
     // Waehrend eines Drucks gilt die eingefrorene Markierung (siehe "Ein
     // Druck in der Liste" unten), auch fuer Bloecke, die ein Neuzeichnen eben
@@ -2083,23 +2129,21 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
 
   // --- Ein Druck in der Liste ---------------------------------------------
   //
-  // Die Zeile nimmt beim Druck den Fokus, und der `focusin`-Abgleich markierte
-  // ihren Host sonst sofort als aktiv: dessen Knopfleiste erschiene, die des
-  // bisher aktiven verschwaende, und die Zeilen rueckten noch VOR dem
-  // Loslassen um eine Leistenhoehe. Das Loslassen traefe eine andere Zeile,
-  // der Klick ginge an einen gemeinsamen Vorfahren, und der erste Klick auf
-  // eine Zeile eines nicht aktiven Hosts waere verloren.
+  // Ein Druck der primaeren Taste haelt das Neuzeichnen zurueck, bis sein
+  // Klick da ist (`requestRender`): fiele die gedrueckte Zeile vor dem
+  // Loslassen aus dem Dokument, ginge der Klick verloren.
   //
-  // Waehrend eines Drucks der primaeren Taste bleibt deshalb stehen, welche
-  // Leisten beim Druck zu sehen WAREN: die Markierung haelt den Host, der
-  // markiert war -- das Sichtbare, nicht `activeHostId()`. Beide weichen nur
-  // ab, wenn der Fokus die Liste ohne Zustandsaenderung verlassen hat, und
-  // dann haelt allein das Sichtbare die Zeilen still. Dazu behaelt der Block,
-  // in dem der Fokus beim Druck stand, seine Leiste (`--held`): sie zeigte nur
-  // `:focus-within`, etwa bei Fokus in der Hinweisleiste, die den Zeiger nicht
-  // bewegt, und sie verschwaende sonst, sobald der Druck den Fokus verschiebt.
-  // Die Klasse an der Liste verbirgt jede andere Leiste, die sonst
-  // `:focus-within` zeigte (styles.css). Fokus und Roving-Zeiger bewegen sich
+  // Solange der Druck laeuft, bleibt auch die Markierung des aktiven Hosts
+  // stehen, wie sie beim Druck war (`frozenHostId`), und der Block, in dem
+  // der Fokus stand, ist als gehalten vermerkt (`--held`). Beides stammt aus
+  // der Zeit, als nur der aktive Host seine Knopfleiste zeigte: der
+  // Fokuswechsel des Drucks blendete sonst eine Leiste ein und eine aus, die
+  // Zeilen rueckten vor dem Loslassen um eine Leistenhoehe, und der Klick
+  // traf eine andere Zeile. Seit jede Hostkarte ihre Leiste zeigt (Spec vom
+  // 14.11.2026, Statusanzeige §2), verschiebt die Markierung keine Zeile
+  // mehr, und styles.css haengt an keiner der drei Klassen eine Regel.
+  // `frozenHostId` bleibt das Kennzeichen "ein Druck laeuft", an dem das
+  // zurueckgehaltene Neuzeichnen haengt. Fokus und Roving-Zeiger bewegen sich
   // wie immer, der Druck wird nicht abgefangen.
 
   /** Der beim Druck markierte Host; `undefined`, solange kein Druck laeuft. */
@@ -2515,10 +2559,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
         (node) => node.dataset.focusKey === keyToRestore,
       );
       // Ueber `focusSessionAction`, nicht direkt: eine Sessionaktion steht
-      // unter `visibility: hidden`, solange die Zeile nichts davon traegt, und
-      // die Knopfleiste eines Hosts unter `display: none`, solange ihr Block
-      // nicht aktiv markiert ist -- und das ist er nach dem Neubau oben noch
-      // nicht (siehe dort). Fuer jedes andere Ziel ist es ein blosses `focus()`.
+      // unter `visibility: hidden`, solange die Zeile nichts davon traegt.
+      // Fuer jedes andere Ziel ist es ein blosses `focus()`; am Knopf einer
+      // Hostleiste markiert es vorher noch dessen Block (siehe dort).
       //
       // `focus()` auf einem deaktivierten Gegenstueck taete nichts
       // (der Host trennte, waehrend "New session" den Fokus hatte), und ein

@@ -15,15 +15,22 @@
 
   /* ===== In allen Themen gleich -- v2 §5.1 ===== */
   --ab-ok:        #4ADE80;
-  --ab-ok-bg:     rgba(74, 222, 128, 0.15);
   --ab-warn:      #FBBF24;
   --ab-warn-bg:   rgba(251, 191, 36, 0.15);
+  /* Schrift auf einer Flaeche in `--ab-warn` (Zahl der Wartenden). */
+  --ab-warn-ink:  #1F1600;
   --ab-danger:    #FCA5A5;
   --ab-danger-bg: rgba(248, 113, 113, 0.13);
-  /* Agentenstatus "idle" (M1.2): heller als das Blau im Entwurf (#60A5FA),
-     damit die Pille auch auf dem fokussierten Kachelkopf 4,5:1 haelt. */
-  --ab-idle:      #93C5FD;
-  --ab-idle-bg:   rgba(147, 197, 253, 0.15);
+  /* Agentenstatus "busy" (Spec vom 14.11.2026, Statusanzeige §3): ein festes
+     Blau, das nur "arbeitet" bedeutet. Gruen bleibt der Verbindung
+     vorbehalten ("Online"); vorher teilten sich beide das Gruen. Derselbe
+     Wert trug bis dahin "idle" und haelt als Zeichen auf jeder Flaeche 3:1. */
+  --ab-busy:      #93C5FD;
+  /* Flaeche der ruhigen Pillen (Online, Offline, Busy, Idle, Unknown,
+     veraltet): ein Schleier ueber dem, was darunter liegt -- Karte, Zeile
+     unter dem Zeiger, gewaehlte Zeile, Kachelkopf. Eine feste Flaechenfarbe
+     verschwaende auf der Zeile unter dem Zeiger. */
+  --ab-chip-bg:   rgba(255, 255, 255, 0.07);
 
   /* Farbwahl-Spec §2: neutral und fest, nie akzentgetoent. Ein blassroter
      Ring saehe aus wie ein Fehlerrand, ein akzentfarbenes "verbindet" bei
@@ -85,6 +92,9 @@
 
   /* --- Masse (v2 §5.1) --- */
   --ab-sidebar-w:      240px;
+  /* Symbolleiste der eingeklappten Seitenleiste: 32 px Knopf, je 6 px
+     Polster, je 1 px Rahmen. */
+  --ab-rail-w:         46px;
   --ab-sb-head-h:      40px;
   --ab-row-h-host:     32px;
   --ab-row-h-session:  26px;
@@ -166,6 +176,80 @@
 
   --ab-term-bg:                 #0D111A;
   --ab-term-selection-inactive: #283349;
+}
+
+/* Vier weitere Grundtoene (Spec 2026-11-14 §4), Startwerte wie die Akzente
+   aus v2 §19. Jeder haelt mit allen sieben Akzenten die Kontraste aus
+   Spec 5.4 (styles.test.ts). Die Terminalflaeche bleibt bei jedem mindestens
+   so hell wie #0A0A0A: darunter verliert der Daumen des Scrollbalkens seine
+   3:1 gegen die Flaeche. */
+
+/* Mitternacht -- neutral und fast schwarz, fuer dunkle Raeume und OLED. */
+[data-base="midnight"] {
+  --ab-bg-canvas:   #0C0D10;
+  --ab-bg-panel:    #121418;
+  --ab-bg-card:     #181B20;
+  --ab-bg-hover:    #1F2228;
+  --ab-bg-active:   #262A32;
+
+  --ab-text-primary:   #ECEEF2;
+  --ab-text-secondary: #C5CBD4;
+  --ab-text-muted:     #8E96A3;
+  --ab-text-disabled:  #565E69;
+
+  --ab-term-bg:                 #0A0B0D;
+  --ab-term-selection-inactive: #232830;
+}
+
+/* Mokka -- warmes Braungrau. */
+[data-base="mocha"] {
+  --ab-bg-canvas:   #181513;
+  --ab-bg-panel:    #201C19;
+  --ab-bg-card:     #282320;
+  --ab-bg-hover:    #302A26;
+  --ab-bg-active:   #38312C;
+
+  --ab-text-primary:   #F1EDE8;
+  --ab-text-secondary: #D4CCC3;
+  --ab-text-muted:     #A1968B;
+  --ab-text-disabled:  #675E55;
+
+  --ab-term-bg:                 #110F0D;
+  --ab-term-selection-inactive: #3A322C;
+}
+
+/* Pflaume -- violett getoentes Grau. */
+[data-base="plum"] {
+  --ab-bg-canvas:   #17141C;
+  --ab-bg-panel:    #1F1B26;
+  --ab-bg-card:     #272230;
+  --ab-bg-hover:    #2E2939;
+  --ab-bg-active:   #363043;
+
+  --ab-text-primary:   #EFECF4;
+  --ab-text-secondary: #CFC9DA;
+  --ab-text-muted:     #9B94AA;
+  --ab-text-disabled:  #665D73;
+
+  --ab-term-bg:                 #100E14;
+  --ab-term-selection-inactive: #302B3B;
+}
+
+/* Kiefer -- gruen getoentes Grau. */
+[data-base="pine"] {
+  --ab-bg-canvas:   #121816;
+  --ab-bg-panel:    #18201D;
+  --ab-bg-card:     #1F2825;
+  --ab-bg-hover:    #26302C;
+  --ab-bg-active:   #2D3934;
+
+  --ab-text-primary:   #EAF0ED;
+  --ab-text-secondary: #C4D0CA;
+  --ab-text-muted:     #8FA099;
+  --ab-text-disabled:  #56645E;
+
+  --ab-term-bg:                 #0C110F;
+  --ab-term-selection-inactive: #28332F;
 }
 
 /* ===== Akzent (Farbwahl-Spec §3.2). Tuerkis und Blau sind die Werte aus
@@ -394,6 +478,17 @@ textarea,
   display: none;
 }
 
+/* Symbolleiste (Spec 2026-11-14 §2, `views/sidebar-rail.ts`): eingeklappt
+   bleibt mit der Einstellung "Icon rail when collapsed" ein schmaler Streifen
+   stehen. `main.ts` setzt `sidebar-rail` ZUSAETZLICH zu `sidebar-collapsed`
+   und nimmt der Leiste ihr `hidden`; sie ist dann das erste Rasterelement
+   und bekommt die erste Spalte, `#grid` die zweite. Die Regel steht nach der
+   von `sidebar-collapsed` und gewinnt bei gleicher Spezifitaet. Ohne die
+   Klasse gilt weiter die eine Spalte oben. */
+#app.sidebar-rail {
+  grid-template-columns: var(--ab-rail-w) 1fr;
+}
+
 /* Touch-Leiste (Spec 2026-10-27 §5.2, `views/touch-keys-bar.ts`), nur auf
    Android gemountet: eine zweite Zeile unter dem Raster, ueber die Breite des
    Rasters. Die Seitenleiste reicht ueber beide Zeilen. Eingeklappt gibt es nur
@@ -402,7 +497,8 @@ textarea,
   grid-template-rows: 1fr auto;
 }
 
-#app.has-touch-keys #sidebar {
+#app.has-touch-keys #sidebar,
+#app.has-touch-keys .sb-rail {
   grid-row: 1 / -1;
 }
 
@@ -518,6 +614,26 @@ textarea,
   display: none;
 }
 
+/* Die Schublade oeffnet und schliesst der Schalter der Kopfleiste: weder der
+   Einklappknopf im Fuss noch die Symbolleiste haben hier eine Aufgabe. Ohne
+   die Leiste im Boxbaum bleibt es bei der einen Spalte von `#app.compact`. */
+#app.compact .sb-collapse,
+#app.compact .sb-rail {
+  display: none;
+}
+
+/* Ohne Symbolleiste (Einstellung "Icon rail when collapsed" aus) fuehrt nur
+   die Tastatur zurueck. Der Einklappknopf steht dann nicht da: ein Klick
+   oder Tipp darauf naehme die Seitenleiste weg, und wer keine Tastatur hat,
+   bekaeme sie nicht wieder. Strg+Umschalt+B klappt weiter ein und aus. */
+#app.sidebar-no-rail .sb-collapse {
+  display: none;
+}
+
+#app.compact.sidebar-rail {
+  grid-template-columns: 1fr;
+}
+
 /* Auf dem Telefon ist jede Kachel schmal, und breiter wird sie nicht: Der
    Hinweis "narrow" (Spec 2026-10-19 §8.4) stuende immer da und sagte nichts,
    was sich aendern liesse. */
@@ -591,6 +707,23 @@ textarea,
 #app.compact .sb-session-row .row-meta {
   min-width: 0;
   visibility: visible;
+  padding-right: 0;
+}
+
+/* Die Knoepfe stehen hier hinter der Pille, nicht darueber: auch die Zeile
+   der fokussierten Kachel behaelt die ganze Pille mit ihrem Wort (weiter
+   unten nimmt die breite Ansicht ihr das Wort, um Platz fuer die Knoepfe zu
+   schaffen). */
+#app.compact .sb-session-row .st {
+  padding: 0 var(--ab-space-3) 0 var(--ab-space-1);
+}
+#app.compact .sb-session-row .st-word {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
 }
 
 /* Maximieren und Schliessen im Kachelkopf: so hoch wie der Kopf, so breit wie
@@ -653,6 +786,12 @@ html.compact .settings-stepper-btn {
     flex-wrap: wrap;
     border-right: 0;
     border-bottom: var(--ab-border-w) solid var(--ab-line);
+  }
+
+  /* Drei Grundtonkarten nebeneinander waeren auf dem Telefon je rund 90 px
+     breit, schmaler als ihre vier Farbquadrate. */
+  html.compact .base-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1222,9 +1361,16 @@ html.compact .global-error-banner .btn--row {
   padding: 0;
 }
 
+/* Der Fuss (Spec 2026-11-14 §3): eine Haarlinie trennt ihn von der Liste;
+   darin steht links die Marke als Knopf, rechts der Einklappknopf. */
 .sb-foot {
   flex: none;
-  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-2);
+  margin-top: var(--ab-space-4);
+  padding: var(--ab-space-3) 0 0;
+  border-top: var(--ab-border-w) solid var(--ab-line);
 }
 
 /* Reset gegen die globale `input, button`-Regel weiter unten. */
@@ -1375,38 +1521,86 @@ html.compact .global-error-banner .btn--row {
 }
 
 /* Wartet-Spur (Spec 2026-10-19 §7): ganz oben in der Liste, ueber den
-   Hosts; unten eine Linie, darunter derselbe Abstand wie zwischen den
-   Hostkarten (`.sb-host-block`), damit die Linie nicht auf der Oberkante der
-   ersten Karte liegt. Zugeklappt hoechstens Kopf, fuenf Zeilen und
-   "+n more", rund 250 px, mit dem Abstand rund 255 px. */
+   Hosts. Seit der Spec vom 14.11.2026 (Statusanzeige) §4 eine Karte wie die
+   Hostkarten, mit demselben Abstand darunter; ihr Kopf ist in der Farbe von
+   "Waiting" getoent und sagt, auf wen gewartet wird. Zugeklappt hoechstens
+   Kopf, fuenf Zeilen und "+n more", rund 255 px. */
 .sb-lane {
   display: flex;
   flex-direction: column;
   padding-bottom: var(--ab-space-2);
   margin-bottom: var(--ab-space-4);
-  border-bottom: var(--ab-border-w) solid var(--ab-line);
+  background-color: var(--ab-bg-card);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-md);
 }
 
+/* Die oberen Ecken folgen der Karte (Radius der Karte minus ihr Rand); ein
+   `overflow: hidden` an der Karte schnitte den Fokusring ihrer Zeilen ab.
+
+   Titel und Zahl haben Vorrang vor dem Kuerzel: bei der Standardbreite der
+   Seitenleiste passen alle drei in die Zeile, darunter bricht das Kuerzel in
+   eine zweite Zeile um, die der Kopf mit seiner festen Hoehe abschneidet. Der
+   Kopf enthaelt nichts Fokussierbares, das dabei verloren ginge; das Kuerzel
+   steht ausserdem im Tooltip. Die Stuetze `::before` gibt der ersten Zeile die
+   volle Hoehe, damit ihr Inhalt mittig steht. Eine Container-Abfrage kennt
+   WKWebView erst ab Safari 16, die App laeuft ab macOS 12.4. */
 .sb-lane-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--ab-space-2);
+  align-content: flex-start;
+  column-gap: var(--ab-space-2);
   height: var(--ab-row-h-session);
-  padding: 0 var(--ab-space-4);
-  color: var(--ab-text-muted);
+  overflow: hidden;
+  margin-bottom: var(--ab-space-2);
+  padding: 0 var(--ab-space-3);
+  background-color: var(--ab-warn-bg);
+  border-radius: calc(var(--ab-radius-md) - var(--ab-border-w)) calc(var(--ab-radius-md) - var(--ab-border-w)) 0 0;
+  color: var(--ab-warn);
   font-size: var(--ab-fs-xs);
   line-height: var(--ab-lh-xs);
   font-weight: var(--ab-fw-semibold);
-  text-transform: uppercase;
+}
+.sb-lane-head::before {
+  content: "";
+  flex: none;
+  width: 0;
+  height: var(--ab-row-h-session);
+  margin-right: calc(-1 * var(--ab-space-2));
+}
+
+.sb-lane-title {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* Die Zahl der Wartenden als eigene Marke hinter dem Titel. */
+.sb-lane-count {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 var(--ab-space-2);
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-warn);
+  color: var(--ab-warn-ink);
+  font-size: var(--ab-fs-2xs);
+  line-height: var(--ab-lh-2xs);
+  font-weight: var(--ab-fw-semibold);
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
 }
 
 .sb-lane-head kbd {
+  flex: none;
   margin-left: auto;
-  text-transform: none;
 }
 
-/* Zwei Zeilen: oben Raute, Kuerzel, Name, Kachelnummer und Wartezeit, darunter
-   der Grund. */
+/* Zwei Zeilen: oben Kuerzel, Name, Kachelnummer und Wartezeit, darunter der
+   Grund. Die Raute steht einmal im Kopf der Karte, nicht in jeder Zeile. */
 .row-lane {
   height: var(--ab-row-h-lane);
   flex-direction: column;
@@ -1444,7 +1638,8 @@ html.compact .global-error-banner .btn--row {
   overflow-y: visible;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-left: 38px;
+  /* Unter dem Namen: Kuerzel (16 px) plus der Abstand der Zeile. */
+  padding-left: calc(16px + var(--ab-space-2));
   color: var(--ab-text-muted);
   font-size: var(--ab-fs-xs);
   line-height: var(--ab-lh-xs);
@@ -1452,7 +1647,8 @@ html.compact .global-error-banner .btn--row {
 
 .row-lane-more {
   height: var(--ab-row-h-session);
-  padding: 0 var(--ab-space-4) 0 46px;
+  /* Buendig mit den Namen darueber: Zeilenrand, Kuerzel, Abstand. */
+  padding: 0 var(--ab-space-4) 0 calc(var(--ab-space-4) + 16px + var(--ab-space-2));
   color: var(--ab-text-secondary);
   font-size: var(--ab-fs-xs);
   line-height: var(--ab-lh-xs);
@@ -1489,6 +1685,19 @@ html.compact .global-error-banner .btn--row {
    literal. */
 .ind-off {
   border: 1.5px solid var(--ab-text-muted);
+}
+
+/* Sessionzeile ohne Kachel (Spec vom 14.11.2026, Statusanzeige §3): ein
+   kleiner ruhiger Punkt haelt den Platz der Kachelnummer. Vorher stand hier
+   der Ring von "Offline", und eine nicht geoeffnete Session eines
+   verbundenen Hosts sah aus wie getrennt. Das Wort dazu ("Not open") traegt
+   die Zeile. Der Punkt ist ganz Rahmen, keine Flaeche: im Kontrastmodus von
+   Windows faellt eine Flaechenfarbe weg, ein Rahmen bleibt. */
+.ind-closed {
+  width: 0;
+  height: 0;
+  border: var(--ab-space-1) solid var(--ab-text-muted);
+  border-radius: 50%;
 }
 
 /* Verbindet: hohles Quadrat (Basisform bleibt erhalten) MIT einem
@@ -1575,9 +1784,16 @@ html.compact .global-error-banner .btn--row {
 }
 
 /* Agentenstatus als Pille (M1.2, UI-v2-Nachtrag 2026-09-14): Form im
-   14-px-Kasten plus Wort auf getoenter Pille. Jeder Zustand hat eigene
-   Farbe UND eigene Form; keine Form gleicht einer Kanalform (Kreis,
-   Dreieck). Unbekannt und veraltet sind neutral wie "Disconnected". */
+   14-px-Kasten plus Wort. Jeder Zustand hat eine eigene Form; keine gleicht
+   einer Kanalform (Kreis, Dreieck).
+
+   Spec vom 14.11.2026 (Statusanzeige) §3: laut ist nur, was den Nutzer
+   braucht. "Waiting" und "Ended" tragen eine getoente Pille in ihrer Farbe.
+   "Busy", "Idle", "Unknown" und ein veralteter Wert stehen auf dem neutralen
+   Schleier `--ab-chip-bg` mit dem Wort in `--ab-text-secondary`; bei "Busy"
+   ist das Zeichen blau, bei "Idle" grau und das Wort nicht halbfett. Ein
+   gedaempftes Wort hielte auf dem Schleier keine 4,5:1. So faellt in einer
+   langen Liste zuerst auf, wer wartet. */
 .st {
   flex: none;
   display: inline-flex;
@@ -1592,11 +1808,12 @@ html.compact .global-error-banner .btn--row {
   white-space: nowrap;
 }
 .st-waiting { background-color: var(--ab-warn-bg);   color: var(--ab-warn); }
-.st-busy    { background-color: var(--ab-ok-bg);     color: var(--ab-ok); }
-.st-idle    { background-color: var(--ab-idle-bg);   color: var(--ab-idle); }
 .st-ended   { background-color: var(--ab-danger-bg); color: var(--ab-danger); }
+.st-busy,
+.st-idle,
 .st-unknown,
-.st-stale   { background-color: var(--ab-bg-hover);  color: var(--ab-text-secondary); }
+.st-stale   { background-color: var(--ab-chip-bg);   color: var(--ab-text-secondary); }
+.st-idle    { font-weight: var(--ab-fw-regular); }
 
 .ag {
   display: block;
@@ -1615,14 +1832,15 @@ html.compact .global-error-banner .btn--row {
   width: 2.5px;
   height: 2.5px;
   border-radius: 50%;
-  background-color: var(--ab-ok);
-  box-shadow: -4px 0 0 var(--ab-ok), 4px 0 0 var(--ab-ok);
+  background-color: var(--ab-busy);
+  box-shadow: -4px 0 0 var(--ab-busy), 4px 0 0 var(--ab-busy);
 }
-/* 1.5px: dieselbe Randstaerke wie `.ind-off`, gleiche Begruendung. */
+/* 1.5px: dieselbe Randstaerke wie `.ind-off`, gleiche Begruendung. Neutral
+   wie das Wort daneben: "Idle" ist der ruhigste der lebenden Zustaende. */
 .ag-idle {
   width: 7px;
   height: 7px;
-  border: 1.5px solid var(--ab-idle);
+  border: 1.5px solid var(--ab-text-muted);
   border-radius: 1px;
   transform: rotate(45deg);
 }
@@ -1658,37 +1876,13 @@ html.compact .global-error-banner .btn--row {
   margin: var(--ab-space-2) var(--ab-space-3) 0;
 }
 
-/* :not(:has(.host-actions [aria-expanded="true"])) haelt die Leiste
-   sichtbar, waehrend das eigene ⋯-Menue offen ist: das Menue haengt an
-   `.sidebar`, nicht am Host-Block (`root.appendChild(menuEl)` in
-   `views/sidebar.ts`), darum verlaesst der Fokus beim Oeffnen
-   `.sb-host-block` und `:focus-within` wird falsch -- ohne diese Klausel
-   verschwaende `.host-actions` unter dem offenen Menue, und `closeMenu()`
-   faende beim Fokus-Rueckweg einen `display: none`-Knopf (Tastatur-
-   Sackgasse). Bewusst auf `.host-actions [aria-expanded]` ENGER als auf
-   `.sb-host-block [aria-expanded]`: `.row-host` traegt selbst ein
-   `aria-expanded` fuer den Aufklapp-Zustand der Sessionliste
-   (`buildHostBlock` in `views/sidebar.ts`), das mit dem Menue nichts zu tun
-   hat -- ein Selektor ohne diese Einengung wuerde die Leiste an JEDEM
-   aufgeklappten, nicht nur am fokussierten oder aktiven Host zeigen.
-
-   `--held` (Abnahme B2): der Block, in dem beim Druck in der Liste der Fokus
-   stand, behaelt seine Leiste bis nach dem Klick, auch wenn der Druck den
-   Fokus aus ihm herausnimmt (`views/sidebar.ts`). */
-.sb-host-block:not(.sb-host-block--active):not(.sb-host-block--held):not(:focus-within):not(:has(.host-actions [aria-expanded="true"])) .host-actions {
-  display: none;
-}
-
-/* Abnahme B2: waehrend eines Drucks in der Liste (`views/sidebar.ts` setzt die
-   Klasse vom Druck bis nach dem Klick) bleiben genau die Leisten stehen, die
-   beim Druck zu sehen waren: die des markierten Hosts, die des Blocks, in dem
-   der Fokus stand (`--held`), und die mit offenem eigenem Menue wie oben. Der
-   Fokus steht aber schon im gedrueckten Element, und `:focus-within` oben
-   zeigte sonst die Leiste von dessen Block: die Zeilen rueckten vor dem
-   Loslassen weg, und der Klick ginge verloren. */
-.sb-list--pressing .sb-host-block:not(.sb-host-block--active):not(.sb-host-block--held):not(:has(.host-actions [aria-expanded="true"])) .host-actions {
-  display: none;
-}
+/* Jede Hostkarte zeigt ihre Knopfleiste, auf- wie zugeklappt (Spec vom
+   14.11.2026, Statusanzeige §2). Vorher stand sie nur am aktiven Host: bei
+   mehreren aufgeklappten Hosts musste man erst eine Zeile des anderen Hosts
+   anklicken, um ihn zu trennen oder dort eine Session anzulegen. Keine Regel
+   verbirgt `.host-actions` mehr; die Klassen `sb-host-block--active`,
+   `--held` und `sb-list--pressing` aus `views/sidebar.ts` tragen hier
+   keine Darstellung. */
 
 /* Eigene `<div>` NEBEN der Host-Zeile (nicht darin) fuer die sichtbaren
    Aktionen -- Verbinden/Trennen sowie Neue Session und Neu laden als
@@ -1738,6 +1932,29 @@ html.compact .global-error-banner .btn--row {
   justify-content: center;
   width: var(--ab-row-btn-h);
   padding: 0;
+}
+
+/* Spec vom 14.11.2026 (Statusanzeige) §2: die Leiste steht an jedem Host.
+   Gerahmt bleibt darin der Umschalter mit seinem Wort; die Symbolknoepfe und
+   `⋯` stehen ohne Rahmen daneben und bekommen ihre Flaeche unter dem Zeiger
+   (Regel oben). Vier gerahmte Kaesten je Karte machten die Liste unruhig. */
+.host-icon-btn,
+.host-menu-btn {
+  border-color: transparent;
+}
+
+/* "Disconnect" an einem verbundenen Host: Rand und Schrift in der Farbe von
+   "Online" (`--ab-ok`, nie der Akzent: der traegt keinen Zustand). Leuchtet
+   der Knopf, steht die Verbindung; waehrend des Verbindens und an "Connect"
+   bleibt er ruhig. */
+.host-action-btn--connected {
+  border-color: var(--ab-ok);
+  color: var(--ab-ok);
+}
+/* Unter dem Zeiger die Flaeche aller Leistenknoepfe, das Wort bleibt gruen.
+   Gefuellt gruen laese sich ein Knopf, der Terminals schliesst, wie "weiter". */
+.host-action-btn--connected:not(:disabled):hover {
+  color: var(--ab-ok);
 }
 
 /* Hostmenue (Entwurf §1). `position: fixed`, weil es aus `.sb-list`s
@@ -1910,6 +2127,31 @@ html.compact .global-error-banner .btn--row {
 .sb-session-row:focus-within:has(.session-acts button) .row-meta,
 .sb-session-row:has(.row-session[aria-current="true"]):has(.session-acts button) .row-meta {
   visibility: hidden;
+}
+
+/* Spec vom 14.11.2026 (Statusanzeige) §3: die Zeile der fokussierten Kachel
+   zeigt ihre Knoepfe dauernd, und ihr Agentenstatus verschwaende sonst genau
+   dort, wo man gerade arbeitet. Von der Pille bleibt deshalb das Zeichen,
+   links neben den Knoepfen; das Wort ist nur fuer das Auge ausgeblendet. Die
+   Zeile unter dem Zeiger gibt den Platz weiter ganz den Knoepfen. */
+.sb-session-row:has(.row-session[aria-current="true"]):has(.session-acts button) .row-meta {
+  visibility: visible;
+  padding-right: calc(var(--ab-row-h-session) + var(--ab-space-1));
+}
+.sb-session-row:has(.row-session[aria-current="true"]):has(.session-acts button:nth-child(2)) .row-meta {
+  padding-right: calc(2 * var(--ab-row-h-session) + var(--ab-space-2));
+}
+.sb-session-row:has(.row-session[aria-current="true"]):has(.session-acts button) .st {
+  padding: 0 var(--ab-space-1);
+}
+.sb-session-row:has(.row-session[aria-current="true"]):has(.session-acts button) .st-word {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 /* `.session-acts` ist absolut gesetzt und
@@ -4307,10 +4549,12 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
 }
 
 /* Grundton: `data-base` an der Karte setzt ihre Flaechentoken (Grundton-
-   bloecke oben) -- Karte und Quadrate erscheinen im EIGENEN Grundton. */
+   bloecke oben) -- Karte und Quadrate erscheinen im EIGENEN Grundton. Sechs
+   Karten in drei Spalten (Spec 2026-11-14 §4); `minmax(0, 1fr)` haelt die
+   Spalten gleich breit, auch wenn ein Name laenger ist. */
 .base-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ab-space-4);
 }
 
@@ -4385,10 +4629,65 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
 }
 
 /* ===== Seitenleiste v2: neue Elemente ===== */
+
+/* Die Marke im Fuss (Spec 2026-11-14 §3): Zeichen im Akzent, Name, Version
+   als Chip. Ein Knopf mit eigener Bauform wie `.ab-row`; er oeffnet die
+   Einstellungen auf About. Der Name gibt in einer schmalen Leiste zuerst
+   nach, Zeichen und Version behalten ihre Breite. */
+.sb-brand {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ab-space-3);
+  height: var(--ab-row-btn-h);
+  padding: 0 var(--ab-space-3) 0 var(--ab-space-2);
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  background: none;
+  color: var(--ab-text-primary);
+  font-family: inherit;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  font-weight: var(--ab-fw-semibold);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.sb-brand:hover {
+  background-color: var(--ab-bg-hover);
+}
+
+/* 18 px: zwei Stufen unter dem Kuerzelquadrat der Hostzeile (24 px), damit
+   die Marke im 26 px hohen Knopf Luft behaelt. */
+.sb-brand-mark {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--ab-radius-xs);
+  background-color: var(--ab-accent);
+  color: var(--ab-accent-ink);
+}
+
+.sb-brand-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .sb-version {
-  padding-top: var(--ab-space-4);
+  flex: none;
+  padding: var(--ab-space-1) var(--ab-space-3);
+  border: var(--ab-border-w) solid var(--ab-line-strong);
+  border-radius: var(--ab-radius-pill);
   font-size: var(--ab-fs-xs);
   line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-regular);
   color: var(--ab-text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -4416,6 +4715,151 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   font-weight: var(--ab-fw-bold);
 }
 
+/* ===== Symbolleiste der eingeklappten Seitenleiste (Spec 2026-11-14 §2) =====
+   Eine Karte wie `.sidebar`, so breit wie `--ab-rail-w`. Von oben: der
+   Zaehler der Wartenden, die Hosts (rollen, wenn es viele sind), unten
+   Einstellungen, Marke und Ausklappen. `min-height: 0` haelt die Zeile von
+   `#app` wie bei `#sidebar`. */
+.sb-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-3);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--ab-space-3);
+  background-color: var(--ab-bg-panel);
+  border: var(--ab-border-w) solid var(--ab-line);
+  border-radius: var(--ab-radius-lg);
+  box-shadow: var(--ab-shadow-card);
+  box-sizing: border-box;
+}
+
+/* Kein sichtbarer Rollbalken: er naehme der 32 px breiten Spalte ein Viertel.
+   Gerollt wird mit Rad, Wischen und dem Fokus. */
+.sb-rail-hosts {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-2);
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+/* WebKit kennt `scrollbar-width` erst seit Safari 18.2; macOS wird ab 12.4
+   beliefert. */
+.sb-rail-hosts::-webkit-scrollbar {
+  display: none;
+}
+
+.sb-rail-bottom {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ab-space-2);
+}
+
+/* Die Knoepfe der Leiste: 32 px im Quadrat, eigene Bauform wie
+   `.sb-head-btn` (Hoehe und Rahmen der Knopfbasis gelten nicht). */
+.sb-rail-btn,
+.sb-rail-host,
+.sb-rail-waiting {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ab-radius-sm);
+  background-color: transparent;
+  color: var(--ab-text-secondary);
+  transition: background-color var(--ab-motion-fast) var(--ab-motion-ease), color var(--ab-motion-fast) var(--ab-motion-ease);
+}
+
+.sb-rail-btn:hover,
+.sb-rail-host:hover {
+  background-color: var(--ab-bg-hover);
+  color: var(--ab-text-primary);
+}
+
+/* Nach innen wie bei den Zeilen der Liste: die Hosts stehen in einem
+   Rollkasten, der eine Kontur ausserhalb der Knopfkante abschnitte. */
+.sb-rail-btn:focus-visible,
+.sb-rail-host:focus-visible,
+.sb-rail-waiting:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Der Host der fokussierten Kachel, wie die gewaehlte Zeile der Liste. */
+.sb-rail-host[aria-current="true"] {
+  background-color: var(--ab-bg-active);
+}
+
+/* Zustand und Wartemarke sitzen auf den Ecken des Kuerzelquadrats, je auf
+   einem Kreis in der Flaeche darunter, der die Form vom Quadrat absetzt. Die
+   Formen sind die der Hostzeile (`.ind-*`) und der Waiting-Pille
+   (`.ag-waiting`); das Wort dazu steht im Tooltip und im Namen des Knopfs.
+   12 px: ein groesserer Kreis deckte den zweiten Buchstaben des Kuerzels an. */
+.sb-rail-state,
+.sb-rail-flag {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-bg-panel);
+}
+
+.sb-rail-state {
+  bottom: 0;
+}
+
+.sb-rail-flag {
+  top: 0;
+}
+
+.sb-rail-host:hover .sb-rail-state,
+.sb-rail-host:hover .sb-rail-flag {
+  background-color: var(--ab-bg-hover);
+}
+
+.sb-rail-host[aria-current="true"] .sb-rail-state,
+.sb-rail-host[aria-current="true"] .sb-rail-flag {
+  background-color: var(--ab-bg-active);
+}
+
+/* Der Zaehler der Wartenden in den Farben der Waiting-Pille: Raute und Zahl. */
+.sb-rail-waiting {
+  gap: var(--ab-space-1);
+  border-radius: var(--ab-radius-pill);
+  background-color: var(--ab-warn-bg);
+  color: var(--ab-warn);
+  font-family: var(--ab-font-ui-small);
+  font-size: var(--ab-fs-xs);
+  line-height: var(--ab-lh-xs);
+  font-weight: var(--ab-fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.sb-rail-waiting:hover {
+  background-color: var(--ab-bg-hover);
+}
+
+/* Das Ausklappen steht ganz unten, an derselben Stelle wie der Einklappknopf
+   im Fuss der Seitenleiste, mit etwas Abstand zu den zwei Knoepfen darueber. */
+.sb-rail-expand {
+  margin-top: var(--ab-space-2);
+}
+
 /* Innenabstand 6 statt 8 px: jedes Pixel, das die
    Pille nicht braucht, gehoert dem Hostnamen daneben. */
 .state-pill {
@@ -4430,13 +4874,20 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   font-weight: var(--ab-fw-semibold);
 }
 
-.state-pill--connected    { background-color: var(--ab-ok-bg);      color: var(--ab-ok); }
+/* Spec vom 14.11.2026 (Statusanzeige) §3, wie die Agentenpillen: "Online"
+   ist der Normalfall und steht ruhig da, mit gruenem Punkt (`.ind-on`) und
+   neutralem Wort; "Offline" tritt zurueck (Ring grau, Wort nicht halbfett).
+   Getoent bleibt, was Aufmerksamkeit braucht: "Connecting" und "Failed". */
+.state-pill--connected    { background-color: var(--ab-chip-bg);    color: var(--ab-text-secondary); }
 .state-pill--connecting   { background-color: var(--ab-connecting-bg); color: var(--ab-connecting); }
-.state-pill--disconnected { background-color: var(--ab-bg-hover);   color: var(--ab-text-secondary); }
+.state-pill--disconnected { background-color: var(--ab-chip-bg);    color: var(--ab-text-secondary); font-weight: var(--ab-fw-regular); }
 .state-pill--failed       { background-color: var(--ab-danger-bg);  color: var(--ab-danger); }
 
 .state-pill .ind-off { border-color: currentColor; }
 .state-pill .ind-fail { border-bottom-color: currentColor; }
+/* NACH der Regel darueber (gleiche Spezifitaet): der Ring von "Offline"
+   bleibt grau, waehrend das Wort sekundaer ist. */
+.state-pill--disconnected .ind-off { border-color: var(--ab-text-muted); }
 
 /* ===== Optische Mitte (v2 §6.4) ===========================================
    Segoe UI sitzt geometrisch zentriert 1-2 px zu hoch. Mit `text-box`
@@ -4448,7 +4899,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
    Beschriftungen nehmen `overflow-x: clip` mit `overflow-y: visible`. */
 @supports (text-box: trim-both cap alphabetic) {
   .row-label, .row-meta, .row-state-word, .row-session-count, .state-pill, .st, .sb-avatar, .badge, .tile-number,
-  .sb-lane-title, .row-lane-time, .row-lane-reason, .row-lane-more,
+  .sb-lane-title, .sb-lane-count, .row-lane-time, .row-lane-reason, .row-lane-more,
   .tile-title, .tile-host, .tile-lock-chip, .tile-quiet, .tile-copied, .tile-narrow, .key-hint, kbd, .btn, .sb-btn, .host-action-btn,
   .first-run-suggestion-alias, .first-run-suggestion-detail, .preflight-check, .base-card-name, .accent-current,
   .settings-tab, .settings-row > dt, .settings-value, .terminal-search-count,
@@ -4477,7 +4928,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
 
 /* Kleinschrift (v2 §6.1): fuer 10 und 11 px "Segoe UI Variable Small" voran. */
 .row-meta, .row-state-word, .row-session-count, .state-pill, .st, .tile-host, .tile-tmux, .tmux-mark, .tile-lock-chip, .tile-quiet, .tile-copied, .tile-narrow,
-.sb-lane-title, .row-lane-time, .row-lane-reason, .row-lane-more,
+.sb-lane-title, .sb-lane-count, .row-lane-time, .row-lane-reason, .row-lane-more,
 .key-hint, kbd, .first-run-suggestion-detail, .first-run-footer,
 .first-run-section-label, .sb-version, .sb-empty-hint, .sb-group-label, .control-quiet, .host-quiet,
 .terminal-menu-shortcut, .terminal-menu-hint, .terminal-search-count,
@@ -4522,7 +4973,7 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
    gewaehlten Element, gewinnt der Fokusring (der Tab, die Sessionzeile, die
    Grundtonkarte mit ihrem Haken). */
 @media (forced-colors: active) {
-  :where(.settings-tab[aria-selected="true"], .row-session[aria-current="true"], .quick-open-option[aria-selected="true"], .base-card:has(input:checked)) {
+  :where(.settings-tab[aria-selected="true"], .row-session[aria-current="true"], .sb-rail-host[aria-current="true"], .quick-open-option[aria-selected="true"], .base-card:has(input:checked)) {
     outline: var(--ab-focus-w) dashed Highlight;
     outline-offset: -2px;
   }
