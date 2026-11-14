@@ -1,6 +1,6 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.4` vom 13.11.2026 (Tag `v0.3.4` auf dem Merge-Commit
+**Stand:** Version `0.3.4` vom 14.11.2026 (Tag `v0.3.4` auf dem Merge-Commit
 des Release-PR); beim Tag baut die CI alle Pakete und hängt sie an das Release.
 0.3.4 bringt die Befunde der Durchsicht vom 13.11. (PR #56): Ein Klick in der
 Seitenleiste geht nicht mehr verloren, wenn sie während des Drucks neu gebaut

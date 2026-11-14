@@ -6,7 +6,7 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
-## [0.3.4] - 2026-11-13
+## [0.3.4] - 2026-11-14
 
 Klicks in der Seitenleiste gehen nicht mehr verloren, Browsertasten bleiben mit Bildschirmleser gesperrt, und auf Android fuehrt nach einem neuen Serverschluessel ein Weg in der App zurueck zum Host.
 
