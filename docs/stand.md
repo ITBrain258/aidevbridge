@@ -182,16 +182,20 @@ laufenden App (der Tipp in der Telefonansicht nur emuliert), die Tasten mit
 einem echten Bildschirmleser, das Vergessen des Schlüssels an einem
 Android-Gerät. Die Durchsicht vom 10.11. steht in der Git-Historie dieser Datei.
 
-Der letzte Live-Lauf ging am 11.11. auf dem Stand `84b0ca0` (Kopf des
-Release-PR von 0.3.3, derselbe Baum wie der Tag `v0.3.3`) von Windows aus
-gegen eine Test-VM mit Ubuntu 26.04, OpenSSH 10.2 und tmux 3.6, auf eigenen
-Testsockets: alle 779 Rust-Tests grün, darunter `integration_default_socket`
-voll (sein Listentest braucht tmux 3.3a oder 3.6),
-und die VM-Abnahme (`acceptance_vm`) 11 von 11. Übersprungen: der RSA-Zweig
-(kein `AIDEVBRIDGE_TEST_RSA_KEY`), der Passwortzweig (kein
+Der letzte Live-Lauf ging am 14.11. auf dem Tag `v0.3.4` (`6cff307`) von
+Windows aus gegen beide Test-VMs, auf eigenen Testsockets. Gegen die VM mit
+Ubuntu 26.04, OpenSSH 10.2 und tmux 3.6: alle 792 Rust-Tests grün, darunter
+`integration_default_socket` voll (sein Listentest braucht tmux 3.3a oder
+3.6), und die VM-Abnahme (`acceptance_vm`) 11 von 11. Gegen die VM mit
+Debian 12, OpenSSH 9.2 und tmux 3.3a, die davor zuletzt am 25.10. lief
+([M3.1-Abnahme](messungen/messung-2026-10-25-m31-abnahme.md)): ebenfalls alle
+792 Rust-Tests grün und die VM-Abnahme 10 von 11. Der Test der sieben
+Fehlerzweige bricht dort vor SSH ab, weil diese VM kein Wegwerfkonto für den
+Passwortzweig hat (`AIDEVBRIDGE_VM_PASSWORD_USER`); ein Fehler der App ist das
+nicht. Übersprungen auf beiden: der RSA-Zweig (kein
+`AIDEVBRIDGE_TEST_RSA_KEY`), der Passwortzweig (kein
 `AIDEVBRIDGE_VM_PASSWORD`) und der ssh-agent-Zweig (Dienst auf dem Rechner
-aus). Die zweite Test-VM mit tmux 3.3a war nicht erreichbar; beide VMs liefen
-zuletzt am 25.10. ([M3.1-Abnahme](messungen/messung-2026-10-25-m31-abnahme.md)).
+aus).
 Kein Live-Test löst die Frist beim Kanalöffnen aus, die 0.3.2 geändert hat;
 den neuen Pfad prüfen nur die Unit-Tests. Den Passwortzweig prüfte zuletzt der
 Lauf vom 27.10. auf `7b961cf` gegen einen lokalen Linux-Testhost mit tmux 3.4
@@ -329,13 +333,19 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       sich nichts. Möglicher Weg: `\;` im Argument von `-c`, nach einer
       Messung auf tmux 3.0a, 3.3a, 3.4 und 3.6.
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne Eile:
-    der geschlossene Test mit 12 Testern über 14 Tage (startet bald; bis
-    dahin gibt es die App nur als APK auf GitHub), die Datenschutz-URL
+    der geschlossene Test mit 12 Testern über 14 Tage (dafür fehlen noch
+    Tester, das dauert voraussichtlich noch einige Monate; bis dahin ist die
+    App für den eigenen Gebrauch gedacht und nur als APK auf GitHub zu haben),
+    die Datenschutz-URL
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
     selbst hoch ([Anleitung](android-veroeffentlichung.md)). Das signierte
-    App Bundle von 0.3.3 (versionCode 3003) liegt nur als Artefakt
-    `android-signed` des Laufs 43010850481 vor, bis zum 09.02.2027. Am Gerät zu
+    App Bundle von 0.3.4 (versionCode 3004) liegt nur als Artefakt
+    `android-signed` des Laufs 43574406162 vor, bis zum 12.02.2027. Ist es
+    abgelaufen, baut ein Lauf von `android.yml` von Hand mit der Eingabe `tag`
+    es neu, und mit Dienstkonto lädt derselbe Lauf es hoch; der Job, der das APK
+    anhängt, kann dabei rot werden, wenn der Neubau andere Bytes hat, das
+    Hochladen hängt nicht an ihm. Am Gerät zu
     klären (Review vom 03.11.): ob Android den WebView im Hintergrund so
     anhält, dass die Acks länger als 30 s ausbleiben; dann schließt
     `STALL_TIMEOUT` die Terminals, und die Kacheln hängen sich nach der
