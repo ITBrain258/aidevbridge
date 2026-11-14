@@ -165,8 +165,8 @@ Build-Provenienz an ihnen hängen.
 ## Letzte Prüfung
 
 Am 14.11.2026 nach 0.3.4, vor PR #59 (CHANGELOG `[0.3.5]`): eine Durchsicht
-des Branches mit den beiden Gestaltungsrunden, die nur las. Neun Funde, kein
-hoher. Fünf mit Effekt für Nutzer behebt derselbe PR: Strg+Umschalt+B nimmt
+des Branches mit den beiden Gestaltungsrunden, die nur las. Neun Funde. Fünf
+mit Effekt für Nutzer behebt derselbe PR: Strg+Umschalt+B nimmt
 den Fokus mit, wenn die Leiste verschwindet, in der er stand; Einstellungen
 aus der Symbolleiste geben ihn nicht an einen verborgenen Knopf zurück; ohne
 Symbolleiste steht der Einklappknopf nicht im Fuß; der Zähler der
