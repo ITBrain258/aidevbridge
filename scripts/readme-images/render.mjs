@@ -235,7 +235,11 @@ export const renderers = {
     const page = await openApp(browser, url, desktopScene, DESKTOP);
     await focusFirstTile(page);
     const sidebar = await page.rect("#sidebar");
-    await page.shot(join(images, "waiting-lane.png"), { x: sidebar.x, y: sidebar.y, width: sidebar.width + 2, height: 480 });
+    // Bis unter die letzte Hostkarte: seit jede Karte ihre Knopfleiste zeigt
+    // (Spec vom 14.11.2026, Statusanzeige §2), schnitte eine feste Hoehe
+    // mitten durch eine Karte.
+    const lastHost = await page.evaluate(`Math.max(...[...document.querySelectorAll("#sidebar .sb-host-block")].map((block) => block.getBoundingClientRect().bottom))`);
+    await page.shot(join(images, "waiting-lane.png"), { x: sidebar.x, y: sidebar.y, width: sidebar.width + 2, height: Math.ceil(lastHost - sidebar.y) + 10 });
 
     await page.press("P", "KeyP", 80, 10);
     await page.waitFor(`document.querySelector('.quick-open-input') !== null`, "Schnelloeffnen");

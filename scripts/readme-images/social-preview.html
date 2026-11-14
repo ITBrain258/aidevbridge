@@ -14,10 +14,16 @@
   h1 { margin: 0; font-size: 41px; line-height: 1.12; font-weight: 600; letter-spacing: -0.5px; }
   p { margin: 0; font-size: 23px; line-height: 1.35; color: #C9D0DA; }
   .pills { display: flex; gap: 10px; }
-  .pill { font-size: 19px; line-height: 1; padding: 9px 15px; border-radius: 999px; font-weight: 600; }
+  /* Wie die Statusanzeige der App (Spec vom 14.11.2026): getoent ist nur
+     "Waiting"; "Busy" und "Idle" stehen neutral, ihr Zeichen traegt die Farbe. */
+  .pill { display: inline-flex; align-items: center; gap: 10px; font-size: 19px; line-height: 1; padding: 9px 15px 9px 13px; border-radius: 999px; font-weight: 600; }
+  .pill i { display: block; box-sizing: border-box; flex: none; }
   .waiting { background: rgba(251, 191, 36, 0.15); color: #FBBF24; }
-  .busy { background: rgba(74, 222, 128, 0.15); color: #4ADE80; }
-  .idle { background: rgba(147, 197, 253, 0.15); color: #93C5FD; }
+  .waiting i { width: 11px; height: 11px; border-radius: 1px; background: #FBBF24; transform: rotate(45deg); }
+  .busy, .idle { background: rgba(255, 255, 255, 0.07); color: #C9D0DA; }
+  .busy i { width: 4px; height: 4px; margin: 0 6px; border-radius: 50%; background: #93C5FD; box-shadow: -6px 0 0 #93C5FD, 6px 0 0 #93C5FD; }
+  .idle { font-weight: 400; }
+  .idle i { width: 11px; height: 11px; border: 2px solid #939CAA; border-radius: 1px; transform: rotate(45deg); }
   img { position: absolute; left: 580px; top: 56px; width: 1120px; display: block; }
 </style>
 </head>
@@ -36,9 +42,9 @@
     <h1>See which coding agent is waiting for you.</h1>
     <p>All your tmux sessions, on all your Linux hosts, in one app. Windows, macOS, Android.</p>
     <div class="pills">
-      <span class="pill waiting">Waiting</span>
-      <span class="pill busy">Busy</span>
-      <span class="pill idle">Idle</span>
+      <span class="pill waiting"><i></i>Waiting</span>
+      <span class="pill busy"><i></i>Busy</span>
+      <span class="pill idle"><i></i>Idle</span>
     </div>
   </div>
   <img src="../../docs/images/hero.png" alt="">

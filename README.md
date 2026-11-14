@@ -73,10 +73,10 @@ answer. **Nothing is installed on the hosts.**
   <tr>
     <td>
       <h3>Make it yours</h3>
-      Seven accent colors on two backgrounds give you 14 themes, and the terminal
-      font size is yours to set.
+      Seven accent colors on six backgrounds give you 42 themes, the sidebar
+      collapses to a narrow icon rail, and the terminal font size is yours to set.
     </td>
-    <td><img src="docs/images/themes.png" alt="Settings, Appearance: seven accent colors and two backgrounds"></td>
+    <td><img src="docs/images/themes.png" alt="Settings, Appearance: seven accent colors and six backgrounds"></td>
   </tr>
 </table>
 
