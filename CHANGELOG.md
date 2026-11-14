@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-11-14
+
+Die Seitenleiste in neuem Aussehen: eine Knopfleiste an jedem Host, eine ruhigere Statusanzeige, eine Symbolleiste beim Einklappen und vier weitere Hintergruende.
+
 ### Added
 
 - Seitenleiste: Ein Knopf im Fuss klappt sie ein, derselbe Weg wie Strg+Umschalt+B. Eingeklappt bleibt eine schmale Symbolleiste stehen: oben die Zahl der wartenden Sessions (Klick springt zur naechsten), darunter je Host sein Kuerzel mit der Zustandsform und einer Raute, wenn dort eine Session wartet, unten Einstellungen, About und der Knopf zum Ausklappen. Ein Klick auf einen Host klappt die Seitenleiste aus und setzt den Fokus auf seine Zeile. Bisher verschwand die Seitenleiste ganz, und zurueck fuehrte nur das Kuerzel. Wer das behalten will, schaltet "Icon rail when collapsed" aus (Einstellungen, Appearance, Karte "Sidebar"); dann steht auch der Knopf im Fuss nicht da, weil ohne Symbolleiste nur das Kuerzel zurueckfuehrt; gespeichert als `sidebar_rail` unter `[ui]` in `settings.toml`, Standard an. Auf dem Telefon bleibt die Seitenleiste die Schublade der Kopfleiste (Spec vom 14.11.).
