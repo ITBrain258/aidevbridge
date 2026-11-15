@@ -10,6 +10,9 @@ export interface CredentialFieldOptions {
   kind: CredentialKind;
   /** `data-focus-key` fuer die Fokusrettung der Seitenleiste; der Erststart laesst es weg. */
   focusKey?: string;
+  /** Eine Beschriftung statt der Vorgabe der Seitenleiste. Der Erststart
+   * weiss, warum er fragt, und sagt es (Spec 2026-11-15 §3.3). */
+  label?: string;
 }
 
 export interface CredentialField {
@@ -29,7 +32,7 @@ const LABEL: Record<CredentialKind, TranslationKey> = {
 export function buildCredentialField(opts: CredentialFieldOptions): CredentialField {
   const root = document.createElement("label");
   root.className = "host-notice-passphrase credential-field";
-  root.textContent = t(LABEL[opts.kind]);
+  root.textContent = opts.label ?? t(LABEL[opts.kind]);
 
   const input = document.createElement("input");
   input.type = "password";

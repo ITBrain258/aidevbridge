@@ -243,6 +243,36 @@ describe("mountHostKeyPrompt: Hinweis auf einen bereits unter anderem Typ bekann
   });
 });
 
+// Spec 2026-11-15 §6: beim echten Erstkontakt sagt ein Satz, dass die Frage
+// dazugehoert und womit der Fingerabdruck zu vergleichen ist. Beim anderen
+// Schluesseltyp steht er nicht -- dort ist die Frage gerade kein Normalfall.
+describe("mountHostKeyPrompt: der Satz zum Erstkontakt (Spec 2026-11-15 §6)", () => {
+  const SENTENCE =
+    "This is expected the first time you connect — to be sure it is your host, compare the fingerprint with the one the host itself shows.";
+
+  it("steht beim echten Erstkontakt unter dem Fingerabdruck, vor der Frist", () => {
+    const root = document.createElement("div");
+    mount(root);
+    emitRequest(samplePayload({ known_key_types: [] }));
+
+    const sentence = root.querySelector(".host-key-prompt-first-contact")!;
+    expect(sentence.textContent).toBe(SENTENCE);
+    const fingerprint = root.querySelector(".host-key-prompt-fingerprint-value")!;
+    const countdown = root.querySelector(".host-key-prompt-countdown")!;
+    expect(fingerprint.compareDocumentPosition(sentence) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(sentence.compareDocumentPosition(countdown) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("fehlt, wenn der Host schon unter einem anderen Schluesseltyp bekannt ist", () => {
+    const root = document.createElement("div");
+    mount(root);
+    emitRequest(samplePayload({ known_key_types: ["ecdsa-sha2-nistp256"] }));
+
+    expect(root.querySelector(".host-key-prompt-first-contact")).toBeNull();
+    expect(root.textContent).not.toContain("This is expected");
+  });
+});
+
 describe("mountHostKeyPrompt: modal fuer Tastatur und Hilfstechnik (H-Nachtrag)", () => {
   it("traegt aria-modal und aria-labelledby auf den Ueberschrift-Knoten", () => {
     const root = document.createElement("div");

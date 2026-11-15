@@ -382,6 +382,16 @@ export function mountHostKeyPrompt(
         keyType: req.key_type,
       });
       body.appendChild(otherTypeNotice);
+    } else {
+      // Spec 2026-11-15 §6: der echte Erstkontakt. Ein Satz sagt, dass die
+      // Frage hier dazugehoert und womit der Fingerabdruck zu vergleichen ist;
+      // ohne ihn bleibt einem neuen Nutzer nur blindes Vertrauen oder der
+      // Abbruch. Nicht beim anderen Schluesseltyp oben: dort ist die Frage
+      // gerade NICHT der Normalfall.
+      const firstContact = document.createElement("p");
+      firstContact.className = "host-key-prompt-first-contact";
+      firstContact.textContent = t("hostKeyPrompt.firstContact");
+      body.appendChild(firstContact);
     }
 
     // Restzeit-Anzeige (Kopfkommentar, Punkt (b)): eine sicherheitsrele-

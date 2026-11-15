@@ -57,6 +57,12 @@ impl std::fmt::Debug for AuthMethod {
     }
 }
 
+/// Die versuchte Methode in `AuthError::MethodNotOffered`, wo `user_message`
+/// nach ihr unterscheidet. Der Weg mit Schluesseldatei traegt "publickey" und
+/// faellt dort in den allgemeinen Zweig.
+const METHOD_PASSWORD: &str = "password";
+const METHOD_AGENT: &str = "publickey (agent)";
+
 /// Jede Variante braucht eine eigene, handlungsleitende Meldung (Spec §7.5).
 #[derive(Debug, thiserror::Error)]
 pub enum AuthError {
@@ -98,7 +104,10 @@ pub enum AuthError {
 
 impl AuthError {
     /// Jede Variante braucht eine eigene, handlungsleitende Meldung (Spec §7.5).
-    /// Der mitgefuehrte Text aendert die Meldung nie.
+    /// Der mitgefuehrte Text aendert die Meldung nie -- ausser bei
+    /// `MethodNotOffered`: dort ist er die VERSUCHTE Methode, die dieses Modul
+    /// selbst setzt (`METHOD_PASSWORD`, `METHOD_AGENT`, sonst der
+    /// Schluessel), kein Text des Servers.
     pub fn user_message(&self) -> &'static str {
         match self {
             Self::HostUnreachable => "Host not reachable. Check hostname, port and network.",
@@ -128,7 +137,27 @@ impl AuthError {
             Self::AgentNoIdentities(_) => {
                 "ssh-agent is reachable but has no keys loaded. Add one with: ssh-add"
             }
-            Self::MethodNotOffered(_) => "The server does not offer this authentication method.",
+            // Spec 2026-11-15 §3.4. Ein abgelehnter Schluessel ist der haeufigste
+            // erste Fehler eines neuen Nutzers (falscher Benutzername, oeffentlicher
+            // Schluessel fehlt auf dem Host), und "does not offer this
+            // authentication method" schickte ihn zur Serverkonfiguration statt zu
+            // `authorized_keys`. Der Klassifikator kann "abgelehnt" und "gar nicht
+            // angeboten" beim Schluessel nicht trennen
+            // (`classify_publickey_failure`); der erste Satz stimmt in beiden
+            // Faellen, der zweite nennt die wahrscheinliche Ursache.
+            Self::MethodNotOffered(method) if method == METHOD_PASSWORD => {
+                "This server doesn't accept password sign-in for this account. Sign in with \
+                 an SSH key instead."
+            }
+            Self::MethodNotOffered(method) if method == METHOD_AGENT => {
+                "The server didn't accept any key from ssh-agent for this user. Check the \
+                 user name, and that one of the agent's public keys is in \
+                 ~/.ssh/authorized_keys on the host."
+            }
+            Self::MethodNotOffered(_) => {
+                "The server didn't accept this key for this user. Check the user name, and \
+                 that the key's public half is in ~/.ssh/authorized_keys on the host."
+            }
             Self::MultiFactorRequired(_) => {
                 "This account requires more than one authentication factor (e.g. key + \
                  password). aidevbridge does not support multi-factor authentication in \
@@ -243,7 +272,7 @@ fn classify_password_failure(
     if remaining_methods.contains(&russh::MethodKind::Password) {
         AuthError::PasswordWrong
     } else {
-        AuthError::MethodNotOffered("password".into())
+        AuthError::MethodNotOffered(METHOD_PASSWORD.into())
     }
 }
 
@@ -399,7 +428,7 @@ where
     if refused {
         return Err(AuthError::SigningFailed);
     }
-    Err(classify_publickey_failure(false, "publickey (agent)"))
+    Err(classify_publickey_failure(false, METHOD_AGENT))
 }
 
 /// Ordnet den Fehler einer Agent-Anmeldung zu. `Send` heisst, die
@@ -1185,6 +1214,43 @@ sJWR7W+cGvJ/vLsw==
         match classify_password_failure(&remaining, false) {
             AuthError::MethodNotOffered(m) => assert_eq!(m, "password"),
             other => panic!("falsche Variante: {other:?}"),
+        }
+    }
+
+    /// Spec 2026-11-15 §3.4: die Meldung zu einer abgelehnten Anmeldung nennt
+    /// je Weg, was der Nutzer als Naechstes prueft. Gebaut ueber die Erzeuger
+    /// (`classify_publickey_failure` mit den Marken beider Wege,
+    /// `classify_password_failure`), damit ein Erzeuger mit einer anderen
+    /// Marke nicht still in den allgemeinen Zweig faellt.
+    #[test]
+    fn a_refused_sign_in_names_the_next_check_for_its_method() {
+        let key = classify_publickey_failure(false, "publickey").user_message();
+        assert!(key.contains("this key"), "{key}");
+        assert!(key.contains("user name"), "{key}");
+        assert!(key.contains("~/.ssh/authorized_keys"), "{key}");
+
+        let agent = classify_publickey_failure(false, METHOD_AGENT).user_message();
+        assert!(agent.contains("ssh-agent"), "{agent}");
+        assert!(agent.contains("user name"), "{agent}");
+        assert!(agent.contains("~/.ssh/authorized_keys"), "{agent}");
+
+        let mut remaining = russh::MethodSet::empty();
+        remaining.push(russh::MethodKind::PublicKey);
+        let password = classify_password_failure(&remaining, false).user_message();
+        assert!(password.contains("password sign-in"), "{password}");
+        assert!(password.contains("SSH key"), "{password}");
+        assert!(
+            !password.contains("authorized_keys"),
+            "ein nicht angebotenes Passwort hat mit authorized_keys nichts zu tun: {password}"
+        );
+
+        assert_ne!(key, agent);
+        assert_ne!(key, password);
+        assert_ne!(agent, password);
+        // Keiner der drei Saetze behauptet mehr, der Server biete die Methode
+        // nicht an: beim Schluessel weiss das der Klassifikator nicht.
+        for message in [key, agent] {
+            assert!(!message.contains("does not offer"), "{message}");
         }
     }
 

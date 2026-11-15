@@ -151,6 +151,10 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   const root = document.createElement("div");
   root.className = "host-form-view";
 
+  // Laufende Nummer dieses Formulars, fuer die `id` der Knoten, auf die
+  // `aria-describedby` zeigt.
+  const formNumber = ++hostForms;
+
   const form = document.createElement("form");
 
   // UX-Spec §7.7: der Anzeigename, optional und oben -- beim Anlegen wie beim
@@ -177,6 +181,8 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   hostnameInput.name = "hostname";
   hostnameInput.required = true;
   hostnameInput.autocomplete = "off";
+  // Spec 2026-11-15 §5.2: ein Beispiel im leeren Feld, hier und am Benutzer.
+  hostnameInput.placeholder = t("connect.hostname.placeholder");
   hostnameInput.value = opts.initial?.hostname ?? "";
   hostnameLabel.appendChild(hostnameInput);
   form.appendChild(hostnameLabel);
@@ -194,6 +200,7 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   userInput.name = "user";
   userInput.required = true;
   userInput.autocomplete = "off";
+  userInput.placeholder = t("connect.user.placeholder");
   userInput.value = opts.initial?.user ?? "";
   userLabel.appendChild(userInput);
   form.appendChild(userLabel);
@@ -232,9 +239,20 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
 
   const authHint = document.createElement("p");
   authHint.className = "host-form-hint";
-  authHint.textContent = t(
-    android ? "hostForm.auth.keyHintAndroid" : isMacOS() ? "hostForm.auth.keyHintMac" : "hostForm.auth.keyHint",
-  );
+  /** Der Hinweis unter dem Menue. Auf dem Desktop sagt er, woher die Liste der
+   * Schluessel kommt -- oder, wenn `list_ssh_keys` keinen fand, dass dort
+   * keiner liegt und was stattdessen geht (Spec 2026-11-15 §5.3). "Found in
+   * ..." ueber einem Menue ohne einen gefundenen Schluessel war falsch. Bis
+   * zur Antwort steht der bisherige Satz da: die meisten Rechner haben
+   * Schluessel, und ein Satz, der erst "none" sagt und dann umspringt, waere
+   * die schlechtere Vorgabe. */
+  function showAuthHint(keysFound: boolean): void {
+    if (android) authHint.textContent = t("hostForm.auth.keyHintAndroid");
+    else if (!keysFound) {
+      authHint.textContent = t("hostForm.auth.keyHintNone", { dir: isMacOS() ? "~/.ssh" : "%USERPROFILE%\\.ssh" });
+    } else authHint.textContent = t(isMacOS() ? "hostForm.auth.keyHintMac" : "hostForm.auth.keyHint");
+  }
+  showAuthHint(true);
   form.appendChild(authHint);
 
   // Deaktivierter Platzhalter: NUR eingefuegt, wenn `applyPreselection()` unten
@@ -351,7 +369,15 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   showDefaultBox.name = "showDefaultSocket";
   showDefaultBox.checked = opts.initial?.showDefaultSocket !== false;
   showDefaultLabel.append(showDefaultBox, document.createTextNode(t("hostForm.showDefaultSocket")));
-  if (opts.mode !== "control-repair") form.appendChild(showDefaultLabel);
+  // Spec 2026-11-15 §5.4: welche Sessions der Schalter meint. Die Seitenleiste
+  // nennt die Gruppe "tmux sessions"; wer die App zum ersten Mal sieht, kennt
+  // die Gruppe noch nicht.
+  const showDefaultHint = document.createElement("p");
+  showDefaultHint.className = "host-form-hint";
+  showDefaultHint.id = `host-form-default-hint-${formNumber}`;
+  showDefaultHint.textContent = t("hostForm.showDefaultSocket.hint");
+  showDefaultBox.setAttribute("aria-describedby", showDefaultHint.id);
+  if (opts.mode !== "control-repair") form.append(showDefaultLabel, showDefaultHint);
 
   const actions = document.createElement("div");
   actions.className = "host-form-actions";
@@ -368,7 +394,7 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
   // verfaelschen, das immer den ERSTEN Treffer liefert.
   const warningEl = document.createElement("p");
   warningEl.setAttribute("role", "alert");
-  warningEl.id = `host-form-warning-${++hostForms}`;
+  warningEl.id = `host-form-warning-${formNumber}`;
   root.appendChild(warningEl);
 
   el.appendChild(root);
@@ -527,6 +553,7 @@ export function mountHostForm(el: HTMLElement, opts: HostFormOptions): HostFormH
     }
     if (disposed) return;
     discoveredKeys = keys;
+    showAuthHint(keys.length > 0);
     // Die Option der mitgegebenen Anmeldeart steht seit dem Mounten im Menue
     // (`presetKeyOption`). Sie bleibt, wo sie ist -- so bleibt sie gewaehlt --,
     // und das Menue sieht danach aus, als waere die Liste zuerst gekommen:

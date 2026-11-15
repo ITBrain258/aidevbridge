@@ -3958,6 +3958,45 @@ describe("mountSidebar: inventory freshness", () => {
     expect(el.querySelector(".session-list-hint")!.textContent).not.toBe("No sessions");
   });
 
+  // Spec 2026-11-15 §2: unter einer bestaetigt leeren Liste steht der naechste
+  // Schritt mit seinem Wort. Auf dem Telefon ist das nach dem ersten Verbinden
+  // der einzige beschriftete Weg zur ersten Session.
+  it("offers 'New session' by name under a confirmed empty list, and only there", () => {
+    const state = new AppState();
+    state.upsertHost(host("a"));
+    const { el, h } = mount(state);
+    // Noch nicht geladen: kein Angebot, die Liste koennte Sessions tragen.
+    expect(el.querySelector(".session-list-new")).toBeNull();
+
+    state.setSessions("a", []);
+    const start = el.querySelector<HTMLButtonElement>(".session-list-empty > .session-list-new")!;
+    expect(start.textContent).toBe("New session");
+    expect(start.type).toBe("button");
+    expect(start.dataset.focusKey).toBe("host:a:startSession");
+    expect(start.previousElementSibling?.textContent).toBe("No sessions");
+    start.click();
+    expect(h.onNewSession).toHaveBeenCalledExactlyOnceWith("a");
+
+    // Nach einem Neuverbinden gilt die Liste nicht mehr als bestaetigt leer.
+    state.setRuntimeId("a", "different-runtime");
+    expect(el.querySelector(".session-list-new")).toBeNull();
+  });
+
+  it("drops the 'New session' offer as soon as the host has a session, and for a collapsed host", () => {
+    const state = new AppState();
+    state.upsertHost(host("a"));
+    state.setSessions("a", []);
+    const { el } = mount(state);
+    expect(el.querySelector(".session-list-new")).not.toBeNull();
+
+    state.setSessions("a", ["one"]);
+    expect(el.querySelector(".session-list-new")).toBeNull();
+
+    state.setSessions("a", []);
+    state.setHostExpanded("a", false);
+    expect(el.querySelector(".session-list-new")).toBeNull();
+  });
+
   it("keeps the backend text of a list failure behind Details and in the diagnostics", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(globalThis.navigator, "clipboard", {

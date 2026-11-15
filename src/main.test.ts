@@ -792,7 +792,7 @@ describe("main: getrennte Kontrollgesundheit und Inventar", () => {
     chooseAgentAuth(view);
     view.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     await flush();
-    Array.from(document.querySelectorAll<HTMLButtonElement>("#grid button")).find((button) => button.textContent === "Continue")!.click();
+    Array.from(document.querySelectorAll<HTMLButtonElement>("#grid button")).find((button) => button.textContent === "Save host")!.click();
     await flush();
     if (kind === "transport") emitTransportLost("r-first");
     else emitControlState("r-first", 0, "degraded", "early control loss");
@@ -1432,7 +1432,7 @@ describe("main: atomic host persistence", () => {
     chooseAgentAuth(view);
     submitDialogForm();
     await flush();
-    Array.from(dialogRoot().querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Continue")!.click();
+    Array.from(dialogRoot().querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Save host")!.click();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     expect(dialogRoot().childElementCount).toBe(0);
     // The view released its connection when it was disposed.
@@ -4204,9 +4204,9 @@ describe("main: A1 -- die Host-Identitaet steht still", () => {
     await flush();
 
     const continueButton = Array.from(document.querySelectorAll<HTMLButtonElement>("#grid button")).find(
-      (b) => b.textContent === "Continue",
+      (b) => b.textContent === "Save host",
     );
-    if (!continueButton) throw new Error("preflight did not offer 'Continue'");
+    if (!continueButton) throw new Error("preflight did not offer 'Save host'");
     continueButton.click();
     await flush();
 
@@ -8798,12 +8798,14 @@ describe("main: Arbeitsplatz merken und wiederherstellen (UX-Spec §7.1-§7.3)",
     view.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     await flush();
     Array.from(document.querySelectorAll<HTMLButtonElement>("#grid button"))
-      .find((button) => button.textContent === "Continue")!.click();
+      .find((button) => button.textContent === "Save host")!.click();
     await flush();
     expect(hostIndicatorClass("new")).toContain("ind-on");
 
     await vi.advanceTimersByTimeAsync(500);
-    expect(workspaceWrites()).toEqual([{ ...emptyWorkspace(), connected: ["host_new"] }]);
+    // Spec 2026-11-15 §2: der neue Host steht aufgeklappt da, und der
+    // Arbeitsplatz merkt sich das wie jedes Aufklappen von Hand.
+    expect(workspaceWrites()).toEqual([{ ...emptyWorkspace(), connected: ["host_new"], expanded: ["host_new"] }]);
   });
 
   // --- Fix-Runde 1 ------------------------------------------------------

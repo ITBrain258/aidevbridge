@@ -761,8 +761,8 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 20621,
-        "sha256": "4971474b35f52e7e9337211704058816277953538ba4b3dfc5c031d5af1ca8f9"
+        "bytes": 22251,
+        "sha256": "431901d35b2e99ca3746255ba8a1243e2aa4733a954747cb8d39729bc60b2afc"
       },
       {
         "path": "src/icons.ts",
@@ -776,8 +776,8 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 159402,
-        "sha256": "94dbafc21aa5d14b67988189f1a8ecbd21e71e6980ee3c8e6af9f5597610f842"
+        "bytes": 159661,
+        "sha256": "ce6a6d2b67eda24a441460313280a3f93972035b56e9e061c64ec2ac0b0f25e9"
       },
       {
         "path": "src/state/app-state.ts",
@@ -796,8 +796,8 @@
       },
       {
         "path": "src/styles.css",
-        "bytes": 167949,
-        "sha256": "6d4d95ee796a0661b2e963e5cda1da06f18cd0f19693e9df412396eb92bf8d67"
+        "bytes": 169225,
+        "sha256": "b132a1eb3335eab8fae15d3759a84bde78cfa339d62477d7754b94155e7bb5dc"
       },
       {
         "path": "src/terminal.ts",
@@ -816,8 +816,8 @@
       },
       {
         "path": "src/views/credential-field.ts",
-        "bytes": 1758,
-        "sha256": "22fe90ae2d22063ad19e17edebed19ac19a1b3413117bef982ae52854e110d3d"
+        "bytes": 1932,
+        "sha256": "4773cb1178854c94ea7eb3676033f2d794783d8ef60e10b502268367664dd2b2"
       },
       {
         "path": "src/views/directory-tree.ts",
@@ -826,8 +826,8 @@
       },
       {
         "path": "src/views/first-run.ts",
-        "bytes": 49696,
-        "sha256": "27f320d22372f05bf9df6af8eb1b469303c20e4fe003440dabc4df56ae852f45"
+        "bytes": 55883,
+        "sha256": "6bbc6112148b14930edb839825132ff7934e8f571d69c9bbd5712c2f52dd0da6"
       },
       {
         "path": "src/views/grid.ts",
@@ -836,13 +836,13 @@
       },
       {
         "path": "src/views/host-form.ts",
-        "bytes": 33096,
-        "sha256": "d1e2574d95ff540720f93a0ea0f8964867b107f4486e12a3aa13f1e88b8ad94a"
+        "bytes": 34723,
+        "sha256": "9d2c603785804e86b7d04db38f3f67d88a9023b19b8ed3d458bdc1681cd6fde3"
       },
       {
         "path": "src/views/host-key-prompt.ts",
-        "bytes": 26394,
-        "sha256": "1303984c9f0e6ed27db3faf4bcaa511c925d9fab07916fc606493a9e93e57edd"
+        "bytes": 26977,
+        "sha256": "795a59cec4441f94d43266d48b8489b3cbf9cc4e21e85e0c913e5de5b3f19c1a"
       },
       {
         "path": "src/views/initials.ts",
@@ -866,8 +866,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 130731,
-        "sha256": "57022a2a99a415c2ff49e571af742b5029be5669b4a589e1282bbb70140b53aa"
+        "bytes": 131740,
+        "sha256": "7106d4165e19d1784f420129cd8dfe22f5b4a73bf532245cf03456a7b7c3ab0b"
       },
       {
         "path": "src/views/types.ts",
@@ -899,8 +899,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 20621,
-            "sha256": "4971474b35f52e7e9337211704058816277953538ba4b3dfc5c031d5af1ca8f9"
+            "bytes": 22251,
+            "sha256": "431901d35b2e99ca3746255ba8a1243e2aa4733a954747cb8d39729bc60b2afc"
           },
           {
             "path": "src/i18n/t.ts",
@@ -924,8 +924,8 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 159402,
-            "sha256": "94dbafc21aa5d14b67988189f1a8ecbd21e71e6980ee3c8e6af9f5597610f842"
+            "bytes": 159661,
+            "sha256": "ce6a6d2b67eda24a441460313280a3f93972035b56e9e061c64ec2ac0b0f25e9"
           },
           {
             "path": "src/platform.ts",
@@ -979,8 +979,8 @@
           },
           {
             "path": "src/styles.css",
-            "bytes": 167949,
-            "sha256": "6d4d95ee796a0661b2e963e5cda1da06f18cd0f19693e9df412396eb92bf8d67"
+            "bytes": 169225,
+            "sha256": "b132a1eb3335eab8fae15d3759a84bde78cfa339d62477d7754b94155e7bb5dc"
           },
           {
             "path": "src/terminal-clipboard.ts",
@@ -1039,8 +1039,8 @@
           },
           {
             "path": "src/views/credential-field.ts",
-            "bytes": 1758,
-            "sha256": "22fe90ae2d22063ad19e17edebed19ac19a1b3413117bef982ae52854e110d3d"
+            "bytes": 1932,
+            "sha256": "4773cb1178854c94ea7eb3676033f2d794783d8ef60e10b502268367664dd2b2"
           },
           {
             "path": "src/views/dialog.ts",
@@ -1054,8 +1054,8 @@
           },
           {
             "path": "src/views/first-run.ts",
-            "bytes": 49696,
-            "sha256": "27f320d22372f05bf9df6af8eb1b469303c20e4fe003440dabc4df56ae852f45"
+            "bytes": 55883,
+            "sha256": "6bbc6112148b14930edb839825132ff7934e8f571d69c9bbd5712c2f52dd0da6"
           },
           {
             "path": "src/views/grid.ts",
@@ -1064,13 +1064,13 @@
           },
           {
             "path": "src/views/host-form.ts",
-            "bytes": 33096,
-            "sha256": "d1e2574d95ff540720f93a0ea0f8964867b107f4486e12a3aa13f1e88b8ad94a"
+            "bytes": 34723,
+            "sha256": "9d2c603785804e86b7d04db38f3f67d88a9023b19b8ed3d458bdc1681cd6fde3"
           },
           {
             "path": "src/views/host-key-prompt.ts",
-            "bytes": 26394,
-            "sha256": "1303984c9f0e6ed27db3faf4bcaa511c925d9fab07916fc606493a9e93e57edd"
+            "bytes": 26977,
+            "sha256": "795a59cec4441f94d43266d48b8489b3cbf9cc4e21e85e0c913e5de5b3f19c1a"
           },
           {
             "path": "src/views/initials.ts",
@@ -1144,8 +1144,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 130731,
-            "sha256": "57022a2a99a415c2ff49e571af742b5029be5669b4a589e1282bbb70140b53aa"
+            "bytes": 131740,
+            "sha256": "7106d4165e19d1784f420129cd8dfe22f5b4a73bf532245cf03456a7b7c3ab0b"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -1305,8 +1305,8 @@
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
-            "bytes": 75289,
-            "sha256": "6e10ffe83f917f702796abbfed75711aa4a1ad6ddf43e20b69d90a2058df29b1"
+            "bytes": 78906,
+            "sha256": "1626c30436c93c22425ca62c07d31d102984f26c912e922c92aa15a8dec76690"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",

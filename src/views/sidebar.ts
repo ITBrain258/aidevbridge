@@ -1335,7 +1335,25 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       hint.textContent = observation.status === "never_loaded"
         ? t("sidebar.sessions.notLoaded")
         : observation.status === "stale" ? t("sidebar.sessions.notRefreshed") : t("sidebar.sessions.empty");
-      return hint;
+      if (observation.status !== "current") return hint;
+      // Spec 2026-11-15 §2: die Liste ist aktuell und leer. Darunter steht der
+      // naechste Schritt mit seinem Wort, nicht nur als "+" in der Knopfleiste.
+      // Auf dem Telefon ueberdeckt die Schublade den Knopf "New session" des
+      // leeren Rasters, solange keine Kachel offen ist (`compact-shell.ts`);
+      // ein frisch verbundener Host liesse dort sonst nur drei Symbole sehen.
+      const empty = document.createElement("div");
+      empty.className = "session-list-empty";
+      empty.appendChild(hint);
+      const start = document.createElement("button");
+      start.type = "button";
+      start.className = "session-list-new btn btn--secondary btn--row";
+      start.dataset.focusKey = focusKey("host", host.id, "startSession");
+      start.textContent = t("sidebar.action.newSession");
+      start.addEventListener("click", () => {
+        if (!disposed) opts.onNewSession(host.id);
+      });
+      empty.appendChild(start);
+      return empty;
     }
 
     const notice = document.createElement("div");

@@ -3700,6 +3700,15 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   color: var(--ab-text-muted);
 }
 
+/* Der Satz zum Erstkontakt (Spec 2026-11-15 §6) unter dem Fingerabdruck: er
+   erklaert die Frage, darum in der Lesefarbe und nicht gedaempft wie die Frist. */
+.host-key-prompt-first-contact {
+  margin: var(--ab-space-4) 0 0;
+  font-size: var(--ab-fs-sm);
+  line-height: var(--ab-lh-sm);
+  color: var(--ab-text-secondary);
+}
+
 .host-key-prompt-countdown {
   font-variant-numeric: tabular-nums;
 }
@@ -4699,6 +4708,24 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   color: var(--ab-text-muted);
 }
 
+/* Leere Sessionliste eines verbundenen Hosts (Spec 2026-11-15 §2): der Satz
+   und darunter der naechste Schritt mit seinem Wort. Beide stehen 6 px
+   eingerueckt wie die Knopfleiste darueber (Spec 7.3), der Satz auch allein
+   ("Sessions have not been loaded yet."): am Kartenrand klebte er bisher. */
+.sb-host-block > .session-list-hint,
+.sb-host-block > .session-list-empty {
+  margin: var(--ab-space-4) var(--ab-space-3) 0;
+}
+.session-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ab-space-4);
+}
+.session-list-empty > .session-list-hint {
+  margin: 0;
+}
+
 .sb-avatar {
   display: inline-flex;
   flex: none;
@@ -4905,6 +4932,14 @@ input.terminal-search-input:not([type="checkbox"]):not([type="radio"]) {
   .settings-tab, .settings-row > dt, .settings-value, .terminal-search-count,
   .settings-label, .settings-seg-option, .settings-stepper-value {
     text-box: trim-both cap alphabetic;
+  }
+
+  /* Name und Zweitzeile eines Vorschlags stehen uebereinander und sind beide
+     getrimmt: ohne Abstand stiessen die Unterlaengen des Namens in die
+     Zweitzeile (Spec 2026-11-15 §3.1). Ohne `text-box` traegt die Zeilenhoehe
+     den Abstand, dort bleibt es bei 0. */
+  .first-run-suggestion-text {
+    gap: var(--ab-space-3);
   }
 }
 

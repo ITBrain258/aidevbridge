@@ -64,6 +64,13 @@ function errorText(container: HTMLElement): string {
   return container.querySelector(".first-run-card > p[role=alert]")?.textContent ?? "";
 }
 
+/** Die Meldung im Abschnitt der Pruefung: der Grund einer blockierten und der
+ * Text einer gescheiterten Pruefung (Spec 2026-11-15 §4.3). */
+function checkText(container: HTMLElement): string {
+  const el = container.querySelector<HTMLElement>(".first-run-preflight > p[role=alert]");
+  return el && !el.hidden ? el.textContent ?? "" : "";
+}
+
 function submitForm(container: HTMLElement) {
   const form = container.querySelector("form");
   form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
@@ -190,16 +197,57 @@ describe("mountFirstRun: Vorschlagsliste aus suggest_hosts", () => {
     expect(container.querySelector(".host-form-view")).toBeNull();
   });
 
-  it("zeigt einen leeren Hinweis, wenn ~/.ssh/config keine Hosts liefert", async () => {
+  // Spec 2026-11-15 §5.1: ohne Vorschlaege stand "Suggested hosts" ueber der
+  // Zeile "No hosts found" und darunter ein Formular ohne Titel. Der Einstieg
+  // nennt jetzt, was zu tun ist und was ein Host ist.
+  it("ohne Vorschlaege heisst der Einstieg 'Add your first host' und erklaert, was ein Host ist", async () => {
     invokeMock.mockImplementation(scriptedInvoke({ suggest_hosts: Promise.resolve([]) }));
 
     const { container } = mount();
     await flush();
 
-    expect(container.textContent).toContain("No hosts found in ~/.ssh/config");
+    const heading = container.querySelector<HTMLElement>(".first-run-card > .first-run-section-label")!;
+    expect(heading.hidden).toBe(false);
+    expect(heading.textContent).toBe("Add your first host");
+    const intro = container.querySelector<HTMLElement>(".first-run-intro")!;
+    expect(intro.hidden).toBe(false);
+    expect(intro.textContent).toBe(
+      "A host is a Linux machine you reach over SSH — the one your agents run on. None were found in ~/.ssh/config, so enter it here.",
+    );
+    expect(container.querySelector<HTMLElement>(".first-run-suggested-list")?.hidden).toBe(true);
+    expect(container.querySelector(".host-form-view")).not.toBeNull();
   });
 
-  it("laesst auf Android den leeren Abschnitt der Vorschlaege weg (Spec 2026-10-27 §5.3)", async () => {
+  it("mit Vorschlaegen bleibt es bei 'Suggested hosts', ohne den erklaerenden Satz", async () => {
+    invokeMock.mockImplementation(scriptedInvoke({ suggest_hosts: Promise.resolve([JUMP]) }));
+
+    const { container } = mount();
+    await flush();
+
+    expect(container.querySelector(".first-run-card > .first-run-section-label")?.textContent).toBe("Suggested hosts (from ~/.ssh/config)");
+    expect(container.querySelector<HTMLElement>(".first-run-intro")?.hidden).toBe(true);
+    expect(container.querySelector<HTMLElement>(".first-run-suggested-list")?.hidden).toBe(false);
+  });
+
+  // Der Dialog "Add host" traegt seinen eigenen Titel und richtet sich an
+  // jemanden, der schon einen Host hat: dort bleibt die knappe Zeile.
+  it("im Dialog 'Add host' bleibt ohne Vorschlaege die Zeile 'No hosts found', ohne Ueberschrift und Satz", async () => {
+    invokeMock.mockImplementation(scriptedInvoke({ suggest_hosts: Promise.resolve([]) }));
+
+    const { container } = mount(undefined, true);
+    await flush();
+
+    expect(container.querySelector<HTMLElement>(".first-run-card > .first-run-section-label")?.hidden).toBe(true);
+    expect(container.querySelector<HTMLElement>(".first-run-intro")?.hidden).toBe(true);
+    const list = container.querySelector<HTMLElement>(".first-run-suggested-list")!;
+    expect(list.hidden).toBe(false);
+    expect(list.textContent).toContain("No hosts found in ~/.ssh/config");
+  });
+
+  // Android hat keine ~/.ssh/config (Spec 2026-10-27 §5.3): die Liste und ihre
+  // Zeile "No hosts found" fehlen dort, und der Satz nennt die Datei nicht
+  // (Spec 2026-11-15 §5.1).
+  it("nennt auf Android keine ~/.ssh/config: Ueberschrift und Satz ohne die Datei, keine Liste", async () => {
     const agent = vi
       .spyOn(navigator, "userAgent", "get")
       .mockReturnValue("Mozilla/5.0 (Linux; Android 16; Pixel 7; wv) AppleWebKit/537.36 Chrome/141.0.0.0 Mobile Safari/537.36");
@@ -210,7 +258,29 @@ describe("mountFirstRun: Vorschlagsliste aus suggest_hosts", () => {
       await flush();
 
       expect(container.querySelector<HTMLElement>(".first-run-suggested-list")?.hidden).toBe(true);
-      expect(container.querySelector<HTMLElement>(".first-run-section-label")?.hidden).toBe(true);
+      expect(container.querySelector(".first-run-card > .first-run-section-label")?.textContent).toBe("Add your first host");
+      expect(container.querySelector(".first-run-intro")?.textContent).toBe(
+        "A host is a Linux machine you reach over SSH — the one your agents run on.",
+      );
+      expect(container.querySelector(".host-form-view")).not.toBeNull();
+    } finally {
+      agent.mockRestore();
+    }
+  });
+
+  it("laesst auf Android im Dialog 'Add host' den leeren Abschnitt der Vorschlaege weg (Spec 2026-10-27 §5.3)", async () => {
+    const agent = vi
+      .spyOn(navigator, "userAgent", "get")
+      .mockReturnValue("Mozilla/5.0 (Linux; Android 16; Pixel 7; wv) AppleWebKit/537.36 Chrome/141.0.0.0 Mobile Safari/537.36");
+    try {
+      invokeMock.mockImplementation(scriptedInvoke({ suggest_hosts: Promise.resolve([]) }));
+
+      const { container } = mount(undefined, true);
+      await flush();
+
+      expect(container.querySelector<HTMLElement>(".first-run-suggested-list")?.hidden).toBe(true);
+      expect(container.querySelector<HTMLElement>(".first-run-card > .first-run-section-label")?.hidden).toBe(true);
+      expect(container.querySelector<HTMLElement>(".first-run-intro")?.hidden).toBe(true);
       expect(container.querySelector(".host-form-view")).not.toBeNull();
     } finally {
       agent.mockRestore();
@@ -267,7 +337,7 @@ describe("mountFirstRun: Feld 'Name' im Anlegen-Formular (UX-Spec §7.7)", () =>
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
     await flush();
-    Array.from(container.querySelectorAll("button")).find((b) => b.textContent === "Continue")!.click();
+    Array.from(container.querySelectorAll("button")).find((b) => b.textContent === "Save host")!.click();
     await flush();
     const call = invokeMock.mock.calls.find(([command]) => command === "add_host")!;
     return (call[1] as { entry: { label: unknown } }).entry;
@@ -295,12 +365,12 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     submitForm(container);
     await flush();
 
-    expect(container.textContent).toContain("✓ base64");
-    expect(container.textContent).toContain("✓ tmux (>= 3.0)");
-    expect(container.textContent).toContain("✓ tmux socket directory");
+    expect(container.textContent).toContain("✓ base64 command");
+    expect(container.textContent).toContain("✓ tmux 3.0 or newer");
+    expect(container.textContent).toContain("✓ Writable folder for the tmux socket");
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Continue",
+      (b) => b.textContent === "Save host",
     ) as HTMLButtonElement;
     expect(continueButton.hidden).toBe(false);
 
@@ -341,7 +411,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     await flush();
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Continue",
+      (b) => b.textContent === "Save host",
     ) as HTMLButtonElement;
     continueButton.click();
     await flush();
@@ -368,7 +438,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
     await flush();
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Continue",
+      (b) => b.textContent === "Save host",
     ) as HTMLButtonElement;
     continueButton.click();
     await flush();
@@ -404,7 +474,7 @@ describe("mountFirstRun: Verbinden und Preflight", () => {
       "Cannot continue: tmux is not installed on this host (need >= 3.0)",
     );
     const continueButton = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Continue",
+      (b) => b.textContent === "Save host",
     ) as HTMLButtonElement;
     expect(continueButton.hidden).toBe(true);
     expect(invokeMock).not.toHaveBeenCalledWith("add_host", expect.anything());
@@ -600,7 +670,7 @@ describe("mountFirstRun: Passwort und Passphrase ueber das Anmeldungsmenue", () 
     (container.querySelector("input[name=passphrase]") as HTMLInputElement).value = passphrase;
     submitForm(container);
     await flush();
-    Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Continue")!.click();
+    Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Save host")!.click();
     await flush();
 
     expect(onHostReady).toHaveBeenCalledWith("h0", expect.objectContaining({ id: "host_1" }), usedSecret);
@@ -720,44 +790,72 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
   });
 
   // B9 (Aufgabe 17): `goBack()` hielt Ueberschrift und Liste bisher an
-  // `lastSuggestions.length > 0` fest -- ohne Vorschlaege blieben beide nach
-  // "Back" versteckt, obwohl die "No hosts found"-Zeile beim Mounten sichtbar
-  // war. Nur der Umschalter (`manualToggle`) bleibt an Vorschlaege gebunden.
-  it("'Back' ohne Vorschlaege zeigt Ueberschrift und Liste (mit der 'No hosts found'-Zeile) wieder", async () => {
-    invokeMock.mockImplementation(
-      scriptedInvoke({
-        run_preflight: Promise.resolve({
-          tmux_version: null,
-          has_base64: true,
-          socket_dir_writable: true,
-          blocking_problem: "tmux is not installed on this host (need >= 3.0)",
-        }),
-      }),
-    );
-
-    const { container } = mount();
-    await flush();
-
-    const suggestedList = container.querySelector(".first-run-suggested-list") as HTMLElement;
-    expect(suggestedList.hidden).toBe(false);
-    expect(suggestedList.textContent).toContain("No hosts found");
-
+  // `lastSuggestions.length > 0` fest -- ohne Vorschlaege blieb der Einstieg
+  // nach "Back" versteckt, obwohl er beim Mounten sichtbar war. Nur der
+  // Umschalter (`manualToggle`) bleibt an Vorschlaege gebunden. Der Einstieg
+  // ohne Vorschlaege ist seit Spec 2026-11-15 §5.1 Ueberschrift und Satz im
+  // Willkommen und die Zeile "No hosts found" im Dialog "Add host".
+  const BLOCKED_TMUX = {
+    tmux_version: null,
+    has_base64: true,
+    socket_dir_writable: true,
+    blocking_problem: "tmux is not installed on this host (need >= 3.0)",
+  };
+  async function connectThenBack(container: HTMLElement): Promise<void> {
     chooseAuth(container, "agent");
     fillForm(container, "192.0.2.10", "u", "22");
     submitForm(container);
     await flush();
-
-    expect(suggestedList.hidden).toBe(true);
-
     const backButton = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent === "Back",
     ) as HTMLButtonElement;
     expect(backButton).toBeDefined();
     backButton.click();
     await flush();
+  }
+
+  it("'Back' ohne Vorschlaege zeigt im Willkommen Ueberschrift und Satz wieder", async () => {
+    invokeMock.mockImplementation(scriptedInvoke({ run_preflight: Promise.resolve(BLOCKED_TMUX) }));
+
+    const { container } = mount();
+    await flush();
+
+    const heading = container.querySelector(".first-run-card > .first-run-section-label") as HTMLElement;
+    const intro = container.querySelector(".first-run-intro") as HTMLElement;
+    expect(heading.hidden).toBe(false);
+    expect(intro.hidden).toBe(false);
+
+    chooseAuth(container, "agent");
+    fillForm(container, "192.0.2.10", "u", "22");
+    submitForm(container);
+    await flush();
+
+    expect(heading.hidden).toBe(true);
+    expect(intro.hidden).toBe(true);
+
+    (Array.from(container.querySelectorAll("button")).find((b) => b.textContent === "Back") as HTMLButtonElement).click();
+    await flush();
+
+    expect(heading.hidden).toBe(false);
+    expect(heading.textContent).toBe("Add your first host");
+    expect(intro.hidden).toBe(false);
+  });
+
+  it("'Back' ohne Vorschlaege zeigt im Dialog 'Add host' die Liste mit der 'No hosts found'-Zeile wieder", async () => {
+    invokeMock.mockImplementation(scriptedInvoke({ run_preflight: Promise.resolve(BLOCKED_TMUX) }));
+
+    const { container } = mount(undefined, true);
+    await flush();
+
+    const suggestedList = container.querySelector(".first-run-suggested-list") as HTMLElement;
+    expect(suggestedList.hidden).toBe(false);
+    expect(suggestedList.textContent).toContain("No hosts found");
+
+    await connectThenBack(container);
 
     expect(suggestedList.hidden).toBe(false);
     expect(suggestedList.textContent).toContain("No hosts found");
+    expect(container.querySelector<HTMLElement>(".first-run-intro")?.hidden).toBe(true);
   });
 
   // --- Abschlussreview (Critical): `dispose()` liess die per `connect_host`
@@ -816,7 +914,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     await flush();
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Continue",
+      (b) => b.textContent === "Save host",
     ) as HTMLButtonElement;
     continueButton.click();
     await flush();
@@ -895,7 +993,7 @@ describe("mountFirstRun: Weg zurueck aus einem blockierten Preflight (Review-Bef
     await flush();
 
     const continueButton = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Continue",
+      (b) => b.textContent === "Save host",
     ) as HTMLButtonElement;
     continueButton.click();
     await flush();
@@ -928,7 +1026,8 @@ describe("Erststart: Versuch, Preflight und Speicherbesitz", () => {
   function actions(container: HTMLElement) {
     return {
       back: container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .btn--secondary")!,
-      next: container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .btn--primary")!,
+      next: container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .btn--primary:not(.first-run-recheck)")!,
+      recheck: container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .first-run-recheck")!,
     };
   }
   async function start(container: HTMLElement, hostname: string) {
@@ -1185,7 +1284,8 @@ describe("UI v2 Erststart, Aufbau (Spec 9.2, 9.5, 9.6)", () => {
     await flush();
     expect(container.querySelector<HTMLElement>(".first-run-host-form")?.hidden).toBe(false);
     expect(container.querySelector<HTMLElement>(".first-run-manual-toggle")?.hidden).toBe(true);
-    expect(container.querySelector(".first-run-suggested-list")?.textContent).toContain("No hosts found");
+    expect(container.querySelector<HTMLElement>(".first-run-suggested-list")?.hidden).toBe(true);
+    expect(container.querySelector<HTMLElement>(".first-run-intro")?.hidden).toBe(false);
     expect(document.activeElement).toBe(container.querySelector("input[name=hostname]"));
   });
 
@@ -1245,7 +1345,7 @@ describe("UI v2 Erststart, Aufbau (Spec 9.2, 9.5, 9.6)", () => {
     chooseAuth(container, "agent");
     submitForm(container);
     await flush();
-    Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Continue")!.click();
+    Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Save host")!.click();
     await flush();
 
     const added = invokeMock.mock.calls.find(([command]) => command === "add_host")?.[1] as { entry: { label: string; hostname: string } };
@@ -1350,9 +1450,11 @@ describe("UI v2 Erststart, Aufbau (Spec 9.2, 9.5, 9.6)", () => {
 // --- Aufgabe 12 (UI v2, Spec 9.3 bis 9.5): was NACH dem Connect passiert.
 // `ConnectError.code` entscheidet zwischen einem Geheimnisfeld unter der
 // angeklickten Zeile (Passphrase/Passwort, aus `credential-field.ts`) und
-// einer Fehlerflaeche mit Retry und Copy diagnostics; die Pruefliste traegt
-// die Ueberschrift "Checking {alias}", Zeilen mit Icon und verstecktem
-// Zustandswort, und der Fokus laeuft weiter auf Continue bzw. Back.
+// einer Fehlerflaeche mit Retry, Edit details und Copy diagnostics; die
+// Pruefliste traegt waehrend der Pruefung die Ueberschrift "Checking {alias}"
+// und danach ihr Ergebnis ("{alias} is ready" / "is not ready yet", Spec
+// 2026-11-15 §4.2), Zeilen mit Icon und verstecktem Zustandswort, und der
+// Fokus laeuft weiter auf Save host bzw. Check again.
 describe("UI v2 Erststart, Anmeldezweig und Pruefliste (Spec 9.3-9.5)", () => {
   const KEYED = { ...JUMP, identity_file: "C:/Users/x/.ssh/id_ed25519" };
 
@@ -1393,8 +1495,9 @@ describe("UI v2 Erststart, Anmeldezweig und Pruefliste (Spec 9.3-9.5)", () => {
       hostId: "h0",
       spec: { hostname: "bastion.example", port: 2222, user: "ops", key_path: null, passphrase: null, password: "pw" },
     });
-    expect(container.querySelector(".first-run-preflight .first-run-section-label")?.textContent).toBe("Checking jump");
-    const cont = container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .btn--primary")!;
+    expect(container.querySelector(".first-run-preflight .first-run-section-label")?.textContent).toBe("jump is ready");
+    const cont = container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .btn--primary:not(.first-run-recheck)")!;
+    expect(cont.textContent).toBe("Save host");
     expect(document.activeElement).toBe(cont);
     cont.click();
     await flush();
@@ -1441,7 +1544,97 @@ describe("UI v2 Erststart, Anmeldezweig und Pruefliste (Spec 9.3-9.5)", () => {
     await flush();
     const error = container.querySelectorAll<HTMLElement>(".first-run-suggestion")[1].querySelector(".first-run-suggestion-followup--error")!;
     expect(error.querySelector(".first-run-followup-message")?.textContent).toBe("key unreadable");
-    expect(Array.from(error.querySelectorAll("button")).map((b) => b.textContent)).toEqual(["Retry", "Copy diagnostics"]);
+    expect(Array.from(error.querySelectorAll("button")).map((b) => b.textContent)).toEqual(["Retry", "Edit details", "Copy diagnostics"]);
+  });
+
+  // Spec 2026-11-15 §3.3: die Beschriftung des Felds sagt, was HIER gefragt
+  // ist. "Key passphrase (only needed if the stored key has one)" stand unter
+  // der Meldung "This key is passphrase-protected. Enter the passphrase.".
+  it("das Passphrasenfeld unter einem Vorschlag heisst 'Passphrase for this key'", async () => {
+    const script = rejectOnce("passphrase_required", "This key is passphrase-protected. Enter the passphrase.");
+    invokeMock.mockImplementation((command: string, args?: unknown) =>
+      command === "suggest_hosts" ? Promise.resolve([KEYED]) : script(command, args),
+    );
+    const { container } = mount();
+    await flush();
+    container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    const input = container.querySelector<HTMLInputElement>(".first-run-suggestion-followup input[name=passphrase]")!;
+    expect(input.closest("label")?.textContent).toBe("Passphrase for this key");
+  });
+
+  it("nach einem abgelehnten Agent heisst das Passwortfeld 'Or enter the password for {user}'; bei password_required bleibt 'Password'", async () => {
+    const rejected = rejectOnce("auth_rejected", "ssh-agent not reachable.");
+    invokeMock.mockImplementation((command: string, args?: unknown) =>
+      command === "suggest_hosts" ? Promise.resolve([JUMP]) : rejected(command, args),
+    );
+    const first = mount();
+    await flush();
+    first.container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    expect(first.container.querySelector("input[name=password]")?.closest("label")?.textContent).toBe(
+      "Or enter the password for ops",
+    );
+
+    const required = rejectOnce("password_required", "auth failed");
+    invokeMock.mockImplementation((command: string, args?: unknown) =>
+      command === "suggest_hosts" ? Promise.resolve([JUMP]) : required(command, args),
+    );
+    const second = mount();
+    await flush();
+    second.container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    expect(second.container.querySelector("input[name=password]")?.closest("label")?.textContent).toBe("Password");
+  });
+
+  // Spec 2026-11-15 §3.2: ein Vorschlag, der nicht verbindet, liess nur
+  // "Retry" -- mit demselben falschen Benutzer oder Port. "Edit details"
+  // traegt seine Werte ins Formular.
+  it("Edit details an der Fehlerflaeche oeffnet das Formular mit den Werten des Vorschlags und raeumt die Flaeche", async () => {
+    invokeMock.mockImplementation((command: string, args?: unknown) =>
+      command === "suggest_hosts" ? Promise.resolve([KEYED]) : command === "connect_host" ? Promise.reject({ code: "host_unreachable", message: "Host not reachable. Check hostname, port and network." }) : scriptedInvoke()(command, args),
+    );
+    const { container } = mount();
+    await flush();
+    container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    const edit = container.querySelector<HTMLButtonElement>(".first-run-suggestion-followup--error .first-run-followup-edit")!;
+    expect(edit.textContent).toBe("Edit details");
+
+    edit.click();
+    await flush();
+
+    expect(container.querySelector(".first-run-suggestion-followup")).toBeNull();
+    expect(container.querySelector<HTMLElement>(".first-run-host-form")?.hidden).toBe(false);
+    expect(container.querySelector<HTMLButtonElement>(".first-run-manual-toggle")?.getAttribute("aria-expanded")).toBe("true");
+    const field = (name: string) => container.querySelector<HTMLInputElement>(`.host-form-view input[name=${name}]`)!;
+    expect(field("hostname").value).toBe("bastion.example");
+    expect(field("user").value).toBe("ops");
+    expect(field("port").value).toBe("2222");
+    expect(field("label").value).toBe("jump");
+    expect(container.querySelector<HTMLSelectElement>(".host-form-view select[name=auth]")!.value).toBe(`key:${KEYED.identity_file}`);
+    expect(document.activeElement).toBe(field("hostname"));
+  });
+
+  it("Edit details steht auch neben dem Feld fuer Passwort oder Passphrase", async () => {
+    const script = rejectOnce("password_required", "auth failed");
+    invokeMock.mockImplementation((command: string, args?: unknown) =>
+      command === "suggest_hosts" ? Promise.resolve([JUMP]) : script(command, args),
+    );
+    const { container } = mount();
+    await flush();
+    container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    const followup = container.querySelector<HTMLElement>(".first-run-suggestion-followup")!;
+    expect(Array.from(followup.querySelectorAll(".acts button")).map((b) => b.textContent)).toEqual(["Connect", "Edit details"]);
+
+    followup.querySelector<HTMLButtonElement>(".first-run-followup-edit")!.click();
+    await flush();
+
+    expect(container.querySelector<HTMLInputElement>(".host-form-view input[name=user]")!.value).toBe("ops");
+    // Ein Vorschlag ohne Schluessel verband ueber den Agenten; die Anmeldeart
+    // bleibt im Formular offen, statt eine Wahl vorzutaeuschen.
+    expect(invokeMock.mock.calls.filter((c) => c[0] === "connect_host")).toHaveLength(1);
   });
 
   it("host_unreachable zeigt die Fehlerflaeche; Retry versucht es erneut; kein run_preflight", async () => {
@@ -1461,7 +1654,7 @@ describe("UI v2 Erststart, Anmeldezweig und Pruefliste (Spec 9.3-9.5)", () => {
     expect(container.querySelector("[role=alert]")?.textContent ?? "").toBe("");
   });
 
-  it("Pruefzeilen: 26er-Zeile mit Icon, verstecktem Zustandswort und Text; blockierend fokussiert Back", async () => {
+  it("Pruefzeilen: 26er-Zeile mit Icon, verstecktem Zustandswort und Text; blockierend fokussiert Check again", async () => {
     invokeMock.mockImplementation(
       scriptedInvoke({
         suggest_hosts: Promise.resolve([JUMP]),
@@ -1474,10 +1667,20 @@ describe("UI v2 Erststart, Anmeldezweig und Pruefliste (Spec 9.3-9.5)", () => {
     await flush();
     const rows = Array.from(container.querySelectorAll<HTMLElement>(".preflight-check"));
     expect(rows).toHaveLength(3);
-    expect(rows[1].querySelector(".icon-box[data-icon='x']")).not.toBeNull();
-    expect(rows[1].querySelector(".preflight-check-glyph")?.classList.contains("ab-visually-hidden")).toBe(true);
-    expect(rows[1].textContent).toContain("✗ tmux (>= 3.0)");
-    expect(document.activeElement).toBe(container.querySelector(".first-run-preflight-actions .btn--secondary"));
+    // Spec 2026-11-15 §4.2: tmux steht oben, es ist die Zeile, an der ein
+    // neuer Host am haeufigsten haengt.
+    expect(rows[0].querySelector(".icon-box[data-icon='x']")).not.toBeNull();
+    expect(rows[0].querySelector(".preflight-check-glyph")?.classList.contains("ab-visually-hidden")).toBe(true);
+    expect(rows[0].textContent).toContain("✗ tmux 3.0 or newer");
+    expect(rows[1].textContent).toContain("✓ base64 command");
+    expect(rows[2].textContent).toContain("✓ Writable folder for the tmux socket");
+    expect(container.querySelector(".first-run-preflight .first-run-section-label")?.textContent).toBe("jump is not ready yet");
+    // §4.1: der naechste Schritt ist die Wiederholung, nicht der Weg zurueck.
+    const recheck = container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .first-run-recheck")!;
+    expect(recheck.hidden).toBe(false);
+    expect(recheck.textContent).toBe("Check again");
+    expect(document.activeElement).toBe(recheck);
+    expect(container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .btn--secondary")?.hidden).toBe(false);
   });
 });
 
@@ -1600,8 +1803,24 @@ describe("UX-Spec §10: Texte beim Verbinden, Pruefen und Speichern", () => {
 
   it("eine gescheiterte Pruefung hat ihren eigenen Text", async () => {
     const container = await submitWith({ run_preflight: Promise.reject("preflight probe crashed") });
-    expect(errorText(container)).toBe(
-      "Connected, but the host check failed: preflight probe crashed. Go back and try again.",
+    expect(checkText(container)).toBe(
+      "Connected, but the host check failed: preflight probe crashed. Check again, or go back.",
+    );
+    // Sie steht unter der Ueberschrift der Pruefung, nicht in der Fehlerzeile
+    // der Karte darueber.
+    expect(errorText(container)).toBe("");
+    const section = container.querySelector<HTMLElement>(".first-run-preflight")!;
+    const heading = section.querySelector("h3")!;
+    const message = section.querySelector("p[role=alert]")!;
+    expect(heading.compareDocumentPosition(message) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  // Spec 2026-11-15 §4.3: die Saetze des Backends enden mit Punkt, der Text
+  // der Oberflaeche setzt seinen eigenen dahinter -- "…reason).. Check again".
+  it("eine gescheiterte Pruefung setzt keinen zweiten Punkt hinter einen Satz des Backends", async () => {
+    const container = await submitWith({ run_preflight: Promise.reject("The SSH command failed (exec, channel closed).") });
+    expect(checkText(container)).toBe(
+      "Connected, but the host check failed: The SSH command failed (exec, channel closed). Check again, or go back.",
     );
   });
 
@@ -1613,16 +1832,61 @@ describe("UX-Spec §10: Texte beim Verbinden, Pruefen und Speichern", () => {
 
     expect(section.querySelector(".first-run-preflight-list")!.childElementCount).toBe(0);
     expect(section.textContent).not.toContain("Running checks…");
-    expect(section.querySelector("h3")?.textContent).toBe("Checking the host");
+    expect(section.querySelector("h3")?.textContent).toBe("Host check");
     // Der Weg zurueck steht weiter da.
     expect(section.hidden).toBe(false);
     expect(Array.from(section.querySelectorAll("button")).find((b) => b.textContent === "Back")?.hidden).toBe(false);
   });
 
+  // Spec 2026-11-15 §4.1: "Back" gibt die Verbindung frei. Wer auf dem Host
+  // eben tmux nachinstalliert hat, soll nicht neu verbinden muessen.
+  it("eine gescheiterte Pruefung laesst sich auf derselben Verbindung wiederholen", async () => {
+    let runs = 0;
+    const script = scriptedInvoke();
+    invokeMock.mockImplementation((command: string, args?: unknown) => {
+      if (command === "run_preflight") {
+        return ++runs === 1
+          ? Promise.reject("preflight probe crashed")
+          : Promise.resolve({ tmux_version: "3.4", has_base64: true, socket_dir_writable: true, blocking_problem: null });
+      }
+      return script(command, args);
+    });
+    const { container } = mount();
+    await flush();
+    chooseAuth(container, "agent");
+    fillForm(container, "192.0.2.10", "u", "22");
+    submitForm(container);
+    await flush();
+    const recheck = container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .first-run-recheck")!;
+    expect(recheck.hidden).toBe(false);
+    expect(document.activeElement).toBe(recheck);
+
+    recheck.click();
+    await flush();
+
+    expect(runs).toBe(2);
+    expect(invokeMock.mock.calls.filter(([cmd]) => cmd === "connect_host")).toHaveLength(1);
+    expect(invokeMock.mock.calls.filter(([cmd]) => cmd === "disconnect_host")).toHaveLength(0);
+    expect(checkText(container)).toBe("");
+    expect(recheck.hidden).toBe(true);
+    expect(container.querySelector(".first-run-preflight .first-run-section-label")?.textContent).toBe("192.0.2.10 is ready");
+    const save = Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Save host")!;
+    expect(save.hidden).toBe(false);
+    expect(document.activeElement).toBe(save);
+  });
+
+  // §4.2: nach der Pruefung laeuft nichts mehr -- die Statuszeile sagte
+  // weiter "Checking the host…".
+  it("nach der Pruefung steht die Statuszeile nicht mehr auf 'Checking the host…'", async () => {
+    const container = await submitWith({});
+    expect(container.querySelector('.first-run-card > .first-run-notice[aria-live="polite"]')?.textContent).toBe("");
+    expect(container.querySelector(".first-run-preflight .preflight-check")?.textContent).toContain("found 3.4");
+  });
+
   it("ein gescheitertes Speichern zeigt den Satz des Backends ganz, ohne Verbindungstext", async () => {
     const sentence = "could not write C:\\Users\\x\\settings.toml.tmp: Access is denied. (os error 5)";
     const container = await submitWith({ add_host: Promise.reject(sentence) });
-    Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Continue")!.click();
+    Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Save host")!.click();
     await flush();
     expect(errorText(container)).toBe(sentence);
   });

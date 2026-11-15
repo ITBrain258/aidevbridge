@@ -130,6 +130,12 @@ function checkRow(label: string, ok: boolean, detail?: string): HTMLLIElement {
   return li;
 }
 
+/** Der Rohtext des Backends ohne seinen Schlusspunkt: der Satz, in den er
+ * eingesetzt wird, bringt den eigenen mit (Spec 2026-11-15 §4.3). */
+function withoutFinalPeriod(message: string): string {
+  return message.replace(/\.\s*$/, "");
+}
+
 /** Vorrangregel (dieselbe wie `resolve_auth_method` auf der Rust-Seite,
  * siehe commands.rs): uebersetzt die Menue-Auswahl aus `host-form.ts` in
  * die drei rohen `HostSpecDto`-Felder -- genau EINES der drei ist gesetzt,
@@ -216,6 +222,15 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   suggestedList.hidden = true;
   card.appendChild(suggestedList);
 
+  // Spec 2026-11-15 §5.1: ohne Vorschlaege steht im Willkommen ein Satz ueber
+  // dem Formular, der sagt, was ein Host ist. Auf dem Desktop nennt er dazu
+  // die Datei, aus der Vorschlaege gekommen waeren; Android hat keine.
+  const manualIntro = document.createElement("p");
+  manualIntro.className = "first-run-notice first-run-intro";
+  manualIntro.textContent = t(isAndroid() ? "firstRun.manual.intro" : "firstRun.manual.introNoConfig");
+  manualIntro.hidden = true;
+  card.appendChild(manualIntro);
+
   // --- Anmeldungsformular (`host-form.ts`), zugeklappt hinter
   // dem Umschalter (Spec 9.2): mit Vorschlaegen ist der kurze Weg der
   // Regelfall, das Formular der Ausnahmefall. Ohne Vorschlaege gibt es
@@ -272,6 +287,16 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   backButton.className = "btn btn--secondary";
   backButton.textContent = t("firstRun.back");
   preflightActions.appendChild(backButton);
+  // Spec 2026-11-15 §4.1: nach einem blockierenden Befund oder einer
+  // gescheiterten Pruefung fuehrt dieser Knopf weiter, auf der Verbindung, die
+  // schon steht. "Back" gaebe sie frei, und der Nutzer verbaende sich neu, nur
+  // um dieselben drei Fragen noch einmal zu stellen.
+  const recheckButton = document.createElement("button");
+  recheckButton.type = "button";
+  recheckButton.className = "first-run-recheck btn btn--primary";
+  recheckButton.textContent = t("firstRun.preflight.recheck");
+  recheckButton.hidden = true;
+  preflightActions.appendChild(recheckButton);
   const continueButton = document.createElement("button");
   continueButton.type = "button";
   continueButton.className = "btn btn--primary";
@@ -301,7 +326,9 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   disclosure.setAttribute("aria-controls", checks.id);
   checks.className = "first-run-checks";
   checks.hidden = true;
-  for (const key of ["firstRun.preflight.tmux", "firstRun.preflight.base64", "firstRun.preflight.socketDir"] as const) {
+  // Spec 2026-11-15 §4.4: hier steht je Pruefung auch, wozu die App sie
+  // braucht; die Pruefliste selbst nennt nur den Gegenstand.
+  for (const key of ["firstRun.checked.tmux", "firstRun.checked.base64", "firstRun.checked.socketDir"] as const) {
     const li = document.createElement("li");
     li.textContent = t(key);
     checks.appendChild(li);
@@ -520,11 +547,24 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     }
   }
 
-  /** Steht der Abschnitt der Vorschlaege da? Android (Spec 2026-10-27 §5.3)
-   * hat keine `~/.ssh/config` des Nutzers; eine leere Liste dort waere nur
-   * ein Hinweis auf eine Datei, die es nicht gibt. */
-  function suggestionsShown(): boolean {
-    return lastSuggestions.length > 0 || !isAndroid();
+  /** Was ueber Liste oder Formular steht, wenn die Karte ihren Einstieg zeigt
+   * (Spec 2026-11-15 §5.1):
+   *
+   * - Mit Vorschlaegen: die Ueberschrift der Vorschlaege und die Liste.
+   * - Ohne Vorschlaege im Willkommen: die Ueberschrift "Add your first host"
+   *   und der Satz, was ein Host ist. Eine Ueberschrift "Suggested hosts" ueber
+   *   einer Zeile "none found" sagte einem neuen Nutzer nichts.
+   * - Ohne Vorschlaege im Dialog "Add host": keine Ueberschrift, der Dialogkopf
+   *   traegt sie; auf dem Desktop die Zeile "No hosts found". Android (Spec
+   *   2026-10-27 §5.3) hat keine `~/.ssh/config` des Nutzers, eine leere Liste
+   *   dort waere nur ein Hinweis auf eine Datei, die es nicht gibt. */
+  function showEntry(): void {
+    const suggested = lastSuggestions.length > 0;
+    const welcome = options.compact !== true;
+    suggestedHeading.textContent = t(suggested ? "firstRun.suggested.heading" : "firstRun.manual.heading");
+    suggestedHeading.hidden = !suggested && !welcome;
+    suggestedList.hidden = !suggested && (welcome || isAndroid());
+    manualIntro.hidden = suggested || !welcome;
   }
 
   async function loadInitialData(): Promise<void> {
@@ -567,8 +607,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
         : [];
 
     loadingNotice.hidden = true;
-    suggestedHeading.hidden = !suggestionsShown();
-    suggestedList.hidden = !suggestionsShown();
+    showEntry();
     // Startfokus (Spec 9.5): gibt es Vorschlaege, ist der erste Connect-Knopf
     // der wahrscheinlichste naechste Griff und das Formular bleibt
     // zugeklappt; gibt es keine, ist das Formular der einzige Weg -- es steht
@@ -687,7 +726,14 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
           // Flaeche, sondern immer im Geheimnisfeld oben.
           (code === "auth_rejected" && value.auth.kind === "agent");
         if (wantsSecret) {
-          showCredentialFollowup(source, value, code === "passphrase_required" ? "passphrase" : "password", message);
+          showCredentialFollowup(
+            source,
+            value,
+            code === "passphrase_required" ? "passphrase" : "password",
+            message,
+            // Nur hier ist das Passwort ein ANDERER Weg als der versuchte.
+            code === "auth_rejected",
+          );
         } else {
           showErrorFollowup(source, value, connectErrorText(code, value.label, message), message);
         }
@@ -732,12 +778,22 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     manualToggle.hidden = true;
     suggestedHeading.hidden = true;
     suggestedList.hidden = true;
+    manualIntro.hidden = true;
+    preflightSection.hidden = false;
+    await runCheck(hostId, value.label, attempt);
+  }
+
+  /** Stellt dem verbundenen Host die drei Fragen der Pruefung und zeigt das
+   * Ergebnis. Zweimal gerufen: gleich nach dem Verbinden und von "Check
+   * again" (Spec 2026-11-15 §4.1), beide Male auf derselben Verbindung. */
+  async function runCheck(hostId: string, alias: string, attempt: number): Promise<void> {
+    resetPreflight();
+    errorEl.textContent = "";
+    statusEl.textContent = t("connect.connected", { alias });
     // Spec 9.4: die Ueberschrift nennt den Host, der gerade geprueft wird --
     // die Vorschlagszeile, die den Namen trug, ist eine Zeile darueber gerade
     // verschwunden. `goBack()` setzt sie auf den neutralen Text zurueck.
-    preflightHeading.textContent = t("firstRun.checking", { alias: value.label });
-    preflightSection.hidden = false;
-    preflightList.replaceChildren();
+    preflightHeading.textContent = t("firstRun.checking", { alias });
     const running = document.createElement("li");
     running.textContent = t("firstRun.preflight.running");
     preflightList.appendChild(running);
@@ -745,18 +801,29 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     try {
       const report = await invoke<PreflightReportPayload>("run_preflight", { hostId });
       if (disposed || attempt !== attemptGeneration || connectedHostId !== hostId) return;
-      renderPreflight(report);
+      renderPreflight(report, alias);
     } catch (error) {
       if (disposed || attempt !== attemptGeneration || connectedHostId !== hostId) return;
       resetPreflight();
       // Verbunden WAR der Host -- ein Text "Couldn't connect" waere hier falsch.
-      errorEl.textContent = t("firstRun.preflight.failed", { message: String(error) });
+      // Die Meldung steht im Abschnitt der Pruefung, unter seiner Ueberschrift
+      // und ueber den Knoepfen, wie der Grund einer blockierten Pruefung
+      // (Spec 2026-11-15 §4.3). In der Fehlerzeile der Karte stand sie UEBER
+      // einer Ueberschrift, unter der dann nichts mehr kam.
+      preflightBlocked.textContent = t("firstRun.preflight.failed", { message: withoutFinalPeriod(String(error)) });
+      preflightBlocked.hidden = false;
       statusEl.textContent = "";
-      // Spec 9.5: gescheitertes Pruefen laesst nur den Weg zurueck offen --
-      // "Continue" ist hier gar nicht sichtbar.
-      backButton.focus();
+      // Die Verbindung steht noch: "Check again" fragt auf ihr erneut, "Back"
+      // gibt sie frei. "Save host" ist hier gar nicht sichtbar.
+      recheckButton.hidden = false;
+      recheckButton.focus();
     }
   }
+
+  recheckButton.addEventListener("click", () => {
+    if (disposed || saveInFlight || connectInFlight || !connectedHostId || !pendingValue) return;
+    void runCheck(connectedHostId, pendingValue.label, attemptGeneration);
+  });
 
   function clearFollowup(li: HTMLLIElement): void {
     li.querySelector(".first-run-suggestion-followup")?.remove();
@@ -779,16 +846,61 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     return { box, note };
   }
 
+  /** Spec 2026-11-15 §3.2: aus beiden Folgeflaechen fuehrt "Edit details" ins
+   * Formular, vorbelegt mit dem, was der Vorschlag trug. Sonst bliebe nach
+   * einem falschen Benutzer, Port oder Schluessel nur "Retry" mit denselben
+   * Werten -- oder das leere Formular, in das alles neu zu tippen waere.
+   *
+   * ssh-agent wird nicht vorbelegt: er kam aus dem Vorschlag, weil dort kein
+   * Schluessel stand, nicht aus einer Wahl. Das Formular waehlt dann wie
+   * immer vor (den ersten gefundenen Schluessel, sonst den Platzhalter). */
+  function editDetailsButton(
+    source: Extract<ConnectSource, { kind: "suggestion" }>,
+    value: HostFormValue,
+  ): HTMLButtonElement {
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "btn btn--text btn--row first-run-followup-edit";
+    edit.textContent = t("firstRun.followup.edit");
+    edit.addEventListener("click", () => {
+      if (disposed || connectInFlight) return;
+      clearFollowup(source.li);
+      const initial: Partial<HostFormValue> = {
+        label: value.label,
+        hostname: value.hostname,
+        user: value.user,
+        port: value.port,
+      };
+      if (value.auth.kind !== "agent") initial.auth = value.auth;
+      openForm(initial, "hostname");
+    });
+    return edit;
+  }
+
   /** Spec 9.3: Feld unter der Zeile, erneutes Connect mit Geheimnis. Die
-   * Anmeldeart kommt aus dem Vorschlag, nicht aus einem gespeicherten Host. */
+   * Anmeldeart kommt aus dem Vorschlag, nicht aus einem gespeicherten Host.
+   *
+   * Die Beschriftung sagt, was hier gefragt ist (Spec 2026-11-15 §3.3): die
+   * Passphrase ist an dieser Stelle noetig, nicht "only needed if the stored
+   * key has one" wie in der Seitenleiste; und nach einem gescheiterten Agent
+   * (`instead`) ist das Passwort ein anderer Weg, kein fehlendes Feld. */
   function showCredentialFollowup(
     source: Extract<ConnectSource, { kind: "suggestion" }>,
     value: HostFormValue,
     kind: "passphrase" | "password",
     message: string,
+    instead: boolean,
   ): void {
     const { box } = followupBox(message, false);
-    const field = buildCredentialField({ kind });
+    const field = buildCredentialField({
+      kind,
+      label:
+        kind === "passphrase"
+          ? t("firstRun.followup.passphrase.label")
+          : instead
+            ? t("firstRun.followup.passwordInstead.label", { user: value.user })
+            : undefined,
+    });
     box.appendChild(field.root);
     const submit = document.createElement("button");
     submit.type = "button";
@@ -814,7 +926,10 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
         go();
       }
     });
-    box.appendChild(submit);
+    const acts = document.createElement("div");
+    acts.className = "acts";
+    acts.append(submit, editDetailsButton(source, value));
+    box.appendChild(acts);
     source.li.appendChild(box);
     field.input.focus();
   }
@@ -841,6 +956,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
       void connect(value, source);
     });
     acts.appendChild(retry);
+    acts.appendChild(editDetailsButton(source, value));
     const copy = document.createElement("button");
     copy.type = "button";
     copy.className = "btn btn--text btn--row";
@@ -858,6 +974,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
   function resetPreflight(): void {
     preflightReady = false;
     continueButton.hidden = true;
+    recheckButton.hidden = true;
     preflightBlocked.hidden = true;
     preflightBlocked.textContent = "";
     // Auch Liste und Ueberschrift: nach einem gescheiterten `run_preflight`
@@ -867,17 +984,26 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     preflightHeading.textContent = t("firstRun.preflight.heading");
   }
 
-  function renderPreflight(report: PreflightReportPayload): void {
+  function renderPreflight(report: PreflightReportPayload, alias: string): void {
     preflightReady = !report.blocking_problem;
+    // Spec 2026-11-15 §4.2: die Pruefung ist vorbei. "Checking the host…" in
+    // der Statuszeile und "Checking {alias}" in der Ueberschrift behaupteten
+    // sonst weiter, sie laufe; die Ueberschrift nennt jetzt das Ergebnis.
+    statusEl.textContent = "";
+    preflightHeading.textContent = t(preflightReady ? "firstRun.preflight.ready" : "firstRun.preflight.notReady", {
+      alias,
+    });
     preflightList.replaceChildren();
-    preflightList.appendChild(checkRow(t("firstRun.preflight.base64"), report.has_base64));
+    // tmux zuerst: an ihm scheitert ein neuer Host am ehesten, und die
+    // Fusszeile nennt es ebenfalls zuerst.
     preflightList.appendChild(
       checkRow(
         t("firstRun.preflight.tmux"),
         report.tmux_version !== null,
-        report.tmux_version ?? undefined,
+        report.tmux_version === null ? undefined : t("firstRun.preflight.tmuxFound", { version: report.tmux_version }),
       ),
     );
+    preflightList.appendChild(checkRow(t("firstRun.preflight.base64"), report.has_base64));
     preflightList.appendChild(
       checkRow(t("firstRun.preflight.socketDir"), report.socket_dir_writable),
     );
@@ -888,17 +1014,20 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
       });
       preflightBlocked.hidden = false;
       continueButton.hidden = true;
+      recheckButton.hidden = false;
     } else {
       preflightBlocked.hidden = true;
       preflightBlocked.textContent = "";
       continueButton.hidden = false;
+      recheckButton.hidden = true;
     }
-    // Spec 9.5: der Fokus geht auf den Knopf, der jetzt dran ist -- nach
-    // einem sauberen Bericht "Continue", nach einem blockierenden Befund
-    // "Back" (der einzige Weg, der dann noch offen steht). ERST NACH dem
+    // Spec 9.5 in der Fassung von Spec 2026-11-15 §4.1: der Fokus geht auf den
+    // Knopf, der jetzt dran ist -- nach einem sauberen Bericht "Save host",
+    // nach einem blockierenden Befund "Check again" (der Nutzer behebt den
+    // Befund auf dem Host und fragt dann erneut). ERST NACH dem
     // `hidden`-Umschalten oben: ein verstecktes Bedienelement nimmt keinen
     // Fokus an.
-    if (report.blocking_problem) backButton.focus();
+    if (report.blocking_problem) recheckButton.focus();
     else continueButton.focus();
   }
 
@@ -951,16 +1080,14 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     // bis dahin steht wieder der neutrale Text da.
     preflightHeading.textContent = t("firstRun.preflight.heading");
     // Die Gegenrichtung zum Erfolgspfad oben: dorthin zurueck, wo der
-    // Versuch begann. Ueberschrift und Liste kommen zurueck, wie sie beim
-    // Mounten standen -- auch ohne Vorschlaege zeigt die Liste dann die
-    // "No hosts found"-Zeile, nur auf Android nicht (`suggestionsShown`).
+    // Versuch begann. Ueberschrift, Liste und Einleitungssatz kommen zurueck,
+    // wie sie beim Mounten standen (`showEntry`).
     // Nur der Umschalter
     // bleibt an Vorschlaege gebunden: ohne sie gaebe es nichts umzuschalten,
     // das Formular stand von Anfang an offen. Das Formular selbst nur, wenn
     // der Versuch aus ihm kam.
     const hadSuggestions = lastSuggestions.length > 0;
-    suggestedHeading.hidden = !suggestionsShown();
-    suggestedList.hidden = !suggestionsShown();
+    showEntry();
     manualToggle.hidden = !hadSuggestions;
     hostFormContainer.hidden = lastSource?.kind !== "form";
     // `aria-expanded` folgt dem, was tatsaechlich sichtbar ist -- sonst
