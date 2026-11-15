@@ -1587,6 +1587,37 @@ describe("UI v2 Erststart, Anmeldezweig und Pruefliste (Spec 9.3-9.5)", () => {
     expect(second.container.querySelector("input[name=password]")?.closest("label")?.textContent).toBe("Password");
   });
 
+  // Der Server bietet fuer das Konto kein Passwort an: unter dieser Meldung
+  // darf nicht wieder das Feld "Or enter the password for …" stehen.
+  it("lehnt der Server danach auch das Passwort als Weg ab, steht die Fehlerflaeche da, nicht wieder das Feld", async () => {
+    let calls = 0;
+    invokeMock.mockImplementation((command: string, args?: unknown) => {
+      if (command === "suggest_hosts") return Promise.resolve([JUMP]);
+      if (command === "connect_host") {
+        return ++calls === 1
+          ? Promise.reject({ code: "auth_rejected", message: "ssh-agent not reachable." })
+          : Promise.reject({ code: "auth_rejected", message: "This server doesn't accept password sign-in for this account. Sign in with an SSH key instead." });
+      }
+      return scriptedInvoke()(command, args);
+    });
+    const { container } = mount();
+    await flush();
+    container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    const input = container.querySelector<HTMLInputElement>(".first-run-suggestion-followup input[name=password]")!;
+    input.value = "pw";
+    container.querySelector<HTMLButtonElement>(".first-run-suggestion-followup button.btn--primary")!.click();
+    await flush();
+
+    expect(calls).toBe(2);
+    expect(container.querySelector(".first-run-suggestion-followup input[name=password]")).toBeNull();
+    const error = container.querySelector(".first-run-suggestion-followup--error")!;
+    expect(error.querySelector(".first-run-followup-message")?.textContent).toBe(
+      "This server doesn't accept password sign-in for this account. Sign in with an SSH key instead.",
+    );
+    expect(Array.from(error.querySelectorAll("button")).map((b) => b.textContent)).toEqual(["Retry", "Edit details", "Copy diagnostics"]);
+  });
+
   // Spec 2026-11-15 §3.2: ein Vorschlag, der nicht verbindet, liess nur
   // "Retry" -- mit demselben falschen Benutzer oder Port. "Edit details"
   // traegt seine Werte ins Formular.
@@ -1873,6 +1904,42 @@ describe("UX-Spec §10: Texte beim Verbinden, Pruefen und Speichern", () => {
     const save = Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === "Save host")!;
     expect(save.hidden).toBe(false);
     expect(document.activeElement).toBe(save);
+  });
+
+  it("ein zweiter Klick waehrend der laufenden Wiederholung fragt den Host nicht doppelt", async () => {
+    let runs = 0;
+    let resolveSecond: (report: unknown) => void = () => {};
+    const script = scriptedInvoke();
+    invokeMock.mockImplementation((command: string, args?: unknown) => {
+      if (command === "run_preflight") {
+        return ++runs === 1
+          ? Promise.reject("preflight probe crashed")
+          : new Promise((resolve) => { resolveSecond = resolve; });
+      }
+      return script(command, args);
+    });
+    const { container } = mount();
+    await flush();
+    chooseAuth(container, "agent");
+    fillForm(container, "192.0.2.10", "u", "22");
+    submitForm(container);
+    await flush();
+    const recheck = container.querySelector<HTMLButtonElement>(".first-run-preflight-actions .first-run-recheck")!;
+    recheck.click();
+    await flush();
+    expect(recheck.hidden).toBe(true);
+    // Der Handler muss dieselbe Invariante wahren wie die Anzeige.
+    recheck.dispatchEvent(new MouseEvent("click"));
+    await flush();
+    expect(runs).toBe(2);
+
+    resolveSecond({ tmux_version: null, has_base64: true, socket_dir_writable: true, blocking_problem: "tmux missing" });
+    await flush();
+    // Nach dem Ergebnis ist die Wiederholung wieder moeglich.
+    expect(recheck.hidden).toBe(false);
+    recheck.click();
+    await flush();
+    expect(runs).toBe(3);
   });
 
   // §4.2: nach der Pruefung laeuft nichts mehr -- die Statuszeile sagte

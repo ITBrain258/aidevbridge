@@ -783,10 +783,14 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     await runCheck(hostId, value.label, attempt);
   }
 
+  /** Die Laufzeit-ID des Hosts, dessen Pruefung gerade laeuft. */
+  let checkInFlightFor: string | null = null;
+
   /** Stellt dem verbundenen Host die drei Fragen der Pruefung und zeigt das
    * Ergebnis. Zweimal gerufen: gleich nach dem Verbinden und von "Check
    * again" (Spec 2026-11-15 §4.1), beide Male auf derselben Verbindung. */
   async function runCheck(hostId: string, alias: string, attempt: number): Promise<void> {
+    checkInFlightFor = hostId;
     resetPreflight();
     errorEl.textContent = "";
     statusEl.textContent = t("connect.connected", { alias });
@@ -817,11 +821,18 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
       // gibt sie frei. "Save host" ist hier gar nicht sichtbar.
       recheckButton.hidden = false;
       recheckButton.focus();
+    } finally {
+      // Nur der Lauf, der die Marke gesetzt hat, nimmt sie zurueck: nach "Back"
+      // und einem neuen Verbinden gehoert sie schon dem naechsten Host.
+      if (checkInFlightFor === hostId) checkInFlightFor = null;
     }
   }
 
+  // Der Knopf ist waehrend eines Laufs versteckt; der Handler haelt dieselbe
+  // Invariante wie die Anzeige, falls ein Klick ihn trotzdem erreicht.
   recheckButton.addEventListener("click", () => {
     if (disposed || saveInFlight || connectInFlight || !connectedHostId || !pendingValue) return;
+    if (checkInFlightFor === connectedHostId) return;
     void runCheck(connectedHostId, pendingValue.label, attemptGeneration);
   });
 

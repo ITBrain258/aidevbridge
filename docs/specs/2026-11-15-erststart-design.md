@@ -78,7 +78,9 @@ Die Meldung gilt überall, wo die App verbindet, auch am Hinweiskasten der Seite
 
 Ist die Prüfung blockiert oder gescheitert, steht neben „Back“ der Primärknopf **„Check again“** (`.first-run-recheck`) und trägt den Fokus. Er stellt die drei Fragen auf **derselben Verbindung** noch einmal: kein neues `connect_host`, keine neue Schlüsselabfrage. „Back“ gibt die Verbindung weiter frei. „Save host“ ist in diesem Zustand nicht sichtbar.
 
-Während der Wiederholung steht die Karte wie beim ersten Lauf: „Checking {alias}“, „Running checks…“. Ein Ergebnis, das nach „Back“ oder nach dem Entsorgen der Ansicht eintrifft, wird verworfen wie bisher (Versuchszähler).
+Während der Wiederholung steht die Karte wie beim ersten Lauf: „Checking {alias}“, „Running checks…“. Der Knopf ist so lange versteckt, und sein Handler nimmt für denselben Host keinen zweiten Lauf an. Ein Ergebnis, das nach „Back“ oder nach dem Entsorgen der Ansicht eintrifft, wird verworfen wie bisher (Versuchszähler).
+
+Im Backend ist dafür nichts zu ändern: `run_preflight` hält keinen Zustand. Es schlägt den verbundenen Host nach und stellt drei unabhängige Befehle (`tmux -V`, `command -v base64`, `test -w` auf den Socket-Ordner); ein zweiter Aufruf auf derselben Laufzeit-ID ist ein Aufruf wie der erste. Das ist am Code gelesen, nicht an einem Host gemessen (§10).
 
 ### 4.2 Ergebnis statt Vorgang
 
@@ -151,7 +153,7 @@ Er steht in der Lesefarbe (12/16, `--ab-text-secondary`), über der Frist. Mehr 
 
 ## 8. Tests
 
-- `first-run.test.ts`: Einstieg ohne Vorschläge (Desktop, Android, Dialog), „Back“ stellt ihn wieder her; „Edit details“ an beiden Flächen; die drei Beschriftungen; Reihenfolge und Texte der Prüfzeilen; „Check again“ wiederholt auf derselben Verbindung, ohne `connect_host` und ohne `disconnect_host`; Fokus; geleerte Statuszeile; die Meldung der gescheiterten Prüfung, ihre Stelle und der einfache Punkt.
+- `first-run.test.ts`: Einstieg ohne Vorschläge (Desktop, Android, Dialog), „Back“ stellt ihn wieder her; „Edit details“ an beiden Flächen; die drei Beschriftungen; Reihenfolge und Texte der Prüfzeilen; „Check again“ wiederholt auf derselben Verbindung, ohne `connect_host` und ohne `disconnect_host`, und nimmt während eines Laufs keinen zweiten an; nach einem Passwort, das der Server als Weg ablehnt, steht die Fehlerfläche da und nicht wieder das Feld; Fokus; geleerte Statuszeile; die Meldung der gescheiterten Prüfung, ihre Stelle und der einfache Punkt.
 - `host-form.test.ts`: Platzhalter, Hinweis ohne Schlüssel, Satz unter dem Schalter samt `aria-describedby`, eigene Kennung je Formular.
 - `credential-field.test.ts`, `host-key-prompt.test.ts`, `sidebar.test.ts`, `main.test.ts`: Beschriftung, Satz zum Erstkontakt, Knopf unter der leeren Liste und seine Grenzen, aufgeklappter neuer Host im gemerkten Arbeitsplatz.
 - `auth.rs`: die drei Meldungen, gebaut über die Erzeuger, paarweise verschieden.
