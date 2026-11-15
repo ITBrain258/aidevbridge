@@ -14,7 +14,8 @@ Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
 Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
 
-`main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.).
+`main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.);
+reine Doku darf seit dem 15.11. direkt hinein (Entscheidungen vom 15.11.).
 Frühere Releases und ihre Einzelheiten stehen im CHANGELOG, frühere Prüfungen
 und erledigte Punkte in der Git-Historie dieser Datei.
 
@@ -145,6 +146,24 @@ Build-Provenienz an ihnen hängen.
   [`SECURITY.md`](../SECURITY.md).
 - **Wildcards in `known_hosts`:** zurückgestellt (Punkt 14).
 
+## Entscheidungen vom 15.11.2026
+
+- **Reine Doku direkt auf `main`:** Änderungen, die nur Doku sind, dürfen
+  ohne Pull Request auf `main`; die Pflicht-Checks laufen dann nach dem Push.
+  Ausgelegt als Prosa wie dieses Dokument, Specs, Pläne und Anleitungen.
+  Code und Dateien, die eine Lizenzauswahl bindet, ein Skript erzeugt oder
+  ein Test prüft (Bilder, Release- und Store-Texte), gehen weiter über einen
+  Pull Request.
+- **CodeQL:** eingeschaltet (Default Setup, wöchentlich und bei jeder
+  Änderung) für die Workflows und für JavaScript und TypeScript. Rust nimmt
+  die REST-Schnittstelle des Default Setups nicht an; es bleibt der Weg über
+  die Einstellungen im Browser. Funde stehen im Reiter „Security“ des
+  Repositorys, nicht in diesem Dokument.
+- **Ausgewählte Actions:** zurückgestellt; die Liste erlaubter Actions
+  machte den Ablauf vorerst nur umständlicher.
+- **Upstream:** vorerst kein Beitrag bei russh (Punkt 12). Die Erlaubnis aus
+  U4 vom 05.11. bleibt.
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -229,7 +248,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    24.10. ([Handabnahme §9](abnahme-handarbeit.md#9-m1-tor)).
 2. **Erstes Release:** `v0.2.0` am 22.10., seitdem öffentlich mit privatem
    Meldeweg für Sicherheitslücken, Dependabot, Secret Scanning mit Push
-   Protection und den Rulesets „Release tags v*“ und „main“; Workflows aus
+   Protection, seit dem 15.11. CodeQL (Entscheidungen vom 15.11.) und den
+   Rulesets „Release tags v*“ und „main“; Workflows aus
    Pull Requests externer Beitragender laufen erst nach Freigabe. Die
    Schlüssel unter `src-tauri/tests/fixtures/rsa-signing/`, in
    `src-tauri/src/ssh/auth.rs` und in `vendor/russh` sowie der synthetische
@@ -346,11 +366,27 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **`#` vor `[` im Startordner:** Die Regel verdoppelt jede Folge von `#`,
       außer direkt vor `[` (ab tmux 3.3a eine Stilmarke,
       [Messung](messungen/messung-2026-10-26-tmux-cwd-format.md)); der
-      Maintainer bestätigt sie noch.
+      Maintainer bestätigt sie noch. Eine neutrale Bewertung vom 15.11., die
+      nur las und nichts nachmaß, empfiehlt, die Regel zu behalten: Auf 3.3a,
+      3.4 und 3.6 ergeben alle acht gemessenen Namen den Ordner wörtlich, auf
+      3.0a startet nur `##[` im Home-Ordner, und in keiner maskierten Form
+      wurde etwas ausgeführt. Alles zu verdoppeln wäre auf den aktuellen
+      Versionen schlechter, `##[` abzulehnen sperrte dort Funktionierendes.
+      Offen daraus:
+      - Die Anleitungen nennen die Grenze nicht; ein Satz gehört nach
+        [Grenzen](guide/limits.md).
+      - „Ab 3.3a“ ist nur belegt als „fehlt in 3.0a, vorhanden in 3.3a“; 3.1
+        bis 3.3 sind ungemessen.
+      - Gemessen wurde eine Nachbildung der Regel in `sed` an acht Namen,
+        nicht die Rust-Funktion; `###[` ist ungemessen, und Live-Test und
+        Handabnahme haben keinen Fall mit `[`.
     - **Startordner mit `;` am Ende:** tmux liest ein solches Element als
       Trenner; die Session startet im Ordner ohne das `;`. Einschleusen lässt
       sich nichts. Möglicher Weg: `\;` im Argument von `-c`, nach einer
-      Messung auf tmux 3.0a, 3.3a, 3.4 und 3.6.
+      Messung auf tmux 3.0a, 3.3a, 3.4 und 3.6. Die Bewertung vom 15.11.
+      schlägt als kleinsten Schritt vor, einen solchen Startordner beim
+      Anlegen mit einer Meldung abzulehnen; das braucht keine Messung. Für
+      das Verhalten bei `;` gibt es bisher keine Rohdaten und keinen Test.
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne Eile:
     der geschlossene Test mit 12 Testern über 14 Tage (dafür fehlen noch
     Tester, das dauert voraussichtlich noch einige Monate; bis dahin ist die
@@ -417,8 +453,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Feature `pkcs1v15`), dazu zwei weitere Pins von russh 0.65.1: `ssh-key`
       0.7.0-rc.11 verlangt ebenfalls `sha2` (passend ist `ssh-key`
       0.7.0-rc.12 vom 09.11.), und `pkcs1` 0.8.0-rc.4, `rsa` 0.10.0 braucht
-      0.8.0. Ob russh dafür Code ändern muss, ist ungeprüft. Der Wechsel kommt
-      mit einer russh-Version, die diese Versionen nimmt, oder als eigenes
+      0.8.0. Stand am 15.11.: Der Hauptzweig von russh nimmt `rsa` 0.10,
+      `pkcs1` 0.8 und `ssh-key` 0.7.0-rc.12 (Eugeny/russh#821, gemergt am
+      11.11.), ein Release damit gibt es noch nicht; 0.65.1 ist das neueste.
+      russh änderte dafür Code im Schlüsselformat (`keys/format/mod.rs`,
+      `keys/format/pkcs8.rs`), außerhalb der Dateien unseres Patches. Der
+      Wechsel kommt mit der russh-Version, die das enthält, oder als eigenes
       Update der Kopie; bis dahin ignoriert `audit.yml` die Meldung weiter
       ([`SECURITY.md`](../SECURITY.md)).
     - **Rust 1.99:** erst, wenn ein Crate sie verlangt. Die Stellen, die die
@@ -427,9 +467,15 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Typprüfung der Skripte:** 22 Skripte unter `scripts/` tragen noch
       `// @ts-nocheck` (`tsconfig.node.json`); ein Skript verliert die Marke,
       sobald es mit JSDoc-Typen sauber prüft.
-    - **Upstream:** Der Entwurf eines Kommentars zu warp-tech/russh#806 (das
+    - **Upstream:** Der Entwurf eines Kommentars zu Eugeny/russh#806 (das
       Close-Verhalten unseres Patches, mit dem zweiten Fall der Antwort auf
-      ein lokales Close) wartet auf das OK des Maintainers.
+      ein lokales Close) ist seit dem 15.11. zurückgestellt: vorerst kein
+      Beitrag bei russh (Entscheidungen vom 15.11.). Stand am 15.11.: Das
+      Issue ist offen, seit dem 02.11. ohne Antwort von russh und ohne
+      Pull Request; keiner der beiden Fälle ist auf dem Hauptzweig oder in
+      einem Release behoben, die drei betroffenen Dateien sind dort dieselben
+      wie in 0.65.1. Das Repository heißt inzwischen Eugeny/russh, der alte
+      Name warp-tech/russh leitet weiter.
 13. **Review vom 03.11., zurückgestellt:**
     - **Gehashte Einträge in `known_hosts` schreiben** bei `HashKnownHosts
       yes`: am 05.11. vom Maintainer zurückgestellt. Die App schreibt einen
@@ -469,8 +515,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **CI und Release:** keine Paketbauten bei reinen Doku-PRs (Frist und
       Wiederholung für den apt-Schritt kamen mit der Prüfung vom 09.11.), die
       volle Lizenzprüfung auch bei geänderten eigenen Quellen,
-      CHANGELOG-Einträge je PR; dazu GitHub-Einstellungen (ausgewählte
-      Actions, CodeQL, Freigabe für `android-release`). Seit dem 11.11. setzt
+      CHANGELOG-Einträge je PR; dazu GitHub-Einstellungen: CodeQL läuft seit
+      dem 15.11., die ausgewählten Actions sind zurückgestellt (Entscheidungen
+      vom 15.11.), die Freigabe für `android-release` ist offen. Seit dem 11.11. setzt
       `npm run bump` die Version auch in der Windows-Auswahl, und
       `scripts/release-version.mjs` prüft bei jedem Push alle Versionsstellen
       (Version, Auswahlen, CHANGELOG, Kurzfassung, Store-Texte, Kopf dieser
@@ -566,7 +613,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       `android.yml` ist eine gebundene Eingabe der Android-Auswahl.
 17. **Seitenleiste und Grundtöne (Spec vom 14.11.):** ausgeliefert mit
     0.3.5, vor dem Release nur im Headless-Browser gegen Beispieldaten
-    angesehen. Am 15.11. meldete der Maintainer, die App laufe unter Windows
+    angesehen. Am 15.11. meldete der Maintainer, 0.3.5 laufe unter Windows
     und Android bisher sehr gut; einzeln abgenommen sind die Punkte unten und
     die von Punkt 18 damit nicht. Offen:
     - **Am Fenster:** die sechs Punkte aus §7 der Spec (Grundtöne bei
