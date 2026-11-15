@@ -212,6 +212,9 @@ nicht. Übersprungen auf beiden: der RSA-Zweig (kein
 `AIDEVBRIDGE_TEST_RSA_KEY`), der Passwortzweig (kein
 `AIDEVBRIDGE_VM_PASSWORD`) und der ssh-agent-Zweig (Dienst auf dem Rechner
 aus).
+0.3.5 lief nicht live: Sein Rust-Teil unterscheidet sich von `v0.3.4` nur
+durch das Feld `sidebar_rail` der Einstellungen, das die Unit-Tests prüfen,
+und durch die Versionszeile.
 Kein Live-Test löst die Frist beim Kanalöffnen aus, die 0.3.2 geändert hat;
 den neuen Pfad prüfen nur die Unit-Tests. Den Passwortzweig prüfte zuletzt der
 Lauf vom 27.10. auf `7b961cf` gegen einen lokalen Linux-Testhost mit tmux 3.4
@@ -356,8 +359,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
     selbst hoch ([Anleitung](android-veroeffentlichung.md)). Das signierte
-    App Bundle von 0.3.4 (versionCode 3004) liegt nur als Artefakt
-    `android-signed` des Laufs 43574406162 vor, bis zum 12.02.2027. Ist es
+    App Bundle von 0.3.5 (versionCode 3005) liegt nur als Artefakt
+    `android-signed` des Laufs 43606357631 vor, bis zum 12.02.2027. Ist es
     abgelaufen, baut ein Lauf von `android.yml` von Hand mit der Eingabe `tag`
     es neu, und mit Dienstkonto lädt derselbe Lauf es hoch; der Job, der das APK
     anhängt, kann dabei rot werden, wenn der Neubau andere Bytes hat, das
@@ -562,14 +565,18 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       `THIRD_PARTY_LICENSES.md` und `fastlane/**` gehören nicht dazu, und
       `android.yml` ist eine gebundene Eingabe der Android-Auswahl.
 17. **Seitenleiste und Grundtöne (Spec vom 14.11.):** ausgeliefert mit
-    0.3.5, nur im Headless-Browser gegen Beispieldaten angesehen. Offen:
+    0.3.5, vor dem Release nur im Headless-Browser gegen Beispieldaten
+    angesehen. Am 15.11. meldete der Maintainer, die App laufe unter Windows
+    und Android bisher sehr gut; einzeln abgenommen sind die Punkte unten und
+    die von Punkt 18 damit nicht. Offen:
     - **Am Fenster:** die sechs Punkte aus §7 der Spec (Grundtöne bei
       laufenden Kacheln, Symbolleiste bei Zustandswechseln, Skalierung,
       Bildschirmleser, Android-Tablet, Kontrastdesign).
     - **Zurückgestellt (§6 der Spec):** helles Thema, Aktionen in der
       Symbolleiste, weitere Darstellungsoptionen.
 18. **Statusanzeige und Knopfleiste (Spec vom 14.11.):** ausgeliefert mit
-    0.3.5, nur im Headless-Browser gegen Beispieldaten angesehen. Offen:
+    0.3.5, vor dem Release nur im Headless-Browser gegen Beispieldaten
+    angesehen; zur Meldung des Maintainers vom 15.11. siehe Punkt 17. Offen:
     - **Am Fenster:** die sechs Punkte aus §8 der Spec (Knopfleisten bei
       mehreren aufgeklappten Hosts mit Maus und Tastatur, Zustandswechsel bei
       laufenden Agenten, Kopf der Wartet-Spur bei 208 bis 320 px, Skalierung,
