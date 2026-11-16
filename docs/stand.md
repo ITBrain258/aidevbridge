@@ -293,6 +293,9 @@ Für die Änderungen vom 16.11. zeigt der Lauf nur, dass ein Host ohne
 Startausgabe der Shell keinen Fehlalarm auslöst und dass die Liste mit der
 neuen Frist lädt wie bisher. Die Erkennung selbst und eine langsame Verbindung
 löst er nicht aus (Punkt 15).
+0.3.6 lief nicht eigens live: In `src-tauri/`, `src/` und `vendor/`
+unterscheidet es sich vom Stand dieses Laufs nur durch die beiden
+Versionszeilen und jenen Kommentar.
 0.3.5 lief nicht live: Sein Rust-Teil unterscheidet sich von `v0.3.4` nur
 durch das Feld `sidebar_rail` der Einstellungen, das die Unit-Tests prüfen,
 und durch die Versionszeile.
