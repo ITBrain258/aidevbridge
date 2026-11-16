@@ -253,6 +253,12 @@ Wegwerfkonto auf der VM mit tmux 3.3a
 fünf Zustände der Startdatei, die Liste über eine verzögerte Verbindung).
 Eine vierte neutrale Bewertung las die Rohdaten gegen Code und Anleitung
 (Entscheidungen vom 16.11., Punkt 15).
+Am Release 0.3.6 (Tag `v0.3.6` auf `fbf5cc2`, dessen Baum dem geprüften Kopf
+des Release-PR gleicht): sechs Dateien; ihre Prüfsummen stimmen mit dem
+Release-Text und der `.sha256`-Datei überein, die Attestierungen der fünf
+Pakete nennen Tag und Commit, und das APK trägt versionCode 3006 und das
+bisherige Zertifikat. Das Hochladen zu Google Play lief nicht (kein
+Dienstkonto, Punkt 11).
 Nicht geprüft: das echte Fenster; Startausgabe und Frist mit zsh, mit
 anderen tmux-Versionen und mit dem Standard-Socket; die Anmeldung per
 Passwort und über den ssh-agent; ob der macOS-Test jetzt hält (die beiden
@@ -485,8 +491,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
     selbst hoch ([Anleitung](android-veroeffentlichung.md)). Das signierte
-    App Bundle von 0.3.5 (versionCode 3005) liegt nur als Artefakt
-    `android-signed` des Laufs 43606357631 vor, bis zum 12.02.2027. Ist es
+    App Bundle von 0.3.6 (versionCode 3006) liegt nur als Artefakt
+    `android-signed` des Laufs 43879719954 vor, bis zum 14.02.2027. Ist es
     abgelaufen, baut ein Lauf von `android.yml` von Hand mit der Eingabe `tag`
     es neu, und mit Dienstkonto lädt derselbe Lauf es hoch; der Job, der das APK
     anhängt, kann dabei rot werden, wenn der Neubau andere Bytes hat, das
@@ -642,7 +648,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       einem Host mit tmux 3.3a gemessen, am eigenen Socket
       ([Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md)):
       Bei 0,77 s je Befehl lud die Liste mit 20 Sessions in 36,2 s, auch mit
-      dem Poll nebenher. Das waren rund 47 Befehle; die alte Frist reichte
+      dem Poll nebenher. Aus den Zeiten gerechnet, nicht gezählt, waren das
+      rund 47 Befehle; die alte Frist reichte
       demnach bis rund 320 ms je Befehl. Mit 40 Sessions endete die Liste
       nach 60,0 s mit einem Zeitfehler, und als die Verbindung stockte, kam
       der Fehler 14,9 s später. Nicht eingetreten ist die Erwartung, ein

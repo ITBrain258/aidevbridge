@@ -36,7 +36,10 @@ vor der Prüfung auf eine interaktive Shell (`precondition-*.txt`):
 | stdout | `echo hello` | `hello` auf der Standardausgabe | `hello` |
 | stderr | `echo warn >&2` | `warn` auf der Fehlerausgabe | `warn` |
 | tty | `[ -t 1 ] && echo hello` | nichts | `hello` |
-| interactive | `case $- in *i*) echo hello;; esac` | nichts | nichts; `bash -i -c true` druckt `hello` |
+| interactive | `case $- in *i*) echo hello;; esac` | nichts | nichts |
+
+Dass die Zeile der Variante interactive wirkt, zeigt eine interaktive Shell:
+`ssh <konto>@<host> bash -i -c true`, ohne Terminal, druckt `hello`.
 
 Je Variante ein Durchgang durch das, was ein Nutzer an einem Host tut
 (`variant-*.txt`, danach `after-*.txt`). Die Variante interactive hat keine

@@ -134,8 +134,8 @@
   listed session also expects the app's own marker line first, and the app
   opens sessions through an SSH command with a terminal. Output that appears
   only when there is a terminal (`[ -t 1 ]`, for example) therefore passes
-  the host check and the list, and then no session opens; the message
-  suggests that the session ended and does not name the shell. A startup
+  the host check and the list, and then opening a listed session fails; the
+  message suggests that the session ended and does not name the shell. A startup
   file that waits for input makes opening fail as well, at the latest after
   15 seconds. Remove the output, or print it only in interactive shells; in
   bash that is a test of `$-`, for example `case $- in *i*) echo hello;; esac`.
