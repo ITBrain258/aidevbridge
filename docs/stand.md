@@ -260,11 +260,11 @@ Pakete nennen Tag und Commit, und das APK trägt versionCode 3006 und das
 bisherige Zertifikat. Das Hochladen zu Google Play lief nicht (kein
 Dienstkonto, Punkt 11).
 Nicht geprüft: das echte Fenster; Startausgabe und Frist mit zsh, mit
-anderen tmux-Versionen und mit dem Standard-Socket; die Anmeldung über den
-ssh-agent und mit einem RSA-Schlüssel (die per Passwort lief am selben Tag
-nach, siehe den Live-Lauf unten; am Fenster getippt ist sie nicht); ob der
-macOS-Test jetzt hält (die beiden Läufe der CI zu PR #62 bestanden); CodeQL
-für Rust.
+anderen tmux-Versionen und mit dem Standard-Socket; die Anmeldung mit einem
+RSA-Schlüssel (die per Passwort und über den ssh-agent liefen am selben Tag
+nach, siehe den Live-Lauf unten; am Fenster sind beide nicht geprüft); ob
+der macOS-Test jetzt hält (die beiden Läufe der CI zu PR #62 bestanden);
+CodeQL für Rust.
 
 Am 14.11.2026 nach 0.3.4, vor PR #59 (CHANGELOG `[0.3.5]`): eine Durchsicht
 des Branches mit den beiden Gestaltungsrunden, die nur las. Neun Funde. Fünf
@@ -324,10 +324,17 @@ lief mit allen sieben gegen ein Konto, das es gibt, auf der VM mit tmux 3.3a
 zum ersten Mal. Vorher geprüft, je VM: Das Konto nimmt den Testschlüssel
 nicht an, und ein einfaches `ssh` meldet sich mit dem Passwort an. Keine
 Zeile „uebersprungen“ in der Ausgabe; die Sockets waren danach dieselben wie
-davor, die Konten sind entfernt. Weiter übersprungen: der RSA-Zweig und der
-ssh-agent-Zweig. Der Agent-Dienst von Windows ist auf dem Prüfrechner
-deaktiviert und lässt sich ohne Administratorrechte nicht starten, auch
-nicht als Prozess (`ssh-agent -d`: „cannot create agent root reg key“).
+davor, die Konten sind entfernt.
+Der ssh-agent-Zweig lief danach am selben Tag gegen beide VMs, nachdem der
+Maintainer den Agent-Dienst von Windows gestartet hatte. Ohne
+Administratorrechte startet der Dienst nicht, auch nicht als Prozess
+(`ssh-agent -d` endet mit „cannot create agent root reg key“). Im Agenten
+lag nur der Testschlüssel. Vorher geprüft, je VM: Das `ssh` von Windows
+meldet sich ohne Schlüsseldatei über den Agenten an. Die Anmeldung der App
+über den Agenten bestand, ohne Zeile „uebersprungen“; danach ist der
+Schlüssel wieder aus dem Agenten entfernt. Weiter übersprungen: der
+RSA-Zweig. Nicht geprüft: ein Schlüssel im Agenten, den der Host nicht
+annimmt (Handabnahme §12, A3).
 Für die Änderungen vom 16.11. zeigt der Lauf nur, dass ein Host ohne
 Startausgabe der Shell keinen Fehlalarm auslöst und dass die Liste mit der
 neuen Frist lädt wie bisher. Die Erkennung selbst und eine langsame Verbindung
