@@ -390,7 +390,7 @@ describe("mountSessionDialog", () => {
   // tmux nimmt ein `;` am Ende des Arguments als Trenner und startet die
   // Session in einem anderen Ordner, ohne Fehler
   // (docs/messungen/messung-2026-11-16-tmux-cwd-semikolon.md). Ein `;` im
-  // Namen ist wörtlich und bleibt erlaubt.
+  // Namen ist woertlich und bleibt erlaubt.
   it("lehnt einen Ordner ab, der auf ; endet, und nennt den Grund am Feld", async () => {
     const { el, onSubmit } = await mountDialog();
     cwdInput(el).value = "/srv/job;";
