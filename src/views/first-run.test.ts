@@ -1618,6 +1618,71 @@ describe("UI v2 Erststart, Anmeldezweig und Pruefliste (Spec 9.3-9.5)", () => {
     expect(Array.from(error.querySelectorAll("button")).map((b) => b.textContent)).toEqual(["Retry", "Edit details", "Copy diagnostics"]);
   });
 
+  // Der letzte Versuch traegt nach dem Folgefeld das getippte Geheimnis und
+  // die Anmeldeart des Feldes. Ins Formular gehoert nur, was der Vorschlag
+  // trug (Spec 2026-11-15 §3.2): Ein abgelehntes Passwort stuende sonst
+  // vorausgefuellt da, mit "Password" als gewaehlter Anmeldeart.
+  it("Edit details nach einem getippten Passwort traegt weder das Passwort noch dessen Anmeldeart ins Formular", async () => {
+    let calls = 0;
+    invokeMock.mockImplementation((command: string, args?: unknown) => {
+      if (command === "suggest_hosts") return Promise.resolve([JUMP]);
+      if (command === "connect_host") {
+        return ++calls === 1
+          ? Promise.reject({ code: "auth_rejected", message: "ssh-agent not reachable." })
+          : Promise.reject({ code: "auth_rejected", message: "This server doesn't accept password sign-in for this account. Sign in with an SSH key instead." });
+      }
+      return scriptedInvoke()(command, args);
+    });
+    const { container } = mount();
+    await flush();
+    container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    container.querySelector<HTMLInputElement>(".first-run-suggestion-followup input[name=password]")!.value = "pw";
+    container.querySelector<HTMLButtonElement>(".first-run-suggestion-followup button.btn--primary")!.click();
+    await flush();
+    expect(calls).toBe(2);
+
+    container.querySelector<HTMLButtonElement>(".first-run-suggestion-followup--error .first-run-followup-edit")!.click();
+    await flush();
+
+    const form = container.querySelector<HTMLElement>(".host-form-view")!;
+    expect(form.querySelector<HTMLInputElement>("input[name=user]")!.value).toBe("ops");
+    expect(form.querySelector<HTMLSelectElement>("select[name=auth]")!.value).not.toBe("password");
+    // Das Formular haengt nur das Feld der gewaehlten Anmeldeart ein; keines davon traegt einen Wert.
+    expect(Array.from(form.querySelectorAll<HTMLInputElement>("input[type=password]")).map((input) => input.value).join("")).toBe("");
+  });
+
+  // Dasselbe mit einem Vorschlag, der einen Schluessel traegt: Der Pfad des
+  // Vorschlags bleibt gewaehlt, die getippte Passphrase kommt nicht mit.
+  it("Edit details nach einer getippten Passphrase behaelt den Schluessel des Vorschlags, ohne die Passphrase", async () => {
+    let calls = 0;
+    invokeMock.mockImplementation((command: string, args?: unknown) => {
+      if (command === "suggest_hosts") return Promise.resolve([KEYED]);
+      if (command === "connect_host") {
+        return ++calls === 1
+          ? Promise.reject({ code: "passphrase_required", message: "Enter the passphrase." })
+          : Promise.reject({ code: "host_unreachable", message: "Host not reachable. Check hostname, port and network." });
+      }
+      return scriptedInvoke()(command, args);
+    });
+    const { container } = mount();
+    await flush();
+    container.querySelector<HTMLButtonElement>("li.first-run-suggestion button")!.click();
+    await flush();
+    container.querySelector<HTMLInputElement>(".first-run-suggestion-followup input[type=password]")!.value = "secret";
+    container.querySelector<HTMLButtonElement>(".first-run-suggestion-followup button.btn--primary")!.click();
+    await flush();
+    expect(calls).toBe(2);
+
+    container.querySelector<HTMLButtonElement>(".first-run-suggestion-followup--error .first-run-followup-edit")!.click();
+    await flush();
+
+    const form = container.querySelector<HTMLElement>(".host-form-view")!;
+    expect(form.querySelector<HTMLSelectElement>("select[name=auth]")!.value).toBe(`key:${KEYED.identity_file}`);
+    expect(form.querySelector<HTMLInputElement>("input[name=passphrase]")!.value).toBe("");
+    expect(Array.from(form.querySelectorAll<HTMLInputElement>("input[type=password]")).map((input) => input.value).join("")).toBe("");
+  });
+
   // Spec 2026-11-15 §3.2: ein Vorschlag, der nicht verbindet, liess nur
   // "Retry" -- mit demselben falschen Benutzer oder Port. "Edit details"
   // traegt seine Werte ins Formular.

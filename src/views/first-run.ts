@@ -864,11 +864,13 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
    *
    * ssh-agent wird nicht vorbelegt: er kam aus dem Vorschlag, weil dort kein
    * Schluessel stand, nicht aus einer Wahl. Das Formular waehlt dann wie
-   * immer vor (den ersten gefundenen Schluessel, sonst den Platzhalter). */
-  function editDetailsButton(
-    source: Extract<ConnectSource, { kind: "suggestion" }>,
-    value: HostFormValue,
-  ): HTMLButtonElement {
+   * immer vor (den ersten gefundenen Schluessel, sonst den Platzhalter).
+   *
+   * Die Werte kommen aus dem Vorschlag selbst, nicht aus dem letzten Versuch:
+   * Der traegt nach einer Eingabe im Folgefeld das getippte Passwort oder die
+   * Passphrase und die Anmeldeart des Feldes. Ein abgelehntes Geheimnis
+   * gehoert nicht vorausgefuellt in ein Formular. */
+  function editDetailsButton(source: Extract<ConnectSource, { kind: "suggestion" }>): HTMLButtonElement {
     const edit = document.createElement("button");
     edit.type = "button";
     edit.className = "btn btn--text btn--row first-run-followup-edit";
@@ -876,13 +878,15 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     edit.addEventListener("click", () => {
       if (disposed || connectInFlight) return;
       clearFollowup(source.li);
-      const initial: Partial<HostFormValue> = {
-        label: value.label,
-        hostname: value.hostname,
-        user: value.user,
-        port: value.port,
-      };
-      if (value.auth.kind !== "agent") initial.auth = value.auth;
+      const suggested = valueFromSuggestion(source.host);
+      const initial: Partial<HostFormValue> = {};
+      if (suggested !== null) {
+        initial.label = suggested.label;
+        initial.hostname = suggested.hostname;
+        initial.user = suggested.user;
+        initial.port = suggested.port;
+        if (suggested.auth.kind === "key") initial.auth = suggested.auth;
+      }
       openForm(initial, "hostname");
     });
     return edit;
@@ -939,7 +943,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
     });
     const acts = document.createElement("div");
     acts.className = "acts";
-    acts.append(submit, editDetailsButton(source, value));
+    acts.append(submit, editDetailsButton(source));
     box.appendChild(acts);
     source.li.appendChild(box);
     field.input.focus();
@@ -967,7 +971,7 @@ export function mountFirstRun(container: HTMLElement, options: FirstRunOptions):
       void connect(value, source);
     });
     acts.appendChild(retry);
-    acts.appendChild(editDetailsButton(source, value));
+    acts.appendChild(editDetailsButton(source));
     const copy = document.createElement("button");
     copy.type = "button";
     copy.className = "btn btn--text btn--row";

@@ -44,8 +44,9 @@ fingerprint on the host before you connect. The app then checks tmux, `base64`
 and the tmux socket directory on the host.
 
 If something is missing, the app names it. Fix it on the host and choose
-**Check again**; the connection stays open meanwhile, so the fingerprint is not
-asked a second time. **Save host** then adds the host to the sidebar, and
+**Check again**; the connection stays open meanwhile, so you neither connect
+again nor retype a passphrase or password. **Save host** then adds the host to
+the sidebar, and
 **New session** under it starts the first session.
 
 If the app answers "The server didn't accept this key for this user", check the

@@ -795,8 +795,8 @@
       },
       {
         "path": "src/views/first-run.ts",
-        "bytes": 56466,
-        "sha256": "6f02e2bec575c3d18977c56ace5260b8b214c64f195b2e88c827e2f52612233f"
+        "bytes": 56855,
+        "sha256": "865820b24db689e7717fe7729dea17d8385d52639d6a794a847d473ecd34bf2f"
       },
       {
         "path": "src/views/grid.ts",
@@ -1023,8 +1023,8 @@
           },
           {
             "path": "src/views/first-run.ts",
-            "bytes": 56466,
-            "sha256": "6f02e2bec575c3d18977c56ace5260b8b214c64f195b2e88c827e2f52612233f"
+            "bytes": 56855,
+            "sha256": "865820b24db689e7717fe7729dea17d8385d52639d6a794a847d473ecd34bf2f"
           },
           {
             "path": "src/views/grid.ts",

@@ -8,7 +8,7 @@ dem Namen agentbridge.
 
 ### Added
 
-- Erststart: Ist die Host-Pruefung blockiert oder gescheitert, wiederholt "Check again" sie auf derselben Verbindung. Bisher blieb nur "Back", das die Verbindung trennt; wer auf dem Host tmux nachinstalliert hatte, musste neu verbinden und den Fingerabdruck neu bestaetigen.
+- Erststart: Ist die Host-Pruefung blockiert oder gescheitert, wiederholt "Check again" sie auf derselben Verbindung. Bisher blieb nur "Back", das die Verbindung trennt; wer auf dem Host tmux nachinstalliert hatte, musste neu verbinden und Passphrase oder Passwort neu eingeben.
 - Erststart: Unter einem Vorschlag, der nicht verbindet, oeffnet "Edit details" das Formular mit seinen Werten, um Benutzer oder Port zu berichtigen. Bisher gab es nur "Retry" mit denselben Werten.
 - Seitenleiste: Unter einer leeren Sessionliste eines verbundenen Hosts steht ein beschrifteter Knopf "New session", und ein eben gespeicherter Host steht aufgeklappt da. Auf dem Telefon verdeckte die Hostliste nach dem ersten Verbinden den Knopf des leeren Rasters; uebrig blieben drei Symbole ohne Wort.
 

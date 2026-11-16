@@ -16,7 +16,7 @@ Die Befunde, nach einer festen Regel gereiht: zuerst, wo kein nächster Schritt 
 | --- | --- | --- |
 | 1 | Telefon: Nach dem Speichern des ersten Hosts verdeckt die Hostliste den Knopf „New session“ des leeren Rasters. Sichtbar bleiben eine zugeklappte Karte und drei Symbole ohne Wort. | §2 |
 | 2 | Ein Schlüssel, den der Host nicht annimmt (falscher Benutzer, öffentlicher Schlüssel fehlt in `authorized_keys`), meldet „The server does not offer this authentication method.“ | §3.4 |
-| 3 | Eine blockierte oder gescheiterte Host-Prüfung lässt nur „Back“. „Back“ trennt die Verbindung; wer tmux nachinstalliert hat, verbindet neu und bestätigt neu. | §4.1 |
+| 3 | Eine blockierte oder gescheiterte Host-Prüfung lässt nur „Back“. „Back“ trennt die Verbindung; wer tmux nachinstalliert hat, verbindet neu und gibt Passphrase oder Passwort neu ein. | §4.1 |
 | 4 | Ein Vorschlag, der nicht verbindet, bietet nur „Retry“, mit demselben falschen Benutzer oder Port. | §3.2 |
 | 5 | In der Vorschlagsliste stoßen Name und Adresszeile ineinander. | §3.1 |
 | 6 | Einstieg ohne Vorschläge: „Suggested hosts … / No hosts found“ über einem Formular ohne Titel; „Name“ ohne den Hinweis, dass es freiwillig ist; keine Beispiele; „Show tmux sessions“ ohne Erklärung; „Found in %USERPROFILE%\.ssh …“, obwohl nichts gefunden wurde. | §5 |
