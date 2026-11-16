@@ -129,7 +129,7 @@ function resolvePackageImport(specifier) {
       if (star < 0) continue;
       const prefix = key.slice(0, star), suffix = key.slice(star + 1);
       if (!wanted.startsWith(prefix) || !wanted.endsWith(suffix) || wanted.length < prefix.length + suffix.length) continue;
-      target = exportTarget(value)?.replace("*", wanted.slice(prefix.length, wanted.length - suffix.length)) ?? null;
+      target = exportTarget(value)?.replaceAll("*", () => wanted.slice(prefix.length, wanted.length - suffix.length)) ?? null;
       break;
     }
   } else target = wanted === "." ? manifestJson.module ?? manifestJson.main ?? "index.js" : wanted;

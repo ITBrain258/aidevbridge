@@ -53,7 +53,7 @@ const lines = text => text.replaceAll('\r\n', '\n').split('\n');
 // Befehl zu wenig.
 /** @param {string} line */
 const stripComment = line => {
-  const [, code, rest] = /^((?:(?:[^\s"'#]|"[^"]*"|'[^']*')#*|\s+)*)(.*)$/.exec(line) ?? ['', line, ''];
+  const [, code, rest] = /^((?:(?:[^\s"'#]|"[^"]*"|'[^']*')#*|\s)*)(.*)$/.exec(line) ?? ['', line, ''];
   return (rest.startsWith('#') ? code : line).trimEnd();
 };
 
