@@ -761,8 +761,8 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 22251,
-        "sha256": "431901d35b2e99ca3746255ba8a1243e2aa4733a954747cb8d39729bc60b2afc"
+        "bytes": 22686,
+        "sha256": "e0170c9285be520bd2591eecf50508972cf6f9317dc3d6fb8ed401b974552430"
       },
       {
         "path": "src/icons.ts",
@@ -856,8 +856,8 @@
       },
       {
         "path": "src/views/session-dialog.ts",
-        "bytes": 22858,
-        "sha256": "c8f948d1250ffb3c3fce989848f7039218fc77e0db196358bbf860d82edb16d2"
+        "bytes": 23335,
+        "sha256": "88c40341c25a6aba8454de55ed0e22158b380ac10ea3d0180736a8d9b9328a4d"
       },
       {
         "path": "src/views/settings-dialog.ts",
@@ -866,8 +866,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 131740,
-        "sha256": "7106d4165e19d1784f420129cd8dfe22f5b4a73bf532245cf03456a7b7c3ab0b"
+        "bytes": 132082,
+        "sha256": "82f8c0996172de7e20c4d7a3faa31b989466d2e39f4b97fe313f6961fe6ce47f"
       },
       {
         "path": "src/views/types.ts",
@@ -899,8 +899,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 22251,
-            "sha256": "431901d35b2e99ca3746255ba8a1243e2aa4733a954747cb8d39729bc60b2afc"
+            "bytes": 22686,
+            "sha256": "e0170c9285be520bd2591eecf50508972cf6f9317dc3d6fb8ed401b974552430"
           },
           {
             "path": "src/i18n/t.ts",
@@ -1089,8 +1089,8 @@
           },
           {
             "path": "src/views/session-dialog.ts",
-            "bytes": 22858,
-            "sha256": "c8f948d1250ffb3c3fce989848f7039218fc77e0db196358bbf860d82edb16d2"
+            "bytes": 23335,
+            "sha256": "88c40341c25a6aba8454de55ed0e22158b380ac10ea3d0180736a8d9b9328a4d"
           },
           {
             "path": "src/views/settings-about.ts",
@@ -1144,8 +1144,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 131740,
-            "sha256": "7106d4165e19d1784f420129cd8dfe22f5b4a73bf532245cf03456a7b7c3ab0b"
+            "bytes": 132082,
+            "sha256": "82f8c0996172de7e20c4d7a3faa31b989466d2e39f4b97fe313f6961fe6ce47f"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -1210,8 +1210,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 190200,
-            "sha256": "3af68c8434b1797485e5944f0748906effa0113e87166a4d1f4338e211e6fc3e"
+            "bytes": 196684,
+            "sha256": "076a5b2e7c6af99169c041ef1b2e36df26de6de2f8cceb135bb0968f5ae7708d"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1230,8 +1230,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 122549,
-            "sha256": "cfd7b2468028900ccfd5e7c31eb47cc7bde756281704d8eb6beb8dd9fe354a34"
+            "bytes": 128589,
+            "sha256": "9e518b7c86fbdd6fb667a3ae95d7dca3f18376b9e7523d90aea580a698a06663"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -1240,8 +1240,8 @@
           },
           {
             "path": "src-tauri/src/connection.rs",
-            "bytes": 25251,
-            "sha256": "3f73587b0891b09e01199d61d475a722d9e76ffc96b510999d1e302dff57ceb4"
+            "bytes": 25872,
+            "sha256": "99b7fa2c8b6dd42be7c7446aba175ba3f8ea7a33de066495df93bb3466699b4c"
           },
           {
             "path": "src-tauri/src/connection/host_key.rs",
@@ -1280,8 +1280,8 @@
           },
           {
             "path": "src-tauri/src/preflight.rs",
-            "bytes": 19149,
-            "sha256": "f2e228520cab676db74106c33a1e719607ec967b90e993a8dd63bf2dd838d910"
+            "bytes": 26716,
+            "sha256": "f4e5ba971806a9145c8c86536534bebd1a5e7459dddf459a05eaab8f4dd266fc"
           },
           {
             "path": "src-tauri/src/remote/command.rs",
@@ -1365,13 +1365,13 @@
           },
           {
             "path": "src-tauri/src/tmux/client.rs",
-            "bytes": 44482,
-            "sha256": "8e8e8b618802d807652c2b2c19d44a8b463f993358161bb720fb2ade2881d959"
+            "bytes": 44859,
+            "sha256": "f96ee46916e912207c591b6ed72694a30535758ea135ad3e7a9e22f172dc7c8e"
           },
           {
             "path": "src-tauri/src/tmux/client_observation_tests.rs",
-            "bytes": 22091,
-            "sha256": "d872b82365c7349b622135874098f6ebd8a93c383071bf4690ca4df5ed0325fb"
+            "bytes": 24144,
+            "sha256": "2e30fdc0c8019fbf415510671792cc6d54af743273dc2e91082d8d4dc604f6ed"
           },
           {
             "path": "src-tauri/src/tmux/history.rs",
@@ -1390,8 +1390,8 @@
           },
           {
             "path": "src-tauri/src/tmux/mod.rs",
-            "bytes": 942,
-            "sha256": "55b9fc5a850571cb8491a96b986f9b3ecf950e56488171233c98e2cca74751b8"
+            "bytes": 1036,
+            "sha256": "c75d6b298a23cc2be84debe1cc62833d44591399a2a6ee2ff96956dcdd4d8622"
           },
           {
             "path": "src-tauri/src/tmux/names.rs",
@@ -1400,8 +1400,8 @@
           },
           {
             "path": "src-tauri/src/tmux/session_binding.rs",
-            "bytes": 59535,
-            "sha256": "dfe033ad16bd8bb56926d21827d97a3065e8e063f8d666dfa558b0a440f4ceb2"
+            "bytes": 61222,
+            "sha256": "7eba11ea09d3ffe4d5ea19fd492b330e08875722a0a0507c2e389de6332c1847"
           },
           {
             "path": "src-tauri/src/tmux/socket.rs",
@@ -1420,8 +1420,8 @@
           },
           {
             "path": "src-tauri/src/transport/mod.rs",
-            "bytes": 2960,
-            "sha256": "a01df8ab5f707ae02e7a223ab09ecd57d64bbe1efc6bc5d64a7dc5d571c53130"
+            "bytes": 3271,
+            "sha256": "4ef08536532c05f87bd33829e503fa115676a2bef64d29857695e1c34eec5201"
           },
           {
             "path": "src-tauri/src/transport/operation_control.rs",

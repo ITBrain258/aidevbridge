@@ -4,7 +4,9 @@ use super::inventory::{
 use super::session_binding::{self, BindingQuery, BoundObservation, ParseError, UnverifiedReason};
 use super::socket::{OwnSocket, SocketKind, TmuxSocket};
 use crate::remote;
-use crate::transport::{ExecError, ExecPhase, ExecReason, ExecResult, Submission, Transport};
+use crate::transport::{
+    ExecError, ExecPhase, ExecReason, ExecResult, Submission, Transport, DEFAULT_EXEC_DEADLINE,
+};
 use std::collections::BTreeMap;
 use tokio::time::Instant;
 
@@ -59,6 +61,11 @@ printf 'S|%s/%s\n' "$r" "$1""#;
 /// Each underlying exec retains ownership of cancellation/cleanup. In the
 /// product the caller's CommandTransport also carries this same absolute
 /// deadline; a successful late result is never used to start another query.
+///
+/// One command never gets more than `DEFAULT_EXEC_DEADLINE`, however much of
+/// the absolute budget is left: the budget of a session walk covers 2N+3
+/// commands and is longer than one command may take, and a stalled link must
+/// still show after that one deadline, not after the whole budget.
 async fn observation_exec(
     transport: &dyn Transport,
     line: String,
@@ -72,7 +79,9 @@ async fn observation_exec(
             reason: ExecReason::Timeout,
             submission: Submission::NotSubmitted,
         })?;
-    let result = transport.exec_with_deadline(&line, remaining).await?;
+    let result = transport
+        .exec_with_deadline(&line, remaining.min(DEFAULT_EXEC_DEADLINE))
+        .await?;
     if Instant::now() >= deadline {
         return Err(ExecError {
             phase: ExecPhase::Read,

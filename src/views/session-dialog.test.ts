@@ -387,6 +387,25 @@ describe("mountSessionDialog", () => {
     expect(el.querySelector("[role=alert]")?.textContent ?? "").not.toBe("");
   });
 
+  // tmux nimmt ein `;` am Ende des Arguments als Trenner und startet die
+  // Session in einem anderen Ordner, ohne Fehler
+  // (docs/messungen/messung-2026-11-16-tmux-cwd-semikolon.md). Ein `;` im
+  // Namen ist woertlich und bleibt erlaubt.
+  it("lehnt einen Ordner ab, der auf ; endet, und nennt den Grund am Feld", async () => {
+    const { el, onSubmit } = await mountDialog();
+    cwdInput(el).value = "/srv/job;";
+    submit(el);
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(el.querySelector("[role=alert]")?.textContent).toBe(
+      "The working directory must not end with a semicolon (;): tmux would drop it and start the session somewhere else. Pick another directory, or rename this one on the host.",
+    );
+    expect(cwdInput(el).getAttribute("aria-invalid")).toBe("true");
+
+    cwdInput(el).value = "/srv/a;b";
+    submit(el);
+    expect(onSubmit).toHaveBeenCalledWith("/srv/a;b", null);
+  });
+
   it("lehnt eine Tilde ab", async () => {
     // `~` wird nirgends aufgeloest: die Argumente werden base64
     // transportiert (Spec §8.2), eine Tilde kaeme WOERTLICH auf der VM an

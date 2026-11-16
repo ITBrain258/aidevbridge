@@ -182,6 +182,7 @@
   "sidebar.sessions.unavailable": "Session list unavailable",
   "sidebar.sessions.stale": "Session list out of date",
   "sidebar.sessions.loadFailed": "Couldn't load the session list. Retry — your terminals keep working.",
+  "sidebar.sessions.shellOutput": "This host's shell prints text on every SSH command, so the session list can't be read. Remove that output from the shell startup file (for example ~/.bashrc or ~/.zshenv), then retry.",
   "sidebar.sessions.notLoaded": "Sessions have not been loaded yet.",
   "sidebar.sessions.notRefreshed": "Showing the last session list. It has not been refreshed for this connection.",
   "sidebar.sessions.empty": "No sessions",
@@ -232,6 +233,7 @@
   "sessionDialog.submit": "Create session",
   "sessionDialog.cancel": "Cancel",
   "sessionDialog.error.absolute": "The working directory must be an absolute path on the host, starting with / (for example /home/user/project). A leading ~ is not resolved here.",
+  "sessionDialog.error.endsInSemicolon": "The working directory must not end with a semicolon (;): tmux would drop it and start the session somewhere else. Pick another directory, or rename this one on the host.",
 
   "dirTree.hidden.label": "Show hidden entries",
   "dirTree.loading": "Loading…",

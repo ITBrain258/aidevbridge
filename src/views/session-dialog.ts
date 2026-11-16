@@ -403,6 +403,15 @@ export function mountSessionDialog(el: HTMLElement, opts: SessionDialogOptions):
       showFieldError(cwdInput, t("sessionDialog.error.absolute"));
       return;
     }
+    // tmux liest ein Argument, das auf `;` endet, als Trenner und startet die
+    // Session ohne Meldung in einem anderen Ordner
+    // (docs/messungen/messung-2026-11-16-tmux-cwd-semikolon.md). Das Backend
+    // lehnt denselben Fall ab (`start_directory_ends_in_separator`); hier
+    // steht die Meldung am Feld statt im allgemeinen Fehlerbanner.
+    if (value.endsWith(";")) {
+      showFieldError(cwdInput, t("sessionDialog.error.endsInSemicolon"));
+      return;
+    }
 
     opts.onSubmit(value, typedName === "" ? null : typedName);
   });

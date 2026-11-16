@@ -22,6 +22,16 @@ use tokio::time::Instant;
 
 pub(crate) const COMMAND_TIMEOUT: Duration = Duration::from_secs(15);
 
+/// Das Budget fuer einen ganzen Gang durch die Sessions eines Hosts
+/// (`TmuxClient::observe_sessions`): 2N+3 Befehle nacheinander fuer N
+/// Sessions. Mit 15 s fuer alle zusammen listete ein Host mit 20 Sessions ab
+/// rund 350 ms je Befehl nie mehr, bei jedem Laden gleich. Jeder einzelne
+/// Befehl behaelt seine 15 s (`transport::DEFAULT_EXEC_DEADLINE`), ein
+/// stehender Link faellt also weiter nach 15 s auf. Nur die Liste und die
+/// Pruefung nach einem gebundenen Kill gehen diesen Gang; Mutationen bleiben
+/// bei `COMMAND_TIMEOUT`.
+pub(crate) const SESSION_WALK_TIMEOUT: Duration = Duration::from_secs(60);
+
 /// Spec 2026-10-19 §8.1 (Schritt 3): hoechstens so viele Pumpaufgaben je Host,
 /// schliessende eingerechnet. Doppelt so viele wie PTY-Plaetze der
 /// Terminalverbindung (8, `owned_operations.rs`): Mit acht lebenden Kacheln

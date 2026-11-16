@@ -1,0 +1,42 @@
+version: tmux 3.6
+1 folder "job;", raw
+  -c argument : <W>/job;
+  exit        : 0 (created)
+  pane        : <W>/job
+  session     : <W>/job
+2 folder "job;", backslash before the last
+  -c argument : <W>/job\;
+  exit        : 0 (created)
+  pane        : <W>/job;
+  session     : <W>/job;
+3 folder "a;b", raw (semicolon inside)
+  -c argument : <W>/a;b
+  exit        : 0 (created)
+  pane        : <W>/a;b
+  session     : <W>/a;b
+4 folder "back\;", raw
+  -c argument : <W>/back\;
+  exit        : 0 (created)
+  pane        : <HOME>
+  session     : <W>/back;
+5 folder "back\;", backslash before the last
+  -c argument : <W>/back\\;
+  exit        : 0 (created)
+  pane        : <W>/back\;
+  session     : <W>/back\;
+6 folder "two;;", raw
+  -c argument : <W>/two;;
+  exit        : 0 (created)
+  pane        : <HOME>
+  session     : <W>/two;
+7 folder "two;;", backslash before the last
+  -c argument : <W>/two;\;
+  exit        : 0 (created)
+  pane        : <W>/two;;
+  session     : <W>/two;;
+8 folder "job", raw (control)
+  -c argument : <W>/job
+  exit        : 0 (created)
+  pane        : <W>/job
+  session     : <W>/job
+left over: 0

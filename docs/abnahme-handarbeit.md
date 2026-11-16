@@ -754,6 +754,182 @@ müsste.
 | 4 CI | | |
 | 5 Ablageorte unter macOS | | |
 
+## 12. Sammelliste: Erststart, Seitenleiste und Statusanzeige
+
+Alles, was aus den Specs vom 14.11. und 15.11. am Fenster offen ist, in einer
+Liste und nach Risiko geordnet: zuerst der neue Erststart (noch nie an einem
+echten Host gelaufen, und er fragt nach Schlüssel und Passwort), dann die
+Stellen aus 0.3.5, an denen ein Klick den falschen Host treffen könnte oder
+ein wartender Agent zu übersehen wäre, zuletzt Darstellung und Vorlesen.
+Geprüft ist das alles bisher nur im Headless-Browser gegen Beispieldaten
+([Stand](stand.md), Punkte 17 bis 19). Die Blöcke sind einzeln abnehmbar;
+wer wenig Zeit hat, nimmt A und B.
+
+Die älteren Abschnitte 1 bis 11 bleiben, wie sie sind. Block E nennt, was
+daraus und aus Punkt 7 des Stands weiter offen ist.
+
+**Vorbereitung**
+
+- Ein Build, der den Erststart trägt: 0.3.6 oder ein Debug-Bau von `main`
+  nach Pull Request #61.
+- Für Block A eine Instanz ohne gespeicherte Hosts: ein Debug-Bau mit eigenem
+  `AIDEVBRIDGE_SETTINGS_DIR` (siehe Voraussetzungen), dazu ein Testhost, der
+  noch nicht in `~/.ssh/known_hosts` steht. Steht er schon dort, entfällt die
+  Schlüsselabfrage; `ssh-keygen -R <host>` trägt ihn aus.
+- Für A2 ein Host ohne tmux, auf dem sich tmux nachinstallieren lässt, etwa
+  eine frische VM oder ein Container mit sshd. Nicht auf einem Host mit
+  laufenden Sessions tmux entfernen.
+- Für A3 ein Schlüssel, der auf dem Testhost nicht in `authorized_keys`
+  steht, einmal als Datei und einmal als einziger Schlüssel im ssh-agent.
+- Für A5 und A6 der Host aus A2 oder ein eigenes Testkonto, dessen
+  `~/.bashrc` sich gefahrlos ändern lässt. Nicht das Konto, unter dem
+  eigene Sessions laufen: Solange die Zeile steht, stört sie dort jede App
+  und auch `scp` und `rsync`.
+- Für Block B zwei verbundene Hosts mit entbehrlichen Sessions, darunter
+  mindestens sechs mit einem wartenden Agenten (oder nachgestellt, wie in
+  Abschnitt 8), und ein laufender Agent, der zwischen Arbeiten und Warten
+  wechselt.
+- Für Block C ein Android-Telefon und, wenn vorhanden, ein Tablet mit der
+  APK desselben Stands.
+- Für Block D die Windows-Skalierung 100, 125 und 150 %, ein
+  Windows-Kontrastdesign und die Sprachausgabe.
+
+**A. Erststart (neu, Spec vom 15.11. §10)**
+
+1. **Erster Start gegen einen echten Host.** Die Instanz ohne Hosts starten,
+   unter „Suggested hosts“ auf „Connect …“ drücken oder den Host über „Add a
+   host manually“ eintragen.
+   Erwartung: Die Schlüsselabfrage zeigt unter dem Fingerabdruck den Satz
+   „This is expected the first time you connect …“. Nach dem Annehmen steht
+   „Checking …“, dann „… is ready“ mit drei Zeilen (tmux, base64,
+   Socket-Ordner). „Save host“ legt den Host in die Seitenleiste, „New
+   session“ darunter öffnet die erste Session.
+2. **„Check again“ nach nachinstalliertem tmux.** Mit dem Host ohne tmux
+   verbinden, auf dem Host tmux installieren, dann „Check again“.
+   Erwartung: Vorher steht „… is not ready yet“, „Check again“ trägt den
+   Fokus, „Save host“ fehlt. Danach steht „… is ready“, ohne neue Verbindung
+   und ohne erneute Frage nach Passphrase oder Passwort.
+3. **Ein Schlüssel, den der Host nicht annimmt.** Einmal mit der
+   Schlüsseldatei, einmal mit dem ssh-agent verbinden.
+   Erwartung: mit der Datei „The server didn't accept this key for this user.
+   …“, mit dem Agenten „The server didn't accept any key from ssh-agent for
+   this user. …“. Keine der beiden Meldungen behauptet, der Host sei nicht
+   erreichbar.
+4. **„Edit details“ nach einem getippten Passwort.** An einem Vorschlag ohne
+   Schlüssel, den der Agent nicht anmelden kann, in das Feld „Or enter the
+   password for …“ ein falsches Passwort tippen, verbinden, dann an der
+   Fehlermeldung „Edit details“.
+   Erwartung: Das Formular trägt Host, Benutzer und Port des Vorschlags. Es
+   steht kein Passwort darin, und „Password“ ist nicht als Anmeldeart
+   gewählt.
+
+5. **Die Shell schreibt auf die Standardausgabe.** `echo hello` als erste
+   Zeile in die `~/.bashrc` des Testkontos setzen (`ssh <host> true` gibt
+   dann `hello` aus). Einmal mit der Instanz ohne Hosts verbinden, einmal an
+   einem schon gespeicherten Host „Reload sessions“. Dann die Zeile entfernen
+   und „Check again“ beziehungsweise „Retry“.
+   Erwartung: Die Host-Prüfung steht mit „Cannot continue: this host's shell
+   prints text before every SSH command (it starts with "hello") …“. In der
+   Seitenleiste steht statt der Liste „This host's shell prints text on every
+   SSH command …“. Nach dem Entfernen laufen beide durch.
+6. **Die Shell schreibt nur auf die Fehlerausgabe.** Dieselbe Stelle mit
+   `echo warn >&2`. Danach die Zeile entfernen.
+   Erwartung: Die Host-Prüfung läuft durch. Die Sessions stehen mit ihren
+   Namen in der Liste, ihr Status ist „Unknown“, und der Tooltip nennt die
+   Shell als Grund. Zu notieren, weil nur am Code gelesen und nie gemessen:
+   ob sich eine solche Session öffnen und beenden lässt und was „New
+   session“ meldet.
+
+**B. Der richtige Host und der wartende Agent (0.3.5, Specs vom 14.11.)**
+
+1. **Knopfleisten bei mehreren aufgeklappten Hosts.** Zwei Hosts aufklappen,
+   eine Kachel des einen fokussieren. Am anderen, ohne vorher eine Zeile
+   anzuklicken: „Reload sessions“, „New session“ und über `⋯` „Disconnect“.
+   Einmal mit der Maus, einmal mit der Tastatur (Tab in die Leiste,
+   Pfeiltasten).
+   Erwartung: Jede Aktion trifft den Host, an dessen Leiste sie ausgelöst
+   wurde. Der andere bleibt verbunden und behält seine Kacheln.
+2. **Status bei laufenden Agenten.** Einen Agenten arbeiten, fragen und
+   fertig werden lassen.
+   Erwartung: Der Wechsel zwischen Busy, Waiting und Idle ist in der Liste
+   und im Kachelkopf auf einen Blick zu sehen, auch in einer schmalen Kachel,
+   die nur das Zeichen zeigt.
+3. **Eingeklappte Seitenleiste.** Die Seitenleiste einklappen, dann einen
+   Host trennen und eine Session ins Warten bringen.
+   Erwartung: Beides erscheint in der Symbolleiste. Die Tooltips sind lesbar.
+4. **Wartet-Spur.** Die Seitenleiste auf 208, 240 und 320 px ziehen; mehr als
+   fünf Sessions warten lassen.
+   Erwartung: Der Kopf der Spur bleibt bei jeder Breite lesbar, ab der
+   sechsten wartenden Session steht „+n more“.
+5. **Grundtöne bei laufenden Kacheln.** Unter Appearance die vier neuen
+   Grundtöne durchschalten, während Kacheln Ausgabe zeigen und in einer
+   gescrollt und markiert ist.
+   Erwartung: Die Kacheln ändern ihre Größe nicht, Scrollposition und Auswahl
+   bleiben.
+
+**C. Telefon und Tablet**
+
+1. **Erste Session mit dem Finger.** Auf dem Telefon einen Host frisch
+   speichern und „New session“ unter ihm antippen.
+   Erwartung: Der Knopf ist mit dem Finger zu treffen, der Dialog öffnet für
+   diesen Host.
+2. **Tablet, nicht kompakt.** Die App auf dem Tablet im Querformat öffnen.
+   Erwartung: Die Symbolleiste steht neben der Touch-Leiste, keine überdeckt
+   die andere.
+
+**D. Darstellung und Vorlesen**
+
+1. **Skalierung 100, 125 und 150 %.**
+   Erwartung: Die Formen auf den Ecken der Kürzel in der Symbolleiste und die
+   Zeichen in den Pillen sind scharf; die Marke und die Zahl im Kopf der
+   Wartet-Spur stehen mittig.
+2. **Windows-Kontrastdesign.**
+   Erwartung: Der Host der fokussierten Kachel trägt eine gestrichelte
+   Kontur; Marke, Wartezähler, Pillen und der Kopf der Spur sind ohne ihre
+   Flächen lesbar. Bekannt und kein Befund: Gefüllte Zeichen fallen weg, in
+   der Zeile der fokussierten Kachel bleiben deshalb nur „Idle“ und „Unknown“
+   sichtbar.
+3. **Sprachausgabe.** Durch Erststart, Seitenleiste und Appearance gehen.
+   Erwartung: Vorgelesen werden der Satz der Schlüsselabfrage, die
+   Überschrift mit dem Ergebnis der Host-Prüfung, der Satz unter „Show tmux
+   sessions“, die Namen der Knöpfe in der Symbolleiste, die Schalter unter
+   Appearance, der Status in der Zeile der fokussierten Kachel und der Kopf
+   der Wartet-Spur.
+
+**E. Weiter offen aus den älteren Abschnitten**
+
+Kein neuer Schritt, nur der Zeiger, damit nichts doppelt steht:
+
+- Abschnitte 1 bis 8 am echten Fenster: echte Tastatur, Rechtsklick,
+  Skalierung am echten Bildschirm, Standby und Netzwechsel, die Farbthemen;
+  dazu die Abschnitte 10 und 11.
+- Aus dem UI-v2-Tor: WebGL unter 10 Minuten Flutung (Abschnitt 4), Tastatur
+  in Fingerabdruck- und Sessiondialog (Abschnitt 7). Die Dichte mit zwanzig
+  Sessions unter vier Hosts ist als Ziel aufgegeben (Stand, Punkt 18).
+- Der Zweitrechner: Installation nur nach README, Anmeldung mit `id_rsa`,
+  ed25519 und Passwort, eine von Hand gestartete Session mit Status,
+  Deinstallation.
+
+| Schritt | Ergebnis | Notiz |
+|---|---|---|
+| Datum, Build, Testhosts (tmux), Gerät | | |
+| A1 Erster Start | | |
+| A2 Check again | | |
+| A3 Abgelehnter Schlüssel | | |
+| A4 Edit details | | |
+| A5 Shell schreibt auf die Standardausgabe | | |
+| A6 Shell schreibt auf die Fehlerausgabe | | |
+| B1 Knopfleisten | | |
+| B2 Status bei laufenden Agenten | | |
+| B3 Eingeklappte Seitenleiste | | |
+| B4 Wartet-Spur | | |
+| B5 Grundtöne | | |
+| C1 Erste Session am Telefon | | |
+| C2 Tablet | | |
+| D1 Skalierung | | |
+| D2 Kontrastdesign | | |
+| D3 Sprachausgabe | | |
+
 ---
 
 ## Log

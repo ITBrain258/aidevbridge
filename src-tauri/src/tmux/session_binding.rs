@@ -151,7 +151,10 @@ impl BindingQuery {
         if !super::session_name_is_acceptable(name) {
             return Err(InvalidCreateArguments::Name);
         }
-        if !cwd.starts_with('/') || cwd.chars().any(char::is_control) {
+        if !cwd.starts_with('/')
+            || cwd.chars().any(char::is_control)
+            || start_directory_ends_in_separator(cwd)
+        {
             return Err(InvalidCreateArguments::Directory);
         }
         let cwd = escape_cwd_format(cwd);
@@ -216,6 +219,25 @@ fn escape_cwd_format(cwd: &str) -> String {
     escaped
 }
 
+/// Ein Startordner, der auf `;` endet. tmux liest ein Argument mit `;` am
+/// Ende als Befehlstrenner und nimmt das Zeichen weg: `-c /srv/job;` startete
+/// still in `/srv/job`, bei `two;;` und `back\;` die Pane im Home-Ordner
+/// (gemessen auf 3.3a und 3.6,
+/// docs/messungen/messung-2026-11-16-tmux-cwd-semikolon.md). Ein `;` mitten
+/// im Namen stoert nicht. Die App lehnt einen solchen Ordner ab, statt im
+/// falschen zu starten. Ein `\` vor dem letzten `;` ergab auf beiden
+/// Versionen den Ordner woertlich; auf 3.0a und 3.4 ist das ungemessen,
+/// deshalb schreibt die App es nicht.
+pub fn start_directory_ends_in_separator(cwd: &str) -> bool {
+    cwd.ends_with(';')
+}
+
+/// Die Meldung zu [`start_directory_ends_in_separator`], wie sie der Nutzer
+/// im Dialog "New session" liest.
+pub const START_DIRECTORY_SEPARATOR_RULE: &str =
+    "The working directory must not end with a semicolon (;): tmux would drop it and start \
+     the session somewhere else. Pick another directory, or rename this one on the host.";
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
 pub enum InvalidGuardBinding {
     #[error("guard requires a nonzero server PID and start time")]
@@ -235,7 +257,9 @@ fn validate_guard_server(server: ServerIdentity) -> Result<(), InvalidGuardBindi
 pub enum InvalidCreateArguments {
     #[error("invalid creation name")]
     Name,
-    #[error("creation directory must be absolute and contain no control characters")]
+    #[error(
+        "creation directory must be absolute, contain no control characters and not end in ';'"
+    )]
     Directory,
 }
 
@@ -713,7 +737,15 @@ mod tests {
                     Err(InvalidCreateArguments::Name)
                 );
             }
-            for cwd in ["relative", "", "/tmp/bad\npath", "/tmp/bad\0path"] {
+            for cwd in [
+                "relative",
+                "",
+                "/tmp/bad\npath",
+                "/tmp/bad\0path",
+                "/srv/job;",
+                "/srv/two;;",
+                "/srv/back\\;",
+            ] {
                 assert_eq!(
                     q.create_command("dev", cwd),
                     Err(InvalidCreateArguments::Directory)
@@ -727,6 +759,11 @@ mod tests {
     /// das bis auf die Faelle mit `##[`
     /// (docs/messungen/messung-2026-10-26-tmux-cwd-format.md). Ein Ordner
     /// ohne `#` geht unveraendert durch.
+    ///
+    /// Nicht aus jener Messung stammen `F3###[x]` und `semi;colon`: Die Form
+    /// `###[` und ein `;` im Namen prueft der Live-Test
+    /// `a_hash_in_the_start_directory_stays_literal` an einem echten tmux
+    /// (am 16.11. auf 3.3a und 3.6, in der CI auf deren Version).
     #[test]
     fn create_command_keeps_hash_in_the_start_directory_literal() {
         let q = BindingQuery::new(query());
@@ -742,8 +779,10 @@ mod tests {
             ("/#/x#", "/##/x##"),
             ("/srv/E#[x]", "/srv/E#[x]"),
             ("/srv/F##[x]", "/srv/F##[x]"),
+            ("/srv/F3###[x]", "/srv/F3###[x]"),
             ("/srv/G#(id)#[y]", "/srv/G##(id)#[y]"),
             ("/srv/H#a##[b#", "/srv/H##a##[b##"),
+            ("/srv/semi;colon", "/srv/semi;colon"),
             ("/srv/plain", "/srv/plain"),
         ] {
             assert_eq!(

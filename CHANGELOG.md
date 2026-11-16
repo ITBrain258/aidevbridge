@@ -14,6 +14,7 @@ dem Namen agentbridge.
 
 ### Changed
 
+- Host-Pruefung und Sessionliste: Schreibt die Shell des Hosts vor jedem SSH-Befehl Text (etwa ein `echo` am Anfang der `~/.bashrc` oder in `~/.zshenv`), sagt die App das und nennt die erste Zeile. Steht der Text auf der Standardausgabe, haelt die Host-Pruefung an, und die Sessionliste wird nicht gezeigt. Ein solcher Host zeigte bisher eine Liste, in der die Zeilen der Shell als Sessions standen, und je nach Text nannte die Pruefung tmux zu alt; jetzt zeigt er keine Liste, bis die Ausgabe entfernt ist. Stehen nur Meldungen auf der Fehlerausgabe, bleibt die Liste nach Namen; der Status "Unknown" nennt dann die Shell als Grund statt einer ungemessenen tmux-Version, und der Standard-Socket wird nicht gelesen.
 - Anmeldung: Nimmt der Host einen Schluessel nicht an, sagt die Meldung das und nennt, was zu pruefen ist: den Benutzernamen und den oeffentlichen Schluessel in `~/.ssh/authorized_keys`. Fuer ssh-agent und fuer ein Passwort, das der Server fuer das Konto nicht anbietet, gibt es je einen eigenen Satz. Bisher stand in allen drei Faellen "The server does not offer this authentication method.", auch wenn nur der Benutzername falsch war.
 - Erststart: Die Host-Pruefung nennt ihr Ergebnis in der Ueberschrift ("build-box is ready" / "is not ready yet"), die Zeilen stehen in Worten ("tmux 3.0 or newer — found 3.4") mit tmux zuerst, und der Knopf danach heisst "Save host" statt "Continue". Die Zeile "Checking the host…" bleibt nach der Pruefung nicht mehr stehen. "What gets checked" sagt, wozu jede Voraussetzung da ist.
 - Erststart: Ohne Vorschlaege heisst der Einstieg "Add your first host" und sagt in einem Satz, was ein Host ist; vorher stand "Suggested hosts … No hosts found" ueber einem Formular ohne Titel. Im Formular heisst das Feld "Name (optional)", "Hostname or IP" und "User" zeigen ein Beispiel, unter "Show tmux sessions" steht, was der Schalter tut, und ohne gefundenen Schluessel sagt der Hinweis das, statt "Found in …" ueber einer leeren Liste zu zeigen.
@@ -22,6 +23,8 @@ dem Namen agentbridge.
 
 ### Fixed
 
+- Neue Session: Ein Arbeitsordner, der auf `;` endet, wird abgelehnt, mit dem Grund am Feld. tmux liest ein solches Argument als Trenner und startete die Session ohne Meldung in einem anderen Ordner (gemessen auf tmux 3.3a und 3.6). Ein `;` im Namen bleibt erlaubt.
+- Sessionliste: Ein Host mit vielen Sessions an einer langsamen Verbindung listete nie. Die Liste fragt den Host je Session zweimal, einen Befehl nach dem anderen, und hatte dafuer zusammen 15 Sekunden; bei 20 Sessions reichte das ab rund 350 ms je Befehl nicht, bei jedem Laden gleich. Jetzt hat jeder Befehl 15 Sekunden und die ganze Liste 60. Dasselbe gilt fuer die Pruefung nach dem Beenden einer Session.
 - Erststart: In der Liste der Vorschlaege stiessen der Name und die Adresszeile darunter ineinander. Der Fehler stand seit 0.2.0 in der Liste, auch im Dialog "Add host".
 - Erststart: Die Meldung einer gescheiterten Host-Pruefung endete auf zwei Punkte und stand ueber einer leeren Ueberschrift. Sie steht jetzt unter der Ueberschrift "Host check", ueber den Knoepfen.
 

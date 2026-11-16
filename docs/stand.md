@@ -14,6 +14,10 @@ Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
 Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
 
+Auf `main` liegt seit dem 16.11. unveröffentlicht: der überarbeitete
+Erststart (PR #61) und die Korrekturen aus den Entscheidungen vom 16.11.
+(PR #62; CHANGELOG `[Unreleased]`).
+
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.);
 reine Doku darf seit dem 15.11. direkt hinein (Entscheidungen vom 15.11.).
 Frühere Releases und ihre Einzelheiten stehen im CHANGELOG, frühere Prüfungen
@@ -164,6 +168,46 @@ Build-Provenienz an ihnen hängen.
 - **Upstream:** vorerst kein Beitrag bei russh (Punkt 12). Die Erlaubnis aus
   U4 vom 05.11. bleibt.
 
+## Entscheidungen vom 16.11.2026
+
+Der Maintainer hat die offenen Entscheidungen dieser Runde am 16.11. an
+neutrale Bewertungen abgegeben: je eine unabhängige Prüfung, die nur las, mit
+dem Maßstab „so einfach wie möglich, zugleich zuverlässig und
+zukunftssicher“. Was hier steht, sind deren Urteile, keine Bestätigungen des
+Maintainers.
+
+- **PR #61 (Erststart):** gemergt als `1fdcc20`, nach zwei Korrekturen aus
+  der Bewertung. „Edit details“ trug ein im Folgefeld getipptes Passwort samt
+  Anmeldeart ins Formular. Und Anleitung, CHANGELOG und Spec nannten als
+  Gewinn von „Check again“ eine zweite Fingerabdruckfrage, die es nicht gibt:
+  Ein angenommener Schlüssel steht schon in `known_hosts`. Was ohne Eile
+  nachkommt, steht unter Punkt 19.
+- **Vorschläge aus §9 der Erststart-Spec:** Die Tastenleiste auf dem Telefon
+  ohne offenes Terminal auszublenden kommt später, als eigener Android-PR
+  vor dem geschlossenen Test. „☰ Sessions“ ohne Host wird nicht gebaut wie
+  vorgeschlagen; später kann der Schalter die Schublade öffnen. Kein Hinweis
+  in der ersten Shell, keine Erststart-Szene in `scripts/readme-images/`.
+- **CodeQL:** Von den 29 Funden sind 27 auf GitHub mit Begründung
+  geschlossen (15 in archivierten Messwerkzeugen unter
+  `messungen/fixtures/`, 12 in `scripts/`) und 2 behoben
+  (`release-workflows.test.mjs`, `release-license-inventory-frontend.mjs`);
+  keiner lag im Produktcode. Es bleibt beim Default Setup, ohne
+  ausgeschlossene Pfade; `vendor/russh` bleibt bewusst drin. Rust braucht
+  einen Klick des Maintainers (Punkt 20). `languages` geht nicht wieder an
+  die REST-Schnittstelle des Default Setups: Sie kennt Rust nicht. Jedes neue
+  JS-Werkzeug unter `messungen/fixtures/` löst dieselben Funde wieder aus und
+  braucht dieselbe Begründung. Für neue Rust-Funde gilt: in `src-tauri/src`
+  beheben; in Tests als „used in tests“ schließen; in `vendor/russh` nur an
+  den Zeilen des eigenen Patches beheben, sonst upstream melden oder als
+  Fehlalarm schließen.
+- **Startordner:** Die `#`-Regel bleibt (Bewertung vom 15.11.). Ein Ordner,
+  der auf `;` endet, wird abgelehnt (Punkt 10).
+- **Drei bekannte Fehler:** Die Startausgabe der Shell wird erkannt und
+  benannt, nichts wird herausgefiltert. Die Sessionliste hat 60 s für den
+  ganzen Gang und 15 s je Befehl; der gemeinsame Aufruf bleibt später. Der
+  Start mit Kacheln mehrerer Hosts bleibt, wie er ist, und steht in den
+  Grenzen (Punkte 8 und 15).
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -183,6 +227,17 @@ Build-Provenienz an ihnen hängen.
 | Abhängigkeiten | zuletzt am 05.11. (PR #24 bis #27, #32, #34) und am 06.11. das Ziel-SDK 37 (PR #37); die offenen Stufen unter Punkt 12 |
 
 ## Letzte Prüfung
+
+Am 16.11.2026 nach 0.3.5: drei neutrale Bewertungen, die nur lasen (PR #61;
+die 29 CodeQL-Funde und das Setup; die drei bekannten Fehler aus den Punkten
+8 und 15), danach PR #61 mit zwei Korrekturen und PR #62 (Entscheidungen vom
+16.11.). Lokal für PR #62: Clippy, 727 Rust-Bibliothekstests, mit den
+Integrationstests 803, 4968 Vitest-Tests, 251 Skripttests und
+`npm run build`. An den beiden Test-VMs, nur mit eigenen Testsockets: der
+Live-Test des Startordners auf tmux 3.3a und 3.6 und die Messung zum `;`.
+Nicht geprüft: das echte Fenster; die Erkennung der Startausgabe und die
+neue Frist an einem echten Host (beides nur mit Skript-Transporten
+nachgestellt); ob der macOS-Test jetzt hält; CodeQL für Rust.
 
 Am 14.11.2026 nach 0.3.4, vor PR #59 (CHANGELOG `[0.3.5]`): eine Durchsicht
 des Branches mit den beiden Gestaltungsrunden, die nur las. Neun Funde. Fünf
@@ -318,7 +373,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    - die [Handabnahme](abnahme-handarbeit.md) am Windows-Fenster: echte
      Tastatur, Rechtsklick, Skalierung 100 und 150 % am echten Bildschirm,
      Standby und Netzwechsel, Bildschirmleser und die Farbthemen (42 seit
-     der Spec vom 14.11.); dazu §10 und §11.
+     der Spec vom 14.11.); dazu §10 und §11. §12 bündelt seit dem 16.11.,
+     was aus den Punkten 17 bis 19 am Fenster offen ist, nach Risiko
+     geordnet, dazu zwei Schritte zur Startausgabe der Shell (Punkt 15).
    - die offenen Punkte des UI-v2-Tors
      ([Spec](specs/2026-09-05-ui-v2-design.md) §17): Dichte mit
      20 Sessions unter 4 Hosts, WebGL unter 10 Minuten Flutung, Skalierung
@@ -339,7 +396,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    2 s. In der laufenden App nicht nachgestellt. Bekannte Fehler:
    - Beim Start mit Kacheln mehrerer Hosts ändert ein Host, der erst nach der
      Frist von 5 s gelistet wird, die Größe der übrigen Kacheln; Codex
-     verliert dabei seinen Verlauf.
+     verliert dabei seinen Verlauf. Das bleibt so (Bewertung vom 16.11.):
+     Eine längere Frist ließe die Kacheln erreichbarer Hosts warten, sobald
+     einer nicht antwortet, und einen später oder von Hand verbundenen Host
+     deckt sie ohnehin nicht. Es steht seitdem in
+     [Grenzen](guide/limits.md) unter „Resizing“. Eine echte Lösung hielte
+     die Plätze frei (Platzhalter-Kacheln) und braucht eine eigene Spec.
    - Acht Kacheln, die gleichzeitig ungebremst ausgeben, machen die
      Oberfläche zäh (Statuslatenz p95 5,0 s, Ereignisschleife p95 215 ms);
      der Renderer ist der Engpass. Ob ein binärer Ausgabekanal oder weniger
@@ -373,21 +435,20 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       3.0a startet nur `##[` im Home-Ordner, und in keiner maskierten Form
       wurde etwas ausgeführt. Alles zu verdoppeln wäre auf den aktuellen
       Versionen schlechter, `##[` abzulehnen sperrte dort Funktionierendes.
-      Offen daraus:
-      - Die Anleitungen nennen die Grenze nicht; ein Satz gehört nach
-        [Grenzen](guide/limits.md).
+      Seit dem 16.11. nennt [Grenzen](guide/limits.md) die Grenze, und der
+      Live-Test `a_hash_in_the_start_directory_stays_literal` legt über die
+      Rust-Funktion Ordner mit `##[`, `###[` und `a;b` an (bestanden auf
+      tmux 3.3a und 3.6; die CI fährt ihn auf 3.4). Offen daraus:
       - „Ab 3.3a“ ist nur belegt als „fehlt in 3.0a, vorhanden in 3.3a“; 3.1
         bis 3.3 sind ungemessen.
-      - Gemessen wurde eine Nachbildung der Regel in `sed` an acht Namen,
-        nicht die Rust-Funktion; `###[` ist ungemessen, und Live-Test und
-        Handabnahme haben keinen Fall mit `[`.
-    - **Startordner mit `;` am Ende:** tmux liest ein solches Element als
-      Trenner; die Session startet im Ordner ohne das `;`. Einschleusen lässt
-      sich nichts. Möglicher Weg: `\;` im Argument von `-c`, nach einer
-      Messung auf tmux 3.0a, 3.3a, 3.4 und 3.6. Die Bewertung vom 15.11.
-      schlägt als kleinsten Schritt vor, einen solchen Startordner beim
-      Anlegen mit einer Meldung abzulehnen; das braucht keine Messung. Für
-      das Verhalten bei `;` gibt es bisher keine Rohdaten und keinen Test.
+      - Die Handabnahme hat keinen Fall mit `[`.
+    - **Startordner mit `;` am Ende:** erledigt am 16.11. Dialog und
+      Backend lehnen ihn ab und nennen den Grund; ein `;` im Namen bleibt
+      erlaubt. [Gemessen](messungen/messung-2026-11-16-tmux-cwd-semikolon.md)
+      auf tmux 3.3a und 3.6: Roh startet die Session im Ordner ohne das `;`
+      oder im Home-Ordner, ohne Fehler. `\;` im Argument von `-c` ergab dort
+      den Ordner wörtlich; gebaut ist das nicht, weil 3.0a und 3.4 ungemessen
+      sind.
 11. **Android:** Die Schritte des Maintainers in der Play Console, ohne Eile:
     der geschlossene Test mit 12 Testern über 14 Tage (dafür fehlen noch
     Tester, das dauert voraussichtlich noch einige Monate; bis dahin ist die
@@ -543,16 +604,34 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Rückfragen erscheinen sofort mit aktiven Knöpfen (ein Doppelklick
       bestätigt die nächste ungelesen), und die Entscheidung liest
       `known_hosts` vom Beginn des Aufbaus, nicht erneut vor dem Anhängen.
-    - **Sessionliste:** `observe_sessions` braucht 2N+3 Befehle nacheinander
-      unter einer Frist von 15 s (`tmux/client.rs`); bei 20 Sessions und
-      100 ms Laufzeit je Richtung reicht sie nicht. Ein gemeinsamer Aufruf
-      ändert die gemessene Folge und braucht eine Messung auf tmux 3.0, 3.3a,
-      3.4 und 3.6.
+    - **Sessionliste:** `observe_sessions` braucht 2N+3 Befehle
+      nacheinander. Seit dem 16.11. hat der ganze Gang 60 s und jeder Befehl
+      15 s (`SESSION_WALK_TIMEOUT`, `DEFAULT_EXEC_DEADLINE`; Nachtrag im
+      Absatz „Deadline“ der
+      [MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md)). Mit 15 s
+      für alles listete ein Host mit 20 Sessions ab rund 350 ms je Befehl
+      nie. Das ist mit einem Skript-Transport nachgestellt und an keinem Host
+      gemessen. Vor dem Release gehört dazu: eine Liste mit 20 oder mehr
+      Sessions über eine verzögerte Verbindung, und ein tmux-Server, der
+      mitten im Laden endet (Fehler nach höchstens 15 s). Während die Liste
+      lädt, pausiert der Poll dieses Hosts. Offen bleibt der gemeinsame
+      Aufruf: Er ändert die gemessene Folge und braucht eine Messung auf
+      tmux 3.0, 3.3a, 3.4 und 3.6.
+    - **Startausgabe der Shell:** Seit dem 16.11. erkennt die App eine
+      Startdatei, die vor jedem SSH-Befehl schreibt, und nennt sie. Text auf
+      der Standardausgabe hält die Host-Prüfung an und lässt keine Liste zu;
+      Meldungen nur auf der Fehlerausgabe lassen die Liste nach Namen, mit
+      dem Grund an jeder Zeile (`VersionAnswer` in `commands.rs`,
+      [Grenzen](guide/limits.md)). Herausgefiltert wird nichts. An keinem
+      Host gemessen; die Handabnahme hat dafür zwei Schritte (§12, A5 und
+      A6). Nur am Code gelesen: Mit Meldungen auf der Fehlerausgabe meldet
+      „New session“ einen unbestätigten Ausgang, obwohl die Session
+      entsteht; ein Host ohne Session und das Beenden der letzten melden
+      einen Fehler; Öffnen und Beenden nach Namen gehen.
     - **Backend, klein:** Zweite Verbindung und Reparatur lösen den Hostnamen
-      neu auf (Round-Robin-DNS kann sie auf zwei Rechner führen); eine Zeile,
-      die `.bashrc` oder `.zshenv` ohne Terminal ausgibt, bricht die
-      strenge Rahmung der tmux-Abfragen; `close_terminal` kann sein
-      `open_terminal` überholen (Verdacht, enges Fenster). Erledigt mit
+      neu auf (Round-Robin-DNS kann sie auf zwei Rechner führen);
+      `close_terminal` kann sein `open_terminal` überholen (Verdacht, enges
+      Fenster). Erledigt mit
       0.3.3: die vergiftete Sperre der Register und die Aufnahme von Auflösung
       und Schlüsselvorbereitung, die jetzt bis zu 5 s auf einen Platz wartet.
       Ein `[profile.release]` fehlt weiter: Ein Überlauf ist nicht
@@ -599,7 +678,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       mitten in einer Änderung stimmig bliebe.
     - **CI:** `tests/socket_abort_probe.rs` scheiterte unter macOS dreimal
       (Lauf 40909348883 zweimal, 42359933034 einmal); jede Wiederholung
-      bestand. Nicht untersucht.
+      bestand. Untersucht am 16.11.: Der Abbruch war jedes Mal richtig
+      (`ConnectionAborted`), falsch war der Beweis des Tests für
+      „gesättigt“. macOS vergrößert die Loopback-Puffer nach dem ersten
+      abgewiesenen Schreiben und nimmt danach weiter an. Der Test wartet
+      jetzt auf ein ganzes Fenster ohne weiteres Byte. Ob das reicht, zeigen
+      erst mehrere Läufe der CI.
     - **Aufbau und Tests:** Die Tests aus `settings.rs` können ohne Änderung
       nach `settings/tests.rs`. Batch 9 (U3) wie geplant, nicht erweitert,
       und erst direkt vor der nächsten Arbeit an Hosts oder Inventar. Vom
@@ -651,7 +735,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Nicht gebaut (§7 der Spec):** andere Wörter („Needs input“,
       „Working“), Bewegung an „Busy“ (UI v2 §14), ein Streifen an wartenden
       Kacheln, eine Übersichtszeile, Filter nach Status.
-19. **Erststart (Spec vom 15.11.):** gebaut, noch nicht veröffentlicht. Der
+19. **Erststart (Spec vom 15.11.):** gebaut und seit dem 16.11. auf `main`
+    (PR #61, `1fdcc20`), noch nicht veröffentlicht. Der
     Weg eines neuen Nutzers bis zur ersten Session wurde im Headless-Browser
     gegen Beispieldaten nachgestellt, vorher und nachher, in Desktop- und
     Telefongröße; am Fenster und an einem echten Host ist nichts davon
@@ -661,10 +746,32 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       tmux, ein Schlüssel, den der Host nicht annimmt, auch am ssh-agent,
       „New session“ unter dem frisch gespeicherten Host auf Telefon oder
       Tablet, Bildschirmleser).
-    - **Vorschläge, nicht gebaut (§9 der Spec):** die Tastenleiste auf dem
-      Telefon ausblenden, solange kein Terminal offen ist (ändert
-      Android-Spec §5.2); „☰ Sessions“ ohne Host; ein Hinweis in der ersten
-      Shell; eine Erststart-Szene in `scripts/readme-images/`.
+    - **Vorschläge aus §9 der Spec:** entschieden (Entscheidungen vom
+      16.11.). Offen bleibt daraus nur die Tastenleiste auf dem Telefon, als
+      eigener Android-PR vor dem geschlossenen Test (ändert Android-Spec
+      §5.2).
+    - **Nachzügler aus der Bewertung vom 16.11., ohne Eile:** Die tmux-Zeile
+      der Host-Prüfung trägt auch bei einer zu alten Version einen Haken
+      (ein `tmux_ok` im DTO behöbe es). „Check again“ auf einer toten
+      Verbindung sollte nur „Back“ anbieten. `MethodNotOffered` vergleicht
+      Zeichenketten statt eines Enums (`ssh/auth.rs`). Das Passwortfeld
+      erscheint nach jedem `auth_rejected` des Agenten, auch bei
+      `MultiFactorRequired` und `SigningFailed`. Das Store-Bild 3
+      (`phones`) zeigt den alten Erststart und wird beim nächsten Release
+      neu erzeugt.
+20. **CodeQL für Rust:** ein Klick des Maintainers, die REST-Schnittstelle
+    kann es nicht: Settings → Advanced Security → Code scanning → CodeQL
+    analysis → „⋯“ → View CodeQL configuration → Edit → Rust ankreuzen →
+    Save. Die Query-Suite bleibt auf Default, Python und Java/Kotlin bleiben
+    aus. Danach muss
+    `gh api "repos/ITBrain258/aidevbridge/code-scanning/analyses?ref=refs/heads/main"`
+    einen Eintrag der Kategorie `/language:rust` mit leerem `error` zeigen.
+    Der erste Lauf bringt einen unbewerteten Stapel Funde; die Regeln dafür
+    stehen bei den Entscheidungen vom 16.11. Bietet der Dialog Rust nicht an
+    oder erscheint keine solche Analyse, ist der Ausweg ein eigener Workflow
+    für alle drei Sprachen (`build-mode: none`), nachdem das Default Setup
+    abgeschaltet ist; beides zugleich nimmt GitHub nicht an. Ob der Dialog
+    Rust anbietet, ist nur aus GitHubs Doku bekannt.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

@@ -3015,6 +3015,28 @@ async fn create_session_rejects_a_relative_cwd_with_an_error_not_a_panic() {
     );
 }
 
+/// Ein Startordner mit `;` am Ende scheitert mit einer Meldung, die den
+/// Grund nennt, ebenfalls vor dem Host-Lookup und damit vor `prepare_server`:
+/// tmux startete sonst still in einem anderen Ordner
+/// (docs/messungen/messung-2026-11-16-tmux-cwd-semikolon.md). Ein `;` mitten
+/// im Namen kommt durch die Pruefung und scheitert erst am fehlenden Host.
+#[tokio::test]
+async fn create_session_rejects_a_start_folder_that_ends_in_a_semicolon() {
+    let state = Arc::new(AppState::default());
+    for cwd in ["/srv/job;", "/srv/two;;", "/srv/back\\;"] {
+        let r = create_session_impl(&state, "no-such-host".into(), cwd.into(), None).await;
+        assert!(
+            matches!(r, Err(ref e) if e.message == crate::tmux::START_DIRECTORY_SEPARATOR_RULE),
+            "{cwd:?}: {r:?}"
+        );
+    }
+    let r = create_session_impl(&state, "no-such-host".into(), "/srv/a;b".into(), None).await;
+    assert!(
+        matches!(r, Err(ref e) if !e.message.contains("semicolon")),
+        "ein Semikolon mitten im Namen ist erlaubt: {r:?}"
+    );
+}
+
 /// Pinnt die bewusste Ausnahme in `list_directories_impl`: der LEERE Pfad
 /// ist der einzige Weg des Frontends zum Heimatverzeichnis (Spec §3.3,
 /// `directory-tree.ts` Zeile 687) und muss deshalb die Pruefung
@@ -3389,4 +3411,146 @@ async fn commands_keep_working_after_a_panic_poisoned_the_registries() {
     assert!(!registry(&state.hosts).contains_key(&id));
     let again = begin_connect_impl(&state).expect("a new reservation after the panic");
     assert!(registry(&state.hosts).contains_key(&again));
+}
+
+fn version_answer(stdout: &str, stderr: &str, code: u32) -> VersionAnswer {
+    VersionAnswer::from_response(&ExecResult {
+        stdout: stdout.into(),
+        stderr: stderr.into(),
+        code,
+        utf8_valid: true,
+    })
+}
+
+/// Die Entscheidung der Sessionliste ueber die Antwort auf "tmux -V". Eine
+/// Startdatei der Shell, die vor jedem SSH-Befehl schreibt, sah bisher aus
+/// wie eine ungemessene tmux-Version, und ihre Zeilen standen als Sessions
+/// in der Liste.
+#[test]
+fn the_version_answer_tells_shell_text_from_an_unmeasured_tmux() {
+    let stty = "stty: 'standard input': Inappropriate ioctl for device\n";
+    for (stdout, stderr, code, expected) in [
+        // Die genaue Antwort einer gemessenen Version: die strenge Liste.
+        (
+            "tmux 3.4\n",
+            "",
+            0,
+            VersionAnswer::Measured(MeasuredVersion::V3_4),
+        ),
+        // Eine Zeile "tmux …" einer ungemessenen Version: Namen, wie bisher.
+        ("tmux 3.5a\n", "", 0, VersionAnswer::Unmeasured),
+        ("tmux next-3.7\n", "", 0, VersionAnswer::Unmeasured),
+        // Dieselbe Zeile, daneben Text auf der Fehlerausgabe: Namen mit Grund,
+        // auch wenn die Version selbst gemessen waere.
+        (
+            "tmux 3.4\n",
+            stty,
+            0,
+            VersionAnswer::ShellMessages(
+                "stty: 'standard input': Inappropriate ioctl for device".into(),
+            ),
+        ),
+        (
+            "tmux 3.5a\n",
+            "warn\nmore\n",
+            0,
+            VersionAnswer::ShellMessages("warn".into()),
+        ),
+        // Anderes auf der Standardausgabe: keine Liste, genannt wird die
+        // erste fremde Zeile.
+        (
+            "Welcome to build-box!\ntmux 3.4\n",
+            "",
+            0,
+            VersionAnswer::ShellOutput("Welcome to build-box!".into()),
+        ),
+        (
+            "tmux 3.4\nbye\n",
+            "",
+            0,
+            VersionAnswer::ShellOutput("bye".into()),
+        ),
+        (
+            "Welcome\n",
+            stty,
+            0,
+            VersionAnswer::ShellOutput("Welcome".into()),
+        ),
+        ("\u{7}\n", "", 0, VersionAnswer::ShellOutput(String::new())),
+        // Leere Standardausgabe oder ein gescheiterter Befehl: wie bisher.
+        ("", "", 0, VersionAnswer::Unmeasured),
+        ("", stty, 0, VersionAnswer::Unmeasured),
+        (
+            "Welcome\n",
+            "sh: 1: tmux: not found\n",
+            127,
+            VersionAnswer::Unmeasured,
+        ),
+    ] {
+        assert_eq!(
+            version_answer(stdout, stderr, code),
+            expected,
+            "{stdout:?} {stderr:?} {code}"
+        );
+    }
+}
+
+#[test]
+fn the_shell_output_error_names_the_line_the_remedy_and_the_raw_text() {
+    assert_eq!(
+        shell_output_message("Welcome to build-box!", None),
+        "The host's shell prints text on every SSH command (it starts with \"Welcome to \
+         build-box!\"), so the app cannot read exact answers. Remove that output from the shell \
+         startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive \
+         shells."
+    );
+    let raw = anyhow::anyhow!("tmux list-sessions failed (exit 1): stty: x");
+    assert_eq!(
+        shell_output_message("", Some(&raw)),
+        "The host's shell prints text on every SSH command, so the app cannot read exact \
+         answers. Remove that output from the shell startup file, for example ~/.bashrc or \
+         ~/.zshenv, or print it only in interactive shells. (tmux list-sessions failed (exit 1): \
+         stty: x)"
+    );
+}
+
+/// Namen ohne Bindung gibt es aus zwei Gruenden; jede Zeile nennt ihren.
+#[test]
+fn a_name_list_says_whether_the_tmux_version_or_the_shell_is_the_reason() {
+    let rows = |shell_messages: Option<&str>| {
+        socket_sessions(
+            Ok(SocketListing::Names {
+                names: vec!["work".into(), "api".into()],
+                shell_messages: shell_messages.map(str::to_string),
+            }),
+            &[],
+            &Default::default(),
+        )
+        .sessions
+    };
+    let shell = rows(Some("stty: no terminal"));
+    assert_eq!(
+        shell
+            .iter()
+            .map(|row| row.display_name.as_str())
+            .collect::<Vec<_>>(),
+        ["work", "api"]
+    );
+    for row in &shell {
+        assert_eq!(row.unverified.as_deref(), Some("shell_output"));
+        assert_eq!(row.status, "unknown");
+        assert_eq!(
+            row.status_reason,
+            "the host's shell prints messages on every SSH command (\"stty: no terminal\"); \
+             status and history need a shell that stays silent there"
+        );
+        assert_eq!(row.session_id, None);
+    }
+    for row in rows(None) {
+        assert_eq!(row.unverified.as_deref(), Some("unmeasured_tmux_version"));
+        assert_eq!(
+            row.status_reason,
+            "tmux version is not a measured 3.0/3.3a/3.4/3.6 inventory"
+        );
+    }
 }

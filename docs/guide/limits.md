@@ -68,7 +68,12 @@
   screen), no history is loaded.
 - **Resizing:** opening or closing a terminal, releasing a dragged gap and
   swapping two terminals of different sizes resize every terminal whose size
-  changes. Codex clears its tmux history on each resize.
+  changes. Codex clears its tmux history on each resize. This includes the
+  start: the app places the saved terminals in one step once every host it
+  connects itself is listed, and waits at most 5 seconds for that. A host
+  listed later (slow or unreachable at start, or connected by hand with a
+  password or passphrase) adds its terminals then, and the others change
+  size.
 - **Clipboard:** with tmux's default `set-clipboard external`, only tmux's
   own copies (drag, double-click with `set -g mouse on`) reach the local
   clipboard; tmux drops copies that programs send themselves via OSC 52,
@@ -113,10 +118,29 @@
   negated or hashed host field makes the app reject that key for every host
   and port, even where another line trusts it; such a key cannot be accepted
   through the first-contact prompt.
-- **Shell startup output:** opening a listed session expects the app's own
-  marker line first. A shell startup file that prints output, or waits for
-  input, in non-interactive SSH commands makes opening fail, at the latest
-  after 15 seconds.
+- **Shell startup output:** the app reads the exact answers of its SSH
+  commands. A shell startup file that prints in non-interactive SSH commands
+  (`~/.bashrc` before its check for an interactive shell, or `~/.zshenv`) gets
+  in the way, and the app names it instead of guessing. With text on standard
+  output, the host check stops and the session list is not shown; both quote
+  the first line of that text. With messages on standard error only (for
+  example `stty` without a terminal), sessions are listed by name with the
+  status "Unknown", and tmux's default socket is not read. Opening a listed
+  session also expects the app's own marker line first: a startup file that
+  prints output, or waits for input, makes opening fail, at the latest after
+  15 seconds. Remove the output, or print it only in interactive shells.
+- **Many sessions on a slow connection:** the session list asks the host twice
+  per session, one SSH command at a time (2N+3 commands for N sessions, and
+  the same again for the sessions on tmux's default socket). Each command has
+  15 seconds and the whole list 60. A list that needs longer fails with "The
+  SSH command failed (read, timeout)."; the status display of that host pauses
+  while its list loads.
+- **Working directory of a new session:** a directory whose name ends with a
+  semicolon (`;`) is refused: tmux would drop the semicolon and start the
+  session somewhere else. A semicolon inside the name is fine. On tmux 3.0a, a
+  name with `##` directly before `[` (for example `a##[b]`) starts the session
+  in the home directory instead; with 3.3a, 3.4 and 3.6 it starts in the
+  directory itself, and the versions in between are not measured.
 - **Unconfirmed changes:** if creating or ending a session times out after
   the command was sent, the app says that it may already have happened and
   does not repeat it. Reload the session list before trying again.

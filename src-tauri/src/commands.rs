@@ -15,7 +15,7 @@
 
 use crate::connection::{
     CommandTransport, ConnectionEvents, ControlStateEvent, HostConnection, PairIdentityRejected,
-    TerminalTransportLostEvent, COMMAND_TIMEOUT,
+    TerminalTransportLostEvent, COMMAND_TIMEOUT, SESSION_WALK_TIMEOUT,
 };
 use crate::settings::{self, AuthKind, HostEntry};
 use crate::ssh::known_hosts::{self, HostKeyDecision};
@@ -1901,6 +1901,12 @@ pub async fn create_session_impl(
             "working directory must be an absolute path without control characters",
         ));
     }
+    // Ebenfalls vor `prepare_server`, aus demselben Grund wie der Name oben.
+    if crate::tmux::start_directory_ends_in_separator(&cwd) {
+        return Err(SessionError::other(
+            crate::tmux::START_DIRECTORY_SEPARATOR_RULE,
+        ));
+    }
 
     let transport = state
         .ready_host(&host_id)
@@ -2646,7 +2652,9 @@ pub async fn kill_session_impl(
     if socket == SocketKind::Default {
         return Err(FOREIGN_SESSION.into());
     }
-    let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
+    // Die Pruefung nach einem gebundenen Kill geht einmal durch alle Sessions
+    // (2N+3 Befehle); der Kill selbst behaelt `COMMAND_TIMEOUT`.
+    let deadline = tokio::time::Instant::now() + SESSION_WALK_TIMEOUT;
     // H6/H9, dieselbe Ausnahme von der Allowlist wie in
     // `open_terminal_with_history`: von Hand angelegte Sessions duerfen Punkte
     // und Nicht-ASCII tragen und muessen sich trotzdem beenden lassen, nur
@@ -3982,12 +3990,119 @@ enum SocketListing {
         observed: crate::tmux::client::SessionListObservation,
         titles: std::collections::BTreeMap<PaneId, crate::status::title::PaneDetails>,
     },
-    /// Eigener Socket mit ungemessener tmux-Version: nur Namen.
-    Names(Vec<String>),
+    /// Eigener Socket ohne strenge Liste: nur Namen. `shell_messages` nennt
+    /// die Zeile der Shell, wenn sie der Grund ist
+    /// (`VersionAnswer::ShellMessages`), sonst ist es die ungemessene
+    /// tmux-Version.
+    Names {
+        names: Vec<String>,
+        shell_messages: Option<String>,
+    },
     /// Kein Server: eine leere Liste, kein Fehler.
     Empty,
     /// Standard-Socket mit einer Serverversion ohne Messung.
     Unsupported(String),
+}
+
+/// Was die Antwort auf `tmux -V` der Sessionliste erlaubt. Neben
+/// `MeasuredVersion::from_response`, das unveraendert bleibt: Dort zaehlt nur
+/// die genaue Antwort einer gemessenen Version. Hier kommt dazu, WARUM eine
+/// Antwort nicht genau ist. Eine Startdatei der Shell, die vor jedem
+/// SSH-Befehl schreibt (`~/.bashrc` vor ihrer Pruefung auf eine interaktive
+/// Shell, `~/.zshenv`), sah bisher aus wie eine ungemessene tmux-Version:
+/// Ihre Zeilen standen als Sessions in der Liste.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum VersionAnswer {
+    /// Die genaue Antwort einer gemessenen Version: die strenge Liste.
+    Measured(MeasuredVersion),
+    /// Genau die Zeile `tmux …` einer ungemessenen Version, oder der Befehl
+    /// scheiterte: nur Namen, wie bisher.
+    Unmeasured,
+    /// Genau die Zeile `tmux …`, daneben Text auf der Fehlerausgabe (etwa
+    /// `stty` ohne Terminal); getragen wird dessen erste Zeile. Die Namen
+    /// bleiben genau, die strenge Rahmung nicht.
+    ShellMessages(String),
+    /// Auf der Standardausgabe steht anderes als die eine Zeile `tmux …`;
+    /// getragen wird die erste fremde Zeile. Text der Shell laesst sich von
+    /// Sessionnamen nicht trennen: Es gibt keine Liste.
+    ShellOutput(String),
+}
+
+impl VersionAnswer {
+    fn from_response(result: &crate::transport::ExecResult) -> Self {
+        if let Some(version) = MeasuredVersion::from_response(result) {
+            return Self::Measured(version);
+        }
+        if result.code != 0 {
+            return Self::Unmeasured;
+        }
+        let lines: Vec<&str> = result
+            .stdout
+            .lines()
+            .filter(|line| !line.trim().is_empty())
+            .collect();
+        let is_version = |line: &&str| line.starts_with("tmux ");
+        match lines.as_slice() {
+            // Nichts auf der Standardausgabe: kein Text der Shell, den eine
+            // Meldung nennen koennte. Wie bisher nur Namen.
+            [] => Self::Unmeasured,
+            [line] if is_version(line) => match crate::preflight::shell_line(&result.stderr) {
+                Some(message) => Self::ShellMessages(message),
+                None => Self::Unmeasured,
+            },
+            lines => {
+                let foreign = lines.iter().find(|line| !is_version(line));
+                let quoted = foreign.or(lines.first()).copied().unwrap_or_default();
+                Self::ShellOutput(crate::preflight::shell_line(quoted).unwrap_or_default())
+            }
+        }
+    }
+}
+
+/// ` (it starts with "…")`, oder nichts, wenn die Zeile kein druckbares
+/// Zeichen trug.
+fn shell_line_note(line: &str) -> String {
+    match line.is_empty() {
+        true => String::new(),
+        false => format!(" (it starts with \"{line}\")"),
+    }
+}
+
+/// Die Liste eines Sockets gibt es nicht, weil die Shell des Hosts in die
+/// Antworten schreibt. `detail` ist der Rohtext eines gescheiterten Befehls
+/// und steht am Ende, fuer "Details" und "Copy diagnostics".
+fn shell_output_error(
+    transport: &CommandTransport,
+    line: &str,
+    detail: Option<&anyhow::Error>,
+) -> OperationErrorDto {
+    OperationErrorDto {
+        code: "shell_output",
+        message: shell_output_message(line, detail),
+        control_generation: transport.generation,
+    }
+}
+
+fn shell_output_message(line: &str, detail: Option<&anyhow::Error>) -> String {
+    let mut message = format!(
+        "The host's shell prints text on every SSH command{}, so the app cannot read exact \
+         answers. {}",
+        shell_line_note(line),
+        crate::preflight::SHELL_OUTPUT_REMEDY
+    );
+    if let Some(detail) = detail {
+        message.push_str(&format!(" ({detail})"));
+    }
+    message
+}
+
+/// Der Grund an jeder Zeile einer Namensliste, die es wegen Meldungen der
+/// Shell auf der Fehlerausgabe nur als Namen gibt (Tooltip an "Unknown").
+fn shell_messages_reason(line: &str) -> String {
+    format!(
+        "the host's shell prints messages on every SSH command (\"{line}\"); status and \
+         history need a shell that stays silent there"
+    )
 }
 
 pub async fn list_sessions_impl(
@@ -4002,15 +4117,16 @@ pub async fn list_sessions_impl(
 }
 
 /// Liest den eigenen Socket und, wenn verlangt, den Standard-Socket; den
-/// eigenen zuerst, beide mit derselben Frist. Ein fehlender Host und ein
-/// gescheiterter Befehl `tmux -V` scheitern ganz, ein Fehler eines Sockets
-/// nur fuer diesen.
+/// eigenen zuerst, beide mit derselben Frist: `SESSION_WALK_TIMEOUT` fuer
+/// alles zusammen, jeder einzelne Befehl hoechstens 15 s. Ein fehlender Host
+/// und ein gescheiterter Befehl `tmux -V` scheitern ganz, ein Fehler eines
+/// Sockets nur fuer diesen.
 pub async fn list_sockets_impl(
     state: &Arc<AppState>,
     host_id: String,
     include_default: bool,
 ) -> Result<SessionListDto, OperationErrorDto> {
-    let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
+    let deadline = tokio::time::Instant::now() + SESSION_WALK_TIMEOUT;
     // Nur eine fertige Verbindung zaehlt; `ready_host` gibt die
     // `hosts`-Sperre vor dem ersten `await` wieder frei.
     let transport = state
@@ -4026,20 +4142,35 @@ pub async fn list_sockets_impl(
     // Frist, Transport), scheitert die ganze Liste mit diesem Grund, und die
     // naechste liest erneut; als "ungemessen" verloeren die eigenen Sessions
     // sonst bis dahin Bindung und Verlauf, unter einem irrefuehrenden Grund.
-    let installed = match transport
+    let answer = match transport
         .exec_with_deadline(
             &TmuxClient::new(&state.own_tmux_socket()).version_command(),
             COMMAND_TIMEOUT,
         )
         .await
     {
-        Ok(result) => MeasuredVersion::from_response(&result),
+        Ok(result) => VersionAnswer::from_response(&result),
         Err(error) => return Err(operation_error(&transport, &error)),
+    };
+    let (installed, shell_messages) = match answer {
+        VersionAnswer::Measured(version) => (Some(version), None),
+        VersionAnswer::Unmeasured => (None, None),
+        VersionAnswer::ShellMessages(line) => (None, Some(line)),
+        VersionAnswer::ShellOutput(line) => {
+            return Err(shell_output_error(&transport, &line, None))
+        }
     };
     let observed = |listing: &Result<SocketListing, OperationErrorDto>| {
         matches!(listing, Ok(SocketListing::Observed { .. }))
     };
-    let own = list_own_socket(state, &transport, installed, deadline).await;
+    let own = list_own_socket(
+        state,
+        &transport,
+        installed,
+        shell_messages.as_deref(),
+        deadline,
+    )
+    .await;
     // claude gleich nach dem eigenen Socket: ein langsamer Standard-Socket
     // nimmt den eigenen Sessions so nicht die Zeit fuer ihren Status (Spec
     // 2026-10-25 §6.3, der eigene Socket zuerst).
@@ -4047,9 +4178,13 @@ pub async fn list_sockets_impl(
     if observed(&own) {
         agents = Some(read_claude_agents(&transport, deadline).await);
     }
-    let default = match include_default {
-        true => Some(list_default_socket(state, &transport, installed, deadline).await),
-        false => None,
+    let default = match (include_default, &shell_messages) {
+        (false, _) => None,
+        // Der Standard-Socket braucht die strenge Rahmung; mit Meldungen der
+        // Shell auf der Fehlerausgabe scheiterte sie an jeder Antwort. Er
+        // wird dann gar nicht gelesen und nennt denselben Grund.
+        (true, Some(line)) => Some(Err(shell_output_error(&transport, line, None))),
+        (true, None) => Some(list_default_socket(state, &transport, installed, deadline).await),
     };
     if agents.is_none() && default.as_ref().is_some_and(observed) {
         agents = Some(read_claude_agents(&transport, deadline).await);
@@ -4074,6 +4209,7 @@ async fn list_own_socket(
     state: &Arc<AppState>,
     transport: &CommandTransport,
     installed: Option<MeasuredVersion>,
+    shell_messages: Option<&str>,
     deadline: tokio::time::Instant,
 ) -> Result<SocketListing, OperationErrorDto> {
     let socket = state.own_tmux_socket();
@@ -4083,8 +4219,19 @@ async fn list_own_socket(
         None => client
             .list_session_names(transport)
             .await
-            .map(SocketListing::Names)
-            .map_err(|e| operation_error(transport, &e)),
+            .map(|names| SocketListing::Names {
+                names,
+                shell_messages: shell_messages.map(str::to_string),
+            })
+            .map_err(|e| match shell_messages {
+                // tmux hat geantwortet, aber nicht lesbar: Auch "kein Server"
+                // erkennt die Namensliste nur an der genauen Fehlerausgabe.
+                // Ein Fehler des Transports behaelt seinen eigenen Grund.
+                Some(line) if e.downcast_ref::<ExecError>().is_none() => {
+                    shell_output_error(transport, line, Some(&e))
+                }
+                _ => operation_error(transport, &e),
+            }),
     }
 }
 
@@ -4148,7 +4295,17 @@ fn socket_sessions(
         Err(error) => dto.error = Some(error),
         Ok(SocketListing::Empty) => {}
         Ok(SocketListing::Unsupported(version)) => dto.unsupported_version = Some(version),
-        Ok(SocketListing::Names(names)) => {
+        Ok(SocketListing::Names {
+            names,
+            shell_messages,
+        }) => {
+            let (unverified, reason) = match &shell_messages {
+                Some(line) => ("shell_output", shell_messages_reason(line)),
+                None => (
+                    "unmeasured_tmux_version",
+                    "tmux version is not a measured 3.0/3.3a/3.4/3.6 inventory".to_string(),
+                ),
+            };
             dto.sessions = names
                 .into_iter()
                 .map(|display_name| SessionListItemDto {
@@ -4159,10 +4316,9 @@ fn socket_sessions(
                     window_id: None,
                     pane_id: None,
                     pane_pid: None,
-                    unverified: Some("unmeasured_tmux_version".into()),
+                    unverified: Some(unverified.into()),
                     status: "unknown".into(),
-                    status_reason: "tmux version is not a measured 3.0/3.3a/3.4/3.6 inventory"
-                        .into(),
+                    status_reason: reason.clone(),
                     session_attached: None,
                 })
                 .collect();

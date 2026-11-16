@@ -265,6 +265,12 @@ async fn kill_session_leaves_no_server_running_behind() {
 /// an, gleich in welchem Ordner tmux den Format-Job startet. Format-Jobs
 /// laufen asynchron; die Pause vor der Pruefung laesst einem faelschlich
 /// gestarteten Job Zeit.
+///
+/// Die Faelle mit `[` pruefen die Ausnahme der Regel an der echten Funktion
+/// (`escape_cwd_format`): Eine `#`-Folge direkt vor `[` bleibt, wie sie ist.
+/// tmux 3.0 kennt die Stilmarke `##[` nicht und halbiert eine solche Folge
+/// aus mindestens zwei `#`; diese Faelle zaehlen dort nicht. Ein `;` mitten im
+/// Namen ist kein Trenner (docs/messungen/messung-2026-11-16-tmux-cwd-semikolon.md).
 #[tokio::test]
 async fn a_hash_in_the_start_directory_stays_literal() {
     let Some(t) = common::connect_test_host().await else {
@@ -279,17 +285,26 @@ async fn a_hash_in_the_start_directory_stays_literal() {
     assert_eq!(base.code, 0, "mktemp: {}", base.stderr);
     let base = base.stdout.trim().to_string();
     let marker = format!("zz_cwdhash_marker_{}", std::process::id());
+    // Name der Session, Ordner, und ob der Ordner eine Stilmarke (`##[`) hat.
     let cases = [
-        ("zz_cwdhash_c", format!("{base}/C#Project")),
-        ("zz_cwdhash_job", format!("{base}/#(cd;touch {marker})")),
+        ("zz_cwdhash_c", format!("{base}/C#Project"), false),
+        (
+            "zz_cwdhash_job",
+            format!("{base}/#(cd;touch {marker})"),
+            false,
+        ),
+        ("zz_cwdhash_one", format!("{base}/E#[x]"), false),
+        ("zz_cwdhash_two", format!("{base}/F##[x]"), true),
+        ("zz_cwdhash_three", format!("{base}/G###[x]"), true),
+        ("zz_cwdhash_semi", format!("{base}/a;b"), false),
     ];
-    for (_, dir) in &cases {
+    for (_, dir, _) in &cases {
         let made = t.exec(&remote::build(&["mkdir", dir])).await.unwrap();
         assert_eq!(made.code, 0, "mkdir {dir:?}: {}", made.stderr);
     }
 
     c.prepare_server(&t, 2000).await.unwrap();
-    for (name, dir) in &cases {
+    for (name, dir, _) in &cases {
         assert!(matches!(
             c.create_session(&t, name, dir).await.unwrap(),
             CreateOutcome::Created
@@ -313,13 +328,17 @@ async fn a_hash_in_the_start_directory_stays_literal() {
         .await
         .unwrap();
     assert_eq!(version.code, 0, "version: {}", version.stderr);
-    let formats: &[&str] = if version.stdout.trim().starts_with("3.0") {
+    let is_3_0 = version.stdout.trim().starts_with("3.0");
+    let formats: &[&str] = if is_3_0 {
         &["#{pane_current_path}"]
     } else {
         &["#{pane_current_path}", "#{session_path}"]
     };
 
-    for (name, dir) in &cases {
+    for (name, dir, style_mark) in &cases {
+        if is_3_0 && *style_mark {
+            continue;
+        }
         for &format in formats {
             let r = t
                 .exec(&remote::build(&[
@@ -352,7 +371,7 @@ async fn a_hash_in_the_start_directory_stays_literal() {
         probe.stderr
     );
 
-    for (name, _) in &cases {
+    for (name, _, _) in &cases {
         c.kill_session(&t, name).await.unwrap();
     }
     t.exec(&remote::build(&["rm", "-rf", &base])).await.unwrap();

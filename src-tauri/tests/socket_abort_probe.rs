@@ -1,4 +1,5 @@
-//! Hermetic tests of the proposed IO primitive; it is not yet wired into product.
+//! Hermetic tests of the IO primitive under every SSH connection
+//! (`transport::russh_transport` wraps its TCP stream in `AbortableIo`).
 //! The historical clone-only Windows probe is preserved outside the CI targets.
 
 #[path = "../src/transport/abortable_io.rs"]
@@ -175,18 +176,27 @@ async fn negative_window(end: Instant) -> bool {
     timeout_at(end, sleep(NEGATIVE_WINDOW)).await.is_ok()
 }
 
+/// Saturated means: a whole window passes in which the pending write gets no
+/// further byte accepted. The first refused write does not prove that yet:
+/// macOS enlarges the loopback buffers afterwards and accepts more (CI runs
+/// 40909348883 and 42359933034 failed here with a correct abort). So watch
+/// window after window until one stays quiet, at most until `end`.
 async fn saturated_write(probe: &IoProbe, end: Instant) -> bool {
     if timeout_at(end, probe.write_wait.notified()).await.is_err() {
         return false;
     }
-    if !negative_window(end).await {
-        return false;
+    loop {
+        let before = probe.written.load(Ordering::SeqCst);
+        if !negative_window(end).await {
+            return false;
+        }
+        if before > 0
+            && probe.written.load(Ordering::SeqCst) == before
+            && probe.write_pending.load(Ordering::SeqCst)
+        {
+            return true;
+        }
     }
-    let before = probe.written.load(Ordering::SeqCst);
-    negative_window(end).await
-        && before > 0
-        && probe.written.load(Ordering::SeqCst) == before
-        && probe.write_pending.load(Ordering::SeqCst)
 }
 
 #[tokio::test]

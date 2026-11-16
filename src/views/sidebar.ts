@@ -1365,7 +1365,13 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     notice.appendChild(heading);
     // UX-Spec §10: der Satz traegt den Kasten, der Rohtext des Backends steht
     // nur hinter "Details" und in "Copy diagnostics" -- wie am Steuerhinweis.
-    notice.appendChild(noticeMessage(t("sidebar.sessions.loadFailed")));
+    // Eine Ausnahme hat einen eigenen Satz: Schreibt die Shell des Hosts in
+    // die Antworten (`shell_output`, `commands.rs::VersionAnswer`), hilft
+    // "Retry" erst, wenn die Startdatei der Shell aufgeraeumt ist. Hinter
+    // "Details" faende das niemand.
+    notice.appendChild(noticeMessage(t(
+      error.code === "shell_output" ? "sidebar.sessions.shellOutput" : "sidebar.sessions.loadFailed",
+    )));
     if (observation.lastSuccessAt !== null) {
       const time = document.createElement("time");
       time.dateTime = new Date(observation.lastSuccessAt).toISOString();
