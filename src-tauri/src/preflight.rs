@@ -6,7 +6,40 @@ pub struct PreflightReport {
     pub tmux_version: Option<String>,
     pub has_base64: bool,
     pub socket_dir_writable: bool,
+    /// Die erste Zeile, die die Shell des Hosts vor einem SSH-Befehl auf die
+    /// Standardausgabe schreibt, gekuerzt wie von `shell_line`. `None`, wenn
+    /// sie dort nichts ausgibt.
+    pub shell_output: Option<String>,
 }
+
+/// Wie viele Zeichen einer fremden Zeile eine Meldung hoechstens zitiert.
+const SHELL_LINE_MAX: usize = 80;
+
+/// Die erste nicht leere Zeile aus `text`, so wie eine Meldung sie zitieren
+/// darf: ohne Steuerzeichen und auf `SHELL_LINE_MAX` Zeichen gekuerzt. Der
+/// Text kommt aus einer Startdatei der Shell auf dem Host; er darf weder die
+/// Meldung umbrechen noch beliebig lang werden. Gekuerzt wird nach Zeichen,
+/// nicht nach Bytes: Ein Schnitt mitten in einem Zeichen waere ein Panic,
+/// und der liesse den `invoke` haengen.
+pub(crate) fn shell_line(text: &str) -> Option<String> {
+    let clean = text
+        .lines()
+        .map(|line| {
+            let kept: String = line.chars().filter(|c| !c.is_control()).collect();
+            kept.trim().to_string()
+        })
+        .find(|line| !line.is_empty())?;
+    Some(match clean.chars().count() > SHELL_LINE_MAX {
+        true => clean.chars().take(SHELL_LINE_MAX).chain(['…']).collect(),
+        false => clean,
+    })
+}
+
+/// Was gegen Ausgabe der Shell zu tun ist; derselbe Satz in der Host-Pruefung
+/// und in der Sessionliste (`commands.rs`).
+pub(crate) const SHELL_OUTPUT_REMEDY: &str =
+    "Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, \
+     or print it only in interactive shells.";
 
 /// Extrahiert die Hauptversion aus `tmux -V`-Text.
 ///
@@ -44,6 +77,16 @@ impl PreflightReport {
         // `run_reports_base64_not_tmux_as_the_problem_on_a_base64_less_host`.
         if !self.has_base64 {
             return Some("base64 is not available on this host".into());
+        }
+        // Vor tmux und dem Socket-Ordner: Gibt die Shell vor jedem Befehl
+        // Text aus, liest die App keine Antwort mehr genau. Die Version unten
+        // kaeme dann nur noch zufaellig richtig an, und die Sessionliste
+        // lehnte denselben Host ohnehin ab (`commands::VersionAnswer`).
+        if let Some(line) = &self.shell_output {
+            return Some(format!(
+                "this host's shell prints text before every SSH command (it starts with \
+                 \"{line}\"), so the app cannot read the answers. {SHELL_OUTPUT_REMEDY}"
+            ));
         }
         match &self.tmux_version {
             None => {
@@ -93,8 +136,20 @@ impl PreflightReport {
 /// unten).
 pub async fn run(t: &dyn Transport) -> anyhow::Result<PreflightReport> {
     let tmux = t.exec(&remote::build(&["tmux", "-V"])).await?;
-    let tmux_version =
-        (tmux.code == 0).then(|| tmux.stdout.trim().trim_start_matches("tmux ").to_string());
+    // Die letzte Zeile: Text, den die Shell vor dem Befehl ausgibt, steht
+    // davor. Aus "Server 1 ready\ntmux 3.4" laese die Pruefung sonst die 1 und
+    // nennte tmux zu alt.
+    let tmux_version = (tmux.code == 0).then(|| {
+        let line = tmux
+            .stdout
+            .lines()
+            .rev()
+            .find(|line| !line.trim().is_empty());
+        line.unwrap_or("")
+            .trim()
+            .trim_start_matches("tmux ")
+            .to_string()
+    });
     let b64 = t
         .exec(&remote::build(&["sh", "-c", "command -v base64"]))
         .await?;
@@ -116,6 +171,11 @@ pub async fn run(t: &dyn Transport) -> anyhow::Result<PreflightReport> {
         tmux_version,
         has_base64: b64.code == 0,
         socket_dir_writable: dir.code == 0,
+        // Die Sonde des Socket-Ordners schreibt selbst nichts auf die
+        // Standardausgabe, mit keinem Exitcode; auch ein Host ohne base64
+        // meldet sich nur auf der Fehlerausgabe. Was hier steht, kommt aus
+        // einer Startdatei der Shell.
+        shell_output: shell_line(&dir.stdout),
     })
 }
 
@@ -129,6 +189,7 @@ mod tests {
             tmux_version: None,
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         assert!(r.blocking_problem().unwrap().contains("tmux"));
     }
@@ -139,6 +200,7 @@ mod tests {
             tmux_version: Some("2.8".into()),
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         assert!(r.blocking_problem().is_some());
     }
@@ -152,6 +214,7 @@ mod tests {
             tmux_version: None,
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         let msg = r.blocking_problem().unwrap();
         assert!(msg.contains("package manager"), "{msg}");
@@ -164,6 +227,7 @@ mod tests {
             tmux_version: Some("2.8".into()),
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         let msg = r.blocking_problem().unwrap();
         assert!(msg.contains("too old"), "{msg}");
@@ -176,6 +240,7 @@ mod tests {
             tmux_version: Some("3.3a".into()),
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         assert!(r.blocking_problem().is_none());
     }
@@ -186,6 +251,7 @@ mod tests {
             tmux_version: Some("3.4".into()),
             has_base64: false,
             socket_dir_writable: true,
+            shell_output: None,
         };
         assert!(r.blocking_problem().unwrap().contains("base64"));
     }
@@ -196,6 +262,7 @@ mod tests {
             tmux_version: Some("3.4".into()),
             has_base64: true,
             socket_dir_writable: false,
+            shell_output: None,
         };
         let msg = r.blocking_problem().unwrap();
         assert!(
@@ -215,6 +282,7 @@ mod tests {
             tmux_version: Some("next-3.5".into()),
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         assert!(
             r.blocking_problem().is_none(),
@@ -228,6 +296,7 @@ mod tests {
             tmux_version: Some("3.2-rc".into()),
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         assert!(r.blocking_problem().is_none());
     }
@@ -244,6 +313,7 @@ mod tests {
             tmux_version: Some("".into()),
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         let msg = r.blocking_problem().unwrap();
         assert!(
@@ -262,6 +332,7 @@ mod tests {
             tmux_version: Some("banana".into()),
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         let msg = r.blocking_problem().unwrap();
         assert!(
@@ -285,6 +356,7 @@ mod tests {
             tmux_version: None,
             has_base64: false,
             socket_dir_writable: false,
+            shell_output: None,
         };
         let msg = r.blocking_problem().unwrap();
         assert!(
@@ -303,6 +375,7 @@ mod tests {
             tmux_version: None,
             has_base64: true,
             socket_dir_writable: true,
+            shell_output: None,
         };
         let msg = r.blocking_problem().unwrap();
         assert!(msg.contains("tmux"), "tmux-Problem erwartet: {msg}");
@@ -483,5 +556,110 @@ mod run_tests {
              Signal fuer 'tmux fehlt' -- die Sonde selbst konnte nicht laufen. \
              Gemeldet wurde stattdessen: {msg}"
         );
+    }
+
+    fn noisy(stdout: &str, stderr: &str, code: u32) -> ExecResult {
+        ExecResult {
+            utf8_valid: true,
+            stdout: stdout.into(),
+            stderr: stderr.into(),
+            code,
+        }
+    }
+
+    /// Eine Startdatei der Shell, die vor jedem SSH-Befehl Text ausgibt
+    /// (ein echo am Anfang der ~/.bashrc). Bisher las die Pruefung aus
+    /// "Server 1 ready" vor "tmux 3.4" die 1 und nannte tmux zu alt; bei
+    /// anderem Text fiel gar nichts auf, und erst die Sessionliste war falsch.
+    #[tokio::test]
+    async fn shell_output_on_stdout_blocks_and_is_named_with_its_first_line() {
+        for (noise, quoted) in [
+            ("Server 1 ready\n", "Server 1 ready"),
+            (
+                "Welcome to build-box!\nLast login: today\n",
+                "Welcome to build-box!",
+            ),
+        ] {
+            let t = ScriptedTransport::new(vec![
+                ok(&format!("{noise}tmux 3.4\n")),
+                ok(&format!("{noise}/usr/bin/base64\n")),
+                ok(noise),
+            ]);
+            let report = run(&t).await.unwrap();
+            assert_eq!(report.tmux_version.as_deref(), Some("3.4"), "{noise:?}");
+            assert_eq!(report.shell_output.as_deref(), Some(quoted));
+            let problem = report.blocking_problem().expect("shell output must block");
+            assert_eq!(
+                problem,
+                format!(
+                    "this host's shell prints text before every SSH command (it starts with \
+                     \"{quoted}\"), so the app cannot read the answers. Remove that output from \
+                     the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it \
+                     only in interactive shells."
+                )
+            );
+        }
+    }
+
+    /// Meldungen nur auf der Fehlerausgabe (etwa stty ohne Terminal) lassen
+    /// die drei Antworten genau: kein Hindernis fuer die Host-Pruefung. Was
+    /// sie fuer Status und Verlauf bedeuten, sagt die Sessionliste.
+    #[tokio::test]
+    async fn shell_messages_on_stderr_alone_do_not_block() {
+        let stty = "stty: 'standard input': Inappropriate ioctl for device\n";
+        let t = ScriptedTransport::new(vec![
+            noisy("tmux 3.4\n", stty, 0),
+            noisy("/usr/bin/base64\n", stty, 0),
+            noisy("", stty, 0),
+        ]);
+        let report = run(&t).await.unwrap();
+        assert_eq!(report.shell_output, None);
+        assert_eq!(report.blocking_problem(), None);
+    }
+
+    /// Fehlt base64, scheitert schon das Praeludium jeder Zeile; die Ausgabe
+    /// der Shell steht trotzdem da. Gemeldet wird base64: Ohne es liefe auch
+    /// nach dem Aufraeumen der Startdatei kein Befehl.
+    #[tokio::test]
+    async fn missing_base64_is_reported_before_shell_output() {
+        let noise = "Welcome to build-box!\n";
+        let missing = "sh: 1: base64: not found\n";
+        let t = ScriptedTransport::new(vec![
+            noisy(noise, missing, 127),
+            noisy(noise, missing, 127),
+            noisy(noise, missing, 127),
+        ]);
+        let report = run(&t).await.unwrap();
+        assert_eq!(
+            report.shell_output.as_deref(),
+            Some("Welcome to build-box!")
+        );
+        assert_eq!(
+            report.blocking_problem().as_deref(),
+            Some("base64 is not available on this host")
+        );
+    }
+
+    /// Die zitierte Zeile kommt vom Host: keine Steuerzeichen, hoechstens 80
+    /// Zeichen, und der Schnitt liegt zwischen Zeichen, nicht zwischen Bytes.
+    #[test]
+    fn shell_line_drops_control_characters_and_cuts_between_characters() {
+        assert_eq!(shell_line(""), None);
+        assert_eq!(shell_line("\n  \n\t\n"), None);
+        assert_eq!(shell_line("\u{7}\u{1b}\n"), None);
+        assert_eq!(
+            shell_line("\n\u{7}\nsecond\r\nthird\n").as_deref(),
+            Some("second")
+        );
+        assert_eq!(
+            shell_line("\u{1b}[1mWelcome\u{1b}[0m \u{7}back\n").as_deref(),
+            Some("[1mWelcome[0m back")
+        );
+        let long = "ä".repeat(81);
+        let cut = shell_line(&long).unwrap();
+        assert_eq!(cut.chars().count(), 81);
+        assert_eq!(cut, format!("{}…", "ä".repeat(80)));
+        let exact = "界".repeat(80);
+        assert_eq!(shell_line(&exact).as_deref(), Some(exact.as_str()));
     }
 }

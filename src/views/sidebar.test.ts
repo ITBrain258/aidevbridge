@@ -4022,6 +4022,25 @@ describe("mountSidebar: inventory freshness", () => {
     expect(writeText).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(`command_timeout\n${raw}`));
   });
 
+  // Schreibt die Shell des Hosts vor jedem SSH-Befehl Text, lehnt das Backend
+  // die Liste mit `shell_output` ab. "Retry" allein hilft dann nie; der Satz
+  // nennt, was auf dem Host zu tun ist, und der Rohtext mit der zitierten
+  // Zeile bleibt hinter "Details".
+  it("names the shell startup file when the host's shell writes into the answers", () => {
+    const raw = "The host's shell prints text on every SSH command (it starts with \"Welcome to build-box!\"), so the app cannot read exact answers.";
+    for (const socket of ["app", "default"] as const) {
+      const state = new AppState();
+      state.upsertHost(host("a"));
+      state.setSessionListError("a", { code: "shell_output", message: raw }, socket);
+      const { el } = mount(state);
+      const notice = el.querySelector<HTMLElement>(".session-list-notice")!;
+      expect(notice.querySelector(".host-notice-message")!.textContent).toBe(
+        "This host's shell prints text on every SSH command, so the session list can't be read. Remove that output from the shell startup file (for example ~/.bashrc or ~/.zshenv), then retry.",
+      );
+      expect(notice.querySelector<HTMLElement>(".host-notice-detail")!.textContent).toContain("Welcome to build-box!");
+    }
+  });
+
   // UX-Spec §5.3, §5.7: solange die Steuerung nicht bereit ist, sagt ihre
   // ruhige Zeile bzw. ihr Kasten schon, dass die Liste nicht nachkommt. Ein
   // Listenfehler, der nur das meldet, bekommt keinen eigenen Kasten.

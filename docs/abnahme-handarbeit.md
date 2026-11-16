@@ -781,6 +781,10 @@ daraus und aus Punkt 7 des Stands weiter offen ist.
   laufenden Sessions tmux entfernen.
 - Für A3 ein Schlüssel, der auf dem Testhost nicht in `authorized_keys`
   steht, einmal als Datei und einmal als einziger Schlüssel im ssh-agent.
+- Für A5 und A6 der Host aus A2 oder ein eigenes Testkonto, dessen
+  `~/.bashrc` sich gefahrlos ändern lässt. Nicht das Konto, unter dem
+  eigene Sessions laufen: Solange die Zeile steht, stört sie dort jede App
+  und auch `scp` und `rsync`.
 - Für Block B zwei verbundene Hosts mit entbehrlichen Sessions, darunter
   mindestens sechs mit einem wartenden Agenten (oder nachgestellt, wie in
   Abschnitt 8), und ein laufender Agent, der zwischen Arbeiten und Warten
@@ -818,6 +822,23 @@ daraus und aus Punkt 7 des Stands weiter offen ist.
    Erwartung: Das Formular trägt Host, Benutzer und Port des Vorschlags. Es
    steht kein Passwort darin, und „Password“ ist nicht als Anmeldeart
    gewählt.
+
+5. **Die Shell schreibt auf die Standardausgabe.** `echo hello` als erste
+   Zeile in die `~/.bashrc` des Testkontos setzen (`ssh <host> true` gibt
+   dann `hello` aus). Einmal mit der Instanz ohne Hosts verbinden, einmal an
+   einem schon gespeicherten Host „Reload sessions“. Dann die Zeile entfernen
+   und „Check again“ beziehungsweise „Retry“.
+   Erwartung: Die Host-Prüfung steht mit „Cannot continue: this host's shell
+   prints text before every SSH command (it starts with "hello") …“. In der
+   Seitenleiste steht statt der Liste „This host's shell prints text on every
+   SSH command …“. Nach dem Entfernen laufen beide durch.
+6. **Die Shell schreibt nur auf die Fehlerausgabe.** Dieselbe Stelle mit
+   `echo warn >&2`. Danach die Zeile entfernen.
+   Erwartung: Die Host-Prüfung läuft durch. Die Sessions stehen mit ihren
+   Namen in der Liste, ihr Status ist „Unknown“, und der Tooltip nennt die
+   Shell als Grund. Zu notieren, weil nur am Code gelesen und nie gemessen:
+   ob sich eine solche Session öffnen und beenden lässt und was „New
+   session“ meldet.
 
 **B. Der richtige Host und der wartende Agent (0.3.5, Specs vom 14.11.)**
 
@@ -896,6 +917,8 @@ Kein neuer Schritt, nur der Zeiger, damit nichts doppelt steht:
 | A2 Check again | | |
 | A3 Abgelehnter Schlüssel | | |
 | A4 Edit details | | |
+| A5 Shell schreibt auf die Standardausgabe | | |
+| A6 Shell schreibt auf die Fehlerausgabe | | |
 | B1 Knopfleisten | | |
 | B2 Status bei laufenden Agenten | | |
 | B3 Eingeklappte Seitenleiste | | |
