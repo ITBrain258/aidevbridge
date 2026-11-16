@@ -1,0 +1,4 @@
+variant stdout: first line of ~/.bashrc: echo hello
+variant stdout: 'ssh <account>@<host> true' prints on stdout: [hello]
+variant stdout: 'ssh <account>@<host> true' prints on stderr: []
+variant stdout: 'ssh -tt <account>@<host> true' (with a terminal) prints: [hello]

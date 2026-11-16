@@ -1,0 +1,4 @@
+variant stderr: first line of ~/.bashrc: echo warn >&2
+variant stderr: 'ssh <account>@<host> true' prints on stdout: []
+variant stderr: 'ssh <account>@<host> true' prints on stderr: [warn]
+variant stderr: 'ssh -tt <account>@<host> true' (with a terminal) prints: [warn]

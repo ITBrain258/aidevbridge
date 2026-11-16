@@ -1,0 +1,9 @@
+
+test walk_server_ends ... RUN 175 ms per direction, 40 sessions, the tmux server of the measuring socket ends after 4 s
+STEP server ended at 4014 ms: Ok((0, ""))
+STEP list of the own socket: answered at 33646 ms, 29631 ms after the server ended, sessions 0, unverified 0, error of the own socket: Some(OperationErrorDto { code: "other", message: "tmux inventory observation is not a complete snapshot: TmuxError { code: 1 }", control_generation: 0 })
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 37.49s
+
+exit: 0

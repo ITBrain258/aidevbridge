@@ -1,22 +1,20 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.5` vom 14.11.2026 (Tag `v0.3.5` auf dem Merge-Commit
+**Stand:** Version `0.3.6` vom 16.11.2026 (Tag `v0.3.6` auf dem Merge-Commit
 des Release-PR); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.5 bringt die beiden Gestaltungsrunden vom 14.11. (PR #59): eine
-Knopfleiste an jedem Host, eine ruhigere Statusanzeige, die Wartet-Spur als
-Karte, die Symbolleiste der eingeklappten Seitenleiste und vier weitere
-Hintergründe. 0.3.4 brachte die Befunde der Durchsicht vom 13.11. (PR #56):
-Ein Klick in der Seitenleiste geht nicht mehr verloren, wenn sie während des
-Drucks neu gebaut wird, mit „Screen reader support“ laden Browsertasten auf
-einer Zeile des Bildschirmlesers die App nicht mehr neu, und auf Android
-vergisst das Entfernen eines Hosts dessen Hostschlüssel. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
+0.3.6 bringt den überarbeiteten Erststart (PR #61) und die Korrekturen aus den
+Entscheidungen vom 16.11. (PR #62): Die App erkennt und nennt eine Shell, die
+vor jedem SSH-Befehl Text schreibt, die Sessionliste hat 60 s für den ganzen
+Gang und 15 s je Befehl, und ein Arbeitsordner, der auf `;` endet, wird
+abgelehnt. Ein Host, dessen Shell auf die Standardausgabe schreibt, zeigt
+seitdem keine Sessionliste mehr, bis die Ausgabe entfernt ist. 0.3.5 brachte
+die beiden Gestaltungsrunden vom 14.11. (PR #59): eine Knopfleiste an jedem
+Host, eine ruhigere Statusanzeige, die Wartet-Spur als Karte, die
+Symbolleiste der eingeklappten Seitenleiste und vier weitere Hintergründe.
+Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
 Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
 Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
-
-Auf `main` liegt seit dem 16.11. unveröffentlicht: der überarbeitete
-Erststart (PR #61, `1fdcc20`) und die Korrekturen aus den Entscheidungen vom
-16.11. (PR #62, `30db55e`; CHANGELOG `[Unreleased]`).
 
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.);
 reine Doku darf seit dem 15.11. direkt hinein (Entscheidungen vom 15.11.).
@@ -207,6 +205,19 @@ Maintainers.
   ganzen Gang und 15 s je Befehl; der gemeinsame Aufruf bleibt später. Der
   Start mit Kacheln mehrerer Hosts bleibt, wie er ist, und steht in den
   Grenzen (Punkte 8 und 15).
+- **Messung vor dem Release:** Der Maintainer hat am 16.11. entschieden, vor
+  0.3.6 zu messen. Die Bewertung der
+  [Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md):
+  Die Bedingung „an einem echten Host messen“ ist für beide Änderungen
+  erfüllt, und 0.3.6 braucht keine Codeänderung. Eine Erwartung traf nicht
+  zu (ein tmux-Server, der mitten im Laden endet); falsch war die Erwartung,
+  nicht der Code. Die Anleitung ist an den zwei Stellen berichtigt, die die
+  Messung widerlegt (die Meldung nach Ablauf der Frist; was die
+  Host-Prüfung nennt), und um die Fälle ergänzt, die sie zeigt. CHANGELOG,
+  Zusammenfassung und Store-Texte bleiben: Sie sind knapper, aber nicht
+  falsch. Später und nicht für 0.3.6: eine Sperre für „New session“, solange
+  die Liste wegen der Shell ausbleibt, und eine Meldung beim Öffnen, die die
+  Shell nennt (Punkt 15).
 
 ## Gebaut
 
@@ -215,7 +226,7 @@ Maintainers.
 | M0 Fundament, UI v2 | abgeschlossen mit 0.1.1 und 0.1.2; Farbwahl (7 Akzente auf 2 Grundtönen) und Einstellungsdialog |
 | Seitenleiste und Grundtöne | nach der [Spec vom 14.11.](specs/2026-11-14-seitenleiste-und-grundtoene-design.md), seit 0.3.5: Einklappknopf und Symbolleiste der eingeklappten Seitenleiste mit der Einstellung `sidebar_rail`, Marke im Fuß ohne Commit, vier weitere Grundtöne (42 Varianten) |
 | Statusanzeige und Knopfleiste | nach der [Spec vom 14.11.](specs/2026-11-14-statusanzeige-design.md), seit 0.3.5: Knopfleiste an jedem Host, ruhige Statuspillen (getönt nur Waiting, Ended, Failed; Busy blau, Idle grau), Wartet-Spur als Karte „Waiting for you“, Status-Zeichen an der Zeile der fokussierten Kachel |
-| Erststart | nach der [Spec vom 15.11.](specs/2026-11-15-erststart-design.md), noch nicht veröffentlicht: „Check again“ und „Save host“ an der Host-Prüfung, „Edit details“ an einem Vorschlag, „New session“ unter einer leeren Sessionliste, eigene Meldungen zu einem Schlüssel, den der Host nicht annimmt, Einstieg „Add your first host“ |
+| Erststart | nach der [Spec vom 15.11.](specs/2026-11-15-erststart-design.md), seit 0.3.6: „Check again“ und „Save host“ an der Host-Prüfung, „Edit details“ an einem Vorschlag, „New session“ unter einer leeren Sessionliste, eigene Meldungen zu einem Schlüssel, den der Host nicht annimmt, Einstieg „Add your first host“ |
 | Stabilität und Verbindung | Kontroll- und Terminalverbindung je Host, Fristen, Kontrollreparatur, Korrekturen an Hostschlüsseln, Erststart und Hostverwaltung, RSA-Blinding; Hostschlüssel-Algorithmen nach `known_hosts`, weitere Agent-Schlüssel nach einer verweigerten Signatur |
 | M1 Statuspunkt | Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel ([Messung](messungen/messung-2026-10-23-agentversionen.md)) |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Selbstheilung für Schlüssel- und Agent-Hosts; Arbeitsplatz, Schnellöffnen, ziehbare Seitenleiste; fünf Einstellungsbereiche |
@@ -235,11 +246,17 @@ die 29 CodeQL-Funde und das Setup; die drei bekannten Fehler aus den Punkten
 Integrationstests 803, 4968 Vitest-Tests, 251 Skripttests und
 `npm run build`. An den beiden Test-VMs, nur mit eigenen Testsockets: die
 Messung zum `;` und der Live-Lauf, der unten steht.
-Nicht geprüft: das echte Fenster; die Erkennung der Startausgabe und die
-neue Frist an einem echten Host (beides nur mit Skript-Transporten
-nachgestellt); die Anmeldung per Passwort und über den ssh-agent; ob der
-macOS-Test jetzt hält (die beiden Läufe der CI zu PR #62 bestanden); CodeQL
-für Rust.
+Danach, am Kopf des Release-Branches (`01cf831`): die Erkennung der
+Startausgabe und die neue Frist an einem echten Host, mit einem
+Wegwerfkonto auf der VM mit tmux 3.3a
+([Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md):
+fünf Zustände der Startdatei, die Liste über eine verzögerte Verbindung).
+Eine vierte neutrale Bewertung las die Rohdaten gegen Code und Anleitung
+(Entscheidungen vom 16.11., Punkt 15).
+Nicht geprüft: das echte Fenster; Startausgabe und Frist mit zsh, mit
+anderen tmux-Versionen und mit dem Standard-Socket; die Anmeldung per
+Passwort und über den ssh-agent; ob der macOS-Test jetzt hält (die beiden
+Läufe der CI zu PR #62 bestanden); CodeQL für Rust.
 
 Am 14.11.2026 nach 0.3.4, vor PR #59 (CHANGELOG `[0.3.5]`): eine Durchsicht
 des Branches mit den beiden Gestaltungsrunden, die nur las. Neun Funde. Fünf
@@ -294,7 +311,10 @@ aus).
 Für die Änderungen vom 16.11. zeigt der Lauf nur, dass ein Host ohne
 Startausgabe der Shell keinen Fehlalarm auslöst und dass die Liste mit der
 neuen Frist lädt wie bisher. Die Erkennung selbst und eine langsame Verbindung
-löst er nicht aus (Punkt 15).
+löst er nicht aus; die zeigt die Messung vom selben Tag (Punkt 15).
+0.3.6 lief nicht eigens live: In `src-tauri/`, `src/` und `vendor/`
+unterscheidet es sich vom Stand dieses Laufs nur durch die beiden
+Versionszeilen und jenen Kommentar.
 0.3.5 lief nicht live: Sein Rust-Teil unterscheidet sich von `v0.3.4` nur
 durch das Feld `sidebar_rail` der Einstellungen, das die Unit-Tests prüfen,
 und durch die Versionszeile.
@@ -618,10 +638,20 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Absatz „Deadline“ der
       [MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md)). Mit 15 s
       für alles listete ein Host mit 20 Sessions ab rund 350 ms je Befehl
-      nie. Das ist mit einem Skript-Transport nachgestellt und an keinem Host
-      gemessen. Vor dem Release gehört dazu: eine Liste mit 20 oder mehr
-      Sessions über eine verzögerte Verbindung, und ein tmux-Server, der
-      mitten im Laden endet (Fehler nach höchstens 15 s). Während die Liste
+      nie; das war mit einem Skript-Transport nachgestellt. Am 16.11. an
+      einem Host mit tmux 3.3a gemessen, am eigenen Socket
+      ([Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md)):
+      Bei 0,77 s je Befehl lud die Liste mit 20 Sessions in 36,2 s, auch mit
+      dem Poll nebenher. Das waren rund 47 Befehle; die alte Frist reichte
+      demnach bis rund 320 ms je Befehl. Mit 40 Sessions endete die Liste
+      nach 60,0 s mit einem Zeitfehler, und als die Verbindung stockte, kam
+      der Fehler 14,9 s später. Nicht eingetreten ist die Erwartung, ein
+      tmux-Server, der mitten im Laden endet, zeige sich nach höchstens
+      15 s: Der Fehler kam 29,6 s später, am Ende des laufenden Durchgangs.
+      Die Einzelabfragen kehren dann sofort zurück, die Obergrenze ist das
+      Budget von 60 s, und das Ergebnis ist ein Fehler, keine falsche Liste.
+      Nicht gemessen: der Standard-Socket in derselben Frist und andere
+      tmux-Versionen. Während die Liste
       lädt, pausiert der Poll dieses Hosts. Offen bleibt der gemeinsame
       Aufruf: Er ändert die gemessene Folge und braucht eine Messung auf
       tmux 3.0, 3.3a, 3.4 und 3.6.
@@ -630,14 +660,30 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       der Standardausgabe hält die Host-Prüfung an und lässt keine Liste zu;
       Meldungen nur auf der Fehlerausgabe lassen die Liste nach Namen, mit
       dem Grund an jeder Zeile (`VersionAnswer` in `commands.rs`,
-      [Grenzen](guide/limits.md)). Herausgefiltert wird nichts. Die
-      Erkennung ist an keinem Host gemessen; der Live-Lauf vom 16.11. zeigt
-      nur, dass zwei Hosts ohne solche Ausgabe keinen Fehlalarm auslösen. Die
-      Handabnahme hat dafür zwei Schritte (§12, A5 und A6). Nur am Code
-      gelesen: Mit Meldungen auf der Fehlerausgabe meldet
-      „New session“ einen unbestätigten Ausgang, obwohl die Session
-      entsteht; ein Host ohne Session und das Beenden der letzten melden
-      einen Fehler; Öffnen und Beenden nach Namen gehen.
+      [Grenzen](guide/limits.md)). Herausgefiltert wird nichts. Am 16.11. an
+      einem Host mit bash 5.2 und tmux 3.3a gemessen, an den Befehlskernen
+      und nicht am Fenster
+      ([Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md));
+      für das Fenster bleiben die zwei Schritte der Handabnahme (§12, A5 und
+      A6). Die Erkennung arbeitet in beiden Fällen wie beschrieben. Gemessen
+      ist auch, was vorher nur am Code gelesen war: Mit Meldungen auf der
+      Fehlerausgabe meldet „New session“ einen unbestätigten Ausgang, obwohl
+      die Session entsteht; ein Host ohne Session zeigt den Hinweis zur Shell
+      statt einer leeren Liste; das Beenden der letzten Session meldet einen
+      unbestätigten Ausgang, obwohl sie endet; Öffnen und Beenden nach Namen
+      gehen. Neu aus der Messung, alles in den Grenzen: Mit Text auf der
+      Standardausgabe legt „New session“ eine Session an, die die App nicht
+      zeigen kann, und die Ordnerliste scheitert. Schreibt die Shell nur mit
+      Terminal (`[ -t 1 ]`), bemerken Host-Prüfung und Liste nichts, und
+      keine Session öffnet; die Meldung nennt die Shell nicht. Schreibt sie
+      nur, wenn sie interaktiv ist (`$-` enthält `i`), stört nichts. Nach
+      der neutralen Bewertung der Messung später, nicht für 0.3.6: eine
+      Sperre für „New session“, solange die Liste wegen der Shell ausbleibt.
+      Sie braucht einen eigenen Fehlercode: Ein leerer Host mit Meldungen
+      auf der Fehlerausgabe trägt denselben Code `shell_output` und braucht
+      „New session“. Und eine Meldung beim Öffnen, die die Shell als
+      möglichen Grund nennt. Nicht gemessen: zsh, andere tmux-Versionen,
+      eine Startdatei, die auf Eingabe wartet.
     - **Backend, klein:** Zweite Verbindung und Reparatur lösen den Hostnamen
       neu auf (Round-Robin-DNS kann sie auf zwei Rechner führen);
       `close_terminal` kann sein `open_terminal` überholen (Verdacht, enges
@@ -745,8 +791,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Nicht gebaut (§7 der Spec):** andere Wörter („Needs input“,
       „Working“), Bewegung an „Busy“ (UI v2 §14), ein Streifen an wartenden
       Kacheln, eine Übersichtszeile, Filter nach Status.
-19. **Erststart (Spec vom 15.11.):** gebaut und seit dem 16.11. auf `main`
-    (PR #61, `1fdcc20`), noch nicht veröffentlicht. Der
+19. **Erststart (Spec vom 15.11.):** ausgeliefert mit 0.3.6 (PR #61,
+    `1fdcc20`). Der
     Weg eines neuen Nutzers bis zur ersten Session wurde im Headless-Browser
     gegen Beispieldaten nachgestellt, vorher und nachher, in Desktop- und
     Telefongröße; am Fenster und an einem echten Host ist nichts davon

@@ -1,0 +1,27 @@
+
+test prepare_sessions ... STEP new session slow_00: SessionError { kind: "duplicate", message: "a session named \"slow_00\" already exists on this host" }
+STEP new session slow_01: SessionError { kind: "duplicate", message: "a session named \"slow_01\" already exists on this host" }
+STEP new session slow_02: SessionError { kind: "duplicate", message: "a session named \"slow_02\" already exists on this host" }
+STEP new session slow_03: SessionError { kind: "duplicate", message: "a session named \"slow_03\" already exists on this host" }
+STEP new session slow_04: SessionError { kind: "duplicate", message: "a session named \"slow_04\" already exists on this host" }
+STEP new session slow_05: SessionError { kind: "duplicate", message: "a session named \"slow_05\" already exists on this host" }
+STEP new session slow_06: SessionError { kind: "duplicate", message: "a session named \"slow_06\" already exists on this host" }
+STEP new session slow_07: SessionError { kind: "duplicate", message: "a session named \"slow_07\" already exists on this host" }
+STEP new session slow_08: SessionError { kind: "duplicate", message: "a session named \"slow_08\" already exists on this host" }
+STEP new session slow_09: SessionError { kind: "duplicate", message: "a session named \"slow_09\" already exists on this host" }
+STEP new session slow_10: SessionError { kind: "duplicate", message: "a session named \"slow_10\" already exists on this host" }
+STEP new session slow_11: SessionError { kind: "duplicate", message: "a session named \"slow_11\" already exists on this host" }
+STEP new session slow_12: SessionError { kind: "duplicate", message: "a session named \"slow_12\" already exists on this host" }
+STEP new session slow_13: SessionError { kind: "duplicate", message: "a session named \"slow_13\" already exists on this host" }
+STEP new session slow_14: SessionError { kind: "duplicate", message: "a session named \"slow_14\" already exists on this host" }
+STEP new session slow_15: SessionError { kind: "duplicate", message: "a session named \"slow_15\" already exists on this host" }
+STEP new session slow_16: SessionError { kind: "duplicate", message: "a session named \"slow_16\" already exists on this host" }
+STEP new session slow_17: SessionError { kind: "duplicate", message: "a session named \"slow_17\" already exists on this host" }
+STEP new session slow_18: SessionError { kind: "duplicate", message: "a session named \"slow_18\" already exists on this host" }
+STEP new session slow_19: SessionError { kind: "duplicate", message: "a session named \"slow_19\" already exists on this host" }
+STEP sessions created: 20 of 40
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 7.01s
+
+exit: 0

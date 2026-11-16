@@ -1,0 +1,8 @@
+
+test walk ... RUN 175 ms per direction, 40 sessions
+STEP list of the own socket: 60008 ms, sessions 0, unverified 0, error of the own socket: Some(OperationErrorDto { code: "command_timeout", message: "The SSH command failed (open, timeout).", control_generation: 0 })
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 63.81s
+
+exit: 0

@@ -1,0 +1,4 @@
+variant tty: first line of ~/.bashrc: [ -t 1 ] && echo hello
+variant tty: 'ssh <account>@<host> true' prints on stdout: []
+variant tty: 'ssh <account>@<host> true' prints on stderr: []
+variant tty: 'ssh -tt <account>@<host> true' (with a terminal) prints: [hello]

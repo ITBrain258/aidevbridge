@@ -1,0 +1,3 @@
+after variant stock, sessions on the measuring socket:
+no server running on /tmp/tmux-<UID>/abmess_20261116
+no server running on /tmp/tmux-<UID>/abmess_20261116
