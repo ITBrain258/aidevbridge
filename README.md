@@ -147,8 +147,10 @@ sudo apt install tmux      # Debian, Ubuntu
    `~/.ssh/config`. Pick one, or add a host by hand with a key file, ssh-agent or a
    password.
 2. Compare the host key's fingerprint with the host and choose **Trust and
-   continue**. The app then checks the host's requirements and names what is missing.
-3. Choose **New session** under the host and pick a working directory.
+   continue**. The app then checks the host's requirements and names what is
+   missing; **Check again** repeats the check once you fixed it.
+3. Choose **Save host**, then **New session** under the host, and pick a working
+   directory.
 4. Start your agent in that terminal, for example `claude` or `codex`. Its status
    appears next to the session.
 

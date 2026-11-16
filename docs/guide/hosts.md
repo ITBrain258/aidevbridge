@@ -43,6 +43,17 @@ continue**. The question waits 60 seconds for your answer, so look up the
 fingerprint on the host before you connect. The app then checks tmux, `base64`
 and the tmux socket directory on the host.
 
+If something is missing, the app names it. Fix it on the host and choose
+**Check again**; the connection stays open meanwhile, so you neither connect
+again nor retype a passphrase or password. **Save host** then adds the host to
+the sidebar, and
+**New session** under it starts the first session.
+
+If the app answers "The server didn't accept this key for this user", check the
+user name first, then that the public half of the key is a line in
+`~/.ssh/authorized_keys` of that user on the host. **Edit details** under a
+suggested host opens the form with its values, to correct the user or the port.
+
 ## Which sessions the app shows
 
 The sidebar lists the sessions on the app's own tmux socket, `agentbridge`.

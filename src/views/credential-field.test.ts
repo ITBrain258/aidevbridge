@@ -22,6 +22,15 @@ describe("credential-field (Spec 9.3, 11.3)", () => {
     expect(field.input.dataset.focusKey).toBeUndefined();
   });
 
+  // Spec 2026-11-15 §3.3: wer das Feld an einer Stelle zeigt, an der die
+  // Standardbeschriftung der Meldung darueber widerspricht, gibt seine eigene mit.
+  it("eine mitgegebene Beschriftung ersetzt die der Art; Name und Typ des Felds bleiben", () => {
+    const field = buildCredentialField({ kind: "passphrase", label: "Passphrase for this key" });
+    expect(field.root.textContent).toBe("Passphrase for this key");
+    expect(field.input.name).toBe("passphrase");
+    expect(field.input.type).toBe("password");
+  });
+
   it("value() ist undefined bei leerem Feld und der Text sonst", () => {
     const field = buildCredentialField({ kind: "password" });
     expect(field.value()).toBeUndefined();

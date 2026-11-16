@@ -171,6 +171,7 @@ Build-Provenienz an ihnen hängen.
 | M0 Fundament, UI v2 | abgeschlossen mit 0.1.1 und 0.1.2; Farbwahl (7 Akzente auf 2 Grundtönen) und Einstellungsdialog |
 | Seitenleiste und Grundtöne | nach der [Spec vom 14.11.](specs/2026-11-14-seitenleiste-und-grundtoene-design.md), seit 0.3.5: Einklappknopf und Symbolleiste der eingeklappten Seitenleiste mit der Einstellung `sidebar_rail`, Marke im Fuß ohne Commit, vier weitere Grundtöne (42 Varianten) |
 | Statusanzeige und Knopfleiste | nach der [Spec vom 14.11.](specs/2026-11-14-statusanzeige-design.md), seit 0.3.5: Knopfleiste an jedem Host, ruhige Statuspillen (getönt nur Waiting, Ended, Failed; Busy blau, Idle grau), Wartet-Spur als Karte „Waiting for you“, Status-Zeichen an der Zeile der fokussierten Kachel |
+| Erststart | nach der [Spec vom 15.11.](specs/2026-11-15-erststart-design.md), noch nicht veröffentlicht: „Check again“ und „Save host“ an der Host-Prüfung, „Edit details“ an einem Vorschlag, „New session“ unter einer leeren Sessionliste, eigene Meldungen zu einem Schlüssel, den der Host nicht annimmt, Einstieg „Add your first host“ |
 | Stabilität und Verbindung | Kontroll- und Terminalverbindung je Host, Fristen, Kontrollreparatur, Korrekturen an Hostschlüsseln, Erststart und Hostverwaltung, RSA-Blinding; Hostschlüssel-Algorithmen nach `known_hosts`, weitere Agent-Schlüssel nach einer verweigerten Signatur |
 | M1 Statuspunkt | Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel ([Messung](messungen/messung-2026-10-23-agentversionen.md)) |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Selbstheilung für Schlüssel- und Agent-Hosts; Arbeitsplatz, Schnellöffnen, ziehbare Seitenleiste; fünf Einstellungsbereiche |
@@ -650,6 +651,20 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Nicht gebaut (§7 der Spec):** andere Wörter („Needs input“,
       „Working“), Bewegung an „Busy“ (UI v2 §14), ein Streifen an wartenden
       Kacheln, eine Übersichtszeile, Filter nach Status.
+19. **Erststart (Spec vom 15.11.):** gebaut, noch nicht veröffentlicht. Der
+    Weg eines neuen Nutzers bis zur ersten Session wurde im Headless-Browser
+    gegen Beispieldaten nachgestellt, vorher und nachher, in Desktop- und
+    Telefongröße; am Fenster und an einem echten Host ist nichts davon
+    geprüft. Offen:
+    - **Am Fenster:** die fünf Punkte aus §10 der Spec (ein echter erster
+      Start gegen einen echten Host, „Check again“ nach nachinstalliertem
+      tmux, ein Schlüssel, den der Host nicht annimmt, auch am ssh-agent,
+      „New session“ unter dem frisch gespeicherten Host auf Telefon oder
+      Tablet, Bildschirmleser).
+    - **Vorschläge, nicht gebaut (§9 der Spec):** die Tastenleiste auf dem
+      Telefon ausblenden, solange kein Terminal offen ist (ändert
+      Android-Spec §5.2); „☰ Sessions“ ohne Host; ein Hinweis in der ersten
+      Shell; eine Erststart-Szene in `scripts/readme-images/`.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 

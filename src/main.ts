@@ -1050,6 +1050,10 @@ export function main(): void {
     const host = hostFromEntry(entry);
     host.runtimeId = runtimeId;
     host.state = "connected";
+    // Spec 2026-11-15 §2: ein eben angelegter Host steht aufgeklappt da. Unter
+    // ihm zeigt die Seitenleiste dann die leere Liste mit "New session" --
+    // zugeklappt saehe man auf dem Telefon nur die Karte und drei Symbole.
+    host.expanded = true;
     // Vor den fruehen Ereignissen unten: ein Transportverlust gleich nach dem
     // Speichern fragt schon, ob der Host selbst neu verbunden wird (§5.4).
     if (usedSecret) hostsConnectedWithSecret.add(entry.id);

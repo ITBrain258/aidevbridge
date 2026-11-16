@@ -304,7 +304,7 @@ describe("mountHostForm: Feld 'Name' (UX-Spec §7.7)", () => {
     const first = el.querySelector("form input");
     expect(first).toBe(nameInput(el));
     expect(nameInput(el).required).toBe(false);
-    expect(nameInput(el).closest("label")?.textContent).toBe("Name");
+    expect(nameInput(el).closest("label")?.textContent).toBe("Name (optional)");
     typeHostname(el, "192.0.2.20");
     expect(nameInput(el).placeholder).toBe("192.0.2.20");
   });
@@ -451,6 +451,57 @@ describe("mountHostForm: Schalter Show tmux sessions (Spec 2026-10-25 §10.1)", 
     document.body.appendChild(el);
     mountHostForm(el, { existing: [], initial: { hostname: "10.0.0.9", user: "u", port: 22 }, onSubmit: vi.fn(), mode: "control-repair" });
     expect(box(el)).toBeNull();
+    expect(el.textContent).not.toContain("Also lists the sessions");
+  });
+
+  // Spec 2026-11-15 §5.4: der Schalter sagte nicht, welche Sessions er meint.
+  it("traegt darunter einen Satz, der den Schalter beschreibt, und haengt ihn an das Kaestchen", async () => {
+    const { el } = await mount();
+    const hint = el.querySelector<HTMLElement>(`#${box(el)!.getAttribute("aria-describedby")}`)!;
+    expect(hint.classList.contains("host-form-hint")).toBe(true);
+    expect(hint.textContent).toBe("Also lists the sessions you started with plain tmux on this host.");
+    expect(box(el)!.closest("label")!.nextElementSibling).toBe(hint);
+  });
+
+  it("zwei Formulare zugleich tragen verschiedene Kennungen fuer den Satz", async () => {
+    const first = await mount();
+    const second = await mount();
+    expect(box(first.el)!.getAttribute("aria-describedby")).not.toBe(box(second.el)!.getAttribute("aria-describedby"));
+  });
+});
+
+// Spec 2026-11-15 §5.2 und §5.3: Beispiele in den Pflichtfeldern, und ein
+// Hinweis unter dem Anmeldungsmenue, der zum Fund passt.
+describe("mountHostForm: Beispiele und Schluesselhinweis (Spec 2026-11-15 §5)", () => {
+  const authHint = (el: HTMLElement) => el.querySelector("select[name=auth]")!.closest("label")!.nextElementSibling;
+
+  it("Host name und User zeigen ein Beispiel als Platzhalter", async () => {
+    const { el } = await mount();
+    expect(el.querySelector<HTMLInputElement>("input[name=hostname]")!.placeholder).toBe("devbox.example.com or 192.0.2.10");
+    expect(el.querySelector<HTMLInputElement>("input[name=user]")!.placeholder).toBe("Your account on the host, for example ubuntu");
+  });
+
+  it("mit gefundenen Schluesseln nennt der Hinweis den Ordner, aus dem sie kommen", async () => {
+    const { el } = await mount();
+    expect(authHint(el)?.textContent).toBe("Found in %USERPROFILE%\\.ssh — only the .pub files are read to build this list.");
+  });
+
+  it("ohne gefundene Schluessel sagt der Hinweis das und nennt die anderen Wege", async () => {
+    invokeMock.mockImplementation(() => Promise.resolve([]));
+    const { el } = await mount();
+    expect(authHint(el)?.textContent).toBe(
+      "No SSH keys found in %USERPROFILE%\\.ssh. Choose a key file, or sign in with ssh-agent or a password.",
+    );
+  });
+
+  it("auf Android bleibt der Hinweis der zu den Schluesseln der App, auch ohne Schluessel", async () => {
+    invokeMock.mockImplementation(() => Promise.resolve([]));
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    mountHostForm(el, { existing: [], onSubmit: vi.fn(), android: true });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(authHint(el)?.textContent).toContain("Keys stored in this app.");
   });
 });
 

@@ -6,6 +6,25 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Added
+
+- Erststart: Ist die Host-Pruefung blockiert oder gescheitert, wiederholt "Check again" sie auf derselben Verbindung. Bisher blieb nur "Back", das die Verbindung trennt; wer auf dem Host tmux nachinstalliert hatte, musste neu verbinden und Passphrase oder Passwort neu eingeben.
+- Erststart: Unter einem Vorschlag, der nicht verbindet, oeffnet "Edit details" das Formular mit seinen Werten, um Benutzer oder Port zu berichtigen. Bisher gab es nur "Retry" mit denselben Werten.
+- Seitenleiste: Unter einer leeren Sessionliste eines verbundenen Hosts steht ein beschrifteter Knopf "New session", und ein eben gespeicherter Host steht aufgeklappt da. Auf dem Telefon verdeckte die Hostliste nach dem ersten Verbinden den Knopf des leeren Rasters; uebrig blieben drei Symbole ohne Wort.
+
+### Changed
+
+- Anmeldung: Nimmt der Host einen Schluessel nicht an, sagt die Meldung das und nennt, was zu pruefen ist: den Benutzernamen und den oeffentlichen Schluessel in `~/.ssh/authorized_keys`. Fuer ssh-agent und fuer ein Passwort, das der Server fuer das Konto nicht anbietet, gibt es je einen eigenen Satz. Bisher stand in allen drei Faellen "The server does not offer this authentication method.", auch wenn nur der Benutzername falsch war.
+- Erststart: Die Host-Pruefung nennt ihr Ergebnis in der Ueberschrift ("build-box is ready" / "is not ready yet"), die Zeilen stehen in Worten ("tmux 3.0 or newer — found 3.4") mit tmux zuerst, und der Knopf danach heisst "Save host" statt "Continue". Die Zeile "Checking the host…" bleibt nach der Pruefung nicht mehr stehen. "What gets checked" sagt, wozu jede Voraussetzung da ist.
+- Erststart: Ohne Vorschlaege heisst der Einstieg "Add your first host" und sagt in einem Satz, was ein Host ist; vorher stand "Suggested hosts … No hosts found" ueber einem Formular ohne Titel. Im Formular heisst das Feld "Name (optional)", "Hostname or IP" und "User" zeigen ein Beispiel, unter "Show tmux sessions" steht, was der Schalter tut, und ohne gefundenen Schluessel sagt der Hinweis das, statt "Found in …" ueber einer leeren Liste zu zeigen.
+- Schluesselabfrage: Beim ersten Kontakt mit einem Host sagt ein Satz unter dem Fingerabdruck, dass die Frage dazugehoert und womit der Fingerabdruck zu vergleichen ist.
+- Erststart: Das Feld unter einem Vorschlag ist passend beschriftet ("Passphrase for this key", "Or enter the password for …"). Vorher stand unter der Meldung "Enter the passphrase" die Beschriftung "only needed if the stored key has one".
+
+### Fixed
+
+- Erststart: In der Liste der Vorschlaege stiessen der Name und die Adresszeile darunter ineinander. Der Fehler stand seit 0.2.0 in der Liste, auch im Dialog "Add host".
+- Erststart: Die Meldung einer gescheiterten Host-Pruefung endete auf zwei Punkte und stand ueber einer leeren Ueberschrift. Sie steht jetzt unter der Ueberschrift "Host check", ueber den Knoepfen.
+
 ## [0.3.5] - 2026-11-14
 
 Die Seitenleiste in neuem Aussehen: eine Knopfleiste an jedem Host, eine ruhigere Statusanzeige, eine Symbolleiste beim Einklappen und vier weitere Hintergruende.
