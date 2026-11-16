@@ -1,22 +1,20 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.5` vom 14.11.2026 (Tag `v0.3.5` auf dem Merge-Commit
+**Stand:** Version `0.3.6` vom 16.11.2026 (Tag `v0.3.6` auf dem Merge-Commit
 des Release-PR); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.5 bringt die beiden Gestaltungsrunden vom 14.11. (PR #59): eine
-Knopfleiste an jedem Host, eine ruhigere Statusanzeige, die Wartet-Spur als
-Karte, die Symbolleiste der eingeklappten Seitenleiste und vier weitere
-Hintergründe. 0.3.4 brachte die Befunde der Durchsicht vom 13.11. (PR #56):
-Ein Klick in der Seitenleiste geht nicht mehr verloren, wenn sie während des
-Drucks neu gebaut wird, mit „Screen reader support“ laden Browsertasten auf
-einer Zeile des Bildschirmlesers die App nicht mehr neu, und auf Android
-vergisst das Entfernen eines Hosts dessen Hostschlüssel. Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
+0.3.6 bringt den überarbeiteten Erststart (PR #61) und die Korrekturen aus den
+Entscheidungen vom 16.11. (PR #62): Die App erkennt und nennt eine Shell, die
+vor jedem SSH-Befehl Text schreibt, die Sessionliste hat 60 s für den ganzen
+Gang und 15 s je Befehl, und ein Arbeitsordner, der auf `;` endet, wird
+abgelehnt. Ein Host, dessen Shell auf die Standardausgabe schreibt, zeigt
+seitdem keine Sessionliste mehr, bis die Ausgabe entfernt ist. 0.3.5 brachte
+die beiden Gestaltungsrunden vom 14.11. (PR #59): eine Knopfleiste an jedem
+Host, eine ruhigere Statusanzeige, die Wartet-Spur als Karte, die
+Symbolleiste der eingeklappten Seitenleiste und vier weitere Hintergründe.
+Seit 0.3.0 gelten die Mindeststände macOS 12.4 und
 Android System WebView 105 (Entscheidungen vom 07.11.) und Android 17 als
 Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
-
-Auf `main` liegt seit dem 16.11. unveröffentlicht: der überarbeitete
-Erststart (PR #61, `1fdcc20`) und die Korrekturen aus den Entscheidungen vom
-16.11. (PR #62, `30db55e`; CHANGELOG `[Unreleased]`).
 
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.);
 reine Doku darf seit dem 15.11. direkt hinein (Entscheidungen vom 15.11.).
@@ -215,7 +213,7 @@ Maintainers.
 | M0 Fundament, UI v2 | abgeschlossen mit 0.1.1 und 0.1.2; Farbwahl (7 Akzente auf 2 Grundtönen) und Einstellungsdialog |
 | Seitenleiste und Grundtöne | nach der [Spec vom 14.11.](specs/2026-11-14-seitenleiste-und-grundtoene-design.md), seit 0.3.5: Einklappknopf und Symbolleiste der eingeklappten Seitenleiste mit der Einstellung `sidebar_rail`, Marke im Fuß ohne Commit, vier weitere Grundtöne (42 Varianten) |
 | Statusanzeige und Knopfleiste | nach der [Spec vom 14.11.](specs/2026-11-14-statusanzeige-design.md), seit 0.3.5: Knopfleiste an jedem Host, ruhige Statuspillen (getönt nur Waiting, Ended, Failed; Busy blau, Idle grau), Wartet-Spur als Karte „Waiting for you“, Status-Zeichen an der Zeile der fokussierten Kachel |
-| Erststart | nach der [Spec vom 15.11.](specs/2026-11-15-erststart-design.md), noch nicht veröffentlicht: „Check again“ und „Save host“ an der Host-Prüfung, „Edit details“ an einem Vorschlag, „New session“ unter einer leeren Sessionliste, eigene Meldungen zu einem Schlüssel, den der Host nicht annimmt, Einstieg „Add your first host“ |
+| Erststart | nach der [Spec vom 15.11.](specs/2026-11-15-erststart-design.md), seit 0.3.6: „Check again“ und „Save host“ an der Host-Prüfung, „Edit details“ an einem Vorschlag, „New session“ unter einer leeren Sessionliste, eigene Meldungen zu einem Schlüssel, den der Host nicht annimmt, Einstieg „Add your first host“ |
 | Stabilität und Verbindung | Kontroll- und Terminalverbindung je Host, Fristen, Kontrollreparatur, Korrekturen an Hostschlüsseln, Erststart und Hostverwaltung, RSA-Blinding; Hostschlüssel-Algorithmen nach `known_hosts`, weitere Agent-Schlüssel nach einer verweigerten Signatur |
 | M1 Statuspunkt | Tor bestanden (automatisiert am 23.10., am Fenster gemeldet am 24.10.): numerische Sessionbindung (tmux 3.0, 3.3a, 3.4, 3.6), Statuspille, Aufmerksamkeit; Claude Code über `claude agents --json`, Codex und Grok über den Panetitel ([Messung](messungen/messung-2026-10-23-agentversionen.md)) |
 | UX-Überarbeitung | gebaut nach der [Spec vom 11.10.](specs/2026-10-11-ux-ueberarbeitung-design.md): Kopieren und Einfügen wie in Windows Terminal samt OSC 52, Terminalmenü, Links, Suchleiste, Schriftgröße; Selbstheilung für Schlüssel- und Agent-Hosts; Arbeitsplatz, Schnellöffnen, ziehbare Seitenleiste; fünf Einstellungsbereiche |
@@ -745,8 +743,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Nicht gebaut (§7 der Spec):** andere Wörter („Needs input“,
       „Working“), Bewegung an „Busy“ (UI v2 §14), ein Streifen an wartenden
       Kacheln, eine Übersichtszeile, Filter nach Status.
-19. **Erststart (Spec vom 15.11.):** gebaut und seit dem 16.11. auf `main`
-    (PR #61, `1fdcc20`), noch nicht veröffentlicht. Der
+19. **Erststart (Spec vom 15.11.):** ausgeliefert mit 0.3.6 (PR #61,
+    `1fdcc20`). Der
     Weg eines neuen Nutzers bis zur ersten Session wurde im Headless-Browser
     gegen Beispieldaten nachgestellt, vorher und nachher, in Desktop- und
     Telefongröße; am Fenster und an einem echten Host ist nichts davon

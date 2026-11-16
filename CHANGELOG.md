@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.3.6] - 2026-11-16
+
+Der Erststart ist klarer, und die App sagt, wenn die Shell eines Hosts in die Antworten schreibt: Ein Host, dessen Shell vor jedem SSH-Befehl Text auf die Standardausgabe schreibt, zeigt keine Sessionliste mehr, bis die Ausgabe entfernt ist.
+
 ### Added
 
 - Erststart: Ist die Host-Pruefung blockiert oder gescheitert, wiederholt "Check again" sie auf derselben Verbindung. Bisher blieb nur "Back", das die Verbindung trennt; wer auf dem Host tmux nachinstalliert hatte, musste neu verbinden und Passphrase oder Passwort neu eingeben.
