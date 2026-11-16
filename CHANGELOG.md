@@ -22,6 +22,7 @@ dem Namen agentbridge.
 
 ### Fixed
 
+- Sessionliste: Ein Host mit vielen Sessions an einer langsamen Verbindung listete nie. Die Liste fragt den Host je Session zweimal, einen Befehl nach dem anderen, und hatte dafuer zusammen 15 Sekunden; bei 20 Sessions reichte das ab rund 350 ms je Befehl nicht, bei jedem Laden gleich. Jetzt hat jeder Befehl 15 Sekunden und die ganze Liste 60. Dasselbe gilt fuer die Pruefung nach dem Beenden einer Session.
 - Erststart: In der Liste der Vorschlaege stiessen der Name und die Adresszeile darunter ineinander. Der Fehler stand seit 0.2.0 in der Liste, auch im Dialog "Add host".
 - Erststart: Die Meldung einer gescheiterten Host-Pruefung endete auf zwei Punkte und stand ueber einer leeren Ueberschrift. Sie steht jetzt unter der Ueberschrift "Host check", ueber den Knoepfen.
 

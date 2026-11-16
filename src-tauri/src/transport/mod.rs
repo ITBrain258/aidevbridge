@@ -52,6 +52,12 @@ pub trait HostKeyPolicy: Send + Sync {
     }
 }
 
+/// Die Frist eines einzelnen exec-Aufrufs (Gesamtspec §4.2; MVP-Spec 4.1,
+/// Absatz "Deadline"): Kanal oeffnen, exec, EOF. Eine Folge von Aufrufen darf
+/// insgesamt laenger dauern (`connection::SESSION_WALK_TIMEOUT`), ein
+/// einzelner nie.
+pub const DEFAULT_EXEC_DEADLINE: std::time::Duration = std::time::Duration::from_secs(15);
+
 #[async_trait]
 pub trait Transport: Send + Sync {
     async fn exec_with_deadline(
@@ -60,8 +66,7 @@ pub trait Transport: Send + Sync {
         timeout: std::time::Duration,
     ) -> anyhow::Result<ExecResult>;
     async fn exec(&self, line: &str) -> anyhow::Result<ExecResult> {
-        self.exec_with_deadline(line, std::time::Duration::from_secs(15))
-            .await
+        self.exec_with_deadline(line, DEFAULT_EXEC_DEADLINE).await
     }
     async fn exec_mutation(&self, line: &str) -> anyhow::Result<ExecResult> {
         self.exec(line).await

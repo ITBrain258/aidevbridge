@@ -135,8 +135,10 @@ fn sequence(count: u32) -> Vec<ExecResult> {
     results
 }
 
+/// Unter `DEFAULT_EXEC_DEADLINE`, damit die Tests unten den Rest des
+/// Budgets sehen und nicht die Obergrenze je Befehl.
 fn end() -> Instant {
-    Instant::now() + Duration::from_secs(20)
+    Instant::now() + Duration::from_secs(10)
 }
 
 #[tokio::test(start_paused = true)]
@@ -171,7 +173,7 @@ async fn eight_rows_share_one_inventory_and_one_decreasing_absolute_budget() {
         );
         assert_eq!(
             call.remaining,
-            Duration::from_secs(20) - Duration::from_millis(500 * index as u64)
+            Duration::from_secs(10) - Duration::from_millis(500 * index as u64)
         );
     }
     let list = ["list-sessions", "-F", session_binding::LIST_FORMAT];
@@ -435,7 +437,7 @@ async fn a_named_socket_is_absent_only_when_tmux_names_the_predicted_path() {
             // The prediction shares the one absolute budget of the observation.
             assert_eq!(
                 calls[1].remaining,
-                Duration::from_secs(20) - Duration::from_millis(500)
+                Duration::from_secs(10) - Duration::from_millis(500)
             );
         }
     }
@@ -641,4 +643,48 @@ async fn a_missing_default_server_is_proven_like_a_missing_own_server() {
             .is_err());
         assert_eq!(transport.calls(), calls);
     }
+}
+
+/// Zwanzig Sessions bei 350 ms je Befehl brauchen 15,05 s: mehr, als ein
+/// einzelner Befehl bekommt, weniger als das Budget des ganzen Gangs
+/// (`connection::SESSION_WALK_TIMEOUT`). Mit 15 s fuer alles zusammen
+/// scheiterte genau dieser Gang bei jedem Laden.
+#[tokio::test(start_paused = true)]
+async fn a_walk_may_outlast_one_command_but_no_command_gets_more_than_its_own_deadline() {
+    let transport = ScriptedTransport::new(sequence(20), Duration::from_millis(350));
+    let deadline = Instant::now() + Duration::from_secs(60);
+    let observed = reader("sock")
+        .observe_sessions(&transport, MeasuredVersion::V3_0, deadline)
+        .await
+        .unwrap();
+    assert_eq!(observed.sessions.len(), 20);
+    let calls = transport.calls.lock().unwrap();
+    assert_eq!(calls.len(), 43);
+    // Vom Budget sind bei jedem Aufruf noch mehr als 44 s uebrig; weitergereicht
+    // werden trotzdem nie mehr als die 15 s eines Befehls.
+    for call in calls.iter() {
+        assert_eq!(call.remaining, DEFAULT_EXEC_DEADLINE);
+    }
+}
+
+/// Das Budget bleibt eine Grenze: Hundert Sessions bei 350 ms je Befehl
+/// braeuchten 71 s. Der 172. Befehl endet nach 60,2 s, sein Ergebnis wird
+/// verworfen, und es folgt keiner mehr.
+#[tokio::test(start_paused = true)]
+async fn a_walk_that_outlasts_its_budget_ends_in_a_timeout_without_a_further_command() {
+    let transport = ScriptedTransport::new(sequence(100), Duration::from_millis(350));
+    let deadline = Instant::now() + Duration::from_secs(60);
+    let error = reader("sock")
+        .observe_sessions(&transport, MeasuredVersion::V3_0, deadline)
+        .await
+        .unwrap_err();
+    assert_eq!(
+        error.downcast_ref::<ExecError>().unwrap(),
+        &ExecError {
+            phase: ExecPhase::Read,
+            reason: ExecReason::Timeout,
+            submission: Submission::PossiblySubmitted,
+        }
+    );
+    assert_eq!(transport.calls(), 172);
 }

@@ -15,7 +15,7 @@
 
 use crate::connection::{
     CommandTransport, ConnectionEvents, ControlStateEvent, HostConnection, PairIdentityRejected,
-    TerminalTransportLostEvent, COMMAND_TIMEOUT,
+    TerminalTransportLostEvent, COMMAND_TIMEOUT, SESSION_WALK_TIMEOUT,
 };
 use crate::settings::{self, AuthKind, HostEntry};
 use crate::ssh::known_hosts::{self, HostKeyDecision};
@@ -2652,7 +2652,9 @@ pub async fn kill_session_impl(
     if socket == SocketKind::Default {
         return Err(FOREIGN_SESSION.into());
     }
-    let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
+    // Die Pruefung nach einem gebundenen Kill geht einmal durch alle Sessions
+    // (2N+3 Befehle); der Kill selbst behaelt `COMMAND_TIMEOUT`.
+    let deadline = tokio::time::Instant::now() + SESSION_WALK_TIMEOUT;
     // H6/H9, dieselbe Ausnahme von der Allowlist wie in
     // `open_terminal_with_history`: von Hand angelegte Sessions duerfen Punkte
     // und Nicht-ASCII tragen und muessen sich trotzdem beenden lassen, nur
@@ -4008,15 +4010,16 @@ pub async fn list_sessions_impl(
 }
 
 /// Liest den eigenen Socket und, wenn verlangt, den Standard-Socket; den
-/// eigenen zuerst, beide mit derselben Frist. Ein fehlender Host und ein
-/// gescheiterter Befehl `tmux -V` scheitern ganz, ein Fehler eines Sockets
-/// nur fuer diesen.
+/// eigenen zuerst, beide mit derselben Frist: `SESSION_WALK_TIMEOUT` fuer
+/// alles zusammen, jeder einzelne Befehl hoechstens 15 s. Ein fehlender Host
+/// und ein gescheiterter Befehl `tmux -V` scheitern ganz, ein Fehler eines
+/// Sockets nur fuer diesen.
 pub async fn list_sockets_impl(
     state: &Arc<AppState>,
     host_id: String,
     include_default: bool,
 ) -> Result<SessionListDto, OperationErrorDto> {
-    let deadline = tokio::time::Instant::now() + COMMAND_TIMEOUT;
+    let deadline = tokio::time::Instant::now() + SESSION_WALK_TIMEOUT;
     // Nur eine fertige Verbindung zaehlt; `ready_host` gibt die
     // `hosts`-Sperre vor dem ersten `await` wieder frei.
     let transport = state

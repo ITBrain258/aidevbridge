@@ -117,6 +117,12 @@
   marker line first. A shell startup file that prints output, or waits for
   input, in non-interactive SSH commands makes opening fail, at the latest
   after 15 seconds.
+- **Many sessions on a slow connection:** the session list asks the host twice
+  per session, one SSH command at a time (2N+3 commands for N sessions, and
+  the same again for the sessions on tmux's default socket). Each command has
+  15 seconds and the whole list 60. A list that needs longer fails with "The
+  SSH command failed (read, timeout)."; the status display of that host pauses
+  while its list loads.
 - **Working directory of a new session:** a directory whose name ends with a
   semicolon (`;`) is refused: tmux would drop the semicolon and start the
   session somewhere else. A semicolon inside the name is fine. On tmux 3.0a, a
