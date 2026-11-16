@@ -117,6 +117,12 @@
   marker line first. A shell startup file that prints output, or waits for
   input, in non-interactive SSH commands makes opening fail, at the latest
   after 15 seconds.
+- **Working directory of a new session:** a directory whose name ends with a
+  semicolon (`;`) is refused: tmux would drop the semicolon and start the
+  session somewhere else. A semicolon inside the name is fine. On tmux 3.0a, a
+  name with `##` directly before `[` (for example `a##[b]`) starts the session
+  in the home directory instead; with 3.3a, 3.4 and 3.6 it starts in the
+  directory itself, and the versions in between are not measured.
 - **Unconfirmed changes:** if creating or ending a session times out after
   the command was sent, the app says that it may already have happened and
   does not repeat it. Reload the session list before trying again.

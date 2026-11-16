@@ -8,6 +8,7 @@ pub mod socket;
 
 pub use client::{CreateOutcome, OwnTmuxClient, ServerAbsent, TmuxClient};
 pub use names::{new_session_name, session_name_is_acceptable, SESSION_NAME_RULE};
+pub use session_binding::{start_directory_ends_in_separator, START_DIRECTORY_SEPARATOR_RULE};
 pub use socket::{OwnSocket, SocketKind, TmuxSocket, DEFAULT_SOCKET_NAME};
 
 /// Steht im selben tmux-Aufruf vor jedem Anhaengen: schaltet die

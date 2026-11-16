@@ -3015,6 +3015,28 @@ async fn create_session_rejects_a_relative_cwd_with_an_error_not_a_panic() {
     );
 }
 
+/// Ein Startordner mit `;` am Ende scheitert mit einer Meldung, die den
+/// Grund nennt, ebenfalls vor dem Host-Lookup und damit vor `prepare_server`:
+/// tmux startete sonst still in einem anderen Ordner
+/// (docs/messungen/messung-2026-11-16-tmux-cwd-semikolon.md). Ein `;` mitten
+/// im Namen kommt durch die Pruefung und scheitert erst am fehlenden Host.
+#[tokio::test]
+async fn create_session_rejects_a_start_folder_that_ends_in_a_semicolon() {
+    let state = Arc::new(AppState::default());
+    for cwd in ["/srv/job;", "/srv/two;;", "/srv/back\\;"] {
+        let r = create_session_impl(&state, "no-such-host".into(), cwd.into(), None).await;
+        assert!(
+            matches!(r, Err(ref e) if e.message == crate::tmux::START_DIRECTORY_SEPARATOR_RULE),
+            "{cwd:?}: {r:?}"
+        );
+    }
+    let r = create_session_impl(&state, "no-such-host".into(), "/srv/a;b".into(), None).await;
+    assert!(
+        matches!(r, Err(ref e) if !e.message.contains("semicolon")),
+        "ein Semikolon mitten im Namen ist erlaubt: {r:?}"
+    );
+}
+
 /// Pinnt die bewusste Ausnahme in `list_directories_impl`: der LEERE Pfad
 /// ist der einzige Weg des Frontends zum Heimatverzeichnis (Spec §3.3,
 /// `directory-tree.ts` Zeile 687) und muss deshalb die Pruefung

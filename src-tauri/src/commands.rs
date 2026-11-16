@@ -1901,6 +1901,12 @@ pub async fn create_session_impl(
             "working directory must be an absolute path without control characters",
         ));
     }
+    // Ebenfalls vor `prepare_server`, aus demselben Grund wie der Name oben.
+    if crate::tmux::start_directory_ends_in_separator(&cwd) {
+        return Err(SessionError::other(
+            crate::tmux::START_DIRECTORY_SEPARATOR_RULE,
+        ));
+    }
 
     let transport = state
         .ready_host(&host_id)
