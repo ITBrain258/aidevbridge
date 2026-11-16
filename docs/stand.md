@@ -15,8 +15,8 @@ Ziel mit der Berechtigung fürs lokale Netz; Einzelheiten im
 [CHANGELOG](../CHANGELOG.md).
 
 Auf `main` liegt seit dem 16.11. unveröffentlicht: der überarbeitete
-Erststart (PR #61) und die Korrekturen aus den Entscheidungen vom 16.11.
-(PR #62; CHANGELOG `[Unreleased]`).
+Erststart (PR #61, `1fdcc20`) und die Korrekturen aus den Entscheidungen vom
+16.11. (PR #62, `30db55e`; CHANGELOG `[Unreleased]`).
 
 `main` ist seit dem 05.11. per Ruleset geschützt (Entscheidungen vom 05.11.);
 reine Doku darf seit dem 15.11. direkt hinein (Entscheidungen vom 15.11.).
@@ -233,11 +233,13 @@ die 29 CodeQL-Funde und das Setup; die drei bekannten Fehler aus den Punkten
 8 und 15), danach PR #61 mit zwei Korrekturen und PR #62 (Entscheidungen vom
 16.11.). Lokal für PR #62: Clippy, 727 Rust-Bibliothekstests, mit den
 Integrationstests 803, 4968 Vitest-Tests, 251 Skripttests und
-`npm run build`. An den beiden Test-VMs, nur mit eigenen Testsockets: der
-Live-Test des Startordners auf tmux 3.3a und 3.6 und die Messung zum `;`.
+`npm run build`. An den beiden Test-VMs, nur mit eigenen Testsockets: die
+Messung zum `;` und der Live-Lauf, der unten steht.
 Nicht geprüft: das echte Fenster; die Erkennung der Startausgabe und die
 neue Frist an einem echten Host (beides nur mit Skript-Transporten
-nachgestellt); ob der macOS-Test jetzt hält; CodeQL für Rust.
+nachgestellt); die Anmeldung per Passwort und über den ssh-agent; ob der
+macOS-Test jetzt hält (die beiden Läufe der CI zu PR #62 bestanden); CodeQL
+für Rust.
 
 Am 14.11.2026 nach 0.3.4, vor PR #59 (CHANGELOG `[0.3.5]`): eine Durchsicht
 des Branches mit den beiden Gestaltungsrunden, die nur las. Neun Funde. Fünf
@@ -273,20 +275,26 @@ laufenden App (der Tipp in der Telefonansicht nur emuliert), die Tasten mit
 einem echten Bildschirmleser, das Vergessen des Schlüssels an einem
 Android-Gerät. Die Durchsicht vom 10.11. steht in der Git-Historie dieser Datei.
 
-Der letzte Live-Lauf ging am 14.11. auf dem Tag `v0.3.4` (`6cff307`) von
-Windows aus gegen beide Test-VMs, auf eigenen Testsockets. Gegen die VM mit
-Ubuntu 26.04, OpenSSH 10.2 und tmux 3.6: alle 792 Rust-Tests grün, darunter
-`integration_default_socket` voll (sein Listentest braucht tmux 3.3a oder
-3.6), und die VM-Abnahme (`acceptance_vm`) 11 von 11. Gegen die VM mit
-Debian 12, OpenSSH 9.2 und tmux 3.3a, die davor zuletzt am 25.10. lief
-([M3.1-Abnahme](messungen/messung-2026-10-25-m31-abnahme.md)): ebenfalls alle
-792 Rust-Tests grün und die VM-Abnahme 10 von 11. Der Test der sieben
-Fehlerzweige bricht dort vor SSH ab, weil diese VM kein Wegwerfkonto für den
-Passwortzweig hat (`AIDEVBRIDGE_VM_PASSWORD_USER`); ein Fehler der App ist das
-nicht. Übersprungen auf beiden: der RSA-Zweig (kein
-`AIDEVBRIDGE_TEST_RSA_KEY`), der Passwortzweig (kein
+Der letzte Live-Lauf ging am 16.11. auf dem Stand von PR #62 (`c03444f`; der
+gemergte Kopf `d8742b2` ändert danach nur einen Kommentar in einer Testdatei
+des Frontends) von Windows aus gegen beide Test-VMs, auf eigenen Testsockets.
+Gegen die VM mit Ubuntu 26.04, OpenSSH 10.2 und tmux 3.6 und gegen die VM mit
+Debian 12, OpenSSH 9.2 und tmux 3.3a: je alle 803 Rust-Tests grün, darunter
+`integration_default_socket`, und die VM-Abnahme (`acceptance_vm`) 11 von
+11. Die Sessions auf den übrigen Sockets waren danach dieselben wie davor.
+Die VM mit tmux 3.3a hat weiter kein Wegwerfkonto für den Passwortzweig. Der
+Test der sieben Fehlerzweige bestand dort trotzdem: Er lief mit einem
+Kontonamen, den es auf dieser VM nicht gibt, und sshd beantwortet ein
+fehlendes Konto wie eines ohne `authorized_keys`. Am 14.11. (Tag `v0.3.4`)
+brach er vor SSH ab, weil `AIDEVBRIDGE_VM_PASSWORD_USER` nicht gesetzt war.
+Übersprungen auf beiden und trotzdem als bestanden gezählt: der RSA-Zweig
+(kein `AIDEVBRIDGE_TEST_RSA_KEY`), der Passwortzweig (kein
 `AIDEVBRIDGE_VM_PASSWORD`) und der ssh-agent-Zweig (Dienst auf dem Rechner
 aus).
+Für die Änderungen vom 16.11. zeigt der Lauf nur, dass ein Host ohne
+Startausgabe der Shell keinen Fehlalarm auslöst und dass die Liste mit der
+neuen Frist lädt wie bisher. Die Erkennung selbst und eine langsame Verbindung
+löst er nicht aus (Punkt 15).
 0.3.5 lief nicht live: Sein Rust-Teil unterscheidet sich von `v0.3.4` nur
 durch das Feld `sidebar_rail` der Einstellungen, das die Unit-Tests prüfen,
 und durch die Versionszeile.
@@ -622,9 +630,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       der Standardausgabe hält die Host-Prüfung an und lässt keine Liste zu;
       Meldungen nur auf der Fehlerausgabe lassen die Liste nach Namen, mit
       dem Grund an jeder Zeile (`VersionAnswer` in `commands.rs`,
-      [Grenzen](guide/limits.md)). Herausgefiltert wird nichts. An keinem
-      Host gemessen; die Handabnahme hat dafür zwei Schritte (§12, A5 und
-      A6). Nur am Code gelesen: Mit Meldungen auf der Fehlerausgabe meldet
+      [Grenzen](guide/limits.md)). Herausgefiltert wird nichts. Die
+      Erkennung ist an keinem Host gemessen; der Live-Lauf vom 16.11. zeigt
+      nur, dass zwei Hosts ohne solche Ausgabe keinen Fehlalarm auslösen. Die
+      Handabnahme hat dafür zwei Schritte (§12, A5 und A6). Nur am Code
+      gelesen: Mit Meldungen auf der Fehlerausgabe meldet
       „New session“ einen unbestätigten Ausgang, obwohl die Session
       entsteht; ein Host ohne Session und das Beenden der letzten melden
       einen Fehler; Öffnen und Beenden nach Namen gehen.
