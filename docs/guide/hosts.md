@@ -9,8 +9,10 @@ Each host needs:
 
 - SSH access with a key file, ssh-agent or password, and a POSIX login shell
   such as bash, zsh or dash. fish and csh are not supported. The shell must
-  print nothing in non-interactive SSH commands; the host check names such
-  output (see "Shell startup output" under [Limits](limits.md)).
+  print nothing in non-interactive SSH commands. The host check names text on
+  standard output; messages on standard error, and output that appears only
+  with a terminal, pass it and show later (see "Shell startup output" under
+  [Limits](limits.md)).
 - `tmux` 3.0 or newer on the non-interactive SSH `PATH`. Numeric session
   identity and agent status work with the measured versions 3.0, 3.3a, 3.4
   and 3.6; other versions list sessions by name and show "Unknown". Debian 12

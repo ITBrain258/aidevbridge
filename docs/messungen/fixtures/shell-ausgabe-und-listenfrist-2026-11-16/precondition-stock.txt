@@ -1,0 +1,4 @@
+variant stock: first line of ~/.bashrc: # ~/.bashrc: executed by bash(1) for non-login shells.
+variant stock: 'ssh <account>@<host> true' prints on stdout: []
+variant stock: 'ssh <account>@<host> true' prints on stderr: []
+variant stock: 'ssh -tt <account>@<host> true' (with a terminal) prints: []

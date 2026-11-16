@@ -1,0 +1,14 @@
+
+test walk ... RUN 175 ms per direction, 20 sessions, status poll every 2 s alongside
+POLL asked at 2009 ms, answered at 5313 ms: ok, 20 rows, complete true
+POLL asked at 7323 ms, answered at 10689 ms: ok, 20 rows, complete true
+POLL asked at 12702 ms, answered at 16074 ms: ok, 20 rows, complete true
+POLL asked at 18085 ms, answered at 21379 ms: ok, 20 rows, complete true
+POLL asked at 23390 ms, answered at 26722 ms: ok, 20 rows, complete true
+POLL asked at 28728 ms, answered at 32083 ms: ok, 20 rows, complete true
+STEP list of the own socket: 36248 ms, sessions 20, unverified 0, error of the own socket: None
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 40.07s
+
+exit: 0

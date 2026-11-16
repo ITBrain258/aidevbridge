@@ -1,0 +1,5 @@
+variant interactive: first line of ~/.bashrc: case $- in *i*) echo hello;; esac
+variant interactive: 'ssh <account>@<host> true' prints on stdout: []
+variant interactive: 'ssh <account>@<host> true' prints on stderr: []
+variant interactive: 'ssh -tt <account>@<host> true' (with a terminal) prints: []
+variant interactive: 'ssh <account>@<host> bash -i -c true' (an interactive shell) prints: [hello]

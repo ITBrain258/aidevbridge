@@ -122,19 +122,34 @@
   commands. A shell startup file that prints in non-interactive SSH commands
   (`~/.bashrc` before its check for an interactive shell, or `~/.zshenv`) gets
   in the way, and the app names it instead of guessing. With text on standard
-  output, the host check stops and the session list is not shown; both quote
-  the first line of that text. With messages on standard error only (for
-  example `stty` without a terminal), sessions are listed by name with the
-  status "Unknown", and tmux's default socket is not read. Opening a listed
-  session also expects the app's own marker line first: a startup file that
-  prints output, or waits for input, makes opening fail, at the latest after
-  15 seconds. Remove the output, or print it only in interactive shells.
+  output, the host check stops and the session list is not shown; the host
+  check quotes the first line of that text, the list under its details.
+  **New session** still creates a session on such a host, reports it as
+  unconfirmed and cannot show it until the output is removed. With messages
+  on standard error only (for example `stty` without a terminal), sessions
+  are listed by name with the status "Unknown", and tmux's default socket is
+  not read. While such a host has no session, the sidebar shows the notice
+  about the shell instead of an empty list; creating a session and ending
+  the last one work, but the app reports them as unconfirmed. Opening a
+  listed session also expects the app's own marker line first, and the app
+  opens sessions through an SSH command with a terminal. Output that appears
+  only when there is a terminal (`[ -t 1 ]`, for example) therefore passes
+  the host check and the list, and then no session opens; the message
+  suggests that the session ended and does not name the shell. A startup
+  file that waits for input makes opening fail as well, at the latest after
+  15 seconds. Remove the output, or print it only in interactive shells; in
+  bash that is a test of `$-`, for example `case $- in *i*) echo hello;; esac`.
+  Measured on Debian 12 with bash 5.2 and tmux 3.3a; the waiting startup file
+  is not measured.
 - **Many sessions on a slow connection:** the session list asks the host twice
   per session, one SSH command at a time (2N+3 commands for N sessions, and
   the same again for the sessions on tmux's default socket). Each command has
-  15 seconds and the whole list 60. A list that needs longer fails with "The
-  SSH command failed (read, timeout)."; the status display of that host pauses
-  while its list loads.
+  15 seconds and the whole list 60. A list that needs longer fails: the
+  sidebar says "Couldn't load the session list", and its details name a
+  timeout, for example "The SSH command failed (open, timeout).". Measured
+  through a link that needed 0.77 seconds per command: 20 sessions on the
+  app's own socket listed in 36 seconds, 40 did not. The status display of
+  that host pauses while its list loads.
 - **Working directory of a new session:** a directory whose name ends with a
   semicolon (`;`) is refused: tmux would drop the semicolon and start the
   session somewhere else. A semicolon inside the name is fine. On tmux 3.0a, a

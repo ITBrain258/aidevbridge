@@ -832,13 +832,20 @@ daraus und aus Punkt 7 des Stands weiter offen ist.
    prints text before every SSH command (it starts with "hello") …“. In der
    Seitenleiste steht statt der Liste „This host's shell prints text on every
    SSH command …“. Nach dem Entfernen laufen beide durch.
+   Solange die Zeile steht, nicht „New session“ drücken: Die Session
+   entsteht, und die App kann sie nicht zeigen (an den Befehlskernen
+   gemessen am 16.11.,
+   [Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md)).
 6. **Die Shell schreibt nur auf die Fehlerausgabe.** Dieselbe Stelle mit
    `echo warn >&2`. Danach die Zeile entfernen.
    Erwartung: Die Host-Prüfung läuft durch. Die Sessions stehen mit ihren
    Namen in der Liste, ihr Status ist „Unknown“, und der Tooltip nennt die
-   Shell als Grund. Zu notieren, weil nur am Code gelesen und nie gemessen:
-   ob sich eine solche Session öffnen und beenden lässt und was „New
-   session“ meldet.
+   Shell als Grund. An den Befehlskernen gemessen am 16.11. (dieselbe
+   Messung): Eine solche Session lässt sich öffnen und beenden; „New
+   session“ und das Beenden der letzten Session melden einen unbestätigten
+   Ausgang, obwohl beides geschieht; ein Host ohne Session zeigt den Hinweis
+   zur Shell statt einer leeren Liste. Zu notieren, was das Fenster daraus
+   macht.
 
 **B. Der richtige Host und der wartende Agent (0.3.5, Specs vom 14.11.)**
 

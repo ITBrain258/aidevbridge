@@ -205,6 +205,19 @@ Maintainers.
   ganzen Gang und 15 s je Befehl; der gemeinsame Aufruf bleibt später. Der
   Start mit Kacheln mehrerer Hosts bleibt, wie er ist, und steht in den
   Grenzen (Punkte 8 und 15).
+- **Messung vor dem Release:** Der Maintainer hat am 16.11. entschieden, vor
+  0.3.6 zu messen. Die Bewertung der
+  [Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md):
+  Die Bedingung „an einem echten Host messen“ ist für beide Änderungen
+  erfüllt, und 0.3.6 braucht keine Codeänderung. Eine Erwartung traf nicht
+  zu (ein tmux-Server, der mitten im Laden endet); falsch war die Erwartung,
+  nicht der Code. Die Anleitung ist an den zwei Stellen berichtigt, die die
+  Messung widerlegt (die Meldung nach Ablauf der Frist; was die
+  Host-Prüfung nennt), und um die Fälle ergänzt, die sie zeigt. CHANGELOG,
+  Zusammenfassung und Store-Texte bleiben: Sie sind knapper, aber nicht
+  falsch. Später und nicht für 0.3.6: eine Sperre für „New session“, solange
+  die Liste wegen der Shell ausbleibt, und eine Meldung beim Öffnen, die die
+  Shell nennt (Punkt 15).
 
 ## Gebaut
 
@@ -233,11 +246,17 @@ die 29 CodeQL-Funde und das Setup; die drei bekannten Fehler aus den Punkten
 Integrationstests 803, 4968 Vitest-Tests, 251 Skripttests und
 `npm run build`. An den beiden Test-VMs, nur mit eigenen Testsockets: die
 Messung zum `;` und der Live-Lauf, der unten steht.
-Nicht geprüft: das echte Fenster; die Erkennung der Startausgabe und die
-neue Frist an einem echten Host (beides nur mit Skript-Transporten
-nachgestellt); die Anmeldung per Passwort und über den ssh-agent; ob der
-macOS-Test jetzt hält (die beiden Läufe der CI zu PR #62 bestanden); CodeQL
-für Rust.
+Danach, am Kopf des Release-Branches (`01cf831`): die Erkennung der
+Startausgabe und die neue Frist an einem echten Host, mit einem
+Wegwerfkonto auf der VM mit tmux 3.3a
+([Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md):
+fünf Zustände der Startdatei, die Liste über eine verzögerte Verbindung).
+Eine vierte neutrale Bewertung las die Rohdaten gegen Code und Anleitung
+(Entscheidungen vom 16.11., Punkt 15).
+Nicht geprüft: das echte Fenster; Startausgabe und Frist mit zsh, mit
+anderen tmux-Versionen und mit dem Standard-Socket; die Anmeldung per
+Passwort und über den ssh-agent; ob der macOS-Test jetzt hält (die beiden
+Läufe der CI zu PR #62 bestanden); CodeQL für Rust.
 
 Am 14.11.2026 nach 0.3.4, vor PR #59 (CHANGELOG `[0.3.5]`): eine Durchsicht
 des Branches mit den beiden Gestaltungsrunden, die nur las. Neun Funde. Fünf
@@ -292,7 +311,7 @@ aus).
 Für die Änderungen vom 16.11. zeigt der Lauf nur, dass ein Host ohne
 Startausgabe der Shell keinen Fehlalarm auslöst und dass die Liste mit der
 neuen Frist lädt wie bisher. Die Erkennung selbst und eine langsame Verbindung
-löst er nicht aus (Punkt 15).
+löst er nicht aus; die zeigt die Messung vom selben Tag (Punkt 15).
 0.3.6 lief nicht eigens live: In `src-tauri/`, `src/` und `vendor/`
 unterscheidet es sich vom Stand dieses Laufs nur durch die beiden
 Versionszeilen und jenen Kommentar.
@@ -619,10 +638,20 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Absatz „Deadline“ der
       [MVP-Spec](specs/2026-09-05-mvp-und-statuspunkt-design.md)). Mit 15 s
       für alles listete ein Host mit 20 Sessions ab rund 350 ms je Befehl
-      nie. Das ist mit einem Skript-Transport nachgestellt und an keinem Host
-      gemessen. Vor dem Release gehört dazu: eine Liste mit 20 oder mehr
-      Sessions über eine verzögerte Verbindung, und ein tmux-Server, der
-      mitten im Laden endet (Fehler nach höchstens 15 s). Während die Liste
+      nie; das war mit einem Skript-Transport nachgestellt. Am 16.11. an
+      einem Host mit tmux 3.3a gemessen, am eigenen Socket
+      ([Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md)):
+      Bei 0,77 s je Befehl lud die Liste mit 20 Sessions in 36,2 s, auch mit
+      dem Poll nebenher. Das waren rund 47 Befehle; die alte Frist reichte
+      demnach bis rund 320 ms je Befehl. Mit 40 Sessions endete die Liste
+      nach 60,0 s mit einem Zeitfehler, und als die Verbindung stockte, kam
+      der Fehler 14,9 s später. Nicht eingetreten ist die Erwartung, ein
+      tmux-Server, der mitten im Laden endet, zeige sich nach höchstens
+      15 s: Der Fehler kam 29,6 s später, am Ende des laufenden Durchgangs.
+      Die Einzelabfragen kehren dann sofort zurück, die Obergrenze ist das
+      Budget von 60 s, und das Ergebnis ist ein Fehler, keine falsche Liste.
+      Nicht gemessen: der Standard-Socket in derselben Frist und andere
+      tmux-Versionen. Während die Liste
       lädt, pausiert der Poll dieses Hosts. Offen bleibt der gemeinsame
       Aufruf: Er ändert die gemessene Folge und braucht eine Messung auf
       tmux 3.0, 3.3a, 3.4 und 3.6.
@@ -631,14 +660,30 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       der Standardausgabe hält die Host-Prüfung an und lässt keine Liste zu;
       Meldungen nur auf der Fehlerausgabe lassen die Liste nach Namen, mit
       dem Grund an jeder Zeile (`VersionAnswer` in `commands.rs`,
-      [Grenzen](guide/limits.md)). Herausgefiltert wird nichts. Die
-      Erkennung ist an keinem Host gemessen; der Live-Lauf vom 16.11. zeigt
-      nur, dass zwei Hosts ohne solche Ausgabe keinen Fehlalarm auslösen. Die
-      Handabnahme hat dafür zwei Schritte (§12, A5 und A6). Nur am Code
-      gelesen: Mit Meldungen auf der Fehlerausgabe meldet
-      „New session“ einen unbestätigten Ausgang, obwohl die Session
-      entsteht; ein Host ohne Session und das Beenden der letzten melden
-      einen Fehler; Öffnen und Beenden nach Namen gehen.
+      [Grenzen](guide/limits.md)). Herausgefiltert wird nichts. Am 16.11. an
+      einem Host mit bash 5.2 und tmux 3.3a gemessen, an den Befehlskernen
+      und nicht am Fenster
+      ([Messung](messungen/messung-2026-11-16-shell-ausgabe-und-listenfrist.md));
+      für das Fenster bleiben die zwei Schritte der Handabnahme (§12, A5 und
+      A6). Die Erkennung arbeitet in beiden Fällen wie beschrieben. Gemessen
+      ist auch, was vorher nur am Code gelesen war: Mit Meldungen auf der
+      Fehlerausgabe meldet „New session“ einen unbestätigten Ausgang, obwohl
+      die Session entsteht; ein Host ohne Session zeigt den Hinweis zur Shell
+      statt einer leeren Liste; das Beenden der letzten Session meldet einen
+      unbestätigten Ausgang, obwohl sie endet; Öffnen und Beenden nach Namen
+      gehen. Neu aus der Messung, alles in den Grenzen: Mit Text auf der
+      Standardausgabe legt „New session“ eine Session an, die die App nicht
+      zeigen kann, und die Ordnerliste scheitert. Schreibt die Shell nur mit
+      Terminal (`[ -t 1 ]`), bemerken Host-Prüfung und Liste nichts, und
+      keine Session öffnet; die Meldung nennt die Shell nicht. Schreibt sie
+      nur, wenn sie interaktiv ist (`$-` enthält `i`), stört nichts. Nach
+      der neutralen Bewertung der Messung später, nicht für 0.3.6: eine
+      Sperre für „New session“, solange die Liste wegen der Shell ausbleibt.
+      Sie braucht einen eigenen Fehlercode: Ein leerer Host mit Meldungen
+      auf der Fehlerausgabe trägt denselben Code `shell_output` und braucht
+      „New session“. Und eine Meldung beim Öffnen, die die Shell als
+      möglichen Grund nennt. Nicht gemessen: zsh, andere tmux-Versionen,
+      eine Startdatei, die auf Eingabe wartet.
     - **Backend, klein:** Zweite Verbindung und Reparatur lösen den Hostnamen
       neu auf (Round-Robin-DNS kann sie auf zwei Rechner führen);
       `close_terminal` kann sein `open_terminal` überholen (Verdacht, enges

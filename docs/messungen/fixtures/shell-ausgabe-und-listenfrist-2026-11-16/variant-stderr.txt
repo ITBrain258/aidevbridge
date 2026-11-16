@@ -1,0 +1,303 @@
+
+test shell_variant ... VARIANT stderr
+STEP connect (119 ms): Ok(
+    "connected",
+)
+STEP host check (42 ms): Ok(
+    PreflightReportDto {
+        tmux_version: Some(
+            "3.3a",
+        ),
+        has_base64: true,
+        socket_dir_writable: true,
+        blocking_problem: None,
+    },
+)
+STEP list, before anything (47 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [],
+            error: Some(
+                OperationErrorDto {
+                    code: "shell_output",
+                    message: "The host's shell prints text on every SSH command (it starts with \"warn\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells. (tmux list-sessions failed (exit 1): warn\nno server running on /tmp/tmux-<UID>/abmess_20261116)",
+                    control_generation: 0,
+                },
+            ),
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: Some(
+                    OperationErrorDto {
+                        code: "shell_output",
+                        message: "The host's shell prints text on every SSH command (it starts with \"warn\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+                        control_generation: 0,
+                    },
+                ),
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP status poll (24 ms): Ok(
+    StatusPollsDto {
+        own: SocketPollDto {
+            poll: Some(
+                StatusPollDto {
+                    complete: false,
+                    server_pid: None,
+                    server_start_time: None,
+                    sessions: [],
+                    agents_ok: false,
+                    titles_ok: false,
+                },
+            ),
+            error: None,
+        },
+        default: Some(
+            SocketPollDto {
+                poll: Some(
+                    StatusPollDto {
+                        complete: false,
+                        server_pid: None,
+                        server_start_time: None,
+                        sessions: [],
+                        agents_ok: false,
+                        titles_ok: false,
+                    },
+                ),
+                error: None,
+            },
+        ),
+    },
+)
+STEP directory listing of the home folder (18 ms): Ok(
+    Listing {
+        path: "<HOME>",
+        entries: [],
+    },
+)
+STEP new session mess_a (176 ms): Err(
+    SessionError {
+        kind: "outcome_unknown",
+        message: "The remote operation may have taken effect, but its final outcome could not be confirmed. Refresh the session list before trying again. tmux binding query failed (exit 0)",
+    },
+)
+STEP list, after mess_a (51 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [
+                SessionListItemDto {
+                    display_name: "mess_a",
+                    session_id: None,
+                    server_pid: None,
+                    server_start_time: None,
+                    window_id: None,
+                    pane_id: None,
+                    pane_pid: None,
+                    unverified: Some(
+                        "shell_output",
+                    ),
+                    status: "unknown",
+                    status_reason: "the host's shell prints messages on every SSH command (\"warn\"); status and history need a shell that stays silent there",
+                    session_attached: None,
+                },
+            ],
+            error: None,
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: Some(
+                    OperationErrorDto {
+                        code: "shell_output",
+                        message: "The host's shell prints text on every SSH command (it starts with \"warn\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+                        control_generation: 0,
+                    },
+                ),
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP open mess_a, by name (3 ms): Ok(
+    (),
+)
+STEP terminal within 800 ms: 654 bytes, shell text in it: hello false, warn true
+STEP close mess_a (0 ms): Ok(
+    (),
+)
+STEP new session mess_b (185 ms): Err(
+    SessionError {
+        kind: "outcome_unknown",
+        message: "The remote operation may have taken effect, but its final outcome could not be confirmed. Refresh the session list before trying again. tmux binding query failed (exit 0)",
+    },
+)
+STEP list, with mess_a and mess_b (58 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [
+                SessionListItemDto {
+                    display_name: "mess_a",
+                    session_id: None,
+                    server_pid: None,
+                    server_start_time: None,
+                    window_id: None,
+                    pane_id: None,
+                    pane_pid: None,
+                    unverified: Some(
+                        "shell_output",
+                    ),
+                    status: "unknown",
+                    status_reason: "the host's shell prints messages on every SSH command (\"warn\"); status and history need a shell that stays silent there",
+                    session_attached: None,
+                },
+                SessionListItemDto {
+                    display_name: "mess_b",
+                    session_id: None,
+                    server_pid: None,
+                    server_start_time: None,
+                    window_id: None,
+                    pane_id: None,
+                    pane_pid: None,
+                    unverified: Some(
+                        "shell_output",
+                    ),
+                    status: "unknown",
+                    status_reason: "the host's shell prints messages on every SSH command (\"warn\"); status and history need a shell that stays silent there",
+                    session_attached: None,
+                },
+            ],
+            error: None,
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: Some(
+                    OperationErrorDto {
+                        code: "shell_output",
+                        message: "The host's shell prints text on every SSH command (it starts with \"warn\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+                        control_generation: 0,
+                    },
+                ),
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP end mess_a (65 ms): Ok(
+    (),
+)
+STEP list, after ending mess_a (64 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [
+                SessionListItemDto {
+                    display_name: "mess_b",
+                    session_id: None,
+                    server_pid: None,
+                    server_start_time: None,
+                    window_id: None,
+                    pane_id: None,
+                    pane_pid: None,
+                    unverified: Some(
+                        "shell_output",
+                    ),
+                    status: "unknown",
+                    status_reason: "the host's shell prints messages on every SSH command (\"warn\"); status and history need a shell that stays silent there",
+                    session_attached: None,
+                },
+            ],
+            error: None,
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: Some(
+                    OperationErrorDto {
+                        code: "shell_output",
+                        message: "The host's shell prints text on every SSH command (it starts with \"warn\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+                        control_generation: 0,
+                    },
+                ),
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP end mess_b, the last one (59 ms): Err(
+    "The remote operation may have taken effect, but its final outcome could not be confirmed. Refresh the session list before trying again. tmux list-sessions failed (exit 1): warn\nno server running on /tmp/tmux-<UID>/abmess_20261116",
+)
+STEP list, empty host (56 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [],
+            error: Some(
+                OperationErrorDto {
+                    code: "shell_output",
+                    message: "The host's shell prints text on every SSH command (it starts with \"warn\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells. (tmux list-sessions failed (exit 1): warn\nno server running on /tmp/tmux-<UID>/abmess_20261116)",
+                    control_generation: 0,
+                },
+            ),
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: Some(
+                    OperationErrorDto {
+                        code: "shell_output",
+                        message: "The host's shell prints text on every SSH command (it starts with \"warn\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+                        control_generation: 0,
+                    },
+                ),
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP status poll, empty host (24 ms): Ok(
+    StatusPollsDto {
+        own: SocketPollDto {
+            poll: Some(
+                StatusPollDto {
+                    complete: false,
+                    server_pid: None,
+                    server_start_time: None,
+                    sessions: [],
+                    agents_ok: false,
+                    titles_ok: false,
+                },
+            ),
+            error: None,
+        },
+        default: Some(
+            SocketPollDto {
+                poll: Some(
+                    StatusPollDto {
+                        complete: false,
+                        server_pid: None,
+                        server_start_time: None,
+                        sessions: [],
+                        agents_ok: false,
+                        titles_ok: false,
+                    },
+                ),
+                error: None,
+            },
+        ),
+    },
+)
+STEP disconnect (0 ms): Ok(
+    (),
+)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.81s
+
+exit: 0

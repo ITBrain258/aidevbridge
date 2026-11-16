@@ -1,0 +1,297 @@
+
+test shell_variant ... VARIANT stock
+STEP connect (115 ms): Ok(
+    "connected",
+)
+STEP host check (34 ms): Ok(
+    PreflightReportDto {
+        tmux_version: Some(
+            "3.3a",
+        ),
+        has_base64: true,
+        socket_dir_writable: true,
+        blocking_problem: None,
+    },
+)
+STEP list, before anything (107 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [],
+            error: None,
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: None,
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP status poll (103 ms): Ok(
+    StatusPollsDto {
+        own: SocketPollDto {
+            poll: None,
+            error: Some(
+                OperationErrorDto {
+                    code: "other",
+                    message: "tmux inventory is not a complete snapshot",
+                    control_generation: 0,
+                },
+            ),
+        },
+        default: Some(
+            SocketPollDto {
+                poll: Some(
+                    StatusPollDto {
+                        complete: true,
+                        server_pid: None,
+                        server_start_time: None,
+                        sessions: [],
+                        agents_ok: false,
+                        titles_ok: true,
+                    },
+                ),
+                error: None,
+            },
+        ),
+    },
+)
+STEP directory listing of the home folder (19 ms): Ok(
+    Listing {
+        path: "<HOME>",
+        entries: [],
+    },
+)
+STEP new session mess_a (175 ms): Ok(
+    "mess_a",
+)
+STEP list, after mess_a (292 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [
+                SessionListItemDto {
+                    display_name: "mess_a",
+                    session_id: Some(
+                        0,
+                    ),
+                    server_pid: Some(
+                        2905379,
+                    ),
+                    server_start_time: Some(
+                        1794833089,
+                    ),
+                    window_id: Some(
+                        0,
+                    ),
+                    pane_id: Some(
+                        0,
+                    ),
+                    pane_pid: Some(
+                        2905498,
+                    ),
+                    unverified: None,
+                    status: "unknown",
+                    status_reason: "no agent source is attached yet",
+                    session_attached: Some(
+                        0,
+                    ),
+                },
+            ],
+            error: None,
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: None,
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP open mess_a, bound to the listed pane (391 ms): Ok(
+    (),
+)
+STEP terminal within 800 ms: 640 bytes, shell text in it: hello false, warn false
+STEP close mess_a (0 ms): Ok(
+    (),
+)
+STEP new session mess_b (134 ms): Ok(
+    "mess_b",
+)
+STEP list, with mess_a and mess_b (352 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [
+                SessionListItemDto {
+                    display_name: "mess_a",
+                    session_id: Some(
+                        0,
+                    ),
+                    server_pid: Some(
+                        2905379,
+                    ),
+                    server_start_time: Some(
+                        1794833089,
+                    ),
+                    window_id: Some(
+                        0,
+                    ),
+                    pane_id: Some(
+                        0,
+                    ),
+                    pane_pid: Some(
+                        2905498,
+                    ),
+                    unverified: None,
+                    status: "unknown",
+                    status_reason: "no agent source is attached yet",
+                    session_attached: Some(
+                        0,
+                    ),
+                },
+                SessionListItemDto {
+                    display_name: "mess_b",
+                    session_id: Some(
+                        1,
+                    ),
+                    server_pid: Some(
+                        2905379,
+                    ),
+                    server_start_time: Some(
+                        1794833089,
+                    ),
+                    window_id: Some(
+                        1,
+                    ),
+                    pane_id: Some(
+                        1,
+                    ),
+                    pane_pid: Some(
+                        2906590,
+                    ),
+                    unverified: None,
+                    status: "unknown",
+                    status_reason: "no agent source is attached yet",
+                    session_attached: Some(
+                        0,
+                    ),
+                },
+            ],
+            error: None,
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: None,
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP end mess_a (265 ms): Ok(
+    (),
+)
+STEP list, after ending mess_a (305 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [
+                SessionListItemDto {
+                    display_name: "mess_b",
+                    session_id: Some(
+                        1,
+                    ),
+                    server_pid: Some(
+                        2905379,
+                    ),
+                    server_start_time: Some(
+                        1794833089,
+                    ),
+                    window_id: Some(
+                        1,
+                    ),
+                    pane_id: Some(
+                        1,
+                    ),
+                    pane_pid: Some(
+                        2906590,
+                    ),
+                    unverified: None,
+                    status: "unknown",
+                    status_reason: "no agent source is attached yet",
+                    session_attached: Some(
+                        0,
+                    ),
+                },
+            ],
+            error: None,
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: None,
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP end mess_b, the last one (111 ms): Ok(
+    (),
+)
+STEP list, empty host (119 ms): Ok(
+    SessionListDto {
+        own: SocketSessionsDto {
+            sessions: [],
+            error: None,
+            unsupported_version: None,
+        },
+        default: Some(
+            SocketSessionsDto {
+                sessions: [],
+                error: None,
+                unsupported_version: None,
+            },
+        ),
+    },
+)
+STEP status poll, empty host (109 ms): Ok(
+    StatusPollsDto {
+        own: SocketPollDto {
+            poll: None,
+            error: Some(
+                OperationErrorDto {
+                    code: "other",
+                    message: "tmux inventory is not a complete snapshot",
+                    control_generation: 0,
+                },
+            ),
+        },
+        default: Some(
+            SocketPollDto {
+                poll: Some(
+                    StatusPollDto {
+                        complete: true,
+                        server_pid: None,
+                        server_start_time: None,
+                        sessions: [],
+                        agents_ok: false,
+                        titles_ok: true,
+                    },
+                ),
+                error: None,
+            },
+        ),
+    },
+)
+STEP disconnect (0 ms): Ok(
+    (),
+)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 3.45s
+
+exit: 0

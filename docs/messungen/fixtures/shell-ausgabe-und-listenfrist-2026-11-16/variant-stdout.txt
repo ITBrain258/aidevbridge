@@ -1,0 +1,152 @@
+
+test shell_variant ... VARIANT stdout
+STEP connect (110 ms): Ok(
+    "connected",
+)
+STEP host check (37 ms): Ok(
+    PreflightReportDto {
+        tmux_version: Some(
+            "3.3a",
+        ),
+        has_base64: true,
+        socket_dir_writable: true,
+        blocking_problem: Some(
+            "this host's shell prints text before every SSH command (it starts with \"hello\"), so the app cannot read the answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+        ),
+    },
+)
+STEP list, before anything (23 ms): Err(
+    OperationErrorDto {
+        code: "shell_output",
+        message: "The host's shell prints text on every SSH command (it starts with \"hello\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+        control_generation: 0,
+    },
+)
+STEP status poll (20 ms): Ok(
+    StatusPollsDto {
+        own: SocketPollDto {
+            poll: Some(
+                StatusPollDto {
+                    complete: false,
+                    server_pid: None,
+                    server_start_time: None,
+                    sessions: [],
+                    agents_ok: false,
+                    titles_ok: false,
+                },
+            ),
+            error: None,
+        },
+        default: Some(
+            SocketPollDto {
+                poll: Some(
+                    StatusPollDto {
+                        complete: false,
+                        server_pid: None,
+                        server_start_time: None,
+                        sessions: [],
+                        agents_ok: false,
+                        titles_ok: false,
+                    },
+                ),
+                error: None,
+            },
+        ),
+    },
+)
+STEP directory listing of the home folder (16 ms): Err(
+    "failed",
+)
+STEP new session mess_a (181 ms): Err(
+    SessionError {
+        kind: "outcome_unknown",
+        message: "The remote operation may have taken effect, but its final outcome could not be confirmed. Refresh the session list before trying again. incomplete tmux binding response: InvalidFrame",
+    },
+)
+STEP list, after mess_a (24 ms): Err(
+    OperationErrorDto {
+        code: "shell_output",
+        message: "The host's shell prints text on every SSH command (it starts with \"hello\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+        control_generation: 0,
+    },
+)
+STEP open mess_a, by name (3 ms): Ok(
+    (),
+)
+STEP terminal within 800 ms: 657 bytes, shell text in it: hello true, warn false
+STEP close mess_a (0 ms): Ok(
+    (),
+)
+STEP new session mess_b (168 ms): Err(
+    SessionError {
+        kind: "outcome_unknown",
+        message: "The remote operation may have taken effect, but its final outcome could not be confirmed. Refresh the session list before trying again. incomplete tmux binding response: InvalidFrame",
+    },
+)
+STEP list, with mess_a and mess_b (22 ms): Err(
+    OperationErrorDto {
+        code: "shell_output",
+        message: "The host's shell prints text on every SSH command (it starts with \"hello\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+        control_generation: 0,
+    },
+)
+STEP end mess_a (52 ms): Ok(
+    (),
+)
+STEP list, after ending mess_a (21 ms): Err(
+    OperationErrorDto {
+        code: "shell_output",
+        message: "The host's shell prints text on every SSH command (it starts with \"hello\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+        control_generation: 0,
+    },
+)
+STEP end mess_b, the last one (58 ms): Err(
+    "The remote operation may have taken effect, but its final outcome could not be confirmed. Refresh the session list before trying again. tmux list-sessions failed (exit 1): no server running on /tmp/tmux-<UID>/abmess_20261116",
+)
+STEP list, empty host (24 ms): Err(
+    OperationErrorDto {
+        code: "shell_output",
+        message: "The host's shell prints text on every SSH command (it starts with \"hello\"), so the app cannot read exact answers. Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, or print it only in interactive shells.",
+        control_generation: 0,
+    },
+)
+STEP status poll, empty host (23 ms): Ok(
+    StatusPollsDto {
+        own: SocketPollDto {
+            poll: Some(
+                StatusPollDto {
+                    complete: false,
+                    server_pid: None,
+                    server_start_time: None,
+                    sessions: [],
+                    agents_ok: false,
+                    titles_ok: false,
+                },
+            ),
+            error: None,
+        },
+        default: Some(
+            SocketPollDto {
+                poll: Some(
+                    StatusPollDto {
+                        complete: false,
+                        server_pid: None,
+                        server_start_time: None,
+                        sessions: [],
+                        agents_ok: false,
+                        titles_ok: false,
+                    },
+                ),
+                error: None,
+            },
+        ),
+    },
+)
+STEP disconnect (0 ms): Ok(
+    (),
+)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.59s
+
+exit: 0
