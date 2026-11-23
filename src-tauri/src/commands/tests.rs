@@ -580,6 +580,61 @@ async fn poll_skips_claude_when_less_than_1500ms_remain() {
     assert_eq!(t.calls()[3], (crate::status::agents_command(), ms(800)));
 }
 
+/// UX-Spec §5.2, Nachtrag vom 23.11.2026: In Pane %0 laeuft laut
+/// Programmpfad Claude, %1 ist eine Shell. Antwortet `claude agents --json`
+/// mit Exitcode ungleich 0 oder ohne lesbares JSON, nennt nur Session 0 den
+/// Grund; `agents_ok` bleibt `true`, denn claude hat geantwortet.
+#[tokio::test(start_paused = true)]
+async fn a_failed_claude_answer_names_its_reason_in_the_claude_pane() {
+    let titles = format!(
+        "{}{}",
+        crate::status::title::details_line('T', 0, "Claude Code"),
+        crate::status::title::details_line('C', 0, "/home/u/.local/share/claude/versions/2.1.309"),
+    );
+    let exit = |code| ExecResult {
+        code,
+        stderr: "sh: 1: exec: claude: not found\n".into(),
+        ..poll_exec("")
+    };
+    for (answer, reason) in [
+        (
+            exit(127),
+            "claude agents --json: claude was not found for SSH commands (exit 127)",
+        ),
+        (exit(1), "claude agents --json failed (exit 1)"),
+        (
+            poll_exec("Please log in"),
+            "claude agents --json gave an answer the app cannot read",
+        ),
+    ] {
+        let (poll, _) = timed_poll(
+            ms(0),
+            vec![answered(poll_exec(&titles), ms(0)), answered(answer, ms(0))],
+        )
+        .await;
+        assert!(poll.agents_ok);
+        assert_eq!(poll.sessions[0].status, "unknown");
+        assert_eq!(poll.sessions[0].status_reason, reason);
+        assert_eq!(
+            poll.sessions[1].status_reason,
+            "no agent source is attached yet"
+        );
+    }
+    // Eine gueltige, leere Liste ist kein Fehler.
+    let (poll, _) = timed_poll(
+        ms(0),
+        vec![
+            answered(poll_exec(&titles), ms(0)),
+            answered(poll_exec("[]"), ms(0)),
+        ],
+    )
+    .await;
+    assert_eq!(
+        poll.sessions[0].status_reason,
+        "no agent source is attached yet"
+    );
+}
+
 /// Ein Agent mit pid 11: Er bindet nur ueber seinen Elternprozess an die
 /// Pane mit pid 10.
 fn busy_agent() -> ExecResult {
@@ -3524,6 +3579,7 @@ fn a_name_list_says_whether_the_tmux_version_or_the_shell_is_the_reason() {
             }),
             &[],
             &Default::default(),
+            None,
         )
         .sessions
     };

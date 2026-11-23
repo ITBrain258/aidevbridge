@@ -292,6 +292,32 @@ pub fn apply_title(previous: SessionStatus, details: Option<&title::PaneDetails>
     }
 }
 
+/// Laeuft in der Pane laut Programmpfad Claude, hat aber weder ein Titel noch
+/// eine Zeile von `claude agents --json` gesprochen, und ist dieser Befehl
+/// gescheitert (Exitcode ungleich 0 oder keine lesbare Antwort), nennt der
+/// Status diesen Grund statt "no agent source is attached yet" (UX-Spec §5.2,
+/// Nachtrag vom 23.11.2026). Andere Panes bleiben, wie sie sind: Ein fehlendes
+/// `claude` ist auf vielen Hosts normal.
+fn explain_claude_failure(
+    status: SessionStatus,
+    details: Option<&title::PaneDetails>,
+    claude_failure: Option<&str>,
+) -> SessionStatus {
+    match claude_failure {
+        Some(reason)
+            if status.source == "inventory"
+                && status.kind == StatusKind::Unknown
+                && details.and_then(title::detect) == Some(title::DetectedAgent::Claude) =>
+        {
+            SessionStatus {
+                reason: reason.into(),
+                ..status
+            }
+        }
+        _ => status,
+    }
+}
+
 /// The session's single active pane (active window, active pane), if there
 /// is exactly one.
 fn single_active_pane(inventory: &InventorySnapshot, id: SessionId) -> Option<&PaneInventory> {
@@ -332,14 +358,17 @@ pub fn listed_title_panes(rows: &[ListedSessionObservation]) -> Vec<(PaneId, u32
 
 /// A listed session's status from the same sources as the poll, so a list
 /// refresh does not undo it: a dead active pane is ended as in the poll, else
-/// its selected pane's title, then a bound CLI row. Without the first rule a
-/// restored tile of an ended session saw Unknown and tried to attach.
+/// its selected pane's title, then a bound CLI row, then a failed
+/// `claude agents --json` in a Claude pane. Without the first rule a
+/// restored tile of an ended session saw Unknown and tried to attach;
+/// without the last, every list load reset the reason until the next poll.
 pub fn listed_status(
     row: &ListedSessionObservation,
     inventory: &InventorySnapshot,
     agents: &[AgentRow],
     parents: &BTreeMap<u32, u32>,
     titles: &BTreeMap<PaneId, title::PaneDetails>,
+    claude_failure: Option<&str>,
 ) -> SessionStatus {
     if single_active_pane(inventory, row.session_id).is_some_and(|pane| pane.pane_dead) {
         return SessionStatus {
@@ -349,11 +378,16 @@ pub fn listed_status(
         };
     }
     let pane = selected_pane(row);
-    apply_cli(
-        apply_title(from_listing(row), pane.and_then(|(id, _)| titles.get(&id))),
-        pane.map(|(_, pid)| pid),
-        agents,
-        parents,
+    let details = pane.and_then(|(id, _)| titles.get(&id));
+    explain_claude_failure(
+        apply_cli(
+            apply_title(from_listing(row), details),
+            pane.map(|(_, pid)| pid),
+            agents,
+            parents,
+        ),
+        details,
+        claude_failure,
     )
 }
 
@@ -366,6 +400,7 @@ pub fn statuses_from_inventory(
     agents: &[AgentRow],
     parents: &BTreeMap<u32, u32>,
     titles: &BTreeMap<PaneId, title::PaneDetails>,
+    claude_failure: Option<&str>,
 ) -> Vec<PolledStatus> {
     inventory
         .sessions
@@ -376,15 +411,22 @@ pub fn statuses_from_inventory(
                     kind: StatusKind::Ended,
                     ..unobserved(session.id, "the session's pane is dead")
                 },
-                Some(pane) => apply_cli(
-                    apply_title(
-                        unobserved(session.id, "no agent source is attached yet"),
-                        titles.get(&pane.pane_id),
-                    ),
-                    Some(pane.pane_pid),
-                    agents,
-                    parents,
-                ),
+                Some(pane) => {
+                    let details = titles.get(&pane.pane_id);
+                    explain_claude_failure(
+                        apply_cli(
+                            apply_title(
+                                unobserved(session.id, "no agent source is attached yet"),
+                                details,
+                            ),
+                            Some(pane.pane_pid),
+                            agents,
+                            parents,
+                        ),
+                        details,
+                        claude_failure,
+                    )
+                }
                 None => unobserved(session.id, "no single active pane"),
             };
             PolledStatus {
@@ -806,6 +848,7 @@ mod tests {
             &[agent(21, StatusKind::Busy), agent(11, StatusKind::Waiting)],
             &parents,
             &BTreeMap::new(),
+            None,
         );
         assert_eq!(
             statuses,
@@ -826,6 +869,7 @@ mod tests {
             &[agent(10, StatusKind::Busy)],
             &BTreeMap::new(),
             &titles,
+            None,
         );
         assert_eq!(statuses[0].kind, StatusKind::Ended);
         assert_eq!(statuses[0].reason, "the session's pane is dead");
@@ -846,6 +890,7 @@ mod tests {
             &[agent(10, StatusKind::Idle)],
             &BTreeMap::new(),
             &BTreeMap::new(),
+            None,
         );
         assert_eq!(
             statuses
@@ -863,7 +908,7 @@ mod tests {
     fn a_polled_session_without_a_cli_row_is_unknown() {
         let snapshot = inventory(&[0], vec![pane(0, 0, 0, 10, true, false)]);
         assert_eq!(
-            statuses_from_inventory(&snapshot, &[], &BTreeMap::new(), &BTreeMap::new()),
+            statuses_from_inventory(&snapshot, &[], &BTreeMap::new(), &BTreeMap::new(), None),
             vec![PolledStatus {
                 session_id: SessionId(0),
                 kind: StatusKind::Unknown,
@@ -877,7 +922,8 @@ mod tests {
     fn a_linked_session_is_polled_as_unknown_not_left_out() {
         let mut snapshot = inventory(&[0], vec![pane(0, 0, 0, 10, true, false)]);
         snapshot.linked = vec![SessionId(4), SessionId(5)];
-        let polled = statuses_from_inventory(&snapshot, &[], &BTreeMap::new(), &BTreeMap::new());
+        let polled =
+            statuses_from_inventory(&snapshot, &[], &BTreeMap::new(), &BTreeMap::new(), None);
         assert_eq!(
             polled
                 .iter()
@@ -917,7 +963,7 @@ mod tests {
             ],
         );
         let titles = BTreeMap::from([(PaneId(0), codex_waiting()), (PaneId(2), codex_waiting())]);
-        let statuses = statuses_from_inventory(&snapshot, &[], &BTreeMap::new(), &titles);
+        let statuses = statuses_from_inventory(&snapshot, &[], &BTreeMap::new(), &titles, None);
         assert_eq!(
             statuses
                 .iter()
@@ -938,6 +984,112 @@ mod tests {
         );
     }
 
+    /// Eine Pane, in der laut Programmpfad Claude laeuft. Claude spricht nicht
+    /// ueber seinen Titel, nur ueber `claude agents --json`.
+    fn claude_pane() -> title::PaneDetails {
+        title::PaneDetails {
+            title: Some("Claude Code".into()),
+            children: vec!["/home/u/.local/share/claude/versions/2.1.309".into()],
+            grandchildren: Vec::new(),
+            codex: title::CodexTitle::Full,
+        }
+    }
+
+    /// UX-Spec §5.2, Nachtrag vom 23.11.2026: Scheitert `claude agents --json`
+    /// mit einer Antwort, nennt nur eine Claude-Pane den Grund. Eine Pane ohne
+    /// Agent und eine Codex-Pane bleiben, wie sie sind; ohne Fehler bleibt auch
+    /// die Claude-Pane beim allgemeinen Grund.
+    #[test]
+    fn a_failed_claude_answer_is_the_reason_only_where_claude_runs() {
+        let snapshot = inventory(
+            &[0, 1, 2],
+            vec![
+                pane(0, 0, 0, 10, true, false),
+                pane(1, 1, 1, 20, true, false),
+                pane(2, 2, 2, 30, true, false),
+            ],
+        );
+        let titles = BTreeMap::from([
+            (PaneId(0), claude_pane()),
+            (PaneId(1), codex_waiting()),
+            (
+                PaneId(2),
+                title::PaneDetails {
+                    children: vec!["/usr/bin/bash".into()],
+                    ..Default::default()
+                },
+            ),
+        ]);
+        let failure = "claude agents --json failed (exit 1)";
+        let reasons = |failure: Option<&str>| {
+            statuses_from_inventory(&snapshot, &[], &BTreeMap::new(), &titles, failure)
+                .into_iter()
+                .map(|s| (s.kind, s.reason))
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(
+            reasons(Some(failure)),
+            vec![
+                (StatusKind::Unknown, failure.to_string()),
+                (
+                    StatusKind::Waiting,
+                    "action required (Codex title)".to_string()
+                ),
+                (
+                    StatusKind::Unknown,
+                    "no agent source is attached yet".to_string()
+                ),
+            ]
+        );
+        assert_eq!(
+            reasons(None)[0],
+            (
+                StatusKind::Unknown,
+                "no agent source is attached yet".to_string()
+            )
+        );
+    }
+
+    /// Die Liste nennt denselben Grund wie der Poll. Sonst setzte jedes Laden
+    /// der Liste (Verbinden, Retry, Anlegen) den Hinweis der Claude-Pane bis
+    /// zum naechsten Poll auf den allgemeinen Satz zurueck. Eine Zeile ohne
+    /// gepruefte Bindung nennt keine Pane und behaelt ihren Grund.
+    #[test]
+    fn a_listed_claude_pane_names_the_failure_like_the_poll() {
+        let rows = [row(0, true), row(1, false)];
+        let snapshot = inventory(
+            &[0, 1],
+            vec![
+                pane(0, 0, 0, 10, true, false),
+                pane(1, 1, 1, 20, true, false),
+            ],
+        );
+        let titles = BTreeMap::from([(PaneId(0), claude_pane()), (PaneId(1), claude_pane())]);
+        let failure = "claude agents --json failed (exit 1)";
+        let listed = |row, failure| {
+            let status = listed_status(row, &snapshot, &[], &BTreeMap::new(), &titles, failure);
+            (status.kind, status.reason)
+        };
+        assert_eq!(
+            listed(&rows[0], Some(failure)),
+            (StatusKind::Unknown, failure.to_string())
+        );
+        assert_eq!(
+            listed(&rows[0], None),
+            (
+                StatusKind::Unknown,
+                "no agent source is attached yet".to_string()
+            )
+        );
+        assert_eq!(
+            listed(&rows[1], Some(failure)),
+            (
+                StatusKind::Unknown,
+                "numeric binding is unverified".to_string()
+            )
+        );
+    }
+
     #[test]
     fn a_bound_cli_row_outranks_the_title() {
         let snapshot = inventory(&[0], vec![pane(0, 0, 0, 10, true, false)]);
@@ -947,6 +1099,7 @@ mod tests {
             &[agent(10, StatusKind::Idle)],
             &BTreeMap::new(),
             &titles,
+            None,
         );
         assert_eq!(
             (statuses[0].kind, statuses[0].reason.as_str()),
@@ -1003,13 +1156,13 @@ mod tests {
         );
         assert_eq!(listed_title_panes(&rows), vec![(PaneId(0), 10)]);
         let titles = BTreeMap::from([(PaneId(0), codex_waiting())]);
-        let bound = listed_status(&rows[0], &snapshot, &[], &BTreeMap::new(), &titles);
+        let bound = listed_status(&rows[0], &snapshot, &[], &BTreeMap::new(), &titles, None);
         assert_eq!(
             (bound.kind, bound.reason.as_str()),
             (StatusKind::Waiting, "action required (Codex title)")
         );
         // An unverified binding names no pane, so no title speaks for it.
-        let unbound = listed_status(&rows[1], &snapshot, &[], &BTreeMap::new(), &titles);
+        let unbound = listed_status(&rows[1], &snapshot, &[], &BTreeMap::new(), &titles, None);
         assert_eq!(
             (unbound.kind, unbound.reason.as_str()),
             (StatusKind::Unknown, "numeric binding is unverified")
@@ -1033,6 +1186,7 @@ mod tests {
                 &[agent(10, StatusKind::Busy)],
                 &BTreeMap::new(),
                 &titles,
+                Some("claude agents --json failed (exit 1)"),
             );
             assert_eq!(
                 (
