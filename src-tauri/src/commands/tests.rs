@@ -3579,6 +3579,7 @@ fn a_name_list_says_whether_the_tmux_version_or_the_shell_is_the_reason() {
             }),
             &[],
             &Default::default(),
+            None,
         )
         .sessions
     };

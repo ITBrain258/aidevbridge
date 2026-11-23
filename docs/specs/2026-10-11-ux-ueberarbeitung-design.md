@@ -216,7 +216,8 @@ starten nur mit genug Restzeit:
   commands (exit 127)“, „claude agents --json failed (exit N)“ oder „claude
   agents --json gave an answer the app cannot read“. Alle anderen Sessions
   bleiben beim bisherigen Grund; ein fehlendes `claude` ist auf vielen Hosts
-  normal.
+  normal. Die Sessionliste nennt denselben Grund wie der Poll, sonst setzte
+  jedes Laden der Liste ihn bis zum nächsten Poll zurück.
 - `titles_ok`: dieselbe Regel für die Panetitel.
 
 Das Frontend übernimmt eine Zeile mit Status `unknown` nicht, wenn die zuständige

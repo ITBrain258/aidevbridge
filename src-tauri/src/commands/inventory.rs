@@ -330,10 +330,11 @@ pub async fn list_sockets_impl(
     if agents.is_none() && default.as_ref().is_some_and(observed) {
         agents = Some(read_claude_agents(&transport, deadline).await);
     }
-    let (agents, parents, _, _) = agents.unwrap_or_default();
+    let (agents, parents, _, claude_failure) = agents.unwrap_or_default();
+    let claude_failure = claude_failure.as_deref();
     Ok(SessionListDto {
-        own: socket_sessions(own, &agents, &parents),
-        default: default.map(|listing| socket_sessions(listing, &agents, &parents)),
+        own: socket_sessions(own, &agents, &parents, claude_failure),
+        default: default.map(|listing| socket_sessions(listing, &agents, &parents, claude_failure)),
     })
 }
 
@@ -426,6 +427,7 @@ pub(super) fn socket_sessions(
     listing: Result<SocketListing, OperationErrorDto>,
     agents: &[crate::status::AgentRow],
     parents: &std::collections::BTreeMap<u32, u32>,
+    claude_failure: Option<&str>,
 ) -> SocketSessionsDto {
     let mut dto = SocketSessionsDto {
         sessions: Vec::new(),
@@ -476,6 +478,7 @@ pub(super) fn socket_sessions(
                         agents,
                         parents,
                         &titles,
+                        claude_failure,
                     );
                     let attached = observed
                         .inventory

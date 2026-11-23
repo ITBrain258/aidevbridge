@@ -358,14 +358,17 @@ pub fn listed_title_panes(rows: &[ListedSessionObservation]) -> Vec<(PaneId, u32
 
 /// A listed session's status from the same sources as the poll, so a list
 /// refresh does not undo it: a dead active pane is ended as in the poll, else
-/// its selected pane's title, then a bound CLI row. Without the first rule a
-/// restored tile of an ended session saw Unknown and tried to attach.
+/// its selected pane's title, then a bound CLI row, then a failed
+/// `claude agents --json` in a Claude pane. Without the first rule a
+/// restored tile of an ended session saw Unknown and tried to attach;
+/// without the last, every list load reset the reason until the next poll.
 pub fn listed_status(
     row: &ListedSessionObservation,
     inventory: &InventorySnapshot,
     agents: &[AgentRow],
     parents: &BTreeMap<u32, u32>,
     titles: &BTreeMap<PaneId, title::PaneDetails>,
+    claude_failure: Option<&str>,
 ) -> SessionStatus {
     if single_active_pane(inventory, row.session_id).is_some_and(|pane| pane.pane_dead) {
         return SessionStatus {
@@ -375,11 +378,16 @@ pub fn listed_status(
         };
     }
     let pane = selected_pane(row);
-    apply_cli(
-        apply_title(from_listing(row), pane.and_then(|(id, _)| titles.get(&id))),
-        pane.map(|(_, pid)| pid),
-        agents,
-        parents,
+    let details = pane.and_then(|(id, _)| titles.get(&id));
+    explain_claude_failure(
+        apply_cli(
+            apply_title(from_listing(row), details),
+            pane.map(|(_, pid)| pid),
+            agents,
+            parents,
+        ),
+        details,
+        claude_failure,
     )
 }
 
@@ -1042,6 +1050,46 @@ mod tests {
         );
     }
 
+    /// Die Liste nennt denselben Grund wie der Poll. Sonst setzte jedes Laden
+    /// der Liste (Verbinden, Retry, Anlegen) den Hinweis der Claude-Pane bis
+    /// zum naechsten Poll auf den allgemeinen Satz zurueck. Eine Zeile ohne
+    /// gepruefte Bindung nennt keine Pane und behaelt ihren Grund.
+    #[test]
+    fn a_listed_claude_pane_names_the_failure_like_the_poll() {
+        let rows = [row(0, true), row(1, false)];
+        let snapshot = inventory(
+            &[0, 1],
+            vec![
+                pane(0, 0, 0, 10, true, false),
+                pane(1, 1, 1, 20, true, false),
+            ],
+        );
+        let titles = BTreeMap::from([(PaneId(0), claude_pane()), (PaneId(1), claude_pane())]);
+        let failure = "claude agents --json failed (exit 1)";
+        let listed = |row, failure| {
+            let status = listed_status(row, &snapshot, &[], &BTreeMap::new(), &titles, failure);
+            (status.kind, status.reason)
+        };
+        assert_eq!(
+            listed(&rows[0], Some(failure)),
+            (StatusKind::Unknown, failure.to_string())
+        );
+        assert_eq!(
+            listed(&rows[0], None),
+            (
+                StatusKind::Unknown,
+                "no agent source is attached yet".to_string()
+            )
+        );
+        assert_eq!(
+            listed(&rows[1], Some(failure)),
+            (
+                StatusKind::Unknown,
+                "numeric binding is unverified".to_string()
+            )
+        );
+    }
+
     #[test]
     fn a_bound_cli_row_outranks_the_title() {
         let snapshot = inventory(&[0], vec![pane(0, 0, 0, 10, true, false)]);
@@ -1108,13 +1156,13 @@ mod tests {
         );
         assert_eq!(listed_title_panes(&rows), vec![(PaneId(0), 10)]);
         let titles = BTreeMap::from([(PaneId(0), codex_waiting())]);
-        let bound = listed_status(&rows[0], &snapshot, &[], &BTreeMap::new(), &titles);
+        let bound = listed_status(&rows[0], &snapshot, &[], &BTreeMap::new(), &titles, None);
         assert_eq!(
             (bound.kind, bound.reason.as_str()),
             (StatusKind::Waiting, "action required (Codex title)")
         );
         // An unverified binding names no pane, so no title speaks for it.
-        let unbound = listed_status(&rows[1], &snapshot, &[], &BTreeMap::new(), &titles);
+        let unbound = listed_status(&rows[1], &snapshot, &[], &BTreeMap::new(), &titles, None);
         assert_eq!(
             (unbound.kind, unbound.reason.as_str()),
             (StatusKind::Unknown, "numeric binding is unverified")
@@ -1138,6 +1186,7 @@ mod tests {
                 &[agent(10, StatusKind::Busy)],
                 &BTreeMap::new(),
                 &titles,
+                Some("claude agents --json failed (exit 1)"),
             );
             assert_eq!(
                 (
