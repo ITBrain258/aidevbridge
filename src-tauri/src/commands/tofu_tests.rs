@@ -770,9 +770,9 @@ impl HostKeyRequestSink for ChannelAndPersistFailureSink {
 /// Scheitern darf dabei nur das Oeffnen zum Anhaengen:
 /// `TofuPolicy::decide` entscheidet ueber den uebergebenen
 /// known_hosts-Text im Speicher und fasst den Pfad dafuer nicht an, und
-/// `append_entry` liest den Pfad vor dem Oeffnen mit
-/// `read(..).unwrap_or_default()`, sodass der Lesefehler am Verzeichnis
-/// nur als leere Datei zaehlt. `Drop` entfernt das Verzeichnis mit
+/// `append_entry` liest den Pfad vor dem Oeffnen nur, um ueber einen
+/// fuehrenden Zeilenumbruch zu entscheiden; der Lesefehler am Verzeichnis
+/// laesst erst das Oeffnen scheitern. `Drop` entfernt das Verzeichnis mit
 /// `remove_dir`, das ausschliesslich leere Verzeichnisse loescht.
 struct KnownHostsDirectoryGuard(PathBuf);
 impl KnownHostsDirectoryGuard {

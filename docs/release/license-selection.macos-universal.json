@@ -1137,8 +1137,8 @@
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
-            "bytes": 35539,
-            "sha256": "e7faf7caa1910f3f6e2c82b2013cace83a935dd37c757e49166d7ef5ba5bfe9a"
+            "bytes": 35564,
+            "sha256": "a6cb0f9822c9500aecadc76f7687298cc2878200df0279a4ea054f70d519957a"
           },
           {
             "path": "src-tauri/src/connection.rs",
@@ -1202,8 +1202,8 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 128010,
-            "sha256": "195c345953006e51bf43fc83cd8cfc1e9d674bc5dc0f14cac915001c7e541cf0"
+            "bytes": 130301,
+            "sha256": "bccff0ed705f79914a67c0fc54d2285869ac357108096a4862ac0e92c3fb0b39"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
