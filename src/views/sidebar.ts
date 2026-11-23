@@ -918,7 +918,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     //
     // Kein achter i18n-Schluessel -- beschrieben wird der Text, der ohnehin
     // schon dasteht. Die Kennungen sind ueber `host.id` vereindeutigt: das
-    // ist die `settings.toml`-ID aus `new_host_id` (`commands.rs`, Format
+    // ist die `settings.toml`-ID aus `new_host_id` (`commands/hosts.rs`, Format
     // `host_<hex>`). Entscheidend: das Format enthaelt kein Leerzeichen, das
     // die Liste in `aria-describedby` zerteilen koennte. Gleichzeitig offen
     // ist ohnehin nur EINE Rueckfrage.
@@ -1366,7 +1366,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // UX-Spec §10: der Satz traegt den Kasten, der Rohtext des Backends steht
     // nur hinter "Details" und in "Copy diagnostics" -- wie am Steuerhinweis.
     // Eine Ausnahme hat einen eigenen Satz: Schreibt die Shell des Hosts in
-    // die Antworten (`shell_output`, `commands.rs::VersionAnswer`), hilft
+    // die Antworten (`shell_output`, `commands/inventory.rs::VersionAnswer`), hilft
     // "Retry" erst, wenn die Startdatei der Shell aufgeraeumt ist. Hinter
     // "Details" faende das niemand.
     notice.appendChild(noticeMessage(t(

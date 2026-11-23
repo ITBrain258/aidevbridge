@@ -36,7 +36,7 @@ pub(crate) fn shell_line(text: &str) -> Option<String> {
 }
 
 /// Was gegen Ausgabe der Shell zu tun ist; derselbe Satz in der Host-Pruefung
-/// und in der Sessionliste (`commands.rs`).
+/// und in der Sessionliste (`commands/inventory.rs`).
 pub(crate) const SHELL_OUTPUT_REMEDY: &str =
     "Remove that output from the shell startup file, for example ~/.bashrc or ~/.zshenv, \
      or print it only in interactive shells.";
