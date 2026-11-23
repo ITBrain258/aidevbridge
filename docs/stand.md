@@ -219,6 +219,61 @@ Maintainers.
   die Liste wegen der Shell ausbleibt, und eine Meldung beim Öffnen, die die
   Shell nennt (Punkt 15).
 
+## Entscheidungen vom 23.11.2026
+
+Der Maintainer hat am 23.11. alle Empfehlungen des
+[Fahrplans](plans/2026-11-23-fahrplan.md) übernommen (dort Abschnitt 2, E1
+bis E12 samt E9 a bis h). Pakete und Reihenfolge stehen im Plan; hier nur die
+Festlegungen.
+
+- **Richtung (E1):** andere Nutzer erreichen, aber nur mit billigen
+  Schritten: tmux-Versionen, Doku, winget. Kein Geld für Signaturen und kein
+  Apple-Konto, solange es keine Nutzer gibt.
+- **Takt (E2):** alle 14 Tage ein Zug aus Kandidat, Handprüfungs-Termin und
+  Tag. Ein Hotfix nur bei Sicherheit oder einem Blocker; 0.3.7 mit russh
+  0.65.4 ist so einer. Den Tag setzt weiter der Maintainer.
+- **Englisch (E3):** „B schmal“ statt „alles englisch“ vom 17.11.: nur die
+  Kommentare im Produktcode, höchstens eine Woche, als eigener Zug nach Zug 1.
+  Ein Werkzeug zeigt vorher, dass sich außer Kommentaren nichts ändert.
+  Testnamen bleiben.
+- **Audit (E4):** `audit.yml` bleibt rot, bis russh 0.65.4 im Baum ist. Für
+  die neuen russh-Meldungen gibt es keine Ausnahme.
+- **tmux-Versionen (E5):** Eine Messung in einem Container auf dem CI-Runner,
+  nur mit eigenem Testsocket, darf eine Version freigeben. Jede Version
+  bekommt einen eigenen Messbericht.
+- **Rückfragen vom 17.11. (E6):**
+  - Die beiden Bestätigungsleisten der Seitenleiste werden eine. Die
+    Pfeiltasten bleiben am Ende stehen, wie in Knopfleiste und Liste.
+  - `keymap.rs` wird entfernt. Damit entfällt der Kürzeleditor aus UX-Spec
+    §14 (E-07), und `guide/limits.md` wird nachgezogen.
+  - Die Ausnahme „Befund N der Bewertung“ im Hygienetest fällt weg.
+- **`stand.md` (E7):** wird ein kurzer Stand mit einer Statustabelle. Die
+  Nummern der Punkte bleiben, denn Code und Workflows zitieren sie.
+- **Batch 9 (E8, U3):** `commands.rs` wird zu Beginn von Zug 1 aufgeteilt.
+- **Funktionen, die frühere Festlegungen öffnen (E9):**
+  - a) Neue Sessions anderer Geräte erscheinen ohne „Reload sessions“: ja.
+  - b) Einen alten Hostschlüssel in der Desktop-App entfernen, mit
+    Sicherungskopie wie `ssh-keygen -R`: ja.
+  - c) Die Zahl der Wartenden an Taskleiste und Dock: ja.
+  - d) Ein Toast erst nach c), als eigene Entscheidung.
+  - e) Ein Hinweis „fertig“ in der Wartet-Spur, kein sechster Zustand.
+  - f) Zuerst nur die Vorschau der Frage; Antworten später.
+  - g) Android im Hintergrund erst nach dem Gerätetest zu `STALL_TIMEOUT`.
+  - h) Weitere Agenten nur nach einer Messung.
+- **Hostschlüssel anderen Typs (E10):** Die Regel wie bei OpenSSH kommt,
+  bevor die App über winget mehr Nutzer erreicht (Punkt 15).
+- **Updates und Signatur (E11):** Updates kommen über Paketquellen (winget,
+  Obtainium), nicht über einen eingebauten Updater. SignPath erst, wenn die
+  App Reputation hat. Gesamtspec §11.2 und MVP-Spec bekommen dazu Nachträge.
+- **Kleinere Fragen (E12):**
+  - Reine Doku-Pushes bauen keine Pakete mehr (öffnet Punkt 16).
+  - Gleichzeitige Abfragen der Sessionliste gelten nicht als geänderte Folge;
+    gemessen wird trotzdem.
+  - Die Protokolldatei liegt im Ordner der Einstellungen, 2 × 1 MB, und hält
+    nur Host-IDs und Fehlercodes.
+  - Abnahmeläufe bekommen einen eigenen UI-Stub.
+  - Die Store-Texte werden erzeugt.
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -912,7 +967,8 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   Verhalten (Fokus, Resize, Maximieren, Leer- und Fehlerzustände) gilt das
   [Designsystem v1](specs/2026-07-27-agent-management-shell-designsystem.md)
   weiter.
-- Pläne unter `plans/`: der [Umsetzungsplan vom 26.10.](plans/2026-10-26-review-umsetzung.md)
+- Pläne unter `plans/`: der [Fahrplan vom 23.11.](plans/2026-11-23-fahrplan.md)
+  mit den Zügen nach 0.3.6, der [Umsetzungsplan vom 26.10.](plans/2026-10-26-review-umsetzung.md)
   (Batch 9 wartet auf U3) und der [Android-Plan](plans/2026-10-27-android.md)
   (Abnahme am Gerät, Play). Erledigte Pläne, etwa die Roadmap vom 05.09. und
   der Plan zum Standard-Socket, stehen in der Git-Historie.
