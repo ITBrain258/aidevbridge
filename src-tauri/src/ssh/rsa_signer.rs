@@ -19,7 +19,7 @@ use std::future::{ready, Future};
 /// for hash selection or exposed through formatting.
 pub(crate) struct PreparedRsa {
     public: PublicKey,
-    private: rsa::RsaPrivateKey,
+    private: rsa::PrivateKey,
     #[cfg(test)]
     lifetime: Option<std::sync::Arc<()>>,
 }
@@ -27,7 +27,7 @@ pub(crate) struct PreparedRsa {
 impl PreparedRsa {
     pub(crate) fn new(key: &RsaKeypair, public: PublicKey) -> Result<Self, AuthError> {
         let invalid_key = || AuthError::KeyUnreadable("invalid RSA key components".into());
-        let mut private = rsa::RsaPrivateKey::try_from(key).map_err(|_| invalid_key())?;
+        let mut private = rsa::PrivateKey::try_from(key).map_err(|_| invalid_key())?;
         // from_components attempts this already, but ignores its error. This is
         // a no-op after success and makes any preparation failure explicit here.
         private.precompute().map_err(|_| invalid_key())?;
