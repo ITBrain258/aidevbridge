@@ -294,6 +294,27 @@ Festlegungen.
 
 ## Letzte Prüfung
 
+Am 23.11.2026 für PR #64 (russh 0.65.4, `rsa` 0.10.0, `url` 2.5.9 und
+`cookie` 0.18.3; gemergt als `93532e1`): eine neutrale Durchsicht des
+Vendor-Diffs, die nur las und die drei Bäume verglich; ihre Funde behebt
+derselbe PR. Lokal: Clippy, 727 Rust-Bibliothekstests, mit den
+Integrationstests 803, 4968 Vitest-Tests, 251 Skripttests, die Tests des
+eingebetteten russh (244 Bibliotheks- und 35 Integrationstests) und
+`licenses:check` für alle drei Auswahlen. CI, Audit und beide Probeläufe
+mit **release** grün. An beiden Test-VMs, nur mit eigenen Testsockets: alle
+Live-Tests mit einem RSA-Testschlüssel, der nur für den Lauf in
+`authorized_keys` stand (der RSA-Zweig lief damit zum ersten Mal gegen echtes
+OpenSSH, 10.2 und 9.2), und die Abnahme mit 11 von 11 je VM, mit dem Zweig
+über den ssh-agent. Zwei Ausreißer, beide einzeln wiederholt grün:
+`kill_session_leaves_no_server_running_behind` traf unter Last den
+tmux-Server beim Beenden („server exited unexpectedly“ statt „no server
+running“), und zwei `known_hosts`-Tests scheiterten in einem vollen
+Windows-Lauf an einer gesperrten Temp-Datei (`os error 32` beim `rename`).
+Nicht geprüft: das echte Fenster; die Anmeldung per Passwort (kein Passwort
+für das Wegwerfkonto); der Rückfall auf `ssh-rsa`/SHA-1 gegen OpenSSH, den
+OpenSSH ab 8.8 nicht mehr anbietet (er läuft im Loopback-Test gegen einen
+russh-Server).
+
 Am 16.11.2026 nach 0.3.5: drei neutrale Bewertungen, die nur lasen (PR #61;
 die 29 CodeQL-Funde und das Setup; die drei bekannten Fehler aus den Punkten
 8 und 15), danach PR #61 mit zwei Korrekturen und PR #62 (Entscheidungen vom
@@ -612,8 +633,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     0.7.0-rc.12; damit ist RUSTSEC-2023-0071 behoben, und `audit.yml`
     ignoriert nur noch die `glib`-Meldung
     ([`AGENTBRIDGE-PATCH.md`](../vendor/russh/AGENTBRIDGE-PATCH.md),
-    [`SECURITY.md`](../SECURITY.md)). Die Abnahme mit RSA-Schlüssel auf den
-    Test-VMs steht noch aus (Fahrplan, Z0.1).
+    [`SECURITY.md`](../SECURITY.md)). PR #64; die Abnahme mit RSA-Schlüssel
+    lief auf beiden Test-VMs (Letzte Prüfung).
     Offen:
     - **Tauri v3:** Mit ihm fallen die Übergangsschalter
       `android.builtInKotlin=false` und `android.newDsl=false`.
