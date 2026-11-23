@@ -513,9 +513,11 @@ describe("mountHostForm: Reihenfolge der Felder (Spec 2026-10-25 §10.1)", () =>
     const names = Array.from(el.querySelectorAll("form input, form select")).map((input) => input.getAttribute("name"));
     expect(names.indexOf("password")).toBeGreaterThan(names.indexOf("auth"));
     expect(names.indexOf("password")).toBeLessThan(names.indexOf("showDefaultSocket"));
-    auth.value = "key:C:\Users\U\.ssh\id_ed25519";
+    auth.value = "key:C:\\Users\\U\\.ssh\\id_ed25519";
     auth.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(auth.value).toBe("key:C:\\Users\\U\\.ssh\\id_ed25519");
     const again = Array.from(el.querySelectorAll("form input, form select")).map((input) => input.getAttribute("name"));
+    expect(again.indexOf("passphrase")).toBeGreaterThan(again.indexOf("auth"));
     expect(again.indexOf("passphrase")).toBeLessThan(again.indexOf("showDefaultSocket"));
   });
 });

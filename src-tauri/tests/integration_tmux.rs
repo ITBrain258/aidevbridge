@@ -239,16 +239,29 @@ async fn kill_session_leaves_no_server_running_behind() {
 
     c.kill_session(&t, name).await.unwrap();
 
-    let after = t
-        .exec(&remote::build(&["tmux", "-L", &socket, "list-sessions"]))
-        .await
-        .unwrap();
-    assert_ne!(
-        after.code, 0,
-        "nach kill_session darf ueberhaupt kein Server mehr antworten -- \
-         Exit 0 hier heisst: der Server laeuft noch mit null Sessions weiter, \
-         weil `exit-empty` nicht wieder auf \"on\" gesetzt wurde"
-    );
+    // Trifft die Sonde den Server, waehrend er sich beendet, meldet tmux
+    // "server exited unexpectedly" statt "no server running". Auch das ist
+    // kein laufender Server; die Sonde fragt dann noch einmal, bis tmux
+    // keinen Server mehr findet.
+    let mut after = None;
+    for _ in 0..20 {
+        let probe = t
+            .exec(&remote::build(&["tmux", "-L", &socket, "list-sessions"]))
+            .await
+            .unwrap();
+        assert_ne!(
+            probe.code, 0,
+            "nach kill_session darf ueberhaupt kein Server mehr antworten -- \
+             Exit 0 hier heisst: der Server laeuft noch mit null Sessions weiter, \
+             weil `exit-empty` nicht wieder auf \"on\" gesetzt wurde"
+        );
+        if !probe.stderr.contains("server exited unexpectedly") {
+            after = Some(probe);
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+    }
+    let after = after.expect("tmux meldete zwei Sekunden lang einen sich beendenden Server");
     assert!(
         after.stderr.contains("no server running"),
         "erwartete Fehlermeldung eines toten Servers, bekam: {}",

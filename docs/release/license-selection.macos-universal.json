@@ -1202,13 +1202,13 @@
           },
           {
             "path": "src-tauri/src/settings.rs",
-            "bytes": 124521,
-            "sha256": "8f692818c1b5bdd3307bd5d7654da0abce788073dfd4264b578d0c516112adf5"
+            "bytes": 128010,
+            "sha256": "195c345953006e51bf43fc83cd8cfc1e9d674bc5dc0f14cac915001c7e541cf0"
           },
           {
             "path": "src-tauri/src/ssh/auth.rs",
-            "bytes": 78906,
-            "sha256": "e0890ae475a541c6b5c74ea2c2107ec0bd4c13644e6fc3609afff30b723d325d"
+            "bytes": 81884,
+            "sha256": "9efd4f65ef6ce84c5f22ac9e417c5b3bf827c1f38abf910925529574dd1d5b89"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
@@ -1227,8 +1227,8 @@
           },
           {
             "path": "src-tauri/src/ssh/known_hosts.rs",
-            "bytes": 63464,
-            "sha256": "72783946ac8dcbe47753358af05c1a37ee79d26c53773006005f3cc023d0c5b2"
+            "bytes": 65069,
+            "sha256": "5992b29022bad45c2cc2a26a7ab1afb48e6e1b08a514b1756a4fa31a57ed096d"
           },
           {
             "path": "src-tauri/src/ssh/mod.rs",

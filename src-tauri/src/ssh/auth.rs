@@ -490,8 +490,16 @@ fn decode_key_source(source: &str, passphrase: Option<&str>) -> Result<PrivateKe
     if passphrase.is_none() && is_encrypted_pkcs8(source) {
         return Err(AuthError::PassphraseRequired);
     }
-    russh::keys::decode_secret_key(source, passphrase)
-        .map_err(|error| classify_key_error(&error.to_string()))
+    russh::keys::decode_secret_key(source, passphrase).map_err(|error| {
+        let message = error.to_string();
+        match classify_key_error(&message) {
+            // Ohne Passphrase kann keine falsch sein: Ein Pruefsummenfehler
+            // ("cryptographic error") heisst dann, dass die Datei selbst
+            // beschaedigt ist.
+            AuthError::PassphraseWrong if passphrase.is_none() => AuthError::KeyUnreadable(message),
+            classified => classified,
+        }
+    })
 }
 
 fn is_encrypted_pkcs8(source: &str) -> bool {
@@ -1152,6 +1160,63 @@ dP3jryYgvsCIBAA5jMWSjrmnOTXhidqcOy4xYCrAttzSnZ/cUadfBenL+DQq6neffw7j8r
 0tbCxVGp6yCQlKrgSZf6c0Hy7dNEIU2bJFGxLe6/kWChcUAt/5Ll5rI7DVQPJdLgehLzvv
 sJWR7W+cGvJ/vLsw==
 -----END OPENSSH PRIVATE KEY-----";
+
+    /// Eine unverschluesselte OpenSSH-Schluesseldatei mit beschaedigtem
+    /// Pruefwert (die beiden "checkint" passen nicht zusammen) liefert
+    /// denselben "cryptographic error" wie eine falsche Passphrase. Ohne
+    /// Passphrase ist sie unlesbar, nicht falsch entsperrt.
+    #[test]
+    fn a_damaged_unencrypted_key_is_unreadable_not_a_wrong_passphrase() {
+        use base64::Engine;
+        let key = PrivateKey::random(&mut rand::rng(), russh::keys::Algorithm::Ed25519).unwrap();
+        let pem = key
+            .to_openssh(russh::keys::ssh_key::LineEnding::LF)
+            .unwrap();
+        let body: String = pem
+            .lines()
+            .filter(|line| !line.starts_with("-----"))
+            .collect();
+        let mut bytes = base64::engine::general_purpose::STANDARD
+            .decode(body)
+            .unwrap();
+        // Aufbau nach PROTOCOL.key: Magie, ciphername, kdfname, kdfoptions,
+        // Anzahl der Schluessel, oeffentlicher Schluessel, dann die Laenge
+        // des privaten Teils und darin zuerst die beiden checkints.
+        let mut pos = b"openssh-key-v1\0".len();
+        let skip = |bytes: &[u8], pos: &mut usize| {
+            let len = u32::from_be_bytes(bytes[*pos..*pos + 4].try_into().unwrap()) as usize;
+            *pos += 4 + len;
+        };
+        for _ in 0..3 {
+            skip(&bytes, &mut pos);
+        }
+        pos += 4;
+        skip(&bytes, &mut pos);
+        pos += 4;
+        bytes[pos + 4] ^= 0xff;
+        let encoded = base64::engine::general_purpose::STANDARD.encode(&bytes);
+        let lines: Vec<&str> = encoded
+            .as_bytes()
+            .chunks(70)
+            .map(|chunk| std::str::from_utf8(chunk).unwrap())
+            .collect();
+        let damaged = format!(
+            "-----BEGIN OPENSSH PRIVATE KEY-----\n{}\n-----END OPENSSH PRIVATE KEY-----\n",
+            lines.join("\n")
+        );
+        let message = russh::keys::decode_secret_key(&damaged, None)
+            .unwrap_err()
+            .to_string();
+        assert!(
+            matches!(classify_key_error(&message), AuthError::PassphraseWrong),
+            "der Fall muss derselbe Text wie eine falsche Passphrase sein: {message:?}"
+        );
+        let err = decode_key_source(&damaged, None).unwrap_err();
+        assert!(matches!(err, AuthError::KeyUnreadable(_)), "{err:?}");
+        // Mit Passphrase bleibt die Meldung die einer falschen Passphrase.
+        let wrong = decode_key_source(ED25519_AESCTR_KEY, Some("definitely-wrong")).unwrap_err();
+        assert!(matches!(wrong, AuthError::PassphraseWrong), "{wrong:?}");
+    }
 
     #[test]
     fn real_encrypted_key_without_password_yields_passphrase_required() {

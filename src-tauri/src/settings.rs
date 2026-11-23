@@ -1045,8 +1045,48 @@ fn fill_and_rename(
     if !may_replace()? {
         return Ok(false);
     }
-    std::fs::rename(tmp_path, path).with_context(replace_context)?;
+    rename_retrying(tmp_path, path).with_context(replace_context)?;
     Ok(true)
+}
+
+/// Wartezeiten zwischen den Versuchen von `rename_retrying`, zusammen
+/// 310 ms.
+const RENAME_RETRY_DELAYS: [std::time::Duration; 5] = [
+    std::time::Duration::from_millis(10),
+    std::time::Duration::from_millis(20),
+    std::time::Duration::from_millis(40),
+    std::time::Duration::from_millis(80),
+    std::time::Duration::from_millis(160),
+];
+
+/// `std::fs::rename`, unter Windows mit kurzen Wiederholungen: Haelt ein
+/// anderer Prozess eine der beiden Dateien kurz offen, etwa ein Virenscanner
+/// die eben geschriebene, scheitert das Ersetzen mit "used by another
+/// process" (ERROR_SHARING_VIOLATION) oder ERROR_ACCESS_DENIED. Nach
+/// hoechstens fuenf Wiederholungen bleibt der letzte Fehler stehen. Andere
+/// Fehler und andere Systeme gehen sofort durch.
+fn rename_retrying(from: &Path, to: &Path) -> std::io::Result<()> {
+    let mut delays = RENAME_RETRY_DELAYS.iter();
+    loop {
+        match std::fs::rename(from, to) {
+            Err(error) if is_transient_lock(&error) => match delays.next() {
+                Some(delay) => std::thread::sleep(*delay),
+                None => return Err(error),
+            },
+            result => return result,
+        }
+    }
+}
+
+#[cfg(windows)]
+fn is_transient_lock(error: &std::io::Error) -> bool {
+    // ERROR_ACCESS_DENIED (5), ERROR_SHARING_VIOLATION (32).
+    matches!(error.raw_os_error(), Some(5) | Some(32))
+}
+
+#[cfg(not(windows))]
+fn is_transient_lock(_error: &std::io::Error) -> bool {
+    false
 }
 
 /// Zaehler fuer eindeutige temporaere Namen innerhalb dieses Prozesses.
@@ -1597,6 +1637,55 @@ user = \"u\"
         assert!(chain.contains("could not replace"), "{chain}");
         assert_eq!(std::fs::read(&path).unwrap(), before);
         assert_eq!(names_in(&dir), ["settings.toml"]);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Haelt ein anderer Handle die Zieldatei kurz ohne FILE_SHARE_DELETE
+    /// offen (wie ein Virenscanner), wartet das Ersetzen und gelingt danach.
+    #[cfg(windows)]
+    #[test]
+    fn rename_waits_for_a_file_that_another_handle_holds_briefly() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let (dir, path) = fresh_settings_dir("rename_held_briefly");
+        std::fs::write(&path, "old").unwrap();
+        let tmp = dir.join("settings.toml.held.tmp");
+        std::fs::write(&tmp, "new").unwrap();
+        let held = OpenOptions::new()
+            .read(true)
+            .share_mode(0)
+            .open(&path)
+            .unwrap();
+        let release = std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(50));
+            drop(held);
+        });
+        rename_retrying(&tmp, &path).unwrap();
+        release.join().unwrap();
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "new");
+        assert!(!tmp.exists());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Bleibt die Datei gehalten, gibt das Ersetzen nach den Wiederholungen
+    /// mit dem letzten Fehler auf; beide Dateien bleiben, wie sie waren.
+    #[cfg(windows)]
+    #[test]
+    fn rename_gives_up_on_a_file_that_stays_held() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let (dir, path) = fresh_settings_dir("rename_held_long");
+        std::fs::write(&path, "old").unwrap();
+        let tmp = dir.join("settings.toml.held.tmp");
+        std::fs::write(&tmp, "new").unwrap();
+        let held = OpenOptions::new()
+            .read(true)
+            .share_mode(0)
+            .open(&path)
+            .unwrap();
+        let error = rename_retrying(&tmp, &path).unwrap_err();
+        drop(held);
+        assert!(is_transient_lock(&error), "{error:?}");
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "old");
+        assert_eq!(std::fs::read_to_string(&tmp).unwrap(), "new");
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
