@@ -1,8 +1,10 @@
 # aidevbridge: Stand und offene Punkte
 
-**Stand:** Version `0.3.6` vom 16.11.2026 (Tag `v0.3.6` auf dem Merge-Commit
+**Stand:** Version `0.3.7` vom 23.11.2026 (Tag `v0.3.7` auf dem Merge-Commit
 des Release-PR); beim Tag baut die CI alle Pakete und hängt sie an das Release.
-0.3.6 bringt den überarbeiteten Erststart (PR #61) und die Korrekturen aus den
+0.3.7 ist ein Sicherheits-Update (PR #64, Punkt 12): russh 0.65.4, `rsa`
+0.10.0, `url` 2.5.9 und `cookie` 0.18.3. 0.3.6 brachte den überarbeiteten
+Erststart (PR #61) und die Korrekturen aus den
 Entscheidungen vom 16.11. (PR #62): Die App erkennt und nennt eine Shell, die
 vor jedem SSH-Befehl Text schreibt, die Sessionliste hat 60 s für den ganzen
 Gang und 15 s je Befehl, und ein Arbeitsordner, der auf `;` endet, wird

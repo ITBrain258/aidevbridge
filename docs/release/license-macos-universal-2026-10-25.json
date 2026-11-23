@@ -14,13 +14,13 @@
     "features": [
       "tauri/custom-protocol"
     ],
-    "product_version": "0.3.6"
+    "product_version": "0.3.7"
   },
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
     "bytes": 1069651,
-    "sha256": "0df152d9a4697b4c59da07a0413b9a06f9cfe7b01c38d0f874c1eb43be677b1a"
+    "sha256": "329511276e7e23f666b3688ebf7665fd2c872a7d4cfcfc748c22461e8c4c7a74"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
