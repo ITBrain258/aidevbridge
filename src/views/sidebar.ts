@@ -708,7 +708,12 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     button.setAttribute("aria-label", label);
     button.title = titleWithShortcut(label, "session.new");
     appendIconBox(button, "plus");
-    button.disabled = host.state !== "connected";
+    // Schreibt die Shell Text auf die Standardausgabe (`shell_stdout`), legte
+    // tmux die Session an, die App koennte ihre Bestaetigung aber nicht lesen
+    // und meldete einen Fehler. Der Kasten der Liste nennt die Abhilfe.
+    const shellPrints = state.sessionListForHost(host.id, "app").error?.code === "shell_stdout";
+    if (shellPrints) button.title = t("sidebar.action.newSessionShellOutput");
+    button.disabled = host.state !== "connected" || shellPrints;
     button.addEventListener("click", () => {
       if (!disposed) opts.onNewSession(host.id);
     });
@@ -1366,11 +1371,14 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // UX-Spec §10: der Satz traegt den Kasten, der Rohtext des Backends steht
     // nur hinter "Details" und in "Copy diagnostics" -- wie am Steuerhinweis.
     // Eine Ausnahme hat einen eigenen Satz: Schreibt die Shell des Hosts in
-    // die Antworten (`shell_output`, `commands/inventory.rs::VersionAnswer`), hilft
-    // "Retry" erst, wenn die Startdatei der Shell aufgeraeumt ist. Hinter
-    // "Details" faende das niemand.
+    // die Antworten (`shell_stdout` auf der Standard-, `shell_output` auf der
+    // Fehlerausgabe, `commands/inventory.rs::VersionAnswer`), hilft "Retry"
+    // erst, wenn die Startdatei der Shell aufgeraeumt ist. Hinter "Details"
+    // faende das niemand.
     notice.appendChild(noticeMessage(t(
-      error.code === "shell_output" ? "sidebar.sessions.shellOutput" : "sidebar.sessions.loadFailed",
+      error.code === "shell_output" || error.code === "shell_stdout"
+        ? "sidebar.sessions.shellOutput"
+        : "sidebar.sessions.loadFailed",
     )));
     if (observation.lastSuccessAt !== null) {
       const time = document.createElement("time");

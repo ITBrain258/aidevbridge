@@ -2044,6 +2044,14 @@ export function main(): void {
       showGlobalError(t("sessionDialog.hostNotConnected", { host: host.label }));
       return;
     }
+    // Schreibt die Shell des Hosts Text auf die Standardausgabe
+    // (`shell_stdout`, `commands/inventory.rs`), legte tmux die Session an,
+    // die App koennte ihre Bestaetigung aber nicht lesen. Wie der gesperrte
+    // Knopf der Seitenleiste, auch fuer Strg+Umschalt+N und Schnelloeffnen.
+    if (state.sessionListForHost(hostId, "app").error?.code === "shell_stdout") {
+      showGlobalError(t("sessionDialog.shellOutput", { host: host.label }));
+      return;
+    }
 
     // In eine lokale Konstante gezogen: die Verengung oben traegt nicht in
     // den Rueckruf unten hinein (`host.runtimeId` ist ein veraenderliches

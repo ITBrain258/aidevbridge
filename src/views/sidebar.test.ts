@@ -4028,17 +4028,40 @@ describe("mountSidebar: inventory freshness", () => {
   // Zeile bleibt hinter "Details".
   it("names the shell startup file when the host's shell writes into the answers", () => {
     const raw = "The host's shell prints text on every SSH command (it starts with \"Welcome to build-box!\"), so the app cannot read exact answers.";
-    for (const socket of ["app", "default"] as const) {
+    for (const code of ["shell_output", "shell_stdout"]) {
+      for (const socket of ["app", "default"] as const) {
+        const state = new AppState();
+        state.upsertHost(host("a"));
+        state.setSessionListError("a", { code, message: raw }, socket);
+        const { el } = mount(state);
+        const notice = el.querySelector<HTMLElement>(".session-list-notice")!;
+        expect(notice.querySelector(".host-notice-message")!.textContent).toBe(
+          "This host's shell prints text on every SSH command, so the session list can't be read. Remove that output from the shell startup file (for example ~/.bashrc or ~/.zshenv), then retry.",
+        );
+        expect(notice.querySelector<HTMLElement>(".host-notice-detail")!.textContent).toContain("Welcome to build-box!");
+      }
+    }
+  });
+
+  // Text auf der Standardausgabe (`shell_stdout`) liesse tmux eine Session
+  // anlegen, deren Bestaetigung die App nicht lesen kann: "New session" ist
+  // gesperrt und sagt warum. Meldungen nur auf der Fehlerausgabe
+  // (`shell_output`) sperren nichts: Dort geht das Anlegen, und an einem
+  // leeren Host ist es der einzige Weg. Ein Fehler nur am Standard-Socket
+  // sperrt ebenfalls nichts.
+  it("blocks New session only while the shell prints on standard output", () => {
+    const newSession = (code: string, socket: "app" | "default") => {
       const state = new AppState();
       state.upsertHost(host("a"));
-      state.setSessionListError("a", { code: "shell_output", message: raw }, socket);
+      state.setSessionListError("a", { code, message: "x" }, socket);
       const { el } = mount(state);
-      const notice = el.querySelector<HTMLElement>(".session-list-notice")!;
-      expect(notice.querySelector(".host-notice-message")!.textContent).toBe(
-        "This host's shell prints text on every SSH command, so the session list can't be read. Remove that output from the shell startup file (for example ~/.bashrc or ~/.zshenv), then retry.",
-      );
-      expect(notice.querySelector<HTMLElement>(".host-notice-detail")!.textContent).toContain("Welcome to build-box!");
-    }
+      return el.querySelectorAll<HTMLButtonElement>(".host-actions button")[1];
+    };
+    const blocked = newSession("shell_stdout", "app");
+    expect(blocked.disabled).toBe(true);
+    expect(blocked.title).toBe("New session isn't possible while this host's shell prints text on every SSH command.");
+    expect(newSession("shell_output", "app").disabled).toBe(false);
+    expect(newSession("shell_stdout", "default").disabled).toBe(false);
   });
 
   // UX-Spec §5.3, §5.7: solange die Steuerung nicht bereit ist, sagt ihre

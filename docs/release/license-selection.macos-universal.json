@@ -663,8 +663,8 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 22686,
-        "sha256": "e0170c9285be520bd2591eecf50508972cf6f9317dc3d6fb8ed401b974552430"
+        "bytes": 23083,
+        "sha256": "db1df333609c9eab3b7188a01c91332485cf6c45f8bca362125ecf7f1039e72e"
       },
       {
         "path": "src/icons.ts",
@@ -678,8 +678,8 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 159661,
-        "sha256": "ce6a6d2b67eda24a441460313280a3f93972035b56e9e061c64ec2ac0b0f25e9"
+        "bytes": 160136,
+        "sha256": "b5bc16771bafba43954cda6ec76e71b7dcc8655bd7ef21f07c01110a4140b02b"
       },
       {
         "path": "src/state/app-state.ts",
@@ -768,8 +768,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 132098,
-        "sha256": "fc36f60724ec4ada422c80d94a20aaaad1efce1e36236d9e7666071b9a525004"
+        "bytes": 132632,
+        "sha256": "15af686509a768dccfb051872906a90e7be2b34f5f685a8950bb8680094d84c8"
       },
       {
         "path": "src/views/types.ts",
@@ -801,8 +801,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 22686,
-            "sha256": "e0170c9285be520bd2591eecf50508972cf6f9317dc3d6fb8ed401b974552430"
+            "bytes": 23083,
+            "sha256": "db1df333609c9eab3b7188a01c91332485cf6c45f8bca362125ecf7f1039e72e"
           },
           {
             "path": "src/i18n/t.ts",
@@ -826,8 +826,8 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 159661,
-            "sha256": "ce6a6d2b67eda24a441460313280a3f93972035b56e9e061c64ec2ac0b0f25e9"
+            "bytes": 160136,
+            "sha256": "b5bc16771bafba43954cda6ec76e71b7dcc8655bd7ef21f07c01110a4140b02b"
           },
           {
             "path": "src/platform.ts",
@@ -1046,8 +1046,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 132098,
-            "sha256": "fc36f60724ec4ada422c80d94a20aaaad1efce1e36236d9e7666071b9a525004"
+            "bytes": 132632,
+            "sha256": "15af686509a768dccfb051872906a90e7be2b34f5f685a8950bb8680094d84c8"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -1132,8 +1132,8 @@
           },
           {
             "path": "src-tauri/src/commands/inventory.rs",
-            "bytes": 37685,
-            "sha256": "0c2f975b83df8107fcfeb393946c30e567f68d6acee6eb4e61ccab5e755c430e"
+            "bytes": 38373,
+            "sha256": "b02646f885f56dca4c23368af66453ed34a150101e49e0696a085903ed522aef"
           },
           {
             "path": "src-tauri/src/commands/terminal_ownership_tests.rs",
@@ -1142,8 +1142,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 128552,
-            "sha256": "5899fd8e8622dae792d6d4bd3d30397490496740bddd7668b84913d01bc1934a"
+            "bytes": 129988,
+            "sha256": "0ede3ce42fd74824081ee2ec09b9a249f8c489b1de35a2a1b5ee1d2e65992620"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
