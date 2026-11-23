@@ -538,13 +538,13 @@ impl SocketBinding {
         };
         let r1 = session_binding::parse_resolved(&results[3]).map_err(|_| Unverified::Frame)?;
         let l1 = session_binding::parse_list(&results[4]).map_err(|_| Unverified::Frame)?;
-        let bound =
-            session_binding::correlate(&l0, &r0, &i, &r1, &l1, self.selected.session_id, None)
-                .map_err(|reason| match reason {
-                    UnverifiedReason::ListingChanged
-                    | UnverifiedReason::ListingInventoryMismatch => Unverified::ListingChanged,
-                    _ => Unverified::Changed,
-                })?;
+        let bound = session_binding::correlate(&l0, &r0, &i, &r1, &l1, self.selected.session_id)
+            .map_err(|reason| match reason {
+                UnverifiedReason::ListingChanged | UnverifiedReason::ListingInventoryMismatch => {
+                    Unverified::ListingChanged
+                }
+                _ => Unverified::Changed,
+            })?;
         if bound.selected != self.selected {
             return Err(Unverified::Changed);
         }

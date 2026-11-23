@@ -488,8 +488,6 @@ pub enum UnverifiedReason {
     ResolutionChanged,
     #[error("the resolved windows and active panes do not match the inventory")]
     PaneInventoryMismatch,
-    #[error("the originally created object is not confirmed")]
-    CreationMismatch,
     #[error("the session shares windows with another session")]
     LinkedWindows,
 }
@@ -522,34 +520,10 @@ pub fn confirm_listed_inventory(
     Ok(())
 }
 
-/// Confirms only the creation's list transition. A full L/R/inventory binding
-/// is still required before choosing the newly created object for an action.
-pub fn confirm_created_listing(
-    before: &ListedSnapshot,
-    created: &CreatedRecord,
-    after: &ListedSnapshot,
-) -> Result<(), UnverifiedReason> {
-    let created = created.identity();
-    if before.server.is_some_and(|server| server != created.server)
-        || after.server != Some(created.server)
-        || before.sessions.contains_key(&created.session_id)
-        || !after.sessions.contains_key(&created.session_id)
-        || after.sessions.len() != before.sessions.len() + 1
-        || before
-            .sessions
-            .iter()
-            .any(|(id, name)| after.sessions.get(id) != Some(name))
-    {
-        return Err(UnverifiedReason::CreationMismatch);
-    }
-    Ok(())
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BoundObservation {
     pub display_name: String,
     pub selected: PaneIdentity,
-    pub creation_matched: bool,
 }
 
 /// Correlates observations only; no runtime/transport freshness is inferred.
@@ -561,7 +535,6 @@ pub fn correlate(
     after: &ResolvedSnapshot,
     list_after: &ListedSnapshot,
     session_id: SessionId,
-    created: Option<&CreatedRecord>,
 ) -> Result<BoundObservation, UnverifiedReason> {
     confirm_listed_inventory(list_before, inventory, list_after)?;
     if inventory.linked.contains(&session_id) {
@@ -598,24 +571,9 @@ pub fn correlate(
             return Err(UnverifiedReason::PaneInventoryMismatch);
         }
     }
-    if let Some(created) = created {
-        let c = created.identity();
-        if c.server != before.server
-            || c.session_id != session_id
-            || !inventory.panes.iter().any(|p| {
-                p.session_id == session_id
-                    && p.window_id == c.window_id
-                    && p.pane_id == c.pane_id
-                    && p.pane_pid == c.pane_pid
-            })
-        {
-            return Err(UnverifiedReason::CreationMismatch);
-        }
-    }
     Ok(BoundObservation {
         display_name: display_name.clone(),
         selected: before.selected(),
-        creation_matched: created.is_some(),
     })
 }
 
@@ -946,34 +904,13 @@ mod tests {
     }
 
     #[test]
-    fn empty_live_inventory_and_creation_transition_do_not_invent_a_server_or_old_identity() {
+    fn empty_live_inventory_does_not_invent_a_server() {
         let empty = parse_list(&output("")).unwrap();
         assert_eq!(empty.server(), None);
         assert!(
             confirm_listed_inventory(&empty, &inventory("B|100|1000\nE|100|1000\n"), &empty)
                 .is_ok()
         );
-        let listed = parse_list(&output(L)).unwrap();
-        let created = parse_created(&output(C)).unwrap();
-        assert!(confirm_created_listing(&empty, &created, &listed).is_ok());
-        assert_eq!(
-            confirm_created_listing(&listed, &created, &listed),
-            Err(UnverifiedReason::CreationMismatch)
-        );
-        let mut after = listed.clone();
-        after.sessions.insert(SessionId(1), "extra".into());
-        assert_eq!(
-            confirm_created_listing(&empty, &created, &after),
-            Err(UnverifiedReason::CreationMismatch)
-        );
-        let old = parse_list(&output("L|100|1000|$1|old\n")).unwrap();
-        after.sessions.insert(SessionId(1), "renamed".into());
-        assert_eq!(
-            confirm_created_listing(&old, &created, &after),
-            Err(UnverifiedReason::CreationMismatch)
-        );
-        after.sessions.insert(SessionId(1), "old".into());
-        assert!(confirm_created_listing(&old, &created, &after).is_ok());
     }
 
     #[test]
@@ -983,44 +920,33 @@ mod tests {
         let inv = inventory(I);
         let c = parse_created(&output(C)).unwrap();
         assert_eq!(
-            correlate(&l, &r, &inv, &r, &l, SessionId(0), Some(&c))
+            correlate(&l, &r, &inv, &r, &l, SessionId(0))
                 .unwrap()
                 .selected,
             c.identity()
         );
         let renamed = parse_list(&output(&L.replace("dev", "renamed"))).unwrap();
         assert_eq!(
-            correlate(&l, &r, &inv, &r, &renamed, SessionId(0), None),
+            correlate(&l, &r, &inv, &r, &renamed, SessionId(0)),
             Err(UnverifiedReason::ListingChanged)
         );
         let replacement = parse_list(&output(&L.replace("$0", "$1"))).unwrap();
-        assert!(correlate(&l, &r, &inv, &r, &replacement, SessionId(0), None).is_err());
-        assert!(correlate(&l, &r, &inv, &r, &l, SessionId(1), None).is_err());
+        assert!(correlate(&l, &r, &inv, &r, &replacement, SessionId(0)).is_err());
+        assert!(correlate(&l, &r, &inv, &r, &l, SessionId(1)).is_err());
         for newer in [
             R.replace("|100|", "|101|"),
             R.replace("|1000|", "|1001|"),
             R.replace("|10|", "|11|"),
         ] {
             let newer = parse_resolved(&output(&newer)).unwrap();
-            assert!(correlate(&l, &r, &inv, &newer, &l, SessionId(0), None).is_err());
+            assert!(correlate(&l, &r, &inv, &newer, &l, SessionId(0)).is_err());
         }
         let mut wrong_inventory = inv.clone();
         wrong_inventory.panes[0].pane_pid += 1;
         assert_eq!(
-            correlate(&l, &r, &wrong_inventory, &r, &l, SessionId(0), None),
+            correlate(&l, &r, &wrong_inventory, &r, &l, SessionId(0)),
             Err(UnverifiedReason::PaneInventoryMismatch)
         );
-        for newer in [
-            C.replace("$0", "$1"),
-            C.replace("|1000|", "|1001|"),
-            C.replace("|10\n", "|11\n"),
-        ] {
-            let newer = parse_created(&output(&newer)).unwrap();
-            assert_eq!(
-                correlate(&l, &r, &inv, &r, &l, SessionId(0), Some(&newer)),
-                Err(UnverifiedReason::CreationMismatch)
-            );
-        }
     }
 
     /// Spec 2026-10-25 §6.2: Eine Session der Gruppe bindet nicht und nennt den
@@ -1051,7 +977,7 @@ E|100|1000
         };
         let linked = parse_resolved(&output(R)).unwrap();
         assert_eq!(
-            correlate(&l, &linked, &inv, &linked, &l, SessionId(0), None),
+            correlate(&l, &linked, &inv, &linked, &l, SessionId(0)),
             Err(UnverifiedReason::LinkedWindows)
         );
         let solo = parse_resolved(&output(
@@ -1060,7 +986,7 @@ E|100|1000
         ))
         .unwrap();
         assert_eq!(
-            correlate(&l, &solo, &inv, &solo, &l, SessionId(2), None)
+            correlate(&l, &solo, &inv, &solo, &l, SessionId(2))
                 .unwrap()
                 .selected
                 .pane_pid,
@@ -1085,7 +1011,7 @@ L|100|1000|$2|solo
         let r = parse_resolved(&output(R)).unwrap();
         let inv = inventory(I);
         assert_eq!(
-            correlate(&extra, &r, &inv, &r, &extra, SessionId(0), None),
+            correlate(&extra, &r, &inv, &r, &extra, SessionId(0)),
             Err(UnverifiedReason::ListingInventoryMismatch)
         );
         let mut missing = inv.clone();
@@ -1374,7 +1300,6 @@ L|100|1000|$2|solo
             let command = |name: &str| source_result(commands[name]);
             let socket = format!("{}/tmux.sock", report["root"].as_str().unwrap());
             let q = BindingQuery::new(InventoryQuery::absolute(version, &socket).unwrap());
-            let mut creations = BTreeMap::new();
             let mut counts = [0; 3];
             for row in originals {
                 let result = source_result(row);
@@ -1419,8 +1344,10 @@ L|100|1000|$2|solo
                                 parse_list(&command(&format!("{label}_names_before"))).unwrap();
                             let after =
                                 parse_list(&command(&format!("{label}_names_after"))).unwrap();
-                            confirm_created_listing(&before, &created, &after).unwrap();
-                            creations.insert(created.identity().session_id, created);
+                            // C nennt die ID, die danach und nur danach in L steht.
+                            let sid = created.identity().session_id;
+                            assert!(!before.sessions().contains_key(&sid));
+                            assert!(after.sessions().contains_key(&sid));
                         }
                         "Resolved" => {
                             counts[1] += 1;
@@ -1470,17 +1397,9 @@ L|100|1000|$2|solo
                 let r1 = parse_resolved(&command(&format!("{name}_r_after"))).unwrap();
                 let l1 = parse_list(&command(&format!("{name}_l_after"))).unwrap();
                 let sid = r0.session_id;
-                let created = binding["result"]["creation_matched"]
-                    .as_bool()
-                    .unwrap()
-                    .then(|| &creations[&sid]);
-                let actual = correlate(&l0, &r0, &inv, &r1, &l1, sid, created).unwrap();
+                let actual = correlate(&l0, &r0, &inv, &r1, &l1, sid).unwrap();
                 assert_eq!(actual.selected, expected_pane(&binding["result"]));
                 assert_eq!(actual.display_name, binding["result"]["listed_name"]);
-                assert_eq!(
-                    actual.creation_matched,
-                    binding["result"]["creation_matched"]
-                );
                 bound_count += 1;
             }
             assert_eq!(bound_count, positives);
@@ -1497,7 +1416,7 @@ L|100|1000|$2|solo
                 };
                 assert_eq!(r0, r1);
                 assert_eq!(
-                    correlate(&l0, &r0, &inv, &r1, &l1, r0.session_id, None),
+                    correlate(&l0, &r0, &inv, &r1, &l1, r0.session_id),
                     Err(UnverifiedReason::ListingChanged)
                 );
                 assert!(
@@ -1516,25 +1435,9 @@ L|100|1000|$2|solo
                 let fresh =
                     parse_resolved(&command(&format!("replacement_{trial}_r_after_new_id")))
                         .unwrap();
-                let listed = parse_list(&command(&format!("replacement_{trial}_l_after"))).unwrap();
-                let InventoryOutcome::Snapshot(inv) = q
-                    .inventory()
-                    .classify(&command(&format!("replacement_{trial}_inventory")))
-                else {
-                    panic!("replacement")
-                };
-                assert_eq!(
-                    correlate(
-                        &listed,
-                        &fresh,
-                        &inv,
-                        &fresh,
-                        &listed,
-                        fresh.session_id,
-                        Some(&creations[&old.session_id])
-                    ),
-                    Err(UnverifiedReason::CreationMismatch)
-                );
+                // Der Ersatz unter gleichem Namen bekommt eine neue
+                // Session-ID; die alte ist abgewiesen (oben).
+                assert_ne!(fresh.session_id, old.session_id);
             }
         }
     }

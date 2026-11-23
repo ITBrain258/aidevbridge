@@ -162,7 +162,6 @@ async fn eight_rows_share_one_inventory_and_one_decreasing_absolute_budget() {
         let binding = session.binding.as_ref().unwrap();
         assert_eq!(binding.selected.session_id, session.session_id);
         assert_eq!(binding.display_name, session.display_name);
-        assert!(!binding.creation_matched);
     }
     let calls = transport.calls.lock().unwrap();
     assert_eq!(calls.len(), 19);
