@@ -43,9 +43,9 @@ export type KeymapAction =
   | "settings.open"
   | "quickOpen";
 
-/** Vorgabebelegung aus Spec §7.4. Spec §12.1 sieht eine frei konfigurierbare
- * Belegung vor (`[keymap]` in `settings.toml`); das Frontend laedt keine,
- * dies ist die einzige Quelle.
+/** Vorgabebelegung aus Spec §7.4 und die einzige Quelle: Eine eigene Belegung
+ * (`[keymap]` in `settings.toml`, Spec §12.1) ist mit dem Kuerzeleditor
+ * aufgegeben (UX-Spec §14, Nachtrag vom 23.11.2026).
  *
  * `session.prev`/`.next` (Strg+Umschalt+Hoch/Runter) fuehren den Fokus zur
  * vorigen oder naechsten Kachel; die Namen stammen aus der Zeit, als sie die
@@ -90,7 +90,7 @@ export const DEFAULT_KEYMAP: Record<KeymapAction, string> = {
 
 /** Bewusst keine Aliase ("control", "cmd", "meta") und kein eigener
  * Tastennamen-Validator -- das waere mehr Oberflaeche, als Spec §7.4
- * verlangt. Deckungsgleich mit `MODIFIERS` in `src-tauri/src/keymap.rs`. */
+ * verlangt. */
 const MODIFIERS = new Set(["ctrl", "shift", "alt"]);
 
 /** Die Ausnahmeliste (UX-Spec §8.3): Ctrl ohne Umschalt und ohne Alt gehoert der
@@ -100,9 +100,8 @@ const MODIFIERS = new Set(["ctrl", "shift", "alt"]);
  * `Ctrl+0`). Jede andere Taste hinter Ctrl bleibt dem Terminal (auch `Ctrl+1`
  * bis `Ctrl+9`), solange nicht belegt ist, dass xterm fuer sie nichts erzeugt.
  *
- * Kleinschreibung wie die Tasten nach `canonicalize`. Deckungsgleich mit
- * `PLAIN_CTRL_KEYS` in `src-tauri/src/keymap.rs`. `Ctrl++` ist auf beiden
- * Seiten keine gueltige Belegung: der Plus traegt die Zerlegung. */
+ * Kleinschreibung wie die Tasten nach `canonicalize`. `Ctrl++` ist keine
+ * gueltige Belegung: der Plus traegt die Zerlegung. */
 export const PLAIN_CTRL_KEYS: readonly string[] = [",", "=", "-", "0"];
 
 /** DOM-`KeyboardEvent.key`-Schreibweise (links) -> Spec-Schreibweise aus
@@ -112,10 +111,8 @@ export const PLAIN_CTRL_KEYS: readonly string[] = [",", "=", "-", "0"];
  * beide hieraus ab -- ohne das wuerde `canonicalize("Ctrl+Shift+ArrowUp")`
  * einen anderen Vergleichsschluessel liefern als `canonicalize("Ctrl+Shift+Up")`,
  * obwohl ein echter Tastendruck auf der Pfeiltaste-hoch IMMER "Up" erzeugt,
- * nie "ArrowUp" (`validate` wuerde sonst eine tote Belegung zertifizieren --
- * gueltig laut Validierung, aber durch keinen echten Tastendruck je
- * auszuloesen). Deckungsgleich mit `ARROW_KEY_ALIASES` in
- * `src-tauri/src/keymap.rs`. */
+ * nie "ArrowUp" (eine Belegung "Ctrl+Shift+ArrowUp" loeste sonst durch keinen
+ * echten Tastendruck je etwas aus). */
 const ARROW_KEY_NAMES: Record<string, string> = {
   ArrowUp: "Up",
   ArrowDown: "Down",
@@ -165,78 +162,6 @@ function comparisonKey(c: Canonical): string {
   return c.mods.length > 0 ? `${c.mods.join("+")}+${c.key}` : c.key;
 }
 
-/** Gehoert `binding` der App (Ctrl+Shift+... oder Ctrl allein auf einer Taste
- * der Ausnahmeliste `PLAIN_CTRL_KEYS`), oder ist es dem Terminal vorbehalten?
- * Ein unparsbarer oder Modifikator-only-Wert gehoert per Definition NICHT der
- * App -- er ist schlicht keine gueltige Belegung.
- *
- * Das Ergebnis haengt nur von den Modifikatoren (und bei Ctrl allein von der
- * Taste) ab, nicht davon, ob `binding` gerade an eine bekannte Aktion gebunden
- * ist -- deckungsgleich mit `is_reserved_for_app` in `src-tauri/src/keymap.rs`.
- * Ctrl allein gehoert der App nur fuer die vier Tasten der Ausnahmeliste
- * (UX-Spec §8.3); jede andere Taste hinter Ctrl, jedes Ctrl+Alt und jedes Alt
- * bleibt beim Terminal.
- *
- * Geprueft wird "besteht ausschliesslich aus Ctrl+Shift", nicht "enthaelt Ctrl
- * UND Shift" (`mods.includes("ctrl") && mods.includes("shift")`) --
- * "Ctrl+Alt+Shift+F" enthaelt beides und wuerde sonst faelschlich als
- * App-Akkord akzeptiert, obwohl er drei Modifikatoren traegt. Da `mods` bereits
- * sortiert und dedupliziert ist (siehe `canonicalize`), ist "die Menge ist
- * EXAKT {ctrl, shift}" gleichbedeutend mit "Laenge 2 UND beide enthalten" --
- * ein zusaetzliches drittes Element (`alt`) faellt damit durch, ohne dass `alt`
- * hier namentlich ausgeschlossen werden muss. `"meta"` ist ohnehin kein
- * erkannter Modifikator-Token (siehe `MODIFIERS` oben) und fuehrt bereits in
- * `canonicalize` zu `null` (zweite Nicht-Modifikator-"Taste"). */
-export function isReservedForApp(binding: string): boolean {
-  const c = canonicalize(binding);
-  if (!c) return false;
-  const ctrlShift = c.mods.length === 2 && c.mods.includes("ctrl") && c.mods.includes("shift");
-  // `mods` ist sortiert und dedupliziert: "genau [ctrl]" schliesst Umschalt und
-  // Alt gleichermassen aus.
-  const plainCtrl = c.mods.length === 1 && c.mods[0] === "ctrl" && PLAIN_CTRL_KEYS.includes(c.key);
-  return ctrlShift || plainCtrl;
-}
-
-/** Prueft eine gesamte Belegungstabelle (Aktion -> Belegung). Leeres Array =
- * gueltig. Lehnt ab, statt nur zu warnen (Spec §7.4): eine einzelne Ctrl-
- * oder Alt-Kombination gehoert dem Terminal (bis auf die vier Tasten der
- * Ausnahmeliste `PLAIN_CTRL_KEYS`), eine doppelt vergebene Belegung ist
- * mehrdeutig -- beide Faelle machen die Konfiguration ungueltig, nicht bloss
- * verbesserungswuerdig. */
-export function validate(bindings: Record<string, string>): string[] {
-  const problems: string[] = [];
-  const seen = new Set<string>();
-
-  // Deterministische Reihenfolge -- `Object.entries` ist es fuer
-  // Zahlen-aehnliche Keys nicht immer, und ohne Sortierung waere die
-  // Reihenfolge der Meldungen von der Einfuegereihenfolge abhaengig.
-  const entries = Object.entries(bindings).sort(([a], [b]) => a.localeCompare(b));
-
-  for (const [action, binding] of entries) {
-    const c = canonicalize(binding);
-    if (!c) {
-      problems.push(
-        `${binding} is not a usable key combination (action ${action}); needs exactly one non-modifier key`,
-      );
-      continue;
-    }
-    if (!isReservedForApp(binding)) {
-      problems.push(
-        `${binding} would take a key away from the terminal (action ${action}); use Ctrl+Shift+...`,
-      );
-    }
-    const key = comparisonKey(c);
-    if (seen.has(key)) {
-      problems.push(`${binding} is assigned twice`);
-    } else {
-      seen.add(key);
-    }
-  }
-
-  problems.sort();
-  return problems;
-}
-
 /** Buchstaben und Pfeiltasten folgen dem Zeichen des Tastaturlayouts.
  * Die Ziffernreihe fuer Session-Akkorde behandelt `eventBinding` separat. */
 function normalizeKeyName(key: string): string {
@@ -271,8 +196,7 @@ export function eventBinding(event: KeyboardEvent): string {
  * Terminal-Eingabe durchrutschen -- sonst waere die Grenze von der
  * aktuellen Konfiguration abhaengig statt fest.
  *
- * EXAKT `ctrl && shift && !alt && !meta`, deckungsgleich mit
- * `isReservedForApp`s "Laenge 2"-Kriterium -- nicht bloss "enthaelt Ctrl UND
+ * EXAKT `ctrl && shift && !alt && !meta` -- nicht bloss "enthaelt Ctrl UND
  * Shift" (`ctrlKey && shiftKey`). Sonst lieferte ein physischer
  * Ctrl+Alt+Shift+F-Tastendruck (drei Tasten, kein AltGr noetig) `true`:
  * `preventDefault()` feuerte, `matchAction` faende aber keine Bindung
@@ -357,18 +281,12 @@ function isKnownAction(action: string): action is KeymapAction {
 
 /** Liefert die Aktion, deren Bindung `event` entspricht, oder `null` --
  * unabhaengig von Gross-/Kleinschreibung und Modifikator-Reihenfolge in der
- * konfigurierten Belegung (dieselbe Normalisierung wie `validate`).
+ * konfigurierten Belegung (Normalisierung ueber `canonicalize`).
  *
- * `bindings` bleibt bewusst `Record<string, string>` (nicht
- * `Record<KeymapAction, string>`): eine Belegungstabelle aus `settings.toml`
- * (Spec §12.1) hat Aktionsnamen, die zur Compile-Zeit nicht feststehen -- ein
- * engerer Parametertyp wuerde genau dort einen ungeprueften Cast erzwingen
- * (dieselbe Klasse Loch, die der Rueckgabetyp unten schliesst, nur an die
- * Aufrufstelle verschoben). Der RUECKGABETYP ist dagegen `KeymapAction | null`:
- * ein unbekannter Aktionsname (Tippfehler in der Konfiguration, z. B.
- * "sesion.new") liefert `null` -- korrektes Verhalten (der `switch` in
- * `terminal.ts` hat ohnehin keinen Zweig dafuer) UND type-checked: ein
- * verschriebenes `case`-Label in jenem `switch` ist ein Compile-Fehler (TS2678
+ * Die App ruft es nur mit `DEFAULT_KEYMAP`; `bindings` ist fuer Tests da,
+ * die die Normalisierung pruefen. Der RUECKGABETYP ist `KeymapAction | null`:
+ * ein unbekannter Aktionsname liefert `null`, und ein verschriebenes
+ * `case`-Label im `switch` von `terminal.ts` ist ein Compile-Fehler (TS2678
  * "not comparable"), keine leise nie erreichte Verzweigung. */
 export function matchAction(
   event: KeyboardEvent,

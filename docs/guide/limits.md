@@ -2,9 +2,10 @@
 
 [Back to the README](../../README.md)
 
-- **Not built yet:** status for agy, OpenCode and Gemini CLI; changing
-  shortcuts (Settings → Shortcuts lists them); `git worktree` when creating a
-  session; code signing, automatic updates and winget.
+- **Not built yet:** status for agy, OpenCode and Gemini CLI; `git worktree`
+  when creating a session; code signing, automatic updates and winget.
+- **Shortcuts are fixed:** Settings → Shortcuts lists them; choosing your
+  own is not planned. (macOS variants with ⌘ are a separate point, below.)
 - **Installers:** `npm run build:windows` builds and checks MSI, setup EXE
   and ZIP, `npm run build:macos` the macOS disk image. They are unsigned (the
   disk image ad-hoc signed). For every release the packages workflow installs

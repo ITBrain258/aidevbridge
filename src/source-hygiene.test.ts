@@ -3,10 +3,10 @@
 // Kommentare im Produktionscode sagen, was gilt und warum (CONTRIBUTING.md):
 // deutsch ohne Umlaute und ohne Verweise auf private Arbeitsschritte wie
 // nummerierte Aufgaben, Korrekturrunden oder Gutachten, die ein Leser des
-// Repositorys nirgends nachschlagen kann. Oeffentliche Verweise bleiben
-// erlaubt, ausdruecklich auch "Befund N der Bewertung 2026-09-04", die die
-// MVP-Spec zitiert. Das Wort "Befund" allein ist ausserdem ein Fachwort der
-// Vorabpruefung. Geprueft werden die TypeScript- und CSS-Dateien unter `src/`;
+// Repositorys nirgends nachschlagen kann, auch "Befund N der Bewertung" (die
+// Bewertung liegt nicht im Repository; die MVP-Spec nennt die Themen selbst).
+// Oeffentliche Verweise bleiben erlaubt. Das Wort "Befund" allein ist ein
+// Fachwort der Vorabpruefung. Geprueft werden die TypeScript- und CSS-Dateien unter `src/`;
 // Testdateien sind ausgenommen.
 
 // `node:fs`/`node:path`/`process` sind Node-Globals ohne Typdeklaration in
@@ -21,9 +21,7 @@ import { describe, expect, it } from "vitest";
 
 const UMLAUT = /[äöüÄÖÜß]/;
 const HISTORY_MARKER =
-  /Shell-Task|\bTask \d+|Fix-?[Rr]unde|Gutachten|Paket \d+|Review-Befund|Aufgaben? \d+|Aufgabentext|Review[- ]Runde|Gesamtreview|Abschlussreview|Nachtrag [A-C]\b/;
-/** Oeffentlicher Spec-Verweis, der vor der Markerpruefung herausfaellt. */
-const SPEC_FINDING = /Befund \d+ der Bewertung/g;
+  /Shell-Task|\bTask \d+|Fix-?[Rr]unde|Gutachten|Paket \d+|Review-Befund|Aufgaben? \d+|Aufgabentext|Review[- ]Runde|Gesamtreview|Abschlussreview|Nachtrag [A-C]\b|Befund \d+ der Bewertung/;
 
 /** Alle Kommentare einer Quelldatei, auch die hinter Code auf derselben
  * Zeile. Ueber den Parser statt ueber Zeilenmuster, damit `//` in einem
@@ -68,7 +66,7 @@ function problems(comment: string): Array<{ offset: number; text: string }> {
     const found: Array<{ offset: number; text: string }> = [];
     const umlaut = UMLAUT.exec(line);
     if (umlaut) found.push({ offset, text: `Umlaut "${umlaut[0]}"` });
-    const marker = HISTORY_MARKER.exec(line.replace(SPEC_FINDING, ""));
+    const marker = HISTORY_MARKER.exec(line);
     if (marker) found.push({ offset, text: `Marker "${marker[0]}"` });
     return found;
   });
@@ -101,6 +99,7 @@ describe("Kommentarhygiene der Produktionsquellen", () => {
     ["// Gesamtreview M0", 'Marker "Gesamtreview"'],
     ["// Abschlussreview, Important 1", 'Marker "Abschlussreview"'],
     ["/* Nachtrag B, Punkt 3 */", 'Marker "Nachtrag B"'],
+    ["// MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04", 'Marker "Befund 9 der Bewertung"'],
     ["// ein bloßes String(error)", 'Umlaut "ß"'],
     ["// Schnellöffnen", 'Umlaut "ö"'],
   ])("beanstandet %s", (comment, expected) => {
@@ -108,7 +107,7 @@ describe("Kommentarhygiene der Produktionsquellen", () => {
   });
 
   it.each([
-    "// MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04",
+    "// MVP-Spec M0.1 (Banner bei Kanalende)",
     "// ein blockierender Befund der Vorabpruefung",
     "// Spec 2026-10-19 §8.4, Nachtrag vom 24.10.",
     "// Waechter-Task der Pumpe",

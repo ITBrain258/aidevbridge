@@ -250,6 +250,7 @@ Festlegungen.
   - `keymap.rs` wird entfernt. Damit entfällt der Kürzeleditor aus UX-Spec
     §14 (E-07), und `guide/limits.md` wird nachgezogen.
   - Die Ausnahme „Befund N der Bewertung“ im Hygienetest fällt weg.
+  - Umgesetzt mit PR #70.
 - **`stand.md` (E7):** wird ein kurzer Stand mit einer Statustabelle. Die
   Nummern der Punkte bleiben, denn Code und Workflows zitieren sie.
 - **Batch 9 (E8, U3):** `commands.rs` wird zu Beginn von Zug 1 aufgeteilt.

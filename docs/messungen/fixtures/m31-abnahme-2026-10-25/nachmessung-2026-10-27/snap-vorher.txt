@@ -1,4 +1,4 @@
-agentbridge default motion-studio error connecting to /tmp/tmux-1000/abtest_20261027_m31 (No such file or directory)
+agentbridge default anderes-projekt error connecting to /tmp/tmux-1000/abtest_20261027_m31 (No such file or directory)
 server: 1 Zeilen sha256=faf091b8a0961d17
 sessions: 3 Zeilen sha256=cbea89c7d5fda3ab
 show -g: 61 Zeilen sha256=4b2a23daf47d1fd2
