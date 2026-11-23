@@ -2035,6 +2035,24 @@ describe("mountSidebar: die Liste als ein Tabstopp", () => {
     expect(el.querySelector(".session-confirm-kill")).toBeNull();
   });
 
+  it("Pfeiltasten bleiben an den Enden der Leiste stehen", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1", ["a"]));
+    const { el } = mount(s);
+    el.querySelector<HTMLButtonElement>(".session-kill-btn")!.click();
+    const bar = el.querySelector<HTMLElement>(".session-confirm-kill")!;
+    const [cancel, confirm] = Array.from(bar.querySelectorAll<HTMLButtonElement>("button"));
+    const arrow = (key: string) =>
+      bar.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+    cancel.focus();
+    arrow("ArrowLeft");
+    expect(document.activeElement).toBe(cancel);
+    arrow("ArrowRight");
+    expect(document.activeElement).toBe(confirm);
+    arrow("ArrowRight");
+    expect(document.activeElement).toBe(confirm);
+  });
+
   it("laesst beim Abbrechen alles stehen", () => {
     const s = new AppState();
     s.upsertHost(host("h1", ["a"]));
@@ -2461,6 +2479,27 @@ describe("mountSidebar: Remove mit Rueckfrage", () => {
     openConfirm(el, "h2");
     expect(el.querySelectorAll(".host-confirm-remove")).toHaveLength(1);
     expect(el.querySelector(".host-confirm-remove")!.textContent).toContain("h2");
+  });
+
+  // Pfeiltasten wechseln zwischen den beiden Knoepfen und bleiben am Ende
+  // stehen, wie in Liste und Knopfleiste (dieselbe Leiste wie bei "Kill").
+  it("Pfeiltasten bleiben an den Enden der Leiste stehen", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    const { el } = mount(s);
+    const bar = openConfirm(el, "h1");
+    const [cancel, confirm] = Array.from(bar.querySelectorAll<HTMLButtonElement>("button"));
+    const arrow = (key: string) =>
+      bar.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(cancel);
+    arrow("ArrowLeft");
+    expect(document.activeElement).toBe(cancel);
+    arrow("ArrowRight");
+    expect(document.activeElement).toBe(confirm);
+    arrow("ArrowRight");
+    expect(document.activeElement).toBe(confirm);
+    arrow("ArrowLeft");
+    expect(document.activeElement).toBe(cancel);
   });
 
   it("bricht mit Escape ab und gibt den Fokus auf ⋯ zurueck", () => {

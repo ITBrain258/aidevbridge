@@ -170,7 +170,8 @@ sichtbar, die Kürzel tun also nichts.
   Übersicht nicht fehlen.
 - **Nicht jetzt:**
   - Abschnitt `[keymap]` in `settings.toml` lesen und mit dem vorhandenen
-    `validate()` prüfen.
+    `validate()` prüfen. **Nachtrag vom 23.11.2026:** aufgegeben samt
+    `validate()` (UX-Spec §14).
   - Die Tabelle an `main.ts`, `terminal.ts` und `grid.ts` reichen.
   - Editor mit Aufnahme, Konfliktanzeige und Zurücksetzen.
   - Klären, ob Buchstaben nach Zeichen oder nach Position zählen: heute zählen

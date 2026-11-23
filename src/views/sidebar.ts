@@ -902,62 +902,121 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * sonst waere die Rueckfrage sichtbar, aber mit der Tastatur
    * unbeantwortbar. */
   function buildRemoveConfirm(host: Host): HTMLElement {
-    const bar = document.createElement("div");
-    bar.className = "host-confirm-remove";
-
-    // Beschreibung statt Beschriftung, und an BEIDEN Knoepfen: der Fokus
-    // springt beim Oeffnen programmatisch auf "Cancel" (§2.3), ein
-    // Screenreader liest dann nur "Cancel, Schaltflaeche" vor -- der
-    // Hostname und der Satz ueber die weiterlaufenden Sessions, den §2.1
-    // "Pflicht, nicht Zierde" nennt, kaemen nie an. `aria-describedby` wird
-    // bei genau diesem Sprung mitgesprochen.
-    //
-    // NICHT `role="group"` + `aria-labelledby`: eine Gruppenbeschriftung
-    // wird bei programmatischem Fokuswechsel nicht verlaesslich angesagt,
-    // und die Ansage GENAU DANN ist der ganze Zweck.
-    //
-    // Kein achter i18n-Schluessel -- beschrieben wird der Text, der ohnehin
-    // schon dasteht. Die Kennungen sind ueber `host.id` vereindeutigt: das
+    // Frage und Erklaerung beschreiben beide Knoepfe (`aria-describedby`, siehe
+    // `buildConfirmBar`); dafuer braucht es keinen eigenen i18n-Schluessel,
+    // beschrieben wird der Text, der ohnehin dasteht. Die Kennungen sind ueber
+    // `host.id` vereindeutigt: das
     // ist die `settings.toml`-ID aus `new_host_id` (`commands/hosts.rs`, Format
     // `host_<hex>`). Entscheidend: das Format enthaelt kein Leerzeichen, das
     // die Liste in `aria-describedby` zerteilen koennte. Gleichzeitig offen
     // ist ohnehin nur EINE Rueckfrage.
-    const questionId = `ab-confirm-q-${host.id}`;
-    const noteId = `ab-confirm-n-${host.id}`;
+    return buildConfirmBar({
+      className: "host-confirm-remove",
+      questionId: `ab-confirm-q-${host.id}`,
+      noteId: `ab-confirm-n-${host.id}`,
+      // Eingesetzt, NICHT zusammengesetzt: die Satzstellung gehoert der
+      // Uebersetzung, nicht dieser Datei.
+      question: t("sidebar.confirmRemove.question", { host: host.label }),
+      // Auf Android vergisst das Entfernen auch den Hostschluessel
+      // (`commands::remove_host_impl`): nur so kommt ein Host mit neuem
+      // Serverschluessel wieder an die Rueckfrage, denn `known_hosts` liegt dort
+      // im privaten Speicher der App.
+      note: isAndroid() ? t("sidebar.confirmRemove.noteAndroid") : t("sidebar.confirmRemove.note"),
+      focusScope: host.id,
+      cancelLabel: t("sidebar.confirmRemove.cancel"),
+      confirmLabel: t("sidebar.confirmRemove.confirm"),
+      onCancel: () => closeRemoveConfirm(host.id),
+      onConfirm: () => {
+        const hostId = host.id;
+        pendingRemoveHostId = null;
+        render();
+        if (!removalsInFlight.has(hostId)) {
+          removalsInFlight.add(hostId);
+          const finish = () => {
+            removalsInFlight.delete(hostId);
+            if (renderPending) removalsAwaitingRender.add(hostId);
+          };
+          void Promise.resolve(opts.onRemoveHost(hostId)).then(finish, finish);
+        }
+        // Persistence may finish later. Keep focus on the remaining host;
+        // render() moves it to Add if this focused host is finally removed.
+        const button = moreButtonFor(hostId);
+        if (button) button.focus();
+        else addButton.focus();
+      },
+      onEscape: () => closeRemoveConfirm(host.id),
+      // Wer die Rueckfrage mit dem Tabulator verlaesst, hat sie beantwortet --
+      // mit "nein".
+      onTab: () => closeRemoveConfirm(host.id),
+    });
+  }
+
+  /** Was eine Rueckfrage-Leiste traegt; der Rest ist fuer beide gleich. */
+  interface ConfirmBarSpec {
+    className: string;
+    questionId: string;
+    noteId: string;
+    question: string;
+    note: string;
+    /** Mittlerer Teil von `focusKey("confirm", ..., "cancel" | "confirm")`. */
+    focusScope: string;
+    cancelLabel: string;
+    confirmLabel: string;
+    onCancel: () => void;
+    onConfirm: () => void;
+    onEscape: () => void;
+    /** Laeuft ohne `preventDefault`: der Tabulator soll weiterziehen. */
+    onTab: () => void;
+  }
+
+  /** Die gemeinsame Rueckfrage-Leiste fuer "Remove" (Host) und "Kill"
+   * (Session): Satz, Erklaerung, "Cancel" und der rote Knopf.
+   *
+   * Beschreibung statt Beschriftung, und an BEIDEN Knoepfen: der Fokus
+   * springt beim Oeffnen programmatisch auf "Cancel" (§2.3), ein
+   * Screenreader liest dann nur "Cancel, Schaltflaeche" vor -- der Satz und
+   * die Erklaerung, die §2.1 "Pflicht, nicht Zierde" nennt, kaemen nie an.
+   * `aria-describedby` wird bei genau diesem Sprung mitgesprochen.
+   *
+   * NICHT `role="group"` + `aria-labelledby`: eine Gruppenbeschriftung
+   * wird bei programmatischem Fokuswechsel nicht verlaesslich angesagt,
+   * und die Ansage GENAU DANN ist der ganze Zweck.
+   *
+   * Die Pfeiltasten wechseln zwischen den beiden Knoepfen und bleiben am Ende
+   * stehen, wie in Liste und Knopfleiste. Escape schliesst und MUSS die
+   * Weitergabe stoppen: main.ts haengt einen dauerhaften Dokument-Horcher,
+   * der eine maximierte Kachel zurueckholt und diese Leiste nicht kennt. */
+  function buildConfirmBar(spec: ConfirmBarSpec): HTMLElement {
+    const bar = document.createElement("div");
+    bar.className = spec.className;
 
     const question = document.createElement("strong");
-    question.id = questionId;
-    // Eingesetzt, NICHT zusammengesetzt: die Satzstellung gehoert der
-    // Uebersetzung, nicht dieser Datei.
-    question.textContent = t("sidebar.confirmRemove.question", { host: host.label });
+    question.id = spec.questionId;
+    question.textContent = spec.question;
     bar.appendChild(question);
     // Ein `<span>` statt eines blossen Textknotens, damit der Satz
     // eine Kennung tragen kann. Inline und ohne eigene Regel in `styles.css`
     // -- am Umbruch aendert sich nichts.
     const note = document.createElement("span");
-    note.id = noteId;
-    // Auf Android vergisst das Entfernen auch den Hostschluessel
-    // (`commands::remove_host_impl`): nur so kommt ein Host mit neuem
-    // Serverschluessel wieder an die Rueckfrage, denn `known_hosts` liegt dort
-    // im privaten Speicher der App.
-    note.textContent = isAndroid() ? t("sidebar.confirmRemove.noteAndroid") : t("sidebar.confirmRemove.note");
+    note.id = spec.noteId;
+    note.textContent = spec.note;
     bar.appendChild(note);
-    const describedBy = `${questionId} ${noteId}`;
+    const describedBy = `${spec.questionId} ${spec.noteId}`;
 
     const acts = document.createElement("div");
     acts.className = "acts";
 
     const cancelButton = document.createElement("button");
     cancelButton.type = "button";
-    // Additiv wie bei den Hinweisknoepfen oben: die Rolle aus dem
-    // Knopfsystem (Spec 11.2), die eigene Klasse bleibt Vertrag.
+    // Additiv wie bei den Hinweisknoepfen: die Rolle aus dem Knopfsystem
+    // (Spec 11.2), die eigene Klasse bleibt Vertrag.
     cancelButton.className = "host-confirm-btn btn btn--secondary btn--row";
     cancelButton.tabIndex = -1;
-    cancelButton.dataset.focusKey = focusKey("confirm", host.id, "cancel");
+    cancelButton.dataset.focusKey = focusKey("confirm", spec.focusScope, "cancel");
     cancelButton.setAttribute("aria-describedby", describedBy);
-    cancelButton.textContent = t("sidebar.confirmRemove.cancel");
+    cancelButton.textContent = spec.cancelLabel;
     cancelButton.addEventListener("click", () => {
-      if (!disposed) closeRemoveConfirm(host.id);
+      if (!disposed) spec.onCancel();
     });
     acts.appendChild(cancelButton);
 
@@ -965,27 +1024,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     confirmButton.type = "button";
     confirmButton.className = "host-confirm-btn host-confirm-btn-danger btn btn--danger btn--row";
     confirmButton.tabIndex = -1;
-    confirmButton.dataset.focusKey = focusKey("confirm", host.id, "confirm");
+    confirmButton.dataset.focusKey = focusKey("confirm", spec.focusScope, "confirm");
     confirmButton.setAttribute("aria-describedby", describedBy);
-    confirmButton.textContent = t("sidebar.confirmRemove.confirm");
+    confirmButton.textContent = spec.confirmLabel;
     confirmButton.addEventListener("click", () => {
-      if (disposed) return;
-      const hostId = host.id;
-      pendingRemoveHostId = null;
-      render();
-      if (!removalsInFlight.has(hostId)) {
-        removalsInFlight.add(hostId);
-        const finish = () => {
-          removalsInFlight.delete(hostId);
-          if (renderPending) removalsAwaitingRender.add(hostId);
-        };
-        void Promise.resolve(opts.onRemoveHost(hostId)).then(finish, finish);
-      }
-      // Persistence may finish later. Keep focus on the remaining host;
-      // render() moves it to Add if this focused host is finally removed.
-      const button = moreButtonFor(hostId);
-      if (button) button.focus();
-      else addButton.focus();
+      if (!disposed) spec.onConfirm();
     });
     acts.appendChild(confirmButton);
 
@@ -1005,23 +1048,19 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
           // traegt keinen eigenen Tabstopp, es gibt also auch keine `0` zu
           // vergeben (anders als in Liste, Knopfleiste und Menue).
           if (current === -1) return;
-          const step = event.key === "ArrowRight" ? 1 : buttons.length - 1;
           event.preventDefault();
-          buttons[(current + step) % buttons.length].focus();
+          const next = event.key === "ArrowRight" ? current + 1 : current - 1;
+          buttons[Math.max(0, Math.min(buttons.length - 1, next))]?.focus();
           return;
         }
         case "Escape":
           event.preventDefault();
-          // MUSS die Weitergabe stoppen, aus demselben Grund wie im Menue:
-          // main.ts haengt einen dauerhaften Dokument-Horcher, der eine
-          // maximierte Kachel zurueckholt und diese Leiste nicht kennt.
           event.stopPropagation();
-          closeRemoveConfirm(host.id);
+          spec.onEscape();
           return;
         case "Tab":
-          // KEIN preventDefault: der Tabulator soll weiterziehen. Wer die
-          // Rueckfrage verlaesst, hat sie beantwortet -- mit "nein".
-          closeRemoveConfirm(host.id);
+          // KEIN preventDefault: der Tabulator soll weiterziehen.
+          spec.onTab();
           return;
       }
     });
@@ -1163,8 +1202,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // Der getippte Wert ueberlebt ein Neuzeichnen, auch ohne Fokus im Feld
     // (`credentialDrafts`): der Weg "tippen, Tab auf Retry, Enter" laesst das
     // Feld ohne Fokus, und eine Zustandsaenderung an einem ANDEREN Host
-    // dazwischen baute es sonst leer wieder auf (MVP-Spec M0.4, Befund 11 der
-    // Bewertung 2026-09-04, fuer den Fall mit Fokus). Er lebt nur bis zum
+    // dazwischen baute es sonst leer wieder auf (MVP-Spec M0.4, Eingabefelder
+    // der Hinweisleiste, dort fuer den Fall mit Fokus). Er lebt nur bis zum
     // Verbindungsversuch: `onConnectHost` setzt den Zustand auf
     // "connecting", die Leiste verschwindet samt Feld, und ein erneuter
     // Fehlschlag baut sie LEER wieder auf (dieselbe Abwaegung wie
@@ -1575,9 +1614,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     return wrap;
   }
 
-  /** Rueckfrage vor dem Beenden -- gebaut wie `buildRemoveConfirm`, mit
-   * derselben Begruendung fuer `aria-describedby` und `tabindex="-1"` (siehe
-   * dort; sie wird hier nicht wiederholt).
+  /** Rueckfrage vor dem Beenden -- gebaut mit `buildConfirmBar` wie
+   * `buildRemoveConfirm`; die Begruendung fuer `aria-describedby` steht bei
+   * `buildConfirmBar`, die fuer `tabindex="-1"` bei `buildRemoveConfirm`.
    *
    * Der Satz muss sagen, was WIRKLICH passiert: die Sitzung und alles, was
    * darin laeuft, wird beendet. "Close terminal" daneben schliesst
@@ -1585,9 +1624,6 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * Text nebeneinander, waere die zerstoererische die missverstaendliche. */
   function buildKillConfirm(host: Host, session: Session): HTMLElement {
     const key = sessionKeyOf(session);
-    const bar = document.createElement("div");
-    bar.className = "host-confirm-remove session-confirm-kill";
-
     // FESTE Kennungen, ohne den Schluessel darin -- und das ist kein Stil,
     // sondern der Unterschied zwischen wirksam und wirkungslos:
     // `aria-describedby` ist eine LEERZEICHENGETRENNTE ID-Liste, und ein
@@ -1601,92 +1637,37 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // Begruendung traegt hier gerade nicht. Feste Kennungen gehen, weil
     // gleichzeitig ohnehin nur EINE Rueckfrage offen steht (`pendingKillKey`
     // ist ein einzelner Wert).
-    const questionId = "ab-kill-q";
-    const noteId = "ab-kill-n";
-
-    const question = document.createElement("strong");
-    question.id = questionId;
-    question.textContent = t("sidebar.confirmKill.question", { name: session.name });
-    bar.appendChild(question);
-
-    const note = document.createElement("span");
-    note.id = noteId;
-    note.textContent = t("sidebar.confirmKill.note");
-    bar.appendChild(note);
-    const describedBy = `${questionId} ${noteId}`;
-
-    const confirmActs = document.createElement("div");
-    confirmActs.className = "acts";
-
-    const cancelButton = document.createElement("button");
-    cancelButton.type = "button";
-    cancelButton.className = "host-confirm-btn btn btn--secondary btn--row";
-    cancelButton.tabIndex = -1;
-    cancelButton.dataset.focusKey = focusKey("confirm", key, "cancel");
-    cancelButton.setAttribute("aria-describedby", describedBy);
-    cancelButton.textContent = t("sidebar.confirmKill.cancel");
-    cancelButton.addEventListener("click", () => {
-      if (!disposed) closeKillConfirm(key);
-    });
-    confirmActs.appendChild(cancelButton);
-
-    const confirmButton = document.createElement("button");
-    confirmButton.type = "button";
-    confirmButton.className = "host-confirm-btn host-confirm-btn-danger btn btn--danger btn--row";
-    confirmButton.tabIndex = -1;
-    confirmButton.dataset.focusKey = focusKey("confirm", key, "confirm");
-    confirmButton.setAttribute("aria-describedby", describedBy);
-    confirmButton.textContent = t("sidebar.confirmKill.confirm");
-    confirmButton.addEventListener("click", () => {
-      if (disposed) return;
-      pendingKillKey = null;
-      opts.onKillSession(host.id, session.name, socketOf(session));
-      // Der Fokus geht gleich auf die HOSTZEILE, nicht auf die Sessionzeile.
-      // Die waere zwar im Moment der Rueckkehr noch da -- `onKillSession` ist
-      // asynchron --, verschwindet aber, sobald die frische Sessionliste
-      // eintrifft; erst dann fiele `render()`s Fokusrettung auf die Hostzeile
-      // zurueck. Die Hostzeile ueberlebt beide Schritte.
-      render();
-      focusByKey(focusKey("host", host.id, "row"));
-    });
-    confirmActs.appendChild(confirmButton);
-
-    bar.appendChild(confirmActs);
-
-    // Dasselbe Zwei-Nachbarn-Modell wie in `buildRemoveConfirm`, aus
-    // derselben Begruendung: die Leiste traegt keinen eigenen Tabstopp.
-    bar.addEventListener("keydown", (event) => {
-      if (disposed) return;
-      const buttons = Array.from(bar.querySelectorAll<HTMLElement>("button"));
-      const current = buttons.indexOf(document.activeElement as HTMLElement);
-      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-        if (current === -1) return;
-        event.preventDefault();
-        const next = event.key === "ArrowRight" ? current + 1 : current - 1;
-        buttons[Math.max(0, Math.min(buttons.length - 1, next))]?.focus();
-        return;
-      }
-      if (event.key === "Escape") {
-        event.preventDefault();
-        // MUSS die Weitergabe stoppen, aus demselben Grund wie oben:
-        // main.ts haengt einen dauerhaften Dokument-Horcher, der eine
-        // maximierte Kachel zurueckholt und diese Leiste nicht kennt.
-        event.stopPropagation();
-        closeKillConfirm(key);
-        return;
-      }
-      if (event.key === "Tab") {
-        // KEIN preventDefault: der Tabulator soll weiterziehen. Wer die
-        // Rueckfrage verlaesst, hat sie beantwortet -- mit "nein". Ohne
-        // diesen Zweig bliebe sie stehen, waere aber unbeantwortbar: beide
-        // Knoepfe tragen `tabindex="-1"`, der Fokus kaeme nicht zurueck, und
-        // der Escape-Horcher haengt an dieser Leiste.
+    return buildConfirmBar({
+      className: "host-confirm-remove session-confirm-kill",
+      questionId: "ab-kill-q",
+      noteId: "ab-kill-n",
+      question: t("sidebar.confirmKill.question", { name: session.name }),
+      note: t("sidebar.confirmKill.note"),
+      focusScope: key,
+      cancelLabel: t("sidebar.confirmKill.cancel"),
+      confirmLabel: t("sidebar.confirmKill.confirm"),
+      onCancel: () => closeKillConfirm(key),
+      onConfirm: () => {
+        pendingKillKey = null;
+        opts.onKillSession(host.id, session.name, socketOf(session));
+        // Der Fokus geht gleich auf die HOSTZEILE, nicht auf die Sessionzeile.
+        // Die waere zwar im Moment der Rueckkehr noch da -- `onKillSession` ist
+        // asynchron --, verschwindet aber, sobald die frische Sessionliste
+        // eintrifft; erst dann fiele `render()`s Fokusrettung auf die Hostzeile
+        // zurueck. Die Hostzeile ueberlebt beide Schritte.
+        render();
+        focusByKey(focusKey("host", host.id, "row"));
+      },
+      onEscape: () => closeKillConfirm(key),
+      // Wer die Rueckfrage verlaesst, hat sie beantwortet -- mit "nein". Ohne
+      // diesen Zweig bliebe sie stehen, waere aber unbeantwortbar: beide
+      // Knoepfe tragen `tabindex="-1"`, der Fokus kaeme nicht zurueck, und
+      // der Escape-Horcher haengt an dieser Leiste.
+      onTab: () => {
         pendingKillKey = null;
         render();
-      }
+      },
     });
-
-    return bar;
   }
 
   /** UX-Spec §5.4: verbindet die App diesen Host gerade selbst neu? */
@@ -2528,7 +2509,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     const keyToRestore =
       active instanceof HTMLElement && el.contains(active) ? (active.dataset.focusKey ?? null) : null;
 
-    // MVP-Spec M0.4, Befund 11 der Bewertung 2026-09-04: ein getippter Wert
+    // MVP-Spec M0.4 (Eingabefelder der Hinweisleiste): ein getippter Wert
     // (Passphrase/Passwort in der
     // Hinweisleiste, siehe `buildHostNotice`) ueberlebt ein Neuzeichnen NUR,
     // solange das Feld fokussiert ist -- derselbe Wachhund wie `keyToRestore`

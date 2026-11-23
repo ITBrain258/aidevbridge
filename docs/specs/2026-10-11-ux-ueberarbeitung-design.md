@@ -728,6 +728,10 @@ zu. Für diese Tasten erzeugt xterm 6 keine Terminaleingabe (`Keyboard.ts`).
 Diese Tests ändern sich:
 
 - `plain_ctrl_bindings_are_rejected` (`keymap.rs`)
+
+**Nachtrag vom 23.11.2026:** `keymap.rs`, `validate` und `isReservedForApp`
+sind entfernt (§14, Kürzeleditor aufgegeben). Die Ausnahmeliste gilt weiter
+über `PLAIN_CTRL_KEYS` und `isPlainCtrlAppKey` in `src/keymap.ts`.
 - `keymap.test.ts:24-26` und `:120`
 
 **Feste Tasten außerhalb der Tabelle**, weil sie Aliasse brauchen:
@@ -1022,7 +1026,7 @@ Abweichungen ohne Folgen für die App:
 
 | Thema | Grund |
 | --- | --- |
-| Editor für eigene Kürzel (E-07) | der Nutzer will ihn später; die Ausnahmeliste und die neuen Aktionen bereiten ihn vor |
+| Editor für eigene Kürzel (E-07) | der Nutzer will ihn später; die Ausnahmeliste und die neuen Aktionen bereiten ihn vor. **Nachtrag vom 23.11.2026:** aufgegeben (Entscheidung E6, `docs/stand.md`); `keymap.rs` und die Prüfung einer eigenen Belegungstabelle (`validate`, `isReservedForApp`) sind entfernt, die Ausnahmeliste gilt weiter in `src/keymap.ts` |
 | Lebendprobe per SSH-Ping, kein Abbruch beim Kanalöffnen (V-06) | 5–8 h, berührt die russh-Transportschicht; die Selbstreparatur fängt die Folgen ab |
 | Hosts gesammelt aus `~/.ssh/config` anlegen (A-09) | widerspricht der Prüfung vor dem Speichern (Gesamtspec §7.6) |
 | Gruppen und Tags für Hosts | Schnellöffnen deckt das Finden ab; später bei Bedarf |

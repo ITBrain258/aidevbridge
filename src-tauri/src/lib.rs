@@ -6,7 +6,6 @@
 
 pub mod commands;
 pub mod connection;
-pub mod keymap;
 pub mod local_network;
 pub mod paths;
 pub mod preflight;
