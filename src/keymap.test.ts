@@ -19,8 +19,9 @@ function key(
   return new KeyboardEvent(type, { bubbles: true, cancelable: true, ...init });
 }
 
-/** Ein echter Tastendruck zu einer Belegung aus `DEFAULT_KEYMAP`: Ziffern ueber
- * `code` (mit Umschalt traegt `key` ein Sonderzeichen), Buchstaben mit
+/** Ein echter Tastendruck zu einer Belegung aus `DEFAULT_KEYMAP`, wie ihn ein
+ * Browser mit US-Layout schickt: eine Ziffer mit Umschalt traegt in `key` ihr
+ * Sonderzeichen ("!" fuer 1) und nur in `code` die Ziffer, Buchstaben mit
  * Umschalt gross, Pfeil- und Bildtasten mit ihrem DOM-Namen. */
 function pressFor(binding: string): KeyboardEvent {
   const parts = binding.split("+");
@@ -28,7 +29,10 @@ function pressFor(binding: string): KeyboardEvent {
   const ctrlKey = parts.includes("Ctrl");
   const shiftKey = parts.includes("Shift");
   const arrows: Record<string, string> = { Up: "ArrowUp", Down: "ArrowDown", Left: "ArrowLeft", Right: "ArrowRight" };
-  if (/^[1-9]$/.test(name)) return key({ key: name, code: `Digit${name}`, ctrlKey, shiftKey });
+  if (/^[1-9]$/.test(name)) {
+    const shifted = "!@#$%^&*("[Number(name) - 1];
+    return key({ key: shiftKey ? shifted : name, code: `Digit${name}`, ctrlKey, shiftKey });
+  }
   if (/^[A-Z]$/.test(name)) return key({ key: shiftKey ? name : name.toLowerCase(), ctrlKey, shiftKey });
   return key({ key: arrows[name] ?? name, ctrlKey, shiftKey });
 }
@@ -52,6 +56,21 @@ describe("DEFAULT_KEYMAP", () => {
       expect(isAppChord(event) || isPlainCtrlAppKey(event), binding).toBe(true);
       expect(matchAction(event), binding).toBe(action);
     }
+  });
+
+  // Eine Tabelle darf Tasten anders schreiben, als ein Tastendruck sie
+  // meldet: Gross- und Kleinschreibung, Reihenfolge der Modifikatoren und
+  // "ArrowUp" statt "Up" aendern nichts (`canonicalize`).
+  it("normalisiert die Schreibweise einer Belegung", () => {
+    const written = {
+      "session.prev": "shift+CTRL+ArrowUp",
+      "search.local": "ctrl+shift+f",
+      "settings.open": " Ctrl + , ",
+    };
+    expect(matchAction(pressFor("Ctrl+Shift+Up"), written)).toBe("session.prev");
+    expect(matchAction(pressFor("Ctrl+Shift+F"), written)).toBe("search.local");
+    expect(matchAction(pressFor("Ctrl+,"), written)).toBe("settings.open");
+    expect(matchAction(pressFor("Ctrl+Shift+Down"), written)).toBeNull();
   });
 
   // Die Liste ist bewusst eng; die Nachbarn (`Ctrl+1`, `Ctrl+.`, `Ctrl+9`,

@@ -783,8 +783,8 @@
       },
       {
         "path": "src/keymap.ts",
-        "bytes": 13922,
-        "sha256": "a3752790470c579d6f2f88796a5a469111c5ce48521154f2d250cbfc91bc2dcf"
+        "bytes": 13499,
+        "sha256": "54665a5869230a9b3e62b9cdecb831eae524ff8b731a294967a6ccba7c78f055"
       },
       {
         "path": "src/main.ts",
@@ -878,8 +878,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 130912,
-        "sha256": "1d15aaf47756866d7a63e7649c7f6a9c09f2daf4bbf26c41048dd45d9b375fd6"
+        "bytes": 131061,
+        "sha256": "7aced22976b33d59f93c5ab192b7261483bae3140871be6bca264feca1e3638f"
       },
       {
         "path": "src/views/types.ts",
@@ -931,8 +931,8 @@
           },
           {
             "path": "src/keymap.ts",
-            "bytes": 13922,
-            "sha256": "a3752790470c579d6f2f88796a5a469111c5ce48521154f2d250cbfc91bc2dcf"
+            "bytes": 13499,
+            "sha256": "54665a5869230a9b3e62b9cdecb831eae524ff8b731a294967a6ccba7c78f055"
           },
           {
             "path": "src/main.ts",
@@ -1156,8 +1156,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 130912,
-            "sha256": "1d15aaf47756866d7a63e7649c7f6a9c09f2daf4bbf26c41048dd45d9b375fd6"
+            "bytes": 131061,
+            "sha256": "7aced22976b33d59f93c5ab192b7261483bae3140871be6bca264feca1e3638f"
           },
           {
             "path": "src/views/status-pill.ts",

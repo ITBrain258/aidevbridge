@@ -43,9 +43,9 @@ export type KeymapAction =
   | "settings.open"
   | "quickOpen";
 
-/** Vorgabebelegung aus Spec §7.4. Spec §12.1 sieht eine frei konfigurierbare
- * Belegung vor (`[keymap]` in `settings.toml`); das Frontend laedt keine,
- * dies ist die einzige Quelle.
+/** Vorgabebelegung aus Spec §7.4 und die einzige Quelle: Eine eigene Belegung
+ * (`[keymap]` in `settings.toml`, Spec §12.1) ist mit dem Kuerzeleditor
+ * aufgegeben (UX-Spec §14, Nachtrag vom 23.11.2026).
  *
  * `session.prev`/`.next` (Strg+Umschalt+Hoch/Runter) fuehren den Fokus zur
  * vorigen oder naechsten Kachel; die Namen stammen aus der Zeit, als sie die
@@ -283,16 +283,10 @@ function isKnownAction(action: string): action is KeymapAction {
  * unabhaengig von Gross-/Kleinschreibung und Modifikator-Reihenfolge in der
  * konfigurierten Belegung (Normalisierung ueber `canonicalize`).
  *
- * `bindings` bleibt bewusst `Record<string, string>` (nicht
- * `Record<KeymapAction, string>`): eine Belegungstabelle aus `settings.toml`
- * (Spec §12.1) hat Aktionsnamen, die zur Compile-Zeit nicht feststehen -- ein
- * engerer Parametertyp wuerde genau dort einen ungeprueften Cast erzwingen
- * (dieselbe Klasse Loch, die der Rueckgabetyp unten schliesst, nur an die
- * Aufrufstelle verschoben). Der RUECKGABETYP ist dagegen `KeymapAction | null`:
- * ein unbekannter Aktionsname (Tippfehler in der Konfiguration, z. B.
- * "sesion.new") liefert `null` -- korrektes Verhalten (der `switch` in
- * `terminal.ts` hat ohnehin keinen Zweig dafuer) UND type-checked: ein
- * verschriebenes `case`-Label in jenem `switch` ist ein Compile-Fehler (TS2678
+ * Die App ruft es nur mit `DEFAULT_KEYMAP`; `bindings` ist fuer Tests da,
+ * die die Normalisierung pruefen. Der RUECKGABETYP ist `KeymapAction | null`:
+ * ein unbekannter Aktionsname liefert `null`, und ein verschriebenes
+ * `case`-Label im `switch` von `terminal.ts` ist ein Compile-Fehler (TS2678
  * "not comparable"), keine leise nie erreichte Verzweigung. */
 export function matchAction(
   event: KeyboardEvent,

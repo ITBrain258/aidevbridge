@@ -902,8 +902,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
    * sonst waere die Rueckfrage sichtbar, aber mit der Tastatur
    * unbeantwortbar. */
   function buildRemoveConfirm(host: Host): HTMLElement {
-    // Kein achter i18n-Schluessel -- beschrieben wird der Text, der ohnehin
-    // schon dasteht. Die Kennungen sind ueber `host.id` vereindeutigt: das
+    // Frage und Erklaerung beschreiben beide Knoepfe (`aria-describedby`, siehe
+    // `buildConfirmBar`); dafuer braucht es keinen eigenen i18n-Schluessel,
+    // beschrieben wird der Text, der ohnehin dasteht. Die Kennungen sind ueber
+    // `host.id` vereindeutigt: das
     // ist die `settings.toml`-ID aus `new_host_id` (`commands/hosts.rs`, Format
     // `host_<hex>`). Entscheidend: das Format enthaelt kein Leerzeichen, das
     // die Liste in `aria-describedby` zerteilen koennte. Gleichzeitig offen
@@ -1200,8 +1202,8 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // Der getippte Wert ueberlebt ein Neuzeichnen, auch ohne Fokus im Feld
     // (`credentialDrafts`): der Weg "tippen, Tab auf Retry, Enter" laesst das
     // Feld ohne Fokus, und eine Zustandsaenderung an einem ANDEREN Host
-    // dazwischen baute es sonst leer wieder auf (MVP-Spec M0.4, Befund 11 der
-    // Bewertung 2026-09-04, fuer den Fall mit Fokus). Er lebt nur bis zum
+    // dazwischen baute es sonst leer wieder auf (MVP-Spec M0.4, Eingabefelder
+    // der Hinweisleiste, dort fuer den Fall mit Fokus). Er lebt nur bis zum
     // Verbindungsversuch: `onConnectHost` setzt den Zustand auf
     // "connecting", die Leiste verschwindet samt Feld, und ein erneuter
     // Fehlschlag baut sie LEER wieder auf (dieselbe Abwaegung wie
@@ -1612,9 +1614,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     return wrap;
   }
 
-  /** Rueckfrage vor dem Beenden -- gebaut wie `buildRemoveConfirm`, mit
-   * derselben Begruendung fuer `aria-describedby` und `tabindex="-1"` (siehe
-   * dort; sie wird hier nicht wiederholt).
+  /** Rueckfrage vor dem Beenden -- gebaut mit `buildConfirmBar` wie
+   * `buildRemoveConfirm`; die Begruendung fuer `aria-describedby` steht bei
+   * `buildConfirmBar`, die fuer `tabindex="-1"` bei `buildRemoveConfirm`.
    *
    * Der Satz muss sagen, was WIRKLICH passiert: die Sitzung und alles, was
    * darin laeuft, wird beendet. "Close terminal" daneben schliesst

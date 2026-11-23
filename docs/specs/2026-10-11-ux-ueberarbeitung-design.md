@@ -728,6 +728,10 @@ zu. Für diese Tasten erzeugt xterm 6 keine Terminaleingabe (`Keyboard.ts`).
 Diese Tests ändern sich:
 
 - `plain_ctrl_bindings_are_rejected` (`keymap.rs`)
+
+**Nachtrag vom 23.11.2026:** `keymap.rs`, `validate` und `isReservedForApp`
+sind entfernt (§14, Kürzeleditor aufgegeben). Die Ausnahmeliste gilt weiter
+über `PLAIN_CTRL_KEYS` und `isPlainCtrlAppKey` in `src/keymap.ts`.
 - `keymap.test.ts:24-26` und `:120`
 
 **Feste Tasten außerhalb der Tabelle**, weil sie Aliasse brauchen:
