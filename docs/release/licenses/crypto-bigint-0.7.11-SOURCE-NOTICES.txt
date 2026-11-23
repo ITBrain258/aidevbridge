@@ -1,12 +1,12 @@
-crypto-bigint 0.7.10 source notices
+crypto-bigint 0.7.11 source notices
 
 aidevbridge compilation of exact original notices and their source mappings.
 It is not an upstream file and is not itself a substitute for full license texts.
 Each quoted line below is copied verbatim from the specified file of the
-crates.io archive crypto-bigint-0.7.10.crate (SHA-256
-9c035cb64cba03dad2fb921f3e218785e8cf9a41790da5eb3a1400f62fa2be11).
+crates.io archive crypto-bigint-0.7.11.crate (SHA-256
+914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82).
 The release license choice is MIT; the full text is supplied in
-crypto-bigint-0.7.10-LICENSE-MIT.txt.
+crypto-bigint-0.7.11-LICENSE-MIT.txt.
 
 src/modular/safegcd.rs:4-8
 //! Adapted from the Apache 2.0+MIT licensed implementation originally from:

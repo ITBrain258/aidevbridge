@@ -41,10 +41,11 @@ base64 = "0.22"
 # vendor/russh/AGENTBRIDGE-PATCH.md). Keep the exact version until a tested
 # upstream release includes all four; a broader range could silently select
 # an unpatched release during update.
-russh = { version = "=0.65.1", default-features = false, features = ["ring", "flate2", "rsa"] }
-# Use the already locked RSA implementation directly for blinded SSH signatures.
-# Its SHA-2 reexport uses digest 0.11; the fingerprint dependency below is 0.10.
-rsa = { version = "=0.10.0-rc.18", default-features = false, features = ["sha2"] }
+russh = { version = "=0.65.4", default-features = false, features = ["ring", "flate2", "rsa"] }
+# Use the already locked RSA implementation directly for blinded SSH signatures
+# ("pkcs1v15") and for reading encrypted PKCS#8 keys ("encoding"). Its SHA-2
+# reexport uses digest 0.11; the fingerprint dependency below is 0.10.
+rsa = { version = "=0.10.0", default-features = false, features = ["pkcs1v15", "encoding"] }
 # Preserve the explicitly negotiated legacy ssh-rsa/SHA-1 authentication case.
 sha1 = { version = "0.11", default-features = false, features = ["oid"] }
 # Gehashte known_hosts-Eintraege (`|1|salt|hash`) sind HMAC-SHA1, siehe

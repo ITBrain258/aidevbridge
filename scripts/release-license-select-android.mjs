@@ -122,6 +122,10 @@ export const NEW_CRATES = {
   // decision until then was MIT with the original text, kept here.
   'thiserror@1.0.69': { files: ['LICENSE-MIT'] },
   'thiserror-impl@1.0.69': { files: ['LICENSE-MIT'] },
+  // Left the Windows graph with russh 0.65.4 (generic-array 1 is gone) but still
+  // used on Android, by num_enum for ndk; the Windows decision until then was
+  // MIT with the original text, kept here.
+  'rustversion@1.0.23': { files: ['LICENSE-MIT'] },
   'tokio-util@0.7.20': { files: ['LICENSE'] },
   'toml_edit@0.25.17+spec-1.1.0': { files: ['LICENSE-MIT'] },
   'tower@0.5.3': { files: ['LICENSE'] },

@@ -350,7 +350,7 @@ fn rsa_signing_prepared_key_no_longer_reads_file() {
 #[test]
 fn rsa_signing_supported_formats_prepare_and_sign_with_existing_identity() {
     use rsa::pkcs8::DecodePublicKey;
-    let public2048 = rsa::RsaPublicKey::from_public_key_pem(
+    let public2048 = rsa::PublicKey::from_public_key_pem(
         &std::fs::read_to_string(fixture("rsa2048-spki.pem")).unwrap(),
     )
     .unwrap();

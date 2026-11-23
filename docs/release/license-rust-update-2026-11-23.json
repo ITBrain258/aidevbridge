@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-11-23T09:43:56.093Z",
+  "scope": "Cargo.lock update carried over to the Windows x64 license selection by scripts/release-license-update-cargo.mjs; target x86_64-pc-windows-msvc, Rust 1.97.1, features tauri/custom-protocol. Not final application compliance or installer delivery.",
+  "basis": [
+    "docs/release/license-selection.windows-x64.json"
+  ],
+  "lockfile": {
+    "path": "Cargo.lock",
+    "before": {
+      "bytes": 146461,
+      "sha256": "f11b4a6d65dba8585f3efb714ad51d484af4532aeb0fcd9d43aa69055eade34a"
+    },
+    "after": {
+      "bytes": 146213,
+      "sha256": "a7f262670e409306261bd94a838a699c036d186bfd28c925c75931357ccb521d"
+    }
+  },
+  "rule": "A decision moves to a new version without review only when the declared license, the role in the release graph, the set of license-named files and the bytes of every bound file are unchanged and every selected text is one of the package's own bound files; the old and new sources are compared from the registry cache. Every other change is listed under reviewed with the reason of its decision.",
+  "moved": [
+    {
+      "package": "crypto-bigint",
+      "before": "0.7.10",
+      "after": "0.7.11",
+      "role": "normal-runtime-candidate",
+      "declared_license": "Apache-2.0 OR MIT",
+      "archive": {
+        "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.11.crate",
+        "sha256": "914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82"
+      },
+      "manifest": {
+        "before": {
+          "bytes": 5773,
+          "sha256": "50bba1b880a992d323bf1c73dd523a0bda1f6eeea60421b0e135abc5446ee122"
+        },
+        "after": {
+          "bytes": 5841,
+          "sha256": "6b5b03f5e3d1c9f7d023317005e4f0e7fb683c66c03a40dea66bcf7b73a0a722"
+        }
+      },
+      "bound_files": [
+        {
+          "before": "LICENSE-APACHE",
+          "after": "LICENSE-APACHE",
+          "bytes": 10849,
+          "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
+          "unchanged": true
+        },
+        {
+          "before": "LICENSE-MIT",
+          "after": "LICENSE-MIT",
+          "bytes": 1082,
+          "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
+          "unchanged": true
+        }
+      ],
+      "added_files": [],
+      "reviewed": "The three attribution blocks of crypto-bigint-0.7.10-SOURCE-NOTICES.txt stand byte for byte at the same lines of the 0.7.11 archive (SHA-256 914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82, the Cargo.lock checksum): src/modular/safegcd.rs:4-8, src/modular/boxed_monty_form/mul.rs:3-6, src/uint/mul/schoolbook.rs:85-88; the set of copyright lines in src/ is the same as in 0.7.10. crypto-bigint-0.7.11-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum."
+    },
+    {
+      "package": "ctutils",
+      "before": "0.4.7",
+      "after": "0.4.8",
+      "role": "normal-runtime-candidate",
+      "declared_license": "Apache-2.0 OR MIT",
+      "archive": {
+        "url": "https://static.crates.io/crates/ctutils/ctutils-0.4.8.crate",
+        "sha256": "261af4dc7a06ea8a527a8717d8cbba3417530d6ea14e1edb3de6b67806be474f"
+      },
+      "manifest": {
+        "before": {
+          "bytes": 2740,
+          "sha256": "da809d873c4ddf7a99b10775cbf24364201e79768629d15fea81293428fcfa54"
+        },
+        "after": {
+          "bytes": 2740,
+          "sha256": "bf494cc0d391c86ad4c804c63cbe43c9894a86f2d3e6440edf7212a4a46e2972"
+        }
+      },
+      "bound_files": [
+        {
+          "before": "LICENSE-APACHE",
+          "after": "LICENSE-APACHE",
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "unchanged": true
+        },
+        {
+          "before": "LICENSE-MIT",
+          "after": "LICENSE-MIT",
+          "bytes": 1082,
+          "sha256": "91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae",
+          "unchanged": true
+        }
+      ],
+      "added_files": []
+    },
+    {
+      "package": "pkcs1",
+      "before": "0.8.0-rc.4",
+      "after": "0.8.0",
+      "role": "normal-runtime-candidate",
+      "declared_license": "Apache-2.0 OR MIT",
+      "archive": {
+        "url": "https://static.crates.io/crates/pkcs1/pkcs1-0.8.0.crate",
+        "sha256": "6250dd7321adbe93d12b750aee0ced159fd13e77f625edcdf1cb6f83cd99f650"
+      },
+      "manifest": {
+        "before": {
+          "bytes": 2004,
+          "sha256": "f2503b8d44e61a24f22a84a597727f836bafd022bdd83ec680edb756fa2dc46b"
+        },
+        "after": {
+          "bytes": 1961,
+          "sha256": "a2f5f193b08acebd1720a2adc1cce585574f0039edb1b523ed64485dd1da2ed5"
+        }
+      },
+      "bound_files": [
+        {
+          "before": "LICENSE-APACHE",
+          "after": "LICENSE-APACHE",
+          "bytes": 10849,
+          "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
+          "unchanged": true
+        },
+        {
+          "before": "LICENSE-MIT",
+          "after": "LICENSE-MIT",
+          "bytes": 1082,
+          "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
+          "unchanged": false
+        }
+      ],
+      "added_files": [],
+      "reviewed": "MIT text: copyright years 2021-2025 -> 2021-2026, same terms; the new text ships."
+    },
+    {
+      "package": "rsa",
+      "before": "0.10.0-rc.18",
+      "after": "0.10.0",
+      "role": "normal-runtime-candidate",
+      "declared_license": "MIT OR Apache-2.0",
+      "archive": {
+        "url": "https://static.crates.io/crates/rsa/rsa-0.10.0.crate",
+        "sha256": "23e77fd77e0dea28b3011fd62d15445b7de7959333b0276d930e03be0f755699"
+      },
+      "manifest": {
+        "before": {
+          "bytes": 4197,
+          "sha256": "f4407246b2aa8a50836f5d717b8b9976860f68efca0a30fbf5c4f2b1d81bccfb"
+        },
+        "after": {
+          "bytes": 5718,
+          "sha256": "59adf85fd7956ded8821d6e36e0025a6426c007e913e56ad518edf44f0296ef5"
+        }
+      },
+      "bound_files": [
+        {
+          "before": "LICENSE-APACHE",
+          "after": "LICENSE-APACHE",
+          "bytes": 10846,
+          "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb",
+          "unchanged": true
+        },
+        {
+          "before": "LICENSE-MIT",
+          "after": "LICENSE-MIT",
+          "bytes": 1022,
+          "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652",
+          "unchanged": true
+        }
+      ],
+      "added_files": []
+    },
+    {
+      "package": "russh",
+      "before": "0.65.1",
+      "after": "0.65.4",
+      "role": "normal-runtime-candidate",
+      "declared_license": "Apache-2.0",
+      "source": "path package, no registry archive",
+      "manifest": {
+        "before": {
+          "bytes": 8047,
+          "sha256": "00f0172e07ff5a538feeb9fb37448f2769045060bd8ae799bc2cfee333596ab0"
+        },
+        "after": {
+          "bytes": 7982,
+          "sha256": "5e930b57ac2aa604aca0fb099e6d0103a55bd2355ee7790f2c38eded5abc8035"
+        }
+      },
+      "bound_files": [
+        {
+          "before": "LICENSE-APACHE",
+          "after": "LICENSE-APACHE",
+          "bytes": 10849,
+          "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
+          "unchanged": true
+        }
+      ],
+      "added_files": []
+    },
+    {
+      "package": "ssh-key",
+      "before": "0.7.0-rc.11",
+      "after": "0.7.0-rc.12",
+      "role": "normal-runtime-candidate",
+      "declared_license": "Apache-2.0 OR MIT",
+      "archive": {
+        "url": "https://static.crates.io/crates/ssh-key/ssh-key-0.7.0-rc.12.crate",
+        "sha256": "0701b552e6bd8f13a6e07bde25307c32d7daad80a79b65832d110c0416e7b638"
+      },
+      "manifest": {
+        "before": {
+          "bytes": 6367,
+          "sha256": "e31217f37d363a77edc415211829d3c9b675a4d531d0410cabbf38a49170bb48"
+        },
+        "after": {
+          "bytes": 6317,
+          "sha256": "0661bab5873e05ebfecebe85f846d60197cddb10091ee33e922fbd87ec543cba"
+        }
+      },
+      "bound_files": [
+        {
+          "before": "LICENSE-APACHE",
+          "after": "LICENSE-APACHE",
+          "bytes": 10849,
+          "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
+          "unchanged": true
+        },
+        {
+          "before": "LICENSE-MIT",
+          "after": "LICENSE-MIT",
+          "bytes": 1082,
+          "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
+          "unchanged": true
+        }
+      ],
+      "added_files": []
+    }
+  ],
+  "role_changes": [],
+  "new_packages": [],
+  "new_outside_tree": [],
+  "removed": [
+    {
+      "package": "generic-array@1.4.5",
+      "role": "normal-runtime-candidate",
+      "disposition": "include"
+    },
+    {
+      "package": "rustversion@1.0.23",
+      "role": "build-or-proc-macro-only-in-this-tree",
+      "disposition": "include"
+    }
+  ],
+  "dropped_documents": [],
+  "unchanged_packages": 352,
+  "decision": "The reviewed decisions stand for the moved packages; reviewed changes and new packages are decided as recorded here. Removed packages and documents that no component uses any more leave the selection.",
+  "candidate_texts_by_sha256": {}
+}

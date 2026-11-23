@@ -19,8 +19,8 @@
   "base_selection": {
     "path": "docs/release/license-selection.windows-x64.json",
     "selection_id": "aidevbridge-windows-x64-2026-10-20",
-    "bytes": 1069961,
-    "sha256": "739268cd8f8e1a939966be72705b3630be28accf701ed188715093ab6ea437de"
+    "bytes": 1069651,
+    "sha256": "0df152d9a4697b4c59da07a0413b9a06f9cfe7b01c38d0f874c1eb43be677b1a"
   },
   "method": [
     "Start from the reviewed Windows x64 selection. Every cargo package of the macOS graph that the Windows selection covers keeps its decision, selected license and texts; only role, features and platform-specific wording change.",
@@ -404,9 +404,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:cookie@0.18.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06).",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06)."
+        "id": "cargo:cookie@0.18.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06). Updated from 0.18.2 to 0.18.3 on 2026-11-23; The attribution block of cookie-0.18.2-SOURCE-NOTICES.txt stands byte for byte at the same lines of the 0.18.3 archive (SHA-256 d55f2d6c30eeec7d5c6f98bd4395d4abb1895629eab97ee6522d340623615f8a, the Cargo.lock checksum): src/secure/macros.rs:42-43; the set of copyright lines in src/ is the same as in 0.18.2. cookie-0.18.3-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06). Updated from 0.18.2 to 0.18.3 on 2026-11-23; The attribution block of cookie-0.18.2-SOURCE-NOTICES.txt stands byte for byte at the same lines of the 0.18.3 archive (SHA-256 d55f2d6c30eeec7d5c6f98bd4395d4abb1895629eab97ee6522d340623615f8a, the Cargo.lock checksum): src/secure/macros.rs:42-43; the set of copyright lines in src/ is the same as in 0.18.2. cookie-0.18.3-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum."
       },
       {
         "id": "cargo:cpubits@0.1.1",
@@ -439,9 +439,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.22 to 0.8.23 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:crypto-bigint@0.7.10",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05).",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05)."
+        "id": "cargo:crypto-bigint@0.7.11",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05). Updated from 0.7.10 to 0.7.11 on 2026-11-23; The three attribution blocks of crypto-bigint-0.7.10-SOURCE-NOTICES.txt stand byte for byte at the same lines of the 0.7.11 archive (SHA-256 914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82, the Cargo.lock checksum): src/modular/safegcd.rs:4-8, src/modular/boxed_monty_form/mul.rs:3-6, src/uint/mul/schoolbook.rs:85-88; the set of copyright lines in src/ is the same as in 0.7.10. crypto-bigint-0.7.11-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05). Updated from 0.7.10 to 0.7.11 on 2026-11-23; The three attribution blocks of crypto-bigint-0.7.10-SOURCE-NOTICES.txt stand byte for byte at the same lines of the 0.7.11 archive (SHA-256 914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82, the Cargo.lock checksum): src/modular/safegcd.rs:4-8, src/modular/boxed_monty_form/mul.rs:3-6, src/uint/mul/schoolbook.rs:85-88; the set of copyright lines in src/ is the same as in 0.7.10. crypto-bigint-0.7.11-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum."
       },
       {
         "id": "cargo:crypto-common@0.1.7",
@@ -469,9 +469,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:ctutils@0.4.7",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files. Updated from 0.4.6 to 0.4.7 on 2026-10-29; same declared license, role and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files. Updated from 0.4.6 to 0.4.7 on 2026-10-29; same declared license, role and byte-identical license files."
+        "id": "cargo:ctutils@0.4.8",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files. Updated from 0.4.6 to 0.4.7 on 2026-10-29; same declared license, role and byte-identical license files. Updated from 0.4.7 to 0.4.8 on 2026-11-23; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files. Updated from 0.4.6 to 0.4.7 on 2026-10-29; same declared license, role and byte-identical license files. Updated from 0.4.7 to 0.4.8 on 2026-11-23; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:curve25519-dalek@5.0.0",
@@ -584,9 +584,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:form_urlencoded@1.2.2",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:form_urlencoded@1.2.3",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.2.2 to 1.2.3 on 2026-11-23; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.2.2 to 1.2.3 on 2026-11-23; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:futures-channel@0.3.34",
@@ -632,11 +632,6 @@
         "id": "cargo:generic-array@0.14.7",
         "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Role changed on 2026-11-05: Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays.",
         "macos": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered. Role changed on 2026-11-05: Only the digest 0.10 family of the build tools uses it now. The conservative inclusion stays."
-      },
-      {
-        "id": "cargo:generic-array@1.4.5",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.4.4 to 1.4.5 on 2026-10-29; same declared license, role and byte-identical license files.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.4.4 to 1.4.5 on 2026-10-29; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:getrandom@0.2.17",
@@ -939,9 +934,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:pkcs1@0.8.0-rc.4",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:pkcs1@0.8.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.0-rc.4 to 0.8.0 on 2026-11-23; MIT text: copyright years 2021-2025 -> 2021-2026, same terms; the new text ships.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.0-rc.4 to 0.8.0 on 2026-11-23; MIT text: copyright years 2021-2025 -> 2021-2026, same terms; the new text ships."
       },
       {
         "id": "cargo:pkcs5@0.8.1",
@@ -1049,14 +1044,14 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.16.0 to 0.17.2 on 2026-10-29; New MIT text for the XDG desktop portal window identifier, a backend that src/backend.rs compiles for Linux and the BSDs only, and there only without the gtk3 feature; tauri-plugin-dialog enables gtk3, so no build of this app compiles it."
       },
       {
-        "id": "cargo:rsa@0.10.0-rc.18",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:rsa@0.10.0",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.10.0-rc.18 to 0.10.0 on 2026-11-23; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.10.0-rc.18 to 0.10.0 on 2026-11-23; same declared license, role and byte-identical license files."
       },
       {
-        "id": "cargo:russh@0.65.1",
-        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files.",
-        "macos": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files."
+        "id": "cargo:russh@0.65.4",
+        "windows": "Explicit Apache-2.0 selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files. Updated from 0.65.1 to 0.65.4 on 2026-11-23; same declared license, role and byte-identical license files.",
+        "macos": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files. Updated from 0.65.1 to 0.65.4 on 2026-11-23; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:salsa20@0.11.0",
@@ -1214,9 +1209,9 @@
         "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:ssh-key@0.7.0-rc.11",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:ssh-key@0.7.0-rc.12",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.0-rc.11 to 0.7.0-rc.12 on 2026-11-23; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.0-rc.11 to 0.7.0-rc.12 on 2026-11-23; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:stable_deref_trait@1.2.1",
@@ -1349,9 +1344,9 @@
         "macos": "Explicit ISC selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
       },
       {
-        "id": "cargo:url@2.5.8",
-        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
-        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking."
+        "id": "cargo:url@2.5.9",
+        "windows": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.8 to 2.5.9 on 2026-11-23; same declared license, role and byte-identical license files.",
+        "macos": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.8 to 2.5.9 on 2026-11-23; same declared license, role and byte-identical license files."
       },
       {
         "id": "cargo:urlpattern@0.6.0",

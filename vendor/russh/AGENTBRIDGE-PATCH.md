@@ -1,6 +1,6 @@
-# AgentBridge local patch to russh 0.65.1
+# AgentBridge local patch to russh 0.65.4
 
-This directory preserves the published russh 0.65.1 source, with local
+This directory preserves the published russh 0.65.4 source, with local
 channel-close, channel-end observation, manual receive window and
 authentication reply changes. It
 is not a new upstream release. Original copyright notices and the Apache-2.0
@@ -11,16 +11,17 @@ section 4(b)); most changed blocks also carry a marker comment
 list of changed and added files is under "Changed files" below. `LICENSE-APACHE` supplies the standard
 license text, which the published crate does not include as a separate file.
 
-Upstream repository: <https://github.com/warp-tech/russh>.
+Upstream repository: <https://github.com/Eugeny/russh> (formerly
+warp-tech/russh, which redirects there).
 The published `.cargo_vcs_info.json` records commit
-`b33092aad1e51c66258a12e8b83fc473a68d9d34`, subdirectory `russh`.
-The published `.crate` archive (`https://static.crates.io/crates/russh/russh-0.65.1.crate`)
-has SHA-256 `94be3d86c71b9ed220a675c405e35c7a02565a009bf8da2e9cc13a700320a5c5`,
-the checksum of the crates.io index. It holds 90 files, 1,351,313 bytes;
+`4977b1afba8802137ac93f3e2c8bf916c35f437c`, subdirectory `russh`.
+The published `.crate` archive (`https://static.crates.io/crates/russh/russh-0.65.4.crate`)
+has SHA-256 `569d8c45e20c123af2fc5ecb4803fde0a98572449ba4c24ed97741d7b02fedf7`,
+the checksum of the crates.io index. It holds 90 files, 1,369,953 bytes;
 all of them are in this directory, unchanged except the documented source
 modifications. `UPSTREAM-SHA256SUMS` records the unmodified archive files.
 The manifest itself has SHA-256
-`00f0172e07ff5a538feeb9fb37448f2769045060bd8ae799bc2cfee333596ab0`.
+`5e930b57ac2aa604aca0fb099e6d0103a55bd2355ee7790f2c38eded5abc8035`.
 The copied upstream `Cargo.lock` remains an upstream artifact; the workspace's
 root `Cargo.lock` controls AgentBridge builds.
 
@@ -65,6 +66,46 @@ these changes makes a local change unnecessary. Upstream's
 `tests/test_window_adjust.rs` and `tests/auth_signer_failure.rs` use the 0.65
 server API now and compile as published.
 
+On 2026-11-23 the patch moved from 0.65.1 to 0.65.4 the same way (this
+directory at 0.65.1, the published 0.65.1, verified against the earlier
+`UPSTREAM-SHA256SUMS`, and the published 0.65.4). Upstream changed 19 files;
+four of them are also locally changed. `src/client/mod.rs` merged without
+conflict. The other three conflicted at one place each, and for one reason:
+upstream added `Encrypted::close_from_peer` in `src/session.rs`, whose body is
+line for line the local `remote_close`, and calls it from the same two places
+in `src/client/encrypted.rs` and `src/server/encrypted.rs`. The resolution
+takes upstream's function and drops `remote_close`. So the pending-data case of
+the Close change (reply to a received Close at once and drop unsent data) is
+upstream now; the rest of the Close change stays, because upstream still
+drops a Close that answers a local Close after the local Close removed the
+channel entry (see below). The removal criteria of the patch report are
+therefore not met.
+
+0.65.4 fixes six advisories, three of them in client code (see SECURITY.md):
+GHSA-ppq4-8rhp-9xrq (medium; the client queued a reply for every
+USERAUTH_FAILURE and CHANNEL_OPEN_FAILURE, also for ones that answer nothing),
+GHSA-66vf-xq4p-pg7q (the server's host key and its signature must be of the
+negotiated host key algorithm) and GHSA-7qgr-cjxw-6vjf
+(CHANNEL_OPEN_CONFIRMATION and CHANNEL_OPEN_FAILURE are only accepted for an
+open that is still pending). GHSA-m6v5-wqxv-mffh is the server side of the
+pending-data case above; its client side, reachable through `Handle::data`
+or `Session::data`, was already covered by the local `remote_close`.
+GHSA-vfx7-2c3m-7fq5 and GHSA-v3vc-7662-5hv7 are in agent server code, which
+the app does not use. Upstream also takes `rsa` 0.10.0, `pkcs1` 0.8.0 and
+`ssh-key` 0.7.0-rc.12 (the RSA key types are now `rsa::PrivateKey` and
+`rsa::PublicKey`), drops `generic-array` 1 (MAC key lengths are const
+generics, and MAC verification uses the `digest` crate's `verify_slice`),
+checks that an RSA signature in a `hostkeys-prove-00@openssh.com` reply uses
+an allowed hash, answers an unknown global request only if it wants a reply,
+and sends a server's banner on the first authentication request. With
+`ssh-key` 0.7.0-rc.12 a certificate key used as a CA key no longer parses
+(upstream's test in `src/keys/key.rs` follows that). None of these changes makes another local
+change unnecessary. One local test changed: since upstream ignores
+CHANNEL_OPEN_FAILURE for an established channel and queues no reply for it,
+`src/tests/channel_end_observer.rs` now checks the removed route only for a
+pending open, and a new case checks that the failure ends nothing on an
+established channel.
+
 Validation on 2026-11-05 (Rust 1.97.1, Windows): a byte-identical copy of
 this directory in a temporary workspace, with the production features
 (`cargo test -p russh --lib --tests --no-default-features --features
@@ -78,18 +119,36 @@ authentication replies (`--test-threads=4`). The move to 0.65.0 on
 2026-10-30 was validated the same way, with the two upstream test files
 adapted to the 0.65.0 server API in the test copy only.
 
+Validation on 2026-11-23 (Rust 1.97.1, Windows), the same way: 244 library
+tests passed, among them the 10 Close and 16 end-observer cases of this
+patch and upstream's new tests for the six advisories, and all 35
+integration tests in 15 targets; `.github/workflows/vendored.yml` passed 257
+library tests on Linux. The app's 803 tests passed against the patched
+0.65.4 (`--test-threads=4`), including the loopback tests named below; the
+live tests against a test host did not run in it. Since upstream's
+`close_from_peer`, the Close cases for a received Close with unsent data and
+for a remote-initiated Close pass on upstream code alone; the cases for the
+acknowledgement of a local Close (`close_patch_local_close_ack_*`,
+`close_patch_deferred_local_close_*`) and
+`end_patch_close_requires_established_or_retained_ack_route` still check the
+local gate.
+
 The local change retains a one-bit expected-Close state in an existing
 `ChannelRef` after local Close. Only Close may use this state; ordinary channel
 messages still require an established encrypted channel. A received Close
 replies immediately when needed and removes channel state, including unsent
-outbound data, instead of waiting for further peer window space. Local
-Close/EOF/flush behavior remains unchanged. No cryptographic code, algorithms,
-dependency versions or requested production features were changed.
+outbound data, instead of waiting for further peer window space; since 0.65.4
+upstream's `close_from_peer` does that part, which was the local
+`remote_close` before. Local Close/EOF/flush behavior remains unchanged. No
+cryptographic code, algorithms, dependency versions or requested production
+features were changed.
 
 Packet-dispatch regressions are in `src/tests/channel_close_patch.rs`, included
 by both the client and server test modules. For the reason, exact scope,
 validation status and eventual removal criteria, see
-[`russh-channel-close-patch.md`](../../docs/reviews/2026-09-11-neutral/russh-channel-close-patch.md).
+[`russh-channel-close-patch.md`](../../docs/reviews/2026-09-11-neutral/russh-channel-close-patch.md);
+it describes the patch on 0.63.2, where `Encrypted::remote_close` was still
+local.
 
 The 2026-09-12 addition provides a sender-free `ChannelEndObserver` for locally
 opened client channels. Validated EOF, exit status (including zero), exit signal
@@ -103,7 +162,9 @@ and server constructors explicitly provide `None`, not a liveness assertion.
 Existing channel messages, handlers and Close acknowledgements are preserved.
 After an accepted OpenFailure removes a route, only a raw sender clone is kept
 for final message delivery; the unique ChannelRef is dropped before that send
-can wait on a full queue. The existing known-channel gate remains unchanged.
+can wait on a full queue. The gate in front of it is upstream's: since 0.65.4
+it accepts OpenFailure only for an open that is still pending
+(`is_pending_channel_open`).
 
 Direct regressions are in `src/tests/channel_end_observer.rs`, included only in
 the existing client test module. The vendored change only provides the
@@ -166,7 +227,7 @@ AgentBridge's loopback test against a real russh server does, in
 
 ## Changed files
 
-Compared with the published 0.65.1 archive, these upstream files are modified;
+Compared with the published 0.65.4 archive, these upstream files are modified;
 each starts with the two-line notice:
 
 - `src/channels/channel_ref.rs`
@@ -178,7 +239,7 @@ each starts with the two-line notice:
   `WindowCredit`)
 - `src/server/encrypted.rs`
 - `src/server/session.rs`
-- `src/session.rs`
+- `src/session.rs` (since 0.65.4 only for the manual receive window)
 
 These files are added:
 

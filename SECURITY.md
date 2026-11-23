@@ -68,9 +68,11 @@ Out of scope:
 - attacks that already need your user account or administrator rights on
   your machine;
 - vulnerabilities in dependencies that don't affect aidevbridge; please
-  report them upstream. `vendor/russh` is russh 0.65.1 with four local
-  changes, described in `vendor/russh/AGENTBRIDGE-PATCH.md`: a received
-  channel Close is acknowledged at once and drops the channel's unsent data;
+  report them upstream. `vendor/russh` is russh 0.65.4 with four local
+  changes, described in `vendor/russh/AGENTBRIDGE-PATCH.md`: a channel
+  Close that answers the app's own Close is accepted even after the
+  channel's entry is gone (acknowledging a received Close at once is
+  upstream's own since 0.65.4);
   a channel-end observer reports how a client channel ended; terminal
   channels get a manual receive window; and the sign-in calls return an
   error instead of an empty method list when the session ends before the
@@ -161,7 +163,7 @@ To resolve: drop the fallback once no supported host needs it.
 ### No host key check on rekey
 
 During a long session, SSH renews its keys (rekey), and the server presents
-its host key again. russh 0.65.1, which aidevbridge uses, asks the app's
+its host key again. russh 0.65.4, which aidevbridge uses, asks the app's
 handler to check the host key only in the first key exchange of a
 connection, and the app checks it there against `known_hosts`. On a rekey
 russh doesn't ask again and doesn't compare the presented key with the
@@ -249,39 +251,19 @@ such option and always passes these sequences on, so on tmux 3.0 to 3.2a
 To resolve: no change is planned; the behavior follows your tmux
 configuration and version.
 
-### Known advisory: RUSTSEC-2023-0071 (`rsa`)
+### Fixed advisory: RUSTSEC-2023-0071 (`rsa`)
 
 `cargo audit` reports RUSTSEC-2023-0071 ("Marvin Attack") for the `rsa`
-crate. The attack recovers an RSA private key by precisely timing many
-decryptions or signatures made with it. `rsa` 0.10.0 of 8 November 2026 is
-the first fixed version; aidevbridge still carries the release candidate
-0.10.0-rc.18.
-
-aidevbridge uses `rsa` only to sign the SSH login with your own RSA key file,
-on your machine and with blinding, and, through russh, to verify RSA host
-keys, which needs no private key. It never decrypts. The app signs only
-while it logs in: once for each of the two SSH connections it opens to a
-host, and again when it reconnects or repairs one of them. A host with a key
-file without passphrase is reconnected automatically after a lost
-connection, and a lost control connection is repaired after about two
-seconds, each time with one signature. A server you are connected to can
-therefore ask for further signatures by dropping a connection: at most one
-every few seconds, for as long as the app stays connected to it. The defence
-against the attack is the blinding, which the app applies to every signature
-with fresh randomness; the limited rate only adds to it. We accept the
-advisory for that reason; the audit workflow (`.github/workflows/audit.yml`) ignores it, while
-a local `cargo audit` still reports it. Where you can, use an ed25519 key.
-
-To resolve: move to `rsa` 0.10.0. Besides the exact pins on the release
-candidate in `src-tauri/Cargo.toml` and in the vendored russh 0.65.1, the
-app's own `rsa` line asks for the feature `sha2`, which 0.10.0 dropped,
-and PKCS#1 v1.5 signatures now need the feature `pkcs1v15`. Two more pins of
-the vendored russh stand in the way: `ssh-key` 0.7.0-rc.11
-asks for an `rsa` feature (`sha2`) that 0.10.0 dropped, so russh needs
-`ssh-key` 0.7.0-rc.12, and `pkcs1` 0.8.0-rc.4, while `rsa` 0.10.0 needs
-`pkcs1` 0.8.0. The move therefore changes the patched russh. It comes with a
-russh release that takes these versions, or as an update of the vendored
-copy of its own.
+crate that aidevbridge 0.3.6 and earlier carry (0.3.6: the release candidate
+0.10.0-rc.18). The attack recovers an RSA private key by precisely timing
+many decryptions or signatures made with it. aidevbridge uses `rsa` only to
+sign the SSH login with your own RSA key file, on your machine and with
+fresh blinding for every signature, and, through russh, to verify RSA host
+keys, which needs no private key. It never decrypts. The audit workflow
+accepted the advisory for that reason. Since the vendored russh moved to
+0.65.4 on 23 November 2026, the app carries `rsa` 0.10.0 of 8 November 2026,
+the first fixed version, and the audit workflow no longer ignores the
+advisory.
 
 ### Known advisories for the vendored russh and expected audit warnings
 
@@ -328,23 +310,59 @@ both:
 The audit workflow listed both as accepted until the vendored russh moved
 to 0.65.1.
 
+Six advisories published on 21 November 2026 cover russh 0.65.1, which
+aidevbridge 0.2.7 to 0.3.6 carry. 0.65.3 fixes four of them and 0.65.4 the
+other two; since 23 November 2026 the vendored russh is 0.65.4. Three reach
+an SSH client:
+
+- [GHSA-ppq4-8rhp-9xrq](https://github.com/Eugeny/russh/security/advisories/GHSA-ppq4-8rhp-9xrq)
+  (medium): the client queued a reply for every `USERAUTH_FAILURE` and
+  `CHANNEL_OPEN_FAILURE`, also for ones that answer no request, and nothing
+  read those replies; a server could so grow the app's memory. These
+  messages come after the key exchange, so only a server whose host key the
+  app accepted could send them.
+- [GHSA-66vf-xq4p-pg7q](https://github.com/Eugeny/russh/security/advisories/GHSA-66vf-xq4p-pg7q):
+  the client accepted a host key and a signature of another algorithm than
+  the negotiated one, for example an `ssh-rsa` (SHA-1) signature where
+  `rsa-sha2-512` was negotiated. The app still checked the presented key
+  against `known_hosts`.
+- [GHSA-7qgr-cjxw-6vjf](https://github.com/Eugeny/russh/security/advisories/GHSA-7qgr-cjxw-6vjf):
+  the client accepted `CHANNEL_OPEN_CONFIRMATION` and `CHANNEL_OPEN_FAILURE`
+  for channels that were not waiting for one; a server could so re-confirm
+  or end an established channel, which it can end anyway by closing it.
+
+[GHSA-m6v5-wqxv-mffh](https://github.com/Eugeny/russh/security/advisories/GHSA-m6v5-wqxv-mffh)
+(medium) concerns russh's server: a peer that closes a channel with output
+still waiting for window space keeps the channel usable. The advisory notes
+the same code path in the client, reachable only when an application queues
+data through `Handle::data` or `Session::data`. aidevbridge writes terminal
+input through the channel's writer, which respects the window, and its own
+Close change in the vendored russh has answered such a Close at once and
+dropped the unsent data since 0.2.0; 0.65.4 does the same upstream.
+GHSA-vfx7-2c3m-7fq5 and GHSA-v3vc-7662-5hv7 concern russh's agent server,
+which aidevbridge never runs, and GHSA-xm3f-jwj9-3x8m concerns the crate
+`russh-config`, which aidevbridge doesn't use. The audit workflow accepted
+none of them.
+
 Neither `cargo audit` nor Dependabot sees the vendored copy: both match only
 packages that `Cargo.lock` records with a registry source, and the vendored
-russh has none. That is how the three client advisories above went unnoticed
-for five days. The audit workflow therefore also checks every vendored crate
+russh has none. That is how the three client advisories for russh 0.63.2
+went unnoticed for five days. The audit workflow therefore also checks every vendored crate
 against the advisories of GitHub's advisory database and of its upstream
 repository, which publishes them days earlier
 (`scripts/check-vendored-advisories.mjs`), and fails when one covers the
 vendored version. An advisory that can't affect the app is accepted there
-with its reason, as RUSTSEC-2023-0071 is for `cargo audit`.
+with its reason, as RUSTSEC-2024-0429 is for `cargo audit` (below).
 
-GitHub may also report advisories for `vendor/russh/Cargo.lock`, for
-example for `pageant` 0.2.4, `crypto-bigint`, `ctutils`, `tokio` or
-`crossbeam-epoch`. That file is the lockfile of the published russh source,
-kept unchanged with it; no build reads it. aidevbridge builds with the
-`Cargo.lock` at the repository root, which has pageant 0.2.5, crypto-bigint
-0.7.10, ctutils 0.4.7 and tokio 1.54.1 and doesn't contain
-`crossbeam-epoch`.
+GitHub may also report advisories for `vendor/russh/Cargo.lock`. That file
+is the lockfile of the published russh source, kept unchanged with it; no
+build reads it. aidevbridge builds with the `Cargo.lock` at the repository
+root. Up to russh 0.65.1 the vendored lockfile held older versions of
+`pageant`, `crypto-bigint`, `ctutils`, `tokio` and `crossbeam-epoch` than
+the app uses. The lockfile of 0.65.4 has the same pageant 0.2.5,
+crypto-bigint 0.7.11, ctutils 0.4.8 and tokio 1.54.1 as the root
+`Cargo.lock`, and `crossbeam-epoch` 0.9.21, which the root `Cargo.lock`
+doesn't contain.
 
 `cargo audit` on the root `Cargo.lock` also reports these notices. The audit
 workflow fails on any `unsound` notice and ignores the one for `glib` by
@@ -361,13 +379,16 @@ flag, until `glib` is 0.20 or newer or gone from `Cargo.lock`;
   `tauri-plugin-opener`;
 - `async-executor` 1.14.0: yanked, because dropping an `Executor` could use
   freed memory (fixed in 1.14.1); it comes in through `zbus`, the D-Bus code
-  of `tauri-plugin-opener`.
+  of `tauri-plugin-opener`;
+- `chrono` 0.4.45 (RUSTSEC-2026-0543): unmaintained; `russh-util` uses it
+  only on `wasm32`.
 
 None of these is in a package the project ships. Tauri uses `glib`, and with
-it `proc-macro-error`, only for its Linux GTK backend, and
-`tauri-plugin-opener` uses D-Bus only on Linux: `cargo tree -i glib` (and
-the same for `proc-macro-error`, `zbus_names`, `zvariant` and
-`async-executor`) with `--target x86_64-pc-windows-msvc`,
+it `proc-macro-error`, only for its Linux GTK backend,
+`tauri-plugin-opener` uses D-Bus only on Linux, and `russh-util` uses
+`chrono` only on `wasm32`: `cargo tree -i glib` (and
+the same for `proc-macro-error`, `zbus_names`, `zvariant`,
+`async-executor` and `chrono`) with `--target x86_64-pc-windows-msvc`,
 `--target aarch64-apple-darwin`, `--target x86_64-apple-darwin` or
 `--target aarch64-linux-android` finds nothing. The `unic` crates that
 Tauri used through `urlpattern` until 2.12 are no longer in `Cargo.lock`.
