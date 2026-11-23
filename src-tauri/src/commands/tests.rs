@@ -20,7 +20,6 @@ fn bound_listing(id: u32) -> crate::tmux::client::ListedSessionObservation {
                 pane_id: PaneId(7),
                 pane_pid: 10,
             },
-            creation_matched: false,
         }),
     }
 }

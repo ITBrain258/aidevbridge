@@ -1252,8 +1252,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 128589,
-            "sha256": "9e518b7c86fbdd6fb667a3ae95d7dca3f18376b9e7523d90aea580a698a06663"
+            "bytes": 128552,
+            "sha256": "5899fd8e8622dae792d6d4bd3d30397490496740bddd7668b84913d01bc1934a"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -1367,8 +1367,8 @@
           },
           {
             "path": "src-tauri/src/status.rs",
-            "bytes": 35824,
-            "sha256": "5b4399b71e7c65e5d2cf609abdc578919ab315d60bfc59794751723c6ab8b1ea"
+            "bytes": 35779,
+            "sha256": "cf43b40c335034555fab95e08765c7d9f8745541506b3984c5111cd3fbc4434f"
           },
           {
             "path": "src-tauri/src/status/title.rs",
@@ -1377,8 +1377,8 @@
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation.rs",
-            "bytes": 19402,
-            "sha256": "dc9bb694b40fa3821620c742309f39cf4ab76e0a7b31f4bb7dd16a17dbd3b4d0"
+            "bytes": 19387,
+            "sha256": "a8b31b32cbb3d64ff1522dce047a8108396394ab51997d8bdc578cfaf32ece25"
           },
           {
             "path": "src-tauri/src/tmux/attach_confirmation/tests.rs",
@@ -1387,13 +1387,13 @@
           },
           {
             "path": "src-tauri/src/tmux/client.rs",
-            "bytes": 44859,
-            "sha256": "f96ee46916e912207c591b6ed72694a30535758ea135ad3e7a9e22f172dc7c8e"
+            "bytes": 44829,
+            "sha256": "76e0bad1315185db37a85ea37f207a7b712749d882b84abc747ff50f9428ef98"
           },
           {
             "path": "src-tauri/src/tmux/client_observation_tests.rs",
-            "bytes": 24144,
-            "sha256": "2e30fdc0c8019fbf415510671792cc6d54af743273dc2e91082d8d4dc604f6ed"
+            "bytes": 24100,
+            "sha256": "32222f1170b435af253e5ee95028c56e18077ae166ff01248f365e9e99271478"
           },
           {
             "path": "src-tauri/src/tmux/history.rs",
@@ -1422,8 +1422,8 @@
           },
           {
             "path": "src-tauri/src/tmux/session_binding.rs",
-            "bytes": 61222,
-            "sha256": "7eba11ea09d3ffe4d5ea19fd492b330e08875722a0a0507c2e389de6332c1847"
+            "bytes": 57338,
+            "sha256": "bae4935a0370c3aae17cf047ad161510c6ff38f27af714312911419b9c6af26f"
           },
           {
             "path": "src-tauri/src/tmux/socket.rs",

@@ -430,7 +430,6 @@ mod tests {
                         pane_id: PaneId(0),
                         pane_pid: 10,
                     },
-                    creation_matched: false,
                 })
             } else {
                 Err(BindingUnavailableReason::ResolveBefore(

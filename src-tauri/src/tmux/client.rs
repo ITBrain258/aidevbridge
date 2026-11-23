@@ -193,7 +193,6 @@ impl TmuxClient {
                         after,
                         &listed_after,
                         session_id,
-                        None,
                     )
                     .map_err(BindingUnavailableReason::Changed),
                 };
