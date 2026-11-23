@@ -43,10 +43,9 @@ const TAURI_RENAMES = { LICENSE_MIT: 'LICENSE-MIT', 'LICENSE_APACHE-2.0': 'LICEN
 // that had no version in the selection (MIT only: the reasons say so).
 const REVIEWED = {
   // Empty between updates. The entries of earlier updates are kept in their
-  // records: docs/release/license-rust-update-2026-10-29.json (Tauri 2.12)
-  // and docs/release/license-rust-update-2026-11-05-dup-crates.json.
-  'crypto-bigint@0.7.11': { external: 'The three attribution blocks of crypto-bigint-0.7.10-SOURCE-NOTICES.txt stand byte for byte at the same lines of the 0.7.11 archive (SHA-256 914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82, the Cargo.lock checksum): src/modular/safegcd.rs:4-8, src/modular/boxed_monty_form/mul.rs:3-6, src/uint/mul/schoolbook.rs:85-88; the set of copyright lines in src/ is the same as in 0.7.10. crypto-bigint-0.7.11-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum.' },
-  'pkcs1@0.8.0': { changed: ['LICENSE-MIT'], note: 'MIT text: copyright years 2021-2025 -> 2021-2026, same terms; the new text ships.' },
+  // records: docs/release/license-rust-update-2026-10-29.json (Tauri 2.12),
+  // docs/release/license-rust-update-2026-11-05-dup-crates.json and
+  // docs/release/license-rust-update-2026-11-23.json (russh 0.65.4).
 };
 
 const fail = message => { throw new Error(message); };

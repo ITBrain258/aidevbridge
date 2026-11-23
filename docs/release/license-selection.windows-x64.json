@@ -691,8 +691,8 @@
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
-        "bytes": 34992,
-        "sha256": "38fe470fc13a3afa2e0fd4240d5824bfffb39ddf8bc3f273fe96fcf8a7f2c3cc"
+        "bytes": 34382,
+        "sha256": "1ec26fce9a82d26f8ab1b67e62c1ec01dfe08ee2c50daedee7ccca1a272b4125"
       },
       {
         "path": "scripts/release-licenses.mjs",
