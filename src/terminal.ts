@@ -1284,7 +1284,7 @@ export function mountTerminal(
   );
 
   let disposed = false;
-  // MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04: sobald
+  // MVP-Spec M0.1 (Banner bei Kanalende): sobald
   // `terminal://connection-lost` fuer DIESE Kachel eintrifft, hat die
   // Pumpaufgabe im Backend den Terminaleintrag bereits entfernt. Ein Ack aus
   // dem `write()`-Callback, das gerade noch unterwegs war, oder ein
@@ -1324,7 +1324,7 @@ export function mountTerminal(
       if (disposed) return;
       // Zwei Hosts duerfen gleichnamige tmux-Sessions haben (Spec §4.3) --
       // derselbe Grund, aus dem der connection-lost-Listener unten den
-      // Host vergleicht (MVP-Spec M0.1, Befund 2 der Bewertung 2026-09-04:
+      // Host vergleicht (MVP-Spec M0.1, Ausgabe-Host-ID:
       // ohne diesen Vergleich landete Ausgabe eines fremden Hosts in dieser
       // Kachel).
       if (event.payload.host_id !== hostId) return;
@@ -1340,7 +1340,7 @@ export function mountTerminal(
         // bestaetigen.
         if (disposed) return;
         pendingAckBytes -= chunk.length;
-        // MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04 (siehe
+        // MVP-Spec M0.1, Banner bei Kanalende (siehe
         // `channelClosed`): nach connection-lost ist der Terminaleintrag im
         // Backend bereits entfernt (Pumpaufgabe). Ein Ack waere dort kein
         // Fehler, haette aber keine Wirkung -- er bleibt hier still.
@@ -1541,7 +1541,7 @@ export function mountTerminal(
     if (term.cols === lastSentCols && term.rows === lastSentRows) return;
     lastSentCols = term.cols;
     lastSentRows = term.rows;
-    // MVP-Spec M0.1, Befund 9 der Bewertung 2026-09-04 (siehe
+    // MVP-Spec M0.1, Banner bei Kanalende (siehe
     // `channelClosed`): die Sperrleiste loest nach connection-lost oft einen
     // Refit aus (Layoutwechsel um die Sperranzeige herum) -- der
     // Terminaleintrag im Backend ist dann schon weg, ein `resize_terminal`

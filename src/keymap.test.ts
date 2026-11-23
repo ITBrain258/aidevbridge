@@ -1,6 +1,5 @@
 // Gegenprobe fuer `src/keymap.ts`: reine Logik, kein Mock noetig -- jsdom
-// liefert ein echtes `KeyboardEvent`. Spiegelt (und erweitert um TS-
-// spezifische Faelle) die Rust-Tests in `src-tauri/src/keymap.rs`.
+// liefert ein echtes `KeyboardEvent`.
 
 import { describe, expect, it } from "vitest";
 import {
@@ -10,9 +9,7 @@ import {
   fontSizeKeyChange,
   isAppChord,
   isPlainCtrlAppKey,
-  isReservedForApp,
   matchAction,
-  validate,
 } from "./keymap";
 
 function key(
@@ -22,211 +19,49 @@ function key(
   return new KeyboardEvent(type, { bubbles: true, cancelable: true, ...init });
 }
 
-describe("validate", () => {
-  // UX-Spec §8.3, deckungsgleich mit `plain_ctrl_bindings_are_rejected` in
-  // keymap.rs: Strg+Buchstabe gehoert dem Terminal (Strg+C ist ^C, Strg+V ein
-  // Steuerzeichen fuer die Shell). Frei sind nur die vier Tasten der
-  // Ausnahmeliste (Test darunter).
-  it.each(["Ctrl+N", "Ctrl+A", "Ctrl+C", "Ctrl+V"])("lehnt %s ab: Strg ausserhalb der Ausnahmeliste", (binding) => {
-    const problems = validate({ "session.next": binding });
-    expect(problems.length).toBeGreaterThan(0);
-    expect(problems[0]).toContain(binding);
-    expect(problems[0]).toContain("would take a key away from the terminal");
-  });
+/** Ein echter Tastendruck zu einer Belegung aus `DEFAULT_KEYMAP`: Ziffern ueber
+ * `code` (mit Umschalt traegt `key` ein Sonderzeichen), Buchstaben mit
+ * Umschalt gross, Pfeil- und Bildtasten mit ihrem DOM-Namen. */
+function pressFor(binding: string): KeyboardEvent {
+  const parts = binding.split("+");
+  const name = parts[parts.length - 1];
+  const ctrlKey = parts.includes("Ctrl");
+  const shiftKey = parts.includes("Shift");
+  const arrows: Record<string, string> = { Up: "ArrowUp", Down: "ArrowDown", Left: "ArrowLeft", Right: "ArrowRight" };
+  if (/^[1-9]$/.test(name)) return key({ key: name, code: `Digit${name}`, ctrlKey, shiftKey });
+  if (/^[A-Z]$/.test(name)) return key({ key: shiftKey ? name : name.toLowerCase(), ctrlKey, shiftKey });
+  return key({ key: arrows[name] ?? name, ctrlKey, shiftKey });
+}
 
-  // xterm.js 6 erzeugt fuer diese vier Tasten keine Terminaleingabe
-  // (`Keyboard.ts`), also nimmt die App sie (Strg+, und die Schriftgroesse).
-  it.each(["Ctrl+,", "Ctrl+=", "Ctrl+-", "Ctrl+0"])("akzeptiert %s: Strg ohne Umschalt auf einer Taste der Ausnahmeliste", (binding) => {
-    expect(validate({ "settings.open": binding })).toEqual([]);
-  });
-
-  // Strg+Alt ist AltGr auf deutscher Tastatur (`Ctrl+Alt+0` liefe auf `}`), und
-  // Alt+... bleibt dem Terminal (Meta-Praefix). Wie in keymap.rs.
-  it.each([
-    "Ctrl+Alt+0",
-    "Ctrl+Alt+,",
-    "Ctrl+Alt+=",
-    "Ctrl+Alt+-",
-    "Alt+,",
-    "Alt+0",
-    "Alt+-",
-    "Shift+,",
-    "Ctrl+Alt+Shift+0",
-  ])("lehnt %s ab: die Ausnahme gilt nur fuer Strg allein", (binding) => {
-    const problems = validate({ "settings.open": binding });
-    expect(problems.length).toBeGreaterThan(0);
-    expect(problems[0]).toContain(binding);
-    expect(problems[0]).toContain("would take a key away from the terminal");
-  });
-
-  it("Strg++ ist nicht parsbar, wie in keymap.rs: der Plus traegt die Zerlegung", () => {
-    const problems = validate({ "settings.open": "Ctrl++" });
-    expect(problems).toEqual([
-      "Ctrl++ is not a usable key combination (action settings.open); needs exactly one non-modifier key",
-    ]);
-  });
-
-  it("die Tasten der Ausnahmeliste nehmen an der Duplikatpruefung teil", () => {
-    expect(validate({ "settings.open": "Ctrl+,", other: "ctrl+," }).some((p) => p.includes("assigned twice"))).toBe(true);
-    // Dieselbe Taste mit Umschalt ist eine andere Belegung.
-    expect(validate({ "settings.open": "Ctrl+,", other: "Ctrl+Shift+," })).toEqual([]);
-  });
-
-  it("Tasten der Ausnahmeliste und Strg+Umschalt-Akkorde gelten zusammen", () => {
-    expect(
-      validate({ "settings.open": "Ctrl+,", quickOpen: "Ctrl+Shift+P", "session.next": "Ctrl+Shift+Down" }),
-    ).toEqual([]);
-  });
-
-  it("lehnt eine reine Alt-Belegung ab", () => {
-    const problems = validate({ "session.next": "Alt+F" });
-    expect(problems.length).toBeGreaterThan(0);
-    expect(problems[0]).toContain("Alt+F");
-  });
-
-  it("lehnt Ctrl+Alt+Shift ab -- die Grenze verlangt EXAKT Ctrl+Shift, nicht 'enthaelt beide'", () => {
-    // Review-Befund (Task 12): die alte Pruefung fragte nur "enthaelt Ctrl
-    // UND Shift" -- "Ctrl+Alt+Shift+F" enthaelt beides und wurde deshalb
-    // faelschlich akzeptiert, obwohl ein zusaetzlicher Modifikator (Alt)
-    // im Spiel ist.
-    const problems = validate({ "session.next": "Ctrl+Alt+Shift+F" });
-    expect(problems.length).toBeGreaterThan(0);
-    expect(problems[0]).toContain("Ctrl+Alt+Shift+F");
-  });
-
-  it("akzeptiert eine Ctrl+Shift-Belegung", () => {
-    expect(validate({ "session.next": "Ctrl+Shift+Down" })).toEqual([]);
-  });
-
-  it("meldet doppelt vergebene Belegungen (exakt gleicher String)", () => {
-    const problems = validate({ a: "Ctrl+Shift+F", b: "Ctrl+Shift+F" });
-    expect(problems.some((p) => p.includes("assigned twice"))).toBe(true);
-  });
-
-  it("erkennt ein Duplikat auch bei vertauschter Modifikator-Reihenfolge", () => {
-    const problems = validate({ a: "Ctrl+Shift+F", b: "Shift+Ctrl+F" });
-    expect(problems.some((p) => p.includes("assigned twice"))).toBe(true);
-  });
-
-  it("erkennt ein Duplikat auch bei abweichender Gross-/Kleinschreibung", () => {
-    const problems = validate({ a: "Ctrl+Shift+F", b: "ctrl+shift+f" });
-    expect(problems.some((p) => p.includes("assigned twice"))).toBe(true);
-  });
-
-  it("erkennt 'ArrowUp' (DOM-Schreibweise) als Duplikat von 'Up' (Spec-Schreibweise)", () => {
-    // Review-Befund (Task 12): `eventBinding`/`normalizeKeyName` uebersetzen
-    // ein echtes `KeyboardEvent` mit `event.key === "ArrowUp"` IMMER zu
-    // `"Up"` -- ein Nutzer, der in `settings.toml` (Task 13) versehentlich
-    // die DOM-Schreibweise "ArrowUp" statt "Up" eintraegt, wuerde ohne diesen
-    // Alias zwei scheinbar verschiedene, tatsaechlich aber identische
-    // Belegungen anlegen (nur eine davon je auszuloesen).
-    const problems = validate({
-      "session.prev": "Ctrl+Shift+Up",
-      "session.next": "Ctrl+Shift+ArrowUp",
-    });
-    expect(problems.some((p) => p.includes("assigned twice"))).toBe(true);
-  });
-
-  it("lehnt eine reine Modifikator-Belegung ohne Taste ab", () => {
-    const problems = validate({ "session.next": "Ctrl+Shift" });
-    expect(problems.length).toBeGreaterThan(0);
-  });
-
-  it("akzeptiert mehrere verschiedene Ctrl+Shift-Belegungen zusammen", () => {
-    expect(
-      validate({
-        "clipboard.copy": "Ctrl+Shift+C",
-        "clipboard.paste": "Ctrl+Shift+V",
-        "search.local": "Ctrl+Shift+F",
-      }),
-    ).toEqual([]);
-  });
-
-  it("die Vorgabebelegung aus Spec §7.4 ist insgesamt gueltig", () => {
-    expect(validate(DEFAULT_KEYMAP)).toEqual([]);
-  });
-
+describe("DEFAULT_KEYMAP", () => {
   it("vergibt keine Belegung doppelt", () => {
-    // Die Task-12-Aktionen
-    // (tile.maximize/sidebar.toggle/sidebar.focus) duerfen mit KEINER
-    // bestehenden Belegung kollidieren -- Designsystem §7.5 waehlte B/E/M
-    // bewusst unter den freien Buchstaben. `Set` statt
-    // paarweisem Vergleich: dieselbe Kollisionspruefung, die `validate`
-    // selbst intern per `comparisonKey`/`seen` durchfuehrt, hier aber ohne
-    // Normalisierung -- ein exakter String-Vergleich reicht, weil
-    // `DEFAULT_KEYMAP`s eigene Werte bereits in kanonischer Schreibweise
-    // stehen (kein "shift+ctrl+f" o. ae.).
+    // Die Aktionen tile.maximize, sidebar.toggle und sidebar.focus duerfen mit
+    // keiner bestehenden Belegung kollidieren -- Designsystem §7.5 waehlte
+    // B/E/M bewusst unter den freien Buchstaben. Ein exakter Vergleich
+    // reicht, weil die Werte in kanonischer Schreibweise stehen.
     const werte = Object.values(DEFAULT_KEYMAP);
     expect(new Set(werte).size).toBe(werte.length);
   });
-});
 
-describe("isReservedForApp", () => {
-  it("ist wahr fuer Ctrl+Shift, unabhaengig von Reihenfolge und Gross-/Kleinschreibung", () => {
-    expect(isReservedForApp("Ctrl+Shift+Down")).toBe(true);
-    expect(isReservedForApp("Shift+Ctrl+F")).toBe(true);
-    expect(isReservedForApp("ctrl+shift+f")).toBe(true);
-  });
-
-  it("ist falsch fuer Strg ausserhalb der Ausnahmeliste und fuer jede Alt-Kombination", () => {
-    expect(isReservedForApp("Ctrl+N")).toBe(false);
-    expect(isReservedForApp("Ctrl+A")).toBe(false);
-    expect(isReservedForApp("Ctrl+V")).toBe(false);
-    expect(isReservedForApp("Alt+B")).toBe(false);
-    expect(isReservedForApp("Ctrl+Alt+F")).toBe(false);
-  });
-
-  it("ist wahr fuer Strg ohne Umschalt auf , = - und 0 (UX-Spec §8.3)", () => {
-    expect(isReservedForApp("Ctrl+,")).toBe(true);
-    expect(isReservedForApp("Ctrl+=")).toBe(true);
-    expect(isReservedForApp("Ctrl+-")).toBe(true);
-    expect(isReservedForApp("Ctrl+0")).toBe(true);
+  // Jede Vorgabe gehoert der App (Ctrl+Shift-Akkord oder eine der vier Tasten
+  // der Ausnahmeliste) und loest genau ihre Aktion aus. Eine Belegung, die
+  // dem Terminal gehoert, faende nie zur App; sie waere tot.
+  it("jede Belegung gehoert der App und loest ihre Aktion aus", () => {
+    for (const [action, binding] of Object.entries(DEFAULT_KEYMAP)) {
+      const event = pressFor(binding);
+      expect(isAppChord(event) || isPlainCtrlAppKey(event), binding).toBe(true);
+      expect(matchAction(event), binding).toBe(action);
+    }
   });
 
   // Die Liste ist bewusst eng; die Nachbarn (`Ctrl+1`, `Ctrl+.`, `Ctrl+9`,
-  // `Ctrl+/` ...) brauchen jeweils einen eigenen Beleg. Wie
-  // `the_plain_ctrl_exception_covers_exactly_four_keys` in keymap.rs.
-  it("die Ausnahme umfasst genau vier Tasten", () => {
+  // `Ctrl+/` ...) brauchen jeweils einen eigenen Beleg.
+  it("die Ausnahme fuer Strg allein umfasst genau vier Tasten", () => {
     expect(PLAIN_CTRL_KEYS).toEqual([",", "=", "-", "0"]);
     for (let code = "!".charCodeAt(0); code <= "~".charCodeAt(0); code++) {
-      const key = String.fromCharCode(code);
-      expect(isReservedForApp(`Ctrl+${key}`), `Ctrl+${key}`).toBe([",", "=", "-", "0"].includes(key));
+      const k = String.fromCharCode(code);
+      expect(isPlainCtrlAppKey(key({ key: k, ctrlKey: true })), `Ctrl+${k}`).toBe([",", "=", "-", "0"].includes(k));
     }
-  });
-
-  it("erkennt die Tasten der Ausnahmeliste unabhaengig von Schreibweise und Leerraum", () => {
-    expect(isReservedForApp("ctrl+,")).toBe(true);
-    expect(isReservedForApp("CTRL+0")).toBe(true);
-    expect(isReservedForApp(" Ctrl + - ")).toBe(true);
-  });
-
-  it("ist falsch fuer Strg+Alt, Alt oder Umschalt mit einer Taste der Ausnahmeliste", () => {
-    for (const binding of ["Ctrl+Alt+0", "Ctrl+Alt+,", "Alt+0", "Shift+,", "Ctrl+Alt+Shift+0", "Ctrl++"]) {
-      expect(isReservedForApp(binding), binding).toBe(false);
-    }
-  });
-
-  it("ist falsch fuer eine reine Modifikator-Belegung oder einen leeren String", () => {
-    expect(isReservedForApp("Ctrl+Shift")).toBe(false);
-    expect(isReservedForApp("")).toBe(false);
-  });
-
-  it("ist falsch fuer Ctrl+Alt+Shift -- ein dritter Modifikator macht den Akkord NICHT zum App-Akkord", () => {
-    // Die Grenze verlangt EXAKT {ctrl, shift}, nicht "mindestens ctrl und
-    // shift". Siehe Kommentar in `keymap.ts::isReservedForApp`.
-    expect(isReservedForApp("Ctrl+Alt+Shift+F")).toBe(false);
-  });
-
-  it("ignoriert die genaue Tastenbenennung -- 'ArrowUp' zaehlt wie jede andere Nicht-Modifikator-Taste", () => {
-    // WICHTIG, was dieser Test NICHT prueft: `isReservedForApp` inspiziert
-    // nur `mods`, nie `key` -- diese Assertion waere auch ohne den
-    // Alias-Fix (Befund 3) wahr (per Gegenprobe bestaetigt: Mutation der
-    // Alias-Aufloesung in `canonicalize` liess genau DIESEN Test gruen).
-    // Die tatsaechliche Absicherung fuer den Alias ist die
-    // Duplikaterkennung unten (`validate` mit "Up" UND "ArrowUp"
-    // gleichzeitig) -- dieser Test dokumentiert nur, dass "ArrowUp" als
-    // Tastenname keine Sonderbehandlung in dieser Funktion ausloest.
-    expect(isReservedForApp("Ctrl+Shift+ArrowUp")).toBe(true);
   });
 });
 
@@ -431,7 +266,6 @@ describe("matchAction", () => {
   // Akkord und braucht keine Ausnahme -- Strg+P allein bleibt beim Terminal.
   it("findet quickOpen auf Strg+Umschalt+P, nicht auf Strg+P", () => {
     expect(DEFAULT_KEYMAP.quickOpen).toBe("Ctrl+Shift+P");
-    expect(isReservedForApp(DEFAULT_KEYMAP.quickOpen)).toBe(true);
     expect(matchAction(key({ key: "P", code: "KeyP", ctrlKey: true, shiftKey: true }))).toBe("quickOpen");
     expect(matchAction(key({ key: "p", code: "KeyP", ctrlKey: true }))).toBeNull();
   });
@@ -460,7 +294,7 @@ describe("matchAction", () => {
   });
 });
 
-// UX-Spec §8.3: dieselbe Ausnahmeliste wie `isReservedForApp`, auf ein echtes
+// UX-Spec §8.3: die Ausnahmeliste `PLAIN_CTRL_KEYS`, auf ein echtes
 // Ereignis angewandt. Damit erkennen `keyboard.ts` und `terminal.ts` Strg+, als
 // Taste der App; AltGr und Strg+Alt fallen heraus (Review Focus 1).
 describe("isPlainCtrlAppKey", () => {
