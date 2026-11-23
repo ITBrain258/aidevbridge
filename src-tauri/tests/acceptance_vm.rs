@@ -86,6 +86,7 @@ use aidevbridge_lib::commands::{
 };
 use aidevbridge_lib::remote;
 use aidevbridge_lib::settings;
+use aidevbridge_lib::ssh::AuthMethod;
 use aidevbridge_lib::tmux::{OwnSocket, OwnTmuxClient};
 use aidevbridge_lib::transport::{HostSpec, RusshTransport, Transport};
 use std::collections::BTreeSet;
@@ -412,10 +413,17 @@ fn independent_connection(host: &str) -> RusshTransport {
         port: 22,
         user: vm_user(),
     };
+    // Derselbe Schluessel wie im Schluessel-Zweig (`AIDEVBRIDGE_VM_KEY_PATH`),
+    // damit Pruef- und Aufraeumverbindung auch dort gelingen, wo er nicht
+    // `~/.ssh/id_ed25519` ist.
+    let method = AuthMethod::Key {
+        path: vm_key_path(),
+        passphrase: None,
+    };
     tauri::async_runtime::block_on(RusshTransport::connect(
         &spec,
         Arc::new(common::AcceptAll),
-        &common::key_auth_method(),
+        &method,
     ))
     .expect("unabhaengige Verifikations-/Aufraeumverbindung muss gelingen")
 }

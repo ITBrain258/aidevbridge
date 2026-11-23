@@ -146,8 +146,9 @@ pub(crate) fn forget_host(path: &Path, host: &str, port: u16) -> anyhow::Result<
 /// Haengt `line` an die Datei unter `path` an (TOFU, Spec §8.1). Erstellt
 /// Datei und Elternverzeichnis, falls sie noch nicht existieren.
 ///
-/// Bestehende Zeilen werden NIE gelesen, veraendert oder neu geschrieben --
-/// dieser Pfad oeffnet die Datei ausschliesslich mit `.append(true)`
+/// Bestehende Zeilen werden NIE veraendert oder neu geschrieben; gelesen
+/// wird die Datei nur, um zu sehen, ob sie mit einem Zeilenumbruch endet.
+/// Geschrieben wird ausschliesslich mit `.append(true)`
 /// (O_APPEND unter Unix, `FILE_APPEND_DATA` unter Windows): jeder
 /// `write_all`-Aufruf haengt atomar an das JEWEILS aktuelle Dateiende an,
 /// die Datei wird dabei nie verkuerzt oder neu geschrieben (kein
@@ -157,8 +158,8 @@ pub(crate) fn forget_host(path: &Path, host: &str, port: u16) -> anyhow::Result<
 /// Ein fehlender Zeilenumbruch am Dateiende wird VOR der neuen Zeile
 /// ergaenzt -- sonst wuerde `line` mit der letzten bestehenden Zeile zu
 /// einem ungueltigen, aus zwei Eintraegen verschmolzenen Eintrag
-/// verschmelzen (siehe Testmodul, Gegenprobe
-/// `missing_trailing_newline_would_merge_entries_without_the_fix`).
+/// verschmelzen (siehe Testmodul,
+/// `append_entry_adds_a_missing_trailing_newline_before_the_new_line`).
 ///
 /// Nimmt bewusst KEINE `HostKeyDecision` entgegen -- der Aufrufer
 /// (`commands::TofuPolicy::decide`) ruft diese Funktion nur im `Unknown`-Zweig
@@ -176,9 +177,14 @@ pub fn append_entry(path: &Path, line: &str) -> anyhow::Result<()> {
     // Reiner Lesezugriff, um zu pruefen, ob ein fuehrender Zeilenumbruch
     // noetig ist -- veraendert die Datei nicht. Eine fehlende Datei zaehlt
     // als "kein fuehrender Zeilenumbruch noetig" (die neue Zeile ist dann
-    // die erste).
-    let existing = std::fs::read(path).unwrap_or_default();
-    let needs_leading_newline = !existing.is_empty() && !existing.ends_with(b"\n");
+    // die erste). Scheitert das Lesen anders, ist das Dateiende unbekannt:
+    // Dann kommt vorsorglich ein Zeilenumbruch davor. Eine Leerzeile ist in
+    // `known_hosts` harmlos, eine mit der letzten Zeile verschmolzene neue
+    // Zeile nicht.
+    let needs_leading_newline = match std::fs::read(path) {
+        Ok(existing) => !existing.is_empty() && !existing.ends_with(b"\n"),
+        Err(error) => error.kind() != std::io::ErrorKind::NotFound,
+    };
 
     let mut file = std::fs::OpenOptions::new()
         .create(true)
@@ -1321,6 +1327,32 @@ mod tests {
         assert!(content
             .lines()
             .any(|l| l == "192.0.2.20 ssh-ed25519 AAAAEXISTING"));
+        let _ = std::fs::remove_file(&path);
+    }
+
+    /// Ist die Datei nur schreibbar, aber nicht lesbar, ist ihr Ende
+    /// unbekannt: Die neue Zeile bekommt vorsorglich einen Zeilenumbruch
+    /// davor und verschmilzt nicht mit der letzten. Bisher galt ein
+    /// Lesefehler als leere Datei.
+    #[cfg(unix)]
+    #[test]
+    fn append_entry_puts_a_newline_first_when_the_file_cannot_be_read() {
+        use std::os::unix::fs::PermissionsExt;
+        let path = unique_temp_path("unreadable");
+        std::fs::write(&path, "192.0.2.20 ssh-ed25519 AAAAEXISTING").unwrap(); // kein \n am Ende
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o200)).unwrap();
+        if std::fs::read(&path).is_ok() {
+            // Als root ist die Datei trotzdem lesbar; dann gibt es den Fall nicht.
+            let _ = std::fs::remove_file(&path);
+            return;
+        }
+        append_entry(&path, "192.0.2.62 ssh-ed25519 AAAANEW").unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert_eq!(
+            content,
+            "192.0.2.20 ssh-ed25519 AAAAEXISTING\n192.0.2.62 ssh-ed25519 AAAANEW\n"
+        );
         let _ = std::fs::remove_file(&path);
     }
 

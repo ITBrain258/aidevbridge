@@ -1015,7 +1015,7 @@ fn write_text(file: &mut File, tmp_path: &Path, text: &str) -> anyhow::Result<()
 pub(crate) fn replace_durably(
     path: &Path,
     fill: impl FnOnce(&mut File, &Path) -> anyhow::Result<()>,
-    may_replace: impl FnOnce() -> anyhow::Result<bool>,
+    may_replace: impl FnMut() -> anyhow::Result<bool>,
 ) -> anyhow::Result<bool> {
     let (tmp_path, file) = create_temp_beside(path)?;
     let replaced = fill_and_rename(path, &tmp_path, file, fill, may_replace);
@@ -1033,7 +1033,7 @@ fn fill_and_rename(
     tmp_path: &Path,
     mut file: File,
     fill: impl FnOnce(&mut File, &Path) -> anyhow::Result<()>,
-    may_replace: impl FnOnce() -> anyhow::Result<bool>,
+    may_replace: impl FnMut() -> anyhow::Result<bool>,
 ) -> anyhow::Result<bool> {
     let write_context = || format!("could not write {}", tmp_path.display());
     let replace_context = || format!("could not replace {}", path.display());
@@ -1042,11 +1042,61 @@ fn fill_and_rename(
     file.sync_all().with_context(write_context)?;
     drop(file);
     write_stage(WriteStage::BeforeRename).with_context(replace_context)?;
-    if !may_replace()? {
-        return Ok(false);
+    rename_when_allowed(tmp_path, path, may_replace).with_context(replace_context)
+}
+
+/// Wartezeiten zwischen den Versuchen von `rename_when_allowed`, zusammen
+/// 310 ms.
+const RENAME_RETRY_DELAYS: [std::time::Duration; 5] = [
+    std::time::Duration::from_millis(10),
+    std::time::Duration::from_millis(20),
+    std::time::Duration::from_millis(40),
+    std::time::Duration::from_millis(80),
+    std::time::Duration::from_millis(160),
+];
+
+/// Ersetzt `to` durch `from`, wenn `may_replace` es erlaubt; `Ok(false)`,
+/// wenn nicht. Unter Windows mit kurzen Wiederholungen: Haelt ein anderer
+/// Prozess eine der beiden Dateien kurz offen, etwa ein Virenscanner die eben
+/// geschriebene, scheitert das Ersetzen mit "used by another process"
+/// (ERROR_SHARING_VIOLATION) oder ERROR_ACCESS_DENIED. Nach hoechstens fuenf
+/// Wiederholungen bleibt der letzte Fehler stehen. Andere Fehler und andere
+/// Systeme gehen sofort durch.
+///
+/// `may_replace` laeuft vor JEDEM Versuch, nicht nur vor dem ersten: Hat
+/// waehrend einer Wartezeit eine andere Instanz gespeichert, ersetzt dieser
+/// Stand ihre Datei nicht (bei `update_at` beginnt dann ein neuer Versuch auf
+/// ihrem Stand).
+fn rename_when_allowed(
+    from: &Path,
+    to: &Path,
+    mut may_replace: impl FnMut() -> anyhow::Result<bool>,
+) -> anyhow::Result<bool> {
+    let mut delays = RENAME_RETRY_DELAYS.iter();
+    loop {
+        if !may_replace()? {
+            return Ok(false);
+        }
+        match std::fs::rename(from, to) {
+            Ok(()) => return Ok(true),
+            Err(error) if is_transient_lock(&error) => match delays.next() {
+                Some(delay) => std::thread::sleep(*delay),
+                None => return Err(error.into()),
+            },
+            Err(error) => return Err(error.into()),
+        }
     }
-    std::fs::rename(tmp_path, path).with_context(replace_context)?;
-    Ok(true)
+}
+
+#[cfg(windows)]
+fn is_transient_lock(error: &std::io::Error) -> bool {
+    // ERROR_ACCESS_DENIED (5), ERROR_SHARING_VIOLATION (32).
+    matches!(error.raw_os_error(), Some(5) | Some(32))
+}
+
+#[cfg(not(windows))]
+fn is_transient_lock(_error: &std::io::Error) -> bool {
+    false
 }
 
 /// Zaehler fuer eindeutige temporaere Namen innerhalb dieses Prozesses.
@@ -1597,6 +1647,103 @@ user = \"u\"
         assert!(chain.contains("could not replace"), "{chain}");
         assert_eq!(std::fs::read(&path).unwrap(), before);
         assert_eq!(names_in(&dir), ["settings.toml"]);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Oeffnet `path` ohne jedes Teilen, wie es ein Virenscanner tun kann.
+    /// Haelt gerade ein anderer Prozess die frische Datei, wird kurz gewartet.
+    #[cfg(windows)]
+    fn hold_exclusively(path: &Path) -> File {
+        use std::os::windows::fs::OpenOptionsExt;
+        for _ in 0..100 {
+            match OpenOptions::new().read(true).share_mode(0).open(path) {
+                Ok(file) => return file,
+                Err(error) if is_transient_lock(&error) => {
+                    std::thread::sleep(std::time::Duration::from_millis(10))
+                }
+                Err(error) => panic!("{error}"),
+            }
+        }
+        panic!("{} stays held by another process", path.display())
+    }
+
+    /// Haelt ein anderer Handle die Zieldatei ohne FILE_SHARE_DELETE offen,
+    /// scheitert das Ersetzen; gibt er sie vor dem naechsten Versuch frei,
+    /// gelingt es. Die Freigabe geschieht in `may_replace` vor dem zweiten
+    /// Versuch, ohne Thread und ohne Zeitannahme.
+    #[cfg(windows)]
+    #[test]
+    fn rename_retries_while_another_handle_holds_the_file() {
+        let (dir, path) = fresh_settings_dir("rename_held_briefly");
+        std::fs::write(&path, "old").unwrap();
+        let tmp = dir.join("settings.toml.held.tmp");
+        std::fs::write(&tmp, "new").unwrap();
+        let mut held = Some(hold_exclusively(&path));
+        let mut calls = 0;
+        let replaced = rename_when_allowed(&tmp, &path, || {
+            calls += 1;
+            if calls == 2 {
+                held = None;
+            }
+            Ok(true)
+        })
+        .unwrap();
+        assert!(replaced);
+        assert_eq!(calls, 2);
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "new");
+        assert!(!tmp.exists());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Bleibt die Datei gehalten, gibt das Ersetzen nach fuenf
+    /// Wiederholungen mit dem letzten Fehler auf; beide Dateien bleiben, wie
+    /// sie waren.
+    #[cfg(windows)]
+    #[test]
+    fn rename_gives_up_on_a_file_that_stays_held() {
+        let (dir, path) = fresh_settings_dir("rename_held_long");
+        std::fs::write(&path, "old").unwrap();
+        let tmp = dir.join("settings.toml.held.tmp");
+        std::fs::write(&tmp, "new").unwrap();
+        let held = hold_exclusively(&path);
+        let mut calls = 0;
+        let error = rename_when_allowed(&tmp, &path, || {
+            calls += 1;
+            Ok(true)
+        })
+        .unwrap_err();
+        drop(held);
+        assert_eq!(calls, 1 + RENAME_RETRY_DELAYS.len());
+        let io = error.downcast_ref::<std::io::Error>().unwrap();
+        assert!(is_transient_lock(io), "{io:?}");
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "old");
+        assert_eq!(std::fs::read_to_string(&tmp).unwrap(), "new");
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Speichert waehrend einer Wartezeit eine andere Instanz, verbietet die
+    /// erneute Pruefung das Ersetzen: Ihre Datei bleibt stehen.
+    #[cfg(windows)]
+    #[test]
+    fn rename_checks_again_before_each_retry() {
+        let (dir, path) = fresh_settings_dir("rename_checked_again");
+        std::fs::write(&path, "old").unwrap();
+        let tmp = dir.join("settings.toml.held.tmp");
+        std::fs::write(&tmp, "new").unwrap();
+        let mut held = Some(hold_exclusively(&path));
+        let mut calls = 0;
+        let replaced = rename_when_allowed(&tmp, &path, || {
+            calls += 1;
+            if calls == 2 {
+                held = None;
+                std::fs::write(&path, "theirs").unwrap();
+                return Ok(false);
+            }
+            Ok(true)
+        })
+        .unwrap();
+        assert!(!replaced);
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "theirs");
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
