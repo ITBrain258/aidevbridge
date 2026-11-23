@@ -80,13 +80,25 @@ function splitTopLevel(text: string): string[] {
 function rustCommands(): RustCommand[] {
   const commands: RustCommand[] = [];
   for (const { file, text } of rustFiles()) {
-    // Das Attribut am Zeilenanfang: in Kommentaren steht es mitten im Satz.
-    // Dazwischen duerfen weitere Attribute (`#[allow(...)]`) und
-    // Kommentarzeilen stehen.
-    const pattern = /^[ \t]*#\[tauri::command\][ \t]*\n(?:[ \t]*(?:#\[[^\n]*\]|\/\/[^\n]*)[ \t]*\n)*[ \t]*(?:pub(?:\([^)]*\))?\s+)?(?:async\s+)?fn\s+(\w+)\s*(?:<[^>]*>)?\s*\(/gm;
-    for (const match of text.matchAll(pattern)) {
+    // Zeilenweise statt einer Regex ueber die ganze Datei (CodeQL js/redos).
+    // Das Attribut steht allein auf seiner Zeile; in Kommentaren steht es
+    // mitten im Satz. Bis zum `fn` duerfen weitere Attribute
+    // (`#[allow(...)]`) und Kommentarzeilen folgen.
+    const lines = text.split("\n");
+    const lineStarts: number[] = [];
+    let offset = 0;
+    for (const line of lines) {
+      lineStarts.push(offset);
+      offset += line.length + 1;
+    }
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].trim() !== "#[tauri::command]") continue;
+      let j = i + 1;
+      while (j < lines.length && /^\s*(?:#\[|\/\/)/.test(lines[j])) j++;
+      const signature = /^\s*(?:pub(?:\([^)]*\))? )?(?:async )?fn (\w+)[^(]*\(/.exec(lines[j] ?? "");
+      if (!signature) throw new Error(`${file}:${i + 1}: #[tauri::command] without a readable fn line`);
       // Die Parameterliste bis zur passenden Klammer.
-      const start = match.index! + match[0].length;
+      const start = lineStarts[j] + signature[0].length;
       let depth = 1;
       let end = start;
       while (depth > 0 && end < text.length) {
@@ -102,7 +114,7 @@ function rustCommands(): RustCommand[] {
         if (INJECTED.test(type)) continue;
         params.set(camel(name), !type.startsWith("Option<"));
       }
-      commands.push({ name: match[1], file, params });
+      commands.push({ name: signature[1], file, params });
     }
   }
   return commands;
@@ -111,8 +123,15 @@ function rustCommands(): RustCommand[] {
 /** Die Namen in `tauri::generate_handler![...]` (`lib.rs`). */
 function registeredCommands(): string[] {
   const lib = readFileSync(path.join(ROOT, "src-tauri/src/lib.rs"), "utf-8") as string;
-  const list = /generate_handler!\[([\s\S]*?)\]/.exec(lib)![1];
-  return Array.from(list.replace(/\/\/[^\n]*/g, "").matchAll(/(?:\w+::)*(\w+)\s*(?:,|$)/g), (m) => m[1]);
+  const start = lib.indexOf("generate_handler![") + "generate_handler![".length;
+  const list = lib.slice(start, lib.indexOf("]", start));
+  return list
+    .split("\n")
+    .map((line) => line.split("//")[0])
+    .join("\n")
+    .split(",")
+    .map((entry) => entry.trim().split("::").pop()!)
+    .filter((name) => name !== "");
 }
 
 /** Die Schluessel der Objektliterale, die ein Ausdruck liefern kann. */
