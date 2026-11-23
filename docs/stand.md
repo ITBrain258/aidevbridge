@@ -658,8 +658,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       beide weiter auf `false`. Das neueste 2er-Release ist 2.12.6, die App
       steht auf 2.12.5.
     - **TypeScript 7:** Der native Compiler hat in 7.0 keine stabile JS-API;
-      `src/source-hygiene.test.ts` und `release-license-inventory-frontend.mjs`
-      brauchen `ts.createSourceFile`. Stand am 23.11.: 7.0.2 ist das neueste
+      `src/source-hygiene.test.ts`, `src/ipc.contract.test.ts` und
+      `release-license-inventory-frontend.mjs` brauchen `ts.createSourceFile`. Stand am 23.11.: 7.0.2 ist das neueste
       Release, 7.1 ist als Beta erschienen; ob sie diese API mitbringt, ist
       nicht geprüft.
     - **Jackson 2.15.3** in der Android-App, über Tauris Android-Bibliothek:

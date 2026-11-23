@@ -222,6 +222,15 @@ describe("IPC-Vertrag: invoke-Aufrufe gegen die Tauri-Commands", () => {
     expect(unknown).toEqual([]);
   });
 
+  // Der Test sieht nur Aufrufe ueber den Namen `invoke`. Ruft eine Datei einen
+  // Command ueber einen anderen Namen oder eine Eigenschaft auf, fehlt er
+  // hier, statt still ungeprueft zu bleiben. Ein Command ohne Aufruf aus dem
+  // Frontend braeuchte eine Ausnahme mit Begruendung.
+  it("jeder registrierte Command hat einen gelesenen Aufruf", () => {
+    const invoked = new Set(calls.map((call) => call.name));
+    expect(registeredCommands().filter((name) => !invoked.has(name))).toEqual([]);
+  });
+
   it("die Argumente passen zu den Parametern", () => {
     const problems: string[] = [];
     for (const call of calls) {
