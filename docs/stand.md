@@ -651,13 +651,19 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     lief auf beiden Test-VMs (Letzte Prüfung).
     Offen:
     - **Tauri v3:** Mit ihm fallen die Übergangsschalter
-      `android.builtInKotlin=false` und `android.newDsl=false`.
+      `android.builtInKotlin=false` und `android.newDsl=false`. Stand am
+      23.11.: `3.0.0-alpha.6`; die Android-Vorlage auf dem Hauptzweig setzt
+      beide weiter auf `false`. Das neueste 2er-Release ist 2.12.6, die App
+      steht auf 2.12.5.
     - **TypeScript 7:** Der native Compiler hat in 7.0 keine stabile JS-API;
       `src/source-hygiene.test.ts` und `release-license-inventory-frontend.mjs`
-      brauchen `ts.createSourceFile`.
+      brauchen `ts.createSourceFile`. Stand am 23.11.: 7.0.2 ist das neueste
+      Release, 7.1 ist als Beta erschienen; ob sie diese API mitbringt, ist
+      nicht geprüft.
     - **Jackson 2.15.3** in der Android-App, über Tauris Android-Bibliothek:
       15 Meldungen, alle in 2.18.11 behoben und für die App nicht erreichbar
-      ([`SECURITY.md`](../SECURITY.md)). Ein Gradle-Constraint auf 2.18.11
+      ([`SECURITY.md`](../SECURITY.md)). Tauri 2.12.6 und sein Hauptzweig
+      nennen am 23.11. weiter 2.15.3. Ein Gradle-Constraint auf 2.18.11
       braucht einen eigenen Pull Request; kein Workflow prüft bisher die
       Android-Bibliotheken auf Meldungen (etwa `app/gradle.lockfile` gegen
       OSV in `audit.yml`).
@@ -805,7 +811,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Ein `[profile.release]` fehlt weiter: Ein Überlauf ist nicht
       belegt, und eine Änderung beträfe jede Release-EXE samt Laufzeitbeleg.
     - **Release:** Die Windows-Pakete hängen an den macOS-Jobs (`publish`
-      braucht alle vier); kein Starttest der APK in einem Emulator;
+      braucht alle vier); kein Starttest der APK in einem Emulator (der
+      Versuch vom 06.11. scheiterte am Android-17-Image des Runners, dessen
+      surfaceflinger abbricht; Commit `e4f5444`);
       `release-manifest.json` liegt nur 90 Tage als Artefakt vor, nicht am
       Release; das Play-Geheimnis käme in dasselbe Environment wie der
       Signaturschlüssel (vor dem Hinterlegen trennen, wie U2 für Apple); die

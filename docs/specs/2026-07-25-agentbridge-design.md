@@ -733,6 +733,16 @@ Auto-Update über Tauris Updater-Plugin mit signiertem Manifest und GitHub Relea
 unsigniert: SHA256-Summen und Artifact Attestations veröffentlichen und den Zustand im README
 benennen.
 
+**Nachtrag vom 23.11.2026 zu Punkt 1:** winget und Scoop helfen nur gegen SmartScreen,
+nicht gegen Smart App Control. Smart App Control prüft jedes Programm beim Start,
+unabhängig davon, wie es auf den Rechner kam, und lässt unbekannten, unsignierten Code
+nur zu, wenn Microsofts Dienst ihn als sicher einschätzt
+([Smart App Control overview](https://learn.microsoft.com/windows/apps/develop/smart-app-control/overview)).
+Gegen Smart App Control hilft nur eine Signatur mit einem Zertifikat aus dem Trusted Root
+Program oder gewachsene Reputation. Die Risikotabelle in Abschnitt 15 gilt entsprechend.
+Zu Updater und SignPath siehe die Entscheidung E11 in `docs/stand.md` (Entscheidungen
+vom 23.11.2026).
+
 ### 11.3 CI
 
 Matrix, weil auf `windows-latest` kein brauchbares tmux existiert:

@@ -75,7 +75,9 @@ Android asks once
 whether the app you open it from may install apps. A Google Play version will
 follow after a closed test; until then, install the APK from the releases page. The
 two are signed differently: uninstall one before installing the other, which
-removes the hosts and keys stored in the app.
+removes the hosts and keys stored in the app. The app does not check for updates
+itself; an app such as [Obtainium](https://github.com/ImranR98/Obtainium) can watch
+the releases page and offer each new APK.
 
 On a phone the app shows one terminal at a time, with the sessions in a drawer, a
 key bar for Esc, Tab, Ctrl, Alt and the arrows, and swipe scrolling.
