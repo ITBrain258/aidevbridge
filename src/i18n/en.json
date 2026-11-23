@@ -184,7 +184,7 @@
   "sidebar.sessions.loadFailed": "Couldn't load the session list. Retry — your terminals keep working.",
   "sidebar.sessions.shellOutput": "This host's shell prints text on every SSH command, so the session list can't be read. Remove that output from the shell startup file (for example ~/.bashrc or ~/.zshenv), then retry.",
   "sidebar.action.newSessionShellOutput": "New session isn't possible while this host's shell prints text on every SSH command.",
-  "sessionDialog.shellOutput": "Can't start a session on {host}: its shell prints text on every SSH command, so the app couldn't confirm the new session. Remove that output from the shell startup file (for example ~/.bashrc or ~/.zshenv), then reload the sessions.",
+  "sessionDialog.shellOutput": "New session is blocked on {host}: its shell prints text on every SSH command, so the app could neither confirm nor show a new session. Remove that output from the shell startup file (for example ~/.bashrc or ~/.zshenv), then reload the sessions.",
   "sidebar.sessions.notLoaded": "Sessions have not been loaded yet.",
   "sidebar.sessions.notRefreshed": "Showing the last session list. It has not been refreshed for this connection.",
   "sidebar.sessions.empty": "No sessions",

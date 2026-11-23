@@ -742,8 +742,8 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 23083,
-        "sha256": "db1df333609c9eab3b7188a01c91332485cf6c45f8bca362125ecf7f1039e72e"
+        "bytes": 23096,
+        "sha256": "cb85ce4be91d0ba630098679584cde49e0d4424dcb3688f41fe83b0d472b4a62"
       },
       {
         "path": "src/icons.ts",
@@ -757,13 +757,13 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 160136,
-        "sha256": "b5bc16771bafba43954cda6ec76e71b7dcc8655bd7ef21f07c01110a4140b02b"
+        "bytes": 160433,
+        "sha256": "068b4c65694e314e78b0ac1c745752f9363fd15b821d22c37f37bf88c9107820"
       },
       {
         "path": "src/state/app-state.ts",
-        "bytes": 53579,
-        "sha256": "68c2c10a116bb67658d406b2ef67bb7279ec098020095202b461adff7ff28913"
+        "bytes": 54116,
+        "sha256": "41f0f48e9430e4c1da89cac0f649be222c3794c380dcaca12bc41cea6cebbf1f"
       },
       {
         "path": "src/state/dir-tree.ts",
@@ -847,8 +847,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 131595,
-        "sha256": "32370f0fc304e87c8df92d2a7b176ee28260d1cf2c33880498aceb4a2d4e45c3"
+        "bytes": 131535,
+        "sha256": "ae6455d07939e6dec3133c2c1e7533818415deca51bc0f6a964300b219bff2c1"
       },
       {
         "path": "src/views/types.ts",
@@ -880,8 +880,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 23083,
-            "sha256": "db1df333609c9eab3b7188a01c91332485cf6c45f8bca362125ecf7f1039e72e"
+            "bytes": 23096,
+            "sha256": "cb85ce4be91d0ba630098679584cde49e0d4424dcb3688f41fe83b0d472b4a62"
           },
           {
             "path": "src/i18n/t.ts",
@@ -905,8 +905,8 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 160136,
-            "sha256": "b5bc16771bafba43954cda6ec76e71b7dcc8655bd7ef21f07c01110a4140b02b"
+            "bytes": 160433,
+            "sha256": "068b4c65694e314e78b0ac1c745752f9363fd15b821d22c37f37bf88c9107820"
           },
           {
             "path": "src/platform.ts",
@@ -920,8 +920,8 @@
           },
           {
             "path": "src/state/app-state.ts",
-            "bytes": 53579,
-            "sha256": "68c2c10a116bb67658d406b2ef67bb7279ec098020095202b461adff7ff28913"
+            "bytes": 54116,
+            "sha256": "41f0f48e9430e4c1da89cac0f649be222c3794c380dcaca12bc41cea6cebbf1f"
           },
           {
             "path": "src/state/attention.ts",
@@ -1125,8 +1125,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 131595,
-            "sha256": "32370f0fc304e87c8df92d2a7b176ee28260d1cf2c33880498aceb4a2d4e45c3"
+            "bytes": 131535,
+            "sha256": "ae6455d07939e6dec3133c2c1e7533818415deca51bc0f6a964300b219bff2c1"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -1211,8 +1211,8 @@
           },
           {
             "path": "src-tauri/src/commands/inventory.rs",
-            "bytes": 38373,
-            "sha256": "b02646f885f56dca4c23368af66453ed34a150101e49e0696a085903ed522aef"
+            "bytes": 38477,
+            "sha256": "df534207aadc86e85ed0bf79f4372b3b80d546d6f09eb5c2d5a60bc6394ab12c"
           },
           {
             "path": "src-tauri/src/commands/terminal_ownership_tests.rs",

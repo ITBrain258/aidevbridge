@@ -708,10 +708,10 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     button.setAttribute("aria-label", label);
     button.title = titleWithShortcut(label, "session.new");
     appendIconBox(button, "plus");
-    // Schreibt die Shell Text auf die Standardausgabe (`shell_stdout`), legte
-    // tmux die Session an, die App koennte ihre Bestaetigung aber nicht lesen
-    // und meldete einen Fehler. Der Kasten der Liste nennt die Abhilfe.
-    const shellPrints = state.sessionListForHost(host.id, "app").error?.code === "shell_stdout";
+    // Schreibt die Shell Text auf die Standardausgabe, liesse sich eine neue
+    // Session weder bestaetigen noch zeigen (`AppState.shellBlocksNewSession`).
+    // Der Kasten der Liste nennt die Abhilfe.
+    const shellPrints = state.shellBlocksNewSession(host.id);
     if (shellPrints) button.title = t("sidebar.action.newSessionShellOutput");
     button.disabled = host.state !== "connected" || shellPrints;
     button.addEventListener("click", () => {

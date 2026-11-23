@@ -210,14 +210,15 @@ fn shell_line_note(line: &str) -> String {
 }
 
 /// Code einer Liste, die es nicht gibt, weil die Shell des Hosts Text auf die
-/// Standardausgabe schreibt. Dann scheitert auch das Anlegen einer Session:
-/// tmux legte sie an, ihre Bestaetigung (`session_binding::parse_created`)
-/// waere aber unlesbar. Das Frontend sperrt deshalb "New session".
+/// Standardausgabe schreibt. tmux legte dort eine Session an, ihre
+/// Bestaetigung (`session_binding::parse_created`) waere aber unlesbar, und
+/// keine Liste zeigte sie. Das Frontend sperrt deshalb "New session".
 pub const SHELL_STDOUT: &str = "shell_stdout";
 
 /// Code einer Liste, die wegen Meldungen der Shell auf der Fehlerausgabe
-/// scheiterte. Anlegen geht dort, und an einem leeren Host ist es der
-/// einzige Weg zur ersten Session.
+/// scheiterte. Auch dort bleibt die Bestaetigung einer neuen Session aus,
+/// die Liste zeigt sie aber mit ihrem Namen. An einem leeren Host ist
+/// Anlegen der einzige Weg zur ersten Session; gesperrt wird nichts.
 const SHELL_MESSAGES: &str = "shell_output";
 
 /// Die Liste eines Sockets gibt es nicht, weil die Shell des Hosts in die

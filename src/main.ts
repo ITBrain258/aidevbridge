@@ -2044,11 +2044,11 @@ export function main(): void {
       showGlobalError(t("sessionDialog.hostNotConnected", { host: host.label }));
       return;
     }
-    // Schreibt die Shell des Hosts Text auf die Standardausgabe
-    // (`shell_stdout`, `commands/inventory.rs`), legte tmux die Session an,
-    // die App koennte ihre Bestaetigung aber nicht lesen. Wie der gesperrte
-    // Knopf der Seitenleiste, auch fuer Strg+Umschalt+N und Schnelloeffnen.
-    if (state.sessionListForHost(hostId, "app").error?.code === "shell_stdout") {
+    // Schreibt die Shell des Hosts Text auf die Standardausgabe, liesse sich
+    // eine neue Session weder bestaetigen noch zeigen
+    // (`AppState.shellBlocksNewSession`). Wie der gesperrte Knopf der
+    // Seitenleiste, auch fuer Strg+Umschalt+N und Schnelloeffnen.
+    if (state.shellBlocksNewSession(hostId)) {
       showGlobalError(t("sessionDialog.shellOutput", { host: host.label }));
       return;
     }
@@ -2135,6 +2135,13 @@ export function main(): void {
       // Backend durchzureichen.
       const label = state.hosts.find((h) => h.id === hostId)?.label ?? hostId;
       showGlobalError(t("session.hostNotConnected", { host: label }));
+      return;
+    }
+    // Wie in `onNewSession`: die Liste kann zwischen dem Oeffnen des Dialogs
+    // und dem Absenden mit `shell_stdout` gescheitert sein.
+    if (state.shellBlocksNewSession(hostId)) {
+      const label = state.hosts.find((h) => h.id === hostId)?.label ?? hostId;
+      showGlobalError(t("sessionDialog.shellOutput", { host: label }));
       return;
     }
     const { runtimeId } = connection;
