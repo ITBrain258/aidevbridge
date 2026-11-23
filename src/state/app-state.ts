@@ -66,7 +66,7 @@ export interface Session {
 
 export interface Host {
   /** Die in `settings.toml` gespeicherte ID (`new_host_id()`,
-   * `commands.rs`). Sie aendert sich NIE, solange der Eintrag lebt -- daran
+   * `commands/hosts.rs`). Sie aendert sich NIE, solange der Eintrag lebt -- daran
    * haengen saemtliche Kachelschluessel (`sessionKey`) und saemtliche
    * Fokusschluessel der Seitenleiste (`focusKey`, `sidebar.ts`). */
   id: string;

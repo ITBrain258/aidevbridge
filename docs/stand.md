@@ -97,8 +97,9 @@ Nach dem [Umsetzungsplan](plans/2026-10-26-review-umsetzung.md):
     wandern Signatur und Notarisierung in einen eigenen Schritt oder Job, der
     nur die gebaute App bekommt (Punkt 9). Der Maintainer kann noch
     widersprechen.
-  - U3, offen: Batch 9 (`commands.rs` in `commands/hosts.rs` und
-    `commands/inventory.rs` teilen) braucht das Ja des Maintainers (Punkt 10).
+  - U3: am 23.11. entschieden (E8) und umgesetzt (Fahrplan Z1.0):
+    Hostverwaltung in `commands/hosts.rs`, Sitzungsliste, Statusabfrage und
+    Verzeichnisauswahl in `commands/inventory.rs`.
   - U4: seit dem 05.11. entschieden (unten).
   - U5: Die Vorauseingabe bleibt. Endgültig entschieden wird an der
     [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610),
@@ -771,7 +772,7 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       Startdatei, die vor jedem SSH-Befehl schreibt, und nennt sie. Text auf
       der Standardausgabe hält die Host-Prüfung an und lässt keine Liste zu;
       Meldungen nur auf der Fehlerausgabe lassen die Liste nach Namen, mit
-      dem Grund an jeder Zeile (`VersionAnswer` in `commands.rs`,
+      dem Grund an jeder Zeile (`VersionAnswer` in `commands/inventory.rs`,
       [Grenzen](guide/limits.md)). Herausgefiltert wird nichts. Am 16.11. an
       einem Host mit bash 5.2 und tmux 3.3a gemessen, an den Befehlskernen
       und nicht am Fenster
