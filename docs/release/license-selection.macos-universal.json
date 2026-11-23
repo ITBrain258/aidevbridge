@@ -1132,8 +1132,8 @@
           },
           {
             "path": "src-tauri/src/commands/inventory.rs",
-            "bytes": 38477,
-            "sha256": "df534207aadc86e85ed0bf79f4372b3b80d546d6f09eb5c2d5a60bc6394ab12c"
+            "bytes": 40100,
+            "sha256": "4ee2a7a1fd0d9dd667c385ecb5e715340b6929f0fe74cd6cf0c74e20e917556d"
           },
           {
             "path": "src-tauri/src/commands/terminal_ownership_tests.rs",
@@ -1142,8 +1142,8 @@
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 129988,
-            "sha256": "0ede3ce42fd74824081ee2ec09b9a249f8c489b1de35a2a1b5ee1d2e65992620"
+            "bytes": 131897,
+            "sha256": "613cdea9a035113017e4b723c27d28ec952b5283bdafe563b950d6038d7ce7e1"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",
@@ -1252,8 +1252,8 @@
           },
           {
             "path": "src-tauri/src/status.rs",
-            "bytes": 35779,
-            "sha256": "cf43b40c335034555fab95e08765c7d9f8745541506b3984c5111cd3fbc4434f"
+            "bytes": 41423,
+            "sha256": "e6cdd0f648829eb76a1b3bdac41618cf121febcd2cd7221a986c9d3ca023a0a4"
           },
           {
             "path": "src-tauri/src/status/title.rs",

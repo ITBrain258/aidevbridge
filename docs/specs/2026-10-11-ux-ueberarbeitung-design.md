@@ -208,6 +208,16 @@ starten nur mit genug Restzeit:
   gültige Antwort, dann ist `agents_ok` `true`. Nennt claude Agenten, braucht die
   Bindung an die Pane auch die Elternprozesse. Wird deren Lesung übersprungen
   oder scheitert sie ohne Antwort, ist `agents_ok` ebenfalls `false`.
+  **Nachtrag vom 23.11.2026:** `agents_ok` bleibt so. Antwortet claude mit
+  einem Exitcode ≠ 0 oder mit etwas, das kein Agenten-JSON ist, nennt eine
+  Session, in deren aktiver Pane laut Programmpfad Claude läuft und für die
+  weder Titel noch Agentenzeile sprechen, diesen Grund statt „no agent source
+  is attached yet“: „claude agents --json: claude was not found for SSH
+  commands (exit 127)“, „claude agents --json failed (exit N)“ oder „claude
+  agents --json gave an answer the app cannot read“. Alle anderen Sessions
+  bleiben beim bisherigen Grund; ein fehlendes `claude` ist auf vielen Hosts
+  normal. Die Sessionliste nennt denselben Grund wie der Poll, sonst setzte
+  jedes Laden der Liste ihn bis zum nächsten Poll zurück.
 - `titles_ok`: dieselbe Regel für die Panetitel.
 
 Das Frontend übernimmt eine Zeile mit Status `unknown` nicht, wenn die zuständige

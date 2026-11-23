@@ -348,10 +348,11 @@ pub async fn list_sockets_impl(
     if agents.is_none() && default.as_ref().is_some_and(observed) {
         agents = Some(read_claude_agents(&transport, deadline).await);
     }
-    let (agents, parents, _) = agents.unwrap_or_default();
+    let (agents, parents, _, claude_failure) = agents.unwrap_or_default();
+    let claude_failure = claude_failure.as_deref();
     Ok(SessionListDto {
-        own: socket_sessions(own, &agents, &parents),
-        default: default.map(|listing| socket_sessions(listing, &agents, &parents)),
+        own: socket_sessions(own, &agents, &parents, claude_failure),
+        default: default.map(|listing| socket_sessions(listing, &agents, &parents, claude_failure)),
     })
 }
 
@@ -444,6 +445,7 @@ pub(super) fn socket_sessions(
     listing: Result<SocketListing, OperationErrorDto>,
     agents: &[crate::status::AgentRow],
     parents: &std::collections::BTreeMap<u32, u32>,
+    claude_failure: Option<&str>,
 ) -> SocketSessionsDto {
     let mut dto = SocketSessionsDto {
         sessions: Vec::new(),
@@ -494,6 +496,7 @@ pub(super) fn socket_sessions(
                         agents,
                         parents,
                         &titles,
+                        claude_failure,
                     );
                     let attached = observed
                         .inventory
@@ -541,36 +544,38 @@ const CLAUDE_RESERVE: Duration = Duration::from_millis(700);
 /// Lesung uebersprungen oder scheitert sie ohne Antwort, ist es ebenfalls
 /// `false`. Jede Antwort zaehlt, gleich mit welchem Exitcode. Ein Fehler hier
 /// heisst "keine Agentenquelle", nie eine gescheiterte Liste.
+///
+/// Das letzte Feld nennt, warum claude keine Liste lieferte, wenn es
+/// antwortete: Exitcode ungleich 0 oder eine Antwort, die kein Agenten-JSON
+/// ist. Nur eine Pane, in der laut Programmpfad Claude laeuft, zeigt diesen
+/// Grund (`status::statuses_from_inventory`).
 async fn read_claude_agents(
     transport: &dyn Transport,
     deadline: tokio::time::Instant,
-) -> (
-    Vec<crate::status::AgentRow>,
-    std::collections::BTreeMap<u32, u32>,
-    bool,
-) {
+) -> ClaudeAgents {
     let remaining = deadline.saturating_duration_since(tokio::time::Instant::now());
     if remaining < CLAUDE_MIN_REMAINING {
-        return (Vec::new(), Default::default(), false);
+        return (Vec::new(), Default::default(), false, None);
     }
     let cli_timeout = Duration::from_secs(4).min(remaining.saturating_sub(CLAUDE_RESERVE));
-    let agents = match transport
+    let (agents, failure) = match transport
         .exec_with_deadline(&crate::status::agents_command(), cli_timeout)
         .await
     {
-        Ok(result) if result.code == 0 => {
-            crate::status::parse_agents(&result.stdout).unwrap_or_default()
-        }
-        Ok(_) => Vec::new(),
-        Err(_) => return (Vec::new(), Default::default(), false),
+        Ok(result) if result.code == 0 => match crate::status::parse_agents(&result.stdout) {
+            Ok(agents) => (agents, None),
+            Err(_) => (Vec::new(), Some(CLAUDE_UNREADABLE.to_string())),
+        },
+        Ok(result) => (Vec::new(), Some(claude_exit_reason(result.code))),
+        Err(_) => return (Vec::new(), Default::default(), false, None),
     };
     let pids: Vec<u32> = agents.iter().map(|row| row.pid).collect();
     let Some(command) = crate::status::parents_command(&pids) else {
-        return (agents, Default::default(), true);
+        return (agents, Default::default(), true, failure);
     };
     let remaining = deadline.saturating_duration_since(tokio::time::Instant::now());
     if remaining < OPTIONAL_READ_MIN_REMAINING {
-        return (agents, Default::default(), false);
+        return (agents, Default::default(), false, failure);
     }
     match transport
         .exec_with_deadline(&command, Duration::from_secs(1).min(remaining))
@@ -578,10 +583,32 @@ async fn read_claude_agents(
     {
         Ok(result) if result.code == 0 => {
             let parents = crate::status::parse_parents(&result.stdout);
-            (agents, parents, true)
+            (agents, parents, true, failure)
         }
-        Ok(_) => (agents, Default::default(), true),
-        Err(_) => (agents, Default::default(), false),
+        Ok(_) => (agents, Default::default(), true, failure),
+        Err(_) => (agents, Default::default(), false, failure),
+    }
+}
+
+/// Agenten, ihre Elternprozesse, ob die Quelle antwortete, und der Grund,
+/// wenn claude zwar antwortete, aber keine Liste lieferte.
+type ClaudeAgents = (
+    Vec<crate::status::AgentRow>,
+    std::collections::BTreeMap<u32, u32>,
+    bool,
+    Option<String>,
+);
+
+/// Grund, wenn `claude agents --json` mit Exitcode 0 kein Agenten-JSON liefert.
+const CLAUDE_UNREADABLE: &str = "claude agents --json gave an answer the app cannot read";
+
+/// Grund fuer einen Exitcode ungleich 0. 127 heisst: Die Shell fand `claude`
+/// nicht, auch nicht in `~/.local/bin` (`status::agents_command`).
+fn claude_exit_reason(code: u32) -> String {
+    if code == 127 {
+        "claude agents --json: claude was not found for SSH commands (exit 127)".into()
+    } else {
+        format!("claude agents --json failed (exit {code})")
     }
 }
 
@@ -732,9 +759,17 @@ pub(super) async fn poll_sockets_with(
     if agents.is_none() && default_polled.as_ref().is_some_and(observed) {
         agents = Some(read_claude_agents(transport, deadline).await);
     }
-    let (agents, parents, agents_ok) = agents.unwrap_or_default();
+    let (agents, parents, agents_ok, claude_failure) = agents.unwrap_or_default();
     let rows = |polled: anyhow::Result<PolledSocket>| {
-        polled.map(|polled| status_poll(polled, &agents, &parents, agents_ok))
+        polled.map(|polled| {
+            status_poll(
+                polled,
+                &agents,
+                &parents,
+                agents_ok,
+                claude_failure.as_deref(),
+            )
+        })
     };
     Ok(SocketsPoll {
         own: rows(own_polled),
@@ -795,6 +830,7 @@ fn status_poll(
     agents: &[crate::status::AgentRow],
     parents: &std::collections::BTreeMap<u32, u32>,
     agents_ok: bool,
+    claude_failure: Option<&str>,
 ) -> StatusPollDto {
     let Some(inventory) = polled.inventory else {
         return StatusPollDto {
@@ -815,6 +851,7 @@ fn status_poll(
             agents,
             parents,
             &polled.titles,
+            claude_failure,
         )
         .into_iter()
         .map(|row| StatusRowDto {
