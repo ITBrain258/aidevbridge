@@ -296,6 +296,18 @@ Festlegungen.
 
 ## Letzte Prüfung
 
+Am Release 0.3.7 (23.11.2026, Tag `v0.3.7` auf `de3286c`, dessen Baum dem
+geprüften Kopf des Release-PR #65 gleicht; der PR ändert am Code nur die
+beiden Versionszeilen): Probeläufe mit **release** auf dem Kopf grün (die
+macOS-Jobs erst im zweiten Versuch, weil sich 15 Minuten lang kein Runner
+fand). Live-Lauf auf dem Stand des Tags an beiden Test-VMs: je 803 Tests ohne
+Fehlschlag und die Abnahme mit 11 von 11. Am Release sechs Dateien; ihre
+Prüfsummen stimmen mit dem Release-Text, den Digests von GitHub und der
+`.sha256`-Datei überein, die Attestierungen der fünf Pakete nennen Tag und
+Commit, und das APK trägt versionCode 3007 und das bisherige Zertifikat. Das
+Hochladen zu Google Play lief nicht (kein Dienstkonto, Punkt 11). Nicht
+geprüft: das echte Fenster mit 0.3.7.
+
 Am 23.11.2026 für PR #64 (russh 0.65.4, `rsa` 0.10.0, `url` 2.5.9 und
 `cookie` 0.18.3; gemergt als `93532e1`): eine neutrale Durchsicht des
 Vendor-Diffs, die nur las und die drei Bäume verglich; ihre Funde behebt
@@ -590,8 +602,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
     selbst hoch ([Anleitung](android-veroeffentlichung.md)). Das signierte
-    App Bundle von 0.3.6 (versionCode 3006) liegt nur als Artefakt
-    `android-signed` des Laufs 43879719954 vor, bis zum 14.02.2027. Ist es
+    App Bundle von 0.3.7 (versionCode 3007) liegt nur als Artefakt
+    `android-signed` des Laufs 45204306253 vor, bis zum 21.02.2027. Ist es
     abgelaufen, baut ein Lauf von `android.yml` von Hand mit der Eingabe `tag`
     es neu, und mit Dienstkonto lädt derselbe Lauf es hoch; der Job, der das APK
     anhängt, kann dabei rot werden, wenn der Neubau andere Bytes hat, das
