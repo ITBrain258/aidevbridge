@@ -1,4 +1,4 @@
-// AgentBridge local modifications to russh 0.65.1, 2026-09-12.
+// AgentBridge local modifications to russh 0.65.4, 2026-09-12.
 // Apache-2.0, the same license as russh. Included inside client::tests.
 
 fn end_patch_insert(
@@ -470,71 +470,93 @@ impl Handler for EndPatchOpenFailureProbe {
     }
 }
 
+fn end_patch_open_failure_packet(id: ChannelId) -> Vec<u8> {
+    let mut packet = vec![crate::msg::CHANNEL_OPEN_FAILURE];
+    id.encode(&mut packet).unwrap();
+    2u32.encode(&mut packet).unwrap();
+    "open failed".encode(&mut packet).unwrap();
+    "en".encode(&mut packet).unwrap();
+    packet
+}
+
 #[tokio::test]
 async fn end_patch_open_failure_drops_removed_route_before_full_queue_delivery() {
-    // Preserve the dispatcher's existing existence gate: it accepts either
-    // confirmed or unconfirmed IDs, without inventing a remote Close.
-    for confirmed in [true, false] {
-        let (mut session, _commands, mut replies) = keyboard_interactive_session();
-        session.common.encrypted.as_mut().unwrap().state = EncryptedState::Authenticated;
-        let (id, mut receiver, observer) = end_patch_insert(&mut session, confirmed);
-        session.channels[&id]
-            .try_send(ChannelMsg::Data {
-                data: bytes::Bytes::from_static(b"before failure"),
-            })
-            .unwrap();
-        let mut packet = vec![crate::msg::CHANNEL_OPEN_FAILURE];
-        id.encode(&mut packet).unwrap();
-        2u32.encode(&mut packet).unwrap();
-        "open failed".encode(&mut packet).unwrap();
-        "en".encode(&mut packet).unwrap();
-        let mut handler = EndPatchOpenFailureProbe::default();
-        {
-            let dispatch = session.process_packet(&mut handler, &packet);
-            tokio::pin!(dispatch);
-            assert!(futures::poll!(dispatch.as_mut()).is_pending());
-            assert_eq!(
-                observer.snapshot(),
-                crate::ChannelEndSnapshot {
-                    dispatch_route_gone: true,
-                    ..Default::default()
-                },
-                "confirmed={confirmed}: removed route hidden behind delivery"
-            );
-            assert!(
-                observer
-                    .with_no_end(|| panic!("removed route must not admit"))
-                    .is_err()
-            );
-            assert!(observer.wait_ended().await.dispatch_route_gone);
-            assert!(
-                matches!(receiver.try_recv(), Ok(ChannelMsg::Data { data }) if data == b"before failure"[..])
-            );
-            tokio::time::timeout(std::time::Duration::from_secs(1), dispatch)
-                .await
-                .unwrap()
-                .unwrap();
-        }
-        close_patch_assert_removed(&session, id);
-        assert!(session.common.encrypted.as_ref().unwrap().write.is_empty());
-        assert!(matches!(
-            receiver.try_recv(),
-            Ok(ChannelMsg::OpenFailure(ChannelOpenFailure::ConnectFailed))
-        ));
-        assert!(matches!(
-            receiver.try_recv(),
-            Err(tokio::sync::mpsc::error::TryRecvError::Disconnected)
-        ));
-        assert!(matches!(replies.try_recv(), Ok(Reply::ChannelOpenFailure)));
+    // Since russh 0.65.4 the dispatcher accepts OpenFailure only for an open
+    // that is still pending (GHSA-7qgr-cjxw-6vjf); the next test covers an
+    // established channel. No remote Close is invented.
+    let (mut session, _commands, mut replies) = keyboard_interactive_session();
+    session.common.encrypted.as_mut().unwrap().state = EncryptedState::Authenticated;
+    let (id, mut receiver, observer) = end_patch_insert(&mut session, false);
+    session.channels[&id]
+        .try_send(ChannelMsg::Data {
+            data: bytes::Bytes::from_static(b"before failure"),
+        })
+        .unwrap();
+    let packet = end_patch_open_failure_packet(id);
+    let mut handler = EndPatchOpenFailureProbe::default();
+    {
+        let dispatch = session.process_packet(&mut handler, &packet);
+        tokio::pin!(dispatch);
+        assert!(futures::poll!(dispatch.as_mut()).is_pending());
         assert_eq!(
-            handler.failures,
-            vec![(
-                id,
-                ChannelOpenFailure::ConnectFailed,
-                "open failed".into(),
-                "en".into()
-            )]
+            observer.snapshot(),
+            crate::ChannelEndSnapshot {
+                dispatch_route_gone: true,
+                ..Default::default()
+            },
+            "removed route hidden behind delivery"
         );
-        assert!(observer.snapshot().dispatch_route_gone);
+        assert!(
+            observer
+                .with_no_end(|| panic!("removed route must not admit"))
+                .is_err()
+        );
+        assert!(observer.wait_ended().await.dispatch_route_gone);
+        assert!(
+            matches!(receiver.try_recv(), Ok(ChannelMsg::Data { data }) if data == b"before failure"[..])
+        );
+        tokio::time::timeout(std::time::Duration::from_secs(1), dispatch)
+            .await
+            .unwrap()
+            .unwrap();
     }
+    close_patch_assert_removed(&session, id);
+    assert!(session.common.encrypted.as_ref().unwrap().write.is_empty());
+    assert!(matches!(
+        receiver.try_recv(),
+        Ok(ChannelMsg::OpenFailure(ChannelOpenFailure::ConnectFailed))
+    ));
+    assert!(matches!(
+        receiver.try_recv(),
+        Err(tokio::sync::mpsc::error::TryRecvError::Disconnected)
+    ));
+    // Since 0.65.4 nothing waits for this reply, so none is queued
+    // (GHSA-ppq4-8rhp-9xrq).
+    assert!(replies.try_recv().is_err());
+    assert_eq!(
+        handler.failures,
+        vec![(
+            id,
+            ChannelOpenFailure::ConnectFailed,
+            "open failed".into(),
+            "en".into()
+        )]
+    );
+    assert!(observer.snapshot().dispatch_route_gone);
+}
+
+#[tokio::test]
+async fn end_patch_open_failure_for_an_established_channel_ends_nothing() {
+    let (mut session, _commands, mut replies) = keyboard_interactive_session();
+    session.common.encrypted.as_mut().unwrap().state = EncryptedState::Authenticated;
+    let (id, mut receiver, observer) = end_patch_insert(&mut session, true);
+    let packet = end_patch_open_failure_packet(id);
+    let mut handler = EndPatchOpenFailureProbe::default();
+    session.process_packet(&mut handler, &packet).await.unwrap();
+    assert!(session.common.is_established_channel(id));
+    assert!(session.channels.contains_key(&id));
+    assert_eq!(observer.snapshot(), crate::ChannelEndSnapshot::default());
+    assert!(receiver.try_recv().is_err());
+    assert!(replies.try_recv().is_err());
+    assert!(handler.failures.is_empty());
 }
