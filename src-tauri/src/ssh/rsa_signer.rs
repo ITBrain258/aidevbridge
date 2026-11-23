@@ -28,8 +28,8 @@ impl PreparedRsa {
     pub(crate) fn new(key: &RsaKeypair, public: PublicKey) -> Result<Self, AuthError> {
         let invalid_key = || AuthError::KeyUnreadable("invalid RSA key components".into());
         let mut private = rsa::PrivateKey::try_from(key).map_err(|_| invalid_key())?;
-        // from_components attempts this already, but ignores its error. This is
-        // a no-op after success and makes any preparation failure explicit here.
+        // Since rsa 0.10.0 from_components runs this too and returns its error;
+        // the call stays as an explicit guard and is a no-op after success.
         private.precompute().map_err(|_| invalid_key())?;
         Ok(Self {
             public,

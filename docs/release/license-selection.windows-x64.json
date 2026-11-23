@@ -1310,8 +1310,8 @@
           },
           {
             "path": "src-tauri/src/ssh/rsa_signer.rs",
-            "bytes": 5452,
-            "sha256": "3d07fb43053a0e658a93b0915e212557f790ef4b4047776e332bb52582f60945"
+            "bytes": 5447,
+            "sha256": "37e2be0c4d7fafd229d0f80793c1c4a3c0e1b53bc0aaa6c69c83a1c5677a7d1f"
           },
           {
             "path": "src-tauri/src/ssh/rsa_signer/tests.rs",
@@ -1701,8 +1701,8 @@
           },
           {
             "path": "vendor/russh/AGENTBRIDGE-PATCH.md",
-            "bytes": 14876,
-            "sha256": "d6674f04ff08e2f29eca6f803076c45d1a63e425193a590fb888393d1b1d6de0"
+            "bytes": 15560,
+            "sha256": "2c8a2a94a36d5104a952686e7253d0514b24e663c9ad68118548ed7c5f67e0b0"
           },
           {
             "path": "vendor/russh/Cargo.lock",

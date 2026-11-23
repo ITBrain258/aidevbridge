@@ -331,9 +331,16 @@ an SSH client:
   for channels that were not waiting for one; a server could so re-confirm
   or end an established channel, which it can end anyway by closing it.
 
-The other three (GHSA-m6v5-wqxv-mffh, GHSA-vfx7-2c3m-7fq5 and
-GHSA-v3vc-7662-5hv7) concern russh's server and agent server code, which
-aidevbridge never runs, and GHSA-xm3f-jwj9-3x8m concerns the crate
+[GHSA-m6v5-wqxv-mffh](https://github.com/Eugeny/russh/security/advisories/GHSA-m6v5-wqxv-mffh)
+(medium) concerns russh's server: a peer that closes a channel with output
+still waiting for window space keeps the channel usable. The advisory notes
+the same code path in the client, reachable only when an application queues
+data through `Handle::data` or `Session::data`. aidevbridge writes terminal
+input through the channel's writer, which respects the window, and its own
+Close change in the vendored russh has answered such a Close at once and
+dropped the unsent data since 0.2.0; 0.65.4 does the same upstream.
+GHSA-vfx7-2c3m-7fq5 and GHSA-v3vc-7662-5hv7 concern russh's agent server,
+which aidevbridge never runs, and GHSA-xm3f-jwj9-3x8m concerns the crate
 `russh-config`, which aidevbridge doesn't use. The audit workflow accepted
 none of them.
 

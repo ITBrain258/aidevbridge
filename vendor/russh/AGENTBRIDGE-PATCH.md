@@ -87,9 +87,11 @@ USERAUTH_FAILURE and CHANNEL_OPEN_FAILURE, also for ones that answer nothing),
 GHSA-66vf-xq4p-pg7q (the server's host key and its signature must be of the
 negotiated host key algorithm) and GHSA-7qgr-cjxw-6vjf
 (CHANNEL_OPEN_CONFIRMATION and CHANNEL_OPEN_FAILURE are only accepted for an
-open that is still pending). The other three are in server and agent server
-code, which the app does not use: GHSA-m6v5-wqxv-mffh, GHSA-vfx7-2c3m-7fq5
-and GHSA-v3vc-7662-5hv7. Upstream also takes `rsa` 0.10.0, `pkcs1` 0.8.0 and
+open that is still pending). GHSA-m6v5-wqxv-mffh is the server side of the
+pending-data case above; its client side, reachable through `Handle::data`
+or `Session::data`, was already covered by the local `remote_close`.
+GHSA-vfx7-2c3m-7fq5 and GHSA-v3vc-7662-5hv7 are in agent server code, which
+the app does not use. Upstream also takes `rsa` 0.10.0, `pkcs1` 0.8.0 and
 `ssh-key` 0.7.0-rc.12 (the RSA key types are now `rsa::PrivateKey` and
 `rsa::PublicKey`), drops `generic-array` 1 (MAC key lengths are const
 generics, and MAC verification uses the `digest` crate's `verify_slice`),
@@ -123,7 +125,13 @@ patch and upstream's new tests for the six advisories, and all 35
 integration tests in 15 targets; `.github/workflows/vendored.yml` passed 257
 library tests on Linux. The app's 803 tests passed against the patched
 0.65.4 (`--test-threads=4`), including the loopback tests named below; the
-live tests against a test host did not run in it.
+live tests against a test host did not run in it. Since upstream's
+`close_from_peer`, the Close cases for a received Close with unsent data and
+for a remote-initiated Close pass on upstream code alone; the cases for the
+acknowledgement of a local Close (`close_patch_local_close_ack_*`,
+`close_patch_deferred_local_close_*`) and
+`end_patch_close_requires_established_or_retained_ack_route` still check the
+local gate.
 
 The local change retains a one-bit expected-Close state in an existing
 `ChannelRef` after local Close. Only Close may use this state; ordinary channel
@@ -138,7 +146,9 @@ features were changed.
 Packet-dispatch regressions are in `src/tests/channel_close_patch.rs`, included
 by both the client and server test modules. For the reason, exact scope,
 validation status and eventual removal criteria, see
-[`russh-channel-close-patch.md`](../../docs/reviews/2026-09-11-neutral/russh-channel-close-patch.md).
+[`russh-channel-close-patch.md`](../../docs/reviews/2026-09-11-neutral/russh-channel-close-patch.md);
+it describes the patch on 0.63.2, where `Encrypted::remote_close` was still
+local.
 
 The 2026-09-12 addition provides a sender-free `ChannelEndObserver` for locally
 opened client channels. Validated EOF, exit status (including zero), exit signal
@@ -152,7 +162,9 @@ and server constructors explicitly provide `None`, not a liveness assertion.
 Existing channel messages, handlers and Close acknowledgements are preserved.
 After an accepted OpenFailure removes a route, only a raw sender clone is kept
 for final message delivery; the unique ChannelRef is dropped before that send
-can wait on a full queue. The existing known-channel gate remains unchanged.
+can wait on a full queue. The gate in front of it is upstream's: since 0.65.4
+it accepts OpenFailure only for an open that is still pending
+(`is_pending_channel_open`).
 
 Direct regressions are in `src/tests/channel_end_observer.rs`, included only in
 the existing client test module. The vendored change only provides the
