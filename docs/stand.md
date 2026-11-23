@@ -607,6 +607,13 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     am 06.11. das Ziel-SDK 37 mit der Berechtigung fürs lokale Netz, die
     Android 17 dafür verlangt (PR #37,
     [Nachtrag der Android-Spec](specs/2026-10-27-android-design.md#nachtrag-vom-05112026-ziel-sdk-37-und-das-lokale-netz)).
+    Am 23.11. russh 0.65.4 (sechs Meldungen vom 21.11., drei davon im
+    Client) und mit ihm `rsa` 0.10.0, `pkcs1` 0.8.0 und `ssh-key`
+    0.7.0-rc.12; damit ist RUSTSEC-2023-0071 behoben, und `audit.yml`
+    ignoriert nur noch die `glib`-Meldung
+    ([`AGENTBRIDGE-PATCH.md`](../vendor/russh/AGENTBRIDGE-PATCH.md),
+    [`SECURITY.md`](../SECURITY.md)). Die Abnahme mit RSA-Schlüssel auf den
+    Test-VMs steht noch aus (Fahrplan, Z0.1).
     Offen:
     - **Tauri v3:** Mit ihm fallen die Übergangsschalter
       `android.builtInKotlin=false` und `android.newDsl=false`.
@@ -619,20 +626,6 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       braucht einen eigenen Pull Request; kein Workflow prüft bisher die
       Android-Bibliotheken auf Meldungen (etwa `app/gradle.lockfile` gegen
       OSV in `audit.yml`).
-    - **`rsa` 0.10.0** (08.11.) behebt RUSTSEC-2023-0071. Außer den Pins
-      auf die Vorabversion (App und vendortes russh) steht die eigene Zeile
-      der App im Weg (Feature `sha2` entfällt, PKCS#1 v1.5 braucht das neue
-      Feature `pkcs1v15`), dazu zwei weitere Pins von russh 0.65.1: `ssh-key`
-      0.7.0-rc.11 verlangt ebenfalls `sha2` (passend ist `ssh-key`
-      0.7.0-rc.12 vom 09.11.), und `pkcs1` 0.8.0-rc.4, `rsa` 0.10.0 braucht
-      0.8.0. Stand am 15.11.: Der Hauptzweig von russh nimmt `rsa` 0.10,
-      `pkcs1` 0.8 und `ssh-key` 0.7.0-rc.12 (Eugeny/russh#821, gemergt am
-      11.11.), ein Release damit gibt es noch nicht; 0.65.1 ist das neueste.
-      russh änderte dafür Code im Schlüsselformat (`keys/format/mod.rs`,
-      `keys/format/pkcs8.rs`), außerhalb der Dateien unseres Patches. Der
-      Wechsel kommt mit der russh-Version, die das enthält, oder als eigenes
-      Update der Kopie; bis dahin ignoriert `audit.yml` die Meldung weiter
-      ([`SECURITY.md`](../SECURITY.md)).
     - **Rust 1.99:** erst, wenn ein Crate sie verlangt. Die Stellen, die die
       Version nennen, gleicht `scripts/rust-toolchain.test.mjs` mit
       `rust-toolchain.toml` ab, die Belege der Standardbibliothek nicht.
@@ -642,12 +635,13 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Upstream:** Der Entwurf eines Kommentars zu Eugeny/russh#806 (das
       Close-Verhalten unseres Patches, mit dem zweiten Fall der Antwort auf
       ein lokales Close) ist seit dem 15.11. zurückgestellt: vorerst kein
-      Beitrag bei russh (Entscheidungen vom 15.11.). Stand am 15.11.: Das
-      Issue ist offen, seit dem 02.11. ohne Antwort von russh und ohne
-      Pull Request; keiner der beiden Fälle ist auf dem Hauptzweig oder in
-      einem Release behoben, die drei betroffenen Dateien sind dort dieselben
-      wie in 0.65.1. Das Repository heißt inzwischen Eugeny/russh, der alte
-      Name warp-tech/russh leitet weiter.
+      Beitrag bei russh (Entscheidungen vom 15.11.). Stand am 23.11.: Das
+      Issue ist offen. 0.65.4 behebt seinen Fall, die ausstehenden Daten
+      beim empfangenen Close, mit `close_from_peer`, das Zeile für Zeile
+      unserem früheren `remote_close` entspricht. Der zweite Fall, die
+      Antwort auf ein lokales Close, bleibt im eigenen Patch. Das
+      Repository heißt inzwischen Eugeny/russh, der alte Name
+      warp-tech/russh leitet weiter.
 13. **Review vom 03.11., zurückgestellt:**
     - **Gehashte Einträge in `known_hosts` schreiben** bei `HashKnownHosts
       yes`: am 05.11. vom Maintainer zurückgestellt. Die App schreibt einen

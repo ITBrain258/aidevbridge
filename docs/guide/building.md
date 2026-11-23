@@ -17,9 +17,9 @@ npm ci
 npm run tauri -- dev
 ```
 
-Builds pin `russh` to the published version **0.65.1** with four local
-changes: SSH channel-close acknowledgements, including cleanup of unsent data
-after remote close; a public `ChannelEndObserver`/`ChannelEndSnapshot` API
+Builds pin `russh` to the published version **0.65.4** with four local
+changes: the SSH channel-close acknowledgement that answers the app's own
+Close is still accepted after the channel's entry is gone; a public `ChannelEndObserver`/`ChannelEndSnapshot` API
 that reports how a client channel ended (EOF, exit status or signal, Close,
 session end); a manual receive window for terminal channels, so the host
 sends a terminal's output only as fast as the app consumes it; and an error

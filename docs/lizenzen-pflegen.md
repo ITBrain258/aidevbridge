@@ -73,7 +73,7 @@ in allen drei Auswahlen neu; danach `npm run licenses:derive`.
      geprüft wurde, etwa durch Vergleich mit der Lizenzdatei am
      Veröffentlichungs-Commit (`.cargo_vcs_info.json`).
      Darunter fällt auch eine eigene Quellhinweisdatei wie
-     `crypto-bigint-0.7.10-SOURCE-NOTICES.txt`,
+     `crypto-bigint-0.7.11-SOURCE-NOTICES.txt`,
      `futures-channel-0.3.34-SOURCE-NOTICES.txt` oder
      `crypto-primes-0.7.2-SOURCE-NOTICES.txt`: die zitierten Zeilen im
      neuen Archiv nachsehen, die Datei für die neue Version neu anlegen und
@@ -135,8 +135,8 @@ Hash und Byte-Offset gelten nur für sie, der Hash des Polyfill-Texts überall.
 
 `vendor/russh` ist russh mit eigenen Änderungen; Cargo sieht es als
 Pfad-Paket, `cargo audit` und Dependabot sehen es nicht (dafür der Job
-`vendored` in `audit.yml`). Ein Upstream-Wechsel, wie am 30.10. auf 0.65.0
-und am 05.11. auf 0.65.1:
+`vendored` in `audit.yml`). Ein Upstream-Wechsel, wie am 30.10. auf 0.65.0,
+am 05.11. auf 0.65.1 und am 23.11. auf 0.65.4:
 
 1. Altes und neues Paket von crates.io laden und gegen die Prüfsumme des
    Index prüfen, das alte zusätzlich gegen `UPSTREAM-SHA256SUMS`.

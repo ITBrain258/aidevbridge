@@ -91,11 +91,9 @@ dependency such as the vendored russh in `vendor/russh`; a third job runs
 `scripts/check-vendored-advisories.mjs` for those, against GitHub's advisory
 database and the upstream repository's own advisories
 ([SECURITY.md](SECURITY.md)). The `cargo audit` job fails on vulnerabilities
-and on `unsound` notices and ignores two advisories. RUSTSEC-2023-0071
-(`rsa`): moving to its fix, `rsa` 0.10.0, needs newer `rsa`, `ssh-key` and
-`pkcs1` pins in the vendored russh and a changed `rsa` line in the app.
-RUSTSEC-2024-0429 (`glib`): no shipped package contains it. SECURITY.md
-explains both and lists the `unmaintained` and `yanked` warnings `cargo audit`
+and on `unsound` notices and ignores one advisory, RUSTSEC-2024-0429
+(`glib`): no shipped package contains it. SECURITY.md explains it and lists
+the `unmaintained` and `yanked` warnings `cargo audit`
 prints without failing. `scripts/audit-workflow.test.mjs` fails when an
 ignored advisory has lost its reason in `Cargo.lock`, so that an ignore goes
 with the update that fixes it.
