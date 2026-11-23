@@ -50,19 +50,20 @@
     "docs/release/license-crypto-bigint-notices-2026-11-05.json",
     "docs/release/license-source-notices-2026-11-06.json",
     "docs/release/license-source-notices-2026-11-06-scan.json",
+    "docs/release/license-rust-update-2026-11-23.json",
     "docs/release/license-macos-universal-2026-10-25.json"
   ],
   "inputs": {
     "files": [
       {
         "path": "Cargo.lock",
-        "bytes": 146461,
-        "sha256": "f11b4a6d65dba8585f3efb714ad51d484af4532aeb0fcd9d43aa69055eade34a"
+        "bytes": 146213,
+        "sha256": "a7f262670e409306261bd94a838a699c036d186bfd28c925c75931357ccb521d"
       },
       {
         "path": "Cargo.toml",
         "bytes": 456,
-        "sha256": "6f6479f446936b302868a592b2a62ba95c5285c81712d1f765beb054c232ce1a"
+        "sha256": "fbaf14096b78a16966f89067981e1bf8d59bd19dd01030fad12bca5a2146ab59"
       },
       {
         "path": "LICENSE-APACHE",
@@ -131,13 +132,13 @@
       },
       {
         "path": "docs/release/license-inventory-2026-10-25-macos-rust.json",
-        "bytes": 183587,
-        "sha256": "5baeaf6c4e69613a26a766064100c29f9823cfaf0b8368f3abd6b72fa928a726"
+        "bytes": 182963,
+        "sha256": "a1a06462abd2f1944eb299e6c55c31cd628f97881d9fbe74ae221523967d18d2"
       },
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
-        "bytes": 135342,
-        "sha256": "f61279c9fa6d6a7815c213e0802e67ed24caf11f93d75feafa403249aeb3e1dd"
+        "bytes": 136974,
+        "sha256": "df8f3d188b2b65c6c51d9704ff439961b8799b5288f2ef32c5e7deaf5dfd7f75"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -185,6 +186,11 @@
         "sha256": "d2db091c6b8aa5a315664b6d128f2daf4137b1940705cd701392495831502814"
       },
       {
+        "path": "docs/release/license-rust-update-2026-11-23.json",
+        "bytes": 9318,
+        "sha256": "b7cf551f6e97209cd7355aada1d64d096c62b0866741164e3b3e10dbba86a28e"
+      },
+      {
         "path": "docs/release/license-source-notices-2026-11-06-scan.json",
         "bytes": 20915,
         "sha256": "d2388ba3d82d35767266fa29bd1fbfe71bece77d8091fe1f50bdfda7cca573a9"
@@ -230,9 +236,9 @@
         "sha256": "eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715"
       },
       {
-        "path": "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt",
+        "path": "docs/release/licenses/crypto-bigint-0.7.11-SOURCE-NOTICES.txt",
         "bytes": 1512,
-        "sha256": "c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491"
+        "sha256": "8719fc7a7b65112d1daa87c1851afbcddfadefd0d26828afea62912695bf3e39"
       },
       {
         "path": "docs/release/licenses/crypto-primes-0.7.2-SOURCE-NOTICES.txt",
@@ -606,8 +612,8 @@
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
-        "bytes": 34312,
-        "sha256": "9c96d72ae3009d9861c9609e5e118dee3fa258961d6d8daf5a8609775c24aa2b"
+        "bytes": 34992,
+        "sha256": "38fe470fc13a3afa2e0fd4240d5824bfffb39ddf8bc3f273fe96fcf8a7f2c3cc"
       },
       {
         "path": "scripts/release-licenses.mjs",
@@ -621,8 +627,8 @@
       },
       {
         "path": "src-tauri/Cargo.toml",
-        "bytes": 5844,
-        "sha256": "3e8c33694973c74a25a2e20fed717b663399258daadb7ad70ac860849ba0c9b1"
+        "bytes": 5920,
+        "sha256": "8331f72995b926425672301f84dd9595722d23862c31af40729117faac3d68ff"
       },
       {
         "path": "src-tauri/Info.plist",
@@ -1196,7 +1202,7 @@
           {
             "path": "src-tauri/src/ssh/auth.rs",
             "bytes": 78906,
-            "sha256": "1626c30436c93c22425ca62c07d31d102984f26c912e922c92aa15a8dec76690"
+            "sha256": "e0890ae475a541c6b5c74ea2c2107ec0bd4c13644e6fc3609afff30b723d325d"
           },
           {
             "path": "src-tauri/src/ssh/config_parser.rs",
@@ -1225,13 +1231,13 @@
           },
           {
             "path": "src-tauri/src/ssh/rsa_signer.rs",
-            "bytes": 5458,
-            "sha256": "a42e589aafdb04898542cb55bd32092625f8b5242fcc61a4eb308d6c104eb5b4"
+            "bytes": 5452,
+            "sha256": "3d07fb43053a0e658a93b0915e212557f790ef4b4047776e332bb52582f60945"
           },
           {
             "path": "src-tauri/src/ssh/rsa_signer/tests.rs",
-            "bytes": 25804,
-            "sha256": "4315859c04ee65584b4d787395ad4cf4174499ff443b71acd5437c335e1b3f64"
+            "bytes": 25801,
+            "sha256": "fd16c5314843de5b31245510dce89cab9218e56e59e7416dcade1c2d51c65b7d"
           },
           {
             "path": "src-tauri/src/status.rs",
@@ -1321,12 +1327,12 @@
           {
             "path": "src-tauri/src/transport/russh_transport.rs",
             "bytes": 36500,
-            "sha256": "5536c82081f42a86f8ff266c0152f63061747c51a51555408269c571fb6e3e3a"
+            "sha256": "cb51ec3021998b56f71913b97d069f7d6eb0463f620cb4a573a4bd924e367297"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/connect_tests.rs",
             "bytes": 43131,
-            "sha256": "7a9284b58cad8f20345553cf8df5f0d0f2675ace3d3eeae279541ef0e5aeaf3b"
+            "sha256": "0a07487ca3196feb802dd55c6a96d870df400d72e7449a7a1f4308de13cdbade"
           },
           {
             "path": "src-tauri/src/transport/russh_transport/operation_tests.rs",
@@ -1612,27 +1618,27 @@
           {
             "path": "vendor/russh/.cargo_vcs_info.json",
             "bytes": 99,
-            "sha256": "87861dce8b2b9f101f5c70d522f08cbe4aa373a0a173ded65a67c24245c82022"
+            "sha256": "68bd43563709d5fd76d7ff229b0e6dc894502248e82b9bb039eedbfca755e4b6"
           },
           {
             "path": "vendor/russh/AGENTBRIDGE-PATCH.md",
-            "bytes": 11614,
-            "sha256": "b82f71224e86dd07e74fc5db6a0f68e7420b70a00653c28681309044c25039bc"
+            "bytes": 14389,
+            "sha256": "0a62f7f93da51c3a0398d793ed972dbd97360bd2db07ab6964e22c4c95274473"
           },
           {
             "path": "vendor/russh/Cargo.lock",
-            "bytes": 96306,
-            "sha256": "5dea5cf7958f62b1192dfbf6a0ea9584aaa137ff6d8b9f6023e052fb56a8d97a"
+            "bytes": 96502,
+            "sha256": "29bf9d4af717b0025ffc82cda3674500bd8ff1ccced1180ee955abdbd0054a51"
           },
           {
             "path": "vendor/russh/Cargo.toml",
-            "bytes": 8047,
-            "sha256": "00f0172e07ff5a538feeb9fb37448f2769045060bd8ae799bc2cfee333596ab0"
+            "bytes": 7982,
+            "sha256": "5e930b57ac2aa604aca0fb099e6d0103a55bd2355ee7790f2c38eded5abc8035"
           },
           {
             "path": "vendor/russh/Cargo.toml.orig",
-            "bytes": 4231,
-            "sha256": "d7f7a451ae56d9afc4d1f388426a820c8d11ba781e76db0569b95e8e32152188"
+            "bytes": 4201,
+            "sha256": "f06b40417d4d30d0dfaefd8e9c57e33cbac5b1b82f5c60c3f67f43f676a5a048"
           },
           {
             "path": "vendor/russh/LICENSE-APACHE",
@@ -1641,13 +1647,13 @@
           },
           {
             "path": "vendor/russh/README.md",
-            "bytes": 41057,
-            "sha256": "30cc759a7d207002e7a17ce6e6fc2843097ef1f7e50700bdb9a45d8e9bae09b3"
+            "bytes": 41401,
+            "sha256": "a3795257ba5a8c4541970fbd7db4f97d0e4ee85c18f37d81a8fe77bcdab20dca"
           },
           {
             "path": "vendor/russh/UPSTREAM-SHA256SUMS",
             "bytes": 7925,
-            "sha256": "ce09bed1e842e114a40e8538b2a70aa3786fbfecc736ac0a199d07e61dd49333"
+            "sha256": "87da5b1ce9ba27e33255889be0889aac121fea6e9428043c8c1658a25d552b7a"
           },
           {
             "path": "vendor/russh/benches/ciphers.rs",
@@ -1706,8 +1712,8 @@
           },
           {
             "path": "vendor/russh/src/auth.rs",
-            "bytes": 12772,
-            "sha256": "029f1c4c18e96ec748d63394b17dc9edec467a6e3477cb2ebc9d6821faeddb5d"
+            "bytes": 12870,
+            "sha256": "9fff5235373b359638b7e8759af3656f3d44eba5eee937b530f231c1f3a2492d"
           },
           {
             "path": "vendor/russh/src/cert.rs",
@@ -1717,7 +1723,7 @@
           {
             "path": "vendor/russh/src/channels/channel_ref.rs",
             "bytes": 2667,
-            "sha256": "e91231e820eebcb1c3142e14296e36ba164d5aeecd7ae0458666fee4f2efe488"
+            "sha256": "b2c149df7128c4c2188358662bb505f87286a3a2b478194144f5fc63760bec62"
           },
           {
             "path": "vendor/russh/src/channels/channel_stream.rs",
@@ -1727,7 +1733,7 @@
           {
             "path": "vendor/russh/src/channels/end_observer.rs",
             "bytes": 4303,
-            "sha256": "02055c735b957a6026df5e6cd81039d5bfea321ecdc08c392371c58ba0e8b9bb"
+            "sha256": "7c28159304a40ad6e71e3c1e65d976bad19134936d5e47f8190b715072840c06"
           },
           {
             "path": "vendor/russh/src/channels/io/mod.rs",
@@ -1747,12 +1753,12 @@
           {
             "path": "vendor/russh/src/channels/mod.rs",
             "bytes": 27220,
-            "sha256": "cf6a5e4a3157dbf3df54234b12e1c43296472b881b3b9b8f9b9352516f7c2fc8"
+            "sha256": "07e14e74f3cbae979b069ddf7dde5d5a20a381c80907b9a83b53ca9974cbd473"
           },
           {
             "path": "vendor/russh/src/channels/window_credit.rs",
             "bytes": 3320,
-            "sha256": "fd38c25d7715a086fc3fb1a35a9a234b8a1bddea31a64e64c91f8de2568b45b3"
+            "sha256": "bba384e3faf583e878aba687364d4c99f632624f4d7be7b993c58a8e344731dc"
           },
           {
             "path": "vendor/russh/src/cipher/benchmark.rs",
@@ -1791,23 +1797,23 @@
           },
           {
             "path": "vendor/russh/src/client/encrypted.rs",
-            "bytes": 76116,
-            "sha256": "c6ea0ccb415f88b29cefd11d28aaeefd8807c3f691ad6424bbe660e146a2766c"
+            "bytes": 78758,
+            "sha256": "2228a0044cf2dbfaed9f8a64bf59eb1862f66db7b91d1a8e1b9661ae780c6fd5"
           },
           {
             "path": "vendor/russh/src/client/kex.rs",
-            "bytes": 20037,
-            "sha256": "d45643882cca6318d2d08f5c9296a618d67c7b8e8858967eff23169230c0f389"
+            "bytes": 23428,
+            "sha256": "e892468df96f87ca775c4e1dada095762270b70677a07c2cf37eaf88dca1fe6d"
           },
           {
             "path": "vendor/russh/src/client/mod.rs",
-            "bytes": 123062,
-            "sha256": "1331c81ffe995b6a8e6b7ea100fbb94dcd7280c005734a4994d025f3dfe0fea4"
+            "bytes": 124589,
+            "sha256": "cbb7daa4112ea4806f262053b31bac9e96ed26ffdf4ac3739b732ea7754bc3da"
           },
           {
             "path": "vendor/russh/src/client/session.rs",
             "bytes": 23989,
-            "sha256": "c30da90117e0e4cf112e6c268bbf7090f91c22610626167bf8743740548482b5"
+            "sha256": "a0782aa331dcbc630ca24107e630f8bcaf22b4827268770e84b94ca91b2fe5b6"
           },
           {
             "path": "vendor/russh/src/client/test.rs",
@@ -1876,13 +1882,13 @@
           },
           {
             "path": "vendor/russh/src/keys/agent/server.rs",
-            "bytes": 17622,
-            "sha256": "dbf5adbab7dd3faa712844d19865e57a5cd825a31ecbc6dac3b347f00cd5a186"
+            "bytes": 22780,
+            "sha256": "cd3364afdd97038a3d1d9e192143d590b225a9a51d2f0154e9610aecf27411af"
           },
           {
             "path": "vendor/russh/src/keys/format/mod.rs",
-            "bytes": 4350,
-            "sha256": "867e0971d5b396acff2b7857dbc322bc5b26225a9dec3048d9e7b533db1b323e"
+            "bytes": 4347,
+            "sha256": "fc1afb28803e09a736c871971c43584ef4d313192379adcc7d89ec98ec5e796a"
           },
           {
             "path": "vendor/russh/src/keys/format/openssh.rs",
@@ -1896,8 +1902,8 @@
           },
           {
             "path": "vendor/russh/src/keys/format/pkcs8.rs",
-            "bytes": 10267,
-            "sha256": "69db6690bcedeaabac613859967b6ddc8ea156b41c9a0a4ca0b36614487c99d3"
+            "bytes": 10264,
+            "sha256": "1d781fd78da9a45714b3bc96cdb32054e1f2c1691b63cdc08f72aa8f9e134772"
           },
           {
             "path": "vendor/russh/src/keys/format/tests.rs",
@@ -1906,8 +1912,8 @@
           },
           {
             "path": "vendor/russh/src/keys/key.rs",
-            "bytes": 6514,
-            "sha256": "a65e5672de65c30c4ed08241a89d344f1bc00defa6a61a5a835122a095d4f981"
+            "bytes": 6679,
+            "sha256": "6f824fcf67123d5d4e1483b1c1fc5c28b3ebf58fb5d0e835a1b636ee1e00a2ce"
           },
           {
             "path": "vendor/russh/src/keys/known_hosts.rs",
@@ -1927,22 +1933,22 @@
           {
             "path": "vendor/russh/src/lib_inner.rs",
             "bytes": 17353,
-            "sha256": "9cf6213d94b8157fc47840a84a432eb2c4b2dacd04d647e604b613f8671841f5"
+            "sha256": "a6c64119810f139aa95ce5edf731b3d88d986cd5dee5eb79f41d0e5ba2118a40"
           },
           {
             "path": "vendor/russh/src/mac/crypto.rs",
-            "bytes": 2011,
-            "sha256": "a6f8f5a98a6d342f925bb2842650b0c92e4c57c91036caf93aa2fdaa28a0b218"
+            "bytes": 1803,
+            "sha256": "fd05b90da566a35a43a67d1afa093d15c252a008c97e4859c45f12246aa986fd"
           },
           {
             "path": "vendor/russh/src/mac/crypto_etm.rs",
-            "bytes": 1647,
-            "sha256": "36f76c3e30556c182bac25cc4b2918d6ce7f2be666531df849db4baf8fb02148"
+            "bytes": 1301,
+            "sha256": "a7d38501f7b864bcdc07a75453c1d28af1fb2be85f14d77b60abce0b2e520b85"
           },
           {
             "path": "vendor/russh/src/mac/mod.rs",
-            "bytes": 4188,
-            "sha256": "a3418bb9fdc1cf9102ffd968811946e9c92cb4a3d50a0759f5cdb091cce6d18e"
+            "bytes": 4066,
+            "sha256": "432949284fe4e967ef6a4bcea9caf30d5695db5bf502cd423e18199fd50a206a"
           },
           {
             "path": "vendor/russh/src/mac/none.rs",
@@ -1971,8 +1977,8 @@
           },
           {
             "path": "vendor/russh/src/server/encrypted.rs",
-            "bytes": 87250,
-            "sha256": "0302cc8e768a838a55b21963162eb4fdf023b93e8d42fea3daea34e498a29ad2"
+            "bytes": 90727,
+            "sha256": "e9a3c5ccb5f46b8fa4c9db4996cd5cc7d28a37cd77d97fb20d5e3fc563730027"
           },
           {
             "path": "vendor/russh/src/server/kex.rs",
@@ -1987,12 +1993,12 @@
           {
             "path": "vendor/russh/src/server/session.rs",
             "bytes": 70122,
-            "sha256": "62c31587b373b1825754acafc0d81e354da3d78ceb4ce955d6ed9994ff878b5c"
+            "sha256": "8ee27a4f5ec6432f4882c2cc58b50e69a48bb71343a2fadaaf7fc497a2b525a5"
           },
           {
             "path": "vendor/russh/src/session.rs",
-            "bytes": 58237,
-            "sha256": "33e63a02b5746d673f575fdf8fd6331f4aaa019487f25a8e278ab817b99af287"
+            "bytes": 58317,
+            "sha256": "cc74ee7cdde0defd66b8191499ef1cf2587b4be273dbab2f7daa20e47097fe26"
           },
           {
             "path": "vendor/russh/src/ssh_read.rs",
@@ -2006,18 +2012,18 @@
           },
           {
             "path": "vendor/russh/src/tests.rs",
-            "bytes": 61510,
-            "sha256": "68831d84d782c22ccbec8d6e0e8829b5cfc56a100d4be68ce892fbf17e0196c7"
+            "bytes": 63232,
+            "sha256": "c2b70b0bdaaacf228f8656714f6cd8d176883206b68e910c6431ec5cdb903234"
           },
           {
             "path": "vendor/russh/src/tests/channel_close_patch.rs",
             "bytes": 8308,
-            "sha256": "0005e122942e8bf7534729e187835579604f559cf5987d7a58d684a1d4b7f2b1"
+            "sha256": "c1c56fd97e038135292c93be5c61dd294e2312d923cdaefb7e92a5230576513a"
           },
           {
             "path": "vendor/russh/src/tests/channel_end_observer.rs",
-            "bytes": 19800,
-            "sha256": "0d1f1d51f288a8fd5971b23938e1aaa2e84bf5df0d6e1967d576d47c32f5b99b"
+            "bytes": 20564,
+            "sha256": "0a6a91a39444fc20c6bb0c8c7e3dbeeb89d15c7ae618161ea2bb0d6ca22a72b9"
           },
           {
             "path": "vendor/russh/tests/auth_agent_req_channel_reply.rs",
@@ -2155,8 +2161,8 @@
         "package": "aidevbridge@0.3.6",
         "source": null,
         "manifest": {
-          "bytes": 5844,
-          "sha256": "3e8c33694973c74a25a2e20fed717b663399258daadb7ad70ac860849ba0c9b1"
+          "bytes": 5920,
+          "sha256": "8331f72995b926425672301f84dd9595722d23862c31af40729117faac3d68ff"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -2629,11 +2635,11 @@
         "declared_license": "MIT OR Apache-2.0"
       },
       {
-        "package": "crypto-bigint@0.7.10",
+        "package": "crypto-bigint@0.7.11",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
-          "bytes": 5773,
-          "sha256": "50bba1b880a992d323bf1c73dd523a0bda1f6eeea60421b0e135abc5446ee122"
+          "bytes": 5841,
+          "sha256": "6b5b03f5e3d1c9f7d023317005e4f0e7fb683c66c03a40dea66bcf7b73a0a722"
         },
         "declared_license": "Apache-2.0 OR MIT"
       },
@@ -2701,11 +2707,11 @@
         "declared_license": "MIT OR Apache-2.0"
       },
       {
-        "package": "ctutils@0.4.7",
+        "package": "ctutils@0.4.8",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
           "bytes": 2740,
-          "sha256": "da809d873c4ddf7a99b10775cbf24364201e79768629d15fea81293428fcfa54"
+          "sha256": "bf494cc0d391c86ad4c804c63cbe43c9894a86f2d3e6440edf7212a4a46e2972"
         },
         "declared_license": "Apache-2.0 OR MIT"
       },
@@ -3219,15 +3225,6 @@
         "manifest": {
           "bytes": 1584,
           "sha256": "4b5daed75505275d11f4854dd9172f910da61d9856ca2936d95e2e6e0c9040e4"
-        },
-        "declared_license": "MIT"
-      },
-      {
-        "package": "generic-array@1.4.5",
-        "source": "registry+https://github.com/rust-lang/crates.io-index",
-        "manifest": {
-          "bytes": 3760,
-          "sha256": "a522619a1f11244022010c6ef7abd18dec10e55d8591be7bf8d684feece8c04f"
         },
         "declared_license": "MIT"
       },
@@ -4033,11 +4030,11 @@
         "declared_license": "Apache-2.0 OR MIT"
       },
       {
-        "package": "pkcs1@0.8.0-rc.4",
+        "package": "pkcs1@0.8.0",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
-          "bytes": 2004,
-          "sha256": "f2503b8d44e61a24f22a84a597727f836bafd022bdd83ec680edb756fa2dc46b"
+          "bytes": 1961,
+          "sha256": "a2f5f193b08acebd1720a2adc1cce585574f0039edb1b523ed64485dd1da2ed5"
         },
         "declared_license": "Apache-2.0 OR MIT"
       },
@@ -4267,11 +4264,11 @@
         "declared_license": "Apache-2.0 AND ISC"
       },
       {
-        "package": "rsa@0.10.0-rc.18",
+        "package": "rsa@0.10.0",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
-          "bytes": 4197,
-          "sha256": "f4407246b2aa8a50836f5d717b8b9976860f68efca0a30fbf5c4f2b1d81bccfb"
+          "bytes": 5718,
+          "sha256": "59adf85fd7956ded8821d6e36e0025a6426c007e913e56ad518edf44f0296ef5"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -4294,11 +4291,11 @@
         "declared_license": "Apache-2.0"
       },
       {
-        "package": "russh@0.65.1",
+        "package": "russh@0.65.4",
         "source": null,
         "manifest": {
-          "bytes": 8047,
-          "sha256": "00f0172e07ff5a538feeb9fb37448f2769045060bd8ae799bc2cfee333596ab0"
+          "bytes": 7982,
+          "sha256": "5e930b57ac2aa604aca0fb099e6d0103a55bd2355ee7790f2c38eded5abc8035"
         },
         "declared_license": "Apache-2.0"
       },
@@ -4319,15 +4316,6 @@
           "sha256": "7e6727beb038213a2aa02f90cbbfb1d6651a9fda56f241dd95110a0cb287efc9"
         },
         "declared_license": "Apache-2.0 OR MIT"
-      },
-      {
-        "package": "rustversion@1.0.23",
-        "source": "registry+https://github.com/rust-lang/crates.io-index",
-        "manifest": {
-          "bytes": 1817,
-          "sha256": "fc211ccd64d3ad59a0715c1a6f8cbfbbd83045f644194394595d16646eee9947"
-        },
-        "declared_license": "MIT OR Apache-2.0"
       },
       {
         "package": "salsa20@0.11.0",
@@ -4699,11 +4687,11 @@
         "declared_license": "Apache-2.0 OR MIT"
       },
       {
-        "package": "ssh-key@0.7.0-rc.11",
+        "package": "ssh-key@0.7.0-rc.12",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
-          "bytes": 6367,
-          "sha256": "e31217f37d363a77edc415211829d3c9b675a4d531d0410cabbf38a49170bb48"
+          "bytes": 6317,
+          "sha256": "0661bab5873e05ebfecebe85f846d60197cddb10091ee33e922fbd87ec543cba"
         },
         "declared_license": "Apache-2.0 OR MIT"
       },
@@ -5982,13 +5970,13 @@
         "sha256": "5734ed989dfca1f625b40281ee9f4530f91b2411ec01cb748223e7eb87e201ab"
       },
       {
-        "package": "crypto-bigint@0.7.10",
+        "package": "crypto-bigint@0.7.11",
         "path": "LICENSE-APACHE",
         "bytes": 10849,
         "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
       },
       {
-        "package": "crypto-bigint@0.7.10",
+        "package": "crypto-bigint@0.7.11",
         "path": "LICENSE-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
@@ -6084,13 +6072,13 @@
         "sha256": "63af4bea227c94d021e99427f6ca3a4b8efddadcca93ab6130f708cf6138cf68"
       },
       {
-        "package": "ctutils@0.4.7",
+        "package": "ctutils@0.4.8",
         "path": "LICENSE-APACHE",
         "bytes": 11358,
         "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
       },
       {
-        "package": "ctutils@0.4.7",
+        "package": "ctutils@0.4.8",
         "path": "LICENSE-MIT",
         "bytes": 1082,
         "sha256": "91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae"
@@ -6649,12 +6637,6 @@
       },
       {
         "package": "generic-array@0.14.7",
-        "path": "LICENSE",
-        "bytes": 1107,
-        "sha256": "c09aae9d3c77b531f56351a9947bc7446511d6b025b3255312d3e3442a9a7583"
-      },
-      {
-        "package": "generic-array@1.4.5",
         "path": "LICENSE",
         "bytes": 1107,
         "sha256": "c09aae9d3c77b531f56351a9947bc7446511d6b025b3255312d3e3442a9a7583"
@@ -7500,16 +7482,16 @@
         "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
       },
       {
-        "package": "pkcs1@0.8.0-rc.4",
+        "package": "pkcs1@0.8.0",
         "path": "LICENSE-APACHE",
         "bytes": 10849,
         "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
       },
       {
-        "package": "pkcs1@0.8.0-rc.4",
+        "package": "pkcs1@0.8.0",
         "path": "LICENSE-MIT",
         "bytes": 1082,
-        "sha256": "4148e7b027fba018131f297b4fe27995386ba317018d6855e182fd0e86cd754f"
+        "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
         "package": "pkcs5@0.8.1",
@@ -7848,13 +7830,13 @@
         "sha256": "9eacbcb81be660840c714a560a9d65ba07913db98dd4baf969f78dd499fdd60f"
       },
       {
-        "package": "rsa@0.10.0-rc.18",
+        "package": "rsa@0.10.0",
         "path": "LICENSE-APACHE",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "rsa@0.10.0-rc.18",
+        "package": "rsa@0.10.0",
         "path": "LICENSE-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
@@ -7866,7 +7848,7 @@
         "sha256": "f5f3152a1eee746c6108f8b5482ced753c046f0144f49e1c6bd468d1b88c8abe"
       },
       {
-        "package": "russh@0.65.1",
+        "package": "russh@0.65.4",
         "path": "LICENSE-APACHE",
         "bytes": 10849,
         "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
@@ -7894,18 +7876,6 @@
         "path": "LICENSE-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
-      },
-      {
-        "package": "rustversion@1.0.23",
-        "path": "LICENSE-APACHE",
-        "bytes": 9723,
-        "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
-      },
-      {
-        "package": "rustversion@1.0.23",
-        "path": "LICENSE-MIT",
-        "bytes": 1023,
-        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
       },
       {
         "package": "salsa20@0.11.0",
@@ -8388,13 +8358,13 @@
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "ssh-key@0.7.0-rc.11",
+        "package": "ssh-key@0.7.0-rc.12",
         "path": "LICENSE-APACHE",
         "bytes": 10849,
         "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
       },
       {
-        "package": "ssh-key@0.7.0-rc.11",
+        "package": "ssh-key@0.7.0-rc.12",
         "path": "LICENSE-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
@@ -11916,7 +11886,9 @@
       "selected_license": "MIT",
       "disposition": "include",
       "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [],
+      "release_tree_features": [
+        "zeroize"
+      ],
       "documents": [
         "sha256:98181e7249d0c01737645ec982499ce99a0f07eb8f7d625b8840d799d10dbc01"
       ],
@@ -12899,9 +12871,9 @@
       }
     },
     {
-      "id": "cargo:crypto-bigint@0.7.10",
+      "id": "cargo:crypto-bigint@0.7.11",
       "name": "crypto-bigint",
-      "version": "0.7.10",
+      "version": "0.7.11",
       "declared_license": "Apache-2.0 OR MIT",
       "selected_license": "MIT",
       "disposition": "include",
@@ -12917,23 +12889,24 @@
       ],
       "documents": [
         "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
-        "sha256:c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491"
+        "sha256:8719fc7a7b65112d1daa87c1851afbcddfadefd0d26828afea62912695bf3e39"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05).",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.5 to 0.7.10 on 2026-10-26 for RUSTSEC-2026-0387; same declared license and byte-identical license files. The in-source attribution lines of src/modular/safegcd.rs, src/modular/boxed_monty_form/mul.rs and src/uint/mul/schoolbook.rs are retained verbatim in crypto-bigint-0.7.10-SOURCE-NOTICES.txt (2026-11-05). Updated from 0.7.10 to 0.7.11 on 2026-11-23; The three attribution blocks of crypto-bigint-0.7.10-SOURCE-NOTICES.txt stand byte for byte at the same lines of the 0.7.11 archive (SHA-256 914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82, the Cargo.lock checksum): src/modular/safegcd.rs:4-8, src/modular/boxed_monty_form/mul.rs:3-6, src/uint/mul/schoolbook.rs:85-88; the set of copyright lines in src/ is the same as in 0.7.10. crypto-bigint-0.7.11-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum.",
       "source_urls": [
-        "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
-        "https://crates.io/crates/crypto-bigint/0.7.10",
+        "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.11.crate",
+        "https://crates.io/crates/crypto-bigint/0.7.11",
         "https://github.com/RustCrypto/crypto-bigint"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/crypto-bigint@0.7.5",
         "docs/release/license-rust-crypto-tokio-2026-10-26.json",
         "docs/release/license-crypto-bigint-notices-2026-11-05.json",
+        "docs/release/license-rust-update-2026-11-23.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.10.crate",
-        "sha256": "9c035cb64cba03dad2fb921f3e218785e8cf9a41790da5eb3a1400f62fa2be11"
+        "url": "https://static.crates.io/crates/crypto-bigint/crypto-bigint-0.7.11.crate",
+        "sha256": "914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82"
       }
     },
     {
@@ -13133,9 +13106,9 @@
       }
     },
     {
-      "id": "cargo:ctutils@0.4.7",
+      "id": "cargo:ctutils@0.4.8",
       "name": "ctutils",
-      "version": "0.4.7",
+      "version": "0.4.8",
       "declared_license": "Apache-2.0 OR MIT",
       "selected_license": "MIT",
       "disposition": "include",
@@ -13146,21 +13119,22 @@
       "documents": [
         "sha256:91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files. Updated from 0.4.6 to 0.4.7 on 2026-10-29; same declared license, role and byte-identical license files.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.4.2 to 0.4.6 on 2026-10-26 for RUSTSEC-2026-0385; same declared license and byte-identical license files. Updated from 0.4.6 to 0.4.7 on 2026-10-29; same declared license, role and byte-identical license files. Updated from 0.4.7 to 0.4.8 on 2026-11-23; same declared license, role and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/ctutils/ctutils-0.4.7.crate",
-        "https://crates.io/crates/ctutils/0.4.7",
+        "https://static.crates.io/crates/ctutils/ctutils-0.4.8.crate",
+        "https://crates.io/crates/ctutils/0.4.8",
         "https://github.com/RustCrypto/utils"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/ctutils@0.4.2",
         "docs/release/license-rust-crypto-tokio-2026-10-26.json",
         "docs/release/license-rust-update-2026-10-29.json",
+        "docs/release/license-rust-update-2026-11-23.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/ctutils/ctutils-0.4.7.crate",
-        "sha256": "a2376ffd6f96d8a9db59875b4b6b0237d6900b5baf64279714e05493ce64828a"
+        "url": "https://static.crates.io/crates/ctutils/ctutils-0.4.8.crate",
+        "sha256": "261af4dc7a06ea8a527a8717d8cbba3417530d6ea14e1edb3de6b67806be474f"
       }
     },
     {
@@ -13642,7 +13616,8 @@
         "default",
         "mac",
         "oid",
-        "rand_core"
+        "rand_core",
+        "zeroize"
       ],
       "documents": [
         "sha256:af59cea35d7f5e2777a713b8d155d65efa2c339eb43f3c14e868c6ac8506edad"
@@ -14871,34 +14846,6 @@
       }
     },
     {
-      "id": "cargo:generic-array@1.4.5",
-      "name": "generic-array",
-      "version": "1.4.5",
-      "declared_license": "MIT",
-      "selected_license": "MIT",
-      "disposition": "include",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [],
-      "documents": [
-        "sha256:c09aae9d3c77b531f56351a9947bc7446511d6b025b3255312d3e3442a9a7583"
-      ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 1.4.4 to 1.4.5 on 2026-10-29; same declared license, role and byte-identical license files.",
-      "source_urls": [
-        "https://static.crates.io/crates/generic-array/generic-array-1.4.5.crate",
-        "https://crates.io/crates/generic-array/1.4.5",
-        "https://github.com/fizyk20/generic-array.git"
-      ],
-      "decision_basis": [
-        "docs/release/license-inventory-2026-09-12-rust.json#packages/generic-array@1.4.4",
-        "docs/release/license-rust-update-2026-10-29.json",
-        "docs/release/license-macos-universal-2026-10-25.json"
-      ],
-      "source_archive": {
-        "url": "https://static.crates.io/crates/generic-array/generic-array-1.4.5.crate",
-        "sha256": "337d46834ee672ab3e48caca2cb0c78cc174fb12b3a68d0d88f99a0519a5e36e"
-      }
-    },
-    {
       "id": "cargo:getrandom@0.2.17",
       "name": "getrandom",
       "version": "0.2.17",
@@ -15242,7 +15189,9 @@
       "selected_license": "MIT",
       "disposition": "include",
       "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [],
+      "release_tree_features": [
+        "zeroize"
+      ],
       "documents": [
         "sha256:9e0dfd2dd4173a530e238cb6adb37aa78c34c6bc7444e0e10c1ab5d8881f63ba"
       ],
@@ -17715,9 +17664,9 @@
       }
     },
     {
-      "id": "cargo:pkcs1@0.8.0-rc.4",
+      "id": "cargo:pkcs1@0.8.0",
       "name": "pkcs1",
-      "version": "0.8.0-rc.4",
+      "version": "0.8.0",
       "declared_license": "Apache-2.0 OR MIT",
       "selected_license": "MIT",
       "disposition": "include",
@@ -17729,21 +17678,22 @@
         "zeroize"
       ],
       "documents": [
-        "sha256:4148e7b027fba018131f297b4fe27995386ba317018d6855e182fd0e86cd754f"
+        "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.8.0-rc.4 to 0.8.0 on 2026-11-23; MIT text: copyright years 2021-2025 -> 2021-2026, same terms; the new text ships.",
       "source_urls": [
-        "https://static.crates.io/crates/pkcs1/pkcs1-0.8.0-rc.4.crate",
-        "https://crates.io/crates/pkcs1/0.8.0-rc.4",
+        "https://static.crates.io/crates/pkcs1/pkcs1-0.8.0.crate",
+        "https://crates.io/crates/pkcs1/0.8.0",
         "https://github.com/RustCrypto/formats"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/pkcs1@0.8.0-rc.4",
+        "docs/release/license-rust-update-2026-11-23.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/pkcs1/pkcs1-0.8.0-rc.4.crate",
-        "sha256": "986d2e952779af96ea048f160fd9194e1751b4faea78bcf3ceb456efe008088e"
+        "url": "https://static.crates.io/crates/pkcs1/pkcs1-0.8.0.crate",
+        "sha256": "6250dd7321adbe93d12b750aee0ced159fd13e77f625edcdf1cb6f83cd99f650"
       }
     },
     {
@@ -18542,9 +18492,9 @@
       }
     },
     {
-      "id": "cargo:rsa@0.10.0-rc.18",
+      "id": "cargo:rsa@0.10.0",
       "name": "rsa",
-      "version": "0.10.0-rc.18",
+      "version": "0.10.0",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT",
       "disposition": "include",
@@ -18552,25 +18502,27 @@
       "release_tree_features": [
         "default",
         "encoding",
-        "sha2",
+        "getrandom",
+        "pkcs1v15",
         "std"
       ],
       "documents": [
         "sha256:30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.10.0-rc.18 to 0.10.0 on 2026-11-23; same declared license, role and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/rsa/rsa-0.10.0-rc.18.crate",
-        "https://crates.io/crates/rsa/0.10.0-rc.18",
+        "https://static.crates.io/crates/rsa/rsa-0.10.0.crate",
+        "https://crates.io/crates/rsa/0.10.0",
         "https://github.com/RustCrypto/RSA"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/rsa@0.10.0-rc.18",
+        "docs/release/license-rust-update-2026-11-23.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/rsa/rsa-0.10.0-rc.18.crate",
-        "sha256": "30b2aa4ba0d89f73d1e332df05be0eeab8840351c36ca5654341dfdb57bb3caf"
+        "url": "https://static.crates.io/crates/rsa/rsa-0.10.0.crate",
+        "sha256": "23e77fd77e0dea28b3011fd62d15445b7de7959333b0276d930e03be0f755699"
       }
     },
     {
@@ -18635,9 +18587,9 @@
       }
     },
     {
-      "id": "cargo:russh@0.65.1",
+      "id": "cargo:russh@0.65.4",
       "name": "russh",
-      "version": "0.65.1",
+      "version": "0.65.4",
       "declared_license": "Apache-2.0",
       "selected_license": "Apache-2.0",
       "disposition": "include",
@@ -18650,12 +18602,13 @@
       "documents": [
         "sha256:a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5"
       ],
-      "reason": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files.",
+      "reason": "Explicit Apache-2.0 selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.63.2 to 0.65.0 on 2026-10-30; same declared license, role and byte-identical license files. Updated from 0.65.0 to 0.65.1 on 2026-11-05; same declared license, role and byte-identical license files. Updated from 0.65.1 to 0.65.4 on 2026-11-23; same declared license, role and byte-identical license files.",
       "source_urls": [],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/russh@0.63.2",
         "docs/release/license-rust-update-2026-10-30.json",
         "docs/release/license-rust-update-2026-11-05.json",
+        "docs/release/license-rust-update-2026-11-23.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ]
     },
@@ -18712,32 +18665,6 @@
       "source_archive": {
         "url": "https://static.crates.io/crates/rustc-hash/rustc-hash-2.1.3.crate",
         "sha256": "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d"
-      }
-    },
-    {
-      "id": "cargo:rustversion@1.0.23",
-      "name": "rustversion",
-      "version": "1.0.23",
-      "declared_license": "MIT OR Apache-2.0",
-      "selected_license": "MIT",
-      "disposition": "include",
-      "technical_role": "build-or-proc-macro-only-in-this-tree",
-      "release_tree_features": [],
-      "documents": [
-        "sha256:23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
-      ],
-      "reason": "Explicit MIT selection using the complete original text. Conservative permissive build/source family disclosure; no claim that the tool program is delivered.",
-      "source_urls": [
-        "https://static.crates.io/crates/rustversion/rustversion-1.0.23.crate",
-        "https://crates.io/crates/rustversion/1.0.23",
-        "https://github.com/dtolnay/rustversion"
-      ],
-      "decision_basis": [
-        "docs/release/license-inventory-2026-09-12-rust.json#packages/rustversion@1.0.23"
-      ],
-      "source_archive": {
-        "url": "https://static.crates.io/crates/rustversion/rustversion-1.0.23.crate",
-        "sha256": "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
       }
     },
     {
@@ -19534,7 +19461,8 @@
       "release_tree_features": [
         "alloc",
         "default",
-        "oid"
+        "oid",
+        "zeroize"
       ],
       "documents": [
         "sha256:831e0f43ad0bf014c1c4fec5767aae470434c1d66d6e671be2d823e729063e25"
@@ -19952,9 +19880,9 @@
       }
     },
     {
-      "id": "cargo:ssh-key@0.7.0-rc.11",
+      "id": "cargo:ssh-key@0.7.0-rc.12",
       "name": "ssh-key",
-      "version": "0.7.0-rc.11",
+      "version": "0.7.0-rc.12",
       "declared_license": "Apache-2.0 OR MIT",
       "selected_license": "MIT",
       "disposition": "include",
@@ -19977,19 +19905,20 @@
       "documents": [
         "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       ],
-      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. macOS runtime candidate notice coverage; no claim every object survives linking. Updated from 0.7.0-rc.11 to 0.7.0-rc.12 on 2026-11-23; same declared license, role and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/ssh-key/ssh-key-0.7.0-rc.11.crate",
-        "https://crates.io/crates/ssh-key/0.7.0-rc.11",
+        "https://static.crates.io/crates/ssh-key/ssh-key-0.7.0-rc.12.crate",
+        "https://crates.io/crates/ssh-key/0.7.0-rc.12",
         "https://github.com/RustCrypto/SSH"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/ssh-key@0.7.0-rc.11",
+        "docs/release/license-rust-update-2026-11-23.json",
         "docs/release/license-macos-universal-2026-10-25.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/ssh-key/ssh-key-0.7.0-rc.11.crate",
-        "sha256": "f9a32fae177b74a22aa9c5b01bf7e68b33545be32d9e381e248058d2adc15ce3"
+        "url": "https://static.crates.io/crates/ssh-key/ssh-key-0.7.0-rc.12.crate",
+        "sha256": "0701b552e6bd8f13a6e07bde25307c32d7daad80a79b65832d110c0416e7b638"
       }
     },
     {
@@ -22065,24 +21994,6 @@
       }
     },
     {
-      "id": "frontend:tauri-vendored-tslib",
-      "name": "Tauri-vendored external/tslib",
-      "version": "parent @tauri-apps/api 2.12.4",
-      "declared_license": null,
-      "selected_license": "0BSD",
-      "disposition": "include",
-      "documents": [
-        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
-      ],
-      "reason": "Re-decided on 2026-10-20: the production JS contains __classPrivateFieldGet and __classPrivateFieldSet, reached through @tauri-apps/api/window -> image.js (Image extends Resource from core.js); the earlier exclusion no longer holds. The verbatim Microsoft notice of the vendored file (0BSD terms, no attribution duty) is retained in THIRD_PARTY_LICENSES.md.",
-      "decision_basis": [
-        "THIRD_PARTY_LICENSES.md",
-        "scripts/release-license-inventory-frontend.mjs",
-        "docs/release/license-frontend-tauri-2.12-2026-10-29.json"
-      ],
-      "source_urls": []
-    },
-    {
       "id": "frontend:oxc-runtime-helpers",
       "name": "oxc runtime helpers (copied from @babel/runtime)",
       "version": "@oxc-project/runtime 0.156.0, embedded in rolldown 1.2.16",
@@ -22100,6 +22011,24 @@
         "https://www.npmjs.com/package/@oxc-project/runtime/v/0.156.0",
         "https://www.npmjs.com/package/@babel/runtime/v/8.1.0"
       ]
+    },
+    {
+      "id": "frontend:tauri-vendored-tslib",
+      "name": "Tauri-vendored external/tslib",
+      "version": "parent @tauri-apps/api 2.12.4",
+      "declared_license": null,
+      "selected_license": "0BSD",
+      "disposition": "include",
+      "documents": [
+        "sha256:eeea441d4d6f8377ab7bea44f1b1fe339982be2f53f1ab5ab5499c876ae691f9"
+      ],
+      "reason": "Re-decided on 2026-10-20: the production JS contains __classPrivateFieldGet and __classPrivateFieldSet, reached through @tauri-apps/api/window -> image.js (Image extends Resource from core.js); the earlier exclusion no longer holds. The verbatim Microsoft notice of the vendored file (0BSD terms, no attribution duty) is retained in THIRD_PARTY_LICENSES.md.",
+      "decision_basis": [
+        "THIRD_PARTY_LICENSES.md",
+        "scripts/release-license-inventory-frontend.mjs",
+        "docs/release/license-frontend-tauri-2.12-2026-10-29.json"
+      ],
+      "source_urls": []
     },
     {
       "id": "npm:@tauri-apps/api@2.12.4",
@@ -22266,6 +22195,22 @@
       ]
     },
     {
+      "id": "npm:lightningcss@1.33.0",
+      "name": "lightningcss",
+      "version": "1.33.0",
+      "declared_license": "MPL-2.0",
+      "selected_license": null,
+      "disposition": "exclude",
+      "documents": [],
+      "reason": "Vite 8 minifies the CSS with it; the output contains the minified stylesheet rules, no lightningcss code. Decided on 2026-11-05 (docs/release/license-frontend-vite-8-2026-11-05.json).",
+      "decision_basis": [
+        "docs/release/license-frontend-vite-8-2026-11-05.json"
+      ],
+      "source_urls": [
+        "https://www.npmjs.com/package/lightningcss/v/1.33.0"
+      ]
+    },
+    {
       "id": "npm:lucide-static@1.69.0",
       "name": "lucide-static",
       "version": "1.69.0",
@@ -22285,39 +22230,6 @@
       ]
     },
     {
-      "id": "npm:typescript@6.0.3",
-      "name": "typescript",
-      "version": "6.0.3",
-      "declared_license": "Apache-2.0",
-      "selected_license": null,
-      "disposition": "exclude",
-      "documents": [],
-      "reason": "TypeScript runs with noEmit, and the inspected fresh module graph contains no TypeScript runtime-library import. No TypeScript program implementation is selected for the frontend output. Updated to 6.0.3 on 2026-11-05 (docs/release/license-frontend-tools-2026-11-05.json): byte-identical frontend output.",
-      "decision_basis": [
-        "docs/release/license-frontend-output-2026-09-12.json",
-        "docs/release/license-frontend-tools-2026-11-05.json"
-      ],
-      "source_urls": [
-        "https://www.npmjs.com/package/typescript/v/6.0.3"
-      ]
-    },
-    {
-      "id": "npm:lightningcss@1.33.0",
-      "name": "lightningcss",
-      "version": "1.33.0",
-      "declared_license": "MPL-2.0",
-      "selected_license": null,
-      "disposition": "exclude",
-      "documents": [],
-      "reason": "Vite 8 minifies the CSS with it; the output contains the minified stylesheet rules, no lightningcss code. Decided on 2026-11-05 (docs/release/license-frontend-vite-8-2026-11-05.json).",
-      "decision_basis": [
-        "docs/release/license-frontend-vite-8-2026-11-05.json"
-      ],
-      "source_urls": [
-        "https://www.npmjs.com/package/lightningcss/v/1.33.0"
-      ]
-    },
-    {
       "id": "npm:rolldown@1.2.16",
       "name": "rolldown",
       "version": "1.2.16",
@@ -22333,6 +22245,23 @@
       ],
       "source_urls": [
         "https://www.npmjs.com/package/rolldown/v/1.2.16"
+      ]
+    },
+    {
+      "id": "npm:typescript@6.0.3",
+      "name": "typescript",
+      "version": "6.0.3",
+      "declared_license": "Apache-2.0",
+      "selected_license": null,
+      "disposition": "exclude",
+      "documents": [],
+      "reason": "TypeScript runs with noEmit, and the inspected fresh module graph contains no TypeScript runtime-library import. No TypeScript program implementation is selected for the frontend output. Updated to 6.0.3 on 2026-11-05 (docs/release/license-frontend-tools-2026-11-05.json): byte-identical frontend output.",
+      "decision_basis": [
+        "docs/release/license-frontend-output-2026-09-12.json",
+        "docs/release/license-frontend-tools-2026-11-05.json"
+      ],
+      "source_urls": [
+        "https://www.npmjs.com/package/typescript/v/6.0.3"
       ]
     },
     {
@@ -22696,7 +22625,6 @@
         "pin-project-lite@0.2.17/LICENSE-MIT",
         "proc-macro2@1.0.107/LICENSE-MIT",
         "quote@1.0.47/LICENSE-MIT",
-        "rustversion@1.0.23/LICENSE-MIT",
         "semver@1.0.28/LICENSE-MIT",
         "serde@1.0.229/LICENSE-MIT",
         "serde_core@1.0.229/LICENSE-MIT",
@@ -22976,7 +22904,7 @@
     },
     {
       "id": "sha256:57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
-      "file_name": "crypto-bigint-0.7.10-LICENSE-MIT.txt",
+      "file_name": "crypto-bigint-0.7.11-LICENSE-MIT.txt",
       "bytes": 1082,
       "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88",
       "sources": [
@@ -22987,17 +22915,18 @@
         }
       ],
       "source_names": [
-        "crypto-bigint@0.7.10/LICENSE-MIT",
+        "crypto-bigint@0.7.11/LICENSE-MIT",
         "pkcs5@0.8.1/LICENSE-MIT",
         "scrypt@0.12.0/LICENSE-MIT",
         "sec1@0.8.1/LICENSE-MIT",
         "spki@0.8.1/LICENSE-MIT",
         "ssh-encoding@0.3.0/LICENSE-MIT",
-        "ssh-key@0.7.0-rc.11/LICENSE-MIT",
-        "argon2@0.6.0/LICENSE-MIT"
+        "ssh-key@0.7.0-rc.12/LICENSE-MIT",
+        "argon2@0.6.0/LICENSE-MIT",
+        "pkcs1@0.8.0/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/crypto-bigint/0.7.10",
+        "https://crates.io/crates/crypto-bigint/0.7.11",
         "https://github.com/RustCrypto/crypto-bigint",
         "https://crates.io/crates/pkcs5/0.8.1",
         "https://github.com/RustCrypto/formats",
@@ -23007,7 +22936,7 @@
         "https://crates.io/crates/spki/0.8.1",
         "https://crates.io/crates/ssh-encoding/0.3.0",
         "https://github.com/RustCrypto/SSH",
-        "https://crates.io/crates/ssh-key/0.7.0-rc.11"
+        "https://crates.io/crates/ssh-key/0.7.0-rc.12"
       ]
     },
     {
@@ -23749,18 +23678,18 @@
       ]
     },
     {
-      "id": "sha256:c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491",
-      "file_name": "crypto-bigint-0.7.10-SOURCE-NOTICES.txt",
+      "id": "sha256:8719fc7a7b65112d1daa87c1851afbcddfadefd0d26828afea62912695bf3e39",
+      "file_name": "crypto-bigint-0.7.11-SOURCE-NOTICES.txt",
       "bytes": 1512,
-      "sha256": "c196571ed4f0d2150c12c95044d651dc80b589a748baf30f8b06baaebdd97491",
+      "sha256": "8719fc7a7b65112d1daa87c1851afbcddfadefd0d26828afea62912695bf3e39",
       "sources": [
         {
           "kind": "file",
-          "path": "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt"
+          "path": "docs/release/licenses/crypto-bigint-0.7.11-SOURCE-NOTICES.txt"
         }
       ],
       "source_names": [
-        "docs/release/licenses/crypto-bigint-0.7.10-SOURCE-NOTICES.txt"
+        "docs/release/licenses/crypto-bigint-0.7.11-SOURCE-NOTICES.txt"
       ],
       "source_urls": []
     },
@@ -23865,7 +23794,7 @@
     },
     {
       "id": "sha256:91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae",
-      "file_name": "ctutils-0.4.7-LICENSE-MIT.txt",
+      "file_name": "ctutils-0.4.8-LICENSE-MIT.txt",
       "bytes": 1082,
       "sha256": "91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae",
       "sources": [
@@ -23876,10 +23805,10 @@
         }
       ],
       "source_names": [
-        "ctutils@0.4.7/LICENSE-MIT"
+        "ctutils@0.4.8/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/ctutils/0.4.7",
+        "https://crates.io/crates/ctutils/0.4.8",
         "https://github.com/RustCrypto/utils"
       ]
     },
@@ -24549,8 +24478,7 @@
         }
       ],
       "source_names": [
-        "generic-array@0.14.7/LICENSE",
-        "generic-array@1.4.5/LICENSE"
+        "generic-array@0.14.7/LICENSE"
       ],
       "source_urls": [
         "https://crates.io/crates/generic-array/0.14.7",
@@ -25389,12 +25317,12 @@
       ],
       "source_names": [
         "pem-rfc7468@1.0.0/LICENSE-MIT",
-        "pkcs1@0.8.0-rc.4/LICENSE-MIT"
+        "pkcs1@0.8.0/LICENSE-MIT"
       ],
       "source_urls": [
         "https://crates.io/crates/pem-rfc7468/1.0.0",
         "https://github.com/RustCrypto/formats",
-        "https://crates.io/crates/pkcs1/0.8.0-rc.4"
+        "https://crates.io/crates/pkcs1/0.8.0"
       ]
     },
     {
@@ -25900,7 +25828,7 @@
     },
     {
       "id": "sha256:30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652",
-      "file_name": "rsa-0.10.0-rc.18-LICENSE-MIT.txt",
+      "file_name": "rsa-0.10.0-LICENSE-MIT.txt",
       "bytes": 1022,
       "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652",
       "sources": [
@@ -25911,11 +25839,11 @@
         }
       ],
       "source_names": [
-        "rsa@0.10.0-rc.18/LICENSE-MIT",
+        "rsa@0.10.0/LICENSE-MIT",
         "rustc-hash@2.1.3/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/rsa/0.10.0-rc.18",
+        "https://crates.io/crates/rsa/0.10.0",
         "https://github.com/RustCrypto/RSA",
         "https://crates.io/crates/rustc-hash/2.1.3",
         "https://github.com/rust-lang/rustc-hash"
@@ -25939,7 +25867,7 @@
     },
     {
       "id": "sha256:a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
-      "file_name": "russh-0.65.1-LICENSE-APACHE.txt",
+      "file_name": "russh-0.65.4-LICENSE-APACHE.txt",
       "bytes": 10849,
       "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
       "sources": [
@@ -25950,10 +25878,10 @@
         }
       ],
       "source_names": [
-        "russh@0.65.1/LICENSE-APACHE"
+        "russh@0.65.4/LICENSE-APACHE"
       ],
       "source_urls": [
-        "https://crates.io/crates/russh/0.65.1",
+        "https://crates.io/crates/russh/0.65.4",
         "https://github.com/warp-tech/russh"
       ]
     },

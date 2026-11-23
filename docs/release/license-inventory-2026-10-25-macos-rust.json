@@ -296,7 +296,9 @@
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "MIT OR Apache-2.0",
       "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [],
+      "release_tree_features": [
+        "zeroize"
+      ],
       "lock_checksum": "d2f6c7dbe95a6ed67ad9f18e57daf93a2f034c524b99fd2b76d18fdfeb6660aa"
     },
     {
@@ -717,7 +719,7 @@
     },
     {
       "name": "crypto-bigint",
-      "version": "0.7.10",
+      "version": "0.7.11",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "Apache-2.0 OR MIT",
       "technical_role": "normal-runtime-candidate",
@@ -730,7 +732,7 @@
         "subtle",
         "zeroize"
       ],
-      "lock_checksum": "9c035cb64cba03dad2fb921f3e218785e8cf9a41790da5eb3a1400f62fa2be11"
+      "lock_checksum": "914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82"
     },
     {
       "name": "crypto-common",
@@ -806,14 +808,14 @@
     },
     {
       "name": "ctutils",
-      "version": "0.4.7",
+      "version": "0.4.8",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "Apache-2.0 OR MIT",
       "technical_role": "normal-runtime-candidate",
       "release_tree_features": [
         "subtle"
       ],
-      "lock_checksum": "a2376ffd6f96d8a9db59875b4b6b0237d6900b5baf64279714e05493ce64828a"
+      "lock_checksum": "261af4dc7a06ea8a527a8717d8cbba3417530d6ea14e1edb3de6b67806be474f"
     },
     {
       "name": "curve25519-dalek-derive",
@@ -1011,7 +1013,8 @@
         "default",
         "mac",
         "oid",
-        "rand_core"
+        "rand_core",
+        "zeroize"
       ],
       "lock_checksum": "f1dd6dbb5841937940781866fa1281a1ff7bd3bf827091440879f9994983d5c2"
     },
@@ -1536,15 +1539,6 @@
       "lock_checksum": "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
     },
     {
-      "name": "generic-array",
-      "version": "1.4.5",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT",
-      "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [],
-      "lock_checksum": "337d46834ee672ab3e48caca2cb0c78cc174fb12b3a68d0d88f99a0519a5e36e"
-    },
-    {
       "name": "getrandom",
       "version": "0.2.17",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
@@ -1670,7 +1664,9 @@
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "MIT OR Apache-2.0",
       "technical_role": "normal-runtime-candidate",
-      "release_tree_features": [],
+      "release_tree_features": [
+        "zeroize"
+      ],
       "lock_checksum": "6303bc9732ae41b04cb554b844a762b4115a61bfaa81e3e83050991eeb56863f"
     },
     {
@@ -2745,7 +2741,7 @@
     },
     {
       "name": "pkcs1",
-      "version": "0.8.0-rc.4",
+      "version": "0.8.0",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "Apache-2.0 OR MIT",
       "technical_role": "normal-runtime-candidate",
@@ -2755,7 +2751,7 @@
         "std",
         "zeroize"
       ],
-      "lock_checksum": "986d2e952779af96ea048f160fd9194e1751b4faea78bcf3ceb456efe008088e"
+      "lock_checksum": "6250dd7321adbe93d12b750aee0ced159fd13e77f625edcdf1cb6f83cd99f650"
     },
     {
       "name": "pkcs5",
@@ -3089,17 +3085,18 @@
     },
     {
       "name": "rsa",
-      "version": "0.10.0-rc.18",
+      "version": "0.10.0",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "MIT OR Apache-2.0",
       "technical_role": "normal-runtime-candidate",
       "release_tree_features": [
         "default",
         "encoding",
-        "sha2",
+        "getrandom",
+        "pkcs1v15",
         "std"
       ],
-      "lock_checksum": "30b2aa4ba0d89f73d1e332df05be0eeab8840351c36ca5654341dfdb57bb3caf"
+      "lock_checksum": "23e77fd77e0dea28b3011fd62d15445b7de7959333b0276d930e03be0f755699"
     },
     {
       "name": "russh-cryptovec",
@@ -3123,7 +3120,7 @@
     },
     {
       "name": "russh",
-      "version": "0.65.1",
+      "version": "0.65.4",
       "source": null,
       "declared_spdx": "Apache-2.0",
       "technical_role": "normal-runtime-candidate",
@@ -3154,15 +3151,6 @@
         "std"
       ],
       "lock_checksum": "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d"
-    },
-    {
-      "name": "rustversion",
-      "version": "1.0.23",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "declared_spdx": "MIT OR Apache-2.0",
-      "technical_role": "build-or-proc-macro-only-in-this-tree",
-      "release_tree_features": [],
-      "lock_checksum": "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
     },
     {
       "name": "salsa20",
@@ -3478,7 +3466,8 @@
       "release_tree_features": [
         "alloc",
         "default",
-        "oid"
+        "oid",
+        "zeroize"
       ],
       "lock_checksum": "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19"
     },
@@ -3644,7 +3633,7 @@
     },
     {
       "name": "ssh-key",
-      "version": "0.7.0-rc.11",
+      "version": "0.7.0-rc.12",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "declared_spdx": "Apache-2.0 OR MIT",
       "technical_role": "normal-runtime-candidate",
@@ -3663,7 +3652,7 @@
         "sha1",
         "std"
       ],
-      "lock_checksum": "f9a32fae177b74a22aa9c5b01bf7e68b33545be32d9e381e248058d2adc15ce3"
+      "lock_checksum": "0701b552e6bd8f13a6e07bde25307c32d7daad80a79b65832d110c0416e7b638"
     },
     {
       "name": "stable_deref_trait",
