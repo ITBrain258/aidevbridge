@@ -117,6 +117,14 @@ authentication replies (`--test-threads=4`). The move to 0.65.0 on
 2026-10-30 was validated the same way, with the two upstream test files
 adapted to the 0.65.0 server API in the test copy only.
 
+Validation on 2026-11-23 (Rust 1.97.1, Windows), the same way: 244 library
+tests passed, among them the 10 Close and 16 end-observer cases of this
+patch and upstream's new tests for the six advisories, and all 35
+integration tests in 15 targets; `.github/workflows/vendored.yml` passed 257
+library tests on Linux. The app's 803 tests passed against the patched
+0.65.4 (`--test-threads=4`), including the loopback tests named below; the
+live tests against a test host did not run in it.
+
 The local change retains a one-bit expected-Close state in an existing
 `ChannelRef` after local Close. Only Close may use this state; ordinary channel
 messages still require an established encrypted channel. A received Close

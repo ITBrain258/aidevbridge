@@ -1622,8 +1622,8 @@
           },
           {
             "path": "vendor/russh/AGENTBRIDGE-PATCH.md",
-            "bytes": 14389,
-            "sha256": "0a62f7f93da51c3a0398d793ed972dbd97360bd2db07ab6964e22c4c95274473"
+            "bytes": 14876,
+            "sha256": "d6674f04ff08e2f29eca6f803076c45d1a63e425193a590fb888393d1b1d6de0"
           },
           {
             "path": "vendor/russh/Cargo.lock",
