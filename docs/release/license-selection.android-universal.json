@@ -56,6 +56,7 @@
     "docs/release/license-source-notices-2026-11-06.json",
     "docs/release/license-source-notices-2026-11-06-scan.json",
     "docs/release/license-rust-update-2026-11-23.json",
+    "docs/release/license-rust-update-2026-11-23-cookie-url.json",
     "docs/release/license-android-universal-2026-10-28.json"
   ],
   "inputs": {
@@ -67,8 +68,8 @@
       },
       {
         "path": "Cargo.lock",
-        "bytes": 146213,
-        "sha256": "a7f262670e409306261bd94a838a699c036d186bfd28c925c75931357ccb521d"
+        "bytes": 146215,
+        "sha256": "9293016dd2a84fd7a15e1e3284d3318087da816c86dd4a23d143ee28b55d4336"
       },
       {
         "path": "Cargo.toml",
@@ -97,8 +98,8 @@
       },
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
-        "bytes": 164487,
-        "sha256": "ab36d25370ba2041435e15070089302d91bcee49967795b30a6b2c18464d4ec4"
+        "bytes": 165805,
+        "sha256": "b4b10298144f0056a9a3e40917db2054eca6a794cd54480d25b1aac0ecacdba3"
       },
       {
         "path": "docs/release/license-crypto-bigint-notices-2026-11-05.json",
@@ -148,7 +149,7 @@
       {
         "path": "docs/release/license-inventory-2026-10-28-android.json",
         "bytes": 269170,
-        "sha256": "6d8dfdd74a071acdd1c38a539c5c542be66407f5152a6bf992112b6bfe2d2844"
+        "sha256": "892602c28711ef39918df145b98077468203c2b904d3434cf4ec6a1337919c70"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -194,6 +195,11 @@
         "path": "docs/release/license-rust-update-2026-11-05.json",
         "bytes": 2358,
         "sha256": "d2db091c6b8aa5a315664b6d128f2daf4137b1940705cd701392495831502814"
+      },
+      {
+        "path": "docs/release/license-rust-update-2026-11-23-cookie-url.json",
+        "bytes": 5585,
+        "sha256": "fee7890d607beaa23cdf1bd6bd94d089023011ebc36da64e692901ff328d1fc3"
       },
       {
         "path": "docs/release/license-rust-update-2026-11-23.json",
@@ -256,9 +262,9 @@
         "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7"
       },
       {
-        "path": "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt",
+        "path": "docs/release/licenses/cookie-0.18.3-SOURCE-NOTICES.txt",
         "bytes": 773,
-        "sha256": "eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715"
+        "sha256": "d25e7eeaecb33a344a11a7dcd891c11a42003ea92cf1fa99c9b961c5dc4671f4"
       },
       {
         "path": "docs/release/licenses/crypto-bigint-0.7.11-SOURCE-NOTICES.txt",
@@ -697,8 +703,8 @@
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
-        "bytes": 34382,
-        "sha256": "1ec26fce9a82d26f8ab1b67e62c1ec01dfe08ee2c50daedee7ccca1a272b4125"
+        "bytes": 34451,
+        "sha256": "1e821880b9d277661ce0389c22664ff5580c89270a137e4ecf0db3d6d37fdc91"
       },
       {
         "path": "scripts/release-licenses.mjs",
@@ -2664,11 +2670,11 @@
         "declared_license": "Apache-2.0 OR MIT"
       },
       {
-        "package": "cookie@0.18.2",
+        "package": "cookie@0.18.3",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
           "bytes": 2079,
-          "sha256": "67bc6c40bf0fd430b85be8b897bcf85125ac35add94359be338a19488274e556"
+          "sha256": "ced4c637036bdcf3ab60b888ec5f6a08d3a9aff7c7d979de24cbd66bdb3b0bc1"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -3177,11 +3183,11 @@
         "declared_license": "Zlib"
       },
       {
-        "package": "form_urlencoded@1.2.2",
+        "package": "form_urlencoded@1.2.3",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
           "bytes": 1266,
-          "sha256": "118b1d87e862ea329b8bc84b389085a2f8e049d4c0b8b3c38ac2bffbe3501928"
+          "sha256": "47a39fced5fea0239010d6cc5e65bdd6312ef348e029be8389e4be8a14b5ce99"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5301,11 +5307,11 @@
         "declared_license": "ISC"
       },
       {
-        "package": "url@2.5.8",
+        "package": "url@2.5.9",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
           "bytes": 2423,
-          "sha256": "7003e5562b5ab8454b9d78376303151af79011f5dd684c1891e0f46bc9112016"
+          "sha256": "8f084b776440d30dd3c1334d0a35126ecf2d2fa8ef18d3ac6c4318ec747adbbd"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -6065,13 +6071,13 @@
         "sha256": "73b9dc2e79c7308998dd30296e073aefaefb944a68fb89aa412c23c0edcabcaa"
       },
       {
-        "package": "cookie@0.18.2",
+        "package": "cookie@0.18.3",
         "path": "LICENSE-APACHE",
         "bytes": 10863,
         "sha256": "2773e20df8f4c52a026b5b578c7f2457341f5aa3fb6612fd87e1d2e1bd8f48ad"
       },
       {
-        "package": "cookie@0.18.2",
+        "package": "cookie@0.18.3",
         "path": "LICENSE-MIT",
         "bytes": 1091,
         "sha256": "f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea"
@@ -6653,13 +6659,13 @@
         "sha256": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744"
       },
       {
-        "package": "form_urlencoded@1.2.2",
+        "package": "form_urlencoded@1.2.3",
         "path": "LICENSE-APACHE",
         "bytes": 10847,
         "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
       },
       {
-        "package": "form_urlencoded@1.2.2",
+        "package": "form_urlencoded@1.2.3",
         "path": "LICENSE-MIT",
         "bytes": 1072,
         "sha256": "20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e"
@@ -9293,13 +9299,13 @@
         "sha256": "7abd9b6960dcf7d4d0a48606a5b71bfe37d472db68d70637f3a58a56785f1621"
       },
       {
-        "package": "url@2.5.8",
+        "package": "url@2.5.9",
         "path": "LICENSE-APACHE",
         "bytes": 10847,
         "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
       },
       {
-        "package": "url@2.5.8",
+        "package": "url@2.5.9",
         "path": "LICENSE-MIT",
         "bytes": 1072,
         "sha256": "b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5"
@@ -12913,9 +12919,9 @@
       }
     },
     {
-      "id": "cargo:cookie@0.18.2",
+      "id": "cargo:cookie@0.18.3",
       "name": "cookie",
-      "version": "0.18.2",
+      "version": "0.18.3",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT",
       "disposition": "include",
@@ -12923,23 +12929,24 @@
       "release_tree_features": [],
       "documents": [
         "sha256:f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea",
-        "sha256:eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715"
+        "sha256:d25e7eeaecb33a344a11a7dcd891c11a42003ea92cf1fa99c9b961c5dc4671f4"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06).",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06). Updated from 0.18.2 to 0.18.3 on 2026-11-23; The attribution block of cookie-0.18.2-SOURCE-NOTICES.txt stands byte for byte at the same lines of the 0.18.3 archive (SHA-256 d55f2d6c30eeec7d5c6f98bd4395d4abb1895629eab97ee6522d340623615f8a, the Cargo.lock checksum): src/secure/macros.rs:42-43; the set of copyright lines in src/ is the same as in 0.18.2. cookie-0.18.3-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum.",
       "source_urls": [
-        "https://static.crates.io/crates/cookie/cookie-0.18.2.crate",
-        "https://crates.io/crates/cookie/0.18.2",
+        "https://static.crates.io/crates/cookie/cookie-0.18.3.crate",
+        "https://crates.io/crates/cookie/0.18.3",
         "https://github.com/SergioBenitez/cookie-rs"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/cookie@0.18.1",
         "docs/release/license-rust-update-2026-10-29.json",
         "docs/release/license-source-notices-2026-11-06-scan.json",
+        "docs/release/license-rust-update-2026-11-23-cookie-url.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/cookie/cookie-0.18.2.crate",
-        "sha256": "1a373e3602691c3cdea496d2f0ee5935151e6168fe87739483c463db1b2f2f87"
+        "url": "https://static.crates.io/crates/cookie/cookie-0.18.3.crate",
+        "sha256": "d55f2d6c30eeec7d5c6f98bd4395d4abb1895629eab97ee6522d340623615f8a"
       }
     },
     {
@@ -14597,9 +14604,9 @@
       }
     },
     {
-      "id": "cargo:form_urlencoded@1.2.2",
+      "id": "cargo:form_urlencoded@1.2.3",
       "name": "form_urlencoded",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT",
       "disposition": "include",
@@ -14611,19 +14618,20 @@
       "documents": [
         "sha256:20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 1.2.2 to 1.2.3 on 2026-11-23; same declared license, role and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.2.crate",
-        "https://crates.io/crates/form_urlencoded/1.2.2",
+        "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.3.crate",
+        "https://crates.io/crates/form_urlencoded/1.2.3",
         "https://github.com/servo/rust-url"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/form_urlencoded@1.2.2",
+        "docs/release/license-rust-update-2026-11-23-cookie-url.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.2.crate",
-        "sha256": "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
+        "url": "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.3.crate",
+        "sha256": "afa489199eaffb1211795df1c6236ce1ad0d41a6fa45250add73e3b02420f06e"
       }
     },
     {
@@ -21749,9 +21757,9 @@
       }
     },
     {
-      "id": "cargo:url@2.5.8",
+      "id": "cargo:url@2.5.9",
       "name": "url",
-      "version": "2.5.8",
+      "version": "2.5.9",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT",
       "disposition": "include",
@@ -21764,19 +21772,20 @@
       "documents": [
         "sha256:b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking.",
+      "reason": "Explicit MIT selection using the complete original text. Android runtime candidate notice coverage; no claim every object survives linking or R8 shrinking. Updated from 2.5.8 to 2.5.9 on 2026-11-23; same declared license, role and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/url/url-2.5.8.crate",
-        "https://crates.io/crates/url/2.5.8",
+        "https://static.crates.io/crates/url/url-2.5.9.crate",
+        "https://crates.io/crates/url/2.5.9",
         "https://github.com/servo/rust-url"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/url@2.5.8",
+        "docs/release/license-rust-update-2026-11-23-cookie-url.json",
         "docs/release/license-android-universal-2026-10-28.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/url/url-2.5.8.crate",
-        "sha256": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed"
+        "url": "https://static.crates.io/crates/url/url-2.5.9.crate",
+        "sha256": "f00cd2407bb42c0ef17be88d4cf020f5cceffd121665bac9b8b9493a369b3b1a"
       }
     },
     {
@@ -25781,7 +25790,7 @@
     },
     {
       "id": "sha256:f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea",
-      "file_name": "cookie-0.18.2-LICENSE-MIT.txt",
+      "file_name": "cookie-0.18.3-LICENSE-MIT.txt",
       "bytes": 1091,
       "sha256": "f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea",
       "sources": [
@@ -25792,26 +25801,26 @@
         }
       ],
       "source_names": [
-        "cookie@0.18.2/LICENSE-MIT"
+        "cookie@0.18.3/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/cookie/0.18.2",
+        "https://crates.io/crates/cookie/0.18.3",
         "https://github.com/SergioBenitez/cookie-rs"
       ]
     },
     {
-      "id": "sha256:eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715",
-      "file_name": "cookie-0.18.2-SOURCE-NOTICES.txt",
+      "id": "sha256:d25e7eeaecb33a344a11a7dcd891c11a42003ea92cf1fa99c9b961c5dc4671f4",
+      "file_name": "cookie-0.18.3-SOURCE-NOTICES.txt",
       "bytes": 773,
-      "sha256": "eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715",
+      "sha256": "d25e7eeaecb33a344a11a7dcd891c11a42003ea92cf1fa99c9b961c5dc4671f4",
       "sources": [
         {
           "kind": "file",
-          "path": "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt"
+          "path": "docs/release/licenses/cookie-0.18.3-SOURCE-NOTICES.txt"
         }
       ],
       "source_names": [
-        "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt"
+        "docs/release/licenses/cookie-0.18.3-SOURCE-NOTICES.txt"
       ],
       "source_urls": []
     },
@@ -26638,7 +26647,7 @@
     },
     {
       "id": "sha256:20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e",
-      "file_name": "form_urlencoded-1.2.2-LICENSE-MIT.txt",
+      "file_name": "form_urlencoded-1.2.3-LICENSE-MIT.txt",
       "bytes": 1072,
       "sha256": "20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e",
       "sources": [
@@ -26649,10 +26658,10 @@
         }
       ],
       "source_names": [
-        "form_urlencoded@1.2.2/LICENSE-MIT"
+        "form_urlencoded@1.2.3/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/form_urlencoded/1.2.2",
+        "https://crates.io/crates/form_urlencoded/1.2.3",
         "https://github.com/servo/rust-url"
       ]
     },
@@ -27165,13 +27174,13 @@
       "source_names": [
         "idna@1.1.0/LICENSE-MIT",
         "percent-encoding@2.3.2/LICENSE-MIT",
-        "url@2.5.8/LICENSE-MIT"
+        "url@2.5.9/LICENSE-MIT"
       ],
       "source_urls": [
         "https://crates.io/crates/idna/1.1.0",
         "https://github.com/servo/rust-url/",
         "https://crates.io/crates/percent-encoding/2.3.2",
-        "https://crates.io/crates/url/2.5.8",
+        "https://crates.io/crates/url/2.5.9",
         "https://github.com/servo/rust-url"
       ]
     },

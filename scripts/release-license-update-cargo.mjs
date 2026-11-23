@@ -45,7 +45,8 @@ const REVIEWED = {
   // Empty between updates. The entries of earlier updates are kept in their
   // records: docs/release/license-rust-update-2026-10-29.json (Tauri 2.12),
   // docs/release/license-rust-update-2026-11-05-dup-crates.json and
-  // docs/release/license-rust-update-2026-11-23.json (russh 0.65.4).
+  // docs/release/license-rust-update-2026-11-23.json (russh 0.65.4) and
+  // docs/release/license-rust-update-2026-11-23-cookie-url.json.
 };
 
 const fail = message => { throw new Error(message); };

@@ -379,13 +379,16 @@ flag, until `glib` is 0.20 or newer or gone from `Cargo.lock`;
   `tauri-plugin-opener`;
 - `async-executor` 1.14.0: yanked, because dropping an `Executor` could use
   freed memory (fixed in 1.14.1); it comes in through `zbus`, the D-Bus code
-  of `tauri-plugin-opener`.
+  of `tauri-plugin-opener`;
+- `chrono` 0.4.45 (RUSTSEC-2026-0543): unmaintained; `russh-util` uses it
+  only on `wasm32`.
 
 None of these is in a package the project ships. Tauri uses `glib`, and with
-it `proc-macro-error`, only for its Linux GTK backend, and
-`tauri-plugin-opener` uses D-Bus only on Linux: `cargo tree -i glib` (and
-the same for `proc-macro-error`, `zbus_names`, `zvariant` and
-`async-executor`) with `--target x86_64-pc-windows-msvc`,
+it `proc-macro-error`, only for its Linux GTK backend,
+`tauri-plugin-opener` uses D-Bus only on Linux, and `russh-util` uses
+`chrono` only on `wasm32`: `cargo tree -i glib` (and
+the same for `proc-macro-error`, `zbus_names`, `zvariant`,
+`async-executor` and `chrono`) with `--target x86_64-pc-windows-msvc`,
 `--target aarch64-apple-darwin`, `--target x86_64-apple-darwin` or
 `--target aarch64-linux-android` finds nothing. The `unic` crates that
 Tauri used through `urlpattern` until 2.12 are no longer in `Cargo.lock`.

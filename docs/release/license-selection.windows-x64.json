@@ -12,7 +12,7 @@
     "installer_webview2_mode": "downloadBootstrapper",
     "installer_webview2_silent": true,
     "meaning": "License text selection for the application plus explicitly disclosed source/build families; not binary or installer acceptance.",
-    "historical_evidence": "Native family decisions are those of the 2026-09-12 review; frontend decisions those of the 2026-09-12 frontend report (docs/release/license-frontend-output-2026-09-12.json). Rebound on 2026-10-20 for aidevbridge 0.2.0: changed own sources, generated permissions and the vendored russh change notices were re-hashed; @xterm/addon-web-links, the Tauri window/dpi/image modules and the vendored tslib helpers were added after a fresh frontend inventory; pageant 0.2.1 -> 0.2.4. No historical EXE, PDB or dist directory is required as a notice preparation input. Final rebuilt artifacts remain separate acceptance inputs. Rebound on 2026-10-27 for the security updates of 2026-10-26 to crypto-bigint 0.7.5 -> 0.7.10, ctutils 0.4.2 -> 0.4.6 and tokio 1.53.1 -> 1.53.3 (docs/release/license-rust-crypto-tokio-2026-10-26.json): same declared licenses and byte-identical license files, so the decisions stand. Updated on 2026-10-29 for a Cargo.lock update (docs/release/license-rust-update-2026-10-29.json): 144 packages moved to new versions (29 of them reviewed by hand), 6 new packages decided, 2 role changes, 30 packages left the graph, 8 new packages outside the Windows tree are excluded. Updated on 2026-10-30 for a Cargo.lock update (docs/release/license-rust-update-2026-10-30.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05-dup-crates.json): 0 packages moved to new versions (0 reviewed by hand), 0 new packages decided, 6 role changes, 10 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for the Visual Studio 2026 release build (docs/release/license-windows-runtime-2026-11-05.json): the 0.2.7 EXE built on the GitHub runner image windows-2025-vs2026 with MSVC 14.51 links the same Microsoft runtime families as the 2026-09-12 review; the Windows runtime notice no longer names a toolset version. In-source notices of crypto-bigint 0.7.10 added (docs/release/license-crypto-bigint-notices-2026-11-05.json). In-source notices of futures-channel 0.3.34 and crypto-primes 0.7.2 added on 2026-11-06 (docs/release/license-source-notices-2026-11-06.json). Updated on 2026-11-06 after a complete scan of in-source copyright lines (docs/release/license-source-notices-2026-11-06-scan.json): source notices of tao, curve25519-dalek, tauri, tauri-plugin-fs, polyval, der, toml, cookie and dtoa added; is-wsl and cesu8 are decided in the Android derive. Updated on 2026-11-23 for a Cargo.lock update (docs/release/license-rust-update-2026-11-23.json): 6 packages moved to new versions (2 reviewed by hand), 0 new packages decided, 0 role changes, 2 packages left the graph, 0 new packages outside the Windows tree excluded."
+    "historical_evidence": "Native family decisions are those of the 2026-09-12 review; frontend decisions those of the 2026-09-12 frontend report (docs/release/license-frontend-output-2026-09-12.json). Rebound on 2026-10-20 for aidevbridge 0.2.0: changed own sources, generated permissions and the vendored russh change notices were re-hashed; @xterm/addon-web-links, the Tauri window/dpi/image modules and the vendored tslib helpers were added after a fresh frontend inventory; pageant 0.2.1 -> 0.2.4. No historical EXE, PDB or dist directory is required as a notice preparation input. Final rebuilt artifacts remain separate acceptance inputs. Rebound on 2026-10-27 for the security updates of 2026-10-26 to crypto-bigint 0.7.5 -> 0.7.10, ctutils 0.4.2 -> 0.4.6 and tokio 1.53.1 -> 1.53.3 (docs/release/license-rust-crypto-tokio-2026-10-26.json): same declared licenses and byte-identical license files, so the decisions stand. Updated on 2026-10-29 for a Cargo.lock update (docs/release/license-rust-update-2026-10-29.json): 144 packages moved to new versions (29 of them reviewed by hand), 6 new packages decided, 2 role changes, 30 packages left the graph, 8 new packages outside the Windows tree are excluded. Updated on 2026-10-30 for a Cargo.lock update (docs/release/license-rust-update-2026-10-30.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05.json): 1 package moved to a new version (0 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for a Cargo.lock update (docs/release/license-rust-update-2026-11-05-dup-crates.json): 0 packages moved to new versions (0 reviewed by hand), 0 new packages decided, 6 role changes, 10 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-05 for the Visual Studio 2026 release build (docs/release/license-windows-runtime-2026-11-05.json): the 0.2.7 EXE built on the GitHub runner image windows-2025-vs2026 with MSVC 14.51 links the same Microsoft runtime families as the 2026-09-12 review; the Windows runtime notice no longer names a toolset version. In-source notices of crypto-bigint 0.7.10 added (docs/release/license-crypto-bigint-notices-2026-11-05.json). In-source notices of futures-channel 0.3.34 and crypto-primes 0.7.2 added on 2026-11-06 (docs/release/license-source-notices-2026-11-06.json). Updated on 2026-11-06 after a complete scan of in-source copyright lines (docs/release/license-source-notices-2026-11-06-scan.json): source notices of tao, curve25519-dalek, tauri, tauri-plugin-fs, polyval, der, toml, cookie and dtoa added; is-wsl and cesu8 are decided in the Android derive. Updated on 2026-11-23 for a Cargo.lock update (docs/release/license-rust-update-2026-11-23.json): 6 packages moved to new versions (2 reviewed by hand), 0 new packages decided, 0 role changes, 2 packages left the graph, 0 new packages outside the Windows tree excluded. Updated on 2026-11-23 for a Cargo.lock update (docs/release/license-rust-update-2026-11-23-cookie-url.json): 3 packages moved to new versions (1 reviewed by hand), 0 new packages decided, 0 role changes, 0 packages left the graph, 0 new packages outside the Windows tree excluded."
   },
   "selection_policy": [
     "Each component below has an explicit decision. The helper does not derive permission from historical inventory status fields or parse SPDX expressions to choose licenses.",
@@ -50,14 +50,15 @@
     "docs/release/license-crypto-bigint-notices-2026-11-05.json",
     "docs/release/license-source-notices-2026-11-06.json",
     "docs/release/license-source-notices-2026-11-06-scan.json",
-    "docs/release/license-rust-update-2026-11-23.json"
+    "docs/release/license-rust-update-2026-11-23.json",
+    "docs/release/license-rust-update-2026-11-23-cookie-url.json"
   ],
   "inputs": {
     "files": [
       {
         "path": "Cargo.lock",
-        "bytes": 146213,
-        "sha256": "a7f262670e409306261bd94a838a699c036d186bfd28c925c75931357ccb521d"
+        "bytes": 146215,
+        "sha256": "9293016dd2a84fd7a15e1e3284d3318087da816c86dd4a23d143ee28b55d4336"
       },
       {
         "path": "Cargo.toml",
@@ -175,6 +176,11 @@
         "sha256": "d2db091c6b8aa5a315664b6d128f2daf4137b1940705cd701392495831502814"
       },
       {
+        "path": "docs/release/license-rust-update-2026-11-23-cookie-url.json",
+        "bytes": 5585,
+        "sha256": "fee7890d607beaa23cdf1bd6bd94d089023011ebc36da64e692901ff328d1fc3"
+      },
+      {
         "path": "docs/release/license-rust-update-2026-11-23.json",
         "bytes": 9318,
         "sha256": "b7cf551f6e97209cd7355aada1d64d096c62b0866741164e3b3e10dbba86a28e"
@@ -240,9 +246,9 @@
         "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7"
       },
       {
-        "path": "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt",
+        "path": "docs/release/licenses/cookie-0.18.3-SOURCE-NOTICES.txt",
         "bytes": 773,
-        "sha256": "eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715"
+        "sha256": "d25e7eeaecb33a344a11a7dcd891c11a42003ea92cf1fa99c9b961c5dc4671f4"
       },
       {
         "path": "docs/release/licenses/crypto-bigint-0.7.11-SOURCE-NOTICES.txt",
@@ -691,8 +697,8 @@
       },
       {
         "path": "scripts/release-license-update-cargo.mjs",
-        "bytes": 34382,
-        "sha256": "1ec26fce9a82d26f8ab1b67e62c1ec01dfe08ee2c50daedee7ccca1a272b4125"
+        "bytes": 34451,
+        "sha256": "1e821880b9d277661ce0389c22664ff5580c89270a137e4ecf0db3d6d37fdc91"
       },
       {
         "path": "scripts/release-licenses.mjs",
@@ -2588,11 +2594,11 @@
         "declared_license": "Apache-2.0 OR MIT"
       },
       {
-        "package": "cookie@0.18.2",
+        "package": "cookie@0.18.3",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
           "bytes": 2079,
-          "sha256": "67bc6c40bf0fd430b85be8b897bcf85125ac35add94359be338a19488274e556"
+          "sha256": "ced4c637036bdcf3ab60b888ec5f6a08d3a9aff7c7d979de24cbd66bdb3b0bc1"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -3101,11 +3107,11 @@
         "declared_license": "Zlib"
       },
       {
-        "package": "form_urlencoded@1.2.2",
+        "package": "form_urlencoded@1.2.3",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
           "bytes": 1266,
-          "sha256": "118b1d87e862ea329b8bc84b389085a2f8e049d4c0b8b3c38ac2bffbe3501928"
+          "sha256": "47a39fced5fea0239010d6cc5e65bdd6312ef348e029be8389e4be8a14b5ce99"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5018,11 +5024,11 @@
         "declared_license": "ISC"
       },
       {
-        "package": "url@2.5.8",
+        "package": "url@2.5.9",
         "source": "registry+https://github.com/rust-lang/crates.io-index",
         "manifest": {
           "bytes": 2423,
-          "sha256": "7003e5562b5ab8454b9d78376303151af79011f5dd684c1891e0f46bc9112016"
+          "sha256": "8f084b776440d30dd3c1334d0a35126ecf2d2fa8ef18d3ac6c4318ec747adbbd"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5908,13 +5914,13 @@
         "sha256": "73b9dc2e79c7308998dd30296e073aefaefb944a68fb89aa412c23c0edcabcaa"
       },
       {
-        "package": "cookie@0.18.2",
+        "package": "cookie@0.18.3",
         "path": "LICENSE-APACHE",
         "bytes": 10863,
         "sha256": "2773e20df8f4c52a026b5b578c7f2457341f5aa3fb6612fd87e1d2e1bd8f48ad"
       },
       {
-        "package": "cookie@0.18.2",
+        "package": "cookie@0.18.3",
         "path": "LICENSE-MIT",
         "bytes": 1091,
         "sha256": "f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea"
@@ -6496,13 +6502,13 @@
         "sha256": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744"
       },
       {
-        "package": "form_urlencoded@1.2.2",
+        "package": "form_urlencoded@1.2.3",
         "path": "LICENSE-APACHE",
         "bytes": 10847,
         "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
       },
       {
-        "package": "form_urlencoded@1.2.2",
+        "package": "form_urlencoded@1.2.3",
         "path": "LICENSE-MIT",
         "bytes": 1072,
         "sha256": "20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e"
@@ -8962,13 +8968,13 @@
         "sha256": "7abd9b6960dcf7d4d0a48606a5b71bfe37d472db68d70637f3a58a56785f1621"
       },
       {
-        "package": "url@2.5.8",
+        "package": "url@2.5.9",
         "path": "LICENSE-APACHE",
         "bytes": 10847,
         "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
       },
       {
-        "package": "url@2.5.8",
+        "package": "url@2.5.9",
         "path": "LICENSE-MIT",
         "bytes": 1072,
         "sha256": "b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5"
@@ -12644,9 +12650,9 @@
       }
     },
     {
-      "id": "cargo:cookie@0.18.2",
+      "id": "cargo:cookie@0.18.3",
       "name": "cookie",
-      "version": "0.18.2",
+      "version": "0.18.3",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT",
       "disposition": "include",
@@ -12654,22 +12660,23 @@
       "release_tree_features": [],
       "documents": [
         "sha256:f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea",
-        "sha256:eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715"
+        "sha256:d25e7eeaecb33a344a11a7dcd891c11a42003ea92cf1fa99c9b961c5dc4671f4"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06).",
+      "reason": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 0.18.1 to 0.18.2 on 2026-10-29; same declared license, role and byte-identical license files. The in-source notices of src/secure/macros.rs are retained verbatim in cookie-0.18.2-SOURCE-NOTICES.txt (2026-11-06). Updated from 0.18.2 to 0.18.3 on 2026-11-23; The attribution block of cookie-0.18.2-SOURCE-NOTICES.txt stands byte for byte at the same lines of the 0.18.3 archive (SHA-256 d55f2d6c30eeec7d5c6f98bd4395d4abb1895629eab97ee6522d340623615f8a, the Cargo.lock checksum): src/secure/macros.rs:42-43; the set of copyright lines in src/ is the same as in 0.18.2. cookie-0.18.3-SOURCE-NOTICES.txt replaces the file, with the new version and archive checksum.",
       "source_urls": [
-        "https://static.crates.io/crates/cookie/cookie-0.18.2.crate",
-        "https://crates.io/crates/cookie/0.18.2",
+        "https://static.crates.io/crates/cookie/cookie-0.18.3.crate",
+        "https://crates.io/crates/cookie/0.18.3",
         "https://github.com/SergioBenitez/cookie-rs"
       ],
       "decision_basis": [
         "docs/release/license-inventory-2026-09-12-rust.json#packages/cookie@0.18.1",
         "docs/release/license-rust-update-2026-10-29.json",
-        "docs/release/license-source-notices-2026-11-06-scan.json"
+        "docs/release/license-source-notices-2026-11-06-scan.json",
+        "docs/release/license-rust-update-2026-11-23-cookie-url.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/cookie/cookie-0.18.2.crate",
-        "sha256": "1a373e3602691c3cdea496d2f0ee5935151e6168fe87739483c463db1b2f2f87"
+        "url": "https://static.crates.io/crates/cookie/cookie-0.18.3.crate",
+        "sha256": "d55f2d6c30eeec7d5c6f98bd4395d4abb1895629eab97ee6522d340623615f8a"
       }
     },
     {
@@ -14280,9 +14287,9 @@
       }
     },
     {
-      "id": "cargo:form_urlencoded@1.2.2",
+      "id": "cargo:form_urlencoded@1.2.3",
       "name": "form_urlencoded",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT",
       "disposition": "include",
@@ -14294,18 +14301,19 @@
       "documents": [
         "sha256:20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 1.2.2 to 1.2.3 on 2026-11-23; same declared license, role and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.2.crate",
-        "https://crates.io/crates/form_urlencoded/1.2.2",
+        "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.3.crate",
+        "https://crates.io/crates/form_urlencoded/1.2.3",
         "https://github.com/servo/rust-url"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-09-12-rust.json#packages/form_urlencoded@1.2.2"
+        "docs/release/license-inventory-2026-09-12-rust.json#packages/form_urlencoded@1.2.2",
+        "docs/release/license-rust-update-2026-11-23-cookie-url.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.2.crate",
-        "sha256": "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
+        "url": "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.2.3.crate",
+        "sha256": "afa489199eaffb1211795df1c6236ce1ad0d41a6fa45250add73e3b02420f06e"
       }
     },
     {
@@ -20556,9 +20564,9 @@
       }
     },
     {
-      "id": "cargo:url@2.5.8",
+      "id": "cargo:url@2.5.9",
       "name": "url",
-      "version": "2.5.8",
+      "version": "2.5.9",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT",
       "disposition": "include",
@@ -20571,18 +20579,19 @@
       "documents": [
         "sha256:b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5"
       ],
-      "reason": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking.",
+      "reason": "Explicit MIT selection using the complete original text. Windows runtime candidate notice coverage; no claim every object survives linking. Updated from 2.5.8 to 2.5.9 on 2026-11-23; same declared license, role and byte-identical license files.",
       "source_urls": [
-        "https://static.crates.io/crates/url/url-2.5.8.crate",
-        "https://crates.io/crates/url/2.5.8",
+        "https://static.crates.io/crates/url/url-2.5.9.crate",
+        "https://crates.io/crates/url/2.5.9",
         "https://github.com/servo/rust-url"
       ],
       "decision_basis": [
-        "docs/release/license-inventory-2026-09-12-rust.json#packages/url@2.5.8"
+        "docs/release/license-inventory-2026-09-12-rust.json#packages/url@2.5.8",
+        "docs/release/license-rust-update-2026-11-23-cookie-url.json"
       ],
       "source_archive": {
-        "url": "https://static.crates.io/crates/url/url-2.5.8.crate",
-        "sha256": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed"
+        "url": "https://static.crates.io/crates/url/url-2.5.9.crate",
+        "sha256": "f00cd2407bb42c0ef17be88d4cf020f5cceffd121665bac9b8b9493a369b3b1a"
       }
     },
     {
@@ -23153,7 +23162,7 @@
     },
     {
       "id": "sha256:20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e",
-      "file_name": "form_urlencoded-1.2.2-LICENSE-MIT.txt",
+      "file_name": "form_urlencoded-1.2.3-LICENSE-MIT.txt",
       "bytes": 1072,
       "sha256": "20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e",
       "sources": [
@@ -23164,10 +23173,10 @@
         }
       ],
       "source_names": [
-        "form_urlencoded@1.2.2/LICENSE-MIT"
+        "form_urlencoded@1.2.3/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/form_urlencoded/1.2.2",
+        "https://crates.io/crates/form_urlencoded/1.2.3",
         "https://github.com/servo/rust-url"
       ]
     },
@@ -25931,13 +25940,13 @@
       "source_names": [
         "idna@1.1.0/LICENSE-MIT",
         "percent-encoding@2.3.2/LICENSE-MIT",
-        "url@2.5.8/LICENSE-MIT"
+        "url@2.5.9/LICENSE-MIT"
       ],
       "source_urls": [
         "https://crates.io/crates/idna/1.1.0",
         "https://github.com/servo/rust-url/",
         "https://crates.io/crates/percent-encoding/2.3.2",
-        "https://crates.io/crates/url/2.5.8",
+        "https://crates.io/crates/url/2.5.9",
         "https://github.com/servo/rust-url"
       ]
     },
@@ -26504,6 +26513,22 @@
       ]
     },
     {
+      "id": "sha256:d25e7eeaecb33a344a11a7dcd891c11a42003ea92cf1fa99c9b961c5dc4671f4",
+      "file_name": "cookie-0.18.3-SOURCE-NOTICES.txt",
+      "bytes": 773,
+      "sha256": "d25e7eeaecb33a344a11a7dcd891c11a42003ea92cf1fa99c9b961c5dc4671f4",
+      "sources": [
+        {
+          "kind": "file",
+          "path": "docs/release/licenses/cookie-0.18.3-SOURCE-NOTICES.txt"
+        }
+      ],
+      "source_names": [
+        "docs/release/licenses/cookie-0.18.3-SOURCE-NOTICES.txt"
+      ],
+      "source_urls": []
+    },
+    {
       "id": "sha256:d288f9c9b4590446ec18c22ead8f8b5a12a3d4025b68f62dc9015063eb9cca69",
       "file_name": "hkdf-0.13.0-LICENSE-MIT.txt",
       "bytes": 1108,
@@ -26914,22 +26939,6 @@
       ]
     },
     {
-      "id": "sha256:eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715",
-      "file_name": "cookie-0.18.2-SOURCE-NOTICES.txt",
-      "bytes": 773,
-      "sha256": "eff8e33c55b593b92c37616ff8c13a2f012f9c85ac7dc34007c8eba46d956715",
-      "sources": [
-        {
-          "kind": "file",
-          "path": "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt"
-        }
-      ],
-      "source_names": [
-        "docs/release/licenses/cookie-0.18.2-SOURCE-NOTICES.txt"
-      ],
-      "source_urls": []
-    },
-    {
       "id": "sha256:f025ccfb7dfb6bdfedc75ca0f67acc69e6fb4998143d834f7c2f38a29989680f",
       "file_name": "ring-0.17.14-LICENSE-other-bits.txt",
       "bytes": 731,
@@ -26968,7 +26977,7 @@
     },
     {
       "id": "sha256:f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea",
-      "file_name": "cookie-0.18.2-LICENSE-MIT.txt",
+      "file_name": "cookie-0.18.3-LICENSE-MIT.txt",
       "bytes": 1091,
       "sha256": "f28420c1906af38be726cd7842798f0194b27c41d6051c0d1e9ee348b8a4a0ea",
       "sources": [
@@ -26979,10 +26988,10 @@
         }
       ],
       "source_names": [
-        "cookie@0.18.2/LICENSE-MIT"
+        "cookie@0.18.3/LICENSE-MIT"
       ],
       "source_urls": [
-        "https://crates.io/crates/cookie/0.18.2",
+        "https://crates.io/crates/cookie/0.18.3",
         "https://github.com/SergioBenitez/cookie-rs"
       ]
     },
