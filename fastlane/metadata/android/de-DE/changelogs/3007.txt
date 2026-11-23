@@ -1,0 +1,1 @@
+Sicherheits-Update: Die SSH-Bibliothek und drei weitere Bausteine kommen in Versionen, die veröffentlichte Lücken beheben. Ein RSA-Schlüssel, dessen zwei Primfaktoren ungleich lang sind, wird jetzt abgelehnt; mit ssh-keygen erzeugte Schlüssel sind nicht betroffen. Sonst ändert sich nichts.

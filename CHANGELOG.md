@@ -6,6 +6,10 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+## [0.3.7] - 2026-11-23
+
+Ein Sicherheits-Update: Die SSH-Bibliothek russh und drei weitere Abhaengigkeiten kommen in Versionen, die veroeffentlichte Luecken beheben. Fuer Nutzer aendert sich sonst nur, dass ein RSA-Schluessel mit ungleich langen Primfaktoren abgelehnt wird.
+
 ### Security
 
 - SSH: russh 0.65.4 statt 0.65.1, mit denselben vier eigenen Aenderungen; die Antwort auf ein empfangenes Close mit noch ungesendeten Daten macht russh jetzt selbst (`vendor/russh/AGENTBRIDGE-PATCH.md`). Es behebt die sechs am 21.11. gemeldeten Luecken. Drei betreffen den Client: GHSA-ppq4-8rhp-9xrq (mittel; ein Server, dessen Hostschluessel die App angenommen hat, konnte mit Fehlermeldungen den Speicher wachsen lassen), GHSA-66vf-xq4p-pg7q (Hostschluessel und Signatur muessen zum ausgehandelten Verfahren passen) und GHSA-7qgr-cjxw-6vjf (Antworten auf das Oeffnen eines Kanals gelten nur fuer einen Kanal, der darauf wartet), beide niedrig. GHSA-m6v5-wqxv-mffh (mittel) betrifft den Server; denselben Weg im Client deckte die eigene Close-Aenderung schon seit 0.2.0 ab. Die zwei uebrigen betreffen den Agent-Server, den die App nicht nutzt.
