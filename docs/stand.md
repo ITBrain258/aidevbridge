@@ -866,7 +866,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       nach `settings/tests.rs`. Batch 9 (U3) wie geplant, nicht erweitert,
       und erst direkt vor der nächsten Arbeit an Hosts oder Inventar. Vom
       IPC-Vertrag (Punkt 14) lohnt vorerst nur ein Vertragstest, der die
-      Aufrufe des Frontends gegen die Rust-Quellen prüft. Der Abbau von
+      Aufrufe des Frontends gegen die Rust-Quellen prüft. Erledigt mit Z1.4:
+      `src/ipc.contract.test.ts` liest jeden `invoke(...)` in `src/` und
+      jeden `#[tauri::command]` und prüft Namen, Pflicht- und optionale
+      Parameter, auch die aus `...socketArg` und `...includeDefaultArg()`.
+      Die Rückgabetypen prüft er nicht. Der Abbau von
       `main()` (Punkt 15) betrifft nur Tests. Nicht übernommen: ein
       gemeinsames strenges Fake-Backend für die Tests und kürzere
       Zeitkonstanten unter `cfg(test)`; beides kostet mehr, als es bringt.
