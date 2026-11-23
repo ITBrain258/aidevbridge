@@ -860,10 +860,14 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       `main()` (Punkt 15) betrifft nur Tests. Nicht übernommen: ein
       gemeinsames strenges Fake-Backend für die Tests und kürzere
       Zeitkonstanten unter `cfg(test)`; beides kostet mehr, als es bringt.
-    - **Paketbauten bei Doku-PRs (Punkt 14):** wenn, dann nur für
-      `pull_request` und mit fester Liste; `docs/release/**`,
-      `THIRD_PARTY_LICENSES.md` und `fastlane/**` gehören nicht dazu, und
-      `android.yml` ist eine gebundene Eingabe der Android-Auswahl.
+    - **Paketbauten bei Doku-PRs (Punkt 14):** Seit Z1.6 (Entscheidung E12
+      vom 23.11.) baut `packages.yml` bei Pushes und Pull Requests nicht,
+      die nur Prosa ändern: `docs/` außer `docs/release/` und die
+      Markdown-Dateien im Wurzelverzeichnis außer
+      `THIRD_PARTY_LICENSES.md`. Ein Tag baut immer.
+      `scripts/release-workflows.test.mjs` hält die Liste fest. `android.yml`
+      ist eine gebundene Eingabe der Android-Auswahl und folgt mit dem
+      nächsten Release.
 17. **Seitenleiste und Grundtöne (Spec vom 14.11.):** ausgeliefert mit
     0.3.5, vor dem Release nur im Headless-Browser gegen Beispieldaten
     angesehen. Am 15.11. meldete der Maintainer, 0.3.5 laufe unter Windows

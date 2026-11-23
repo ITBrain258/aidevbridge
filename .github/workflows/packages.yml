@@ -10,11 +10,22 @@ name: Packages
 # created if there is none yet. Such a run builds only a commit that is on
 # main, and the release becomes the "Latest" one only when it also has the APK
 # of android.yml.
+#
+# A push or pull request that changes only prose does not build: the docs
+# outside docs/release/ and the Markdown files at the root, except
+# THIRD_PARTY_LICENSES.md, which the license selections bind. docs/release/
+# holds the bound selections, reports, license texts and release notes, so a
+# change there still builds. GitHub does not apply path filters to tag pushes:
+# a tag v* always builds. No required check comes from this workflow, so a
+# skipped run blocks no pull request. scripts/release-workflows.test.mjs keeps
+# both lists equal and checks the two re-included paths.
 on:
   push:
     branches: [main]
     tags: ['v*']
+    paths: ['**', '!docs/**', 'docs/release/**', '!*.md', 'THIRD_PARTY_LICENSES.md']
   pull_request:
+    paths: ['**', '!docs/**', 'docs/release/**', '!*.md', 'THIRD_PARTY_LICENSES.md']
   workflow_dispatch:
     inputs:
       release:

@@ -418,3 +418,28 @@ test('the check reports a second writer of the result of the check for a complet
   const elsewhere = '      - name: Check whether the release has every package\n        id: complete\n        run: |\n          node scripts/release-latest.mjs "${PUBLISH_TAG#v}" --output "$RUNNER_TEMP/out"\n          echo latest=true >> "$GITHUB_OUTPUT"\n';
   assert.deepEqual(deviations('android.yml', workflow({ check: elsewhere }), expected), [writer]);
 });
+
+// packages.yml baut nicht, wenn ein Push oder Pull Request nur Prosa aendert.
+// Ausnahmen davon bleiben die Eingaben, die die Lizenzauswahlen binden
+// (docs/release/ und THIRD_PARTY_LICENSES.md). Push und Pull Request filtern
+// gleich; ein Tag baut immer, weil GitHub Pfadfilter bei Tags nicht anwendet.
+/** @param {string} text @param {string} event */
+const pathsOf = (text, event) => {
+  const block = new RegExp(`^  ${event}:\n((?: {4}.*\n)*)`, 'm').exec(lines(text).join('\n') + '\n')?.[1] ?? '';
+  const list = /^ {4}paths: \[(.*)\]$/m.exec(block)?.[1];
+  return list === undefined ? null : list.split(',').map(entry => entry.trim().replace(/^'(.*)'$/, '$1'));
+};
+
+test('packages.yml skips prose-only pushes and pull requests but never the bound release inputs', () => {
+  const text = read(`${WORKFLOWS}/packages.yml`);
+  const push = pathsOf(text, 'push'), pullRequest = pathsOf(text, 'pull_request');
+  assert.ok(push, 'push has a paths list');
+  assert.deepEqual(pullRequest, push, 'push and pull_request filter the same paths');
+  assert.equal(push[0], '**', 'everything builds unless excluded');
+  // Spaetere Eintraege gehen frueheren vor: Die Wiederaufnahme steht hinter
+  // dem Ausschluss, der sie sonst verdeckte.
+  assert.ok(push.indexOf('docs/release/**') > push.indexOf('!docs/**'), 'docs/release/** comes back after !docs/**');
+  assert.ok(push.indexOf('THIRD_PARTY_LICENSES.md') > push.indexOf('!*.md'), 'THIRD_PARTY_LICENSES.md comes back after !*.md');
+  assert.deepEqual(push.filter(entry => entry.startsWith('!')).sort(), ['!*.md', '!docs/**'], 'only prose is excluded');
+  assert.match(text, /^ {4}tags: \['v\*'\]$/m, 'a tag v* still triggers the workflow');
+});
