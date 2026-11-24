@@ -6,8 +6,9 @@ des Release-PR); beim Tag baut die CI alle Pakete und hängt sie an das Release.
 Eine Session, in der Claude läuft, nennt den Grund, wenn `claude agents
 --json` scheitert (PR #71), und „New session“ ist gesperrt, solange die
 Shell eines Hosts auf die Standardausgabe schreibt (PR #72). Dazu kommen
-die echten Fehler aus der Durchsicht vom 17.11. (PR #68) und
-Aufräumarbeiten ohne Wirkung für Nutzer (PR #67, #69, #70, #73, #74).
+die echten Fehler aus der Durchsicht vom 17.11. (PR #68), eine gemeinsame
+Rückfrageleiste für „Remove“ und „Kill“ (PR #70) und Aufräumarbeiten ohne
+Wirkung für Nutzer (PR #67, #69, #73, #74).
 0.3.7 ist ein Sicherheits-Update (PR #64, Punkt 12): russh 0.65.4, `rsa`
 0.10.0, `url` 2.5.9 und `cookie` 0.18.3. 0.3.6 brachte den überarbeiteten
 Erststart (PR #61) und die Korrekturen aus den Entscheidungen vom 16.11.

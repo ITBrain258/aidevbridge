@@ -8,18 +8,18 @@ dem Namen agentbridge.
 
 ## [0.3.8] - 2026-11-24
 
-Die App sagt genauer, woran etwas scheitert: Eine Claude-Session nennt den Grund, wenn `claude agents --json` versagt, und an einem Host, dessen Shell Text auf die Standardausgabe schreibt, ist "New session" gesperrt, statt eine Session anzulegen, die keine Liste zeigt. Dazu drei Korrekturen beim Speichern und beim Lesen von Schluesseln.
+Die App sagt genauer, woran etwas scheitert: Eine Claude-Session nennt den Grund, wenn `claude agents --json` versagt, und an einem Host, dessen Shell Text auf die Standardausgabe schreibt, ist "New session" gesperrt, statt eine Session anzulegen, die keine Liste zeigt. Dazu drei Korrekturen: beim Speichern der Einstellungen unter Windows, bei einer beschaedigten Schluesseldatei und in `known_hosts`.
 
 ### Changed
 
 - Status: Antwortet `claude agents --json` mit einem Exitcode ungleich 0 oder mit etwas, das kein Agenten-JSON ist, nennt eine Session, in deren aktiver Pane laut Programmpfad Claude laeuft und fuer die weder Titel noch Agentenzeile sprechen, diesen Grund statt "no agent source is attached yet": "claude was not found for SSH commands (exit 127)" (claude steht nicht im Suchpfad, den der Host fuer SSH-Befehle setzt), "claude agents --json failed (exit N)" oder "gave an answer the app cannot read". Andere Sessions behalten ihren Grund; ein fehlendes `claude` ist auf vielen Hosts normal.
 - Sessionliste: Schreibt die Shell eines Hosts vor jedem SSH-Befehl Text auf die Standardausgabe, ist "New session" dort gesperrt und sagt warum, auch ueber Strg+Umschalt+N, das Schnelloeffnen und einen schon offenen Dialog. Bisher legte tmux die Session an, die App meldete einen Fehler, und keine Liste zeigte sie. Ist die Ausgabe entfernt, hebt "Reload sessions" die Sperre auf. Meldungen nur auf der Fehlerausgabe sperren nichts.
-- Seitenleiste: In der Rueckfrage zu "Remove" (Host) halten die Pfeiltasten am ersten und letzten Knopf an, wie bei "Kill" und in der Liste; bisher sprangen sie vom letzten Knopf zum ersten.
+- Seitenleiste: In der Rueckfrage zu "Remove" (Host) halten die Pfeiltasten am ersten und letzten Knopf an, wie bei "Kill" und in der Liste. Bisher liefen sie in beiden Richtungen um: Pfeil links auf "Cancel", das beim Oeffnen den Fokus hat, sprang auf das rote "Remove".
 
 ### Fixed
 
 - Anmeldung: Eine beschaedigte Schluesseldatei ohne Passphrase meldete "Wrong passphrase for this key." und fragte nach einer Passphrase, die es nicht gibt. Jetzt steht dort "Key file could not be read."
-- Windows: Das Ersetzen von `settings.toml` (und von `known_hosts`, wenn ein Schluessel vergessen wird) scheiterte, wenn ein anderer Prozess die frische Datei kurz offen hielt, wie es ein Virenscanner tut. Die App versucht es bis zu 310 ms lang erneut und prueft vor jedem Versuch, ob ein anderes Fenster der App inzwischen gespeichert hat.
+- Windows: Das Speichern von `settings.toml` scheiterte sofort, wenn ein anderer Prozess die frisch geschriebene Datei kurz offen hielt, wie es ein Virenscanner tut. Die App versucht es jetzt bis zu 310 ms lang erneut und prueft vor jedem Versuch, ob ein anderes Fenster der App inzwischen gespeichert hat; haelt die Sperre laenger, bleibt es bei der Fehlermeldung.
 - `known_hosts`: Scheiterte das Lesen der Datei aus einem anderen Grund als ihrem Fehlen, konnte ein neuer Eintrag an die letzte Zeile anschliessen und beide unbrauchbar machen. Jetzt steht in diesem Fall ein Zeilenumbruch davor.
 
 ## [0.3.7] - 2026-11-23
