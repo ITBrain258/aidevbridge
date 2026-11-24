@@ -14,7 +14,7 @@
       "tauri/custom-protocol"
     ],
     "rust_toolchain": "1.97.1",
-    "product_version": "0.3.7",
+    "product_version": "0.3.8",
     "android_ndk": "29.0.14206865",
     "minimum_sdk": 24,
     "target_sdk": 37,
@@ -69,7 +69,7 @@
       {
         "path": "Cargo.lock",
         "bytes": 146215,
-        "sha256": "a52773f0b24ac3e734d0947d427ebde82aac5765d12b271fe064c59fc7484ef1"
+        "sha256": "0affeead6d891bf0a83557f6b40f0e54d3165783ee9f10680eb478b3eb74d974"
       },
       {
         "path": "Cargo.toml",
@@ -99,7 +99,7 @@
       {
         "path": "docs/release/license-android-universal-2026-10-28.json",
         "bytes": 165805,
-        "sha256": "63eba62b50d67a3f53c89936063f725b055aa8ddc6dcdcff16334ecb6dc313d1"
+        "sha256": "ed288f653cc03cf89287c15b0953e9902631fd20f3f8687d52841a0d32ff29e1"
       },
       {
         "path": "docs/release/license-crypto-bigint-notices-2026-11-05.json",
@@ -149,7 +149,7 @@
       {
         "path": "docs/release/license-inventory-2026-10-28-android.json",
         "bytes": 269170,
-        "sha256": "9222684351a7b87db97b5d7c4a26d88b04575250383a6dcfe7e5f66577e3bd3d"
+        "sha256": "760b21dcaa97a4e7c76260e2e4ffa5906a2106b93e8d044c73b014be54ef84b9"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -679,12 +679,12 @@
       {
         "path": "package-lock.json",
         "bytes": 65465,
-        "sha256": "2a8a54b502f00967cc14ac92f3345a28f7ddb22ba34331ef7cc645c14eee4458"
+        "sha256": "2e5e16dd4181e2c286dab5a25967bc7637e5bc680e3d7d5d051501d60e584b30"
       },
       {
         "path": "package.json",
         "bytes": 1805,
-        "sha256": "de56ac4ef2d8d958a72ad16f2980c291597bfd70e85843bc43963c78b70f52b5"
+        "sha256": "eb41a0f1b6ae475313779269e113a840912508e8001db596f92d73d8e26a51b0"
       },
       {
         "path": "rust-toolchain.toml",
@@ -714,7 +714,7 @@
       {
         "path": "src-tauri/Cargo.toml",
         "bytes": 5920,
-        "sha256": "6d3d5d4eed0ef08ef662964b5f19c538d36a9e712c98629f64062c4e3d79cd22"
+        "sha256": "046ddec0989696bfe9d3a41e85c30d0037023924ce60a472cb2006e7b1c3ed41"
       },
       {
         "path": "src-tauri/build.rs",
@@ -764,7 +764,7 @@
       {
         "path": "src-tauri/tauri.conf.json",
         "bytes": 1510,
-        "sha256": "b06744bb338343f18d228e92fef3959830fffc2633b7b53934da9253fa85d43f"
+        "sha256": "1e465ecec41c16d9379d8512a6ca6b0db42cd6ccb3543c8285682e4a47fa5514"
       },
       {
         "path": "src/globals.d.ts",
@@ -2279,11 +2279,11 @@
         "declared_license": "Unlicense OR MIT"
       },
       {
-        "package": "aidevbridge@0.3.7",
+        "package": "aidevbridge@0.3.8",
         "source": null,
         "manifest": {
           "bytes": 5920,
-          "sha256": "6d3d5d4eed0ef08ef662964b5f19c538d36a9e712c98629f64062c4e3d79cd22"
+          "sha256": "046ddec0989696bfe9d3a41e85c30d0037023924ce60a472cb2006e7b1c3ed41"
         },
         "declared_license": "MIT OR Apache-2.0"
       },
@@ -5602,25 +5602,25 @@
         "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
       },
       {
-        "package": "aidevbridge@0.3.7",
+        "package": "aidevbridge@0.3.8",
         "path": "tests/fixtures/rsa-signing/LICENSE-APACHE-2.0",
         "bytes": 10846,
         "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
       },
       {
-        "package": "aidevbridge@0.3.7",
+        "package": "aidevbridge@0.3.8",
         "path": "tests/fixtures/rsa-signing/LICENSE-RSA-MIT",
         "bytes": 1022,
         "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
       },
       {
-        "package": "aidevbridge@0.3.7",
+        "package": "aidevbridge@0.3.8",
         "path": "tests/fixtures/rsa-signing/LICENSE-SSH-MIT",
         "bytes": 1082,
         "sha256": "57a4d75c1d095bb94754a478f3cd15e60ac66a5c5627d844be01a918eea5fe88"
       },
       {
-        "package": "aidevbridge@0.3.7",
+        "package": "aidevbridge@0.3.8",
         "path": "tests/fixtures/rsa-signing/NOTICE-RUSSH",
         "bytes": 802,
         "sha256": "190a6875ae3da6099c774da73bc593a35e4443967e527137d1e571c7f5aca90d"
@@ -11671,9 +11671,9 @@
       }
     },
     {
-      "id": "cargo:aidevbridge@0.3.7",
+      "id": "cargo:aidevbridge@0.3.8",
       "name": "aidevbridge",
-      "version": "0.3.7",
+      "version": "0.3.8",
       "declared_license": "MIT OR Apache-2.0",
       "selected_license": "MIT OR Apache-2.0",
       "disposition": "include",

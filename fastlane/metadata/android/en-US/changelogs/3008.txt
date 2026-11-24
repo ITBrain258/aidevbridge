@@ -1,0 +1,1 @@
+A session running Claude now shows why its status is unknown when "claude agents --json" fails, for example when claude is not found for SSH commands. On a host whose shell prints text on every SSH command, New session is disabled and says why, instead of creating a session no list can show. A damaged key file is no longer reported as a wrong passphrase.
