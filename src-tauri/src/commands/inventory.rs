@@ -209,16 +209,29 @@ fn shell_line_note(line: &str) -> String {
     }
 }
 
+/// Code einer Liste, die es nicht gibt, weil die Shell des Hosts Text auf die
+/// Standardausgabe schreibt. tmux legte dort eine Session an, ihre
+/// Bestaetigung (`session_binding::parse_created`) waere aber unlesbar, und
+/// keine Liste zeigte sie. Das Frontend sperrt deshalb "New session".
+pub const SHELL_STDOUT: &str = "shell_stdout";
+
+/// Code einer Liste, die wegen Meldungen der Shell auf der Fehlerausgabe
+/// scheiterte. Auch dort bleibt die Bestaetigung einer neuen Session aus,
+/// die Liste zeigt sie aber mit ihrem Namen. An einem leeren Host ist
+/// Anlegen der einzige Weg zur ersten Session; gesperrt wird nichts.
+const SHELL_MESSAGES: &str = "shell_output";
+
 /// Die Liste eines Sockets gibt es nicht, weil die Shell des Hosts in die
 /// Antworten schreibt. `detail` ist der Rohtext eines gescheiterten Befehls
 /// und steht am Ende, fuer "Details" und "Copy diagnostics".
 fn shell_output_error(
     transport: &CommandTransport,
+    code: &'static str,
     line: &str,
     detail: Option<&anyhow::Error>,
 ) -> OperationErrorDto {
     OperationErrorDto {
-        code: "shell_output",
+        code,
         message: shell_output_message(line, detail),
         control_generation: transport.generation,
     }
@@ -298,7 +311,7 @@ pub async fn list_sockets_impl(
         VersionAnswer::Unmeasured => (None, None),
         VersionAnswer::ShellMessages(line) => (None, Some(line)),
         VersionAnswer::ShellOutput(line) => {
-            return Err(shell_output_error(&transport, &line, None))
+            return Err(shell_output_error(&transport, SHELL_STDOUT, &line, None))
         }
     };
     let observed = |listing: &Result<SocketListing, OperationErrorDto>| {
@@ -324,7 +337,12 @@ pub async fn list_sockets_impl(
         // Der Standard-Socket braucht die strenge Rahmung; mit Meldungen der
         // Shell auf der Fehlerausgabe scheiterte sie an jeder Antwort. Er
         // wird dann gar nicht gelesen und nennt denselben Grund.
-        (true, Some(line)) => Some(Err(shell_output_error(&transport, line, None))),
+        (true, Some(line)) => Some(Err(shell_output_error(
+            &transport,
+            SHELL_MESSAGES,
+            line,
+            None,
+        ))),
         (true, None) => Some(list_default_socket(state, &transport, installed, deadline).await),
     };
     if agents.is_none() && default.as_ref().is_some_and(observed) {
@@ -370,7 +388,7 @@ async fn list_own_socket(
                 // erkennt die Namensliste nur an der genauen Fehlerausgabe.
                 // Ein Fehler des Transports behaelt seinen eigenen Grund.
                 Some(line) if e.downcast_ref::<ExecError>().is_none() => {
-                    shell_output_error(transport, line, Some(&e))
+                    shell_output_error(transport, SHELL_MESSAGES, line, Some(&e))
                 }
                 _ => operation_error(transport, &e),
             }),
@@ -443,7 +461,7 @@ pub(super) fn socket_sessions(
             shell_messages,
         }) => {
             let (unverified, reason) = match &shell_messages {
-                Some(line) => ("shell_output", shell_messages_reason(line)),
+                Some(line) => (SHELL_MESSAGES, shell_messages_reason(line)),
                 None => (
                     "unmeasured_tmux_version",
                     "tmux version is not a measured 3.0/3.3a/3.4/3.6 inventory".to_string(),

@@ -2500,6 +2500,93 @@ describe("main: Ersetzen, Grenze und Wiederfinden (Spec 2026-10-19 §5.2, §5.3,
     expect(tileTitles()).toEqual(h1Full);
   });
 
+  // Schreibt die Shell eines Hosts Text auf die Standardausgabe, scheitert
+  // seine Liste mit `shell_stdout` (`commands/inventory.rs::SHELL_STDOUT`).
+  // tmux legte dort eine Session an, die App koennte sie aber weder
+  // bestaetigen noch zeigen. Jeder Weg zu "New session" endet deshalb im
+  // Hinweis, ohne Dialog und ohne `create_session`. Der Knopf der
+  // Seitenleiste ist gesperrt; nach einer erfolgreichen Liste geht er wieder.
+  it.each<[string, () => void]>([
+    ["Strg+Umschalt+N", () => chord("n")],
+    [
+      "das Schnelloeffnen",
+      () => {
+        chord("p");
+        const input = document.querySelector<HTMLInputElement>(".dialog-panel .quick-open-input")!;
+        input.value = "New session on h1";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        runQuickOpenOption("New session on h1");
+      },
+    ],
+  ])("solange die Shell auf die Standardausgabe schreibt, legt New session ueber %s nichts an", async (_way, run) => {
+    await setupTwoHostsThreeSessions();
+    expandHost("h1");
+    openViaSidebar("h1", "s1");
+    await flush();
+    const base = invokeMock.getMockImplementation()!;
+    let shellPrints = true;
+    invokeMock.mockImplementation((command: string, rawArgs?: unknown) => {
+      const hostId = (rawArgs as Record<string, unknown> | undefined)?.hostId;
+      if (command === "list_sessions" && hostId === "r-h1" && shellPrints) {
+        return Promise.reject({ code: "shell_stdout", message: "The host's shell prints text on every SSH command." });
+      }
+      return base(command, rawArgs as never);
+    });
+    hostActionButton("h1", "Reload sessions").click();
+    await flush();
+    expect(hostActionButton("h1", "New session").disabled).toBe(true);
+    invokeMock.mockClear();
+
+    run();
+    await flush();
+
+    expect(document.querySelector(".dialog-panel")).toBeNull();
+    const banner = document.querySelector<HTMLElement>(".global-error-banner")!;
+    expect(banner.hidden).toBe(false);
+    expect(banner.textContent).toContain("New session is blocked on h1: its shell prints text on every SSH command");
+    const commands = invokeMock.mock.calls.map(([command]) => command);
+    expect(commands).not.toContain("list_directories");
+    expect(commands).not.toContain("create_session");
+
+    // Die Shell ist aufgeraeumt: die naechste Liste gelingt, und die Sperre
+    // faellt mit ihrem Fehler.
+    shellPrints = false;
+    hostActionButton("h1", "Reload sessions").click();
+    await flush();
+    expect(hostActionButton("h1", "New session").disabled).toBe(false);
+  });
+
+  // Der Dialog war schon offen, als die Liste mit `shell_stdout` scheiterte
+  // (etwa beim Neuladen nach einer neuen Steuerung): `createSession` prueft
+  // beim Absenden noch einmal.
+  it("ein offener Dialog legt nichts an, wenn die Liste inzwischen mit shell_stdout scheiterte", async () => {
+    await setupTwoHostsThreeSessions();
+    expandHost("h1");
+    hostActionButton("h1", "New session").click();
+    await flush();
+    const panel = document.querySelector(".dialog-panel")!;
+    const base = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation((command: string, rawArgs?: unknown) => {
+      const hostId = (rawArgs as Record<string, unknown> | undefined)?.hostId;
+      if (command === "list_sessions" && hostId === "r-h1") {
+        return Promise.reject({ code: "shell_stdout", message: "The host's shell prints text on every SSH command." });
+      }
+      return base(command, rawArgs as never);
+    });
+    hostActionButton("h1", "Reload sessions").click();
+    await flush();
+    invokeMock.mockClear();
+
+    panel.querySelector<HTMLInputElement>("input[name=sessionName]")!.value = "fresh";
+    Array.from(panel.querySelectorAll("button")).find((button) => button.textContent === "Create session")!.click();
+    await flush();
+
+    expect(invokeMock.mock.calls.map(([command]) => command)).not.toContain("create_session");
+    expect(document.querySelector<HTMLElement>(".global-error-banner")!.textContent).toContain(
+      "New session is blocked on h1",
+    );
+  });
+
   it("ein Fehler nach dem Grenzhinweis ist wieder gefaehrlich getoent", async () => {
     await setupTwoHostsThreeSessions({}, [...h1Full, h1Over]);
     expandHost("h1");

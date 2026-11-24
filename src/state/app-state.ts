@@ -403,6 +403,16 @@ export class AppState {
     return this.#sessionLists.get(this.#scope(hostId, socket)) ?? UNLOADED_SESSION_LIST;
   }
 
+  /** Schreibt die Shell des Hosts Text auf die Standardausgabe, scheitert die
+   * eigene Liste mit `shell_stdout` (`commands/inventory.rs::SHELL_STDOUT`).
+   * tmux legte dort eine Session an, die App koennte sie aber weder
+   * bestaetigen noch zeigen. Seitenleiste und `main.ts` sperren daran
+   * "New session". Eine erfolgreiche Liste nimmt den Fehler und damit die
+   * Sperre wieder weg. */
+  shellBlocksNewSession(hostId: string): boolean {
+    return this.sessionListForHost(hostId, "app").error?.code === "shell_stdout";
+  }
+
   setSessionListError(hostId: string, error: SessionListError, socket: SessionSocket = "app"): void {
     if (!this.hosts.some((host) => host.id === hostId)) return;
     const previous = this.sessionListForHost(hostId, socket);
