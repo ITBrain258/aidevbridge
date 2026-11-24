@@ -2044,6 +2044,14 @@ export function main(): void {
       showGlobalError(t("sessionDialog.hostNotConnected", { host: host.label }));
       return;
     }
+    // Schreibt die Shell des Hosts Text auf die Standardausgabe, liesse sich
+    // eine neue Session weder bestaetigen noch zeigen
+    // (`AppState.shellBlocksNewSession`). Wie der gesperrte Knopf der
+    // Seitenleiste, auch fuer Strg+Umschalt+N und Schnelloeffnen.
+    if (state.shellBlocksNewSession(hostId)) {
+      showGlobalError(t("sessionDialog.shellOutput", { host: host.label }));
+      return;
+    }
 
     // In eine lokale Konstante gezogen: die Verengung oben traegt nicht in
     // den Rueckruf unten hinein (`host.runtimeId` ist ein veraenderliches
@@ -2127,6 +2135,13 @@ export function main(): void {
       // Backend durchzureichen.
       const label = state.hosts.find((h) => h.id === hostId)?.label ?? hostId;
       showGlobalError(t("session.hostNotConnected", { host: label }));
+      return;
+    }
+    // Wie in `onNewSession`: die Liste kann zwischen dem Oeffnen des Dialogs
+    // und dem Absenden mit `shell_stdout` gescheitert sein.
+    if (state.shellBlocksNewSession(hostId)) {
+      const label = state.hosts.find((h) => h.id === hostId)?.label ?? hostId;
+      showGlobalError(t("sessionDialog.shellOutput", { host: label }));
       return;
     }
     const { runtimeId } = connection;

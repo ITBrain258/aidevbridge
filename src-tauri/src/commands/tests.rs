@@ -3391,6 +3391,47 @@ async fn ready_host_finds_only_a_ready_connection() {
     fixture.finish(2).await;
 }
 
+/// Schreibt die Shell Text auf die Standardausgabe, scheitert die Liste mit
+/// dem eigenen Code `shell_stdout` (nicht `shell_output` wie bei Meldungen auf
+/// der Fehlerausgabe): An ihm sperrt das Frontend "New session".
+#[tokio::test]
+async fn shell_output_on_stdout_fails_the_list_with_its_own_code() {
+    let fixture = crate::connection::tests::Fixture::start(2, false, false, false).await;
+    let host = fixture.connect().await.unwrap();
+    host.start_monitor();
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
+    state
+        .hosts
+        .lock()
+        .unwrap()
+        .insert("hermetic-h0".into(), HostSlot::Ready(host));
+    fixture.script_control(vec![(Some(0), "Welcome to build-box!\ntmux 3.4\n", "")]);
+
+    let listed = tokio::time::timeout(
+        Duration::from_secs(8),
+        list_sockets_impl(&state, "hermetic-h0".into(), false),
+    )
+    .await
+    .unwrap();
+
+    let error = listed.expect_err("the list must fail");
+    assert_eq!(error.code, "shell_stdout", "{}", error.message);
+    assert!(
+        error.message.contains("Welcome to build-box!"),
+        "{}",
+        error.message
+    );
+    assert_eq!(fixture.control_commands().len(), 1, "only tmux -V went out");
+    tokio::time::timeout(
+        Duration::from_secs(8),
+        disconnect_host_impl(&state, "hermetic-h0".into()),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    fixture.finish(2).await;
+}
+
 /// Scheitert schon der Befehl `tmux -V` (hier: der Server lehnt sein Kanal-Open
 /// ab, wie bei einem Engpass), scheitert die Liste mit diesem Grund. Sie gibt
 /// die eigenen Sessions nicht als "ungemessen" ohne Bindung aus, und kein

@@ -799,10 +799,12 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       nur, wenn sie interaktiv ist (`$-` enthält `i`), stört nichts. Nach
       der neutralen Bewertung der Messung später, nicht für 0.3.6: eine
       Sperre für „New session“, solange die Liste wegen der Shell ausbleibt.
-      Sie braucht einen eigenen Fehlercode: Ein leerer Host mit Meldungen
-      auf der Fehlerausgabe trägt denselben Code `shell_output` und braucht
-      „New session“. Und eine Meldung beim Öffnen, die die Shell als
-      möglichen Grund nennt. Nicht gemessen: zsh, andere tmux-Versionen,
+      Erledigt mit Z1.3 des Fahrplans: Text auf der Standardausgabe trägt
+      den eigenen Code `shell_stdout` und sperrt „New session“ (Knopf, alle
+      Wege über `onNewSession` und das Absenden eines schon offenen
+      Dialogs); Meldungen nur auf der Fehlerausgabe behalten `shell_output`
+      und sperren nichts. Eine erfolgreiche Liste hebt die Sperre auf. Offen: eine Meldung beim
+      Öffnen, die die Shell als möglichen Grund nennt. Nicht gemessen: zsh, andere tmux-Versionen,
       eine Startdatei, die auf Eingabe wartet.
     - **Backend, klein:** Zweite Verbindung und Reparatur lösen den Hostnamen
       neu auf (Round-Robin-DNS kann sie auf zwei Rechner führen);

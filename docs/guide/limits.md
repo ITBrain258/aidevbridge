@@ -125,8 +125,9 @@
   in the way, and the app names it instead of guessing. With text on standard
   output, the host check stops and the session list is not shown; the host
   check quotes the first line of that text, the list under its details.
-  **New session** still creates a session on such a host, reports it as
-  unconfirmed and cannot show it until the output is removed. With messages
+  **New session** is disabled on such a host and says why: a session created
+  there could neither be confirmed nor shown. Once the output is removed,
+  reloading the sessions lifts the block. With messages
   on standard error only (for example `stty` without a terminal), sessions
   are listed by name with the status "Unknown", and tmux's default socket is
   not read. While such a host has no session, the sidebar shows the notice
