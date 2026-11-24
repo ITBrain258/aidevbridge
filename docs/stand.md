@@ -305,6 +305,38 @@ Festlegungen.
 
 ## Letzte Prüfung
 
+Am Release 0.3.8 (24.11.2026, Tag `v0.3.8` auf `fbfeeec`, dessen Baum dem
+geprüften Kopf des Release-PR #75 gleicht; der PR ändert am Code nur die
+Versionszeilen): Probeläufe mit **release** auf dem Kopf grün (Packages
+45301964535, Android 45301968216, Audit 45301971528). Vor dem Tag lief eine
+Prüfung der Release-Texte gegen den Code, die nur las; ihre fünf Korrekturen
+stehen im PR. Live-Lauf auf dem Rust-Code des Releases (main mit PR #72; #73
+und #74 ändern keinen Rust-Code) an beiden Test-VMs: je 790 Tests ohne
+Fehlschlag und die Abnahme mit 11 von 11. Ein Ausreißer im ersten Lauf an der
+VM mit tmux 3.6: `a_stalled_session_does_not_take_the_whole_connection_down`
+scheiterte unter vier parallelen Testthreads an seiner eigenen Vorbedingung
+(nur 36 % des Ack-Fensters kamen vor 2 s Stille an); einzeln zweimal grün, der
+volle zweite Lauf ebenfalls. Am Release sechs Dateien; ihre Prüfsummen stimmen
+mit dem Release-Text, den Digests von GitHub und der `.sha256`-Datei überein,
+die Attestierungen der fünf Pakete nennen Tag und Commit, und das APK trägt
+versionCode 3008 und das bisherige Zertifikat. Die Läufe am Tag starteten
+beide, obwohl `packages.yml` seit PR #66 einen Pfadfilter hat. Live-Lauf auf
+dem sauberen Tag an beiden Test-VMs: je 790 von 790 und die Abnahme mit 11 von
+11. Das Hochladen zu Google Play lief nicht (kein Dienstkonto, Punkt 11).
+Nicht geprüft: das echte Fenster mit 0.3.8; eine Host-Shell, die auf die
+Standardausgabe schreibt, an einer VM (dafür bräuchte es das Wegwerfkonto);
+die Anmeldung per Passwort und über den ssh-agent, die ohne Passwort bzw. mit
+leerem Agent übersprungen wurden.
+
+Am 23./24.11.2026 für Zug 1 (PR #66 bis #74): neutrale Durchsichten, die nur
+lasen, für #68, #70, #71 und #72 und eine Prüfung der Release-Texte; ihre
+Funde beheben dieselben PRs (unter anderem konnte der wiederholte `rename` die
+Speicherung eines anderen Fensters überschreiben, und die Sessionliste setzte
+den Claude-Grund bis zum nächsten Poll zurück). Lokal vor jedem PR: Clippy mit
+`-D warnings`, alle Rust-Tests, Vitest, Typprüfung und `licenses:status`. CI
+grün; der Linux-Job scheiterte in der Nacht viermal am apt-Mirror von Ubuntu
+(drei Zeitüberschreitungen beim Herunterladen) und lief wiederholt grün.
+
 Am Release 0.3.7 (23.11.2026, Tag `v0.3.7` auf `de3286c`, dessen Baum dem
 geprüften Kopf des Release-PR #65 gleicht; der PR ändert am Code nur die
 beiden Versionszeilen): Probeläufe mit **release** auf dem Kopf grün (die
