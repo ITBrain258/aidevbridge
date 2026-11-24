@@ -658,8 +658,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       beide weiter auf `false`. Das neueste 2er-Release ist 2.12.6, die App
       steht auf 2.12.5.
     - **TypeScript 7:** Der native Compiler hat in 7.0 keine stabile JS-API;
-      `src/source-hygiene.test.ts` und `release-license-inventory-frontend.mjs`
-      brauchen `ts.createSourceFile`. Stand am 23.11.: 7.0.2 ist das neueste
+      `src/source-hygiene.test.ts`, `src/ipc.contract.test.ts` und
+      `release-license-inventory-frontend.mjs` brauchen `ts.createSourceFile`. Stand am 23.11.: 7.0.2 ist das neueste
       Release, 7.1 ist als Beta erschienen; ob sie diese API mitbringt, ist
       nicht geprüft.
     - **Jackson 2.15.3** in der Android-App, über Tauris Android-Bibliothek:
@@ -868,7 +868,11 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       nach `settings/tests.rs`. Batch 9 (U3) wie geplant, nicht erweitert,
       und erst direkt vor der nächsten Arbeit an Hosts oder Inventar. Vom
       IPC-Vertrag (Punkt 14) lohnt vorerst nur ein Vertragstest, der die
-      Aufrufe des Frontends gegen die Rust-Quellen prüft. Der Abbau von
+      Aufrufe des Frontends gegen die Rust-Quellen prüft. Erledigt mit Z1.4:
+      `src/ipc.contract.test.ts` liest jeden `invoke(...)` in `src/` und
+      jeden `#[tauri::command]` und prüft Namen, Pflicht- und optionale
+      Parameter, auch die aus `...socketArg` und `...includeDefaultArg()`.
+      Die Rückgabetypen prüft er nicht. Der Abbau von
       `main()` (Punkt 15) betrifft nur Tests. Nicht übernommen: ein
       gemeinsames strenges Fake-Backend für die Tests und kürzere
       Zeitkonstanten unter `cfg(test)`; beides kostet mehr, als es bringt.
