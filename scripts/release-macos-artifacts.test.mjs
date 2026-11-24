@@ -7,7 +7,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { EXPECTED_CONFIG, machoArchs, linkedLibraries, signingMode, cleanBuildEnvironment, releaseContract, artifactName, checkAppTree, sourceSnapshot, claimRun, releaseLock, beforeBuild, fileTree, CLI_VERSION } from './release-macos-artifacts.mjs';
+import { EXPECTED_CONFIG, machoArchs, linkedLibraries, signingMode, cleanBuildEnvironment, releaseContract, artifactName, checkAppTree, sourceSnapshot, claimRun, releaseLock, beforeBuild, fileTree, CLI_VERSION, command } from './release-macos-artifacts.mjs';
 import { cleanBuildEnvironment as cleanWindowsBuildEnvironment } from './release-windows-artifacts.mjs';
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -171,6 +171,19 @@ test('a preview build hook writes the placeholder notice and binds the frontend 
   await assert.rejects(beforeBuild(f.root, { ...env, AIDEVBRIDGE_RELEASE_TOKEN: 'other' }, { runCommand: async () => {}, licenses }), /owner mismatch/);
   releaseLock(f.root, claimed.lock);
   assert.equal(fs.existsSync(path.join(f.root, 'out/.aidevbridge-macos-release.lock')), false);
+});
+
+test('a failed log write is reported only after the direct child closes, with pipes still drained', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aidevbridge-macos-log-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const run = { relative: 'out/release-macos/log-test' };
+  const proof = path.join(root, 'child-ended.txt');
+  const script = 'const fs=require("node:fs");process.stdout.write("fixture-start\\n");setTimeout(()=>{fs.writeFileSync(process.argv[1],"finished");process.stderr.write("fixture-end\\n")},60)';
+  let writes = 0;
+  await assert.rejects(command(root, run, 'failing-log', process.execPath, ['-e', script, proof], process.env, false, { writeLog: () => { writes++; throw new Error('injected disk failure'); } }), /injected disk failure/);
+  assert.equal(writes, 1); assert.equal(fs.readFileSync(proof, 'utf8'), 'finished');
+  const exit = JSON.parse(fs.readFileSync(path.join(root, 'out/release-macos/log-test/logs/failing-log.exit.json'), 'utf8'));
+  assert.equal(exit.exit_code, 0); assert.equal(exit.signal, null); assert.equal(exit.log_error, 'injected disk failure');
 });
 
 test('the pinned Tauri CLI is the locked one', () => {

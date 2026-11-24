@@ -139,7 +139,7 @@
       {
         "path": "docs/release/license-macos-universal-2026-10-25.json",
         "bytes": 138292,
-        "sha256": "8b7c3fd74b2493d6538cb2c8beb9e0ed6e8611e1690e190a7b23a6ec269f24c5"
+        "sha256": "4707ad168650693d52aa87ce5fe8af4e9a7ee560d2912aec1bbc4d8529ae0753"
       },
       {
         "path": "docs/release/license-mpl-selection-2026-09-12.json",
@@ -628,8 +628,8 @@
       },
       {
         "path": "scripts/release-macos-artifacts.mjs",
-        "bytes": 30466,
-        "sha256": "5de7925d13eb6c229d2ff2638b131d371cde806d8d11637ae34f95b1b3201c83"
+        "bytes": 31374,
+        "sha256": "e459155a6d0d91d8405e808ba165adb1b4703fc7d82f04c128a89fdee37d3e51"
       },
       {
         "path": "src-tauri/Cargo.toml",
@@ -22455,7 +22455,7 @@
       "documents": [
         "sha256:123a331b5dbf04c30097fa43b8f858bc85df671fe776de498d01f3d6b7c1f69e"
       ],
-      "reason": "Installed rust-std RLIB liblibc for both Apple targets; library/Cargo.lock pins 0.2.185 with crates.io checksum 52ff2c0fe9bc6cb6b14a0592c2ff4fa9ceb83eea9db979b0487cd054946a2b8f, equal to the SHA-256 of the archive the text comes from. std depends on it for cfg(not(all(windows, target_env = \"msvc\"))); its MIT bytes equal those of the application's libc 0.2.189.",
+      "reason": "Installed rust-std RLIB liblibc for both Apple targets; library/Cargo.lock pins 0.2.185 with crates.io checksum 52ff2c0fe9bc6cb6b14a0592c2ff4fa9ceb83eea9db979b0487cd054946a2b8f, equal to the SHA-256 of the archive the text comes from. std depends on it for cfg(not(all(windows, target_env = \"msvc\"))); its MIT bytes equal those of the application's libc 0.2.191.",
       "decision_basis": [
         "docs/release/license-macos-universal-2026-10-25.json"
       ],

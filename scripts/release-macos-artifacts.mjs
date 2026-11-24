@@ -184,24 +184,37 @@ function hookContext(root, env) {
   return run;
 }
 
-async function command(root, run, stage, executable, args, env, capture = false) {
+export async function command(root, run, stage, executable, args, env, capture = false, { writeLog = fs.writeSync } = {}) {
   const logPath = at(root, `${run.relative}/logs/${stage}.log`);
   fs.mkdirSync(path.dirname(logPath), { recursive: true });
   const fd = fs.openSync(logPath, 'wx');
   process.stdout.write(`[macos-release] ${stage}\n`);
-  let stdout = '';
+  let stdout = '', closed = false, ioError;
+  const retainError = error => { ioError ??= error; };
   try {
-    const { code, signal, error } = await new Promise(resolve => {
+    const outcome = await new Promise(resolve => {
       const child = spawn(executable, args, { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
       let spawnError;
       child.on('error', e => { spawnError = e; });
-      child.stdout.on('data', bytes => { fs.writeSync(fd, bytes); process.stdout.write(bytes); if (capture) stdout += bytes.toString('utf8'); });
-      child.stderr.on('data', bytes => { fs.writeSync(fd, bytes); process.stderr.write(bytes); });
-      child.on('close', (code, signal) => resolve({ code, signal, error: spawnError }));
+      const drain = (bytes, output, save) => {
+        // As in release-windows-artifacts.mjs: a failed log write must not
+        // throw out of an event callback or abandon the still-running child.
+        // Continue consuming both pipes until close.
+        if (!ioError) { try { writeLog(fd, bytes); } catch (error) { retainError(error); } }
+        try { output.write(bytes); } catch (error) { retainError(error); }
+        if (capture && save && !ioError) stdout += bytes.toString('utf8');
+      };
+      child.stdout.on('data', bytes => drain(bytes, process.stdout, true));
+      child.stderr.on('data', bytes => drain(bytes, process.stderr, false));
+      child.stdout.on('error', retainError); child.stderr.on('error', retainError);
+      child.on('close', (code, signal) => resolve({ code, signal, spawnError }));
     });
-    write(root, `${run.relative}/logs/${stage}.exit.json`, json({ stage, executable, args, exit_code: code, signal, spawn_error: error?.message ?? null }));
-    if (error || code !== 0 || signal) throw error ?? new Error(`${stage} failed (exit ${code}, signal ${signal})`);
-  } finally { fs.closeSync(fd); }
+    // All final filesystem work happens after the direct child's close event.
+    try { fs.closeSync(fd); } catch (error) { retainError(error); } finally { closed = true; }
+    const { code, signal, spawnError } = outcome;
+    write(root, `${run.relative}/logs/${stage}.exit.json`, json({ stage, executable, args, exit_code: code, signal, spawn_error: spawnError?.message ?? null, log_error: ioError?.message ?? null }));
+    if (spawnError || ioError || code !== 0 || signal) throw spawnError ?? ioError ?? new Error(`${stage} failed (exit ${code}, signal ${signal})`);
+  } finally { if (!closed) fs.closeSync(fd); }
   return stdout.trim();
 }
 function npmCli() {
