@@ -192,10 +192,12 @@ const CLIPBOARD_PASTE_KEY = "Ctrl+V";
 
 /** UX-Spec §6.9, §10: der Satz fuer jeden Fehlerpfad des Terminals.
  * `terminal.ts` meldet nur die Art; Texte und Sessionname kennt diese Datei. */
-function terminalErrorText(kind: TerminalErrorKind, session: string): string {
+function terminalErrorText(kind: TerminalErrorKind, session: string, detail: string): string {
   switch (kind) {
     case "open":
-      return t("terminal.openFailed", { session });
+      return isShellTerminalError(detail)
+        ? t("terminal.openFailedShell", { session })
+        : t("terminal.openFailed", { session });
     case "copy":
       return t("terminal.copyFailed");
     case "paste":
@@ -224,6 +226,18 @@ export const CAPACITY_ERRORS: readonly string[] = [
 
 export function isCapacityError(detail: string): boolean {
   return CAPACITY_ERRORS.some((text) => detail.includes(text));
+}
+
+/** Rohtexte des Backends, hinter denen oft die Shell des Hosts steckt:
+ * tmux hat den Attach nicht bestaetigt, obwohl noch Zeit war
+ * (`ATTACH_NOT_CONFIRMED` in commands.rs). Gemessen am 16.11.: Schreibt die
+ * Shell nur mit Terminal, bemerken Host-Pruefung und Liste nichts, und das
+ * Oeffnen scheitert so. Dass jeder Eintrag in den Rust-Quellen steht, prueft
+ * `capacity-errors.contract.test.ts`. */
+export const SHELL_TERMINAL_ERRORS: readonly string[] = ["attach wrapper was not confirmed"];
+
+export function isShellTerminalError(detail: string): boolean {
+  return SHELL_TERMINAL_ERRORS.some((text) => detail.includes(text));
 }
 
 /** Texte und Kuerzel des Terminalmenues (UX-Spec §6.3). `terminal.ts` kennt
@@ -1411,7 +1425,7 @@ export function mountGrid(el: HTMLElement, state: AppState, opts: GridOptions): 
               capacityDetail = error.detail;
               return;
             }
-            if (!quietErrors) opts.onTerminalError(terminalErrorText(error.kind, resolved.name), error.detail);
+            if (!quietErrors) opts.onTerminalError(terminalErrorText(error.kind, resolved.name, error.detail), error.detail);
             else if (reattach) reattach.lastError = error.detail;
           },
           {

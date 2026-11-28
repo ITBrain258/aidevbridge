@@ -126,18 +126,20 @@
   output, the host check stops and the session list is not shown; the host
   check quotes the first line of that text, the list under its details.
   **New session** is disabled on such a host and says why: a session created
-  there could neither be confirmed nor shown. Once the output is removed,
-  reloading the sessions lifts the block. With messages
-  on standard error only (for example `stty` without a terminal), sessions
-  are listed by name with the status "Unknown", and tmux's default socket is
-  not read. While such a host has no session, the sidebar shows the notice
+  there could neither be confirmed nor shown. The app also asks the host
+  right before it creates a session, so a dialog sent before the list has
+  loaded creates nothing either. Once the output is removed, reloading the
+  sessions lifts the block. With messages on standard error only (for
+  example `stty` without a terminal), or with nothing but empty lines on
+  standard output, sessions are listed by name with the status "Unknown",
+  and tmux's default socket is not read. While such a host has no session, the sidebar shows the notice
   about the shell instead of an empty list; creating a session and ending
   the last one work, but the app reports them as unconfirmed. Opening a
   listed session also expects the app's own marker line first, and the app
   opens sessions through an SSH command with a terminal. Output that appears
   only when there is a terminal (`[ -t 1 ]`, for example) therefore passes
   the host check and the list, and then opening a listed session fails; the
-  message suggests that the session ended and does not name the shell. A startup
+  message names such a shell as a common cause. A startup
   file that waits for input makes opening fail as well, at the latest after
   15 seconds. Remove the output, or print it only in interactive shells; in
   bash that is a test of `$-`, for example `case $- in *i*) echo hello;; esac`.

@@ -799,6 +799,17 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   /** Der Sessionschluessel, dessen "Beenden"-Rueckfrage gerade offen steht.
    * Hoechstens eine, aus demselben Grund wie oben. */
   let pendingKillKey: string | null = null;
+  /** Die Kennung der Session, der die offene Rueckfrage gilt
+   * (`killIdentityOf`). Der Schluessel allein ist nur der Name. */
+  let pendingKillIdentity: string | null = null;
+
+  /** Server und Session einer gebundenen Session; ohne Bindung leer, dann
+   * bleibt nur der Name. */
+  function killIdentityOf(session: Session): string {
+    return [session.serverPid, session.serverStartTime, session.sessionId]
+      .map((part) => part ?? "")
+      .join("/");
+  }
 
   /** Fokussiert ein Element, das eine Sessionaktion sein KANN (UI-v2-Spec,
    * Sichtpruefung 2026-09-07, Punkt A). Der Umweg ist noetig, weil
@@ -1606,6 +1617,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
         // Bestaetigungsknopf -- dieselbe Zurueckhaltung wie beim Entfernen
         // eines Hosts.
         pendingKillKey = key;
+        pendingKillIdentity = killIdentityOf(session);
         render();
         focusByKey(focusKey("confirm", key, "cancel"));
       },
@@ -2500,11 +2512,23 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
     // `pendingKillKey` stehen, erschiene die Rueckfrage spaeter unaufgefordert
     // an einer NEUEN, gleichnamigen Session -- eine offene Frage
     // "This cannot be undone", nach der niemand gefragt hat.
+    //
+    // Dasselbe, wenn unter dem Namen eine andere gebundene Session steht
+    // (beendet und gleichnamig neu angelegt, zwischen zwei Listen), und
+    // wenn der Host nicht verbunden ist: Dann steht die Leiste nicht da (der
+    // Knopf fehlt), und nach dem Neuverbinden erschiene sie von selbst wieder.
     if (
       pendingKillKey !== null &&
-      !state.hosts.some((h) => h.sessions.some((s) => sessionKeyOf(s) === pendingKillKey))
+      !state.hosts.some(
+        (h) =>
+          h.state === "connected" &&
+          h.sessions.some(
+            (s) => sessionKeyOf(s) === pendingKillKey && killIdentityOf(s) === pendingKillIdentity,
+          ),
+      )
     ) {
       pendingKillKey = null;
+      pendingKillIdentity = null;
     }
 
     const active = document.activeElement;

@@ -18,7 +18,7 @@ import { readdirSync, readFileSync } from "node:fs";
 // @ts-expect-error 'node:path' ist ein Node-Global, siehe Kommentar oben
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { CAPACITY_ERRORS } from "./grid";
+import { CAPACITY_ERRORS, SHELL_TERMINAL_ERRORS } from "./grid";
 
 /** Alle Rust-Quellen unter `src-tauri/src`, Tests eingeschlossen: dort steht
  * der erzeugte Text, gegen den die Rust-Tests vergleichen. Der Pfad ist
@@ -45,6 +45,18 @@ describe("CAPACITY_ERRORS gegen die Rust-Quellen", () => {
   });
 
   it.each(CAPACITY_ERRORS)("%s steht woertlich in src-tauri/src", (text) => {
+    const literal = rustLiteral(text);
+    const files = sources.filter((source) => source.text.includes(literal)).map((source) => source.file);
+    expect(files, `${literal} in src-tauri/src/**/*.rs`).not.toEqual([]);
+  });
+});
+
+// Dieselbe Kopplung fuer die Rohtexte, an denen der Satz beim Oeffnen die
+// Shell als moeglichen Grund nennt (`SHELL_TERMINAL_ERRORS`, grid.ts).
+describe("SHELL_TERMINAL_ERRORS gegen die Rust-Quellen", () => {
+  const sources = rustSources();
+
+  it.each(SHELL_TERMINAL_ERRORS)("%s steht woertlich in src-tauri/src", (text) => {
     const literal = rustLiteral(text);
     const files = sources.filter((source) => source.text.includes(literal)).map((source) => source.file);
     expect(files, `${literal} in src-tauri/src/**/*.rs`).not.toEqual([]);

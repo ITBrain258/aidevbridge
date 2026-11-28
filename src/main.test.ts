@@ -2587,6 +2587,38 @@ describe("main: Ersetzen, Grenze und Wiederfinden (Spec 2026-10-19 §5.2, §5.3,
     );
   });
 
+  // Das Backend prueft vor dem Anlegen selbst. Wusste die Liste noch nichts
+  // von der Ausgabe der Shell (direkt nach dem Verbinden, nach einem
+  // Listenfehler anderer Art), lehnt `create_session` mit `shell_stdout` ab:
+  // Der Hinweis nennt die Shell, und die Sperre gilt ab jetzt auch hier.
+  it("lehnt das Backend mit shell_stdout ab, nennt der Hinweis die Shell und New session ist gesperrt", async () => {
+    await setupTwoHostsThreeSessions();
+    expandHost("h1");
+    hostActionButton("h1", "New session").click();
+    await flush();
+    const panel = document.querySelector(".dialog-panel")!;
+    const base = invokeMock.getMockImplementation()!;
+    const refusal = "The host's shell prints text on every SSH command (it starts with \"Welcome\").";
+    invokeMock.mockImplementation((command: string, rawArgs?: unknown) => {
+      if (command === "create_session") return Promise.reject({ kind: "shell_stdout", message: refusal });
+      return base(command, rawArgs as never);
+    });
+
+    panel.querySelector<HTMLInputElement>("input[name=sessionName]")!.value = "fresh";
+    Array.from(panel.querySelectorAll("button")).find((button) => button.textContent === "Create session")!.click();
+    await flush();
+
+    const banner = document.querySelector<HTMLElement>(".global-error-banner")!;
+    expect(banner.hidden).toBe(false);
+    expect(banner.textContent).toContain("New session is blocked on h1: its shell prints text on every SSH command");
+    expect(hostActionButton("h1", "New session").disabled).toBe(true);
+
+    // Eine Liste ohne diesen Fehler hebt die Sperre wieder auf.
+    hostActionButton("h1", "Reload sessions").click();
+    await flush();
+    expect(hostActionButton("h1", "New session").disabled).toBe(false);
+  });
+
   it("ein Fehler nach dem Grenzhinweis ist wieder gefaehrlich getoent", async () => {
     await setupTwoHostsThreeSessions({}, [...h1Full, h1Over]);
     expandHost("h1");

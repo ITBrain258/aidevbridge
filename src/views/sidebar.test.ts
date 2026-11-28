@@ -2740,6 +2740,46 @@ describe("mountSidebar: die Beenden-Rueckfrage haelt ihre Zusage", () => {
     expect(el.querySelector(".session-confirm-kill")).toBeNull();
   });
 
+  it("verwirft eine offene Rueckfrage, wenn die Verbindung abbricht", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1", ["a"]));
+    const { el } = mount(s);
+
+    el.querySelector<HTMLButtonElement>(".session-kill-btn")!.click();
+    expect(el.querySelector(".session-confirm-kill")).not.toBeNull();
+
+    // Die Session bleibt in der Liste stehen, nur die Verbindung fehlt.
+    s.setHostState("h1", "disconnected");
+    expect(el.querySelector(".session-confirm-kill")).toBeNull();
+    s.setHostState("h1", "connected");
+
+    // Nach dem Neuverbinden fragt niemand mehr.
+    expect(el.querySelector(".session-kill-btn")).not.toBeNull();
+    expect(el.querySelector(".session-confirm-kill")).toBeNull();
+  });
+
+  it("verwirft eine offene Rueckfrage, wenn unter dem Namen eine andere Session steht", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    const bound = (sessionId: number) => [
+      { name: "a", sessionId, serverPid: 50, serverStartTime: 1000 },
+    ];
+    s.setSessionRecords("h1", bound(3));
+    const { el } = mount(s);
+
+    el.querySelector<HTMLButtonElement>(".session-kill-btn")!.click();
+    expect(el.querySelector(".session-confirm-kill")).not.toBeNull();
+
+    // Dieselbe Session in einer frischen Liste: Die Frage bleibt.
+    s.setSessionRecords("h1", bound(3));
+    expect(el.querySelector(".session-confirm-kill")).not.toBeNull();
+
+    // Beendet und gleichnamig neu angelegt, zwischen zwei Listen: Die Frage
+    // galt der alten Session, nicht dieser.
+    s.setSessionRecords("h1", bound(4));
+    expect(el.querySelector(".session-confirm-kill")).toBeNull();
+  });
+
   it("beschriftet den fragenden Knopf mit Ellipse, den ausfuehrenden ohne", () => {
     const s = new AppState();
     s.upsertHost(host("h1", ["a"]));
