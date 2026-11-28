@@ -161,7 +161,9 @@ pub(super) enum VersionAnswer {
     Unmeasured,
     /// Genau die Zeile `tmux …`, daneben Text auf der Fehlerausgabe (etwa
     /// `stty` ohne Terminal); getragen wird dessen erste Zeile. Die Namen
-    /// bleiben genau, die strenge Rahmung nicht.
+    /// bleiben genau, die strenge Rahmung nicht. Leer, wenn die Shell neben
+    /// der Zeile nur Leerzeilen schreibt, auf die Standard- oder die
+    /// Fehlerausgabe: Auch dann bleiben die Namen genau.
     ShellMessages(String),
     /// Auf der Standardausgabe steht anderes als die eine Zeile `tmux …`;
     /// getragen wird die erste fremde Zeile. Text der Shell laesst sich von
@@ -189,6 +191,12 @@ impl VersionAnswer {
             [] => Self::Unmeasured,
             [line] if is_version(line) => match crate::preflight::shell_line(&result.stderr) {
                 Some(message) => Self::ShellMessages(message),
+                // Leerzeilen davor oder danach, oder nur Leerzeilen auf der
+                // Fehlerausgabe, kommen von der Shell, nicht von tmux. Als
+                // ungemessene Version nennte jede Session sonst tmux als Grund.
+                None if result.stdout.lines().count() > 1 || !result.stderr.is_empty() => {
+                    Self::ShellMessages(String::new())
+                }
                 None => Self::Unmeasured,
             },
             lines => {
@@ -253,10 +261,16 @@ pub(super) fn shell_output_message(line: &str, detail: Option<&anyhow::Error>) -
 /// Der Grund an jeder Zeile einer Namensliste, die es wegen Meldungen der
 /// Shell auf der Fehlerausgabe nur als Namen gibt (Tooltip an "Unknown").
 fn shell_messages_reason(line: &str) -> String {
-    format!(
-        "the host's shell prints messages on every SSH command (\"{line}\"); status and \
-         history need a shell that stays silent there"
-    )
+    match line.is_empty() {
+        // Nur Leerzeilen auf der Standardausgabe (`VersionAnswer::ShellMessages`).
+        true => "the host's shell prints empty lines on every SSH command; status and history \
+                 need a shell that stays silent there"
+            .into(),
+        false => format!(
+            "the host's shell prints messages on every SSH command (\"{line}\"); status and \
+             history need a shell that stays silent there"
+        ),
+    }
 }
 
 pub async fn list_sessions_impl(

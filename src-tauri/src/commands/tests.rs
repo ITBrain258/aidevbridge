@@ -2745,7 +2745,13 @@ async fn successful_kill_with_failed_verification_does_not_report_success() {
         stderr: "error connecting to /tmp/tmux-1000/sock (Permission denied)\n".into(),
         ..created()
     };
-    let t = ScriptedTransport::new(vec![created(), verification_failure]);
+    // Die Pruefliste fragt einmal nach (`asks_again_after_kill`); scheitert
+    // auch die zweite, bleibt es ein Fehler.
+    let t = ScriptedTransport::new(vec![
+        created(),
+        verification_failure.clone(),
+        verification_failure,
+    ]);
     let error = kill_session_and_verify(
         &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
         &t,
@@ -2754,7 +2760,7 @@ async fn successful_kill_with_failed_verification_does_not_report_success() {
     .await
     .unwrap_err();
     assert!(error.to_string().contains("Permission denied"));
-    assert_eq!(*t.calls.lock().unwrap(), 2);
+    assert_eq!(*t.calls.lock().unwrap(), 3);
 }
 
 #[tokio::test]
@@ -2869,7 +2875,16 @@ async fn end_last_bound_session(prediction: &str) -> (anyhow::Result<()>, u32) {
         stdout: prediction.into(),
         ..created()
     };
-    let t = ScriptedTransport::new(vec![created(), version, no_server, prediction]);
+    // Zwei Runden: Eine unbewiesene Abwesenheit bekommt eine zweite Liste
+    // (`asks_again_after_kill`); eine bewiesene braucht nur die erste.
+    let t = ScriptedTransport::new(vec![
+        created(),
+        version,
+        no_server.clone(),
+        prediction.clone(),
+        no_server,
+        prediction,
+    ]);
     let result = kill_session_bound_and_verify(
         &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
         &t,
@@ -2900,7 +2915,95 @@ async fn ending_the_last_bound_session_rejects_an_unproven_absence() {
         error.to_string().contains("tmux binding query failed"),
         "{error:#}"
     );
-    assert_eq!(calls, 4);
+    assert_eq!(
+        calls, 6,
+        "kill, version and two rounds of list and path prediction"
+    );
+}
+
+/// Endet mit der letzten Session der Server, kann die Pruefliste ihn noch
+/// beim Herunterfahren erreichen. tmux meldet dann einen eigenen Fehler
+/// (unter Last gesehen: "server exited unexpectedly") statt "no server
+/// running". Das beweist nichts; die zweite Liste kommt danach, und erst sie
+/// beweist das Ende.
+fn server_going_down() -> ExecResult {
+    ExecResult {
+        utf8_valid: true,
+        code: 1,
+        stderr: "server exited unexpectedly\n".into(),
+        ..created()
+    }
+}
+
+#[tokio::test]
+async fn ending_the_last_bound_session_asks_again_while_the_server_goes_down() {
+    let version = ExecResult {
+        utf8_valid: true,
+        stdout: "tmux 3.4\n".into(),
+        ..created()
+    };
+    let no_server = ExecResult {
+        utf8_valid: true,
+        code: 1,
+        stderr: "no server running on /tmp/tmux-1000/sock\n".into(),
+        ..created()
+    };
+    let prediction = ExecResult {
+        utf8_valid: true,
+        stdout: "S|/tmp/tmux-1000/sock\n".into(),
+        ..created()
+    };
+    let t = ScriptedTransport::new(vec![
+        created(),
+        version,
+        server_going_down(),
+        no_server,
+        prediction,
+    ]);
+    end_bound_session(&t).await.unwrap();
+    assert_eq!(
+        *t.calls.lock().unwrap(),
+        5,
+        "kill, version, two lists and the path prediction"
+    );
+}
+
+/// Nur ein zweiter Versuch: Scheitert auch er, bleibt das Ende unbewiesen.
+#[tokio::test]
+async fn ending_a_bound_session_asks_again_only_once() {
+    let version = ExecResult {
+        utf8_valid: true,
+        stdout: "tmux 3.4\n".into(),
+        ..created()
+    };
+    let t = ScriptedTransport::new(vec![
+        created(),
+        version,
+        server_going_down(),
+        server_going_down(),
+    ]);
+    assert!(end_bound_session(&t).await.is_err());
+    assert_eq!(*t.calls.lock().unwrap(), 4, "kill, version and two lists");
+}
+
+/// Dasselbe ohne Bindung: Die Namensliste fragt nach dem Kill ein zweites
+/// Mal, wenn tmux statt einer Liste einen Fehler meldet.
+#[tokio::test]
+async fn killing_by_name_asks_again_while_the_server_goes_down() {
+    let listing = ExecResult {
+        utf8_valid: true,
+        stdout: "dev2\n".into(),
+        ..created()
+    };
+    let t = ScriptedTransport::new(vec![created(), server_going_down(), listing]);
+    kill_session_and_verify(
+        &OwnTmuxClient::new(&OwnSocket::new("sock").unwrap()),
+        &t,
+        "dev",
+    )
+    .await
+    .unwrap();
+    assert_eq!(*t.calls.lock().unwrap(), 3);
 }
 
 /// Nach einem gelungenen gebundenen Kill erlaubt nur ein gemessenes
@@ -3469,6 +3572,184 @@ async fn a_failed_version_command_fails_the_list_instead_of_reporting_unmeasured
     fixture.finish(2).await;
 }
 
+/// Meldungen der Shell auf der Fehlerausgabe: Die eigene Liste gibt es nur
+/// als Namen, jede Zeile mit dem Code `shell_output`; der Standard-Socket
+/// wird gar nicht gelesen und scheitert mit demselben Code. Gesperrt wird
+/// nichts, das bleibt `shell_stdout` vorbehalten.
+#[tokio::test]
+async fn shell_messages_name_both_sockets_with_the_shell_output_code() {
+    let fixture = crate::connection::tests::Fixture::start(2, false, false, false).await;
+    let host = fixture.connect().await.unwrap();
+    host.start_monitor();
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
+    state
+        .hosts
+        .lock()
+        .unwrap()
+        .insert("hermetic-h0".into(), HostSlot::Ready(host));
+    fixture.script_control(vec![
+        (Some(0), "tmux 3.4\n", "stty: not a tty\n"),
+        (Some(0), "work\n", "stty: not a tty\n"),
+    ]);
+
+    let listed = tokio::time::timeout(
+        Duration::from_secs(8),
+        list_sockets_impl(&state, "hermetic-h0".into(), true),
+    )
+    .await
+    .unwrap()
+    .expect("names, not a failed list");
+
+    assert!(
+        listed.own.error.is_none(),
+        "{:?}",
+        listed.own.error.map(|e| e.message)
+    );
+    assert_eq!(
+        listed
+            .own
+            .sessions
+            .iter()
+            .map(|row| (row.display_name.as_str(), row.unverified.as_deref()))
+            .collect::<Vec<_>>(),
+        [("work", Some("shell_output"))]
+    );
+    let default = listed.default.expect("the default socket was asked for");
+    let error = default.error.expect("the default socket is not read");
+    assert_eq!(error.code, "shell_output", "{}", error.message);
+    assert!(
+        error.message.contains("stty: not a tty"),
+        "{}",
+        error.message
+    );
+    assert_eq!(
+        fixture.control_commands().len(),
+        2,
+        "tmux -V and the name list"
+    );
+    tokio::time::timeout(
+        Duration::from_secs(8),
+        disconnect_host_impl(&state, "hermetic-h0".into()),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    fixture.finish(2).await;
+}
+
+/// Legt an einem Host mit vorgegebenen Antworten der Steuerverbindung an und
+/// gibt das Ergebnis und die Befehle zurueck, die hinausgingen. Befehle ohne
+/// Vorgabe beantwortet die Fixture mit "fixture-result" und Exit 0.
+async fn create_on_scripted_host(
+    replies: Vec<(Option<u32>, &str, &str)>,
+) -> (Result<String, SessionError>, Vec<String>) {
+    let fixture = crate::connection::tests::Fixture::start(2, false, false, false).await;
+    let host = fixture.connect().await.unwrap();
+    host.start_monitor();
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
+    state
+        .hosts
+        .lock()
+        .unwrap()
+        .insert("hermetic-h0".into(), HostSlot::Ready(host));
+    fixture.script_control(replies);
+
+    let created = tokio::time::timeout(
+        Duration::from_secs(8),
+        create_session_impl(&state, "hermetic-h0".into(), "/srv/app".into(), None),
+    )
+    .await
+    .unwrap();
+
+    let commands = fixture.control_commands();
+    tokio::time::timeout(
+        Duration::from_secs(8),
+        disconnect_host_impl(&state, "hermetic-h0".into()),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    fixture.finish(2).await;
+    (created, commands)
+}
+
+/// Schreibt die Shell Text auf die Standardausgabe, legt das Backend nichts
+/// an. tmux legte die Session sonst an, keine Liste zeigte sie, und jeder
+/// weitere Versuch legte noch eine an. Die Sperre des Frontends haengt an der
+/// letzten Liste, und die kann fehlen: direkt nach dem Verbinden oder nach
+/// einem Listenfehler anderer Art. Die Pruefung hier haengt an der Antwort
+/// von eben.
+#[tokio::test]
+async fn create_session_refuses_a_host_whose_shell_prints_on_stdout() {
+    let (created, commands) =
+        create_on_scripted_host(vec![(Some(0), "Welcome to build-box!\ntmux 3.4\n", "")]).await;
+
+    let error = created.expect_err("nothing may be created");
+    assert_eq!(error.kind, "shell_stdout", "{}", error.message);
+    assert!(
+        error.message.contains("Welcome to build-box!"),
+        "{}",
+        error.message
+    );
+    assert_eq!(commands.len(), 1, "only tmux -V went out: {commands:?}");
+}
+
+/// Meldungen auf der Fehlerausgabe und Leerzeilen sperren nichts: Die Liste
+/// zeigt eine neue Session dort mit ihrem Namen. Nach `tmux -V` geht das
+/// Anlegen weiter.
+#[tokio::test]
+async fn create_session_goes_on_past_shell_messages_and_empty_lines() {
+    for (stdout, stderr) in [
+        ("tmux 3.4\n", ""),
+        (
+            "tmux 3.4\n",
+            "stty: 'standard input': Inappropriate ioctl for device\n",
+        ),
+        ("\ntmux 3.4\n", ""),
+    ] {
+        let (created, commands) = create_on_scripted_host(vec![(Some(0), stdout, stderr)]).await;
+        if let Err(error) = &created {
+            assert_ne!(error.kind, "shell_stdout", "{stdout:?}: {}", error.message);
+        }
+        assert!(commands.len() > 1, "{stdout:?}: {commands:?}");
+    }
+}
+
+/// Scheitert schon `tmux -V`, ist nichts angelegt; die Meldung behauptet
+/// keinen offenen Ausgang.
+#[tokio::test]
+async fn create_session_stops_when_its_version_question_fails() {
+    let fixture = crate::connection::tests::Fixture::start(2, false, false, false).await;
+    let host = fixture.connect().await.unwrap();
+    host.start_monitor();
+    let state = Arc::new(AppState::with_own_socket("hermetic_socket".into()));
+    state
+        .hosts
+        .lock()
+        .unwrap()
+        .insert("hermetic-h0".into(), HostSlot::Ready(host));
+    fixture.reject_control_opens(1);
+
+    let created = tokio::time::timeout(
+        Duration::from_secs(8),
+        create_session_impl(&state, "hermetic-h0".into(), "/srv/app".into(), None),
+    )
+    .await
+    .unwrap();
+
+    let error = created.expect_err("nothing may be created");
+    assert_eq!(error.kind, "other", "{}", error.message);
+    assert!(fixture.control_commands().is_empty());
+    tokio::time::timeout(
+        Duration::from_secs(8),
+        disconnect_host_impl(&state, "hermetic-h0".into()),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    fixture.finish(2).await;
+}
+
 /// Eine Panik unter einer Registersperre vergiftet sie. Bisher scheiterte
 /// danach jeder Befehl mit `lock().unwrap()` bis zum Neustart, auch Trennen
 /// und Schliessen; jetzt arbeiten sie weiter (`registry`).
@@ -3548,6 +3829,39 @@ fn the_version_answer_tells_shell_text_from_an_unmeasured_tmux() {
         (
             "tmux 3.5a\n",
             "warn\nmore\n",
+            0,
+            VersionAnswer::ShellMessages("warn".into()),
+        ),
+        // Leerzeilen neben der einen Zeile "tmux …": Die Namen bleiben genau,
+        // die strenge Rahmung nicht. Getragen wird keine Zeile; der Grund
+        // nennt die Shell, nicht die Version von tmux.
+        (
+            "\ntmux 3.4\n",
+            "",
+            0,
+            VersionAnswer::ShellMessages(String::new()),
+        ),
+        (
+            "tmux 3.6\n\n",
+            "",
+            0,
+            VersionAnswer::ShellMessages(String::new()),
+        ),
+        (
+            " \ntmux 3.5a\n",
+            "",
+            0,
+            VersionAnswer::ShellMessages(String::new()),
+        ),
+        (
+            "tmux 3.4\n",
+            "\n \n",
+            0,
+            VersionAnswer::ShellMessages(String::new()),
+        ),
+        (
+            "\ntmux 3.4\n",
+            "warn\n",
             0,
             VersionAnswer::ShellMessages("warn".into()),
         ),
@@ -3647,6 +3961,36 @@ fn a_name_list_says_whether_the_tmux_version_or_the_shell_is_the_reason() {
         assert_eq!(
             row.status_reason,
             "tmux version is not a measured 3.0/3.3a/3.4/3.6 inventory"
+        );
+    }
+    // Nur Leerzeilen der Shell: kein Zitat, und der Grund nennt die Shell.
+    for row in rows(Some("")) {
+        assert_eq!(row.unverified.as_deref(), Some("shell_output"));
+        assert_eq!(
+            row.status_reason,
+            "the host's shell prints empty lines on every SSH command; status and history \
+             need a shell that stays silent there"
+        );
+    }
+}
+
+/// Nur mit Restzeit traegt die Meldung den Text, an dem das Frontend die
+/// Shell als moeglichen Grund nennt; nach Ablauf der Frist oder einem
+/// Abbruch nicht.
+#[tokio::test]
+async fn an_unconfirmed_attach_points_at_the_shell_only_with_time_left() {
+    let live = OperationControl::new(Duration::from_secs(5));
+    assert_eq!(attach_not_confirmed(&live), ATTACH_NOT_CONFIRMED);
+
+    let cancelled = OperationControl::new(Duration::from_secs(5));
+    cancelled.cancel();
+    let expired = OperationControl::new(Duration::ZERO);
+    for control in [cancelled, expired] {
+        let message = attach_not_confirmed(&control);
+        assert!(!message.contains(ATTACH_NOT_CONFIRMED), "{message}");
+        assert_eq!(
+            message,
+            "the terminal setup ended before tmux confirmed the attach"
         );
     }
 }

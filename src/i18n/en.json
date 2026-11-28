@@ -28,6 +28,7 @@
   "session.hostNotConnected": "Connect to '{host}' before opening a session.",
 
   "terminal.openFailed": "Couldn't open '{session}'. It may have ended on the host — reload sessions and try again.",
+  "terminal.openFailedShell": "Couldn't open '{session}': tmux didn't confirm the terminal. A common cause is a shell that prints text when it gets a terminal, for example in ~/.bashrc. Print such text only in interactive shells, then try again.",
   "terminal.search.placeholder": "Find",
   "terminal.search.count": "{current}/{total}",
   "terminal.search.none": "No results",

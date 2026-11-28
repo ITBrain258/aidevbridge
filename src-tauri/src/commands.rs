@@ -1749,7 +1749,9 @@ async fn connect_host_core(
 /// erste Zeile, die der Nutzer liest.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct SessionError {
-    /// Genau drei Werte: `"duplicate"`, `"outcome_unknown"` und `"other"`.
+    /// Genau vier Werte: `"duplicate"`, `"outcome_unknown"`, `"shell_stdout"`
+    /// (nichts angelegt, die Shell schreibt auf die Standardausgabe) und
+    /// `"other"`.
     pub kind: String,
     pub message: String,
 }
@@ -1776,6 +1778,12 @@ impl SessionError {
     fn duplicate(message: impl Into<String>) -> Self {
         Self {
             kind: "duplicate".into(),
+            message: message.into(),
+        }
+    }
+    fn shell_stdout(message: impl Into<String>) -> Self {
+        Self {
+            kind: SHELL_STDOUT.into(),
             message: message.into(),
         }
     }
@@ -1914,6 +1922,23 @@ pub async fn create_session_impl(
 
     let client = OwnTmuxClient::new(&state.own_socket);
     let transport = transport.command(deadline);
+    // Schreibt die Shell auf die Standardausgabe, legte tmux die Session an,
+    // ihre Bestaetigung waere aber unlesbar, und keine Liste zeigte sie
+    // (`SHELL_STDOUT`); jeder weitere Versuch legte noch eine an. Die Sperre
+    // des Frontends haengt an der letzten Liste, und die kann fehlen: direkt
+    // nach dem Verbinden, nach einem Listenfehler anderer Art. Darum fragt
+    // das Backend selbst, vor `prepare_server` aus demselben Grund wie beim
+    // Namen oben. Scheitert schon die Frage, ist nichts angelegt; ein offener
+    // Ausgang dieser Abfrage beruehrt keine Session.
+    let answer = transport
+        .exec_with_deadline(&client.version_command(), COMMAND_TIMEOUT)
+        .await
+        .map_err(|e| SessionError::other(e.to_string()))?;
+    if let VersionAnswer::ShellOutput(line) = VersionAnswer::from_response(&answer) {
+        return Err(SessionError::shell_stdout(shell_output_message(
+            &line, None,
+        )));
+    }
     // Jedes Mal, nicht einmalig gecacht: robuster gegen einen tmux-Server, der
     // zwischen zwei `create_session`-Aufrufen gestorben ist (V21b), auf Kosten
     // von drei zusaetzlichen Roundtrips je Aufruf. Kehrseite: das Fenster, in
@@ -2023,6 +2048,25 @@ fn remaining_control(control: &OperationControl) -> Duration {
         .saturating_duration_since(tokio::time::Instant::now())
 }
 
+/// tmux hat den Attach nicht bestaetigt, obwohl noch Zeit war. Gemessen am
+/// 16.11. an einem echten Host: Schreibt die Shell nur mit Terminal
+/// (`[ -t 1 ]` in `~/.bashrc`), bemerken Host-Pruefung und Liste nichts, und
+/// das Oeffnen scheitert genau hier. Das Frontend erkennt den Text
+/// (`SHELL_TERMINAL_ERRORS` in `grid.ts`) und nennt die Shell als moeglichen
+/// Grund.
+pub(crate) const ATTACH_NOT_CONFIRMED: &str = "attach wrapper was not confirmed";
+
+/// Nach Ablauf der Frist oder einem Abbruch heisst die Meldung anders, und
+/// das Frontend bleibt beim allgemeinen Satz: Dort kommen auch andere Gruende
+/// in Frage, etwa eine Startdatei, die auf Eingabe wartet.
+fn attach_not_confirmed(control: &OperationControl) -> String {
+    if control.is_cancelled() || remaining_control(control).is_zero() {
+        "the terminal setup ended before tmux confirmed the attach".into()
+    } else {
+        ATTACH_NOT_CONFIRMED.into()
+    }
+}
+
 async fn open_confirmed_pty(
     host: &Arc<HostConnection>,
     socket: &TmuxSocket,
@@ -2060,7 +2104,7 @@ async fn open_confirmed_pty(
     let wrapper = pending
         .wait_wrapper()
         .await
-        .ok_or_else(|| "attach wrapper was not confirmed".to_string())?;
+        .ok_or_else(|| attach_not_confirmed(&control))?;
     let process = commands
         .exec_with_deadline(&process_command(&wrapper), remaining_control(&control))
         .await
@@ -2704,13 +2748,33 @@ async fn kill_session_and_verify(
     session: &str,
 ) -> anyhow::Result<()> {
     client.kill_session(transport, session).await?;
-    let remaining = client.list_session_names(transport).await?;
+    let remaining = match client.list_session_names(transport).await {
+        Err(error) if asks_again_after_kill(&error) => {
+            tokio::time::sleep(KILL_CHECK_PAUSE).await;
+            client.list_session_names(transport).await?
+        }
+        listed => listed?,
+    };
     if remaining.iter().any(|n| n == session) {
         anyhow::bail!(
             "the session {session:?} is still running on the host after the request to end it"
         );
     }
     Ok(())
+}
+
+/// Pause vor der zweiten Pruefliste nach einem Kill (`asks_again_after_kill`).
+const KILL_CHECK_PAUSE: Duration = Duration::from_millis(250);
+
+/// Ob eine gescheiterte Pruefliste nach einem Kill eine zweite bekommt. Endet
+/// mit der letzten Session der Server, kann die Liste ihn noch beim
+/// Herunterfahren erreichen; tmux meldet dann einen eigenen Fehler (unter
+/// Last gesehen: "server exited unexpectedly") statt des gemessenen "no
+/// server running". Diese Antwort beweist nichts. Die zweite Liste kommt nach
+/// dem Ende des Servers an; gezaehlt wird nur sie. Ein Fehler des Transports
+/// bekommt keine zweite: Er sagt nichts ueber tmux.
+fn asks_again_after_kill(error: &anyhow::Error) -> bool {
+    error.downcast_ref::<ExecError>().is_none()
 }
 
 /// Ein gebundener Kill, dessen Ende sich nicht pruefen liess. Nur die
@@ -2755,11 +2819,21 @@ async fn kill_session_bound_and_verify(
     let Some(version) = MeasuredVersion::from_response(&version) else {
         anyhow::bail!(UNVERIFIED_BOUND_KILL);
     };
-    let observed = match client.observe_sessions(transport, version, deadline).await {
-        Ok(observed) => observed,
-        // Ending the last session took the server with it: nothing is left.
-        Err(error) if error.is::<ServerAbsent>() => return Ok(()),
-        Err(error) => return Err(error),
+    let mut asked_again = false;
+    let observed = loop {
+        match client.observe_sessions(transport, version, deadline).await {
+            Ok(observed) => break observed,
+            // Ending the last session took the server with it: nothing is left.
+            Err(error) if error.is::<ServerAbsent>() => return Ok(()),
+            Err(error) if !asked_again && asks_again_after_kill(&error) => {
+                asked_again = true;
+                tokio::time::sleep_until(
+                    deadline.min(tokio::time::Instant::now() + KILL_CHECK_PAUSE),
+                )
+                .await;
+            }
+            Err(error) => return Err(error),
+        }
     };
     if observed
         .sessions

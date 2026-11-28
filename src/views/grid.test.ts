@@ -3701,6 +3701,26 @@ describe("mountGrid: Fehlertexte des Terminals je Art (UX-Spec §6.9, §10)", ()
     expect(onTerminalError).toHaveBeenCalledExactlyOnceWith(text, "raw backend text");
   });
 
+  // Gemessen am 16.11.: Schreibt die Shell nur mit Terminal, scheitert das
+  // Oeffnen mit diesem Rohtext, und Host-Pruefung und Liste bemerken nichts.
+  // Der Satz nennt dann die Shell statt einer beendeten Session.
+  it("ein nicht bestaetigter Attach nennt die Shell als moeglichen Grund", () => {
+    const { onTerminalError, onError } = mountWithError();
+    onError({ kind: "open", detail: "attach wrapper was not confirmed" });
+    expect(onTerminalError).toHaveBeenCalledExactlyOnceWith(
+      "Couldn't open 'build': tmux didn't confirm the terminal. A common cause is a shell that prints text " +
+        "when it gets a terminal, for example in ~/.bashrc. Print such text only in interactive shells, then try again.",
+      "attach wrapper was not confirmed",
+    );
+  });
+
+  it("nach Ablauf der Frist bleibt es beim allgemeinen Satz", () => {
+    const { onTerminalError, onError } = mountWithError();
+    onError({ kind: "open", detail: "the terminal setup ended before tmux confirmed the attach" });
+    const [text] = onTerminalError.mock.calls[0] as [string, string];
+    expect(text).toBe("Couldn't open 'build'. It may have ended on the host — reload sessions and try again.");
+  });
+
   it("ein Kopierfehler zeigt nicht mehr den Text fuers Oeffnen", () => {
     const { onTerminalError, onError } = mountWithError();
     onError({ kind: "copy", detail: "NotAllowedError: Document is not focused." });

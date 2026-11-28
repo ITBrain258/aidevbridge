@@ -6,6 +6,17 @@ dem Namen agentbridge.
 
 ## [Unreleased]
 
+### Changed
+
+- Terminal: Bestaetigt tmux das Oeffnen einer Session nicht, obwohl noch Zeit war, nennt die Meldung als haeufigen Grund eine Shell, die Text schreibt, sobald sie ein Terminal hat (etwa `[ -t 1 ]` in `~/.bashrc`). Host-Pruefung und Sessionliste bemerken eine solche Shell nicht; bisher hiess es nur, die Session sei vielleicht beendet.
+
+### Fixed
+
+- Sessionliste: "New session" an einem Host, dessen Shell Text auf die Standardausgabe schreibt, legte direkt nach dem Verbinden oder nach einem Listenfehler anderer Art doch eine Session an, die keine Liste zeigte; die Sperre hing nur an der letzten Liste. Jetzt fragt die App vor dem Anlegen selbst nach, legt nichts an und sperrt "New session" ab da.
+- Sessionliste: Schreibt die Shell nur Leerzeilen, nannte jede Session als Grund eine ungemessene tmux-Version. Jetzt nennt sie die Shell.
+- Sessionliste: Das Beenden der letzten Session meldete unter Last "Couldn't confirm that the session ... ended", wenn die Pruefliste den tmux-Server noch beim Herunterfahren erreichte. Die App fragt dann nach 250 ms einmal nach; es zaehlt nur diese zweite Antwort.
+- Seitenleiste: Die Rueckfrage zu "Kill" erschien nach dem Neuverbinden von selbst wieder, wenn sie beim Abbruch der Verbindung offen stand, und sie galt nach einer frischen Liste einer neuen Session gleichen Namens. Jetzt verschwindet sie in beiden Faellen. "Kill" beendet die Session, die die Rueckfrage zeigte, auch wenn es hinter einer anderen Aenderung am selben Host wartete.
+
 ## [0.3.8] - 2026-11-24
 
 Die App sagt genauer, woran etwas scheitert: Eine Claude-Session nennt den Grund, wenn `claude agents --json` versagt, und an einem Host, dessen Shell Text auf die Standardausgabe schreibt, ist "New session" gesperrt, statt eine Session anzulegen, die keine Liste zeigt. Dazu drei Korrekturen: beim Speichern der Einstellungen unter Windows, bei einer beschaedigten Schluesseldatei und in `known_hosts`.

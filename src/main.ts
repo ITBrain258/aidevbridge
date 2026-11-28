@@ -47,7 +47,7 @@ import { createHostReconnector, isRetryableConnectError, type ReconnectAttemptRe
 import { connectInOrder, createWorkspaceSync, withRecentDir } from "./state/workspace";
 import { installKeyboard } from "./keyboard";
 import { focusableElements, mountDialogShell } from "./views/dialog";
-import { mountSidebar } from "./views/sidebar";
+import { mountSidebar, type KillTarget } from "./views/sidebar";
 import { mountSidebarRail } from "./views/sidebar-rail";
 import { mountSidebarResize } from "./views/sidebar-resize";
 import { mountGrid, type GridHandle } from "./views/grid";
@@ -1540,8 +1540,18 @@ export function main(): void {
    * Danach die Liste neu holen -- die beendete Session verschwindet dadurch
    * aus der Seitenleiste. Bewusst ueber `writeSessionRecords` mit erhoehter
    * Frischewache, wie in `createSession`: dieses Schreiben ist per Bauart
-   * das juengste. */
-  async function killSession(hostId: string, name: string, socket: SessionSocket = "app"): Promise<void> {
+   * das juengste.
+   *
+   * `target` ist die Session, die die Rueckfrage zeigte. Ohne sie liest die
+   * App die Kennung erst hier nach dem Namen nach; wartet der Kill hinter
+   * einer anderen Aenderung, kann darunter inzwischen eine neue Session
+   * stehen. */
+  async function killSession(
+    hostId: string,
+    name: string,
+    socket: SessionSocket = "app",
+    target?: KillTarget,
+  ): Promise<void> {
     // Spec 2026-10-25 §3: Sessions des Standard-Sockets beendet die App nie;
     // die Seitenleiste bietet es dort nicht an, und das Backend lehnt ab.
     if (socket === "default") return;
@@ -1559,7 +1569,7 @@ export function main(): void {
       // session" -- ueber eine Sitzung, die sehr wohl beendet wurde. Der
       // Nutzer suchte dann nach einem Problem, das es nicht gibt.
       try {
-        const row = state.hosts
+        const row = target ?? state.hosts
           .find((h) => h.id === hostId)
           ?.sessions.find((s) => s.name === name && socketOf(s) === "app");
         await invoke("kill_session", {
@@ -2202,6 +2212,17 @@ export function main(): void {
           return;
         }
         const message = String((error as { message?: unknown } | null)?.message ?? error);
+        if (kind === "shell_stdout") {
+          // Das Backend hat vor dem Anlegen selbst gefragt und nichts
+          // angelegt: Die Shell schreibt auf die Standardausgabe. Die Liste
+          // wusste das noch nicht (direkt nach dem Verbinden, nach einem
+          // Listenfehler anderer Art); ab jetzt sperrt auch das Frontend, bis
+          // eine Liste ohne diesen Fehler kommt.
+          state.setSessionListError(hostId, { code: "shell_stdout", message });
+          const label = state.hosts.find((h) => h.id === hostId)?.label ?? hostId;
+          showGlobalError(t("sessionDialog.shellOutput", { host: label }), message);
+          return;
+        }
         if (kind === "outcome_unknown") {
           // Das Anlegen hat vielleicht gewirkt. Der Satz des Backends sagt, erst
           // die Sessionliste neu zu laden; "try again" aus `session.error`

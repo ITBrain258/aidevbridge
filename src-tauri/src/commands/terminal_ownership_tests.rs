@@ -316,6 +316,8 @@ async fn active_terminal_pumps_do_not_keep_the_app_state_alive() {
 async fn duplicate_name_does_not_hide_an_unconfirmed_restore_mutation() {
     let (fixture, state) = connected().await;
     fixture.script_control(vec![
+        // `tmux -V` vor dem Anlegen: Die Shell schreibt nichts dazu.
+        (Some(0), "tmux 3.4\n", ""),
         (Some(0), "", ""),
         (Some(0), "", ""),
         (Some(0), "", ""),
@@ -340,7 +342,7 @@ async fn duplicate_name_does_not_hide_an_unconfirmed_restore_mutation() {
     assert!(error.message.contains("Cleanup outcome"));
     assert_eq!(
         fixture.command_count(),
-        6,
+        7,
         "no retry or fresh cleanup after the unconfirmed restore"
     );
     finish(fixture, state).await;

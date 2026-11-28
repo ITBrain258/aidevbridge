@@ -773,8 +773,8 @@
       },
       {
         "path": "src/i18n/en.json",
-        "bytes": 23096,
-        "sha256": "cb85ce4be91d0ba630098679584cde49e0d4424dcb3688f41fe83b0d472b4a62"
+        "bytes": 23344,
+        "sha256": "d5a071787cac7dfd2088db969c6cf624f1953007aed70b901403007b1391df24"
       },
       {
         "path": "src/icons.ts",
@@ -788,8 +788,8 @@
       },
       {
         "path": "src/main.ts",
-        "bytes": 160433,
-        "sha256": "068b4c65694e314e78b0ac1c745752f9363fd15b821d22c37f37bf88c9107820"
+        "bytes": 161411,
+        "sha256": "4dc63014781b883d870a5f3928ce7d5ad39d4e5c59212231a419407f44dfef34"
       },
       {
         "path": "src/state/app-state.ts",
@@ -843,8 +843,8 @@
       },
       {
         "path": "src/views/grid.ts",
-        "bytes": 108940,
-        "sha256": "42f3d7adc0204bf875516c7c12f4ceeb71ee783a7b8f3ee022b0ce9b9a2b4a5e"
+        "bytes": 109701,
+        "sha256": "9b63ef49a87d635ee1559ba4f787ac72297eb3837782abcbd3ae521a6359ad2f"
       },
       {
         "path": "src/views/host-form.ts",
@@ -878,8 +878,8 @@
       },
       {
         "path": "src/views/sidebar.ts",
-        "bytes": 131535,
-        "sha256": "ae6455d07939e6dec3133c2c1e7533818415deca51bc0f6a964300b219bff2c1"
+        "bytes": 133482,
+        "sha256": "84b3be9b0adf725c284a3711a0846a78db35f6bc9a4cf023679d963cedea031b"
       },
       {
         "path": "src/views/types.ts",
@@ -911,8 +911,8 @@
           },
           {
             "path": "src/i18n/en.json",
-            "bytes": 23096,
-            "sha256": "cb85ce4be91d0ba630098679584cde49e0d4424dcb3688f41fe83b0d472b4a62"
+            "bytes": 23344,
+            "sha256": "d5a071787cac7dfd2088db969c6cf624f1953007aed70b901403007b1391df24"
           },
           {
             "path": "src/i18n/t.ts",
@@ -936,8 +936,8 @@
           },
           {
             "path": "src/main.ts",
-            "bytes": 160433,
-            "sha256": "068b4c65694e314e78b0ac1c745752f9363fd15b821d22c37f37bf88c9107820"
+            "bytes": 161411,
+            "sha256": "4dc63014781b883d870a5f3928ce7d5ad39d4e5c59212231a419407f44dfef34"
           },
           {
             "path": "src/platform.ts",
@@ -1071,8 +1071,8 @@
           },
           {
             "path": "src/views/grid.ts",
-            "bytes": 108940,
-            "sha256": "42f3d7adc0204bf875516c7c12f4ceeb71ee783a7b8f3ee022b0ce9b9a2b4a5e"
+            "bytes": 109701,
+            "sha256": "9b63ef49a87d635ee1559ba4f787ac72297eb3837782abcbd3ae521a6359ad2f"
           },
           {
             "path": "src/views/host-form.ts",
@@ -1156,8 +1156,8 @@
           },
           {
             "path": "src/views/sidebar.ts",
-            "bytes": 131535,
-            "sha256": "ae6455d07939e6dec3133c2c1e7533818415deca51bc0f6a964300b219bff2c1"
+            "bytes": 133482,
+            "sha256": "84b3be9b0adf725c284a3711a0846a78db35f6bc9a4cf023679d963cedea031b"
           },
           {
             "path": "src/views/status-pill.ts",
@@ -1222,8 +1222,8 @@
         "files": [
           {
             "path": "src-tauri/src/commands.rs",
-            "bytes": 128216,
-            "sha256": "0f1ce9cfe189a4fee98212ae638d99511590198c5aebbef3e6ae81ec87c101e3"
+            "bytes": 131723,
+            "sha256": "c65cd0f850ac8837ede967d9b36ce30a180381276302fe1039a5aaef2c9da0c4"
           },
           {
             "path": "src-tauri/src/commands/connect_tests.rs",
@@ -1242,18 +1242,18 @@
           },
           {
             "path": "src-tauri/src/commands/inventory.rs",
-            "bytes": 40100,
-            "sha256": "4ee2a7a1fd0d9dd667c385ecb5e715340b6929f0fe74cd6cf0c74e20e917556d"
+            "bytes": 40970,
+            "sha256": "b64ad9873aff8d8d3b7b30bfa2541d515442aa0ac6befb1ac0709e4985e78ae4"
           },
           {
             "path": "src-tauri/src/commands/terminal_ownership_tests.rs",
-            "bytes": 22593,
-            "sha256": "04de00113e7bd820a4d2132c470ac445704870ece29204dec0b7690f19b3ce9e"
+            "bytes": 22700,
+            "sha256": "fbfff3ca9d279c9eef99ee504cbea57eb2cc4e48f0c85520fb1ba1adbdbdf3eb"
           },
           {
             "path": "src-tauri/src/commands/tests.rs",
-            "bytes": 131897,
-            "sha256": "613cdea9a035113017e4b723c27d28ec952b5283bdafe563b950d6038d7ce7e1"
+            "bytes": 143186,
+            "sha256": "857162ced9c3166f350d3302378a39abf4dfde94aa49f16f9533a7bbdc3eee78"
           },
           {
             "path": "src-tauri/src/commands/tofu_tests.rs",

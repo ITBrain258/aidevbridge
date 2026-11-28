@@ -2587,6 +2587,38 @@ describe("main: Ersetzen, Grenze und Wiederfinden (Spec 2026-10-19 §5.2, §5.3,
     );
   });
 
+  // Das Backend prueft vor dem Anlegen selbst. Wusste die Liste noch nichts
+  // von der Ausgabe der Shell (direkt nach dem Verbinden, nach einem
+  // Listenfehler anderer Art), lehnt `create_session` mit `shell_stdout` ab:
+  // Der Hinweis nennt die Shell, und die Sperre gilt ab jetzt auch hier.
+  it("lehnt das Backend mit shell_stdout ab, nennt der Hinweis die Shell und New session ist gesperrt", async () => {
+    await setupTwoHostsThreeSessions();
+    expandHost("h1");
+    hostActionButton("h1", "New session").click();
+    await flush();
+    const panel = document.querySelector(".dialog-panel")!;
+    const base = invokeMock.getMockImplementation()!;
+    const refusal = "The host's shell prints text on every SSH command (it starts with \"Welcome\").";
+    invokeMock.mockImplementation((command: string, rawArgs?: unknown) => {
+      if (command === "create_session") return Promise.reject({ kind: "shell_stdout", message: refusal });
+      return base(command, rawArgs as never);
+    });
+
+    panel.querySelector<HTMLInputElement>("input[name=sessionName]")!.value = "fresh";
+    Array.from(panel.querySelectorAll("button")).find((button) => button.textContent === "Create session")!.click();
+    await flush();
+
+    const banner = document.querySelector<HTMLElement>(".global-error-banner")!;
+    expect(banner.hidden).toBe(false);
+    expect(banner.textContent).toContain("New session is blocked on h1: its shell prints text on every SSH command");
+    expect(hostActionButton("h1", "New session").disabled).toBe(true);
+
+    // Eine Liste ohne diesen Fehler hebt die Sperre wieder auf.
+    hostActionButton("h1", "Reload sessions").click();
+    await flush();
+    expect(hostActionButton("h1", "New session").disabled).toBe(false);
+  });
+
   it("ein Fehler nach dem Grenzhinweis ist wieder gefaehrlich getoent", async () => {
     await setupTwoHostsThreeSessions({}, [...h1Full, h1Over]);
     expandHost("h1");
@@ -5147,6 +5179,54 @@ describe("main: B3 -- was passiert, wenn das Beenden schiefgeht", () => {
       .click();
     await flush();
   }
+
+  // Der Kill wartet hinter einem Anlegen auf demselben Host. Bis er laeuft,
+  // bringt die Liste des Anlegens unter dem Namen eine andere Session (dort
+  // beendet und gleichnamig neu angelegt). Beendet wird die, die die
+  // Rueckfrage zeigte.
+  it("beendet die bestaetigte Session, auch wenn unter dem Namen inzwischen eine andere steht", async () => {
+    await setupTwoHostsThreeSessions();
+    const previous = invokeMock.getMockImplementation()!;
+    let s1Id = 3;
+    let releaseCreate!: (name: string) => void;
+    const created = new Promise<string>((resolve) => { releaseCreate = resolve; });
+    invokeMock.mockImplementation(((command: string, rawArgs?: unknown) => {
+      const hostId = (rawArgs as Record<string, unknown> | undefined)?.hostId;
+      if (command === "list_sessions" && hostId === "r-h1") {
+        const created = s1Id === 4 ? ["newer"] : [];
+        return Promise.resolve(sessionList([sessionItem({ display_name: "s1", session_id: s1Id }), ...created]));
+      }
+      if (command === "create_session") return created;
+      if (command === "kill_session") return Promise.resolve(undefined);
+      return previous(command, rawArgs as never);
+    }) as typeof invoke);
+    expandHost("h1");
+    hostActionButton("h1", "Reload sessions").click();
+    await flush();
+
+    hostActionButton("h1", "New session").click();
+    await flush();
+    const panel = document.querySelector(".dialog-panel")!;
+    panel.querySelector<HTMLInputElement>("input[name=sessionName]")!.value = "newer";
+    Array.from(panel.querySelectorAll("button")).find((button) => button.textContent === "Create session")!.click();
+    await flush();
+    expect(invokeMock.mock.calls.filter(([command]) => command === "create_session")).toHaveLength(1);
+    // Wie `killFirstSession`, ohne erneut aufzuklappen: Der Host ist offen.
+    const row = () => sessionButton("h1", "s1").closest(".sb-session-row") as HTMLElement;
+    row().querySelector<HTMLButtonElement>(".session-kill-btn")!.click();
+    row().querySelector<HTMLButtonElement>(".session-confirm-kill .host-confirm-btn-danger")!.click();
+    await flush();
+    expect(invokeMock.mock.calls.filter(([command]) => command === "kill_session")).toHaveLength(0);
+
+    s1Id = 4;
+    releaseCreate("newer");
+    await flush();
+    await flush();
+
+    const kills = invokeMock.mock.calls.filter(([command]) => command === "kill_session");
+    expect(kills).toHaveLength(1);
+    expect(kills[0][1]).toMatchObject({ session: "s1", sessionId: 3, serverPid: 50, serverStartTime: 1000 });
+  });
 
   it("nennt nach einem gescheiterten kill_session die Session und den Grund des Backends", async () => {
     await setupTwoHostsThreeSessions();
