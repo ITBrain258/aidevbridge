@@ -860,8 +860,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       den eigenen Code `shell_stdout` und sperrt „New session“ (Knopf, alle
       Wege über `onNewSession` und das Absenden eines schon offenen
       Dialogs); Meldungen nur auf der Fehlerausgabe behalten `shell_output`
-      und sperren nichts. Eine erfolgreiche Liste hebt die Sperre auf. Offen: eine Meldung beim
-      Öffnen, die die Shell als möglichen Grund nennt. Nicht gemessen: zsh, andere tmux-Versionen,
+      und sperren nichts. Eine erfolgreiche Liste hebt die Sperre auf. Die
+      Meldung beim Öffnen, die die Shell als möglichen Grund nennt, kam mit
+      PR #76 (Punkt 21). Nicht gemessen: zsh, andere tmux-Versionen,
       eine Startdatei, die auf Eingabe wartet.
     - **Backend, klein:** Zweite Verbindung und Reparatur lösen den Hostnamen
       neu auf (Round-Robin-DNS kann sie auf zwei Rechner führen);
@@ -1022,6 +1023,23 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     für `src-tauri/` und `src/`, `.github/` und `scripts/` selbst gelesen.
     Audit grün, keine Meldung von Dependabot oder CodeQL offen, kein schwerer
     Fehler. Die Funde sind am Code nachgelesen, keiner ist beobachtet.
+    - **Erledigt mit PR #76** (`25a925e`, für 0.3.9): die vier Funde mit
+      Effekt für Nutzer, die beiden latenten zu „Kill“ und zum Anlegen
+      dahinter, die Testlücke zum Code `shell_output` und die zweite Hälfte
+      von Z1.3. Das Backend fragt vor dem Anlegen selbst `tmux -V` und lehnt
+      mit der neuen Art `shell_stdout` ab; nach einem Kill bekommt eine
+      gescheiterte Prüfliste (kein Fehler des Transports) nach 250 ms eine
+      zweite, und nur diese zählt; die Rückfrage zu „Kill“ gibt die Session
+      mit, die sie zeigt; scheitert das Öffnen mit „attach wrapper was not
+      confirmed“, solange noch Zeit ist, nennt der Satz eine Shell, die mit
+      Terminal schreibt. Eine neutrale Durchsicht des PR, die nur las, fand
+      keinen schweren Fehler; ihre Korrekturen stehen im selben PR. Lokal:
+      Clippy mit `-D warnings`, 722 Rust-Bibliothekstests, 4952
+      Vitest-Tests, Typprüfung, 253 Skripttests, `licenses:status --ci`;
+      CI grün. Nicht geprüft: ein echter Host. Shells mit Leerzeilen oder
+      mit `[ -t 1 ]` bräuchten ein Wegwerfkonto auf einer Test-VM, das
+      zweite Nachfragen unter Last ist nur mit vorgegebenen Antworten
+      getestet.
     - **Mit Effekt für Nutzer, für 0.3.9 (Entscheidung vom 28.11.):**
       - Die Sperre für „New session“ (PR #72) lebt nur im Frontend. Wird der
         Dialog direkt nach dem Verbinden abgeschickt, verwirft die App den
