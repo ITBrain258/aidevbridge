@@ -162,8 +162,8 @@ pub(super) enum VersionAnswer {
     /// Genau die Zeile `tmux …`, daneben Text auf der Fehlerausgabe (etwa
     /// `stty` ohne Terminal); getragen wird dessen erste Zeile. Die Namen
     /// bleiben genau, die strenge Rahmung nicht. Leer, wenn die Shell neben
-    /// der Zeile nur Leerzeilen auf die Standardausgabe schreibt: Auch dann
-    /// bleiben die Namen genau.
+    /// der Zeile nur Leerzeilen schreibt, auf die Standard- oder die
+    /// Fehlerausgabe: Auch dann bleiben die Namen genau.
     ShellMessages(String),
     /// Auf der Standardausgabe steht anderes als die eine Zeile `tmux …`;
     /// getragen wird die erste fremde Zeile. Text der Shell laesst sich von
@@ -191,10 +191,12 @@ impl VersionAnswer {
             [] => Self::Unmeasured,
             [line] if is_version(line) => match crate::preflight::shell_line(&result.stderr) {
                 Some(message) => Self::ShellMessages(message),
-                // Leerzeilen davor oder danach kommen von der Shell, nicht von
-                // tmux. Als ungemessene Version nennte jede Session sonst
-                // tmux als Grund.
-                None if result.stdout.lines().count() > 1 => Self::ShellMessages(String::new()),
+                // Leerzeilen davor oder danach, oder nur Leerzeilen auf der
+                // Fehlerausgabe, kommen von der Shell, nicht von tmux. Als
+                // ungemessene Version nennte jede Session sonst tmux als Grund.
+                None if result.stdout.lines().count() > 1 || !result.stderr.is_empty() => {
+                    Self::ShellMessages(String::new())
+                }
                 None => Self::Unmeasured,
             },
             lines => {

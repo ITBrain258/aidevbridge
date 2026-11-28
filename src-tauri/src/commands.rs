@@ -2056,8 +2056,9 @@ fn remaining_control(control: &OperationControl) -> Duration {
 /// Grund.
 pub(crate) const ATTACH_NOT_CONFIRMED: &str = "attach wrapper was not confirmed";
 
-/// Nach Ablauf der Frist oder einem Abbruch heisst die Meldung anders: Dann
-/// spricht nichts fuer die Shell.
+/// Nach Ablauf der Frist oder einem Abbruch heisst die Meldung anders, und
+/// das Frontend bleibt beim allgemeinen Satz: Dort kommen auch andere Gruende
+/// in Frage, etwa eine Startdatei, die auf Eingabe wartet.
 fn attach_not_confirmed(control: &OperationControl) -> String {
     if control.is_cancelled() || remaining_control(control).is_zero() {
         "the terminal setup ended before tmux confirmed the attach".into()

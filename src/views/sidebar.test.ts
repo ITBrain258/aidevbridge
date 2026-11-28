@@ -2031,7 +2031,11 @@ describe("mountSidebar: die Liste als ein Tabstopp", () => {
       ".session-confirm-kill .host-confirm-btn-danger",
     )!;
     confirm.click();
-    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a", "app");
+    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a", "app", {
+      sessionId: null,
+      serverPid: null,
+      serverStartTime: null,
+    });
     expect(el.querySelector(".session-confirm-kill")).toBeNull();
   });
 
@@ -2698,7 +2702,7 @@ describe("mountSidebar: die Beenden-Rueckfrage haelt ihre Zusage", () => {
     el.querySelector<HTMLButtonElement>(
       ".session-confirm-kill .host-confirm-btn-danger",
     )!.click();
-    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a", "app");
+    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a", "app", { sessionId: null, serverPid: null, serverStartTime: null });
 
     // Der Aufruf ist in der Anwendung ASYNCHRON: die Sessionzeile
     // verschwindet erst, wenn die frische Liste eintrifft. Genau das hier
@@ -2774,10 +2778,32 @@ describe("mountSidebar: die Beenden-Rueckfrage haelt ihre Zusage", () => {
     s.setSessionRecords("h1", bound(3));
     expect(el.querySelector(".session-confirm-kill")).not.toBeNull();
 
+    // Eine Liste, die die Bindung gerade nicht lesen konnte: kein Beleg fuer
+    // eine andere Session, die Frage bleibt.
+    s.setSessionRecords("h1", [{ name: "a", sessionId: 3, serverPid: null, serverStartTime: null }]);
+    expect(el.querySelector(".session-confirm-kill")).not.toBeNull();
+
     // Beendet und gleichnamig neu angelegt, zwischen zwei Listen: Die Frage
     // galt der alten Session, nicht dieser.
     s.setSessionRecords("h1", bound(4));
     expect(el.querySelector(".session-confirm-kill")).toBeNull();
+  });
+
+  it("gibt beim Bestaetigen die Session mit, die die Rueckfrage zeigt", () => {
+    const s = new AppState();
+    s.upsertHost(host("h1"));
+    s.setSessionRecords("h1", [{ name: "a", sessionId: 3, serverPid: 50, serverStartTime: 1000 }]);
+    const h = handlers();
+    const { el } = mount(s, h);
+
+    el.querySelector<HTMLButtonElement>(".session-kill-btn")!.click();
+    el.querySelector<HTMLButtonElement>(".session-confirm-kill .host-confirm-btn-danger")!.click();
+
+    expect(h.onKillSession).toHaveBeenCalledWith("h1", "a", "app", {
+      sessionId: 3,
+      serverPid: 50,
+      serverStartTime: 1000,
+    });
   });
 
   it("beschriftet den fragenden Knopf mit Ellipse, den ausfuehrenden ohne", () => {

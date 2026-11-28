@@ -3854,6 +3854,12 @@ fn the_version_answer_tells_shell_text_from_an_unmeasured_tmux() {
             VersionAnswer::ShellMessages(String::new()),
         ),
         (
+            "tmux 3.4\n",
+            "\n \n",
+            0,
+            VersionAnswer::ShellMessages(String::new()),
+        ),
+        (
             "\ntmux 3.4\n",
             "warn\n",
             0,

@@ -39,6 +39,31 @@ import { createWaitingLane, openOptions } from "./waiting-lane";
 import { t } from "../i18n/t";
 import { isAndroid } from "../platform";
 
+/** Server und Session, die eine Rueckfrage zu "Kill" meint; ohne Bindung
+ * alles `null`, dann bleibt nur der Name. */
+export interface KillTarget {
+  sessionId: number | null;
+  serverPid: number | null;
+  serverStartTime: number | null;
+}
+
+export function killTargetOf(session: Session): KillTarget {
+  return {
+    sessionId: session.sessionId ?? null,
+    serverPid: session.serverPid ?? null,
+    serverStartTime: session.serverStartTime ?? null,
+  };
+}
+
+/** Falsch nur, wenn ein Feld auf beiden Seiten bekannt ist und abweicht.
+ * Eine Liste, die die Bindung einer Zeile gerade nicht lesen konnte, liefert
+ * dort `null`; das spricht nicht fuer eine andere Session. */
+export function maySameSession(a: KillTarget, b: KillTarget): boolean {
+  return (["sessionId", "serverPid", "serverStartTime"] as const).every(
+    (field) => a[field] === null || b[field] === null || a[field] === b[field],
+  );
+}
+
 export interface SidebarOptions {
   /** `secret.passphrase`/`secret.password` sind gesetzt, wenn der Nutzer in
    * der Hinweisleiste eines fehlgeschlagenen Hosts das entsprechende Feld
@@ -64,7 +89,7 @@ export interface SidebarOptions {
    * was darin laeuft. Bewusst NICHT dasselbe wie `onCloseSession`, das
    * ausdruecklich nur die Ansicht schliesst und die Sitzung weiterlaufen
    * laesst. Diese Datei ruft ihn erst nach einer Rueckfrage. */
-  onKillSession: (hostId: string, name: string, socket: SessionSocket) => void;
+  onKillSession: (hostId: string, name: string, socket: SessionSocket, target: KillTarget) => void;
   onAddHost: () => void;
   /** UI v2 §7.2: Zahnrad im Kopf oeffnet den Einstellungsdialog (main.ts). Die
    * Marke im Fuss oeffnet ihn auf About (Spec 2026-11-14 §3). */
@@ -799,17 +824,9 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
   /** Der Sessionschluessel, dessen "Beenden"-Rueckfrage gerade offen steht.
    * Hoechstens eine, aus demselben Grund wie oben. */
   let pendingKillKey: string | null = null;
-  /** Die Kennung der Session, der die offene Rueckfrage gilt
-   * (`killIdentityOf`). Der Schluessel allein ist nur der Name. */
-  let pendingKillIdentity: string | null = null;
-
-  /** Server und Session einer gebundenen Session; ohne Bindung leer, dann
-   * bleibt nur der Name. */
-  function killIdentityOf(session: Session): string {
-    return [session.serverPid, session.serverStartTime, session.sessionId]
-      .map((part) => part ?? "")
-      .join("/");
-  }
+  /** Die Session, der die offene Rueckfrage gilt. Der Schluessel allein ist
+   * nur der Name. */
+  let pendingKillTarget: KillTarget | null = null;
 
   /** Fokussiert ein Element, das eine Sessionaktion sein KANN (UI-v2-Spec,
    * Sichtpruefung 2026-09-07, Punkt A). Der Umweg ist noetig, weil
@@ -1617,7 +1634,7 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
         // Bestaetigungsknopf -- dieselbe Zurueckhaltung wie beim Entfernen
         // eines Hosts.
         pendingKillKey = key;
-        pendingKillIdentity = killIdentityOf(session);
+        pendingKillTarget = killTargetOf(session);
         render();
         focusByKey(focusKey("confirm", key, "cancel"));
       },
@@ -1669,7 +1686,11 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
       onCancel: () => closeKillConfirm(key),
       onConfirm: () => {
         pendingKillKey = null;
-        opts.onKillSession(host.id, session.name, socketOf(session));
+        // Mit der Kennung, die diese Leiste zeigt: Der Nutzer hat DIESE
+        // Session bestaetigt, nicht die, die bis zum Kill unter dem Namen
+        // steht (`killSession` in main.ts kann hinter einer anderen Aenderung
+        // warten).
+        opts.onKillSession(host.id, session.name, socketOf(session), killTargetOf(session));
         // Der Fokus geht gleich auf die HOSTZEILE, nicht auf die Sessionzeile.
         // Die waere zwar im Moment der Rueckkehr noch da -- `onKillSession` ist
         // asynchron --, verschwindet aber, sobald die frische Sessionliste
@@ -2523,12 +2544,14 @@ export function mountSidebar(el: HTMLElement, state: AppState, opts: SidebarOpti
         (h) =>
           h.state === "connected" &&
           h.sessions.some(
-            (s) => sessionKeyOf(s) === pendingKillKey && killIdentityOf(s) === pendingKillIdentity,
+            (s) =>
+              sessionKeyOf(s) === pendingKillKey &&
+              (pendingKillTarget === null || maySameSession(killTargetOf(s), pendingKillTarget)),
           ),
       )
     ) {
       pendingKillKey = null;
-      pendingKillIdentity = null;
+      pendingKillTarget = null;
     }
 
     const active = document.activeElement;

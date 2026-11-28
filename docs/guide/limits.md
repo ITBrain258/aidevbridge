@@ -130,8 +130,8 @@
   right before it creates a session, so a dialog sent before the list has
   loaded creates nothing either. Once the output is removed, reloading the
   sessions lifts the block. With messages on standard error only (for
-  example `stty` without a terminal), or with nothing but empty lines on
-  standard output, sessions are listed by name with the status "Unknown",
+  example `stty` without a terminal), or with nothing but empty lines next
+  to the tmux answer, sessions are listed by name with the status "Unknown",
   and tmux's default socket is not read. While such a host has no session, the sidebar shows the notice
   about the shell instead of an empty list; creating a session and ending
   the last one work, but the app reports them as unconfirmed. Opening a
