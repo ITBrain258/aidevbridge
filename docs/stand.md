@@ -285,6 +285,21 @@ Festlegungen.
   - Abnahmeläufe bekommen einen eigenen UI-Stub.
   - Die Store-Texte werden erzeugt.
 
+## Entscheidung vom 28.11.2026
+
+Nach der Durchsicht vom 28.11. (Punkt 21) hat der Maintainer gewählt: zuerst
+ein kleines 0.3.9, danach Zug 2 (Englisch). Das ändert die Reihenfolge aus E3,
+nicht deren Umfang.
+
+- **Inhalt von 0.3.9:** die Funde mit Effekt für Nutzer aus Punkt 21, mit
+  Tests, die sie festhalten, und die Meldung beim Öffnen, die die Shell als
+  möglichen Grund nennt (zweite Hälfte von Z1.3, Punkt 15). Im Release-PR
+  kommen die Korrektur an `|| true` und der Doku-Filter für `android.yml`
+  dazu.
+- **Nicht in 0.3.9:** die Pakete aus Zug 3. Sie folgen nach Zug 2; ein
+  Paket daraus kommt nur auf ein eigenes Wort des Maintainers früher.
+- Tag und Release entscheidet der Maintainer weiter eigens.
+
 ## Gebaut
 
 | Bereich | Stand |
@@ -605,9 +620,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
    Mac-Kürzel mit ⌘ und, sobald Secrets da sind, ein Lauf mit Developer ID
    und Notarisierung, nach U2.
 10. **Review vom 26.10.:** Offen sind die
-    [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610),
-    U3 (Batch 9; seine neuen Dateien kämen in den Baum `src-tauri/src`
-    beider Auswahlen) und ein etwaiger Widerspruch zu U1, U2 und U5.
+    [Handabnahme §10](abnahme-handarbeit.md#10-änderungen-aus-dem-code-review-vom-2610)
+    und ein etwaiger Widerspruch zu U1, U2 und U5. U3 (Batch 9) ist mit
+    PR #67 erledigt (Entscheidungen vom 23.11., E8).
     `integration_default_socket.rs` braucht einen Testhost mit tmux 3.3a oder
     3.6 für seinen vollen Lauf (der CI-Runner hat tmux 3.4, dort meldet er
     SKIP); auf 3.6 lief er zuletzt am 11.11., auf 3.3a am 25.10. (Letzte
@@ -643,8 +658,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     und das Hochladen des App Bundles von Hand; erst mit einem
     Play-Dienstkonto im Environment `android-release` lädt `android.yml`
     selbst hoch ([Anleitung](android-veroeffentlichung.md)). Das signierte
-    App Bundle von 0.3.7 (versionCode 3007) liegt nur als Artefakt
-    `android-signed` des Laufs 45204306253 vor, bis zum 21.02.2027. Ist es
+    App Bundle von 0.3.8 (versionCode 3008) liegt nur als Artefakt
+    `android-signed` des Laufs 45304643673 vor, bis zum 22.02.2027. Ist es
     abgelaufen, baut ein Lauf von `android.yml` von Hand mit der Eingabe `tag`
     es neu, und mit Dienstkonto lädt derselbe Lauf es hoch; der Job, der das APK
     anhängt, kann dabei rot werden, wenn der Neubau andere Bytes hat, das
@@ -694,8 +709,10 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     - **Tauri v3:** Mit ihm fallen die Übergangsschalter
       `android.builtInKotlin=false` und `android.newDsl=false`. Stand am
       23.11.: `3.0.0-alpha.6`; die Android-Vorlage auf dem Hauptzweig setzt
-      beide weiter auf `false`. Das neueste 2er-Release ist 2.12.6, die App
-      steht auf 2.12.5.
+      beide weiter auf `false`. Das neueste 2er-Release ist am 28.11. 2.12.7,
+      die App steht auf 2.12.5. Keiner der Fixes aus 2.12.6 und 2.12.7 betrifft
+      die App; ein Update bindet alle drei Auswahlen neu und kommt deshalb mit
+      einem anderen.
     - **TypeScript 7:** Der native Compiler hat in 7.0 keine stabile JS-API;
       `src/source-hygiene.test.ts`, `src/ipc.contract.test.ts` und
       `release-license-inventory-frontend.mjs` brauchen `ts.createSourceFile`. Stand am 23.11.: 7.0.2 ist das neueste
@@ -703,8 +720,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       nicht geprüft.
     - **Jackson 2.15.3** in der Android-App, über Tauris Android-Bibliothek:
       15 Meldungen, alle in 2.18.11 behoben und für die App nicht erreichbar
-      ([`SECURITY.md`](../SECURITY.md)). Tauri 2.12.6 und sein Hauptzweig
-      nennen am 23.11. weiter 2.15.3. Ein Gradle-Constraint auf 2.18.11
+      ([`SECURITY.md`](../SECURITY.md)). Tauri 2.12.7 nennt am 28.11. weiter
+      2.15.3. Ein Gradle-Constraint auf 2.18.11
       braucht einen eigenen Pull Request; kein Workflow prüft bisher die
       Android-Bibliotheken auf Meldungen (etwa `app/gradle.lockfile` gegen
       OSV in `audit.yml`).
@@ -771,8 +788,9 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       (Version, Auswahlen, CHANGELOG, Kurzfassung, Store-Texte, Kopf dieser
       Datei, `SECURITY.md`).
     - **Aufbau:** ein typisierter IPC-Vertrag zwischen Rust und TS ohne neue
-      Abhängigkeit, `main.ts` in Controller mit Abbau zerlegen, Batch 9 (U3)
-      und ein gemeinsamer Fehlertyp der Commands.
+      Abhängigkeit, `main.ts` in Controller mit Abbau zerlegen und ein
+      gemeinsamer Fehlertyp der Commands. Batch 9 (U3) ist mit PR #67
+      erledigt.
     - **Plattformen:** Strg+V und Strg+Klick auf dem Mac (mit der
       Mac-Abnahme, Punkt 9), `IdentityAgent` für 1Password und Secretive,
       Linux-Pakete (deb und rpm), Testhosts mit mehreren tmux-Versionen und
@@ -904,8 +922,8 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
       jetzt auf ein ganzes Fenster ohne weiteres Byte. Ob das reicht, zeigen
       erst mehrere Läufe der CI.
     - **Aufbau und Tests:** Die Tests aus `settings.rs` können ohne Änderung
-      nach `settings/tests.rs`. Batch 9 (U3) wie geplant, nicht erweitert,
-      und erst direkt vor der nächsten Arbeit an Hosts oder Inventar. Vom
+      nach `settings/tests.rs`. Batch 9 (U3) lief wie geplant und nicht
+      erweitert, mit PR #67 zu Beginn von Zug 1. Vom
       IPC-Vertrag (Punkt 14) lohnt vorerst nur ein Vertragstest, der die
       Aufrufe des Frontends gegen die Rust-Quellen prüft. Erledigt mit Z1.4:
       `src/ipc.contract.test.ts` liest jeden `invoke(...)` in `src/` und
@@ -999,6 +1017,38 @@ Die Nummern bleiben stabil, weil andere Dokumente sie nennen.
     für alle drei Sprachen (`build-mode: none`), nachdem das Default Setup
     abgeschaltet ist; beides zugleich nimmt GitHub nicht an. Ob der Dialog
     Rust anbietet, ist nur aus GitHubs Doku bekannt.
+21. **Durchsicht vom 28.11.:** nach P1 des Fahrplans nur der Diff seit der
+    Durchsicht vom 17.11. (`12c5a9b` bis `c760eeb`): zwei neutrale Agenten
+    für `src-tauri/` und `src/`, `.github/` und `scripts/` selbst gelesen.
+    Audit grün, keine Meldung von Dependabot oder CodeQL offen, kein schwerer
+    Fehler. Die Funde sind am Code nachgelesen, keiner ist beobachtet.
+    - **Mit Effekt für Nutzer, für 0.3.9 (Entscheidung vom 28.11.):**
+      - Die Sperre für „New session“ (PR #72) lebt nur im Frontend. Wird der
+        Dialog direkt nach dem Verbinden abgeschickt, verwirft die App den
+        Fehler `shell_stdout` der ersten Liste; ein späterer Listenfehler
+        anderer Art hebt die Sperre auf. Jeder Versuch legt dann eine Session
+        an, die erst nach „Reload sessions“ erscheint. Abhilfe: Das Backend
+        prüft selbst, bevor es anlegt.
+      - Eine Shell, die nur Leerzeilen auf die Standardausgabe schreibt,
+        entgeht `shell_stdout`; der Grund an der Liste nennt dann tmux.
+      - Das Beenden der letzten Session gilt unter Last als unbestätigt,
+        weil „server exited unexpectedly“ nicht als „Server weg“ zählt.
+        PR #68 hat dafür nur den Test angepasst.
+      - Die Rückfrage zu „Kill“ erscheint nach einem Neuverbinden von selbst
+        wieder, wenn sie beim Abbruch der Verbindung offen war.
+    - **Latent:** Die Wiederholung des `rename` unter Windows hilft nicht,
+      wenn ein fremder Prozess die Zieldatei auch fürs Lesen sperrt (kein
+      Rückschritt). Die Rückfrage zu „Kill“ folgt einer neueren Session
+      gleichen Namens. Ein Anlegen, das hinter einem „Kill“ wartet, läuft
+      trotz Sperre.
+    - **Testlücken:** der Claude-Grund im Listenpfad auf Befehlsebene; der
+      Code `shell_output`; die Felder der übergebenen Objekte im
+      IPC-Vertragstest (er prüft nur die Argumentnamen); der Ausreißer
+      `a_stalled_session_does_not_take_the_whole_connection_down`.
+    - **Kleinigkeiten:** Claudes Fehlerausgabe geht verloren; der Grund am
+      gesperrten Knopf steht nur im `title` und ist mit Tastatur und
+      Bildschirmleser nicht erreichbar; Hinweis und Banner sagen „retry“ und
+      „reload“ für dasselbe.
 
 Push, Tag und Release entscheidet der Maintainer jeweils eigens.
 
@@ -1057,7 +1107,7 @@ Aus den Specs und ihren Nachträgen; bei Abweichung gilt die Spec.
   weiter.
 - Pläne unter `plans/`: der [Fahrplan vom 23.11.](plans/2026-11-23-fahrplan.md)
   mit den Zügen nach 0.3.6, der [Umsetzungsplan vom 26.10.](plans/2026-10-26-review-umsetzung.md)
-  (Batch 9 wartet auf U3) und der [Android-Plan](plans/2026-10-27-android.md)
+  (Batch 9 erledigt mit PR #67) und der [Android-Plan](plans/2026-10-27-android.md)
   (Abnahme am Gerät, Play). Erledigte Pläne, etwa die Roadmap vom 05.09. und
   der Plan zum Standard-Socket, stehen in der Git-Historie.
 - [Handabnahme](abnahme-handarbeit.md): was nur am echten Fenster prüfbar
